@@ -225,11 +225,10 @@ function buildPopupContent(marker: MapMarker): HTMLElement {
 
   container.appendChild(list);
 
-  const stopPropagation = (e: Event) => e.stopPropagation();
-  list.addEventListener("wheel", stopPropagation, { passive: true });
-  list.addEventListener("touchstart", stopPropagation, { passive: true });
-  list.addEventListener("touchmove", stopPropagation, { passive: true });
-  list.addEventListener("mousedown", stopPropagation);
+  const stopMap = (e: Event) => e.stopImmediatePropagation();
+  for (const evt of ["wheel", "touchstart", "touchmove", "mousedown", "dblclick"]) {
+    container.addEventListener(evt, stopMap, { capture: true, passive: true });
+  }
 
   return container;
 }
