@@ -125,23 +125,16 @@ h1 em { color: var(--coral); font-style: italic; }
 .view-toggle { display: flex; gap: 4px; padding: 4px; border-radius: 8px; background: #e4e9e2; }
 .view-toggle button { min-width: 57px; padding: 7px 11px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-size: 12px; }
 .view-toggle button.active { background: var(--paper); color: var(--ink); box-shadow: 0 2px 5px rgba(18, 60, 61, .1); }
-.map-placeholder { position: relative; min-height: 500px; overflow: hidden; border: 1px solid rgba(18, 60, 61, .1); border-radius: 17px; background: #e9eee7; }
-.map-grid { position: absolute; inset: 0; opacity: .42; background-image: linear-gradient(110deg, transparent 49.7%, rgba(72, 115, 104, .19) 50%, transparent 50.3%), linear-gradient(17deg, transparent 49.7%, rgba(72, 115, 104, .15) 50%, transparent 50.3%); background-size: 190px 150px, 270px 190px; transform: rotate(-8deg) scale(1.2); }
-.map-placeholder::before, .map-placeholder::after { position: absolute; content: ""; border: 1px solid rgba(23, 104, 102, .15); border-radius: 50%; transform: rotate(-20deg); }
-.map-placeholder::before { width: 74%; height: 55%; left: 13%; top: 20%; }
-.map-placeholder::after { width: 54%; height: 46%; left: 22%; top: 27%; border-color: rgba(232, 135, 110, .19); }
-.map-contour { position: absolute; border: 1px solid rgba(86, 123, 107, .3); border-radius: 48%; transform: rotate(32deg); }
-.contour-one { width: 35%; height: 80%; left: -5%; top: 13%; }
-.contour-two { width: 28%; height: 67%; right: 1%; top: -9%; transform: rotate(-35deg); }
-.empty-map-state { position: absolute; top: 50%; left: 50%; width: min(90%, 350px); padding: 29px 24px; border: 1px solid rgba(18, 60, 61, .13); border-radius: 13px; background: rgba(255, 254, 250, .88); text-align: center; transform: translate(-50%, -50%); box-shadow: 0 12px 30px rgba(18, 60, 61, .07); }
-.empty-pin { display: grid; width: 40px; height: 40px; place-items: center; margin: 0 auto 17px; border-radius: 50%; background: var(--coral-soft); }
-.empty-pin .field-icon { width: 18px; height: 18px; margin: 0; stroke: var(--teal-dark); }
+.map-placeholder { position: relative; min-height: 500px; overflow: hidden; border: 1px solid rgba(18, 60, 61, .1); border-radius: 17px; background: #e9eee7; box-shadow: 0 14px 40px rgba(25, 65, 60, .07); }
+.discovery-map { position: absolute; inset: 0; min-height: 100%; }
+.map-status { position: absolute; left: 18px; top: 18px; z-index: 2; max-width: min(76%, 280px); padding: 13px 15px 14px; border: 1px solid rgba(18, 60, 61, .13); border-radius: 10px; background: rgba(255, 254, 250, .9); box-shadow: 0 8px 20px rgba(18, 60, 61, .08); }
 .empty-kicker { margin-bottom: 9px; color: var(--teal); font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-.empty-map-state h3 { margin-bottom: 9px; font-size: 24px; letter-spacing: -.035em; line-height: 1.1; }
-.empty-map-state > p:last-child { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
-.map-caption { position: absolute; right: 22px; bottom: 19px; color: rgba(18, 60, 61, .55); font-family: Georgia, serif; font-size: 12px; font-style: italic; }
-.list-mode .map-grid, .list-mode .map-contour { opacity: .13; }
-.list-mode .empty-map-state { border-color: rgba(232, 135, 110, .5); }
+.map-status p:last-child { margin-bottom: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.map-caption { position: absolute; right: 22px; bottom: 28px; z-index: 2; padding: 7px 10px; border-radius: 99px; background: rgba(255, 254, 250, .82); color: rgba(18, 60, 61, .62); font-family: Georgia, serif; font-size: 12px; font-style: italic; }
+.list-mode .map-status { border-color: rgba(232, 135, 110, .5); }
+.maplibregl-ctrl-attrib { color: rgba(18, 60, 61, .78); font-size: 11px; }
+.maplibregl-ctrl-attrib a { color: var(--teal-dark); }
+.maplibregl-ctrl-group { border-radius: 8px; box-shadow: 0 6px 16px rgba(18, 60, 61, .12); }
 
 .site-footer { display: flex; justify-content: space-between; padding: 37px 0 45px; border-top: 1px solid rgba(18, 60, 61, .14); color: var(--muted); font-size: 12px; }
 .site-footer span:first-child { color: var(--ink); font-weight: 700; }

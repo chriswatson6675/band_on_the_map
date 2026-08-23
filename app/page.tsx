@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DiscoveryMap, type SearchCountry } from "@/components/DiscoveryMap";
 
 const genres = ["Any", "Rock", "Indie", "Alternative", "Electronic", "Jazz", "Folk", "Pop", "Metal"];
 const quickDates = ["Tonight", "This weekend", "Next 7 days", "This month"];
@@ -52,6 +53,7 @@ function ArrowIcon() {
 
 export default function Home() {
   const [view, setView] = useState<"map" | "list">("map");
+  const [country, setCountry] = useState<SearchCountry>("Portugal");
 
   return (
     <main className="site-shell">
@@ -89,7 +91,13 @@ export default function Home() {
               <span className="field-label">Where</span>
               <span className="field-control">
                 <PinIcon />
-                <select defaultValue="Portugal" aria-label="Where">
+                <select
+                  value={country}
+                  aria-label="Where"
+                  onChange={(event) =>
+                    setCountry(event.target.value as SearchCountry)
+                  }
+                >
                   <option>Portugal</option>
                   <option>Croatia</option>
                 </select>
@@ -163,14 +171,10 @@ export default function Home() {
             </div>
           </div>
           <div className={`map-placeholder ${view === "list" ? "list-mode" : ""}`}>
-            <div className="map-grid" aria-hidden="true" />
-            <div className="map-contour contour-one" aria-hidden="true" />
-            <div className="map-contour contour-two" aria-hidden="true" />
-            <div className="empty-map-state">
-              <span className="empty-pin" aria-hidden="true"><PinIcon /></span>
+            <DiscoveryMap country={country} />
+            <div className="map-status" aria-live="polite">
               <p className="empty-kicker">No search yet</p>
-              <h3>Your live music map will appear here</h3>
-              <p>Search Portugal or Croatia by date to explore gigs and festivals.</p>
+              <p>No event data connected yet</p>
             </div>
             <div className="map-caption">A quieter way to find your next night out</div>
           </div>
