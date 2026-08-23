@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { DiscoveryMap, type SearchCountry } from "@/components/DiscoveryMap";
+import { useMemo, useState } from "react";
+import { DiscoveryMap, type MapMarker, type SearchCountry } from "@/components/DiscoveryMap";
+import { getMarkersForCountry } from "@/ingestion/map/projection.mjs";
+import lisbonMapProof from "@/fixtures/map/lisbon-map-proof.json";
+
+// fixtures/map/lisbon-map-proof.json is derived proof data, not a
+// production dataset — see ingestion/map/generate-proof.mjs and
+// docs/OBSERVATION_PIPELINE.md / docs/VENUE_RESOLUTION.md. It currently
+// covers only Portugal (Lisbon); Croatia deliberately has none.
+const PORTUGAL_PROOF_MARKERS = lisbonMapProof.markers as MapMarker[];
 
 const genres = ["Any", "Rock", "Indie", "Alternative", "Electronic", "Jazz", "Folk", "Pop", "Metal"];
 const quickDates = ["Tonight", "This weekend", "Next 7 days", "This month"];
@@ -54,6 +62,15 @@ function ArrowIcon() {
 export default function Home() {
   const [view, setView] = useState<"map" | "list">("map");
   const [country, setCountry] = useState<SearchCountry>("Portugal");
+
+  const visibleMarkers = useMemo(
+    () => getMarkersForCountry(country, PORTUGAL_PROOF_MARKERS) as MapMarker[],
+    [country],
+  );
+  const listingCount = useMemo(
+    () => visibleMarkers.reduce((sum, marker) => sum + marker.listings.length, 0),
+    [visibleMarkers],
+  );
 
   return (
     <main className="site-shell">
@@ -171,10 +188,22 @@ export default function Home() {
             </div>
           </div>
           <div className={`map-placeholder ${view === "list" ? "list-mode" : ""}`}>
-            <DiscoveryMap country={country} />
+            <DiscoveryMap country={country} markers={visibleMarkers} />
             <div className="map-status" aria-live="polite">
-              <p className="empty-kicker">No search yet</p>
-              <p>No event data connected yet</p>
+              {visibleMarkers.length > 0 ? (
+                <>
+                  <p className="empty-kicker">Lisbon proof data</p>
+                  <p>
+                    {listingCount} real source listing{listingCount === 1 ? "" : "s"} at{" "}
+                    {visibleMarkers.length} confirmed venue{visibleMarkers.length === 1 ? "" : "s"}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="empty-kicker">No search yet</p>
+                  <p>No retained proof listings for {country} yet</p>
+                </>
+              )}
             </div>
             <div className="map-caption">A quieter way to find your next night out</div>
           </div>
