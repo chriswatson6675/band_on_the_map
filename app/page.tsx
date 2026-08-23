@@ -1,77 +1,185 @@
-export default function Home() {
+"use client";
+
+import { useState } from "react";
+
+const genres = ["Any", "Rock", "Indie", "Alternative", "Electronic", "Jazz", "Folk", "Pop", "Metal"];
+const quickDates = ["Tonight", "This weekend", "Next 7 days", "This month"];
+
+function PinIcon() {
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-950 sm:px-8 lg:px-12">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-        <header className="space-y-3">
-          <h1 className="text-4xl font-semibold tracking-normal sm:text-5xl">
-            Band on the Map
-          </h1>
-          <p className="text-lg text-slate-700">
-            Find live music where you&apos;re going.
-          </p>
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="field-icon">
+      <path d="M12 21s7-5.4 7-12a7 7 0 1 0-14 0c0 6.6 7 12 7 12Z" />
+      <circle cx="12" cy="9" r="2.3" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="field-icon">
+      <rect x="3.5" y="5" width="17" height="16" rx="2" />
+      <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
+    </svg>
+  );
+}
+
+function MusicIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="field-icon">
+      <path d="M9 18V5l11-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="17" cy="16" r="3" />
+    </svg>
+  );
+}
+
+function TicketIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="field-icon">
+      <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v2a2.5 2.5 0 0 0 0 5v2a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 15.5v-2a2.5 2.5 0 0 0 0-5v-2Z" />
+      <path d="M12 7v2M12 11v2M12 15v2" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="arrow-icon">
+      <path d="M5 12h13M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+export default function Home() {
+  const [view, setView] = useState<"map" | "list">("map");
+
+  return (
+    <main className="site-shell">
+      <div className="page-wrap">
+        <header className="site-header">
+          <a href="#top" className="brand" aria-label="Band on the Map home">
+            <span className="brand-mark" aria-hidden="true">♪</span>
+            <span>Band on the Map</span>
+          </a>
+          <nav className="header-nav" aria-label="Primary navigation">
+            <a href="#discover">Discover</a>
+            <a href="#about">About</a>
+          </nav>
         </header>
 
-        <section
-          aria-label="Search preview"
-          className="grid gap-4 rounded border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-3"
-        >
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
-            Country
-            <select className="h-11 rounded border border-slate-300 bg-white px-3 text-base font-normal text-slate-950">
-              <option>Portugal</option>
-              <option>Croatia</option>
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
-            From date
-            <input
-              type="date"
-              className="h-11 rounded border border-slate-300 bg-white px-3 text-base font-normal text-slate-950"
-            />
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
-            To date
-            <input
-              type="date"
-              className="h-11 rounded border border-slate-300 bg-white px-3 text-base font-normal text-slate-950"
-            />
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
-            Type
-            <select className="h-11 rounded border border-slate-300 bg-white px-3 text-base font-normal text-slate-950">
-              <option>All</option>
-              <option>Gigs</option>
-              <option>Festivals</option>
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
-            Genre
-            <select className="h-11 rounded border border-slate-300 bg-white px-3 text-base font-normal text-slate-950">
-              <option>Any</option>
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
-            Price
-            <select className="h-11 rounded border border-slate-300 bg-white px-3 text-base font-normal text-slate-950">
-              <option>Any</option>
-              <option>Free</option>
-              <option>Under €20</option>
-              <option>Under €50</option>
-            </select>
-          </label>
+        <section className="hero" id="top">
+          <div className="hero-copy">
+            <p className="eyebrow">Music, mapped around you</p>
+            <h1>Where will the <em>sound</em> take you?</h1>
+            <p className="hero-description">Choose a destination and dates, then discover the live music waiting there.</p>
+          </div>
+          <div className="hero-note" aria-hidden="true">
+            <span>Portugal</span>
+            <span>Croatia</span>
+          </div>
         </section>
 
-        <section
-          aria-label="Map placeholder"
-          className="flex min-h-[360px] items-center justify-center rounded border border-dashed border-slate-300 bg-white p-6 text-center text-lg font-medium text-slate-600"
-        >
-          Interactive map coming next
+        <section className="search-panel" aria-labelledby="search-heading">
+          <div className="search-heading">
+            <p className="eyebrow">Start exploring</p>
+            <h2 id="search-heading">Find your next live moment</h2>
+          </div>
+          <form className="search-form" onSubmit={(event) => event.preventDefault()}>
+            <label className="field field-where">
+              <span className="field-label">Where</span>
+              <span className="field-control">
+                <PinIcon />
+                <select defaultValue="Portugal" aria-label="Where">
+                  <option>Portugal</option>
+                  <option>Croatia</option>
+                </select>
+              </span>
+            </label>
+            <label className="field">
+              <span className="field-label">From</span>
+              <span className="field-control">
+                <CalendarIcon />
+                <input type="date" aria-label="From date" />
+              </span>
+            </label>
+            <label className="field">
+              <span className="field-label">To</span>
+              <span className="field-control">
+                <CalendarIcon />
+                <input type="date" aria-label="To date" />
+              </span>
+            </label>
+            <label className="field">
+              <span className="field-label">Type</span>
+              <span className="field-control">
+                <MusicIcon />
+                <select defaultValue="All" aria-label="Event type">
+                  <option>All</option>
+                  <option>Gigs</option>
+                  <option>Festivals</option>
+                </select>
+              </span>
+            </label>
+            <label className="field">
+              <span className="field-label">Genre</span>
+              <span className="field-control">
+                <MusicIcon />
+                <select defaultValue="Any" aria-label="Genre">
+                  {genres.map((genre) => <option key={genre}>{genre}</option>)}
+                </select>
+              </span>
+            </label>
+            <label className="field">
+              <span className="field-label">Price</span>
+              <span className="field-control">
+                <TicketIcon />
+                <select defaultValue="Any" aria-label="Price">
+                  <option>Any</option>
+                  <option>Free</option>
+                  <option>Under €20</option>
+                  <option>Under €50</option>
+                </select>
+              </span>
+            </label>
+            <button className="primary-button" type="submit">
+              Explore music <ArrowIcon />
+            </button>
+          </form>
+          <div className="quick-dates" aria-label="Quick date options">
+            <span className="quick-label">Quick dates</span>
+            {quickDates.map((date) => <button type="button" key={date}>{date}</button>)}
+          </div>
         </section>
+
+        <section className="discovery" id="discover" aria-labelledby="discovery-heading">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Your discovery space</p>
+              <h2 id="discovery-heading">Explore the map</h2>
+            </div>
+            <div className="view-toggle" role="group" aria-label="Discovery view">
+              <button type="button" className={view === "map" ? "active" : ""} onClick={() => setView("map")}>Map</button>
+              <button type="button" className={view === "list" ? "active" : ""} onClick={() => setView("list")}>List</button>
+            </div>
+          </div>
+          <div className={`map-placeholder ${view === "list" ? "list-mode" : ""}`}>
+            <div className="map-grid" aria-hidden="true" />
+            <div className="map-contour contour-one" aria-hidden="true" />
+            <div className="map-contour contour-two" aria-hidden="true" />
+            <div className="empty-map-state">
+              <span className="empty-pin" aria-hidden="true"><PinIcon /></span>
+              <p className="empty-kicker">No search yet</p>
+              <h3>Your live music map will appear here</h3>
+              <p>Search Portugal or Croatia by date to explore gigs and festivals.</p>
+            </div>
+            <div className="map-caption">A quieter way to find your next night out</div>
+          </div>
+        </section>
+
+        <footer className="site-footer" id="about">
+          <span>Band on the Map</span>
+          <span>Live music, wherever you are.</span>
+        </footer>
       </div>
     </main>
   );
