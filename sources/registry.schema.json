@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/chriswatson6675/band_on_the_map/sources/registry.schema.json",
+  "title": "Band on the Map Source Registry Entry",
+  "description": "Canonical, city-agnostic contract for one entry in the Band on the Map source registry. A registry entry describes a candidate or enabled data Source (see docs/ARCHITECTURE.md) prior to, or independent of, live ingestion. Technical monitoring suitability and legal reuse rights are recorded as separate fields, per docs/DATA_RIGHTS.md and docs/SOURCE_REGISTRY.md, and neither field implies the other.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "source_type",
+    "country_code",
+    "city",
+    "source_priority",
+    "scale",
+    "acquisition_method",
+    "monitoring_status",
+    "rights_status",
+    "regular_future_listings",
+    "active_status",
+    "lifecycle_status",
+    "discovered_at",
+    "last_reviewed_at",
+    "research_provenance"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable application identity for this Source, independent of its URL. Never reused for a different real-world Source, even if the entry is later retired.",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable canonical name.",
+      "minLength": 1
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["VENUE", "PROMOTER", "FESTIVAL", "CITY_FEED", "TICKETING", "CULTURAL_CENTRE", "OTHER"]
+    },
+    "country_code": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country code.",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "city": {
+      "type": "string",
+      "minLength": 1
+    },
+    "municipality": {
+      "type": ["string", "null"]
+    },
+    "neighbourhood": {
+      "type": ["string", "null"]
+    },
+    "physical_address": {
+      "type": ["string", "null"],
+      "description": "Only meaningful for physical venues. Null for promoters, feeds, ticketing platforms, and rotating/no-fixed-address festivals."
+    },
+    "official_website": {
+      "type": ["string", "null"],
+      "format": "uri"
+    },
+    "events_url": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "description": "Where this differs from official_website, the more specific page this Source's events/agenda is monitored through."
+    },
+    "source_priority": {
+      "type": "string",
+      "enum": ["P1", "P2", "P3"],
+      "description": "Band on the Map's own priority assessment for this Source, independent of whether it was chosen for a first-wave cohort."
+    },
+    "scale": {
+      "type": "string",
+      "enum": ["SMALL", "MEDIUM", "LARGE", "FESTIVAL", "UNKNOWN"]
+    },
+    "genres": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
+    "acquisition_method": {
+      "type": "string",
+      "enum": [
+        "API_JSON",
+        "RSS",
+        "ICS_CALENDAR",
+        "JSON_LD_EVENT",
+        "EMBEDDED_JSON",
+        "STABLE_EVENT_PAGE",
+        "TICKETING_WIDGET",
+        "SOCIAL_ONLY",
+        "NO_USEFUL_PUBLIC_SCHEDULE",
+        "UNKNOWN"
+      ]
+    },
+    "acquisition_path_detail": {
+      "type": ["string", "null"],
+      "description": "Free-text technical detail beyond the generic acquisition_method enum, e.g. a named, previously-established retrieval path documented elsewhere in the repository (such as AgendaLX's FRONTEND_EVIDENCED_CATEGORY_QUERY path, see docs/sources/AGENDALX.md). This field intentionally does not expand the shared enum with source-specific values."
+    },
+    "monitoring_status": {
+      "type": "string",
+      "enum": [
+        "READY_FOR_TECHNICAL_PROOF",
+        "NEEDS_TECHNICAL_REVIEW",
+        "UNSUITABLE_AUTOMATION",
+        "BLOCKED",
+        "UNKNOWN"
+      ],
+      "description": "Technical suitability for periodic automated monitoring ONLY. Never implies reuse permission; see rights_status."
+    },
+    "rights_status": {
+      "type": "string",
+      "enum": ["GREEN", "AMBER", "RED", "UNKNOWN"],
+      "description": "Preliminary rights class per docs/DATA_RIGHTS.md, reviewed as of last_reviewed_at. AMBER/UNKNOWN must remain unresolved rather than being upgraded on the strength of public accessibility alone. Never implies technical monitoring suitability; see monitoring_status."
+    },
+    "rights_notes": {
+      "type": ["string", "null"]
+    },
+    "rights_evidence_url": {
+      "type": ["array", "null"],
+      "items": { "type": "string", "format": "uri" },
+      "description": "One or more URLs (terms of use, licence page, robots/accessibility statement) supporting rights_status. Null/empty is expected while rights_status is UNKNOWN."
+    },
+    "regular_future_listings": {
+      "type": "string",
+      "enum": ["YES", "NO", "UNCLEAR"]
+    },
+    "active_status": {
+      "type": "string",
+      "enum": ["ACTIVE", "DORMANT", "CLOSED", "UNKNOWN"]
+    },
+    "overlap_notes": {
+      "type": ["string", "null"],
+      "description": "Known overlap with other sources/aggregators for the same real-world events. Recorded for later Event resolution; never used to delete or merge registry entries."
+    },
+    "research_notes": {
+      "type": ["string", "null"],
+      "description": "Short, source-level notes necessary to explain a decision. Not a place for a full research transcript — see research_provenance and docs/SOURCE_REGISTRY.md."
+    },
+    "detailed_source_ref": {
+      "type": ["string", "null"],
+      "description": "Repository path(s) to a more detailed, separately governed source contract for this Source, where one already exists (e.g. \"sources/agendalx.json; docs/sources/AGENDALX.md\"). When present, that governed contract takes precedence over this registry entry's rights_status/acquisition fields if they ever differ."
+    },
+    "lifecycle_status": {
+      "type": "string",
+      "enum": ["DISCOVERED", "TECHNICALLY_REVIEWED", "RIGHTS_REVIEWED", "ENABLED", "PAUSED", "RETIRED"],
+      "description": "Onboarding stage per docs/SOURCE_REGISTRY.md. Scheduling/collectors are out of scope until a Source reaches ENABLED."
+    },
+    "discovered_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "last_reviewed_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "research_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["research_id", "review_date"],
+      "properties": {
+        "research_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the research task/report this entry was seeded or last reassessed from, e.g. \"BOTM-RESEARCH-LISBON-SOURCES-01\". Traceability pointer only — the full research report is not duplicated into this repository."
+        },
+        "review_date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "note": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}
