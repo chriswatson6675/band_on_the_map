@@ -224,6 +224,13 @@ function buildPopupContent(marker: MapMarker): HTMLElement {
   }
 
   container.appendChild(list);
+
+  const stopPropagation = (e: Event) => e.stopPropagation();
+  list.addEventListener("wheel", stopPropagation, { passive: true });
+  list.addEventListener("touchstart", stopPropagation, { passive: true });
+  list.addEventListener("touchmove", stopPropagation, { passive: true });
+  list.addEventListener("mousedown", stopPropagation);
+
   return container;
 }
 
