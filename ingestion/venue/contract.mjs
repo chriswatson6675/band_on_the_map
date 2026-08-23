@@ -13,15 +13,18 @@
 export const LOCATION_STATUSES = new Set(["CONFIRMED", "ADDRESS_ONLY", "UNRESOLVED"]);
 
 /**
- *   CONFIRMED     - address AND coordinates are both evidenced
- *   ADDRESS_ONLY  - a trustworthy address is evidenced, but no
- *                    first-party coordinate evidence was found; this is
- *                    the honest, expected outcome when this project's
- *                    "no bulk third-party geocoding, no guessing" rule
- *                    means a real, correctly-addressed venue still has no
+ *   CONFIRMED     - a non-empty address AND coordinates are both
+ *                    evidenced; validateVenue() requires both
+ *   ADDRESS_ONLY  - a trustworthy, non-empty address is evidenced, but no
+ *                    first-party coordinate evidence was found — latitude
+ *                    and longitude must be null; this is the honest,
+ *                    expected outcome when this project's "no bulk
+ *                    third-party geocoding, no guessing" rule means a
+ *                    real, correctly-addressed venue still has no
  *                    coordinates yet
  *   UNRESOLVED    - neither an address nor coordinates could be
- *                    confidently evidenced; must never carry either
+ *                    confidently evidenced; address, latitude, and
+ *                    longitude must all be null
  */
 
 function slug(value) {
@@ -72,16 +75,18 @@ export function createVenue(fields) {
 
 /**
  * Return an array of validation error strings (empty if valid). Enforces
- * the fail-closed rules this whole module exists for:
+ * the fail-closed rules this whole module exists for — each
+ * location_status has an exact, non-overlapping set of requirements, not
+ * just a loose "coordinates imply CONFIRMED" heuristic:
+ *
  *   - latitude/longitude are either both present or both null, never one
  *     without the other;
  *   - present coordinates must be real, in-range numeric latitude
- *     (-90..90) / longitude (-180..180) values;
- *   - an UNRESOLVED venue must never carry coordinates;
- *   - a CONFIRMED venue must carry coordinates (an evidenced address with
- *     no coordinate evidence is ADDRESS_ONLY, not CONFIRMED);
- *   - any venue that does carry coordinates must cite at least one
- *     evidence entry backing them.
+ *     (-90..90) / longitude (-180..180) values, backed by at least one
+ *     evidence entry;
+ *   - CONFIRMED requires a non-empty address AND coordinates;
+ *   - ADDRESS_ONLY requires a non-empty address AND forbids coordinates;
+ *   - UNRESOLVED forbids both an address and coordinates.
  */
 export function validateVenue(venue) {
   const errors = [];
@@ -92,6 +97,7 @@ export function validateVenue(venue) {
     errors.push(`location_status must be one of ${[...LOCATION_STATUSES].join(", ")}`);
   }
 
+  const hasAddress = typeof venue?.address === "string" && venue.address.trim() !== "";
   const hasLat = venue?.latitude !== null && venue?.latitude !== undefined;
   const hasLng = venue?.longitude !== null && venue?.longitude !== undefined;
 
@@ -106,20 +112,36 @@ export function validateVenue(venue) {
     if (typeof venue.longitude !== "number" || Number.isNaN(venue.longitude) || venue.longitude < -180 || venue.longitude > 180) {
       errors.push("longitude must be a number between -180 and 180");
     }
+    if (!Array.isArray(venue.evidence) || venue.evidence.length === 0) {
+      errors.push("coordinates must be backed by at least one evidence entry");
+    }
   }
 
-  if (venue?.location_status === "UNRESOLVED" && hasLat) {
-    errors.push("an UNRESOLVED venue must not carry coordinates");
-  }
-
-  if (venue?.location_status === "CONFIRMED" && !hasLat) {
-    errors.push(
-      "a CONFIRMED venue must carry coordinates (use ADDRESS_ONLY if only the address is evidenced)",
-    );
-  }
-
-  if (hasLat && (!Array.isArray(venue.evidence) || venue.evidence.length === 0)) {
-    errors.push("coordinates must be backed by at least one evidence entry");
+  if (venue?.location_status === "CONFIRMED") {
+    if (!hasAddress) {
+      errors.push("a CONFIRMED venue must carry a non-empty address");
+    }
+    if (!hasLat || !hasLng) {
+      errors.push(
+        "a CONFIRMED venue must carry coordinates (use ADDRESS_ONLY if only the address is evidenced)",
+      );
+    }
+  } else if (venue?.location_status === "ADDRESS_ONLY") {
+    if (!hasAddress) {
+      errors.push("an ADDRESS_ONLY venue must carry a non-empty address");
+    }
+    if (hasLat || hasLng) {
+      errors.push(
+        "an ADDRESS_ONLY venue must not carry coordinates (use CONFIRMED once coordinates are evidenced)",
+      );
+    }
+  } else if (venue?.location_status === "UNRESOLVED") {
+    if (hasAddress) {
+      errors.push("an UNRESOLVED venue must not carry an address");
+    }
+    if (hasLat || hasLng) {
+      errors.push("an UNRESOLVED venue must not carry coordinates");
+    }
   }
 
   return errors;

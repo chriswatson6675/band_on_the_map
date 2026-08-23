@@ -31,6 +31,7 @@ test("coordinates must be within valid numeric latitude/longitude ranges", () =>
   const base = {
     canonical_name: "Example Venue",
     city: "Lisboa",
+    address: "Example Street 1, Lisboa",
     location_status: "CONFIRMED",
     evidence: [{ url: "https://example.test", note: "evidence" }],
   };
@@ -107,4 +108,123 @@ test("latitude/longitude must both be present or both be null, never just one", 
     evidence: [],
   });
   assert.ok(errors.some((e) => e.includes("both")));
+});
+
+// BOTM-VENUE-01A: location_status invariants are exact and non-overlapping.
+
+test("CONFIRMED with no address is rejected", () => {
+  const errors = validateVenue({
+    venue_id: "venue-lisboa-example",
+    canonical_name: "Example",
+    location_status: "CONFIRMED",
+    address: null,
+    latitude: 38.7,
+    longitude: -9.1,
+    evidence: [{ url: "https://example.test" }],
+  });
+  assert.ok(errors.some((e) => e.includes("CONFIRMED venue must carry a non-empty address")));
+});
+
+test("CONFIRMED with no coordinates is rejected", () => {
+  const errors = validateVenue({
+    venue_id: "venue-lisboa-example",
+    canonical_name: "Example",
+    location_status: "CONFIRMED",
+    address: "Somewhere Real 1",
+    latitude: null,
+    longitude: null,
+    evidence: [],
+  });
+  assert.ok(errors.some((e) => e.includes("CONFIRMED venue must carry coordinates")));
+});
+
+test("ADDRESS_ONLY with coordinates is rejected", () => {
+  const errors = validateVenue({
+    venue_id: "venue-lisboa-example",
+    canonical_name: "Example",
+    location_status: "ADDRESS_ONLY",
+    address: "Somewhere Real 1",
+    latitude: 38.7,
+    longitude: -9.1,
+    evidence: [{ url: "https://example.test" }],
+  });
+  assert.ok(errors.some((e) => e.includes("ADDRESS_ONLY venue must not carry coordinates")));
+});
+
+test("ADDRESS_ONLY with no address is rejected", () => {
+  const errors = validateVenue({
+    venue_id: "venue-lisboa-example",
+    canonical_name: "Example",
+    location_status: "ADDRESS_ONLY",
+    address: null,
+    latitude: null,
+    longitude: null,
+    evidence: [],
+  });
+  assert.ok(errors.some((e) => e.includes("ADDRESS_ONLY venue must carry a non-empty address")));
+});
+
+test("UNRESOLVED with an address is rejected", () => {
+  const errors = validateVenue({
+    venue_id: "venue-lisboa-example",
+    canonical_name: "Example",
+    location_status: "UNRESOLVED",
+    address: "Somewhere Real 1",
+    latitude: null,
+    longitude: null,
+    evidence: [],
+  });
+  assert.ok(errors.some((e) => e.includes("UNRESOLVED venue must not carry an address")));
+});
+
+test("UNRESOLVED with coordinates is rejected", () => {
+  const errors = validateVenue({
+    venue_id: "venue-lisboa-example",
+    canonical_name: "Example",
+    location_status: "UNRESOLVED",
+    address: null,
+    latitude: 38.7,
+    longitude: -9.1,
+    evidence: [{ url: "https://example.test" }],
+  });
+  assert.ok(errors.some((e) => e.includes("UNRESOLVED venue must not carry coordinates")));
+});
+
+test("a well-formed CONFIRMED, ADDRESS_ONLY, and UNRESOLVED venue each validate successfully", () => {
+  assert.deepEqual(
+    validateVenue({
+      venue_id: "venue-lisboa-example-confirmed",
+      canonical_name: "Example Confirmed",
+      location_status: "CONFIRMED",
+      address: "Somewhere Real 1",
+      latitude: 38.7,
+      longitude: -9.1,
+      evidence: [{ url: "https://example.test" }],
+    }),
+    [],
+  );
+  assert.deepEqual(
+    validateVenue({
+      venue_id: "venue-lisboa-example-address-only",
+      canonical_name: "Example Address Only",
+      location_status: "ADDRESS_ONLY",
+      address: "Somewhere Real 2",
+      latitude: null,
+      longitude: null,
+      evidence: [],
+    }),
+    [],
+  );
+  assert.deepEqual(
+    validateVenue({
+      venue_id: "venue-lisboa-example-unresolved",
+      canonical_name: "Example Unresolved",
+      location_status: "UNRESOLVED",
+      address: null,
+      latitude: null,
+      longitude: null,
+      evidence: [],
+    }),
+    [],
+  );
 });
