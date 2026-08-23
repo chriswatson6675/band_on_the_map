@@ -154,6 +154,17 @@ function buildPopupContent(marker: MapMarker): HTMLElement {
     header.appendChild(address);
   }
 
+  const sourceLink = marker.listings.find((l) => l.event_url)?.event_url;
+  if (sourceLink) {
+    const link = document.createElement("a");
+    link.href = sourceLink;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.className = "venue-popup-source-link";
+    link.textContent = "View source ↗";
+    header.appendChild(link);
+  }
+
   container.appendChild(header);
 
   const proofBadge = document.createElement("p");
@@ -209,16 +220,6 @@ function buildPopupContent(marker: MapMarker): HTMLElement {
     sourceEl.className = "venue-popup-listing-source";
     sourceEl.textContent = listing.source_name ?? listing.source_id;
     item.appendChild(sourceEl);
-
-    if (listing.event_url) {
-      const link = document.createElement("a");
-      link.href = listing.event_url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.className = "venue-popup-listing-link";
-      link.textContent = "View source page";
-      item.appendChild(link);
-    }
 
     list.appendChild(item);
   }
@@ -317,9 +318,10 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     const instances = markers.map((marker) => {
       const popup = new Popup({
         offset: 34,
-        maxWidth: "320px",
+        maxWidth: "340px",
         closeButton: true,
         closeOnClick: true,
+        anchor: "bottom",
         className: "botm-popup",
       }).setDOMContent(buildPopupContent(marker));
 
