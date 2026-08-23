@@ -11,7 +11,7 @@ import {
 } from "maplibre-gl";
 
 setWorkerUrl(
-  new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString(),
+  "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
 );
 
 export type SearchCountry = "Portugal" | "Croatia";
