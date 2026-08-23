@@ -74,6 +74,62 @@ test("emptyDateTime defaults every field to null/UNKNOWN rather than a guessed v
   });
 });
 
+test("emptyRawEvidence defaults byte_faithful to false, never null — there is no unknown state", () => {
+  assert.deepEqual(emptyRawEvidence(), {
+    fixture_path: null,
+    evidence_kind: null,
+    content_type: null,
+    byte_faithful: false,
+  });
+});
+
+test("createObservation with no supplied evidence gets raw_evidence.byte_faithful === false", () => {
+  const observation = createObservation({
+    source_id: "example-source",
+    source_record_id: "123",
+    retrieved_at: "2026-01-01T00:00:00Z",
+  });
+  assert.equal(observation.raw_evidence.byte_faithful, false);
+  assert.notEqual(observation.raw_evidence.byte_faithful, null);
+});
+
+test("validateObservation rejects raw_evidence.byte_faithful: null", () => {
+  const errors = validateObservation({
+    source_id: "x",
+    source_record_id: "1",
+    retrieved_at: "2026-01-01T00:00:00Z",
+    raw_evidence: { fixture_path: null, evidence_kind: null, content_type: null, byte_faithful: null },
+  });
+  assert.ok(errors.some((e) => e.includes("byte_faithful")));
+});
+
+test("validateObservation rejects non-boolean byte_faithful values", () => {
+  for (const badValue of ["true", 1, 0, "false", undefined]) {
+    const errors = validateObservation({
+      source_id: "x",
+      source_record_id: "1",
+      retrieved_at: "2026-01-01T00:00:00Z",
+      raw_evidence: { fixture_path: null, evidence_kind: null, content_type: null, byte_faithful: badValue },
+    });
+    assert.ok(
+      errors.some((e) => e.includes("byte_faithful")),
+      `byte_faithful: ${JSON.stringify(badValue)} should be rejected`,
+    );
+  }
+});
+
+test("validateObservation accepts raw_evidence.byte_faithful: true or false", () => {
+  for (const goodValue of [true, false]) {
+    const errors = validateObservation({
+      source_id: "x",
+      source_record_id: "1",
+      retrieved_at: "2026-01-01T00:00:00Z",
+      raw_evidence: { fixture_path: null, evidence_kind: null, content_type: null, byte_faithful: goodValue },
+    });
+    assert.equal(errors.length, 0);
+  }
+});
+
 test("two calls with identical input produce deep-equal Observations (deterministic)", () => {
   const build = () =>
     createObservation({

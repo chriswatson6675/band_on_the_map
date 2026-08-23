@@ -51,14 +51,15 @@ export function emptyDateTime() {
  *   content_type   - the retained content type, if known
  *   byte_faithful  - true only if fixture_path is proven byte-identical to
  *                     the original response; false when it is not, or when
- *                     that has not been established — never left ambiguous
+ *                     that has not been established — always a boolean,
+ *                     never null/undefined; there is no third/unknown state
  */
 export function emptyRawEvidence() {
   return {
     fixture_path: null,
     evidence_kind: null,
     content_type: null,
-    byte_faithful: null,
+    byte_faithful: false,
   };
 }
 
@@ -122,6 +123,10 @@ export function validateObservation(observation) {
 
   if (observation?.source_record_id != null && typeof observation.source_record_id !== "string") {
     errors.push("source_record_id must be a string when present");
+  }
+
+  if (observation?.raw_evidence != null && typeof observation.raw_evidence.byte_faithful !== "boolean") {
+    errors.push("raw_evidence.byte_faithful must be a boolean (true or false), never null/unknown");
   }
 
   return errors;
