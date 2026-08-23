@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Band on the Map",
-  description: "Find live music where you're going.",
+  description: "Discover live music across Portugal and Croatia.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
