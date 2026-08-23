@@ -8,6 +8,7 @@ import {
   setWorkerUrl,
   type LngLatBoundsLike,
 } from "maplibre-gl";
+import { hasMaterialConflict } from "@/ingestion/association/compare-facts.mjs";
 
 setWorkerUrl(
   "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
@@ -59,6 +60,50 @@ export type MapListing = {
   event_url: string | null;
 };
 
+// A source reference inside a GROUP display listing — the same source
+// facts as MapListing minus start/end, since a group carries one shared
+// start/end (see GroupDisplayListing below).
+export type DisplayListingSourceRef = {
+  source_id: string;
+  source_record_id: string;
+  source_name: string | null;
+  title: string | null;
+  event_url: string | null;
+};
+
+export type FactComparisonField = { agree: boolean; values: [unknown, unknown] };
+
+// Per-field comparison between two associated sources' own facts. Never a
+// resolved/merged fact — see ingestion/association/compare-facts.mjs.
+export type FactComparison = {
+  sources: [string, string];
+  title: FactComparisonField;
+  date: FactComparisonField;
+  start_time_raw: FactComparisonField;
+  venue_text: FactComparisonField;
+  price_text: FactComparisonField;
+};
+
+export type SingleDisplayListing = { kind: "SINGLE" } & MapListing;
+
+// One real-world gig observed by more than one source (e.g. Hot Clube de
+// Portugal's programme record and Capitólio's own venue-page record),
+// evidence-backed associated for display only — see
+// ingestion/association/hot-clube-capitolio.mjs and
+// ingestion/map/group-associated-listings.mjs. Neither underlying source
+// record is merged, discarded, or hidden: every source's own title and
+// event_url remain independently available in `sources`.
+export type GroupDisplayListing = {
+  kind: "GROUP";
+  display_title: string | null;
+  start: ListingDateTime;
+  end: ListingDateTime;
+  sources: DisplayListingSourceRef[];
+  fact_comparison: FactComparison;
+};
+
+export type DisplayListing = SingleDisplayListing | GroupDisplayListing;
+
 export type MapMarker = {
   venue_id: string;
   canonical_name: string;
@@ -66,6 +111,7 @@ export type MapMarker = {
   longitude: number;
   address: string | null;
   listings: MapListing[];
+  display_listings?: DisplayListing[];
 };
 
 type DiscoveryMapProps = {
@@ -132,14 +178,82 @@ function createMarkerElement(): HTMLElement {
 }
 
 // Note: there is deliberately no venue-level "View source" link here.
-// Six listings can share one venue but each comes from its own source
-// record with its own (possibly absent) event_url — a single link at the
-// venue level would misleadingly imply one URL applies to all of them.
-// Each listing renders its own link independently, only when its own
-// event_url is genuinely non-null (see
-// ingestion/hot-clube/observation-adapter.mjs and
+// Multiple listings can share one venue but each comes from its own
+// source record with its own (possibly absent) event_url — a single link
+// at the venue level would misleadingly imply one URL applies to all of
+// them. Each listing (and, within a GROUP, each of its sources) renders
+// its own link independently, only when its own event_url is genuinely
+// non-null (see ingestion/hot-clube/observation-adapter.mjs,
+// ingestion/capitolio/observation-adapter.mjs, and
 // docs/sources/HOT_CLUBE.md's "Individual Event Permalinks").
+//
+// display_listings (BOTM-MULTISOURCE-LINKS-01) falls back to the raw
+// per-Observation `listings`, each wrapped as its own SINGLE entry, for
+// any marker that doesn't carry the newer grouped field — no data is
+// lost by an older/simpler proof payload.
+function toDisplayListings(marker: MapMarker): DisplayListing[] {
+  if (marker.display_listings) return marker.display_listings;
+  return marker.listings.map((listing) => ({ kind: "SINGLE" as const, ...listing }));
+}
+
+function SingleListing({ listing }: { listing: SingleDisplayListing }) {
+  const dateLabel = formatDateLabel(listing.start);
+  const timeLabel = formatTimeLabel(listing.start);
+  return (
+    <div className="venue-panel-listing">
+      <p className="venue-panel-listing-title">{listing.title ?? "(untitled listing)"}</p>
+      <div className="venue-panel-listing-meta">
+        {dateLabel && <span className="venue-panel-listing-date">{dateLabel}</span>}
+        {timeLabel && <span className="venue-panel-listing-time">{timeLabel}</span>}
+        {!dateLabel && !timeLabel && listing.start.raw && (
+          <span className="venue-panel-listing-date">{listing.start.raw}</span>
+        )}
+      </div>
+      <p className="venue-panel-listing-source">{listing.source_name ?? listing.source_id}</p>
+      {listing.event_url && (
+        <a href={listing.event_url} target="_blank" rel="noopener noreferrer" className="venue-panel-listing-link">
+          View event →
+        </a>
+      )}
+    </div>
+  );
+}
+
+function GroupListing({ listing }: { listing: GroupDisplayListing }) {
+  const dateLabel = formatDateLabel(listing.start);
+  const timeLabel = formatTimeLabel(listing.start);
+  return (
+    <div className="venue-panel-listing venue-panel-listing-group">
+      <p className="venue-panel-listing-title">{listing.display_title ?? "(untitled listing)"}</p>
+      <div className="venue-panel-listing-meta">
+        {dateLabel && <span className="venue-panel-listing-date">{dateLabel}</span>}
+        {timeLabel && <span className="venue-panel-listing-time">{timeLabel}</span>}
+        {!dateLabel && !timeLabel && listing.start.raw && (
+          <span className="venue-panel-listing-date">{listing.start.raw}</span>
+        )}
+      </div>
+      <p className="venue-panel-listing-sources-heading">Sources</p>
+      <ul className="venue-panel-listing-sources">
+        {listing.sources.map((source, i) => (
+          <li key={i} className="venue-panel-listing-source-ref">
+            <span className="venue-panel-listing-source">{source.source_name ?? source.source_id}</span>
+            {source.event_url && (
+              <a href={source.event_url} target="_blank" rel="noopener noreferrer" className="venue-panel-listing-link">
+                View event →
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+      {hasMaterialConflict(listing.fact_comparison) && (
+        <p className="venue-panel-listing-sources-differ">Sources differ</p>
+      )}
+    </div>
+  );
+}
+
 function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => void }) {
+  const displayListings = toDisplayListings(marker);
   return (
     <div className="venue-panel" role="dialog" aria-label={marker.canonical_name}>
       <button className="venue-panel-close" onClick={onClose} aria-label="Close" type="button">×</button>
@@ -149,36 +263,16 @@ function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => voi
       </div>
       <p className="venue-panel-proof-badge">Proof data · source listings, not confirmed events</p>
       <p className="venue-panel-listings-heading">
-        {marker.listings.length} source listing{marker.listings.length === 1 ? "" : "s"}
+        {displayListings.length} listing{displayListings.length === 1 ? "" : "s"}
       </p>
       <div className="venue-panel-listings">
-        {marker.listings.map((listing, i) => {
-          const dateLabel = formatDateLabel(listing.start);
-          const timeLabel = formatTimeLabel(listing.start);
-          return (
-            <div className="venue-panel-listing" key={i}>
-              <p className="venue-panel-listing-title">{listing.title ?? "(untitled listing)"}</p>
-              <div className="venue-panel-listing-meta">
-                {dateLabel && <span className="venue-panel-listing-date">{dateLabel}</span>}
-                {timeLabel && <span className="venue-panel-listing-time">{timeLabel}</span>}
-                {!dateLabel && !timeLabel && listing.start.raw && (
-                  <span className="venue-panel-listing-date">{listing.start.raw}</span>
-                )}
-              </div>
-              <p className="venue-panel-listing-source">{listing.source_name ?? listing.source_id}</p>
-              {listing.event_url && (
-                <a
-                  href={listing.event_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="venue-panel-listing-link"
-                >
-                  View event →
-                </a>
-              )}
-            </div>
-          );
-        })}
+        {displayListings.map((listing, i) =>
+          listing.kind === "GROUP" ? (
+            <GroupListing key={i} listing={listing} />
+          ) : (
+            <SingleListing key={i} listing={listing} />
+          ),
+        )}
       </div>
     </div>
   );

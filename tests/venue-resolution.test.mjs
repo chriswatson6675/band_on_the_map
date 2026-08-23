@@ -4,11 +4,13 @@ import test from "node:test";
 import { createVenueId, validateVenue } from "../ingestion/venue/contract.mjs";
 import {
   resolveAgendalxObservation,
+  resolveCapitolioObservation,
   resolveHotClubeObservation,
   resolveObservation,
 } from "../ingestion/venue/resolver.mjs";
 import { toObservations as agendalxToObservations } from "../ingestion/agendalx/observation-adapter.mjs";
 import { toObservations as hotClubeToObservations } from "../ingestion/hot-clube/observation-adapter.mjs";
+import { toObservations as capitolioToObservations } from "../ingestion/capitolio/observation-adapter.mjs";
 
 const REGISTRY_PATH = new URL("../venues/lisbon.json", import.meta.url);
 const EVENTS_DIR = new URL("../fixtures/hot-clube/events/", import.meta.url);
@@ -140,6 +142,43 @@ test("Capitólio from both AgendaLX and Hot Clube resolves to the SAME canonical
     assert.equal(result.resolution_status, "RESOLVED");
     assert.equal(result.venue_id, agendalxResult.venue_id);
   }
+});
+
+test("Capitólio resolver mapping is explicit: both retained location_text variants resolve to the SAME canonical venue as AgendaLX/Hot Clube", async () => {
+  const fixture = JSON.parse(
+    await readFile(new URL("../fixtures/capitolio/events.json", import.meta.url), "utf8"),
+  );
+  const capitolioObs = capitolioToObservations(fixture);
+  assert.equal(capitolioObs.length, 5);
+
+  for (const observation of capitolioObs) {
+    const result = resolveCapitolioObservation(observation);
+    assert.equal(result.resolution_status, "RESOLVED");
+    assert.equal(result.venue_id, "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado");
+  }
+
+  // Sanity: the weather-note variant (Marta Garrett) is a genuinely
+  // different exact string, still explicitly mapped, not fuzzy-matched.
+  const martaGarrett = capitolioObs.find((o) => o.source_record_id === "2913");
+  assert.match(martaGarrett.location_text, /meteorológicas/);
+  assert.equal(resolveCapitolioObservation(martaGarrett).resolution_status, "RESOLVED");
+});
+
+test("Capitólio resolver never guesses: an unmapped location_text is UNRESOLVED", () => {
+  const result = resolveCapitolioObservation({
+    source_id: "teatro-variedades-capitolio",
+    location_text: "Somewhere Nobody Verified",
+  });
+  assert.equal(result.resolution_status, "UNRESOLVED");
+  assert.equal(result.venue_id, null);
+});
+
+test("resolveObservation dispatches Capitólio Observations to resolveCapitolioObservation", async () => {
+  const fixture = JSON.parse(
+    await readFile(new URL("../fixtures/capitolio/events.json", import.meta.url), "utf8"),
+  );
+  const [first] = capitolioToObservations(fixture);
+  assert.deepEqual(resolveObservation(first), resolveCapitolioObservation(first));
 });
 
 test("unknown/ambiguous venue text returns UNRESOLVED, never a fuzzy guess", async () => {

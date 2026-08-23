@@ -45,6 +45,21 @@ const HOT_CLUBE_LOCATION_TEXT_TO_CANONICAL = {
   "Cineteatro Capitólio Parque Mayer": "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
 };
 
+// Teatro Variedades & Capitólio (BOTM-MULTISOURCE-LINKS-01): the venue's
+// own event pages describe their sub-location as "Terraço do Capitólio"
+// (the venue's rooftop terrace) — a different exact string from Hot
+// Clube's "Cineteatro Capitólio Parque Mayer", but the same real building
+// this source's own official_website belongs to, so both retained exact
+// strings map to the SAME canonical venue_id. One retained record (Marta
+// Garrett) carries an additional weather-driven room-change note in the
+// same field; that exact string is mapped too rather than silently
+// normalised away.
+const CAPITOLIO_LOCATION_TEXT_TO_CANONICAL = {
+  "Terraço do Capitólio": "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
+  "Terraço do Capitólio (por razões meteorológicas, o concerto acontece na sala do Capitólio)":
+    "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
+};
+
 function resolved(venueId, method) {
   return { venue_id: venueId, resolution_status: "RESOLVED", resolution_method: method };
 }
@@ -71,6 +86,15 @@ export function resolveHotClubeObservation(observation) {
   return unresolved("NO_EXPLICIT_HOTCLUBE_LOCATION_TEXT_MAPPING");
 }
 
+export function resolveCapitolioObservation(observation) {
+  const locationText = observation?.location_text;
+  const canonicalId = locationText ? CAPITOLIO_LOCATION_TEXT_TO_CANONICAL[locationText] : undefined;
+  if (canonicalId) {
+    return resolved(canonicalId, "CAPITOLIO_EXPLICIT_LOCATION_TEXT_MAPPING");
+  }
+  return unresolved("NO_EXPLICIT_CAPITOLIO_LOCATION_TEXT_MAPPING");
+}
+
 /**
  * Dispatch on Observation.source_id to the right explicit resolver. A
  * source with no resolver defined here is always UNRESOLVED, never
@@ -82,6 +106,9 @@ export function resolveObservation(observation) {
   }
   if (observation?.source_id === "hot-clube-de-portugal") {
     return resolveHotClubeObservation(observation);
+  }
+  if (observation?.source_id === "teatro-variedades-capitolio") {
+    return resolveCapitolioObservation(observation);
   }
   return unresolved("NO_RESOLVER_FOR_SOURCE");
 }

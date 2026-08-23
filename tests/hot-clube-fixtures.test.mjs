@@ -187,9 +187,9 @@ test("the registry's hot-clube-de-portugal entry reflects the proven technical p
   assert.equal(entry.acquisition_method, "ICS_CALENDAR", "acquisition_method must not change in this task");
 });
 
-test("sources/lisbon.json still contains exactly 25 entries after this proof", async () => {
+test("sources/lisbon.json contains 26 entries (the original 25 plus BOTM-MULTISOURCE-LINKS-01's later Capitólio addition)", async () => {
   const registry = JSON.parse(
     await readFile(new URL("../sources/lisbon.json", import.meta.url), "utf8"),
   );
-  assert.equal(registry.entries.length, 25);
+  assert.equal(registry.entries.length, 26);
 });

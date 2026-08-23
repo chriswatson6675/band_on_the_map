@@ -23,7 +23,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { toObservations as agendalxToObservations } from "../agendalx/observation-adapter.mjs";
 import { toObservations as hotClubeToObservations } from "../hot-clube/observation-adapter.mjs";
-import { projectObservationsToMapMarkers } from "./projection.mjs";
+import { toObservations as capitolioToObservations } from "../capitolio/observation-adapter.mjs";
+import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
+import { projectObservationsToDisplayMarkers } from "./group-associated-listings.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUTPUT_PATH = resolve(ROOT, "fixtures/map/lisbon-map-proof.json");
@@ -60,6 +62,11 @@ async function loadHotClubeObservations() {
   return hotClubeToObservations(entries, metadata, eventLinks);
 }
 
+async function loadCapitolioObservations() {
+  const fixture = JSON.parse(await readFile(resolve(ROOT, "fixtures/capitolio/events.json"), "utf8"));
+  return capitolioToObservations(fixture);
+}
+
 /**
  * Rebuild the full derived proof object from the committed pipeline. Used
  * both by this script (to write fixtures/map/lisbon-map-proof.json) and
@@ -67,32 +74,38 @@ async function loadHotClubeObservations() {
  * hand-edited/drifted from it).
  */
 export async function buildLisbonMapProof() {
-  const [agendalxObs, hotClubeObs] = await Promise.all([
+  const [agendalxObs, hotClubeObs, capitolioObs] = await Promise.all([
     loadAgendalxObservations(),
     loadHotClubeObservations(),
+    loadCapitolioObservations(),
   ]);
-  const observations = [...agendalxObs, ...hotClubeObs];
+  const observations = [...agendalxObs, ...hotClubeObs, ...capitolioObs];
+  const associations = associateHotClubeCapitolio(hotClubeObs, capitolioObs);
 
   const venueRegistry = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
   const sourceRegistry = JSON.parse(await readFile(resolve(ROOT, "sources/lisbon.json"), "utf8"));
 
-  const markers = projectObservationsToMapMarkers(observations, {
+  const markers = projectObservationsToDisplayMarkers(observations, {
     venues: venueRegistry.venues,
     sourceRegistry: sourceRegistry.entries,
+    associations,
   });
 
   return {
-    label: "BOTM-MAP-EVENTS-01 derived proof data — NOT a production dataset",
+    label: "BOTM-MULTISOURCE-LINKS-01 derived proof data — NOT a production dataset",
     note:
-      "Generated entirely from this repository's committed, retained Observation + Venue-resolution pipeline (see ingestion/map/generate-proof.mjs). No live network requests were made to produce it. Regenerate with: node ingestion/map/generate-proof.mjs",
+      "Generated entirely from this repository's committed, retained Observation + Venue-resolution + cross-source-association pipeline (see ingestion/map/generate-proof.mjs). No live network requests were made to produce it. Regenerate with: node ingestion/map/generate-proof.mjs",
     generated_from: [
       "fixtures/agendalx/music-sample.json",
       "fixtures/hot-clube/events/*.ics",
       "fixtures/hot-clube/metadata.json",
       "fixtures/hot-clube/discovery/homepage-event-links.json",
+      "fixtures/capitolio/events.json",
       "venues/lisbon.json",
       "sources/lisbon.json",
     ],
+    total_underlying_observations: observations.length,
+    associated_pair_count: associations.filter((a) => a.association_status === "ASSOCIATED").length,
     markers,
   };
 }
