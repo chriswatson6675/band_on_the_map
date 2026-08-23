@@ -85,9 +85,56 @@ Fields not observed in the retained sample:
 - published or updated timestamp
 - artist/performer field
 
+## Website Music Data Path
+
+Status: `FRONTEND_EVIDENCED_CATEGORY_QUERY`
+
+The public AgendaLX website currently exposes a music category/search experience at:
+
+- `https://www.agendalx.pt/?categories=musica&s=&type=event&archive=m%C3%BAsica`
+
+The page is backed by first-party AgendaLX HTML and JavaScript rather than a separate third-party search service. The page embeds:
+
+- `agendalx_app.rest_root`: `https://www.agendalx.pt/wp-json/`
+- `agendalx_app.per_page`: `10`
+
+The first-party app bundle configures REST namespaces:
+
+- default WordPress namespace: `wp/v2/`
+- AgendaLX namespace: `agendalx/v1/`
+
+For event pagination/result loading, the bundle dispatches `R3WP_GET` to endpoint `events` in namespace `agendalx` with parameters including:
+
+- `search`
+- `page`
+- `per_page`
+- `categories`
+- `tags`
+- `venues`
+- `time`
+- `type`
+
+The music category page therefore uses the same machine-readable route as the open-data proof, but with a frontend-evidenced category parameter:
+
+- `https://www.agendalx.pt/wp-json/agendalx/v1/events?search=&page=1&per_page=10&categories=musica&tags=&venues=&time=&type=event`
+
+The companion frontend count request is:
+
+- `https://www.agendalx.pt/wp-json/agendalx/v1/items-count?search=&page=1&per_page=10&categories=musica&tags=&venues=&time=&type=event`
+
+At review time, the count request reported:
+
+- music events: `77`
+- posts: `245`
+- courses: `0`
+
+Page 1 and page 2 of the music event query returned distinct JSON result sets. The retained fixture stores 10 page-1 records in `fixtures/agendalx/music-sample.json`, with classification evidence stored separately from raw source records.
+
+The prior default `/events` probe did not prove music retrieval because it did not follow the website's frontend-evidenced `categories=musica` query path. The REST route index advertises only `wpml_language`, so `categories`, `page`, `per_page`, and related parameters are currently an observed website contract rather than a formally documented REST schema.
+
 ## Music Classification Proof
 
-The parser supports deterministic music classification by exact normalized values in source category/tag fields:
+Music retrieval is proven by the website's category query and deterministic classification from explicit source taxonomy fields:
 
 - `subject`
 - `categories_name_list.*.name`
@@ -95,15 +142,28 @@ The parser supports deterministic music classification by exact normalized value
 - `tags_name_list.*.name`
 - `tags_name_list.*.slug`
 
-Supported values in the proof helper currently include `música`, `musica`, `music`, `concerto`, `concertos`, `concert`, `festival`, and `festivais`.
+The successful music query returned records whose source taxonomy includes exact values such as:
 
-However, the single permitted live probe retained 10 default endpoint records and found:
+- `subject`: `música`
+- `categories_name_list.musica.name`: `música`
+- `categories_name_list.musica.slug`: `musica`
 
-- total sample records: `10`
-- music-classifiable records in fixture: `0`
-- observed sample subjects: mostly `artes`, plus `ciências`
+Examples retained in the fixture include:
 
-Therefore this task proves that deterministic classification is technically possible from the observed source fields, but it does not prove current live music selection or coverage. A follow-up task must verify official query parameters or official CKAN/DataStore access that can retrieve music records without broad scraping or repeated probing.
+- `241259` - `Fado na Rua`
+- `241429` - `Há Jazz no Parque Mayer!`
+- `241538` - `Graça com Fado`
+- `240378` - `Sunset Sessions`
+- `240130` - `Sardinhas com Bigodes`
+- `230515` - `MEO Kalorama`
+- `241782` - `Avenidas Hot Jazz`
+- `242166` - `Julia Piedade`
+- `240454` - `Bees & Honey`
+- `241833` - `Soma Please`
+
+This proves that AgendaLX can currently provide machine-readable music records through its first-party frontend data path. It does not prove complete Lisbon live-music coverage.
+
+Rights status for this frontend-evidenced path is `AMBER` until confirmed against the declared Lisboa Aberta dataset terms. It is clearly first-party AgendaLX/Câmara Municipal de Lisboa infrastructure and uses the same `agendalx/v1` namespace, but the `categories` query contract was discovered from website code rather than the REST route schema or Lisboa Aberta dataset documentation.
 
 ## Venue, Location, And Coordinates
 
@@ -141,8 +201,8 @@ Source-specific IDs such as AgendaLX `id` and venue IDs must never become the ap
 
 ## Open Gaps Before Persistent Ingestion
 
-- The default live endpoint response did not include music records.
-- Official query parameters for selecting music records were not verified in this task.
+- The route index does not formally document the frontend query parameters used for category/search filtering.
+- The frontend-evidenced music query should be treated as AMBER until the rights applicability of the website query path is confirmed against the declared Lisboa Aberta dataset terms.
 - Lisboa Aberta CKAN/DataStore access returned Cloudflare HTML from the Node probe environment, despite official metadata/search snippets indicating a CKAN Data API resource.
 - No venue coordinates or addresses were present in the retained fixture.
 - No updated/published timestamp was present in the retained fixture.
