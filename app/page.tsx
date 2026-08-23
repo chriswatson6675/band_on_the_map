@@ -189,19 +189,19 @@ export default function Home() {
           </div>
           <div className={`map-placeholder ${view === "list" ? "list-mode" : ""}`}>
             <DiscoveryMap country={country} markers={visibleMarkers} />
-            <div className="map-status" aria-live="polite">
+            <div className={`map-status ${visibleMarkers.length > 0 ? "" : "is-empty"}`} aria-live="polite">
               {visibleMarkers.length > 0 ? (
                 <>
-                  <p className="empty-kicker">Lisbon proof data</p>
+                  <p className="empty-kicker">Live music in {country}</p>
                   <p>
-                    {listingCount} real source listing{listingCount === 1 ? "" : "s"} at{" "}
-                    {visibleMarkers.length} confirmed venue{visibleMarkers.length === 1 ? "" : "s"}
+                    {listingCount} real source listing{listingCount === 1 ? "" : "s"} across{" "}
+                    {visibleMarkers.length} venue{visibleMarkers.length === 1 ? "" : "s"}
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="empty-kicker">No search yet</p>
-                  <p>No retained proof listings for {country} yet</p>
+                  <p className="empty-kicker">{country}</p>
+                  <p>No listings here yet — we're still gathering source data for {country}.</p>
                 </>
               )}
             </div>

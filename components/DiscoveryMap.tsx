@@ -41,11 +41,6 @@ export const COUNTRY_MAP_VIEWS: Record<SearchCountry, CountryMapView> = {
   },
 };
 
-/**
- * A single date/time as preserved by the Observation pipeline (see
- * ingestion/observation/contract.mjs). Rendered honestly — never
- * reinterpreted into a fabricated local time.
- */
 export type ListingDateTime = {
   raw: string | null;
   date: string | null;
@@ -55,12 +50,6 @@ export type ListingDateTime = {
   certainty: string;
 };
 
-/**
- * One source listing at a canonical Venue marker. This is a proven
- * Observation, not a canonical Event — source_id/source_record_id are the
- * only identity carried, and there is no event_id of any kind. See
- * docs/OBSERVATION_PIPELINE.md and ingestion/map/projection.mjs.
- */
 export type MapListing = {
   source_id: string;
   source_record_id: string;
@@ -71,7 +60,6 @@ export type MapListing = {
   event_url: string | null;
 };
 
-/** One canonical, map-eligible Venue and every listing resolved to it. */
 export type MapMarker = {
   venue_id: string;
   canonical_name: string;
@@ -88,13 +76,6 @@ type DiscoveryMapProps = {
 
 const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-/**
- * Render one date/time honestly: a confirmed UTC instant is shown as
- * such (labelled UTC, never silently reinterpreted into the visitor's
- * local time); anything less certain falls back to the source's own raw
- * text rather than a fabricated value. Returns null when nothing usable
- * is available.
- */
 function formatDateTime(dt: ListingDateTime | null | undefined): string | null {
   if (!dt) return null;
   if (dt.certainty === "UTC_INSTANT" && dt.iso) {
@@ -114,54 +95,128 @@ function formatWhen(start: ListingDateTime, end: ListingDateTime): string {
   return startText;
 }
 
-/**
- * Build the marker popup's DOM content directly via createElement/
- * textContent — no innerHTML, no injected source HTML/descriptions. Only
- * the small set of factual fields already proven by the Observation +
- * Venue-resolution pipeline are shown.
- */
+function formatDateLabel(dt: ListingDateTime | null | undefined): string | null {
+  if (!dt) return null;
+  if (dt.iso) {
+    const d = new Date(dt.iso);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      });
+    }
+  }
+  if (dt.date) {
+    const d = new Date(dt.date + "T00:00:00Z");
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      });
+    }
+  }
+  if (dt.raw) return dt.raw;
+  return null;
+}
+
+function formatTimeLabel(dt: ListingDateTime | null | undefined): string | null {
+  if (!dt) return null;
+  if (dt.iso) {
+    const d = new Date(dt.iso);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+      }) + " UTC";
+    }
+  }
+  return null;
+}
+
 function buildPopupContent(marker: MapMarker): HTMLElement {
   const container = document.createElement("div");
   container.className = "venue-popup";
 
+  const header = document.createElement("div");
+  header.className = "venue-popup-header";
+
   const heading = document.createElement("h3");
   heading.textContent = marker.canonical_name;
-  container.appendChild(heading);
+  header.appendChild(heading);
 
   if (marker.address) {
     const address = document.createElement("p");
     address.className = "venue-popup-address";
     address.textContent = marker.address;
-    container.appendChild(address);
+    header.appendChild(address);
   }
 
-  const note = document.createElement("p");
-  note.className = "venue-popup-note";
-  note.textContent = "Retained development proof — not live availability";
-  container.appendChild(note);
+  container.appendChild(header);
 
-  const list = document.createElement("ul");
+  const proofBadge = document.createElement("p");
+  proofBadge.className = "venue-popup-proof-badge";
+  proofBadge.textContent = "Proof data · source listings, not confirmed events";
+  container.appendChild(proofBadge);
+
+  const listHeading = document.createElement("p");
+  listHeading.className = "venue-popup-listings-heading";
+  listHeading.textContent = `${marker.listings.length} source listing${marker.listings.length === 1 ? "" : "s"}`;
+  container.appendChild(listHeading);
+
+  const list = document.createElement("div");
   list.className = "venue-popup-listings";
 
   for (const listing of marker.listings) {
-    const item = document.createElement("li");
+    const item = document.createElement("div");
+    item.className = "venue-popup-listing";
 
     const title = document.createElement("p");
     title.className = "venue-popup-listing-title";
     title.textContent = listing.title ?? "(untitled listing)";
     item.appendChild(title);
 
-    const meta = document.createElement("p");
+    const meta = document.createElement("div");
     meta.className = "venue-popup-listing-meta";
-    meta.textContent = `${listing.source_name ?? listing.source_id} · ${formatWhen(listing.start, listing.end)}`;
-    item.appendChild(meta);
+
+    const dateLabel = formatDateLabel(listing.start);
+    const timeLabel = formatTimeLabel(listing.start);
+    if (dateLabel) {
+      const dateEl = document.createElement("span");
+      dateEl.className = "venue-popup-listing-date";
+      dateEl.textContent = dateLabel;
+      meta.appendChild(dateEl);
+    }
+    if (timeLabel) {
+      const timeEl = document.createElement("span");
+      timeEl.className = "venue-popup-listing-time";
+      timeEl.textContent = timeLabel;
+      meta.appendChild(timeEl);
+    }
+    if (!dateLabel && !timeLabel && listing.start.raw) {
+      const rawEl = document.createElement("span");
+      rawEl.className = "venue-popup-listing-date";
+      rawEl.textContent = listing.start.raw;
+      meta.appendChild(rawEl);
+    }
+    if (meta.children.length > 0) {
+      item.appendChild(meta);
+    }
+
+    const sourceEl = document.createElement("p");
+    sourceEl.className = "venue-popup-listing-source";
+    sourceEl.textContent = listing.source_name ?? listing.source_id;
+    item.appendChild(sourceEl);
 
     if (listing.event_url) {
       const link = document.createElement("a");
       link.href = listing.event_url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "Source page";
+      link.className = "venue-popup-listing-link";
+      link.textContent = "View source page";
       item.appendChild(link);
     }
 
@@ -170,6 +225,21 @@ function buildPopupContent(marker: MapMarker): HTMLElement {
 
   container.appendChild(list);
   return container;
+}
+
+function createMarkerElement(): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "botm-marker";
+
+  const pulse = document.createElement("span");
+  pulse.className = "botm-marker-pulse";
+  el.appendChild(pulse);
+
+  const pin = document.createElement("span");
+  pin.className = "botm-marker-pin";
+  el.appendChild(pin);
+
+  return el;
 }
 
 export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
@@ -232,17 +302,6 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     });
   }, [country]);
 
-  // Render exactly the markers this component was handed (already
-  // country-scoped by the caller via getMarkersForCountry — see
-  // app/page.tsx and ingestion/map/projection.mjs). Markers are plain DOM
-  // overlays and do not need to wait for the style/tiles to finish
-  // loading — waiting on a one-shot "load" event here would race with
-  // React's development-mode double-invoked effects (the event can fire,
-  // or the map can be torn down and recreated, before a late listener
-  // attaches) and silently leave the map pin-less. The effect's own
-  // cleanup removes every marker it added, so re-running on a `markers`
-  // change (including Strict Mode's mount/cleanup/mount cycle) never
-  // leaves a stale or duplicated pin behind.
   useEffect(() => {
     const map = mapRef.current;
     if (!map) {
@@ -250,10 +309,22 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     }
 
     const instances = markers.map((marker) => {
-      const popup = new Popup({ offset: 18, maxWidth: "280px" }).setDOMContent(
-        buildPopupContent(marker),
-      );
-      return new Marker({ color: "#e8876e" })
+      const popup = new Popup({
+        offset: 34,
+        maxWidth: "320px",
+        closeButton: true,
+        closeOnClick: true,
+        className: "botm-popup",
+      }).setDOMContent(buildPopupContent(marker));
+
+      const el = createMarkerElement();
+      el.addEventListener("click", () => {
+        const allMarkers = document.querySelectorAll(".botm-marker");
+        allMarkers.forEach((m) => m.classList.remove("is-active"));
+        el.classList.add("is-active");
+      });
+
+      return new Marker({ element: el })
         .setLngLat([marker.longitude, marker.latitude])
         .setPopup(popup)
         .addTo(map);
