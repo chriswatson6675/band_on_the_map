@@ -162,7 +162,7 @@ function formatTimeLabel(dt: ListingDateTime | null | undefined): string | null 
   return null;
 }
 
-function createMarkerElement(): HTMLElement {
+function createMarkerElement(count: number): HTMLElement {
   const el = document.createElement("div");
   el.className = "botm-marker";
 
@@ -172,6 +172,7 @@ function createMarkerElement(): HTMLElement {
 
   const pin = document.createElement("span");
   pin.className = "botm-marker-pin";
+  pin.textContent = String(count);
   el.appendChild(pin);
 
   return el;
@@ -346,7 +347,8 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     }
 
     const instances = markers.map((marker) => {
-      const el = createMarkerElement();
+      const count = marker.display_listings?.length ?? marker.listings.length;
+      const el = createMarkerElement(count);
       el.addEventListener("click", () => {
         const allMarkers = document.querySelectorAll(".botm-marker");
         allMarkers.forEach((m) => m.classList.remove("is-active"));
