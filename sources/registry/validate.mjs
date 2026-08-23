@@ -26,6 +26,7 @@ export const ACQUISITION_METHODS = new Set([
 
 export const MONITORING_STATUSES = new Set([
   "READY_FOR_TECHNICAL_PROOF",
+  "TECHNICAL_PATH_PROVEN",
   "NEEDS_TECHNICAL_REVIEW",
   "UNSUITABLE_AUTOMATION",
   "BLOCKED",
@@ -49,6 +50,18 @@ export const LIFECYCLE_STATUSES = new Set([
   "ENABLED",
   "PAUSED",
   "RETIRED",
+]);
+
+// Lifecycle stages that can only be reached after the acquisition path has
+// actually been directly proven (a real fetch, a passing contract test, a
+// committed fixture) — not merely assessed as promising from research.
+// PAUSED/RETIRED are deliberately excluded: an entry can be paused/retired
+// from any earlier stage (e.g. a venue closing before technical review ever
+// happened), so their monitoring_status is not constrained by this rule.
+export const LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH = new Set([
+  "TECHNICALLY_REVIEWED",
+  "RIGHTS_REVIEWED",
+  "ENABLED",
 ]);
 
 const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -154,6 +167,12 @@ export function validateEntry(entry, index = 0) {
     errors.push(`${at("rights_notes")} must be a string or null`);
   }
 
+  if (entry.rights_status === "RED" && !isNonEmptyString(entry.rights_notes)) {
+    errors.push(
+      `${at("rights_notes")} must be a non-empty string identifying the specific prohibition basis when rights_status is RED (docs/DATA_RIGHTS.md: RED means "not permitted for automated ingestion or intended use" — an all-rights-reserved footer or the mere absence of a reuse licence does not by itself establish that; use UNKNOWN instead unless retained evidence shows an explicit prohibition)`,
+    );
+  }
+
   if ("rights_evidence_url" in entry && !isNullableStringArray(entry.rights_evidence_url)) {
     errors.push(`${at("rights_evidence_url")} must be an array of strings or null`);
   }
@@ -180,6 +199,13 @@ export function validateEntry(entry, index = 0) {
 
   if (!LIFECYCLE_STATUSES.has(entry.lifecycle_status)) {
     errors.push(`${at("lifecycle_status")} must be one of ${[...LIFECYCLE_STATUSES].join(", ")}`);
+  } else if (
+    LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH.has(entry.lifecycle_status) &&
+    entry.monitoring_status === "READY_FOR_TECHNICAL_PROOF"
+  ) {
+    errors.push(
+      `${at("monitoring_status")} cannot remain READY_FOR_TECHNICAL_PROOF once lifecycle_status is ${entry.lifecycle_status} — the acquisition path has already been directly proven, so use TECHNICAL_PATH_PROVEN (or a status reflecting what was actually found) instead`,
+    );
   }
 
   if (!isNonEmptyString(entry.discovered_at) || !DATE_PATTERN.test(entry.discovered_at)) {

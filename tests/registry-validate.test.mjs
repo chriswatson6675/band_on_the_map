@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   ACQUISITION_METHODS,
+  LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH,
   MONITORING_STATUSES,
   RIGHTS_STATUSES,
   SOURCE_TYPES,
@@ -112,7 +113,78 @@ test("enum sets exposed by the module match the documented schema", () => {
   assert.ok(SOURCE_TYPES.has("CULTURAL_CENTRE"));
   assert.ok(ACQUISITION_METHODS.has("ICS_CALENDAR"));
   assert.ok(MONITORING_STATUSES.has("BLOCKED"));
+  assert.ok(MONITORING_STATUSES.has("TECHNICAL_PATH_PROVEN"));
   assert.ok(RIGHTS_STATUSES.has("AMBER"));
+});
+
+test("a TECHNICALLY_REVIEWED source cannot remain READY_FOR_TECHNICAL_PROOF", () => {
+  const errors = validateEntry(
+    baseEntry({
+      lifecycle_status: "TECHNICALLY_REVIEWED",
+      monitoring_status: "READY_FOR_TECHNICAL_PROOF",
+    }),
+  );
+  assert.ok(errors.some((e) => e.includes("cannot remain READY_FOR_TECHNICAL_PROOF")));
+});
+
+test("TECHNICALLY_REVIEWED + TECHNICAL_PATH_PROVEN is a valid, non-contradictory combination", () => {
+  const errors = validateEntry(
+    baseEntry({
+      lifecycle_status: "TECHNICALLY_REVIEWED",
+      monitoring_status: "TECHNICAL_PATH_PROVEN",
+    }),
+  );
+  assert.deepEqual(errors, []);
+});
+
+test("RIGHTS_REVIEWED and ENABLED sources also cannot remain READY_FOR_TECHNICAL_PROOF", () => {
+  for (const lifecycle_status of ["RIGHTS_REVIEWED", "ENABLED"]) {
+    const errors = validateEntry(
+      baseEntry({ lifecycle_status, monitoring_status: "READY_FOR_TECHNICAL_PROOF" }),
+    );
+    assert.ok(
+      errors.some((e) => e.includes("cannot remain READY_FOR_TECHNICAL_PROOF")),
+      `expected an error for lifecycle_status ${lifecycle_status}`,
+    );
+  }
+});
+
+test("a DISCOVERED source may remain READY_FOR_TECHNICAL_PROOF", () => {
+  const errors = validateEntry(
+    baseEntry({ lifecycle_status: "DISCOVERED", monitoring_status: "READY_FOR_TECHNICAL_PROOF" }),
+  );
+  assert.deepEqual(errors, []);
+});
+
+test("PAUSED/RETIRED sources are exempt from the proven-path invariant", () => {
+  for (const lifecycle_status of ["PAUSED", "RETIRED"]) {
+    const errors = validateEntry(
+      baseEntry({ lifecycle_status, monitoring_status: "READY_FOR_TECHNICAL_PROOF" }),
+    );
+    assert.deepEqual(errors, []);
+  }
+});
+
+test("LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH excludes DISCOVERED, PAUSED and RETIRED", () => {
+  assert.equal(LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH.has("DISCOVERED"), false);
+  assert.equal(LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH.has("PAUSED"), false);
+  assert.equal(LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH.has("RETIRED"), false);
+  assert.equal(LIFECYCLE_STAGES_REQUIRING_PROVEN_PATH.has("TECHNICALLY_REVIEWED"), true);
+});
+
+test("rights_status RED requires a non-empty rights_notes explanation", () => {
+  const errors = validateEntry(baseEntry({ rights_status: "RED", rights_notes: null }));
+  assert.ok(errors.some((e) => e.includes("rights_notes") && e.includes("RED")));
+});
+
+test("rights_status RED with a rights_notes explanation is valid", () => {
+  const errors = validateEntry(
+    baseEntry({
+      rights_status: "RED",
+      rights_notes: "Terms of use explicitly prohibit bots, scripts, and other automated tools.",
+    }),
+  );
+  assert.deepEqual(errors, []);
 });
 
 test("normaliseWebsite ignores protocol, www, and trailing slash", () => {

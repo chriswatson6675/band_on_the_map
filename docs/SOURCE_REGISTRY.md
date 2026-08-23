@@ -48,26 +48,47 @@ creates Events, Observations, or Offers; those only ever get created once a
 registry entry is `ENABLED` and a collector exists for it, which is future
 work.
 
-## Monitoring suitability is not reuse rights
+## Monitoring status, lifecycle stage, and reuse rights are three separate things
 
-Every entry carries two separate fields that must never be conflated:
+Every entry carries three fields that must never be conflated with one
+another:
 
-- `monitoring_status` — can Band on the Map *technically* watch this source
-  reliably (`READY_FOR_TECHNICAL_PROOF`, `NEEDS_TECHNICAL_REVIEW`,
-  `UNSUITABLE_AUTOMATION`, `BLOCKED`, `UNKNOWN`)? This is purely about
-  engineering feasibility: does it expose a calendar feed, a stable dated
-  page, or nothing usable at all.
+- `monitoring_status` — a **technical finding** about this source:
+  `READY_FOR_TECHNICAL_PROOF` (looks technically promising, but has not yet
+  been directly exercised), `TECHNICAL_PATH_PROVEN` (the acquisition path
+  *has* been directly exercised and validated — a real fetch, a passing
+  contract test, a committed fixture — but this still does not imply rights
+  clearance, an enabled production collector, or scheduling),
+  `NEEDS_TECHNICAL_REVIEW`, `UNSUITABLE_AUTOMATION`, `BLOCKED`, or `UNKNOWN`.
+  This is purely about engineering feasibility and evidence: does it expose
+  a calendar feed, a stable dated page, or nothing usable at all — and has
+  that actually been tried yet.
+- `lifecycle_status` — this source's **onboarding stage**
+  (`DISCOVERED` → `TECHNICALLY_REVIEWED` → `RIGHTS_REVIEWED` → `ENABLED` →
+  `PAUSED`/`RETIRED`, see "Lifecycle" below). This is a process/workflow
+  concept: how far this entry has moved through review, not what was found.
 - `rights_status` — is Band on the Map *permitted* to collect, store, and
   redisplay this source's data (`GREEN`, `AMBER`, `RED`, `UNKNOWN`, per
   `docs/DATA_RIGHTS.md`)? This is a legal/licensing question, independent of
-  how easy the source is to poll.
+  how easy the source is to poll or how far it has progressed through the
+  lifecycle.
 
 A source can be trivial to monitor (a clean ICS calendar) and still have
 unresolved or prohibited rights. A source can have clear rights and still be
-technically unsuitable for automation (social-only, blocked, no schedule).
-Neither field ever implies the other, and this registry never upgrades
-`AMBER`/`UNKNOWN` rights to `GREEN` on the strength of public accessibility
-alone — see the "Rights are preliminary" section below.
+technically unsuitable for automation (social-only, blocked, no schedule). A
+source's acquisition path can be directly proven (`TECHNICAL_PATH_PROVEN`)
+long before its rights are reviewed, or before it is anywhere near
+`ENABLED`. None of the three fields ever implies either of the others, and
+this registry never upgrades `AMBER`/`UNKNOWN` rights to `GREEN` on the
+strength of public accessibility alone — see the "Rights are preliminary"
+section below.
+
+**Invariant:** once `lifecycle_status` reaches `TECHNICALLY_REVIEWED` (or
+later), `monitoring_status` can no longer be `READY_FOR_TECHNICAL_PROOF` —
+reaching that lifecycle stage means the acquisition path has already been
+directly proven, so the technical finding must say so
+(`TECHNICAL_PATH_PROVEN`, or whatever the proof actually found).
+`sources/registry/validate.mjs` enforces this automatically.
 
 ## Why one Event may be observed from multiple Sources
 
@@ -101,6 +122,27 @@ assessment, not a legal clearance. In particular:
 - `rights_notes` and `rights_evidence_url` exist so a later, deliberate
   rights review has somewhere to record its findings without needing to
   re-research from scratch.
+
+`docs/DATA_RIGHTS.md` defines `RED` as "not permitted for automated
+ingestion or intended use" — a specific, evidenced prohibition, not a
+default. In particular:
+
+- An ordinary "all rights reserved" copyright footer, on its own, does
+  **not** establish that automated ingestion is prohibited — it is the
+  default legal notice on essentially every website and says nothing
+  source-specific about reuse.
+- Simply failing to find an open/reuse licence does **not** establish
+  `RED` either — absence of evidence for permission is not evidence of
+  prohibition.
+- `RED` is reserved for entries where the retained evidence shows an
+  *actual, specific* prohibition (for example, terms of use that expressly
+  forbid automated access, bots, or scraping). Every entry with
+  `rights_status: RED` must carry a non-empty `rights_notes` identifying
+  that basis; `sources/registry/validate.mjs` enforces this.
+- Where the evidence is only a generic copyright footer or a missing
+  licence, the correct classification is `UNKNOWN`, with `rights_notes`
+  explaining that reuse permission has not yet been established — not that
+  it has been established as prohibited.
 
 ## AgendaLX: one identity, not two
 
@@ -175,9 +217,14 @@ DISCOVERED -> TECHNICALLY_REVIEWED -> RIGHTS_REVIEWED -> ENABLED -> PAUSED / RET
   first-wave cohort starts, except AgendaLX (see below).
 - **TECHNICALLY_REVIEWED** — the acquisition path has been directly proven
   (a real fetch, a passing contract test, a committed fixture), not just
-  assessed from research. AgendaLX is seeded at this stage because
+  assessed from research; its `monitoring_status` reflects that
+  (`TECHNICAL_PATH_PROVEN`, not `READY_FOR_TECHNICAL_PROOF` — see the
+  invariant above). AgendaLX is seeded at this stage because
   `ingestion/agendalx/probe.mjs` and `tests/agendalx-contract.test.mjs`
-  already prove its technical path independently of this task.
+  already prove its technical path independently of this task; its
+  `monitoring_status` is `TECHNICAL_PATH_PROVEN` accordingly, while its
+  `rights_status` stays the governed `AMBER` (proving the technical path
+  does not review the rights).
 - **RIGHTS_REVIEWED** — a deliberate rights review has confirmed
   `rights_status`, per `docs/DATA_RIGHTS.md`, and it is no longer
   preliminary.

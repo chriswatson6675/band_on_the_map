@@ -54,6 +54,75 @@ test("the registry's AgendaLX entry is compatible with, not a duplicate of, sour
   assert.equal(registryEntry.rights_status, "AMBER");
 });
 
+test("AgendaLX's monitoring and lifecycle state are consistent, not contradictory", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  const agendalx = registry.entries.find((entry) => entry.id === "agendalx");
+
+  // Its acquisition path has already been directly proven by
+  // ingestion/agendalx/probe.mjs and tests/agendalx-contract.test.mjs, so
+  // monitoring_status must say so rather than "not yet attempted".
+  assert.equal(agendalx.monitoring_status, "TECHNICAL_PATH_PROVEN");
+
+  // Proving the technical path is not the same as reviewing rights or
+  // enabling a collector — lifecycle must not have moved past
+  // TECHNICALLY_REVIEWED as a side effect of this correction.
+  assert.equal(agendalx.lifecycle_status, "TECHNICALLY_REVIEWED");
+  assert.equal(agendalx.rights_status, "AMBER");
+});
+
+test("distributions across sources/lisbon.json each total exactly 25", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  assert.equal(registry.entries.length, 25);
+
+  function countBy(field) {
+    const counts = {};
+    for (const entry of registry.entries) {
+      counts[entry[field]] = (counts[entry[field]] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  const byType = countBy("source_type");
+  const byAcquisition = countBy("acquisition_method");
+  const byLifecycle = countBy("lifecycle_status");
+
+  const sum = (counts) => Object.values(counts).reduce((total, n) => total + n, 0);
+
+  assert.equal(sum(byType), 25, `source_type counts: ${JSON.stringify(byType)}`);
+  assert.equal(sum(byAcquisition), 25, `acquisition_method counts: ${JSON.stringify(byAcquisition)}`);
+  assert.equal(sum(byLifecycle), 25, `lifecycle_status counts: ${JSON.stringify(byLifecycle)}`);
+});
+
+test("no first-wave entry carries rights_status RED without a non-empty explanation, and none currently do", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  const redEntries = registry.entries.filter((entry) => entry.rights_status === "RED");
+
+  // An "all rights reserved" footer or a missing licence alone does not
+  // establish RED per docs/DATA_RIGHTS.md; the first-wave audit found no
+  // entry with retained evidence of an explicit prohibition, so none should
+  // currently be classified RED.
+  assert.deepEqual(redEntries, []);
+
+  for (const entry of redEntries) {
+    assert.ok(
+      typeof entry.rights_notes === "string" && entry.rights_notes.trim().length > 0,
+      `entry ${entry.id} is RED but has no rights_notes explanation`,
+    );
+  }
+});
+
+test("the three entries previously misclassified RED are now UNKNOWN with an unresolved-not-prohibited explanation", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  const correctedIds = ["meo-arena", "ccb-centro-cultural-belem", "casa-independente"];
+
+  for (const id of correctedIds) {
+    const entry = registry.entries.find((e) => e.id === id);
+    assert.ok(entry, `expected entry ${id} to exist`);
+    assert.equal(entry.rights_status, "UNKNOWN");
+    assert.match(entry.rights_notes, /not yet been established/);
+  }
+});
+
 test("the six research-identified structured sources are exactly the entries using API_JSON/RSS/ICS_CALENDAR", async () => {
   const registry = await loadJson("../sources/lisbon.json");
   const structuredMethods = new Set(["API_JSON", "RSS", "ICS_CALENDAR", "JSON_LD_EVENT", "EMBEDDED_JSON"]);

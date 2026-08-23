@@ -2,7 +2,8 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/chriswatson6675/band_on_the_map/sources/registry.schema.json",
   "title": "Band on the Map Source Registry Entry",
-  "description": "Canonical, city-agnostic contract for one entry in the Band on the Map source registry. A registry entry describes a candidate or enabled data Source (see docs/ARCHITECTURE.md) prior to, or independent of, live ingestion. Technical monitoring suitability and legal reuse rights are recorded as separate fields, per docs/DATA_RIGHTS.md and docs/SOURCE_REGISTRY.md, and neither field implies the other.",
+  "description": "Canonical, city-agnostic contract for one entry in the Band on the Map source registry. A registry entry describes a candidate or enabled data Source (see docs/ARCHITECTURE.md) prior to, or independent of, live ingestion. Technical monitoring suitability, onboarding lifecycle stage, and legal reuse rights are three separate concerns recorded as three separate fields (monitoring_status, lifecycle_status, rights_status) per docs/DATA_RIGHTS.md and docs/SOURCE_REGISTRY.md, and none of the three implies either of the others.",
+  "$comment": "Invariant enforced by sources/registry/validate.mjs, not by this schema alone: an entry whose lifecycle_status is TECHNICALLY_REVIEWED (or later) must not have monitoring_status READY_FOR_TECHNICAL_PROOF, since that lifecycle stage means the acquisition path has already been directly proven (see TECHNICAL_PATH_PROVEN).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -102,12 +103,13 @@
       "type": "string",
       "enum": [
         "READY_FOR_TECHNICAL_PROOF",
+        "TECHNICAL_PATH_PROVEN",
         "NEEDS_TECHNICAL_REVIEW",
         "UNSUITABLE_AUTOMATION",
         "BLOCKED",
         "UNKNOWN"
       ],
-      "description": "Technical suitability for periodic automated monitoring ONLY. Never implies reuse permission; see rights_status."
+      "description": "Technical finding about this source ONLY, distinct from lifecycle_status (its onboarding stage) and from rights_status (its reuse permission). READY_FOR_TECHNICAL_PROOF means the source looks technically promising but has not yet been directly exercised. TECHNICAL_PATH_PROVEN means the acquisition path has been directly exercised and validated (a real fetch, a passing contract test, a committed fixture) — it does not imply rights clearance, an enabled production collector, or scheduling. Never implies reuse permission; see rights_status."
     },
     "rights_status": {
       "type": "string",
