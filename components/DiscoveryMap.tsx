@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Map,
   Marker,
   NavigationControl,
-  Popup,
   setWorkerUrl,
   type LngLatBoundsLike,
 } from "maplibre-gl";
@@ -76,25 +75,6 @@ type DiscoveryMapProps = {
 
 const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-function formatDateTime(dt: ListingDateTime | null | undefined): string | null {
-  if (!dt) return null;
-  if (dt.certainty === "UTC_INSTANT" && dt.iso) {
-    return `${dt.iso.slice(0, 10)} · ${dt.iso.slice(11, 16)} UTC`;
-  }
-  if (dt.raw) return dt.raw;
-  if (dt.date) return dt.date;
-  return null;
-}
-
-function formatWhen(start: ListingDateTime, end: ListingDateTime): string {
-  const startText = formatDateTime(start);
-  if (!startText) return "Date not confirmed";
-  if (end?.certainty === "UTC_INSTANT" && end.iso && start?.certainty === "UTC_INSTANT") {
-    return `${startText} – ${end.iso.slice(11, 16)} UTC`;
-  }
-  return startText;
-}
-
 function formatDateLabel(dt: ListingDateTime | null | undefined): string | null {
   if (!dt) return null;
   if (dt.iso) {
@@ -136,104 +116,6 @@ function formatTimeLabel(dt: ListingDateTime | null | undefined): string | null 
   return null;
 }
 
-function buildPopupContent(marker: MapMarker): HTMLElement {
-  const container = document.createElement("div");
-  container.className = "venue-popup";
-
-  const header = document.createElement("div");
-  header.className = "venue-popup-header";
-
-  const heading = document.createElement("h3");
-  heading.textContent = marker.canonical_name;
-  header.appendChild(heading);
-
-  if (marker.address) {
-    const address = document.createElement("p");
-    address.className = "venue-popup-address";
-    address.textContent = marker.address;
-    header.appendChild(address);
-  }
-
-  const sourceLink = marker.listings.find((l) => l.event_url)?.event_url;
-  if (sourceLink) {
-    const link = document.createElement("a");
-    link.href = sourceLink;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.className = "venue-popup-source-link";
-    link.textContent = "View source ↗";
-    header.appendChild(link);
-  }
-
-  container.appendChild(header);
-
-  const proofBadge = document.createElement("p");
-  proofBadge.className = "venue-popup-proof-badge";
-  proofBadge.textContent = "Proof data · source listings, not confirmed events";
-  container.appendChild(proofBadge);
-
-  const listHeading = document.createElement("p");
-  listHeading.className = "venue-popup-listings-heading";
-  listHeading.textContent = `${marker.listings.length} source listing${marker.listings.length === 1 ? "" : "s"}`;
-  container.appendChild(listHeading);
-
-  const list = document.createElement("div");
-  list.className = "venue-popup-listings";
-
-  for (const listing of marker.listings) {
-    const item = document.createElement("div");
-    item.className = "venue-popup-listing";
-
-    const title = document.createElement("p");
-    title.className = "venue-popup-listing-title";
-    title.textContent = listing.title ?? "(untitled listing)";
-    item.appendChild(title);
-
-    const meta = document.createElement("div");
-    meta.className = "venue-popup-listing-meta";
-
-    const dateLabel = formatDateLabel(listing.start);
-    const timeLabel = formatTimeLabel(listing.start);
-    if (dateLabel) {
-      const dateEl = document.createElement("span");
-      dateEl.className = "venue-popup-listing-date";
-      dateEl.textContent = dateLabel;
-      meta.appendChild(dateEl);
-    }
-    if (timeLabel) {
-      const timeEl = document.createElement("span");
-      timeEl.className = "venue-popup-listing-time";
-      timeEl.textContent = timeLabel;
-      meta.appendChild(timeEl);
-    }
-    if (!dateLabel && !timeLabel && listing.start.raw) {
-      const rawEl = document.createElement("span");
-      rawEl.className = "venue-popup-listing-date";
-      rawEl.textContent = listing.start.raw;
-      meta.appendChild(rawEl);
-    }
-    if (meta.children.length > 0) {
-      item.appendChild(meta);
-    }
-
-    const sourceEl = document.createElement("p");
-    sourceEl.className = "venue-popup-listing-source";
-    sourceEl.textContent = listing.source_name ?? listing.source_id;
-    item.appendChild(sourceEl);
-
-    list.appendChild(item);
-  }
-
-  container.appendChild(list);
-
-  const stopMap = (e: Event) => e.stopImmediatePropagation();
-  for (const evt of ["wheel", "touchstart", "touchmove", "mousedown", "dblclick"]) {
-    container.addEventListener(evt, stopMap, { capture: true, passive: true });
-  }
-
-  return container;
-}
-
 function createMarkerElement(): HTMLElement {
   const el = document.createElement("div");
   el.className = "botm-marker";
@@ -249,10 +131,58 @@ function createMarkerElement(): HTMLElement {
   return el;
 }
 
+function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => void }) {
+  const sourceLink = marker.listings.find((l) => l.event_url)?.event_url;
+
+  return (
+    <div className="venue-panel" role="dialog" aria-label={marker.canonical_name}>
+      <button className="venue-panel-close" onClick={onClose} aria-label="Close" type="button">×</button>
+      <div className="venue-panel-header">
+        <h3>{marker.canonical_name}</h3>
+        {marker.address && <p className="venue-panel-address">{marker.address}</p>}
+        {sourceLink && (
+          <a
+            href={sourceLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="venue-panel-source-link"
+          >
+            View source ↗
+          </a>
+        )}
+      </div>
+      <p className="venue-panel-proof-badge">Proof data · source listings, not confirmed events</p>
+      <p className="venue-panel-listings-heading">
+        {marker.listings.length} source listing{marker.listings.length === 1 ? "" : "s"}
+      </p>
+      <div className="venue-panel-listings">
+        {marker.listings.map((listing, i) => {
+          const dateLabel = formatDateLabel(listing.start);
+          const timeLabel = formatTimeLabel(listing.start);
+          return (
+            <div className="venue-panel-listing" key={i}>
+              <p className="venue-panel-listing-title">{listing.title ?? "(untitled listing)"}</p>
+              <div className="venue-panel-listing-meta">
+                {dateLabel && <span className="venue-panel-listing-date">{dateLabel}</span>}
+                {timeLabel && <span className="venue-panel-listing-time">{timeLabel}</span>}
+                {!dateLabel && !timeLabel && listing.start.raw && (
+                  <span className="venue-panel-listing-date">{listing.start.raw}</span>
+                )}
+              </div>
+              <p className="venue-panel-listing-source">{listing.source_name ?? listing.source_id}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const initialCountryRef = useRef(country);
+  const [activeVenue, setActiveVenue] = useState<MapMarker | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) {
@@ -316,25 +246,16 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     }
 
     const instances = markers.map((marker) => {
-      const popup = new Popup({
-        offset: 34,
-        maxWidth: "340px",
-        closeButton: true,
-        closeOnClick: true,
-        anchor: "bottom",
-        className: "botm-popup",
-      }).setDOMContent(buildPopupContent(marker));
-
       const el = createMarkerElement();
       el.addEventListener("click", () => {
         const allMarkers = document.querySelectorAll(".botm-marker");
         allMarkers.forEach((m) => m.classList.remove("is-active"));
         el.classList.add("is-active");
+        setActiveVenue(marker);
       });
 
       return new Marker({ element: el })
         .setLngLat([marker.longitude, marker.latitude])
-        .setPopup(popup)
         .addTo(map);
     });
 
@@ -347,10 +268,17 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
 
   return (
     <div
-      ref={containerRef}
       className="discovery-map"
       role="region"
       aria-label={`Interactive map showing ${country}`}
-    />
+    >
+      <div ref={containerRef} className="discovery-map-inner" />
+      {activeVenue && (
+        <VenuePanel marker={activeVenue} onClose={() => {
+          setActiveVenue(null);
+          document.querySelectorAll(".botm-marker.is-active").forEach((m) => m.classList.remove("is-active"));
+        }} />
+      )}
+    </div>
   );
 }
