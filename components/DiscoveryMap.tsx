@@ -131,25 +131,21 @@ function createMarkerElement(): HTMLElement {
   return el;
 }
 
+// Note: there is deliberately no venue-level "View source" link here.
+// Six listings can share one venue but each comes from its own source
+// record with its own (possibly absent) event_url — a single link at the
+// venue level would misleadingly imply one URL applies to all of them.
+// Each listing renders its own link independently, only when its own
+// event_url is genuinely non-null (see
+// ingestion/hot-clube/observation-adapter.mjs and
+// docs/sources/HOT_CLUBE.md's "Individual Event Permalinks").
 function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => void }) {
-  const sourceLink = marker.listings.find((l) => l.event_url)?.event_url;
-
   return (
     <div className="venue-panel" role="dialog" aria-label={marker.canonical_name}>
       <button className="venue-panel-close" onClick={onClose} aria-label="Close" type="button">×</button>
       <div className="venue-panel-header">
         <h3>{marker.canonical_name}</h3>
         {marker.address && <p className="venue-panel-address">{marker.address}</p>}
-        {sourceLink && (
-          <a
-            href={sourceLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="venue-panel-source-link"
-          >
-            View source ↗
-          </a>
-        )}
       </div>
       <p className="venue-panel-proof-badge">Proof data · source listings, not confirmed events</p>
       <p className="venue-panel-listings-heading">
@@ -170,6 +166,16 @@ function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => voi
                 )}
               </div>
               <p className="venue-panel-listing-source">{listing.source_name ?? listing.source_id}</p>
+              {listing.event_url && (
+                <a
+                  href={listing.event_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="venue-panel-listing-link"
+                >
+                  View event →
+                </a>
+              )}
             </div>
           );
         })}

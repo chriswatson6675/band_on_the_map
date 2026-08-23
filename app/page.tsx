@@ -201,7 +201,7 @@ export default function Home() {
               ) : (
                 <>
                   <p className="empty-kicker">{country}</p>
-                  <p>No listings here yet — we're still gathering source data for {country}.</p>
+                  <p>No listings here yet — we&apos;re still gathering source data for {country}.</p>
                 </>
               )}
             </div>

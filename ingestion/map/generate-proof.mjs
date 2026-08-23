@@ -12,7 +12,8 @@
 // the underlying fixtures) fails the test suite.
 //
 // Re-run after changing fixtures/agendalx/music-sample.json,
-// fixtures/hot-clube/{events/*.ics,metadata.json}, venues/lisbon.json, or
+// fixtures/hot-clube/{events/*.ics,metadata.json,
+// discovery/homepage-event-links.json}, venues/lisbon.json, or
 // sources/lisbon.json:
 //
 //   node ingestion/map/generate-proof.mjs
@@ -38,6 +39,14 @@ async function loadHotClubeObservations() {
   const metadata = JSON.parse(
     await readFile(resolve(ROOT, "fixtures/hot-clube/metadata.json"), "utf8"),
   );
+  const discovery = JSON.parse(
+    await readFile(
+      resolve(ROOT, "fixtures/hot-clube/discovery/homepage-event-links.json"),
+      "utf8",
+    ),
+  );
+  const eventLinks = discovery?.permalink_verification?.safe_event_urls ?? {};
+
   const eventsDir = resolve(ROOT, "fixtures/hot-clube/events");
   const names = (await readdir(eventsDir)).filter((f) => f.endsWith(".ics")).sort();
   const entries = [];
@@ -48,7 +57,7 @@ async function loadHotClubeObservations() {
       fixturePath: `fixtures/hot-clube/events/${name}`,
     });
   }
-  return hotClubeToObservations(entries, metadata);
+  return hotClubeToObservations(entries, metadata, eventLinks);
 }
 
 /**
@@ -80,6 +89,7 @@ export async function buildLisbonMapProof() {
       "fixtures/agendalx/music-sample.json",
       "fixtures/hot-clube/events/*.ics",
       "fixtures/hot-clube/metadata.json",
+      "fixtures/hot-clube/discovery/homepage-event-links.json",
       "venues/lisbon.json",
       "sources/lisbon.json",
     ],

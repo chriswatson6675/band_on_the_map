@@ -1,7 +1,8 @@
 # Hot Clube de Portugal — Source Contract Proof
 
 Reviewed: 2026-08-23
-Task: BOTM-ICS-01
+Task: BOTM-ICS-01 (ICS acquisition proof), extended by
+BOTM-HOT-CLUBE-EVENT-URL-01 (individual event permalinks)
 Registry source ID: `hot-clube-de-portugal` (see `sources/lisbon.json`)
 
 ## Canonical Source Identity
@@ -82,15 +83,14 @@ calling this endpoint. A future collector must not treat the ICS response's
 `DTSTART`/`DTEND` as independently trustworthy beyond "reflects whatever the
 caller asked for."
 
-Also present on the page, but not used or further investigated in this
-bounded proof: inline Schema.org `Event` HTML microdata
+Also present on the page: inline Schema.org `Event` HTML microdata
 (`itemscope itemtype='http://schema.org/Event'` with `itemprop='url'`,
 `'name'`, `'startDate'`, `'endDate'`, `'eventStatus'`) on each event
 container, and a distinct stable permalink pattern
 (`https://hcp.pt/events/{slug}/`) used for social-share links. Neither is a
 `<script type="application/ld+json">` block, so neither is evidence of a
-`JSON_LD_EVENT` acquisition path — they are noted here only as a possible
-lead for a future, separately scoped task.
+`JSON_LD_EVENT` acquisition path. This lead was investigated under
+**BOTM-HOT-CLUBE-EVENT-URL-01** — see "Individual Event Permalinks" below.
 
 ## Sample Retrieval
 
@@ -221,14 +221,94 @@ source, not a parsing failure). See `tests/ics-parse.test.mjs` and
 - No investigation was made of whether `event_id` values get reused/recycled
   after an event is removed from the programme page.
 - The inline Schema.org microdata and the `/events/{slug}/` permalink
-  pattern were noticed but not investigated — a future task could establish
-  whether either offers a more robust discovery or acquisition path.
+  pattern were investigated under BOTM-HOT-CLUBE-EVENT-URL-01 — see
+  "Individual Event Permalinks" below. The relationship between
+  `event_id` and its permalink is now proven, but every one of the 9
+  retained permalinks was found to redirect to the Hot Clube homepage
+  rather than distinct event content, so none is currently used as an
+  Observation's `event_url`.
 - This proof covers only Hot Clube's main homepage calendar. The registry
   entry's `overlap_notes` mention a second programme, "Há Jazz no Parque
   Mayer" at Capitólio — evidence for that appeared within these same
   9 samples (several `LOCATION` values are `Cineteatro Capitólio Parque
   Mayer`), so it is not a separate acquisition path requiring separate
   proof; it is simply a subset of the same homepage calendar.
+
+## Individual Event Permalinks
+
+Task: BOTM-HOT-CLUBE-EVENT-URL-01
+Retained evidence: `fixtures/hot-clube/discovery/homepage-event-links.json`
+Discovery module: `ingestion/hot-clube/discovery.mjs`
+
+This extends the ICS proof above to answer a narrower question: can each
+Hot Clube Observation carry its own genuine individual event-page URL?
+
+### The relationship, proven
+
+Each rendered event container in the homepage's EventON calendar — the
+same `id="event_{event_id}"` container documented above — also carries
+inline Schema.org `Event` microdata, including:
+
+```html
+<div id="event_3794" ... data-event_id="3794" ... itemscope
+     itemtype='http://schema.org/Event' 1>
+  <div class="evo_event_schema" style="display:none">
+    <a itemprop='url' href='https://hcp.pt/events/hugo-lobo-trio-convida-
+       madalena-caldeira-ha-jazz-no-parque-mayer/'></a>
+    <span itemprop='name'>Hugo Lobo Trio convida Madalena Caldeira - Há
+       Jazz no Parque Mayer</span>
+    ...
+```
+
+`data-event_id` and `itemprop='url'` are both attributes of/within the
+same rendered container, and `itemprop='name'` matches the retained ICS
+`SUMMARY` for that `event_id` (modulo cosmetic dash/quote-character
+differences between the two rendering contexts). This is exactly the
+"same event container carries both" evidence this task required, and it
+held for all 9 retained samples: `3786`, `3788`, `3790`, `3793`, `3794`,
+`3795`, `3797`, `3799`, `3801` each yielded a permalink extracted
+verbatim from `itemprop='url'` — never slugified or guessed from the
+title.
+
+Retrieval: one `GET https://hcp.pt/` (`200`, `text/html; charset=UTF-8`,
+`2026-08-23T22:39:31Z`) — the same homepage already proven as the ICS
+discovery source. No new page type was fetched.
+
+### The permalinks do not currently resolve to distinct event content
+
+Before treating any of the 9 discovered permalinks as usable, each was
+checked directly: a sequential `GET` against every one of them (10 live
+requests in total for this task — 1 homepage `GET` + 9 permalink
+checks). Every single one returned:
+
+```text
+HTTP/1.1 301 Moved Permanently
+Location: https://hcp.pt/#clube
+```
+
+This is a genuine, server-issued redirect (Apache, confirmed by response
+headers) — re-checked with a standard browser User-Agent for one sample
+(`3794`) to rule out User-Agent-based bot handling, with an identical
+result. The permalinks are real and correctly associated with their
+`event_id`, but the individual event pages behind them no longer exist;
+visiting one lands on the Hot Clube homepage.
+
+**Consequence:** none of the 9 retained permalinks are used as
+`Observation.event_url`. Doing so would present the source's own
+homepage as though it were an individual event page — exactly the
+failure mode this task's brief warned against ("do not use a venue
+homepage as the event URL"), generalised to the source's homepage.
+`ingestion/hot-clube/observation-adapter.mjs`'s `toObservation()` accepts
+an optional `eventLinks` lookup (sourced from this fixture's
+`permalink_verification.safe_event_urls`) and only ever sets `event_url`
+from an entry present in that lookup — currently empty, so every
+retained record's `event_url` remains `null`, honestly.
+
+This mechanism is genuinely reusable: if Hot Clube's individual event
+pages are restored, or a future retrieval finds a working permalink, a
+re-verified fixture with a non-empty `safe_event_urls` would enrich
+`event_url` automatically, with no code change needed and no guessing
+involved.
 
 ## Technical Monitoring Conclusion
 

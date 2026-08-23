@@ -1,0 +1,73 @@
+{
+  "source_id": "hot-clube-de-portugal",
+  "task": "BOTM-HOT-CLUBE-EVENT-URL-01",
+  "requested_url": "https://hcp.pt/",
+  "retrieved_at": "2026-08-23T22:39:31Z",
+  "http_status": 200,
+  "content_type": "text/html; charset=UTF-8",
+  "discovery_mechanism": "Each rendered event container in the homepage's EventON calendar (id=\"event_{event_id}\", itemscope itemtype='http://schema.org/Event') carries both the stable data-event_id attribute (see docs/sources/HOT_CLUBE.md's original ICS proof) AND, within that same container, inline Schema.org Event microdata whose <a itemprop='url' href='...'> is that event's own intended individual permalink. This record set extracts that href verbatim from the exact container matching each retained event_id — never slugified or guessed from the title.",
+  "records": [
+    {
+      "event_id": "3786",
+      "title_from_microdata": "Eupnea",
+      "permalink": "https://hcp.pt/events/leida-2/"
+    },
+    {
+      "event_id": "3788",
+      "title_from_microdata": "Ricardo Sousa Quinteto - Avenidas Hot Jazz",
+      "permalink": "https://hcp.pt/events/ricardo-sousa-quinteto-avenidas-hot-jazz/"
+    },
+    {
+      "event_id": "3790",
+      "title_from_microdata": "Boxeo - Avenidas Hot Jazz",
+      "permalink": "https://hcp.pt/events/boxeo-avenidas-hot-jazz/"
+    },
+    {
+      "event_id": "3793",
+      "title_from_microdata": "Guilherme Fradinho Quinteto - Avenidas Hot Jazz",
+      "permalink": "https://hcp.pt/events/guilherme-fradinho-quinteto-avenidas-hot-jazz/"
+    },
+    {
+      "event_id": "3794",
+      "title_from_microdata": "Hugo Lobo Trio convida Madalena Caldeira - Há Jazz no Parque Mayer",
+      "permalink": "https://hcp.pt/events/hugo-lobo-trio-convida-madalena-caldeira-ha-jazz-no-parque-mayer/"
+    },
+    {
+      "event_id": "3795",
+      "title_from_microdata": "João Nogueira Quarteto toca Coltrane's sound - Há Jazz no Parque Mayer",
+      "permalink": "https://hcp.pt/events/joao-nogueira-quarteto-toca-coltranes-sound-ha-jazz-no-parque-mayer/"
+    },
+    {
+      "event_id": "3797",
+      "title_from_microdata": "Mateus Saldanha Trio - Há Jazz no Parque Mayer",
+      "permalink": "https://hcp.pt/events/mateus-saldanha-trio-ha-jazz-no-parque-mayer/"
+    },
+    {
+      "event_id": "3799",
+      "title_from_microdata": "Marta Garrett \"Assanhado\" - Há Jazz no Parque Mayer",
+      "permalink": "https://hcp.pt/events/marta-garrett-assanhado-ha-jazz-no-parque-mayer/"
+    },
+    {
+      "event_id": "3801",
+      "title_from_microdata": "Bode Wilson - Há Jazz no Parque Mayer",
+      "permalink": "https://hcp.pt/events/bode-wilson-ha-jazz-no-parque-mayer/"
+    }
+  ],
+  "permalink_verification": {
+    "method": "Sequential HTTP GET against each of the 9 permalinks above, first-party hcp.pt only, bounded, with a standard browser User-Agent used for one representative re-check to rule out UA-based bot handling.",
+    "requests_made": [
+      { "event_id": "3786", "url": "https://hcp.pt/events/leida-2/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3788", "url": "https://hcp.pt/events/ricardo-sousa-quinteto-avenidas-hot-jazz/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3790", "url": "https://hcp.pt/events/boxeo-avenidas-hot-jazz/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3793", "url": "https://hcp.pt/events/guilherme-fradinho-quinteto-avenidas-hot-jazz/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3794", "url": "https://hcp.pt/events/hugo-lobo-trio-convida-madalena-caldeira-ha-jazz-no-parque-mayer/", "http_status": 301, "location_header": "https://hcp.pt/#clube", "note": "re-checked with a standard browser User-Agent (Chrome/124.0); identical 301/Location, confirming this is a genuine server-issued redirect (Apache), not UA-based bot handling" },
+      { "event_id": "3795", "url": "https://hcp.pt/events/joao-nogueira-quarteto-toca-coltranes-sound-ha-jazz-no-parque-mayer/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3797", "url": "https://hcp.pt/events/mateus-saldanha-trio-ha-jazz-no-parque-mayer/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3799", "url": "https://hcp.pt/events/marta-garrett-assanhado-ha-jazz-no-parque-mayer/", "http_status": 301, "location_header": "https://hcp.pt/#clube" },
+      { "event_id": "3801", "url": "https://hcp.pt/events/bode-wilson-ha-jazz-no-parque-mayer/", "http_status": 301, "location_header": "https://hcp.pt/#clube" }
+    ],
+    "finding": "Every one of the 9 permalinks returns HTTP 301 Moved Permanently with Location: https://hcp.pt/#clube (the Hot Clube homepage's 'clube' anchor) — none resolve to distinct individual-event content. This is a genuine, server-issued redirect (Apache), confirmed with a standard browser User-Agent, not a bot-detection artifact of this proof's own request headers. Consequently none of these permalinks are used as Observation.event_url in this task: doing so would present the source's own homepage as though it were an individual event page.",
+    "safe_event_urls": {}
+  },
+  "total_live_requests": 10
+}

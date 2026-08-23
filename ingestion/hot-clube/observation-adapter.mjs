@@ -21,6 +21,21 @@
 // independently proves timing beyond "reflects whatever was requested" —
 // it maps DTSTART/DTEND through honestly via the same certainty model
 // every other date/time field in this project uses.
+//
+// event_url (BOTM-HOT-CLUBE-EVENT-URL-01): the ICS payload itself has no
+// URL field. ingestion/hot-clube/discovery.mjs can extract each event's
+// first-party permalink from the homepage's own Schema.org microdata, but
+// a permalink is only ever used here when the caller's `eventLinks`
+// lookup says so — that lookup is expected to already encode a verified
+// "does this actually resolve to distinct event content" decision (see
+// fixtures/hot-clube/discovery/homepage-event-links.json's
+// `permalink_verification.safe_event_urls`). This proof's own retained 9
+// records all found the same first-party permalink pattern present, but
+// verified every one of them 301-redirects to the Hot Clube homepage
+// rather than distinct content — so `safe_event_urls` is currently empty
+// and every retained record's event_url is still, correctly, null. This
+// mechanism exists so a future, genuinely working permalink enriches
+// event_url automatically, without ever guessing one.
 
 import { parseICS } from "../ics/parse.mjs";
 import { createObservation, emptyDateTime } from "../observation/contract.mjs";
@@ -72,8 +87,15 @@ function findRequestForFixture(metadata, fixturePath) {
  * matching `metadata.retained_event_ids`) — never parsed out of the ICS
  * payload itself, which does not contain it (see docs/sources/HOT_CLUBE.md,
  * "Stable Source Identifier Behaviour").
+ *
+ * `eventLinks` is an optional `{ [event_id]: event_url }` lookup — e.g.
+ * fixtures/hot-clube/discovery/homepage-event-links.json's
+ * `permalink_verification.safe_event_urls` — of permalinks already
+ * verified safe to present as this event's own page. An event_id absent
+ * from the lookup (or no lookup supplied at all) gets `event_url: null`,
+ * never a guess.
  */
-export function toObservation({ eventId, icsText, fixturePath, metadata }) {
+export function toObservation({ eventId, icsText, fixturePath, metadata, eventLinks }) {
   if (eventId === undefined || eventId === null || eventId === "") {
     throw new Error("toObservation requires a non-empty eventId from the HTML discovery step");
   }
@@ -105,11 +127,14 @@ export function toObservation({ eventId, icsText, fixturePath, metadata }) {
     location_text: event.location,
 
     price_text: null, // confirmed absent from every retained VEVENT
-    // event.url is confirmed absent from source. A distinct permalink
-    // pattern (https://hcp.pt/events/{slug}/) was noticed on the
-    // programme page but not confirmed for this event, so it is not used
-    // here — see docs/sources/HOT_CLUBE.md "Limitations".
-    event_url: null,
+    // event.url is confirmed absent from the ICS payload itself. A
+    // proven first-party permalink pattern exists
+    // (https://hcp.pt/events/{slug}/, see
+    // docs/sources/HOT_CLUBE.md "Individual Event Permalinks"), but it is
+    // only used when the caller's eventLinks lookup has already verified
+    // it resolves to distinct event content — never merely because a
+    // permalink was discovered.
+    event_url: eventLinks?.[String(eventId)] ?? null,
 
     source_fields: {
       event_id: eventId, // the Hot Clube SOURCE identifier itself — see module doc comment
@@ -134,10 +159,10 @@ export function toObservation({ eventId, icsText, fixturePath, metadata }) {
 /**
  * Convert a list of { eventId, icsText, fixturePath } entries (one per
  * retained fixture) into Observations, sharing one retrieval-metadata
- * object across all of them.
+ * object and one optional eventLinks lookup across all of them.
  */
-export function toObservations(entries, metadata) {
+export function toObservations(entries, metadata, eventLinks) {
   return entries.map(({ eventId, icsText, fixturePath }) =>
-    toObservation({ eventId, icsText, fixturePath, metadata }),
+    toObservation({ eventId, icsText, fixturePath, metadata, eventLinks }),
   );
 }

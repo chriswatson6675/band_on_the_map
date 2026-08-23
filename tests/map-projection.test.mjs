@@ -24,6 +24,13 @@ async function loadAllObservations() {
   const metadata = JSON.parse(
     await readFile(new URL("../fixtures/hot-clube/metadata.json", import.meta.url), "utf8"),
   );
+  const discovery = JSON.parse(
+    await readFile(
+      new URL("../fixtures/hot-clube/discovery/homepage-event-links.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const eventLinks = discovery.permalink_verification.safe_event_urls;
   const eventsDir = new URL("../fixtures/hot-clube/events/", import.meta.url);
   const names = (await readdir(eventsDir)).filter((f) => f.endsWith(".ics")).sort();
   const entries = [];
@@ -34,7 +41,7 @@ async function loadAllObservations() {
       fixturePath: `fixtures/hot-clube/events/${name}`,
     });
   }
-  const hotClubeObs = hotClubeToObservations(entries, metadata);
+  const hotClubeObs = hotClubeToObservations(entries, metadata, eventLinks);
 
   return { agendalxObs, hotClubeObs, all: [...agendalxObs, ...hotClubeObs] };
 }
@@ -260,5 +267,52 @@ test("Hot Clube listings never carry an event_url; AgendaLX's real link is prese
 
   for (const listing of marker.listings.filter((l) => l.source_id === "hot-clube-de-portugal")) {
     assert.equal(listing.event_url, null, "Hot Clube event_url must not be invented");
+  }
+});
+
+// BOTM-HOT-CLUBE-EVENT-URL-01
+
+test("each listing's event_url is independent: one listing having a link never leaks onto another", async () => {
+  const { agendalxObs, hotClubeObs } = await loadAllObservations();
+  const { venueRegistry, sourceRegistry } = await loadRegistries();
+
+  // Simulate a future, genuinely-proven eventLinks entry for exactly one
+  // Hot Clube record, to prove the per-listing wiring — not to change any
+  // committed data.
+  const enrichedHotClubeObs = hotClubeObs.map((observation) =>
+    observation.source_record_id === "3794"
+      ? { ...observation, event_url: "https://example.test/proven/" }
+      : observation,
+  );
+
+  const [marker] = projectObservationsToMapMarkers([...agendalxObs, ...enrichedHotClubeObs], {
+    venues: venueRegistry.venues,
+    sourceRegistry: sourceRegistry.entries,
+  });
+
+  const withLink = marker.listings.filter((l) => l.event_url === "https://example.test/proven/");
+  assert.equal(withLink.length, 1);
+  assert.equal(withLink[0].source_record_id, "3794");
+
+  const withoutLink = marker.listings.filter((l) => l.source_record_id !== "3794");
+  assert.equal(withoutLink.length, 5);
+  for (const listing of withoutLink) {
+    assert.notEqual(listing.event_url, "https://example.test/proven/");
+  }
+});
+
+test("a listing with event_url null carries no link value of any kind (no fake link to render)", async () => {
+  const { all } = await loadAllObservations();
+  const { venueRegistry, sourceRegistry } = await loadRegistries();
+  const [marker] = projectObservationsToMapMarkers(all, {
+    venues: venueRegistry.venues,
+    sourceRegistry: sourceRegistry.entries,
+  });
+
+  const nullLinkListings = marker.listings.filter((l) => l.event_url === null);
+  assert.equal(nullLinkListings.length, 5, "the 5 Hot Clube listings currently have no verified permalink");
+  for (const listing of nullLinkListings) {
+    assert.equal(listing.event_url, null);
+    assert.notEqual(listing.event_url, "", "null, not an empty-string placeholder either");
   }
 });

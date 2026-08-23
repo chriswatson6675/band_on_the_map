@@ -162,3 +162,65 @@ test("Observation generation is deterministic from the retained fixtures", async
   const metadata = await loadMetadata();
   assert.deepEqual(toObservations(entries, metadata), toObservations(entries, metadata));
 });
+
+// BOTM-HOT-CLUBE-EVENT-URL-01
+
+test("with no eventLinks supplied, event_url remains null (unchanged default behaviour)", async () => {
+  const entries = await loadEntries();
+  const metadata = await loadMetadata();
+  const observations = toObservations(entries, metadata);
+  for (const observation of observations) {
+    assert.equal(observation.event_url, null);
+  }
+});
+
+test("real retained eventLinks (currently all unverified/redirecting) leave every event_url null", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const entries = await loadEntries();
+  const metadata = await loadMetadata();
+  const discovery = JSON.parse(
+    await readFile(
+      new URL("../fixtures/hot-clube/discovery/homepage-event-links.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const eventLinks = discovery.permalink_verification.safe_event_urls;
+  const observations = toObservations(entries, metadata, eventLinks);
+  for (const observation of observations) {
+    assert.equal(observation.event_url, null);
+  }
+});
+
+test("Observation.event_url uses a proven permalink when the caller's eventLinks lookup supplies one", async () => {
+  const entries = await loadEntries();
+  const metadata = await loadMetadata();
+  const eventLinks = { 3794: "https://example.test/events/proven-permalink/" };
+  const observations = toObservations(entries, metadata, eventLinks);
+
+  const withLink = observations.find((o) => o.source_record_id === "3794");
+  assert.equal(withLink.event_url, "https://example.test/events/proven-permalink/");
+
+  // Every other listing's event_url is independently null — supplying one
+  // event's link must not leak onto another.
+  for (const observation of observations) {
+    if (observation.source_record_id !== "3794") {
+      assert.equal(observation.event_url, null, observation.source_record_id);
+    }
+  }
+});
+
+test("source_record_id remains the EventON event_id, and ICS UID remains non-identity, after the event_url change", async () => {
+  const entries = await loadEntries();
+  const metadata = await loadMetadata();
+  const eventLinks = { 3794: "https://example.test/events/proven-permalink/" };
+  const observations = toObservations(entries, metadata, eventLinks);
+
+  assert.deepEqual(
+    observations.map((o) => o.source_record_id).sort(),
+    entries.map((e) => e.eventId).sort(),
+  );
+  for (const observation of observations) {
+    assert.notEqual(observation.source_record_id, observation.source_fields.ics_uid);
+    assert.equal(observation.source_fields.event_id, observation.source_record_id);
+  }
+});
