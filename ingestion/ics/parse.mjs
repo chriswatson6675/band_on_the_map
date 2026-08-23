@@ -23,6 +23,11 @@
 // timezone database. If a future source's ICS genuinely requires either,
 // stop and evaluate a narrowly-scoped, mature library rather than
 // extending this parser to guess at that behaviour.
+//
+// Each returned event also carries an `unfoldedBlock` convenience field —
+// see the parseVEvent() doc comment below for why that is normalized
+// parser-level text, not byte-identical raw evidence, and where actual
+// raw evidence must be retained instead.
 
 const CRLF_OR_LF = /\r\n|\n|\r/;
 
@@ -169,9 +174,25 @@ const DATE_TIME_FIELDS = {
 
 /**
  * Parse one VEVENT block's already-unfolded property lines into a
- * SOURCE RECORD. `raw` retains the exact original block text (each
- * property line exactly as it appeared, joined with "\n") for provenance;
- * it is never rewritten or reformatted.
+ * SOURCE RECORD.
+ *
+ * `unfoldedBlock` rejoins those already-unfolded lines with "\n" for
+ * convenience — property names and their (still-escaped) values are all
+ * present, in order, in one string. This is useful parser-level
+ * normalized text: it lets a caller inspect what was fed into field
+ * decoding without needing every individual property.
+ *
+ * `unfoldedBlock` is deliberately NOT byte-identical source evidence and
+ * must never be treated as raw_payload / source-of-record. By the time
+ * this function runs, RFC 5545 line-folding has already been collapsed,
+ * every line's original terminator (CRLF, bare LF, or a mix within one
+ * file) has already been discarded in favour of "\n", and any blank
+ * physical lines encountered during unfolding were dropped — see
+ * unfoldLines(). None of that is reconstructible from unfoldedBlock alone.
+ * When byte-identical raw evidence is required, the acquisition layer
+ * calling this parser must retain the original ICS response/body itself
+ * (this project's fixtures/hot-clube/events/*.ics files are that byte-
+ * faithful record; parseICS() only ever sees text already read from them).
  */
 function parseVEvent(lines) {
   const record = {
@@ -186,7 +207,7 @@ function parseVEvent(lines) {
     dtend: null,
     dtstamp: null,
     otherProperties: {},
-    raw: lines.join("\n"),
+    unfoldedBlock: lines.join("\n"),
   };
 
   for (const line of lines) {

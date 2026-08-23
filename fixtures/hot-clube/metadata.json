@@ -6,8 +6,8 @@
   "programme_page": "https://hcp.pt/#clube-programa",
   "programme_page_note": "\"Programa\" is a same-page anchor (#clube-programa) on the homepage, not a separate URL. The homepage itself server-renders the full upcoming-events calendar via the EventON WordPress plugin.",
   "acquisition_shape": "PER_EVENT_ICS",
-  "central_feed_exists": false,
-  "central_feed_note": "No multi-event ICS/webcal subscription feed was found anywhere in the homepage HTML or its linked assets. The only \"subscribe\" mechanism present is an unrelated Mailchimp newsletter form. Each event exposes its own separate one-VEVENT .ics download instead.",
+  "central_feed_found": false,
+  "central_feed_note": "No central multi-event ICS/webcal subscription feed was found through the bounded first-party site investigation (the homepage HTML and its linked assets). The only \"subscribe\" mechanism present is an unrelated Mailchimp newsletter form. Each event exposes its own separate one-VEVENT .ics download instead. This records the result of that bounded investigation, not a claim that no such feed could exist anywhere on the site.",
   "ics_discovery_mechanism": {
     "summary": "Each event card in the homepage's EventON calendar renders a 'Calendário' link whose href is a first-party WordPress admin-ajax.php endpoint. The event's stable EventON post ID is also independently exposed as a data-event_id attribute on that event's container <div>, which is the recommended discovery point (not the ICS href's query string).",
     "container_selector_evidence": "<div id=\"event_3788\" class=\"eventon_list_event ...\" data-event_id=\"3788\" data-time=\"1786127400-1786146600\" ...>",

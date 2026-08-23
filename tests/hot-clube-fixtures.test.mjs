@@ -77,12 +77,15 @@ test("the observed timezone quirk (UTC DTSTART/DTEND, floating DTSTAMP) is handl
   }
 });
 
-test("escaped commas in DESCRIPTION are unescaped, and the raw block keeps them escaped", async () => {
+test("escaped commas in DESCRIPTION are unescaped, and unfoldedBlock keeps them escaped", async () => {
   const text = await readFile(new URL("3794.ics", EVENTS_DIR), "utf8");
   const { events } = parseICS(text);
   assert.ok(events[0].description.includes("Madalena Caldeira- voz,"));
   assert.equal(events[0].description.includes("\\,"), false, "parsed field must be unescaped");
-  assert.ok(events[0].raw.includes("\\,"), "raw block must retain the original escaping");
+  assert.ok(
+    events[0].unfoldedBlock.includes("\\,"),
+    "unfoldedBlock must retain the original property-value escaping (it is pre-field-decoding text, not a fully decoded field)",
+  );
 });
 
 test("fields confirmed absent from this source (URL, STATUS, ORGANIZER, recurrence) are null/empty, not fabricated", async () => {
@@ -105,14 +108,40 @@ test("parsing does not mutate the raw fixture file on disk", async () => {
   assert.equal(after, before);
 });
 
-test("parsing does not mutate the input string or the parsed record's raw block relative to the source text", async () => {
+test("parsing does not mutate the input string, and unfoldedBlock still contains every original property value", async () => {
   const text = await readFile(new URL("3786.ics", EVENTS_DIR), "utf8");
   const snapshot = text;
   const { events } = parseICS(text);
   assert.equal(text, snapshot, "input string must be unchanged after parsing");
-  // The raw block is a rejoin of unfolded lines, not a byte-identical file
-  // copy, but every original property value must still be present in it.
-  assert.ok(events[0].raw.includes(events[0].uid));
+  // unfoldedBlock is a rejoin of already-unfolded lines with "\n" — a
+  // normalized parser-level view, not a byte-identical copy of the file
+  // (see the parseVEvent() doc comment) — but every original property
+  // value must still be present in it.
+  assert.ok(events[0].unfoldedBlock.includes(events[0].uid));
+});
+
+test("no returned parser property is misleadingly named `raw`; unfoldedBlock is explicitly not treated as raw_payload/source-of-record evidence", async () => {
+  const text = await readFile(new URL("3786.ics", EVENTS_DIR), "utf8");
+  const { events } = parseICS(text);
+  const keys = Object.keys(events[0]);
+
+  assert.equal(keys.includes("raw"), false, "no property named simply `raw` should exist");
+  assert.equal(keys.includes("raw_payload"), false, "unfoldedBlock must not be exposed under a raw_payload-style name either");
+  assert.ok(keys.includes("unfoldedBlock"), "unfoldedBlock must exist");
+
+  // Concretely demonstrate non-byte-identity: unfoldedBlock is rejoined
+  // with a hardcoded "\n", so it cannot reflect the file's own original
+  // terminator bytes even when those happen to already be bare LF, and it
+  // silently drops any blank physical line encountered while unfolding
+  // (see unfoldLines()). The fixture file itself — read as `text` above,
+  // byte-for-byte as committed under .gitattributes (*.ics -text) — is
+  // the actual raw, source-of-record evidence; unfoldedBlock is derived,
+  // convenience text only.
+  assert.notEqual(
+    events[0].unfoldedBlock,
+    text,
+    "unfoldedBlock must not equal the raw file text (it excludes BEGIN/END markers, calendar-level properties, and any original terminator bytes)",
+  );
 });
 
 test("no canonical Event identity is generated from any retained fixture", async () => {
@@ -126,11 +155,11 @@ test("no canonical Event identity is generated from any retained fixture", async
   }
 });
 
-test("fixtures/hot-clube/metadata.json records PER_EVENT_ICS with no central feed, and 9 retained VEVENTs", async () => {
+test("fixtures/hot-clube/metadata.json records PER_EVENT_ICS with no central feed found, and 9 retained VEVENTs", async () => {
   const metadata = JSON.parse(await readFile(METADATA_PATH, "utf8"));
   assert.equal(metadata.source_id, "hot-clube-de-portugal");
   assert.equal(metadata.acquisition_shape, "PER_EVENT_ICS");
-  assert.equal(metadata.central_feed_exists, false);
+  assert.equal(metadata.central_feed_found, false);
   assert.equal(metadata.vevents_retained, 9);
   assert.deepEqual(
     [...metadata.retained_event_ids].sort((a, b) => a - b),

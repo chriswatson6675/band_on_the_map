@@ -20,16 +20,23 @@ change or duplicate the registry's rights assessment — see "Rights" below.
 ## Acquisition Shape
 
 **`PER_EVENT_ICS`.** Confirmed by direct inspection: every event exposes its
-own separate one-`VEVENT` `.ics` download; no multi-event feed exists.
+own separate one-`VEVENT` `.ics` download. No central multi-event ICS/feed
+was found through the bounded first-party site investigation described
+below — that is the proven, evidence-bounded result; it is not a claim
+that no such feed could exist anywhere on the site.
 
-- **A single reusable multi-event ICS/calendar feed exists: NO.** The
+- **A single reusable multi-event ICS/calendar feed: NOT FOUND.** The
   homepage HTML and its linked assets were searched for any `webcal:`,
   calendar-subscription, or multi-event export link. The only "subscribe"
   mechanism present is an unrelated Mailchimp newsletter signup form
-  (`hcp.us12.list-manage.com`). No central feed was found.
+  (`hcp.us12.list-manage.com`). Within that bounded search, no central
+  feed was found.
 - **ICS links generated per individual event: YES.** Each event card in the
   homepage's rendered calendar carries its own "Calendário" link.
-- Both A and B were investigated; only B (per-event) exists.
+- Both A and B were investigated within the scope of this proof; only B
+  (per-event) was confirmed to exist. `acquisition_shape` is recorded as
+  `PER_EVENT_ICS`, and `central_feed_found` as `false`, in
+  `fixtures/hot-clube/metadata.json`.
 
 ## Exact ICS Discovery Mechanism
 
@@ -284,10 +291,17 @@ source_record_id = event_id                            (from the HTML
                                                           the ICS UID,
                                                           see above)
 retrieved_at     = the collector's own retrieval timestamp
-raw_payload      = the original, unmodified .ics VEVENT text
-                    (ParsedEvent.raw from ingestion/ics/parse.mjs)
+raw_payload      = the original, unmodified HTTP response body the
+                    collector itself received (the exact bytes — this
+                    project's fixtures/hot-clube/events/*.ics files are
+                    that byte-faithful record for the 9 retained samples;
+                    a future collector must retain its own live response
+                    the same way, not substitute a parser convenience field)
 parsed fields    = ParsedEvent.{summary, description, location,
                     dtstart, dtend, dtstamp, url, status, organizer}
+                    — NOT ParsedEvent.unfoldedBlock, which is normalized,
+                    already-unfolded parser-level text, not raw evidence
+                    (see ingestion/ics/parse.mjs's parseVEvent() doc comment)
 ```
 
 No persistent Observation storage, deduplication, canonical Event

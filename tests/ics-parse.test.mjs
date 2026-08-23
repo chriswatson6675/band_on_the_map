@@ -177,6 +177,31 @@ test("parseICS preserves an unmodelled property (e.g. a future RRULE) verbatim r
   assert.equal(events[0].otherProperties.RRULE, "FREQ=WEEKLY;COUNT=5");
 });
 
+test("unfoldedBlock is normalized parser-level text, not byte-identical raw evidence", () => {
+  // A folded DESCRIPTION, CRLF property terminators, and a blank physical
+  // line together demonstrate everything unfoldedBlock cannot preserve:
+  // the fold structure, the original terminator bytes, and the blank line.
+  const rawVeventBlock =
+    "UID:abc\r\n" +
+    "SUMMARY:Folded \r\n" + // trailing space belongs to the value itself
+    " description\r\n" + // continuation; its own leading space is the fold marker, removed on unfold
+    "\r\n" + // a blank physical line, dropped during unfolding
+    "DTSTART:20260101T100000Z";
+  const ics =
+    "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//test//EN\r\nBEGIN:VEVENT\r\n" +
+    rawVeventBlock +
+    "\r\nEND:VEVENT\r\nEND:VCALENDAR";
+
+  const { events } = parseICS(ics);
+  const { unfoldedBlock } = events[0];
+
+  assert.equal(unfoldedBlock, "UID:abc\nSUMMARY:Folded description\nDTSTART:20260101T100000Z");
+  // The fold is gone (one logical line instead of two), CRLF has become
+  // "\n", and the blank line is gone — none of that is the original bytes.
+  assert.notEqual(unfoldedBlock, rawVeventBlock);
+  assert.equal(unfoldedBlock.includes("\r"), false, "original CRLF terminators are not preserved");
+});
+
 test("parseICS's returned record carries no canonical Event identity", () => {
   const ics = [
     "BEGIN:VCALENDAR",
