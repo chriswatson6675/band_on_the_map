@@ -6,9 +6,25 @@ import {
   Marker,
   NavigationControl,
   setWorkerUrl,
+  type GeoJSONSource,
   type LngLatBoundsLike,
+  type GeoJSONFeature,
+  type MapLayerMouseEvent,
 } from "maplibre-gl";
 import { hasMaterialConflict } from "@/ingestion/association/compare-facts.mjs";
+import { buildNearTermLabel } from "@/ingestion/map/near-term.mjs";
+import {
+  VENUE_CLUSTER_SOURCE_ID,
+  CLUSTER_CIRCLE_LAYER_ID,
+  CLUSTER_HALO_LAYER_ID,
+  CLUSTER_COUNT_LAYER_ID,
+  CLUSTER_RADIUS,
+  CLUSTER_MAX_ZOOM,
+  NEAR_TERM_LABEL_MIN_ZOOM,
+  GIG_COUNT_PROPERTY,
+  buildVenueFeatureCollection,
+  formatClusterTooltip,
+} from "@/ingestion/map/cluster-geojson.mjs";
 
 setWorkerUrl(
   "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
@@ -127,7 +143,11 @@ type DiscoveryMapProps = {
   markers: MapMarker[];
 };
 
-const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+// BOTM-MAP-DISCOVERY-UX-01: a more colourful OpenFreeMap style than the
+// previous Positron (blue water, visible parks, a legible road hierarchy)
+// while staying on MapLibre + OpenFreeMap — see the FINAL REPORT for the
+// live reachability check performed before committing to this URL.
+const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 
 function formatDateLabel(dt: ListingDateTime | null | undefined): string | null {
   if (!dt) return null;
@@ -170,22 +190,6 @@ function formatTimeLabel(dt: ListingDateTime | null | undefined): string | null 
   return null;
 }
 
-function createMarkerElement(count: number): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "botm-marker";
-
-  const pulse = document.createElement("span");
-  pulse.className = "botm-marker-pulse";
-  el.appendChild(pulse);
-
-  const pin = document.createElement("span");
-  pin.className = "botm-marker-pin";
-  pin.textContent = String(count);
-  el.appendChild(pin);
-
-  return el;
-}
-
 // Note: there is deliberately no venue-level "View source" link here.
 // Multiple listings can share one venue but each comes from its own
 // source record with its own (possibly absent) event_url — a single link
@@ -203,6 +207,65 @@ function createMarkerElement(count: number): HTMLElement {
 function toDisplayListings(marker: MapMarker): DisplayListing[] {
   if (marker.display_listings) return marker.display_listings;
   return (marker.listings ?? []).map((listing) => ({ kind: "SINGLE" as const, ...listing }));
+}
+
+// Builds the DOM element passed to `new Marker({ element: el })` for one
+// INDIVIDUAL (unclustered) venue. This element is MapLibre's marker
+// ROOT — see the BOTM-MAP-MARKER-ANCHOR-FIX-01 comment above
+// `.botm-marker` in app/globals.css: it must never itself declare
+// `position`/`transform`/`top`/`left`. Every visual/animated child added
+// here (pulse, pin, hover tooltip, automatic near-term label) follows
+// the same rule — positioning/animation stays on the CHILD element, never
+// this root, exactly like the pre-existing pulse/pin children.
+function createMarkerElement(marker: MapMarker, displayListings: DisplayListing[]): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "botm-marker";
+  el.dataset.venueId = marker.venue_id;
+
+  const pulse = document.createElement("span");
+  pulse.className = "botm-marker-pulse";
+  el.appendChild(pulse);
+
+  const pin = document.createElement("span");
+  pin.className = "botm-marker-pin";
+  pin.textContent = String(displayListings.length);
+  el.appendChild(pin);
+
+  // Venue hover tooltip (desktop enhancement only — pure CSS :hover, no
+  // click required, disappears the instant the pointer leaves; touch
+  // devices simply never trigger :hover, which is the correct, non-
+  // "awkward simulated hover" behaviour the task brief asks for).
+  const tooltip = document.createElement("span");
+  tooltip.className = "botm-marker-tooltip";
+  tooltip.textContent = marker.canonical_name;
+  el.appendChild(tooltip);
+
+  // Automatic near-term (today/tomorrow) gig label — only ever rendered
+  // for a venue that actually has a qualifying display listing right now
+  // (never guessed/fabricated), and only ever made visible once the map
+  // is zoomed to NEAR_TERM_LABEL_MIN_ZOOM or closer (see the
+  // `.discovery-map-inner.is-zoom-close` CSS rule and the zoomend
+  // listener below that toggles it).
+  const nearTerm = buildNearTermLabel(displayListings);
+  if (nearTerm) {
+    el.classList.add("has-near-term");
+    const label = document.createElement("div");
+    label.className = "botm-marker-label";
+
+    const venueLine = document.createElement("span");
+    venueLine.className = "botm-marker-label-venue";
+    venueLine.textContent = marker.canonical_name;
+    label.appendChild(venueLine);
+
+    const summaryLine = document.createElement("span");
+    summaryLine.className = "botm-marker-label-summary";
+    summaryLine.textContent = nearTerm.venueLine;
+    label.appendChild(summaryLine);
+
+    el.appendChild(label);
+  }
+
+  return el;
 }
 
 function SingleListing({ listing }: { listing: SingleDisplayListing }) {
@@ -291,12 +354,43 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const initialCountryRef = useRef(country);
+  // Snapshot of `markers` at mount time only, mirroring initialCountryRef
+  // above — the cluster source is seeded with this once when the map
+  // first loads; the separate `[markers]` effect below keeps it in sync
+  // afterwards, so this ref deliberately never needs to be re-read.
+  const initialMarkersRef = useRef(markers);
   const [activeVenue, setActiveVenue] = useState<MapMarker | null>(null);
+
+  // Imperative state read by map event handlers below — kept current by
+  // the [markers] effect further down (never mutated during render; refs
+  // must only be written in effects/event handlers) so handlers bound
+  // once, on map load, always see the latest `markers` prop without
+  // needing to be re-bound. This mirrors how the DOM Marker elements
+  // themselves are already managed imperatively/outside React's render.
+  // `Map` in this file's scope is maplibre-gl's Map class (imported
+  // above), so the built-in generic collection type must be referenced
+  // explicitly as `globalThis.Map` here and below.
+  const venueByIdRef = useRef<globalThis.Map<string, MapMarker>>(new globalThis.Map());
+
+  // venue_id -> live DOM Marker, for individual (unclustered) venues only.
+  // Clusters themselves are never DOM markers — see the circle/symbol
+  // layers added in the mount effect below.
+  const domMarkersRef = useRef<globalThis.Map<string, Marker>>(new globalThis.Map());
+
+  const clusterTooltipRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) {
       return;
     }
+
+    // Captured once, up front: domMarkersRef.current is one long-lived
+    // Map instance for this effect's whole lifetime (never reassigned),
+    // so reading it into a local here and using that local throughout —
+    // including in this effect's cleanup — is equivalent to reading
+    // `.current` each time, but keeps the lint rule that flags reading a
+    // ref's `.current` inside a cleanup closure satisfied.
+    const domMarkers = domMarkersRef.current;
 
     const initialView = COUNTRY_MAP_VIEWS[initialCountryRef.current];
     const map = new Map({
@@ -314,11 +408,193 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
       "top-right",
     );
 
+    // Re-renders every currently-unclustered venue as a DOM Marker,
+    // diffed against the previous set so existing markers (and their
+    // click listeners/hover state) are left untouched. Bound to `render`
+    // (the same event MapLibre's own official "HTML clusters" pattern
+    // uses) — with at most a handful of venues this is cheap, and it is
+    // the only way to reliably stay in sync with supercluster's own
+    // zoom-dependent grouping, which `querySourceFeatures` reflects only
+    // once the source's tiles for the current view have loaded.
+    function syncUnclusteredMarkers() {
+      if (!map.getSource(VENUE_CLUSTER_SOURCE_ID)) return;
+
+      let rendered: GeoJSONFeature[];
+      try {
+        rendered = map.querySourceFeatures(VENUE_CLUSTER_SOURCE_ID, {
+          filter: ["!", ["has", "point_count"]],
+        });
+      } catch {
+        return; // source/tiles not ready yet
+      }
+
+      const currentIds = new Set<string>();
+      for (const feature of rendered) {
+        const venueId = feature.properties?.venue_id as string | undefined;
+        if (!venueId || currentIds.has(venueId)) continue;
+        currentIds.add(venueId);
+        if (domMarkers.has(venueId)) continue;
+
+        const marker = venueByIdRef.current.get(venueId);
+        if (!marker) continue;
+
+        const displayListings = toDisplayListings(marker);
+        const el = createMarkerElement(marker, displayListings);
+        el.addEventListener("click", () => {
+          document.querySelectorAll(".botm-marker").forEach((m) => m.classList.remove("is-active"));
+          el.classList.add("is-active");
+          setActiveVenue(marker);
+          map.easeTo({
+            center: [marker.longitude, marker.latitude],
+            zoom: Math.max(map.getZoom(), 15),
+            duration: 800,
+          });
+        });
+
+        const domMarker = new Marker({ element: el })
+          .setLngLat([marker.longitude, marker.latitude])
+          .addTo(map);
+        domMarkers.set(venueId, domMarker);
+      }
+
+      for (const [venueId, domMarker] of domMarkers) {
+        if (!currentIds.has(venueId)) {
+          domMarker.remove();
+          domMarkers.delete(venueId);
+        }
+      }
+    }
+
+    function hideClusterTooltip() {
+      const tooltipEl = clusterTooltipRef.current;
+      if (tooltipEl) tooltipEl.style.display = "none";
+    }
+
+    function showClusterTooltip(e: MapLayerMouseEvent) {
+      const feature = e.features?.[0];
+      const tooltipEl = clusterTooltipRef.current;
+      if (!feature || !tooltipEl) return;
+      const venueCount = feature.properties?.point_count;
+      const gigCount = feature.properties?.[GIG_COUNT_PROPERTY];
+      tooltipEl.textContent = formatClusterTooltip(venueCount, gigCount);
+      tooltipEl.style.left = `${e.point.x}px`;
+      tooltipEl.style.top = `${e.point.y}px`;
+      tooltipEl.style.display = "block";
+    }
+
+    function updateZoomClass() {
+      containerRef.current?.classList.toggle("is-zoom-close", map.getZoom() >= NEAR_TERM_LABEL_MIN_ZOOM);
+    }
+
     map.once("load", () => {
       map.fitBounds(initialView.bounds, {
         padding: 42,
         duration: 0,
       });
+
+      // MapLibre-native geographic clustering: one GeoJSON source of
+      // venue points, clustered by supercluster under the hood.
+      // clusterProperties sums each leaf's own `gig_count` (the number
+      // of DISPLAY GIG LISTINGS at that venue — see
+      // ingestion/map/cluster-geojson.mjs) into the cluster's own
+      // `gig_count`, so a cluster's displayed number is the TOTAL gig
+      // count across every venue it represents — never merely the
+      // number of venues. supercluster's own built-in `point_count`
+      // property gives the venue count for free, used only in the
+      // cluster hover tooltip ("N venues · M gigs").
+      map.addSource(VENUE_CLUSTER_SOURCE_ID, {
+        type: "geojson",
+        data: buildVenueFeatureCollection(initialMarkersRef.current) as GeoJSON.FeatureCollection,
+        cluster: true,
+        clusterRadius: CLUSTER_RADIUS,
+        clusterMaxZoom: CLUSTER_MAX_ZOOM,
+        clusterProperties: {
+          [GIG_COUNT_PROPERTY]: ["+", ["get", GIG_COUNT_PROPERTY]],
+        },
+      });
+
+      // A static (non-animated, deliberately calm) halo behind each
+      // cluster circle, sized with it — gives clusters a "target" look
+      // clearly distinct from individual venue pins without adding a
+      // busy/noisy animation on top of an already-colourful base map.
+      map.addLayer({
+        id: CLUSTER_HALO_LAYER_ID,
+        type: "circle",
+        source: VENUE_CLUSTER_SOURCE_ID,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-radius": ["step", ["get", GIG_COUNT_PROPERTY], 26, 20, 30, 60, 34, 120, 38],
+          "circle-color": "#e8876e",
+          "circle-opacity": 0.18,
+        },
+      });
+
+      map.addLayer({
+        id: CLUSTER_CIRCLE_LAYER_ID,
+        type: "circle",
+        source: VENUE_CLUSTER_SOURCE_ID,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-radius": ["step", ["get", GIG_COUNT_PROPERTY], 18, 20, 22, 60, 25, 120, 28],
+          "circle-color": "#e8876e",
+          "circle-stroke-width": 3,
+          "circle-stroke-color": "#fffefa",
+        },
+      });
+
+      map.addLayer({
+        id: CLUSTER_COUNT_LAYER_ID,
+        type: "symbol",
+        source: VENUE_CLUSTER_SOURCE_ID,
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": ["get", GIG_COUNT_PROPERTY],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 13,
+        },
+        paint: {
+          "text-color": "#fffefa",
+        },
+      });
+
+      // Cluster click: zoom smoothly to MapLibre/supercluster's own
+      // expansion zoom for that cluster and let it separate naturally —
+      // never a manually-computed zoom offset, never a venue panel.
+      map.on("click", CLUSTER_CIRCLE_LAYER_ID, (e: MapLayerMouseEvent) => {
+        const feature = map.queryRenderedFeatures(e.point, { layers: [CLUSTER_CIRCLE_LAYER_ID] })[0];
+        const clusterId = feature?.properties?.cluster_id;
+        if (clusterId === undefined || feature.geometry.type !== "Point") return;
+
+        const source = map.getSource(VENUE_CLUSTER_SOURCE_ID) as GeoJSONSource;
+        source
+          .getClusterExpansionZoom(clusterId)
+          .then((zoom) => {
+            map.easeTo({
+              center: feature.geometry.type === "Point" ? (feature.geometry.coordinates as [number, number]) : undefined,
+              zoom,
+              duration: 600,
+            });
+          })
+          .catch(() => {
+            // Expansion zoom lookup failed (e.g. stale cluster id after a
+            // fast re-cluster) — no-op rather than a bad manual zoom guess.
+          });
+      });
+
+      map.on("mouseenter", CLUSTER_CIRCLE_LAYER_ID, () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mousemove", CLUSTER_CIRCLE_LAYER_ID, showClusterTooltip);
+      map.on("mouseleave", CLUSTER_CIRCLE_LAYER_ID, () => {
+        map.getCanvas().style.cursor = "";
+        hideClusterTooltip();
+      });
+
+      map.on("zoomend", updateZoomClass);
+      updateZoomClass();
+
+      map.on("render", syncUnclusteredMarkers);
+      syncUnclusteredMarkers();
     });
 
     const resizeObserver = new ResizeObserver(() => {
@@ -330,6 +606,10 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
 
     return () => {
       resizeObserver.disconnect();
+      for (const domMarker of domMarkers.values()) {
+        domMarker.remove();
+      }
+      domMarkers.clear();
       map.remove();
       mapRef.current = null;
     };
@@ -348,37 +628,21 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     });
   }, [country]);
 
+  // Keeps the clustered GeoJSON source in sync when the visible marker
+  // set changes (e.g. a genre/date/price filter narrows `markers`) —
+  // the underlying dataset itself never changes here, only what's
+  // currently plotted. The mount effect's own `map.once("load", ...)`
+  // seeds the source with whatever `markers` held at construction time;
+  // this effect keeps it current afterwards.
   useEffect(() => {
+    venueByIdRef.current = new globalThis.Map(markers.map((marker) => [marker.venue_id, marker]));
+
     const map = mapRef.current;
-    if (!map) {
-      return;
+    if (!map) return;
+    const source = map.getSource(VENUE_CLUSTER_SOURCE_ID) as GeoJSONSource | undefined;
+    if (source) {
+      source.setData(buildVenueFeatureCollection(markers) as GeoJSON.FeatureCollection);
     }
-
-    const instances = markers.map((marker) => {
-      const count = marker.display_listings?.length ?? marker.listings?.length ?? 0;
-      const el = createMarkerElement(count);
-      el.addEventListener("click", () => {
-        const allMarkers = document.querySelectorAll(".botm-marker");
-        allMarkers.forEach((m) => m.classList.remove("is-active"));
-        el.classList.add("is-active");
-        setActiveVenue(marker);
-        map.easeTo({
-          center: [marker.longitude, marker.latitude],
-          zoom: Math.max(map.getZoom(), 15),
-          duration: 800,
-        });
-      });
-
-      return new Marker({ element: el })
-        .setLngLat([marker.longitude, marker.latitude])
-        .addTo(map);
-    });
-
-    return () => {
-      for (const marker of instances) {
-        marker.remove();
-      }
-    };
   }, [markers]);
 
   return (
@@ -388,6 +652,7 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
       aria-label={`Interactive map showing ${country}`}
     >
       <div ref={containerRef} className="discovery-map-inner" />
+      <div ref={clusterTooltipRef} className="botm-cluster-tooltip" aria-hidden="true" />
       {activeVenue && (
         <VenuePanel marker={activeVenue} onClose={() => {
           setActiveVenue(null);

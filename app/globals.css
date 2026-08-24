@@ -168,6 +168,87 @@ h1 em { color: var(--coral); font-style: italic; }
 .botm-marker.is-active .botm-marker-pulse { animation-duration: 1.4s; background: rgba(23, 104, 102, .3); }
 @keyframes botm-pulse { 0% { transform: scale(1); opacity: .6; } 70% { transform: scale(2.2); opacity: 0; } 100% { transform: scale(2.2); opacity: 0; } }
 
+/* Venue hover tooltip (BOTM-MAP-DISCOVERY-UX-01) — a CHILD of the
+   .botm-marker root (see the anchor-fix note above): position/transform
+   here are scoped to .botm-marker-tooltip itself, never the root. Pure
+   CSS :hover — appears instantly, disappears the moment the pointer
+   leaves, never requires a click, and simply never triggers on touch
+   devices (no simulated-hover JS needed or wanted). */
+.botm-marker-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  z-index: 6;
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity .12s ease, transform .12s ease;
+}
+.botm-marker:hover .botm-marker-tooltip { opacity: 1; transform: translate(-50%, 0); }
+
+/* Automatic near-term (today/tomorrow) gig label (BOTM-MAP-DISCOVERY-UX-01)
+   — another CHILD of the .botm-marker root, same anchor-fix rule applies.
+   Only ever present in the DOM for a venue with a qualifying listing
+   (components/DiscoveryMap.tsx), and only ever made visible once the map
+   container carries `.is-zoom-close` (toggled on zoomend once the map
+   reaches NEAR_TERM_LABEL_MIN_ZOOM — ingestion/map/cluster-geojson.mjs). */
+.botm-marker-label {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  z-index: 4;
+  margin-top: 8px;
+  padding: 6px 10px;
+  min-width: 92px;
+  max-width: 168px;
+  border: 1px solid rgba(232, 135, 110, .5);
+  border-radius: 8px;
+  background: var(--paper);
+  box-shadow: 0 6px 16px rgba(18, 60, 61, .18);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10.5px;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.botm-marker-label-venue { display: block; color: var(--ink); font-weight: 700; }
+.botm-marker-label-summary { display: block; color: var(--coral); font-weight: 700; }
+.discovery-map-inner.is-zoom-close .botm-marker.has-near-term .botm-marker-label { display: block; }
+
+/* Cluster hover tooltip — NOT a MapLibre Marker (clusters themselves are
+   rendered as native circle/symbol layers, not DOM elements), so the
+   anchor-fix rule doesn't apply to it directly; it is a plain sibling
+   overlay inside .discovery-map (already position:relative's absolute
+   positioning context via .map-placeholder), positioned imperatively
+   from mousemove screen coordinates. */
+.botm-cluster-tooltip {
+  position: absolute;
+  z-index: 6;
+  display: none;
+  padding: 6px 11px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -130%);
+  box-shadow: 0 6px 16px rgba(18, 60, 61, .2);
+}
+
 /* Venue overlay panel */
 .venue-panel { position: absolute; right: 16px; top: 16px; z-index: 5; display: flex; flex-direction: column; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100% - 32px); border-radius: 14px; box-shadow: 0 12px 36px rgba(18, 60, 61, .2); overflow: hidden; background: var(--paper); font-family: Arial, Helvetica, sans-serif; animation: venue-panel-in .22s ease-out; }
 @keyframes venue-panel-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }

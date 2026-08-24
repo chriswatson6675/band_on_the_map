@@ -55,17 +55,22 @@ test("app/globals.css: .botm-marker (the MapLibre marker root) does not declare 
   assert.doesNotMatch(body, /\btransform\s*:/, `.botm-marker must not declare transform (found: ${body})`);
 });
 
-test("app/globals.css: scaling/animation on hover and active state remains scoped to .botm-marker-pin / .botm-marker-pulse, never the .botm-marker root itself", async () => {
+test("app/globals.css: scaling/animation on hover and active state remains scoped to a .botm-marker-* CHILD element (pin/pulse/tooltip/label/...), never the .botm-marker root itself", async () => {
   const css = await readFile(GLOBALS_CSS_PATH, "utf8");
   // Every transform: declaration anywhere near a .botm-marker rule must be
-  // inside a rule whose selector reaches a -pin or -pulse suffixed class,
-  // not the bare root.
+  // inside a rule whose selector reaches SOME suffixed child class
+  // (.botm-marker-pin, .botm-marker-pulse, .botm-marker-tooltip,
+  // .botm-marker-label, or any future .botm-marker-* child added under
+  // this same invariant — see BOTM-MAP-DISCOVERY-UX-01), never the bare
+  // root. This intentionally does not hardcode an exact child-class list:
+  // the invariant this guards is "child only, never root", not "only
+  // these two specific children".
   const transformRules = css.match(/\.botm-marker[^{]*\{[^}]*transform\s*:[^}]*\}/g) ?? [];
   assert.ok(transformRules.length > 0, "sanity: expected at least the hover/active pin-scale rules to exist");
   for (const rule of transformRules) {
     const selector = rule.slice(0, rule.indexOf("{"));
     assert.ok(
-      /\.botm-marker-pin|\.botm-marker-pulse/.test(selector),
+      /\.botm-marker-[\w-]+/.test(selector),
       `a transform: declaration must be scoped to a child element selector, not: ${selector.trim()}`,
     );
   }
