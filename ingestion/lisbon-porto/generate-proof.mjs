@@ -36,6 +36,8 @@ import { parseCasaDaMusicaAgenda } from "../casa-da-musica/discovery.mjs";
 import { toObservations as casaDaMusicaToObservations } from "../casa-da-musica/observation-adapter.mjs";
 import { parseTeatroMunicipalPortoAgenda } from "../teatro-municipal-porto/discovery.mjs";
 import { toObservations as teatroMunicipalPortoToObservations } from "../teatro-municipal-porto/observation-adapter.mjs";
+import { parseCmGaiaEventosAgenda, filterMusicRecords as filterCmGaiaMusicRecords } from "../cm-gaia-eventos/discovery.mjs";
+import { toObservations as cmGaiaEventosToObservations } from "../cm-gaia-eventos/observation-adapter.mjs";
 
 import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
 
@@ -77,6 +79,21 @@ async function loadTeatroMunicipalPortoObservations() {
   });
 }
 
+async function loadCmGaiaEventosObservations() {
+  const [page1Html, page2Html] = await Promise.all([
+    readFile(resolve(ROOT, "fixtures/cm-gaia-eventos/eventos-page-1-excerpt.html"), "utf8"),
+    readFile(resolve(ROOT, "fixtures/cm-gaia-eventos/eventos-page-2-excerpt.html"), "utf8"),
+  ]);
+  const records = [...parseCmGaiaEventosAgenda(page1Html), ...parseCmGaiaEventosAgenda(page2Html)];
+  const musicRecords = filterCmGaiaMusicRecords(records);
+  return cmGaiaEventosToObservations(musicRecords, {
+    retrievedAt: "2026-08-24T12:38:27.000Z",
+    sourceUrl: "https://www.cm-gaia.pt/pt/eventos/",
+    contentType: "text/html; charset=UTF-8",
+    fixturePath: "fixtures/cm-gaia-eventos/eventos-page-1-excerpt.html + eventos-page-2-excerpt.html",
+  });
+}
+
 /**
  * Rebuild the full derived Lisbon+Porto proof object from the committed
  * fixture set. Used both by this script (to write
@@ -86,12 +103,13 @@ async function loadTeatroMunicipalPortoObservations() {
 export async function buildLisbonPortoOvernightCoverageProof() {
   const lisbonSubset = await buildLisbonAutomaticSubsetProof(); // unchanged, reused wholesale
 
-  const [casaDaMusicaObs, teatroMunicipalPortoObs] = await Promise.all([
+  const [casaDaMusicaObs, teatroMunicipalPortoObs, cmGaiaEventosObs] = await Promise.all([
     loadCasaDaMusicaObservations(),
     loadTeatroMunicipalPortoObservations(),
+    loadCmGaiaEventosObservations(),
   ]);
 
-  const portoObservations = [...casaDaMusicaObs, ...teatroMunicipalPortoObs];
+  const portoObservations = [...casaDaMusicaObs, ...teatroMunicipalPortoObs, ...cmGaiaEventosObs];
   const portoWithinBounds = portoObservations.filter((o) => withinDateBounds(o, DATE_BOUNDS.from, DATE_BOUNDS.to));
 
   const venueRegistryLisbon = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
@@ -121,6 +139,9 @@ export async function buildLisbonPortoOvernightCoverageProof() {
       "fixtures/casa-da-musica/metadata.json",
       "fixtures/teatro-municipal-porto/programa-musica-setembro-excerpt.html",
       "fixtures/teatro-municipal-porto/metadata.json",
+      "fixtures/cm-gaia-eventos/eventos-page-1-excerpt.html",
+      "fixtures/cm-gaia-eventos/eventos-page-2-excerpt.html",
+      "fixtures/cm-gaia-eventos/metadata.json",
       "venues/porto.json",
       "sources/porto.json",
     ],
@@ -131,6 +152,7 @@ export async function buildLisbonPortoOvernightCoverageProof() {
       per_source_observation_counts: {
         "casa-da-musica": casaDaMusicaObs.length,
         "teatro-municipal-do-porto": teatroMunicipalPortoObs.length,
+        "cm-gaia-eventos": cmGaiaEventosObs.length,
       },
       display_listing_count: portoDisplayListingCount,
       map_marker_count: portoMarkers.length,

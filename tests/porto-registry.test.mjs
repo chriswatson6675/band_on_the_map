@@ -19,18 +19,29 @@ test("every entry in sources/porto.json passes registry validation", async () =>
   assert.deepEqual(errors, []);
 });
 
-test("every entry carries BOTM-RESEARCH-PORTO-SOURCES-01 research provenance", async () => {
+// PORTO-COVERAGE-02 reassessed cm-gaia-eventos from its original
+// BOTM-RESEARCH-PORTO-SOURCES-01 DISCOVERED finding to TECHNICALLY_REVIEWED
+// (see sources/porto.json's own research_provenance.note on that entry) —
+// research_provenance.research_id legitimately now names the LATEST
+// reassessing task, per registry.schema.json's own documented "seeded or
+// last reassessed from" semantics. Every other entry's research provenance
+// is untouched.
+test("every entry carries research provenance from its original research task, except cm-gaia-eventos (reassessed under PORTO-COVERAGE-02)", async () => {
   const registry = await loadJson("../sources/porto.json");
   for (const entry of registry.entries) {
-    assert.equal(entry.research_provenance.research_id, "BOTM-RESEARCH-PORTO-SOURCES-01");
+    if (entry.id === "cm-gaia-eventos") {
+      assert.equal(entry.research_provenance.research_id, "PORTO-COVERAGE-02");
+    } else {
+      assert.equal(entry.research_provenance.research_id, "BOTM-RESEARCH-PORTO-SOURCES-01");
+    }
     assert.equal(entry.research_provenance.review_date, "2026-08-24");
   }
 });
 
-test("exactly the two technically-proven entries are TECHNICALLY_REVIEWED / TECHNICAL_PATH_PROVEN", async () => {
+test("exactly the three technically-proven entries are TECHNICALLY_REVIEWED / TECHNICAL_PATH_PROVEN", async () => {
   const registry = await loadJson("../sources/porto.json");
   const proven = registry.entries.filter((e) => e.lifecycle_status === "TECHNICALLY_REVIEWED").map((e) => e.id).sort();
-  assert.deepEqual(proven, ["casa-da-musica", "teatro-municipal-do-porto"]);
+  assert.deepEqual(proven, ["casa-da-musica", "cm-gaia-eventos", "teatro-municipal-do-porto"]);
   for (const entry of registry.entries) {
     if (proven.includes(entry.id)) {
       assert.equal(entry.monitoring_status, "TECHNICAL_PATH_PROVEN");

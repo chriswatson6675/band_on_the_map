@@ -1,0 +1,54 @@
+{
+  "source_id": "cm-gaia-eventos",
+  "task": "PORTO-COVERAGE-02",
+  "source_homepage": "https://www.cm-gaia.pt",
+  "agenda_url": "https://www.cm-gaia.pt/pt/eventos/",
+  "acquisition_shape": "BOUNDED_SERVER_RENDERED_HTML_LISTING_WITH_SOURCE_TAG_FILTER",
+  "retrieved_at": "2026-08-24T12:38:27.000Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://www.cm-gaia.pt/pt/eventos/",
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "purpose": "retrieve page 1 of the public municipal Eventos listing",
+      "retained_fixture": "fixtures/cm-gaia-eventos/eventos-page-1-excerpt.html (bounded excerpt, 5 of 12 live items: 3 música-tagged + 2 other-category, covering every date-text shape the música-tagged subset uses)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://www.cm-gaia.pt/pt/eventos/pagina-2/",
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "purpose": "confirm pagination bound (2 real pages total at review time) and retrieve two further date-text edge cases",
+      "retained_fixture": "fixtures/cm-gaia-eventos/eventos-page-2-excerpt.html (bounded excerpt, 3 of 9 live items: a cross-year range, a genuinely empty date field, and the terminal navbar with no further pagSeguinte link)"
+    },
+    {
+      "n": 3,
+      "method": "GET",
+      "url": "https://www.cm-gaia.pt/pt/eventos/miguel-arau-jo-e-experiencia-queen-arra-bida-music/",
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "purpose": "research only: confirmed the event detail page carries no additional venue/location field beyond what the listing itself already exposes (og:description/meta tags only). Not used to build any Observation."
+    },
+    {
+      "n": 4,
+      "method": "GET",
+      "url": "https://www.cm-gaia.pt/pt/search.php?q=m%C3%BAsica&Tags=19",
+      "http_status": 403,
+      "content_type": null,
+      "purpose": "research only: attempted to find a server-side pre-filtered music listing (matching the AgendaLX/Teatro Municipal do Porto category-query precedent) — this endpoint returns HTTP 403 to a plain client. Filtering is therefore applied to the already-parsed record set instead (discovery.mjs's filterMusicRecords()), using the source's own per-item tag text, still deterministic and still source-provided, never inferred."
+    }
+  ],
+  "total_live_requests": 4,
+  "findings": {
+    "card_count_live_page_1": 12,
+    "card_count_live_page_2": 9,
+    "total_pages_observed": "exactly 2 (terminal navbar on page 2 carries no further pagSeguinte link)",
+    "stable_identifier": "Each item's own first-party /pt/eventos/{slug}/ permalink (present on both the wrapping image link and the 'Ler Mais' link) — used as source_record_id, the same honest judgement call already made for Teatro Municipal do Porto.",
+    "date_time": "Free text, no time-of-day ever stated. Six distinct real shapes observed live and handled by ingestion/cm-gaia-eventos/observation-adapter.mjs's parseGaiaDateText(): single day, same-month 'e'-joined pair, same-month 'a'-joined range, cross-month 'a'-joined range (same year), cross-month-and-year 'a'-joined range, and genuinely empty. certainty is honestly DATE_ONLY (never FLOATING_LOCAL — no time-of-day exists to certify) when a shape is recognised, else UNKNOWN — never fabricated.",
+    "music_filter": "The listing's own per-item category tag (e.g. '# música', '# desporto', '# infância', '# literatura', '# exposições', '# artes', '# formação', '# cinema') is retained verbatim and lower-cased by discovery.mjs; filterMusicRecords() keeps only the exact tag 'música'. A dedicated server-side filtered URL (search.php?q=música&Tags=19) was found but returns HTTP 403 to a plain client — see request 4 above.",
+    "venue_identity": "No venue/location field is exposed anywhere in this bounded search — neither the listing nor a sampled event detail page. Every Observation is therefore honestly venue_name=null/location_text=null and resolves UNRESOLVED, matching the existing cm-odivelas-agenda-cultura precedent exactly. No resolver branch was added."
+  }
+}

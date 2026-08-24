@@ -48,16 +48,33 @@ test("the Capitólio 11-raw/6-display invariant survives unchanged inside the co
 
 // New Porto contribution.
 
-test("both new Porto sources contribute Observations from real retained fixtures", async () => {
+test("all three Porto sources contribute Observations from real retained fixtures", async () => {
   const proof = await buildLisbonPortoOvernightCoverageProof();
   assert.equal(proof.porto.per_source_observation_counts["casa-da-musica"], 3);
   assert.equal(proof.porto.per_source_observation_counts["teatro-municipal-do-porto"], 5);
-  assert.equal(proof.porto.raw_observation_total, 8);
+  assert.equal(proof.porto.per_source_observation_counts["cm-gaia-eventos"], 3);
+  assert.equal(proof.porto.raw_observation_total, 11);
 });
 
-test("all 8 retained Porto Observations fall within the 2026-08-24..2026-12-31 proof window", async () => {
+test("all 11 retained Porto Observations fall within the 2026-08-24..2026-12-31 proof window", async () => {
   const proof = await buildLisbonPortoOvernightCoverageProof();
   assert.equal(proof.porto.observations_within_date_bounds, proof.porto.raw_observation_total);
+});
+
+// PORTO-COVERAGE-02: cm-gaia-eventos (Vila Nova de Gaia, part of the
+// Greater Porto region already researched under sources/porto.json) adds
+// real música-tagged Observations, but — matching the honest,
+// already-documented cm-odivelas-agenda-cultura precedent — it exposes no
+// venue field at all, so it contributes zero map markers of its own; it
+// never regresses the two markers Casa da Música/Teatro Rivoli already
+// earned.
+test("cm-gaia-eventos Observations are honestly UNRESOLVED (no venue field on this source) and contribute zero markers", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  assert.deepEqual(
+    proof.porto.markers.map((m) => m.venue_id).sort(),
+    ["venue-porto-casa-da-musica", "venue-porto-teatro-rivoli"],
+  );
+  assert.equal(proof.porto.map_marker_count, 2);
 });
 
 // VENUE-GEOCODING-01: Casa da Música's official address was
@@ -104,7 +121,7 @@ test("combined raw_observation_total is the sum of the two halves", async () => 
     proof.combined.raw_observation_total,
     proof.lisbon_subset.total_underlying_observations + proof.porto.raw_observation_total,
   );
-  assert.equal(proof.combined.raw_observation_total, 46);
+  assert.equal(proof.combined.raw_observation_total, 49);
 });
 
 test("no BOTA GEO leakage and no cross-source fact leakage regress inside the combined package", async () => {

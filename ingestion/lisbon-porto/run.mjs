@@ -53,6 +53,12 @@ import { parseCasaDaMusicaAgenda, parseCasaDaMusicaNextPageUrl } from "../casa-d
 import { toObservations as casaDaMusicaToObservations } from "../casa-da-musica/observation-adapter.mjs";
 import { parseTeatroMunicipalPortoAgenda } from "../teatro-municipal-porto/discovery.mjs";
 import { toObservations as teatroMunicipalPortoToObservations } from "../teatro-municipal-porto/observation-adapter.mjs";
+import {
+  parseCmGaiaEventosAgenda,
+  filterMusicRecords as filterCmGaiaMusicRecords,
+  parseCmGaiaEventosNextPageUrl,
+} from "../cm-gaia-eventos/discovery.mjs";
+import { toObservations as cmGaiaEventosToObservations } from "../cm-gaia-eventos/observation-adapter.mjs";
 
 import { resolveObservation } from "../venue/resolver.mjs";
 import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
@@ -66,6 +72,11 @@ const OUTPUT_PATH = resolve(ROOT, "fixtures/map/lisbon-porto-overnight-coverage-
 // unboundedly.
 const CASA_DA_MUSICA_MAX_PAGES = 5;
 
+// Considerate-client bound on CM Gaia Eventos pagination — see
+// ingestion/cm-gaia-eventos/discovery.mjs's doc comment. Only 2 real pages
+// were ever observed live, but this is never followed unboundedly.
+const CM_GAIA_EVENTOS_MAX_PAGES = 5;
+
 export const LISBON_SOURCE_IDS = [
   "agendalx",
   "hot-clube-de-portugal",
@@ -76,7 +87,7 @@ export const LISBON_SOURCE_IDS = [
   "meo-arena",
 ];
 
-export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto"];
+export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto", "cm-gaia-eventos"];
 
 function parseArgs(argv) {
   const args = { from: null, to: null };
@@ -334,6 +345,45 @@ async function collectTeatroMunicipalPorto() {
   return { rawRecordCount: records.length, observations, notes: [] };
 }
 
+async function collectCmGaiaEventos() {
+  const notes = [];
+  const allRecords = [];
+  let url = "https://www.cm-gaia.pt/pt/eventos/";
+  let pagesFetched = 0;
+  let lastRes = null;
+
+  while (url && pagesFetched < CM_GAIA_EVENTOS_MAX_PAGES) {
+    const res = await fetchText(url, {});
+    pagesFetched += 1;
+    if (!res.ok) {
+      if (pagesFetched === 1) throw new Error(`HTTP ${res.status} from ${url}`);
+      notes.push(`page ${pagesFetched} (${url}): HTTP ${res.status} — stopping pagination`);
+      break;
+    }
+    lastRes = res;
+    allRecords.push(...parseCmGaiaEventosAgenda(res.text));
+    url = parseCmGaiaEventosNextPageUrl(res.text);
+  }
+  if (url && pagesFetched >= CM_GAIA_EVENTOS_MAX_PAGES) {
+    notes.push(`stopped after ${CM_GAIA_EVENTOS_MAX_PAGES} pages (considerate-client bound); more pages may exist`);
+  }
+
+  const musicRecords = filterCmGaiaMusicRecords(allRecords);
+  const observations = cmGaiaEventosToObservations(musicRecords, {
+    retrievedAt: lastRes?.retrievedAt ?? null,
+    sourceUrl: "https://www.cm-gaia.pt/pt/eventos/",
+    contentType: lastRes?.contentType ?? null,
+    fixturePath: null,
+  });
+  notes.push(`${allRecords.length} raw record(s) across all categories; ${musicRecords.length} tagged "música" and retained`);
+  // raw_record_count intentionally reports the ALREADY-MUSIC-FILTERED
+  // count here, matching this field's meaning everywhere else in this
+  // file (the count of records this source's own collector actually
+  // turned into Observations) — the true pre-filter total is recorded
+  // honestly in `notes` above instead of being conflated with it.
+  return { rawRecordCount: musicRecords.length, observations, notes };
+}
+
 const COLLECTORS = {
   agendalx: collectAgendalx,
   "hot-clube-de-portugal": collectHotClube,
@@ -344,6 +394,7 @@ const COLLECTORS = {
   "meo-arena": collectMeoArena,
   "casa-da-musica": collectCasaDaMusica,
   "teatro-municipal-do-porto": collectTeatroMunicipalPorto,
+  "cm-gaia-eventos": collectCmGaiaEventos,
 };
 
 async function acquireAll(sourceIds, registryEntries, registryLabel) {
@@ -470,7 +521,7 @@ export async function acquireLisbonPorto(args = {}) {
   console.log("\n-- Lisbon (7 sources) --");
   const lisbonResults = await acquireAll(LISBON_SOURCE_IDS, lisbonRegistry.entries, "sources/lisbon.json");
 
-  console.log("\n-- Porto (2 sources) --");
+  console.log("\n-- Porto (3 sources) --");
   const portoResults = await acquireAll(PORTO_SOURCE_IDS, portoRegistry.entries, "sources/porto.json");
 
   const boundObs = (results) =>
