@@ -36,11 +36,20 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { searchNominatimLive, NOMINATIM_USER_AGENT } from "./nominatim.mjs";
-import { selectGeocodeMatch } from "./match-address.mjs";
+import { searchNominatimLive, NOMINATIM_USER_AGENT, buildNamePlusAddressQuery } from "./nominatim.mjs";
+import { selectGeocodeMatch, selectNamePlusAddressMatch } from "./match-address.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const CACHE_DIR = resolve(ROOT, "fixtures/geocoding/nominatim");
+
+// VENUE-LOCATION-RESOLUTION-02 — the two governed query strategy
+// identifiers. ADDRESS_ONLY_QUERY is VENUE-GEOCODING-01's original (and
+// still default/unchanged) strategy; NAME_PLUS_ADDRESS_QUERY is this
+// package's new second strategy (see this file's geocodeOneVenue()).
+export const QUERY_STRATEGIES = Object.freeze({
+  ADDRESS_ONLY: "ADDRESS_ONLY_QUERY",
+  NAME_PLUS_ADDRESS: "NAME_PLUS_ADDRESS_QUERY",
+});
 
 // The bounded, restricted target set for VENUE-GEOCODING-01. Adding a
 // venue here is an explicit, separately-scoped decision — this package
@@ -69,7 +78,21 @@ function parseArgs(argv) {
   return args;
 }
 
-function cacheFixturePath(venueId, cacheDir) {
+// VENUE-LOCATION-RESOLUTION-02 — cache is now keyed by venue_id + strategy
+// (section 3 of this package's brief), NOT just venue_id. The ORIGINAL
+// bare `<venue_id>.json` path is preserved EXACTLY, unmoved, for
+// ADDRESS_ONLY_QUERY (VENUE-GEOCODING-01/01A's only strategy, and this
+// project's overwhelming majority of already-committed fixtures) — never
+// renamed, never rewritten to a suffixed path — so every existing fixture
+// under fixtures/geocoding/nominatim/ remains readable exactly as before
+// and VENUE-GEOCODING-01A's own cache-identity tests keep passing
+// unmodified. NAME_PLUS_ADDRESS_QUERY evidence is cached separately, under
+// a distinctly suffixed path, so the two strategies' evidence for the same
+// venue can never collide or overwrite one another.
+function cacheFixturePath(venueId, cacheDir, strategy = QUERY_STRATEGIES.ADDRESS_ONLY) {
+  if (strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS) {
+    return resolve(cacheDir, `${venueId}--name-plus-address.json`);
+  }
   return resolve(cacheDir, `${venueId}.json`);
 }
 
@@ -80,18 +103,18 @@ function cacheFixturePath(venueId, cacheDir) {
 // check logic. Behaviour of this module's own CLI entry point
 // (`npm run geocode:venues`) is completely unchanged.
 export { CACHE_DIR };
-export async function loadCachedFixture(venueId, cacheDir) {
+export async function loadCachedFixture(venueId, cacheDir, strategy = QUERY_STRATEGIES.ADDRESS_ONLY) {
   try {
-    return JSON.parse(await readFile(cacheFixturePath(venueId, cacheDir), "utf8"));
+    return JSON.parse(await readFile(cacheFixturePath(venueId, cacheDir, strategy), "utf8"));
   } catch (error) {
     if (error.code === "ENOENT") return null;
     throw error;
   }
 }
 
-async function saveFixture(venueId, fixture, cacheDir) {
+async function saveFixture(venueId, fixture, cacheDir, strategy = QUERY_STRATEGIES.ADDRESS_ONLY) {
   await mkdir(cacheDir, { recursive: true });
-  await writeFile(cacheFixturePath(venueId, cacheDir), `${JSON.stringify(fixture, null, 2)}\n`, "utf8");
+  await writeFile(cacheFixturePath(venueId, cacheDir, strategy), `${JSON.stringify(fixture, null, 2)}\n`, "utf8");
 }
 
 async function loadRegistry(registryPath, root) {
@@ -122,11 +145,32 @@ export function validateCacheIdentity(fixture, target, venue) {
   if (!fixture || typeof fixture !== "object") {
     return { valid: false, failures: ["MISSING_FIXTURE"] };
   }
+
+  // VENUE-LOCATION-RESOLUTION-02: a fixture is now also identity-checked
+  // against the STRATEGY it was retrieved for. Every fixture committed
+  // before this package carries no `query_strategy` field at all — an
+  // absent field is treated as ADDRESS_ONLY_QUERY (VENUE-GEOCODING-01/01A's
+  // only strategy), never as a mismatch, so every existing bare
+  // `<venue_id>.json` fixture remains readable exactly as ADDRESS_ONLY_QUERY
+  // evidence without being touched or backfilled.
+  const expectedStrategy = target.strategy ?? "ADDRESS_ONLY_QUERY";
+  const fixtureStrategy = fixture.query_strategy ?? "ADDRESS_ONLY_QUERY";
+  if (fixtureStrategy !== expectedStrategy) failures.push("query_strategy");
+
   if (fixture.venue_id !== target.venue_id) failures.push("venue_id");
   if (fixture.query_address !== venue.address) failures.push("query_address");
   if (fixture.provider !== "NOMINATIM_OSM") failures.push("provider");
   if (fixture.request_params?.countrycodes !== "pt") failures.push("request_params.countrycodes");
   if (fixture.request_params?.format !== "jsonv2") failures.push("request_params.format");
+
+  // NAME_PLUS_ADDRESS_QUERY additionally depends on the canonical_name — a
+  // Venue's name being edited since this fixture was retrieved must
+  // invalidate it exactly like an edited address does, never be silently
+  // reused (section 3 / test 7 of this package's brief).
+  if (expectedStrategy === "NAME_PLUS_ADDRESS_QUERY") {
+    if (fixture.canonical_name !== venue.canonical_name) failures.push("canonical_name");
+  }
+
   return { valid: failures.length === 0, failures };
 }
 
@@ -140,7 +184,10 @@ export function validateCacheIdentity(fixture, target, venue) {
  * against a disposable registry/cache without ever touching the real
  * venues/*.json or fixtures/geocoding/nominatim/*.json committed files.
  */
-export async function geocodeOneVenue(target, { refresh = false, root = ROOT, cacheDir = CACHE_DIR } = {}) {
+export async function geocodeOneVenue(
+  target,
+  { refresh = false, root = ROOT, cacheDir = CACHE_DIR, strategy = QUERY_STRATEGIES.ADDRESS_ONLY } = {},
+) {
   const { fullPath, registry } = await loadRegistry(target.registryPath, root);
   const venue = registry.venues.find((v) => v.venue_id === target.venue_id);
 
@@ -160,23 +207,36 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
   if (!Array.isArray(venue.evidence) || venue.evidence.length === 0) {
     return { venue_id: target.venue_id, outcome: "SKIPPED", reason: "ADDRESS_NOT_EVIDENCE_BACKED" };
   }
+  // VENUE-LOCATION-RESOLUTION-02 (section 1/8): NAME_PLUS_ADDRESS_QUERY
+  // additionally requires a non-empty canonical_name — an UNRESOLVED
+  // Observation's own free-text venue_name can never reach this function
+  // at all (it operates only on an already-existing canonical Venue), and
+  // a Venue somehow missing canonical_name is fail-closed SKIPPED rather
+  // than queried on address alone under this strategy's name.
+  if (strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS) {
+    if (typeof venue.canonical_name !== "string" || venue.canonical_name.trim() === "") {
+      return { venue_id: target.venue_id, outcome: "SKIPPED", reason: "NO_CANONICAL_NAME" };
+    }
+  }
 
-  let fixture = refresh ? null : await loadCachedFixture(target.venue_id, cacheDir);
+  const identityTarget = { ...target, strategy };
+  let fixture = refresh ? null : await loadCachedFixture(target.venue_id, cacheDir, strategy);
   let usedCache = false;
 
   if (fixture) {
-    // Fail-closed cache reuse (VENUE-GEOCODING-01A): a cache HIT on disk is
-    // not by itself sufficient — the retained fixture must still match
-    // this venue's identity, its CURRENT canonical address, and this
-    // package's fixed request shape. A mismatch (e.g. the address was
-    // edited since this fixture was retrieved) must never be silently
-    // reused, must not mutate the Venue, and must not trigger an
-    // automatic fresh live request — only an explicit `--refresh` may
-    // replace it.
-    const identity = validateCacheIdentity(fixture, target, venue);
+    // Fail-closed cache reuse (VENUE-GEOCODING-01A, extended by
+    // VENUE-LOCATION-RESOLUTION-02 to also cover strategy/canonical_name):
+    // a cache HIT on disk is not by itself sufficient — the retained
+    // fixture must still match this venue's identity, its CURRENT
+    // canonical address (and, for NAME_PLUS_ADDRESS_QUERY, its CURRENT
+    // canonical_name), the query strategy, and this package's fixed
+    // request shape. A mismatch must never be silently reused, must not
+    // mutate the Venue, and must not trigger an automatic fresh live
+    // request — only an explicit `--refresh` may replace it.
+    const identity = validateCacheIdentity(fixture, identityTarget, venue);
     if (!identity.valid) {
       console.log(
-        `  cached fixture for ${target.venue_id} failed identity validation ` +
+        `  cached fixture for ${target.venue_id} (${strategy}) failed identity validation ` +
           `(${identity.failures.join(", ")}) — not reused; pass --refresh to replace it`,
       );
       return {
@@ -184,16 +244,23 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
         outcome: "CACHE_IDENTITY_MISMATCH",
         reason: `stale/incompatible cache: ${identity.failures.join(", ")}`,
         failures: identity.failures,
+        query_strategy: strategy,
       };
     }
     usedCache = true;
-    console.log(`  using cached fixture for ${target.venue_id} (pass --refresh to force a live requery)`);
+    console.log(`  using cached fixture for ${target.venue_id} (${strategy}; pass --refresh to force a live requery)`);
   } else {
-    console.log(`  querying Nominatim live for ${target.venue_id}: "${venue.address}" ...`);
-    const result = await searchNominatimLive(venue.address, REQUEST_PARAMS);
+    const query = strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS
+      ? buildNamePlusAddressQuery(venue.canonical_name, venue.address)
+      : venue.address;
+    console.log(`  querying Nominatim live for ${target.venue_id} (${strategy}): "${query}" ...`);
+    const result = await searchNominatimLive(query, REQUEST_PARAMS);
     fixture = {
       venue_id: target.venue_id,
+      query_strategy: strategy,
+      query,
       query_address: venue.address,
+      canonical_name: strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS ? venue.canonical_name : null,
       request_params: REQUEST_PARAMS,
       request_url: result.url,
       user_agent: NOMINATIM_USER_AGENT,
@@ -202,18 +269,24 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
       http_status: result.status,
       candidates: result.candidates,
     };
-    await saveFixture(target.venue_id, fixture, cacheDir);
+    await saveFixture(target.venue_id, fixture, cacheDir, strategy);
   }
 
-  const match = selectGeocodeMatch(fixture.candidates, venue);
+  const match =
+    strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS
+      ? selectNamePlusAddressMatch(fixture.candidates, venue)
+      : selectGeocodeMatch(fixture.candidates, venue);
 
   if (match.status !== "ACCEPTED") {
     return {
       venue_id: target.venue_id,
       outcome: "LEFT_ADDRESS_ONLY",
       reason: match.reason,
+      query_strategy: strategy,
+      query: fixture.query ?? fixture.query_address,
       query_address: fixture.query_address,
       candidate_count: fixture.candidates.length,
+      evaluated: match.evaluated,
       used_cache: usedCache,
     };
   }
@@ -234,22 +307,37 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
       venue_id: target.venue_id,
       outcome: "LEFT_ADDRESS_ONLY",
       reason: "INVALID_NUMERIC_COORDINATES_FROM_PROVIDER",
+      query_strategy: strategy,
       query_address: fixture.query_address,
       used_cache: usedCache,
     };
   }
 
-  const provenance = {
-    method: "GEOCODED_FROM_OFFICIAL_ADDRESS",
-    provider: "NOMINATIM_OSM",
-    query_address: fixture.query_address,
-    result_osm_type: candidate.osm_type ?? null,
-    result_osm_id: candidate.osm_id != null ? String(candidate.osm_id) : null,
-    result_display_name: candidate.display_name ?? null,
-    matched_postcode: candidate.address?.postcode ?? null,
-    matched_city: candidate.address?.city ?? candidate.address?.town ?? candidate.address?.municipality ?? null,
-    retrieved_at: fixture.retrieved_at,
-  };
+  const provenance =
+    strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS
+      ? {
+          method: "GEOCODED_FROM_OFFICIAL_ADDRESS",
+          provider: "NOMINATIM_OSM",
+          query_strategy: "NAME_PLUS_ADDRESS_QUERY",
+          query_name: venue.canonical_name,
+          query_address: fixture.query_address,
+          result_osm_type: candidate.osm_type ?? null,
+          result_osm_id: candidate.osm_id != null ? String(candidate.osm_id) : null,
+          result_display_name: candidate.display_name ?? null,
+          retrieved_at: fixture.retrieved_at,
+        }
+      : {
+          method: "GEOCODED_FROM_OFFICIAL_ADDRESS",
+          provider: "NOMINATIM_OSM",
+          query_strategy: "ADDRESS_ONLY_QUERY",
+          query_address: fixture.query_address,
+          result_osm_type: candidate.osm_type ?? null,
+          result_osm_id: candidate.osm_id != null ? String(candidate.osm_id) : null,
+          result_display_name: candidate.display_name ?? null,
+          matched_postcode: candidate.address?.postcode ?? null,
+          matched_city: candidate.address?.city ?? candidate.address?.town ?? candidate.address?.municipality ?? null,
+          retrieved_at: fixture.retrieved_at,
+        };
 
   venue.latitude = latitude;
   venue.longitude = longitude;
@@ -261,17 +349,32 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
       url: fixture.request_url,
       kind: "GEOCODED_NOMINATIM_RESULT",
       note:
-        `VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own ` +
-        `already-evidenced official address ("${fixture.query_address}") — see ` +
-        `fixtures/geocoding/nominatim/${target.venue_id}.json for the full cached response. Matched OSM feature: ` +
-        `${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. This coordinate is ` +
-        `GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract.`,
+        strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS
+          ? `VENUE-LOCATION-RESOLUTION-02: deterministically accepted Nominatim/OSM search result for this venue's ` +
+            `own canonical name + already-evidenced official address ("${fixture.query}") — see ` +
+            `fixtures/geocoding/nominatim/${target.venue_id}--name-plus-address.json for the full cached response. ` +
+            `Matched OSM feature: ${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. ` +
+            `This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's ` +
+            `location_status contract.`
+          : `VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own ` +
+            `already-evidenced official address ("${fixture.query_address}") — see ` +
+            `fixtures/geocoding/nominatim/${target.venue_id}.json for the full cached response. Matched OSM feature: ` +
+            `${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. This coordinate is ` +
+            `GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract.`,
     },
   ];
 
   await saveRegistry(fullPath, registry);
 
-  return { venue_id: target.venue_id, outcome: "GEOCODED", latitude, longitude, provenance, used_cache: usedCache };
+  return {
+    venue_id: target.venue_id,
+    outcome: "GEOCODED",
+    latitude,
+    longitude,
+    provenance,
+    used_cache: usedCache,
+    query_strategy: strategy,
+  };
 }
 
 async function main() {

@@ -28,27 +28,45 @@ test("every venue in venues/porto.json passes validateVenue()", async () => {
 // geocoded (a specific, single-building amenity=concert_hall OSM match with
 // agreeing postcode/house_number/city — see
 // fixtures/geocoding/nominatim/venue-porto-casa-da-musica.json) and promoted
-// to GEOCODED. Teatro Rivoli's own address query returned only road/square-
-// level OSM results (no building-specific match), so it fails-closed and
-// honestly remains ADDRESS_ONLY — no coordinate was guessed for it.
-test("Casa da Música was deterministically GEOCODED; Teatro Rivoli honestly remains ADDRESS_ONLY (no coordinate guessed)", async () => {
+// to GEOCODED via ADDRESS_ONLY_QUERY. VENUE-LOCATION-RESOLUTION-02 later
+// legitimately promoted Teatro Rivoli and Teatro Campo Alegre too, via the
+// SECOND, stricter NAME_PLUS_ADDRESS_QUERY strategy (their own
+// ADDRESS_ONLY_QUERY attempts returned only road/square-level OSM results —
+// see fixtures/geocoding/nominatim/venue-porto-teatro-{rivoli,
+// campo-alegre}.json, still on record, unchanged) — never a coordinate
+// guessed, and never reprocessing Casa da Música, which remains exactly as
+// VENUE-GEOCODING-01 left it.
+test("Casa da Música, Teatro Rivoli, and Teatro Campo Alegre are all GEOCODED, each with its own honest strategy/provenance on record", async () => {
   const venues = await loadPortoVenues();
 
   const casaDaMusica = venues.find((v) => v.venue_id === "venue-porto-casa-da-musica");
   assert.equal(casaDaMusica.location_status, "GEOCODED");
   assert.equal(typeof casaDaMusica.latitude, "number");
   assert.equal(typeof casaDaMusica.longitude, "number");
+  assert.equal(casaDaMusica.latitude, 41.1589025);
+  assert.equal(casaDaMusica.longitude, -8.6307748);
   assert.equal(casaDaMusica.coordinate_provenance.method, "GEOCODED_FROM_OFFICIAL_ADDRESS");
   assert.equal(casaDaMusica.coordinate_provenance.query_address, casaDaMusica.address);
+  assert.notEqual(casaDaMusica.coordinate_provenance.query_strategy, "NAME_PLUS_ADDRESS_QUERY");
 
   const rivoli = venues.find((v) => v.venue_id === "venue-porto-teatro-rivoli");
-  assert.equal(rivoli.location_status, "ADDRESS_ONLY");
-  assert.equal(rivoli.latitude, null);
-  assert.equal(rivoli.longitude, null);
+  assert.equal(rivoli.location_status, "GEOCODED");
+  assert.equal(typeof rivoli.latitude, "number");
+  assert.equal(typeof rivoli.longitude, "number");
+  assert.equal(rivoli.coordinate_provenance.query_strategy, "NAME_PLUS_ADDRESS_QUERY");
+  assert.equal(rivoli.coordinate_provenance.query_name, "Teatro Rivoli");
+
+  const campoAlegre = venues.find((v) => v.venue_id === "venue-porto-teatro-campo-alegre");
+  assert.equal(campoAlegre.location_status, "GEOCODED");
+  assert.equal(typeof campoAlegre.latitude, "number");
+  assert.equal(typeof campoAlegre.longitude, "number");
+  assert.equal(campoAlegre.coordinate_provenance.query_strategy, "NAME_PLUS_ADDRESS_QUERY");
+  assert.equal(campoAlegre.coordinate_provenance.query_name, "Teatro Campo Alegre");
 
   for (const venue of venues) {
     assert.ok(typeof venue.address === "string" && venue.address.length > 0);
     assert.ok(Array.isArray(venue.evidence) && venue.evidence.length >= 1);
+    assert.deepEqual(validateVenue(venue), []);
   }
 });
 

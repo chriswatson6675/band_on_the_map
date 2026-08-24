@@ -44,17 +44,33 @@
       "city": "Porto",
       "municipality": "Porto",
       "address": "Praça Dom João I, 4000-295 Porto",
-      "latitude": null,
-      "longitude": null,
-      "location_status": "ADDRESS_ONLY",
+      "latitude": 41.1478215,
+      "longitude": -8.6099393,
+      "location_status": "GEOCODED",
       "evidence": [
         {
           "url": "https://www.teatromunicipaldoporto.pt/PT/quem-somos/contactos/",
           "kind": "OFFICIAL_VENUE_WEBSITE",
           "note": "Official Teatro Municipal do Porto 'Contactos' page for its Rivoli pole. States the address 'Praça Dom João I, Edifício Teatro Rivoli, 4000-295 Porto'. No coordinates, embedded map, or outbound map link with coordinate data was found on this page within this proof's bounded search. Teatro Campo Alegre (the theatre's second pole) is not entered here — no Campo Alegre record appeared in this proof's own retained fixture sample, so no address for it has actually been evidenced yet."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Teatro+Rivoli%2C+Pra%C3%A7a+Dom+Jo%C3%A3o+I%2C+4000-295+Porto&format=jsonv2&addressdetails=1&limit=5&countrycodes=pt",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-LOCATION-RESOLUTION-02: deterministically accepted Nominatim/OSM search result for this venue's own canonical name + already-evidenced official address (\"Teatro Rivoli, Praça Dom João I, 4000-295 Porto\") — see fixtures/geocoding/nominatim/venue-porto-teatro-rivoli--name-plus-address.json for the full cached response. Matched OSM feature: way/224769221. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
         }
       ],
-      "retrieved_at": "2026-08-24"
+      "retrieved_at": "2026-08-24",
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_strategy": "NAME_PLUS_ADDRESS_QUERY",
+        "query_name": "Teatro Rivoli",
+        "query_address": "Praça Dom João I, 4000-295 Porto",
+        "result_osm_type": "way",
+        "result_osm_id": "224769221",
+        "result_display_name": "Teatro Municipal Rivoli, Praça de Dom João I, Baixa do Porto, Conjunto Urbano da Ribeira, Zona Histórica do Porto, Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, 4000-295, Portugal",
+        "retrieved_at": "2026-08-24T10:50:44.733Z"
+      }
     },
     {
       "venue_id": "venue-porto-teatro-campo-alegre",
@@ -63,9 +79,9 @@
       "city": "Porto",
       "municipality": "Porto",
       "address": "Rua das Estrelas, 4150-762 Porto",
-      "latitude": null,
-      "longitude": null,
-      "location_status": "ADDRESS_ONLY",
+      "latitude": 41.1507848,
+      "longitude": -8.6395243,
+      "location_status": "GEOCODED",
       "evidence": [
         {
           "url": "https://www.teatromunicipaldoporto.pt/PT/quem-somos/contactos/",
@@ -76,8 +92,24 @@
           "url": "https://cultura.cm-porto.pt/teatros/teatro-municipal-do-porto_1",
           "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
           "note": "Câmara Municipal do Porto's own official culture portal independently states the identical Campo Alegre address ('Rua das Estrelas. 4150-762 Porto'), corroborating rather than being the sole source."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Teatro+Campo+Alegre%2C+Rua+das+Estrelas%2C+4150-762+Porto&format=jsonv2&addressdetails=1&limit=5&countrycodes=pt",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-LOCATION-RESOLUTION-02: deterministically accepted Nominatim/OSM search result for this venue's own canonical name + already-evidenced official address (\"Teatro Campo Alegre, Rua das Estrelas, 4150-762 Porto\") — see fixtures/geocoding/nominatim/venue-porto-teatro-campo-alegre--name-plus-address.json for the full cached response. Matched OSM feature: way/332930869. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
         }
-      ]
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_strategy": "NAME_PLUS_ADDRESS_QUERY",
+        "query_name": "Teatro Campo Alegre",
+        "query_address": "Rua das Estrelas, 4150-762 Porto",
+        "result_osm_type": "way",
+        "result_osm_id": "332930869",
+        "result_display_name": "Teatro Municipal do Campo Alegre, Rua das Estrelas, Bicalho, Massarelos, Lordelo do Ouro e Massarelos, Porto, 4150-762, Portugal",
+        "retrieved_at": "2026-08-24T10:50:43.627Z"
+      }
     }
   ]
 }

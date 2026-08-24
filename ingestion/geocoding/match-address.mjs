@@ -187,3 +187,265 @@ export function selectGeocodeMatch(candidates, venue) {
 
   return { status: "ACCEPTED", candidate: passing[0].candidate, evaluated };
 }
+
+// ===========================================================================
+// VENUE-LOCATION-RESOLUTION-02 — NAME_PLUS_ADDRESS_QUERY's OWN, STRICTER
+// acceptance rules.
+//
+// This strategy queries `<canonical_name>, <canonical official address>`
+// (see ingestion/geocoding/nominatim.mjs's buildNamePlusAddressQuery), so a
+// returned candidate must pass every ADDRESS_ONLY_QUERY check ABOVE
+// (country, city/municipality, postcode, house number, "specific enough"
+// place type) PLUS two new, additive checks:
+//
+//   - nameCompatible     - a bounded, deterministic (never fuzzy/AI) check
+//                           that the canonical Venue's own name is actually
+//                           attested somewhere in the candidate's own
+//                           name/amenity/theatre/arts_centre/community_centre/
+//                           building/display_name fields — see
+//                           isVenueNameCompatible() below. This is what
+//                           prevents a first-strategy postcode/identity
+//                           conflict from being silently "papered over" by
+//                           the second strategy: a wrong-place candidate
+//                           essentially never also carries the right name.
+//   - featureCompatible  - the candidate's OSM feature kind must be one a
+//                           real cultural/event venue plausibly is (a
+//                           positive allowlist — see
+//                           PLAUSIBLE_VENUE_FEATURE_TYPES below), not merely
+//                           "not on the existing rejection list". This is
+//                           venue-relative in effect (a library candidate
+//                           only ever survives for a venue whose own name
+//                           coincidentally names it, via nameCompatible) but
+//                           the allowlist itself intentionally stays generic
+//                           enough to admit every real feature kind this
+//                           project's target venues can be (theatre, arts
+//                           centre, community centre, concert hall, library,
+//                           place of worship, museum, nightclub/bar/social
+//                           venue, or a named building) while still refusing
+//                           obviously irrelevant feature kinds (fuel
+//                           stations, parking, shops, ATMs, ...).
+//
+// Nothing here loosens or bypasses the checks above — a candidate that
+// fails country/city/postcode/houseNumber/specificEnough under
+// evaluateCandidate() also fails those same checks under
+// evaluateNamePlusAddressCandidate().
+
+// A positive allowlist (not merely "absent from REJECTED_PLACE_TYPES") of
+// OSM feature kinds a genuine cultural/event venue plausibly is. Kept
+// intentionally broad across venue kinds (this project's ADDRESS_ONLY
+// venues span theatres, libraries, a church, cultural centres, and small
+// independent music/arts spaces) rather than narrowed per-venue — the real,
+// venue-specific anchor is nameCompatible, not this list.
+const PLAUSIBLE_VENUE_FEATURE_TYPES = new Set([
+  "theatre",
+  "arts_centre",
+  "community_centre",
+  "concert_hall",
+  "library",
+  "place_of_worship",
+  "church",
+  "museum",
+  "attraction",
+  "gallery",
+  "nightclub",
+  "bar",
+  "pub",
+  "music_venue",
+  "events_venue",
+  "social_centre",
+  "cultural_centre",
+  "civic",
+  "public_building",
+  "hall",
+  "yes", // generic amenity/building=yes — only ever survives alongside a real nameCompatible match
+]);
+
+function isPlausibleVenueFeature(candidate) {
+  const type = normaliseText(candidate?.type);
+  const addresstype = normaliseText(candidate?.addresstype);
+  // A named building-level feature is plausible regardless of its exact
+  // `type` string — buildings are not further subtyped by Nominatim.
+  if (addresstype === "building" && normaliseText(candidate?.name ?? candidate?.address?.building)) return true;
+  if (type && PLAUSIBLE_VENUE_FEATURE_TYPES.has(type)) return true;
+  if (addresstype && PLAUSIBLE_VENUE_FEATURE_TYPES.has(addresstype)) return true;
+  return false;
+}
+
+/**
+ * Cautious, harmless-only text normalisation for venue NAME compatibility —
+ * deliberately distinct from normaliseText() above (which is used for
+ * address-field comparison) so this function's own doc comment/behaviour
+ * can be reasoned about in isolation: Unicode normalisation, case folding,
+ * diacritic folding, whitespace collapse, and stripping obvious
+ * legal/typographic punctuation. NEVER edit-distance, embeddings, or any
+ * broad fuzzy similarity.
+ */
+function normaliseVenueNameText(value) {
+  if (typeof value !== "string") return null;
+  const trimmed = value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[.,'’"«»()]/g, " ")
+    .replace(/&/g, " e ") // "&" / "e" are used interchangeably in PT venue names
+    .replace(/\s+/g, " ")
+    .trim();
+  return trimmed === "" ? null : trimmed;
+}
+
+/**
+ * Governed alias list for venue name compatibility (section 5 of this
+ * package's brief): ONLY entries backed by retained evidence that the
+ * canonical Venue's official identity is genuinely also known/published
+ * under the alias — never invented merely to gain acceptance. Exported so
+ * a future package can extend it, and so tests can exercise the mechanism
+ * against a synthetic alias without touching real venue identities.
+ *
+ * Two entries were added by VENUE-LOCATION-RESOLUTION-02's live proof run,
+ * each independently evidenced BEFORE (and separately from) the OSM
+ * candidate that happened to need it:
+ *
+ *   - "teatro rivoli" / "teatro campo alegre" — venues/porto.json's own
+ *     evidence entries (committed by the earlier LISBON-PORTO-OVERNIGHT-
+ *     COVERAGE-01 package, independent of this one) already record, from
+ *     https://www.teatromunicipaldoporto.pt/PT/quem-somos/contactos/ (the
+ *     official municipal theatre's own contacts page), that "Rivoli" and
+ *     "Campo Alegre" are the two operating poles of "Teatro Municipal do
+ *     Porto" — i.e. the venues' own official operator styles them "Teatro
+ *     Municipal Rivoli" / "Teatro Municipal do Campo Alegre". This is
+ *     exactly what the live NAME_PLUS_ADDRESS_QUERY run's own accepted OSM
+ *     candidates are independently named (see
+ *     fixtures/geocoding/nominatim/venue-porto-teatro-rivoli--name-plus-address.json
+ *     and .../venue-porto-teatro-campo-alegre--name-plus-address.json) —
+ *     the alias reflects a real, pre-existing, independently-sourced
+ *     naming fact, not an ad hoc widening to force a match.
+ */
+export const VENUE_NAME_ALIASES = {
+  "teatro rivoli": ["teatro municipal rivoli"],
+  "teatro campo alegre": ["teatro municipal do campo alegre", "teatro municipal campo alegre"],
+};
+
+function candidateNameFields(candidate) {
+  const addr = candidate?.address ?? {};
+  return [
+    candidate?.name,
+    addr.amenity,
+    addr.theatre,
+    addr.arts_centre,
+    addr.community_centre,
+    addr.concert_hall,
+    addr.library,
+    addr.place_of_worship,
+    addr.building,
+    addr.tourism,
+    addr.leisure,
+    addr.club,
+    addr.shop,
+  ];
+}
+
+/**
+ * Bounded, deterministic venue-name compatibility (section 5): true only
+ * when the canonical Venue's own name (or a governed alias of it) exactly
+ * matches — after only the cautious normalisation above — one of the
+ * candidate's own name-bearing fields, OR the FIRST comma-separated segment
+ * of its `display_name` (never a raw substring/fuzzy scan of the whole
+ * display_name string, which could spuriously match an unrelated
+ * neighbourhood/street/city component elsewhere in it).
+ *
+ * This operates ONLY between an already-existing canonical Venue and a
+ * provider candidate — never between an Observation's own free-text
+ * venue_name and anything (see docs/VENUE_RESOLUTION.md /
+ * ingestion/venue/contract.mjs: Observations are never fuzzy-matched here
+ * or anywhere in this project).
+ */
+export function isVenueNameCompatible(canonicalName, candidate, { aliases = VENUE_NAME_ALIASES } = {}) {
+  const canonical = normaliseVenueNameText(canonicalName);
+  if (!canonical) return false;
+
+  const acceptable = new Set([canonical, ...(aliases[canonical] ?? [])]);
+
+  const fields = candidateNameFields(candidate).map(normaliseVenueNameText).filter(Boolean);
+  if (fields.some((field) => acceptable.has(field))) return true;
+
+  // Split the RAW display_name on its comma separators FIRST, then
+  // normalise only the first segment — normaliseVenueNameText() itself
+  // strips commas as harmless punctuation, so normalising before
+  // splitting would silently collapse every segment into one string and
+  // let a name appearing anywhere later in display_name match.
+  if (typeof candidate?.display_name === "string") {
+    const rawFirstSegment = candidate.display_name.split(",")[0];
+    const firstSegment = normaliseVenueNameText(rawFirstSegment);
+    if (firstSegment && acceptable.has(firstSegment)) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Evaluate ONE provider candidate against ONE canonical Venue under the
+ * NAME_PLUS_ADDRESS_QUERY strategy's own, stricter rules: every
+ * ADDRESS_ONLY_QUERY check (country/city/postcode/houseNumber/
+ * specificEnough — identical logic, reused, never loosened) PLUS
+ * featureCompatible and nameCompatible.
+ */
+export function evaluateNamePlusAddressCandidate(candidate, venue, options = {}) {
+  const checks = {};
+
+  checks.country = normaliseText(candidate?.address?.country_code) === "pt";
+  checks.city = cityMatches(candidate, venue?.municipality ?? venue?.city);
+
+  const canonicalPostcode = extractPostcode(venue?.address);
+  const candidatePostcode = candidate?.address?.postcode ?? null;
+  checks.postcode =
+    canonicalPostcode && candidatePostcode
+      ? normalisePostcode(canonicalPostcode) === normalisePostcode(candidatePostcode)
+      : true;
+
+  const canonicalHouseNumber = extractHouseNumber(venue?.address);
+  const candidateHouseNumber = candidate?.address?.house_number ?? null;
+  checks.houseNumber =
+    canonicalHouseNumber && candidateHouseNumber
+      ? normaliseHouseNumber(canonicalHouseNumber) === normaliseHouseNumber(candidateHouseNumber)
+      : true;
+
+  checks.specificEnough = isSpecificEnoughResult(candidate);
+  checks.featureCompatible = isPlausibleVenueFeature(candidate);
+  checks.nameCompatible = isVenueNameCompatible(venue?.canonical_name, candidate, options);
+
+  const passed = Object.values(checks).every(Boolean);
+  return { passed, checks };
+}
+
+/**
+ * NAME_PLUS_ADDRESS_QUERY's own selectGeocodeMatch analogue — identical
+ * fail-closed shape (NO_CANDIDATES_RETURNED / NO_CANDIDATE_PASSED_ALL_CHECKS
+ * / AMBIGUOUS_MULTIPLE_CANDIDATES_PASSED / ACCEPTED), but evaluating every
+ * candidate against evaluateNamePlusAddressCandidate()'s stricter rules.
+ * Evaluates EVERY returned candidate (section 7: never just candidates[0]),
+ * so a correct match ranked below an incorrect/rejected one is still found.
+ */
+export function selectNamePlusAddressMatch(candidates, venue, options = {}) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    return { status: "REJECTED", reason: "NO_CANDIDATES_RETURNED", evaluated: [] };
+  }
+
+  const evaluated = candidates.map((candidate) => ({
+    candidate,
+    ...evaluateNamePlusAddressCandidate(candidate, venue, options),
+  }));
+  const passing = evaluated.filter((entry) => entry.passed);
+
+  if (passing.length === 0) {
+    return { status: "REJECTED", reason: "NO_CANDIDATE_PASSED_ALL_CHECKS", evaluated };
+  }
+
+  if (passing.length > 1) {
+    const distinctPlaces = new Set(passing.map((entry) => `${entry.candidate.lat},${entry.candidate.lon}`));
+    if (distinctPlaces.size > 1) {
+      return { status: "REJECTED", reason: "AMBIGUOUS_MULTIPLE_CANDIDATES_PASSED", evaluated };
+    }
+  }
+
+  return { status: "ACCEPTED", candidate: passing[0].candidate, evaluated };
+}

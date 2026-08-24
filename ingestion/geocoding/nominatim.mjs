@@ -93,6 +93,30 @@ export function buildNominatimSearchUrl(
 }
 
 /**
+ * VENUE-LOCATION-RESOLUTION-02 — build the exact
+ * `<canonical_name>, <canonical official address>` query string for the
+ * NAME_PLUS_ADDRESS_QUERY strategy. Deterministic string construction
+ * only: both inputs must already be non-empty, independently evidenced
+ * canonical Venue fields (never Observation text, never a venue name
+ * alone — see ingestion/geocoding/run.mjs's eligibility checks, which run
+ * before this is ever called), and they are simply joined with ", " —
+ * never reordered, trimmed of meaning, or otherwise reinterpreted. This is
+ * the ONLY place NAME_PLUS_ADDRESS_QUERY's query text is assembled — kept
+ * here, not in ingestion/venue/contract.mjs or match-address.mjs, per this
+ * package's "provider-specific query construction stays in the Nominatim
+ * adapter" rule.
+ */
+export function buildNamePlusAddressQuery(canonicalName, address) {
+  if (typeof canonicalName !== "string" || canonicalName.trim() === "") {
+    throw new Error("buildNamePlusAddressQuery requires a non-empty canonical_name");
+  }
+  if (typeof address !== "string" || address.trim() === "") {
+    throw new Error("buildNamePlusAddressQuery requires a non-empty canonical address");
+  }
+  return `${canonicalName}, ${address}`;
+}
+
+/**
  * Issue ONE single, rate-limited, live Nominatim search request for
  * `address`. Safe to call without awaiting the previous call first — this
  * function itself serializes every call (see requestQueue above) so two
