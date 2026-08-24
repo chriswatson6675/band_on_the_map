@@ -1,4 +1,54 @@
 {
   "$schema_note": "Canonical, version-controlled store for operator-entered manual venue map coordinates (VENUE-MANUAL-COORDINATES-DASHBOARD-01). Every entry is a governed OVERRIDE layer sitting alongside the canonical Venue records in venues/lisbon.json / venues/porto.json — it never mutates them, and a venue's own location_status (CONFIRMED/GEOCODED/ADDRESS_ONLY/UNRESOLVED, see ingestion/venue/contract.mjs) is completely unaffected by an entry existing here. A manual entry is used for map placement ONLY when the referenced venue does not already carry authoritative CONFIRMED/GEOCODED coordinates (see resolveVenueMapCoordinates in ingestion/map/projection.mjs) — canonical coordinates always win if they later appear. Managed exclusively through the local operator dashboard at app/operator/venues (see docs/OPERATOR_VENUE_COORDINATES.md) via ingestion/geocoding/manual-coordinate-store.mjs; never hand-edit this file directly outside that flow. Each entry: { venue_id, latitude, longitude, method: \"MANUAL_OPERATOR_ENTRY\", entered_at (ISO 8601), note? }. At most one active entry per venue_id.",
-  "entries": []
+  "entries": [
+    {
+      "venue_id": "venue-lisboa-village-underground-lisboa",
+      "latitude": 38.70222,
+      "longitude": -9.18056,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T17:38:54.263Z"
+    },
+    {
+      "venue_id": "venue-lisboa-bota-anjos",
+      "latitude": 38.72693,
+      "longitude": -9.13642,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T17:39:28.464Z"
+    },
+    {
+      "venue_id": "venue-porto-super-bock-arena-pavilhao-rosa-mota",
+      "latitude": 41.146878,
+      "longitude": -8.625989,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T17:40:06.645Z"
+    },
+    {
+      "venue_id": "venue-lisboa-galeria-ze-dos-bois-zdb",
+      "latitude": 38.709608,
+      "longitude": -9.153918,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T20:58:13.613Z"
+    },
+    {
+      "venue_id": "venue-lisboa-lav-lisboa-ao-vivo",
+      "latitude": 38.75734,
+      "longitude": -9.11058,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T20:58:51.691Z"
+    },
+    {
+      "venue_id": "venue-odivelas-centro-cultural-malaposta",
+      "latitude": 38.787263,
+      "longitude": -9.170259,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T20:59:24.283Z"
+    },
+    {
+      "venue_id": "venue-odivelas-biblioteca-municipal-d-dinis",
+      "latitude": 38.76784,
+      "longitude": -9.20107,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-24T20:59:58.915Z"
+    }
+  ]
 }
