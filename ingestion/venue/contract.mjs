@@ -192,7 +192,9 @@ export function validateVenue(venue) {
     }
     if (hasLat || hasLng) {
       errors.push(
-        "an ADDRESS_ONLY venue must not carry coordinates (use CONFIRMED once coordinates are evidenced)",
+        "an ADDRESS_ONLY venue must not carry coordinates (use CONFIRMED once first-party coordinates are " +
+          "evidenced directly, or GEOCODED once coordinates are deterministically derived from this venue's " +
+          "own official address — see ingestion/geocoding/)",
       );
     }
   } else if (venue?.location_status === "UNRESOLVED") {

@@ -23,6 +23,14 @@
 // decision is made, and is never re-queried once cached unless --refresh
 // is passed — this keeps repeated runs of this command from repeatedly
 // hitting the public Nominatim service for the same five addresses.
+//
+// A cache HIT is not, by itself, reused: (VENUE-GEOCODING-01A)
+// validateCacheIdentity() below first requires the retained fixture's
+// venue_id, query_address (matched against the venue's CURRENT canonical
+// address), provider, and request shape to still agree with what this run
+// would ask for. A mismatch is reported as CACHE_IDENTITY_MISMATCH,
+// mutates nothing, and does not trigger an automatic live requery — only
+// an explicit --refresh may replace stale/incompatible cached evidence.
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -91,6 +99,31 @@ async function saveRegistry(fullPath, registry) {
 const REQUEST_PARAMS = { format: "jsonv2", addressdetails: 1, limit: 5, countrycodes: "pt" };
 
 /**
+ * VENUE-GEOCODING-01A hardening: a cache fixture is keyed by venue_id on
+ * disk, but a filename match alone is not proof the cached evidence is
+ * still for the SAME query this run would make. Before reusing a fixture,
+ * require it to match the target venue's identity and request shape on
+ * every field that could otherwise let stale/incompatible evidence be
+ * silently reused: the venue_id, the CURRENT canonical address (an
+ * edited address must never be answered by an old address's cached
+ * result), the provider, and this package's fixed request shape
+ * (countrycodes=pt, format=jsonv2). Returns `{ valid, failures }` —
+ * `failures` names every check that did not pass, for reporting.
+ */
+export function validateCacheIdentity(fixture, target, venue) {
+  const failures = [];
+  if (!fixture || typeof fixture !== "object") {
+    return { valid: false, failures: ["MISSING_FIXTURE"] };
+  }
+  if (fixture.venue_id !== target.venue_id) failures.push("venue_id");
+  if (fixture.query_address !== venue.address) failures.push("query_address");
+  if (fixture.provider !== "NOMINATIM_OSM") failures.push("provider");
+  if (fixture.request_params?.countrycodes !== "pt") failures.push("request_params.countrycodes");
+  if (fixture.request_params?.format !== "jsonv2") failures.push("request_params.format");
+  return { valid: failures.length === 0, failures };
+}
+
+/**
  * Geocode (or skip/reject) exactly one target venue. Exported for direct
  * testing; also called in a plain sequential loop by main() below — never
  * in parallel, per Nominatim's single-threaded usage requirement.
@@ -122,9 +155,33 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
   }
 
   let fixture = refresh ? null : await loadCachedFixture(target.venue_id, cacheDir);
-  const usedCache = Boolean(fixture);
+  let usedCache = false;
 
-  if (!fixture) {
+  if (fixture) {
+    // Fail-closed cache reuse (VENUE-GEOCODING-01A): a cache HIT on disk is
+    // not by itself sufficient — the retained fixture must still match
+    // this venue's identity, its CURRENT canonical address, and this
+    // package's fixed request shape. A mismatch (e.g. the address was
+    // edited since this fixture was retrieved) must never be silently
+    // reused, must not mutate the Venue, and must not trigger an
+    // automatic fresh live request — only an explicit `--refresh` may
+    // replace it.
+    const identity = validateCacheIdentity(fixture, target, venue);
+    if (!identity.valid) {
+      console.log(
+        `  cached fixture for ${target.venue_id} failed identity validation ` +
+          `(${identity.failures.join(", ")}) — not reused; pass --refresh to replace it`,
+      );
+      return {
+        venue_id: target.venue_id,
+        outcome: "CACHE_IDENTITY_MISMATCH",
+        reason: `stale/incompatible cache: ${identity.failures.join(", ")}`,
+        failures: identity.failures,
+      };
+    }
+    usedCache = true;
+    console.log(`  using cached fixture for ${target.venue_id} (pass --refresh to force a live requery)`);
+  } else {
     console.log(`  querying Nominatim live for ${target.venue_id}: "${venue.address}" ...`);
     const result = await searchNominatimLive(venue.address, REQUEST_PARAMS);
     fixture = {
@@ -139,8 +196,6 @@ export async function geocodeOneVenue(target, { refresh = false, root = ROOT, ca
       candidates: result.candidates,
     };
     await saveFixture(target.venue_id, fixture, cacheDir);
-  } else {
-    console.log(`  using cached fixture for ${target.venue_id} (pass --refresh to force a live requery)`);
   }
 
   const match = selectGeocodeMatch(fixture.candidates, venue);

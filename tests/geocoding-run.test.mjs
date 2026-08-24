@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { geocodeOneVenue } from "../ingestion/geocoding/run.mjs";
+import { geocodeOneVenue, validateCacheIdentity } from "../ingestion/geocoding/run.mjs";
 
 // These tests exercise the FULL orchestration path (registry read/write +
 // cache read/write + acceptance) against disposable temp directories —
@@ -192,6 +192,158 @@ test("a venue with an address but no evidence backing it is SKIPPED", async (t) 
   );
   assert.equal(result.outcome, "SKIPPED");
   assert.equal(result.reason, "ADDRESS_NOT_EVIDENCE_BACKED");
+});
+
+// --- VENUE-GEOCODING-01A: cache identity safety ---------------------------
+// A cache HIT by filename (venue_id) alone is not proof the retained
+// evidence still matches this run's query. These tests prove a mismatch
+// on any identity/request-shape field is fail-closed: reported, never
+// silently reused, and never mutates the Venue.
+
+test("a. a fixture matching venue_id/query_address/provider/request shape IS reused", () => {
+  const venue = addressOnlyVenue();
+  const fixture = {
+    venue_id: venue.venue_id,
+    query_address: venue.address,
+    provider: "NOMINATIM_OSM",
+    request_params: { format: "jsonv2", addressdetails: 1, limit: 5, countrycodes: "pt" },
+  };
+  const result = validateCacheIdentity(fixture, { venue_id: venue.venue_id }, venue);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.failures, []);
+});
+
+test("b. a fixture whose query_address no longer matches the venue's CURRENT address is rejected", () => {
+  const venue = addressOnlyVenue({ address: "Rua Nova, 42, 1000-000 Lisboa" }); // address edited since caching
+  const fixture = {
+    venue_id: venue.venue_id,
+    query_address: "Largo da Graça, 1170-165 Lisboa", // stale, pre-edit address
+    provider: "NOMINATIM_OSM",
+    request_params: { format: "jsonv2", addressdetails: 1, limit: 5, countrycodes: "pt" },
+  };
+  const result = validateCacheIdentity(fixture, { venue_id: venue.venue_id }, venue);
+  assert.equal(result.valid, false);
+  assert.ok(result.failures.includes("query_address"));
+});
+
+test("c. a fixture written for a different venue_id is rejected", () => {
+  const venue = addressOnlyVenue();
+  const fixture = {
+    venue_id: "venue-some-other-venue",
+    query_address: venue.address,
+    provider: "NOMINATIM_OSM",
+    request_params: { format: "jsonv2", addressdetails: 1, limit: 5, countrycodes: "pt" },
+  };
+  const result = validateCacheIdentity(fixture, { venue_id: venue.venue_id }, venue);
+  assert.equal(result.valid, false);
+  assert.ok(result.failures.includes("venue_id"));
+});
+
+test("d. a fixture from a different/unexpected provider is rejected", () => {
+  const venue = addressOnlyVenue();
+  const fixture = {
+    venue_id: venue.venue_id,
+    query_address: venue.address,
+    provider: "SOME_OTHER_PROVIDER",
+    request_params: { format: "jsonv2", addressdetails: 1, limit: 5, countrycodes: "pt" },
+  };
+  const result = validateCacheIdentity(fixture, { venue_id: venue.venue_id }, venue);
+  assert.equal(result.valid, false);
+  assert.ok(result.failures.includes("provider"));
+});
+
+test("e. an incompatible request format or country is rejected", () => {
+  const venue = addressOnlyVenue();
+  const wrongFormat = {
+    venue_id: venue.venue_id,
+    query_address: venue.address,
+    provider: "NOMINATIM_OSM",
+    request_params: { format: "json", addressdetails: 1, limit: 5, countrycodes: "pt" },
+  };
+  const wrongCountry = {
+    venue_id: venue.venue_id,
+    query_address: venue.address,
+    provider: "NOMINATIM_OSM",
+    request_params: { format: "jsonv2", addressdetails: 1, limit: 5, countrycodes: "es" },
+  };
+  const formatResult = validateCacheIdentity(wrongFormat, { venue_id: venue.venue_id }, venue);
+  const countryResult = validateCacheIdentity(wrongCountry, { venue_id: venue.venue_id }, venue);
+  assert.equal(formatResult.valid, false);
+  assert.ok(formatResult.failures.includes("request_params.format"));
+  assert.equal(countryResult.valid, false);
+  assert.ok(countryResult.failures.includes("request_params.countrycodes"));
+});
+
+test("f. geocodeOneVenue reports CACHE_IDENTITY_MISMATCH, never mutates the Venue, and never queries live without --refresh", async (t) => {
+  const { dir, cacheDir } = await makeTempWorkspace();
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("must not call the live network on a cache identity mismatch without --refresh");
+  };
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  // Registry has a DIFFERENT (edited) address than the cached fixture recorded.
+  const registryPath = await writeRegistry(dir, [addressOnlyVenue({ address: "Rua Nova, 42, 1000-000 Lisboa" })]);
+  await writeCacheFixture(cacheDir, "venue-test-offline-fixture", [ACCEPTABLE_CANDIDATE]); // query_address = old address
+
+  const result = await geocodeOneVenue(
+    { venue_id: "venue-test-offline-fixture", registryPath },
+    { root: dir, cacheDir },
+  );
+
+  assert.equal(result.outcome, "CACHE_IDENTITY_MISMATCH");
+  assert.ok(result.failures.includes("query_address"));
+
+  const updated = JSON.parse(await readFile(registryPath, "utf8"));
+  const venue = updated.venues.find((v) => v.venue_id === "venue-test-offline-fixture");
+  assert.equal(venue.location_status, "ADDRESS_ONLY", "Venue must not be mutated on a cache identity mismatch");
+  assert.equal(venue.latitude, null);
+  assert.equal(venue.longitude, null);
+});
+
+test("f2. --refresh replaces a stale/mismatched cache via the normal governed live-request path", async (t) => {
+  const { dir, cacheDir } = await makeTempWorkspace();
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const originalFetch = globalThis.fetch;
+  let liveCalled = false;
+  const NEW_ADDRESS_CANDIDATE = {
+    lat: "38.72",
+    lon: "-9.13",
+    class: "amenity",
+    type: "theatre",
+    addresstype: "amenity",
+    osm_type: "way",
+    osm_id: 333444,
+    display_name: "Rua Nova, 42, Lisboa, Portugal",
+    address: { city: "Lisboa", postcode: "1000-000", house_number: "42", country_code: "pt" },
+  };
+  globalThis.fetch = async () => {
+    liveCalled = true;
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      text: async () => JSON.stringify([NEW_ADDRESS_CANDIDATE]),
+    };
+  };
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const registryPath = await writeRegistry(dir, [addressOnlyVenue({ address: "Rua Nova, 42, 1000-000 Lisboa" })]);
+  await writeCacheFixture(cacheDir, "venue-test-offline-fixture", [ACCEPTABLE_CANDIDATE]); // stale query_address
+
+  const result = await geocodeOneVenue(
+    { venue_id: "venue-test-offline-fixture", registryPath },
+    { root: dir, cacheDir, refresh: true },
+  );
+
+  assert.equal(liveCalled, true, "--refresh must issue a fresh live request through the normal governed path");
+  assert.equal(result.outcome, "GEOCODED");
+  assert.equal(result.used_cache, false);
 });
 
 // 14. no Observation facts mutate: the geocoding module never touches Observations at all.

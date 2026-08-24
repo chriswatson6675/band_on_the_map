@@ -20,11 +20,17 @@
 //   - no more than 1 request/second;
 //   - a valid, identifying User-Agent (not a generic browser UA);
 //   - caching results rather than repeating the same query.
-// This module enforces the rate limit itself (MIN_REQUEST_INTERVAL_MS,
-// waited before every live request); caching is the caller's
-// responsibility (see ingestion/geocoding/run.mjs, which never calls this
-// module for a venue that already has a retained fixture unless
-// `--refresh` is passed).
+// This module enforces BOTH the single-threaded requirement and the rate
+// limit itself: every call to searchNominatimLive() is chained onto one
+// shared internal promise queue (see requestQueue below), so even two
+// calls entered concurrently (e.g. an accidental Promise.all in future
+// code) can never have their fetches in flight at the same time, and the
+// MIN_REQUEST_INTERVAL_MS wait always separates one call's start from the
+// previous call's start — this is not just "well-behaved callers happen
+// to await each other". Caching is the caller's responsibility (see
+// ingestion/geocoding/run.mjs, which never calls this module for a venue
+// that already has a validated, retained fixture unless `--refresh` is
+// passed).
 
 import { fetchText } from "../http/fetch.mjs";
 
@@ -43,11 +49,11 @@ export const MIN_REQUEST_INTERVAL_MS = 1100;
 let lastRequestAt = 0;
 
 /**
- * Serializes live requests to at least MIN_REQUEST_INTERVAL_MS apart.
- * Module-level state is intentional: every live call in one process
- * (i.e. one `npm run geocode:venues` invocation) shares the same
- * rate-limit clock, so callers cannot accidentally issue two requests in
- * parallel by forgetting to await.
+ * Waits until at least MIN_REQUEST_INTERVAL_MS has passed since the last
+ * live request's start, then records this call's start time. Only ever
+ * called from inside the serialized queue below (never directly by more
+ * than one in-flight caller), so this module-level `lastRequestAt` state
+ * is never read/written concurrently.
  */
 async function waitForRateLimit() {
   const now = Date.now();
@@ -57,6 +63,15 @@ async function waitForRateLimit() {
   }
   lastRequestAt = Date.now();
 }
+
+// A tiny, dependency-free promise-chain mutex. Every call to
+// searchNominatimLive() below chains its work onto this shared queue
+// rather than running immediately, so calls are executed strictly one at
+// a time in call order, regardless of whether callers await between
+// calls. `.then(fn, fn)` (not just `.then(fn)`) deliberately runs the
+// next queued call whether the previous one resolved OR rejected, so one
+// failed request never permanently wedges every later call.
+let requestQueue = Promise.resolve();
 
 /**
  * Build the exact Nominatim `/search` URL for one address query. Fixed
@@ -79,36 +94,54 @@ export function buildNominatimSearchUrl(
 
 /**
  * Issue ONE single, rate-limited, live Nominatim search request for
- * `address`. Never call this in a loop without awaiting each call before
- * starting the next (this module's own rate limiter enforces the delay,
- * but callers must still stay single-threaded — never Promise.all this).
+ * `address`. Safe to call without awaiting the previous call first — this
+ * function itself serializes every call (see requestQueue above) so two
+ * concurrent callers can never have overlapping fetches, and the
+ * MIN_REQUEST_INTERVAL_MS wait always separates one call's start from the
+ * previous one's.
  *
  * Returns a plain, JSON-serializable result — the exact shape
  * ingestion/geocoding/run.mjs retains verbatim as one cache fixture under
  * fixtures/geocoding/nominatim/.
  */
 export async function searchNominatimLive(address, options = {}) {
-  await waitForRateLimit();
-  const url = buildNominatimSearchUrl(address, options);
-  const res = await fetchText(url, {
-    headers: { "User-Agent": NOMINATIM_USER_AGENT, Accept: "application/json" },
-  });
+  const runRequest = async () => {
+    await waitForRateLimit();
+    const url = buildNominatimSearchUrl(address, options);
+    const res = await fetchText(url, {
+      headers: { "User-Agent": NOMINATIM_USER_AGENT, Accept: "application/json" },
+    });
 
-  let candidates = [];
-  if (res.ok) {
-    try {
-      const parsed = JSON.parse(res.text);
-      candidates = Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      throw new Error(`Failed to parse Nominatim response as JSON for "${address}": ${error.message}`);
+    let candidates = [];
+    if (res.ok) {
+      try {
+        const parsed = JSON.parse(res.text);
+        candidates = Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        throw new Error(`Failed to parse Nominatim response as JSON for "${address}": ${error.message}`);
+      }
     }
-  }
 
-  return {
-    url,
-    status: res.status,
-    ok: res.ok,
-    candidates,
-    retrieved_at: res.retrievedAt ?? new Date().toISOString(),
+    return {
+      url,
+      status: res.status,
+      ok: res.ok,
+      candidates,
+      retrieved_at: res.retrievedAt ?? new Date().toISOString(),
+    };
   };
+
+  // Chain this call onto the shared queue: it only starts once every
+  // previously-queued call has fully settled (whether it resolved or
+  // rejected), which is what actually guarantees single-threaded
+  // execution rather than merely documenting it as a caller obligation.
+  const scheduled = requestQueue.then(runRequest, runRequest);
+  // Advance the queue to a promise that always resolves, so this call's
+  // own failure doesn't propagate into (and permanently reject) whatever
+  // the *next* call chains onto.
+  requestQueue = scheduled.then(
+    () => undefined,
+    () => undefined,
+  );
+  return scheduled;
 }
