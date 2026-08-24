@@ -354,6 +354,11 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
         allMarkers.forEach((m) => m.classList.remove("is-active"));
         el.classList.add("is-active");
         setActiveVenue(marker);
+        map.easeTo({
+          center: [marker.longitude, marker.latitude],
+          zoom: Math.max(map.getZoom(), 15),
+          duration: 800,
+        });
       });
 
       return new Marker({ element: el })
