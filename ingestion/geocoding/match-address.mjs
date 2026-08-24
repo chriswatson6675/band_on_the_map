@@ -98,6 +98,41 @@ export function extractHouseNumber(address) {
   return match ? match[1] : null;
 }
 
+/**
+ * VENUE-LOCATION-RESOLUTION-03 — extract a deterministic street token (for
+ * Nominatim's structured `street` parameter) from a canonical address
+ * string, or null if it cannot be extracted without guessing.
+ *
+ * Deliberately conservative — this is NOT a general-purpose Portuguese
+ * address parser: the address is split on its comma separators, the
+ * postcode-bearing segment (located via extractPostcode() above) is
+ * removed, and the street is returned ONLY when exactly ONE segment is
+ * left — e.g. "Rua das Estrelas, 4150-762 Porto" -> "Rua das Estrelas",
+ * "Avenida da Índia 52, 1300-299 Lisboa" -> "Avenida da Índia 52" (its own
+ * trailing house number is included verbatim, never split out — Nominatim
+ * accepts a combined "<street> <number>" street value).
+ *
+ * An address with a SEPARATE comma-delimited unit/suite/number segment —
+ * e.g. "Largo de Santa Bárbara, 3D, 1150-287 Lisboa" — leaves TWO non-
+ * postcode segments ("Largo de Santa Bárbara" and "3D"), which is
+ * genuinely ambiguous (is "3D" part of the street, a unit, or something
+ * else?) — this function deliberately does not guess and returns null;
+ * the structured query stays valid with amenity+city+postcode alone.
+ */
+export function extractStreet(address) {
+  if (typeof address !== "string") return null;
+  const postcode = extractPostcode(address);
+  const segments = address
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter((segment) => segment !== "");
+  const nonPostcodeSegments = postcode
+    ? segments.filter((segment) => !segment.includes(postcode))
+    : segments;
+  if (nonPostcodeSegments.length !== 1) return null;
+  return nonPostcodeSegments[0];
+}
+
 function isSpecificEnoughResult(candidate) {
   const type = normaliseText(candidate?.type);
   // Nominatim jsonv2 (this project's only format) calls this field
@@ -187,6 +222,20 @@ export function selectGeocodeMatch(candidates, venue) {
 
   return { status: "ACCEPTED", candidate: passing[0].candidate, evaluated };
 }
+
+// ===========================================================================
+// VENUE-LOCATION-RESOLUTION-03 — STRUCTURED_POI_QUERY reuses
+// NAME_PLUS_ADDRESS_QUERY's own acceptance rules EXACTLY (this package's
+// brief: "must satisfy every applicable existing strict NAME_PLUS_ADDRESS
+// requirement"). Nothing about structured search — separate amenity/
+// street/city/postalcode fields instead of one free-text `q=` string, plus
+// namedetails=1/extratags=1 — loosens or bypasses any check below;
+// `evaluateNamePlusAddressCandidate`/`selectNamePlusAddressMatch` are
+// reused verbatim (candidateNameFields() above already, additively, folds
+// in namedetails when present) rather than duplicated, so any future
+// tightening of the shared rules applies to both strategies at once.
+export const evaluateStructuredPoiCandidate = evaluateNamePlusAddressCandidate;
+export const selectStructuredPoiMatch = selectNamePlusAddressMatch;
 
 // ===========================================================================
 // VENUE-LOCATION-RESOLUTION-02 — NAME_PLUS_ADDRESS_QUERY's OWN, STRICTER
@@ -327,6 +376,14 @@ export const VENUE_NAME_ALIASES = {
 
 function candidateNameFields(candidate) {
   const addr = candidate?.address ?? {};
+  // VENUE-LOCATION-RESOLUTION-03: when a candidate carries Nominatim
+  // `namedetails` (only present when a query sent namedetails=1 — never
+  // the case for the pre-existing ADDRESS_ONLY_QUERY/NAME_PLUS_ADDRESS_QUERY
+  // fixtures, so this is purely additive for those), its own values
+  // (name, alt_name, official_name, name:pt, old_name, ...) participate in
+  // name compatibility through the exact SAME harmless normalisation as
+  // every other field here — never a new fuzzy-matching path.
+  const nameDetails = candidate?.namedetails && typeof candidate.namedetails === "object" ? candidate.namedetails : {};
   return [
     candidate?.name,
     addr.amenity,
@@ -341,6 +398,7 @@ function candidateNameFields(candidate) {
     addr.leisure,
     addr.club,
     addr.shop,
+    ...Object.values(nameDetails),
   ];
 }
 

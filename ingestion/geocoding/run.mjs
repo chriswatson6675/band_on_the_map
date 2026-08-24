@@ -36,19 +36,31 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { searchNominatimLive, NOMINATIM_USER_AGENT, buildNamePlusAddressQuery } from "./nominatim.mjs";
-import { selectGeocodeMatch, selectNamePlusAddressMatch } from "./match-address.mjs";
+import {
+  searchNominatimLive,
+  searchNominatimStructuredLive,
+  NOMINATIM_USER_AGENT,
+  buildNamePlusAddressQuery,
+  buildStructuredPoiFields,
+  STRUCTURED_POI_FIXED_PARAMS,
+} from "./nominatim.mjs";
+import { selectGeocodeMatch, selectNamePlusAddressMatch, selectStructuredPoiMatch } from "./match-address.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const CACHE_DIR = resolve(ROOT, "fixtures/geocoding/nominatim");
 
-// VENUE-LOCATION-RESOLUTION-02 — the two governed query strategy
+// VENUE-LOCATION-RESOLUTION-02/03 — the three governed query strategy
 // identifiers. ADDRESS_ONLY_QUERY is VENUE-GEOCODING-01's original (and
-// still default/unchanged) strategy; NAME_PLUS_ADDRESS_QUERY is this
-// package's new second strategy (see this file's geocodeOneVenue()).
+// still default/unchanged) strategy; NAME_PLUS_ADDRESS_QUERY is
+// VENUE-LOCATION-RESOLUTION-02's second strategy; STRUCTURED_POI_QUERY is
+// VENUE-LOCATION-RESOLUTION-03's third strategy (see this file's
+// geocodeOneVenue()) — Nominatim's documented STRUCTURED search form
+// (separate amenity/street/city/... fields, layer=poi) rather than a
+// single free-text `q=` string.
 export const QUERY_STRATEGIES = Object.freeze({
   ADDRESS_ONLY: "ADDRESS_ONLY_QUERY",
   NAME_PLUS_ADDRESS: "NAME_PLUS_ADDRESS_QUERY",
+  STRUCTURED_POI: "STRUCTURED_POI_QUERY",
 });
 
 // The bounded, restricted target set for VENUE-GEOCODING-01. Adding a
@@ -92,6 +104,13 @@ function parseArgs(argv) {
 function cacheFixturePath(venueId, cacheDir, strategy = QUERY_STRATEGIES.ADDRESS_ONLY) {
   if (strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS) {
     return resolve(cacheDir, `${venueId}--name-plus-address.json`);
+  }
+  // VENUE-LOCATION-RESOLUTION-03: STRUCTURED_POI_QUERY evidence is cached
+  // under its own distinctly suffixed path too — never colliding with, or
+  // overwriting, the bare ADDRESS_ONLY_QUERY or --name-plus-address
+  // fixtures for the same venue.
+  if (strategy === QUERY_STRATEGIES.STRUCTURED_POI) {
+    return resolve(cacheDir, `${venueId}--structured-poi.json`);
   }
   return resolve(cacheDir, `${venueId}.json`);
 }
@@ -163,12 +182,33 @@ export function validateCacheIdentity(fixture, target, venue) {
   if (fixture.request_params?.countrycodes !== "pt") failures.push("request_params.countrycodes");
   if (fixture.request_params?.format !== "jsonv2") failures.push("request_params.format");
 
-  // NAME_PLUS_ADDRESS_QUERY additionally depends on the canonical_name — a
-  // Venue's name being edited since this fixture was retrieved must
-  // invalidate it exactly like an edited address does, never be silently
-  // reused (section 3 / test 7 of this package's brief).
-  if (expectedStrategy === "NAME_PLUS_ADDRESS_QUERY") {
+  // NAME_PLUS_ADDRESS_QUERY/STRUCTURED_POI_QUERY additionally depend on the
+  // canonical_name — a Venue's name being edited since this fixture was
+  // retrieved must invalidate it exactly like an edited address does,
+  // never be silently reused (section 3 / test 7 of this package's
+  // brief; VENUE-LOCATION-RESOLUTION-03 extends this to STRUCTURED_POI_QUERY
+  // too — see its own test 13).
+  if (expectedStrategy === "NAME_PLUS_ADDRESS_QUERY" || expectedStrategy === "STRUCTURED_POI_QUERY") {
     if (fixture.canonical_name !== venue.canonical_name) failures.push("canonical_name");
+  }
+
+  // VENUE-LOCATION-RESOLUTION-03 (test 15): a STRUCTURED_POI_QUERY fixture
+  // must also still match this run's own DERIVED structured fields
+  // (amenity/city/postalcode/street) plus the fixed country/layer values —
+  // an edited address changing what extractPostcode()/extractStreet()
+  // would now extract must invalidate the cache exactly like every other
+  // identity field, never be silently reused.
+  if (expectedStrategy === "STRUCTURED_POI_QUERY") {
+    const expectedFields = buildStructuredPoiFields(venue.canonical_name, venue.address, venue.municipality ?? venue.city);
+    const fixtureFields = fixture.structured_query ?? {};
+    if (fixtureFields.amenity !== expectedFields.amenity) failures.push("structured_query.amenity");
+    if ((fixtureFields.city ?? null) !== (expectedFields.city ?? null)) failures.push("structured_query.city");
+    if ((fixtureFields.postalcode ?? null) !== (expectedFields.postalcode ?? null)) {
+      failures.push("structured_query.postalcode");
+    }
+    if ((fixtureFields.street ?? null) !== (expectedFields.street ?? null)) failures.push("structured_query.street");
+    if (fixture.request_params?.country !== STRUCTURED_POI_FIXED_PARAMS.country) failures.push("request_params.country");
+    if (fixture.request_params?.layer !== STRUCTURED_POI_FIXED_PARAMS.layer) failures.push("request_params.layer");
   }
 
   return { valid: failures.length === 0, failures };
@@ -207,13 +247,14 @@ export async function geocodeOneVenue(
   if (!Array.isArray(venue.evidence) || venue.evidence.length === 0) {
     return { venue_id: target.venue_id, outcome: "SKIPPED", reason: "ADDRESS_NOT_EVIDENCE_BACKED" };
   }
-  // VENUE-LOCATION-RESOLUTION-02 (section 1/8): NAME_PLUS_ADDRESS_QUERY
-  // additionally requires a non-empty canonical_name — an UNRESOLVED
-  // Observation's own free-text venue_name can never reach this function
-  // at all (it operates only on an already-existing canonical Venue), and
-  // a Venue somehow missing canonical_name is fail-closed SKIPPED rather
-  // than queried on address alone under this strategy's name.
-  if (strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS) {
+  // VENUE-LOCATION-RESOLUTION-02 (section 1/8): NAME_PLUS_ADDRESS_QUERY and
+  // (VENUE-LOCATION-RESOLUTION-03) STRUCTURED_POI_QUERY additionally
+  // require a non-empty canonical_name — an UNRESOLVED Observation's own
+  // free-text venue_name can never reach this function at all (it
+  // operates only on an already-existing canonical Venue), and a Venue
+  // somehow missing canonical_name is fail-closed SKIPPED rather than
+  // queried on address alone under either strategy's name.
+  if (strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS || strategy === QUERY_STRATEGIES.STRUCTURED_POI) {
     if (typeof venue.canonical_name !== "string" || venue.canonical_name.trim() === "") {
       return { venue_id: target.venue_id, outcome: "SKIPPED", reason: "NO_CANONICAL_NAME" };
     }
@@ -249,6 +290,34 @@ export async function geocodeOneVenue(
     }
     usedCache = true;
     console.log(`  using cached fixture for ${target.venue_id} (${strategy}; pass --refresh to force a live requery)`);
+  } else if (strategy === QUERY_STRATEGIES.STRUCTURED_POI) {
+    // VENUE-LOCATION-RESOLUTION-03: Nominatim's documented STRUCTURED
+    // search form — separate amenity/street/city/postalcode/... fields,
+    // layer=poi — never a single free-text `q=` string. Fields are
+    // derived deterministically from the venue's own already-evidenced
+    // canonical_name/address/municipality — see
+    // ingestion/geocoding/nominatim.mjs#buildStructuredPoiFields.
+    const structuredFields = buildStructuredPoiFields(venue.canonical_name, venue.address, venue.municipality ?? venue.city);
+    console.log(
+      `  querying Nominatim live (structured POI) for ${target.venue_id} (${strategy}): ${JSON.stringify(structuredFields)} ...`,
+    );
+    const result = await searchNominatimStructuredLive(structuredFields, {});
+    fixture = {
+      venue_id: target.venue_id,
+      query_strategy: strategy,
+      query: `STRUCTURED: ${JSON.stringify(structuredFields)}`,
+      query_address: venue.address,
+      canonical_name: venue.canonical_name,
+      structured_query: structuredFields,
+      request_params: { ...STRUCTURED_POI_FIXED_PARAMS, ...structuredFields },
+      request_url: result.url,
+      user_agent: NOMINATIM_USER_AGENT,
+      provider: "NOMINATIM_OSM",
+      retrieved_at: result.retrieved_at,
+      http_status: result.status,
+      candidates: result.candidates,
+    };
+    await saveFixture(target.venue_id, fixture, cacheDir, strategy);
   } else {
     const query = strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS
       ? buildNamePlusAddressQuery(venue.canonical_name, venue.address)
@@ -275,7 +344,9 @@ export async function geocodeOneVenue(
   const match =
     strategy === QUERY_STRATEGIES.NAME_PLUS_ADDRESS
       ? selectNamePlusAddressMatch(fixture.candidates, venue)
-      : selectGeocodeMatch(fixture.candidates, venue);
+      : strategy === QUERY_STRATEGIES.STRUCTURED_POI
+        ? selectStructuredPoiMatch(fixture.candidates, venue)
+        : selectGeocodeMatch(fixture.candidates, venue);
 
   if (match.status !== "ACCEPTED") {
     return {
@@ -326,18 +397,31 @@ export async function geocodeOneVenue(
           result_display_name: candidate.display_name ?? null,
           retrieved_at: fixture.retrieved_at,
         }
-      : {
-          method: "GEOCODED_FROM_OFFICIAL_ADDRESS",
-          provider: "NOMINATIM_OSM",
-          query_strategy: "ADDRESS_ONLY_QUERY",
-          query_address: fixture.query_address,
-          result_osm_type: candidate.osm_type ?? null,
-          result_osm_id: candidate.osm_id != null ? String(candidate.osm_id) : null,
-          result_display_name: candidate.display_name ?? null,
-          matched_postcode: candidate.address?.postcode ?? null,
-          matched_city: candidate.address?.city ?? candidate.address?.town ?? candidate.address?.municipality ?? null,
-          retrieved_at: fixture.retrieved_at,
-        };
+      : strategy === QUERY_STRATEGIES.STRUCTURED_POI
+        ? {
+            method: "GEOCODED_FROM_OFFICIAL_ADDRESS",
+            provider: "NOMINATIM_OSM",
+            query_strategy: "STRUCTURED_POI_QUERY",
+            query_name: venue.canonical_name,
+            query_address: fixture.query_address,
+            structured_query: fixture.structured_query,
+            result_osm_type: candidate.osm_type ?? null,
+            result_osm_id: candidate.osm_id != null ? String(candidate.osm_id) : null,
+            result_display_name: candidate.display_name ?? null,
+            retrieved_at: fixture.retrieved_at,
+          }
+        : {
+            method: "GEOCODED_FROM_OFFICIAL_ADDRESS",
+            provider: "NOMINATIM_OSM",
+            query_strategy: "ADDRESS_ONLY_QUERY",
+            query_address: fixture.query_address,
+            result_osm_type: candidate.osm_type ?? null,
+            result_osm_id: candidate.osm_id != null ? String(candidate.osm_id) : null,
+            result_display_name: candidate.display_name ?? null,
+            matched_postcode: candidate.address?.postcode ?? null,
+            matched_city: candidate.address?.city ?? candidate.address?.town ?? candidate.address?.municipality ?? null,
+            retrieved_at: fixture.retrieved_at,
+          };
 
   venue.latitude = latitude;
   venue.longitude = longitude;
@@ -356,11 +440,20 @@ export async function geocodeOneVenue(
             `Matched OSM feature: ${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. ` +
             `This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's ` +
             `location_status contract.`
-          : `VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own ` +
-            `already-evidenced official address ("${fixture.query_address}") — see ` +
-            `fixtures/geocoding/nominatim/${target.venue_id}.json for the full cached response. Matched OSM feature: ` +
-            `${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. This coordinate is ` +
-            `GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract.`,
+          : strategy === QUERY_STRATEGIES.STRUCTURED_POI
+            ? `VENUE-LOCATION-RESOLUTION-03: deterministically accepted Nominatim/OSM STRUCTURED search result ` +
+              `(amenity/street/city/postalcode fields, layer=poi — not a free-text query) for this venue's own ` +
+              `canonical name + already-evidenced official address (structured fields: ` +
+              `${JSON.stringify(fixture.structured_query)}) — see ` +
+              `fixtures/geocoding/nominatim/${target.venue_id}--structured-poi.json for the full cached response. ` +
+              `Matched OSM feature: ${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. ` +
+              `This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's ` +
+              `location_status contract.`
+            : `VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own ` +
+              `already-evidenced official address ("${fixture.query_address}") — see ` +
+              `fixtures/geocoding/nominatim/${target.venue_id}.json for the full cached response. Matched OSM feature: ` +
+              `${provenance.result_osm_type ?? "unknown"}/${provenance.result_osm_id ?? "unknown"}. This coordinate is ` +
+              `GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract.`,
     },
   ];
 

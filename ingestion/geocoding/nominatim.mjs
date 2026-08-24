@@ -33,6 +33,7 @@
 // passed).
 
 import { fetchText } from "../http/fetch.mjs";
+import { extractPostcode, extractStreet } from "./match-address.mjs";
 
 export const NOMINATIM_USER_AGENT =
   "BandOnTheMap-VenueGeocoder/0.1 (+https://github.com/chriswatson6675/band_on_the_map)";
@@ -117,6 +118,60 @@ export function buildNamePlusAddressQuery(canonicalName, address) {
 }
 
 /**
+ * Fetch and parse ONE Nominatim response for an already-built `url`,
+ * after waiting out the shared rate limit. Never called directly by more
+ * than one in-flight caller — see the queue chaining below, shared by
+ * BOTH searchNominatimLive() (free-text `q=`) and
+ * searchNominatimStructuredLive() (VENUE-LOCATION-RESOLUTION-03's
+ * structured amenity/street/city/... search) — a live structured request
+ * and a live free-text request can therefore never race each other
+ * either, and both count against the exact same MIN_REQUEST_INTERVAL_MS
+ * spacing.
+ */
+async function fetchNominatimUrl(url, describeForErrors) {
+  await waitForRateLimit();
+  const res = await fetchText(url, {
+    headers: { "User-Agent": NOMINATIM_USER_AGENT, Accept: "application/json" },
+  });
+
+  let candidates = [];
+  if (res.ok) {
+    try {
+      const parsed = JSON.parse(res.text);
+      candidates = Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      throw new Error(`Failed to parse Nominatim response as JSON for ${describeForErrors}: ${error.message}`);
+    }
+  }
+
+  return {
+    url,
+    status: res.status,
+    ok: res.ok,
+    candidates,
+    retrieved_at: res.retrievedAt ?? new Date().toISOString(),
+  };
+}
+
+/**
+ * Chain `runRequest` onto the shared single-threaded request queue.
+ * `.then(fn, fn)` deliberately runs the next queued call whether the
+ * previous one resolved OR rejected, so one failed request never
+ * permanently wedges every later call (free-text or structured).
+ */
+function enqueueNominatimRequest(runRequest) {
+  const scheduled = requestQueue.then(runRequest, runRequest);
+  // Advance the queue to a promise that always resolves, so this call's
+  // own failure doesn't propagate into (and permanently reject) whatever
+  // the *next* call chains onto.
+  requestQueue = scheduled.then(
+    () => undefined,
+    () => undefined,
+  );
+  return scheduled;
+}
+
+/**
  * Issue ONE single, rate-limited, live Nominatim search request for
  * `address`. Safe to call without awaiting the previous call first — this
  * function itself serializes every call (see requestQueue above) so two
@@ -129,43 +184,103 @@ export function buildNamePlusAddressQuery(canonicalName, address) {
  * fixtures/geocoding/nominatim/.
  */
 export async function searchNominatimLive(address, options = {}) {
-  const runRequest = async () => {
-    await waitForRateLimit();
-    const url = buildNominatimSearchUrl(address, options);
-    const res = await fetchText(url, {
-      headers: { "User-Agent": NOMINATIM_USER_AGENT, Accept: "application/json" },
-    });
+  const url = buildNominatimSearchUrl(address, options);
+  return enqueueNominatimRequest(() => fetchNominatimUrl(url, `"${address}"`));
+}
 
-    let candidates = [];
-    if (res.ok) {
-      try {
-        const parsed = JSON.parse(res.text);
-        candidates = Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        throw new Error(`Failed to parse Nominatim response as JSON for "${address}": ${error.message}`);
-      }
-    }
+// ===========================================================================
+// VENUE-LOCATION-RESOLUTION-03 — STRUCTURED_POI_QUERY: Nominatim's
+// documented STRUCTURED search form (separate amenity/street/city/county/
+// state/country/postalcode fields, never a single free-text `q=` string),
+// with layer=poi so only point-of-interest-shaped results are returned.
 
-    return {
-      url,
-      status: res.status,
-      ok: res.ok,
-      candidates,
-      retrieved_at: res.retrievedAt ?? new Date().toISOString(),
-    };
-  };
+// Fixed, non-derived structured-search params (this package's brief,
+// section "Structured query construction"): every field here is the same
+// for every STRUCTURED_POI_QUERY request this project ever issues — never
+// venue-specific, never derived from an address. Frozen so a cache
+// fixture can compare against it directly.
+export const STRUCTURED_POI_FIXED_PARAMS = Object.freeze({
+  country: "Portugal",
+  countrycodes: "pt",
+  format: "jsonv2",
+  addressdetails: "1",
+  namedetails: "1",
+  extratags: "1",
+  limit: "5",
+  layer: "poi",
+});
 
-  // Chain this call onto the shared queue: it only starts once every
-  // previously-queued call has fully settled (whether it resolved or
-  // rejected), which is what actually guarantees single-threaded
-  // execution rather than merely documenting it as a caller obligation.
-  const scheduled = requestQueue.then(runRequest, runRequest);
-  // Advance the queue to a promise that always resolves, so this call's
-  // own failure doesn't propagate into (and permanently reject) whatever
-  // the *next* call chains onto.
-  requestQueue = scheduled.then(
-    () => undefined,
-    () => undefined,
-  );
-  return scheduled;
+/**
+ * Deterministically derive STRUCTURED_POI_QUERY's own structured search
+ * fields from ONE canonical Venue's already-evidenced identity — never
+ * from Observation text, never from an unresolved/unadmitted candidate.
+ * `amenity` is always the venue's own canonical_name (this package's
+ * "amenity field equals canonical venue identity" rule — never a fuzzy or
+ * partial name). `city` is the venue's municipality/city where present.
+ * `postalcode`/`street` are included ONLY when deterministically
+ * extractable from the canonical address (extractPostcode()/
+ * extractStreet() from match-address.mjs) — omitted, never guessed,
+ * otherwise; the query remains valid with amenity+city+postalcode alone.
+ */
+export function buildStructuredPoiFields(canonicalName, address, cityOrMunicipality) {
+  if (typeof canonicalName !== "string" || canonicalName.trim() === "") {
+    throw new Error("buildStructuredPoiFields requires a non-empty canonical_name");
+  }
+  if (typeof address !== "string" || address.trim() === "") {
+    throw new Error("buildStructuredPoiFields requires a non-empty canonical address");
+  }
+
+  const fields = { amenity: canonicalName };
+  if (typeof cityOrMunicipality === "string" && cityOrMunicipality.trim() !== "") {
+    fields.city = cityOrMunicipality;
+  }
+  const postalcode = extractPostcode(address);
+  if (postalcode) fields.postalcode = postalcode;
+  const street = extractStreet(address);
+  if (street) fields.street = street;
+  return fields;
+}
+
+/**
+ * Build the exact Nominatim `/search` URL for STRUCTURED_POI_QUERY's
+ * structured fields. NEVER sends a `q=` free-text parameter alongside the
+ * structured fields (Nominatim's own structured-search contract, and this
+ * package's brief). `amenity` is required; `street`/`city`/`county`/
+ * `state` are included only when actually present on `fields`.
+ */
+export function buildStructuredPoiSearchUrl(fields, { baseUrl = NOMINATIM_BASE_URL } = {}) {
+  if (!fields || typeof fields.amenity !== "string" || fields.amenity.trim() === "") {
+    throw new Error("buildStructuredPoiSearchUrl requires a non-empty amenity field");
+  }
+
+  const params = new URLSearchParams();
+  params.set("amenity", fields.amenity);
+  if (fields.street) params.set("street", fields.street);
+  if (fields.city) params.set("city", fields.city);
+  if (fields.county) params.set("county", fields.county);
+  if (fields.state) params.set("state", fields.state);
+  params.set("country", STRUCTURED_POI_FIXED_PARAMS.country);
+  if (fields.postalcode) params.set("postalcode", fields.postalcode);
+  params.set("countrycodes", STRUCTURED_POI_FIXED_PARAMS.countrycodes);
+  params.set("format", STRUCTURED_POI_FIXED_PARAMS.format);
+  params.set("addressdetails", STRUCTURED_POI_FIXED_PARAMS.addressdetails);
+  params.set("namedetails", STRUCTURED_POI_FIXED_PARAMS.namedetails);
+  params.set("extratags", STRUCTURED_POI_FIXED_PARAMS.extratags);
+  params.set("limit", STRUCTURED_POI_FIXED_PARAMS.limit);
+  params.set("layer", STRUCTURED_POI_FIXED_PARAMS.layer);
+  // Deliberately never params.set("q", ...) — see this function's doc
+  // comment and tests/geocoding-structured-poi.test.mjs test 6.
+  return `${baseUrl}/search?${params.toString()}`;
+}
+
+/**
+ * Issue ONE single, rate-limited, live Nominatim STRUCTURED search
+ * request. Shares searchNominatimLive()'s exact same serialized queue and
+ * rate limiter (see fetchNominatimUrl/enqueueNominatimRequest above) —
+ * never a second, independent request path that could race a free-text
+ * request or exceed 1 request/second in combination with it.
+ */
+export async function searchNominatimStructuredLive(fields, options = {}) {
+  const url = buildStructuredPoiSearchUrl(fields, options);
+  return enqueueNominatimRequest(() => fetchNominatimUrl(url, JSON.stringify(fields)));
 }
