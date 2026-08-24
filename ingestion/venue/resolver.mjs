@@ -60,6 +60,59 @@ const CAPITOLIO_LOCATION_TEXT_TO_CANONICAL = {
     "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
 };
 
+// BOTA (LISBON-AUTOMATIC-SUBSET-01): every retained live sample's ICS
+// LOCATION carries this exact, consistent single-venue address string
+// (confirmed identical across multiple distinct events) — the same
+// exact-string-match convention as Hot Clube above, and deliberately NOT
+// the same ICS's own GEO property, which this task's live proof found to
+// be genuinely wrong (resolves outside Lisbon) — see
+// ingestion/bota/observation-adapter.mjs. Maps to the SAME venue already
+// evidence-resolved in venues/lisbon.json under BOTM-VENUE-01 (ADDRESS_ONLY,
+// no coordinates) — this task does not upgrade that entry. Note the exact
+// string genuinely has no accent on "Barbara" here — the calendar export
+// spells it plainly ASCII, unlike venues/lisbon.json's own canonical_name
+// evidence ("Bárbara", from the venue's official website); this mapping
+// key is deliberately the ICS's own exact text, not the accented form,
+// since exact-string matching means exact.
+const BOTA_LOCATION_TEXT_TO_CANONICAL = {
+  "BOTA, Largo de Santa Barbara, 3D, Lisboa, Portugal": "venue-lisboa-bota-anjos",
+};
+
+// Odivelas (LISBON-AUTOMATIC-SUBSET-01): unlike the single-venue sources
+// above, this is a municipal CITY_FEED whose items span many different
+// council venues/departments (see ingestion/odivelas/observation-
+// adapter.mjs) — there is no one fixed venue to resolve every Observation
+// to. This table starts deliberately EMPTY: no first-party, evidence-
+// backed Venue was resolved for any of the "Contacto:" text genuinely
+// observed in this task's live run (see the run report) — per
+// docs/VENUE_RESOLUTION.md, an unresolved gig is preferable to a false
+// map marker. A future task may add explicit entries here once a
+// specific Odivelas-referenced venue (e.g. Centro Cultural Malaposta) is
+// independently evidence-resolved the same way Capitólio/BOTA were.
+const ODIVELAS_LOCATION_TEXT_TO_CANONICAL = {};
+
+// Village Underground Lisboa and MEO Arena (LISBON-AUTOMATIC-SUBSET-01):
+// both sources are registered as a single fixed-address VENUE
+// (sources/lisbon.json's own source_type), and neither source's own
+// acquired records expose a usable per-event location field to key an
+// exact-text mapping on the way Hot Clube/BOTA do (Village Underground's
+// ICS carries no LOCATION property at all; MEO Arena's bounded agenda
+// listing does not repeat a per-card venue name — see each adapter's own
+// doc comment for the live evidence). Resolving every Observation from
+// one of these two sources to its one fixed, evidence-backed Venue
+// (venues/lisbon.json) is therefore keyed on source_id itself, not a
+// per-Observation field. This is still a small, explicit, non-fuzzy 1:1
+// mapping — never a guess about which venue an event happened at — the
+// dispatch below on Observation.source_id already does exactly this for
+// every other source; keying resolution on that same already-trusted
+// field for a source whose real-world identity IS one physical place is
+// not a lower evidentiary bar, and it never touches the Observation's own
+// (honestly null) venue_name/location_text fields.
+const SOURCE_ID_TO_FIXED_CANONICAL_VENUE = {
+  "village-underground-lisboa": "venue-lisboa-village-underground-lisboa",
+  "meo-arena": "venue-lisboa-meo-arena",
+};
+
 function resolved(venueId, method) {
   return { venue_id: venueId, resolution_status: "RESOLVED", resolution_method: method };
 }
@@ -95,6 +148,46 @@ export function resolveCapitolioObservation(observation) {
   return unresolved("NO_EXPLICIT_CAPITOLIO_LOCATION_TEXT_MAPPING");
 }
 
+export function resolveBotaObservation(observation) {
+  const locationText = observation?.location_text;
+  const canonicalId = locationText ? BOTA_LOCATION_TEXT_TO_CANONICAL[locationText] : undefined;
+  if (canonicalId) {
+    return resolved(canonicalId, "BOTA_EXPLICIT_LOCATION_TEXT_MAPPING");
+  }
+  return unresolved("NO_EXPLICIT_BOTA_LOCATION_TEXT_MAPPING");
+}
+
+export function resolveOdivelasObservation(observation) {
+  const locationText = observation?.location_text;
+  const canonicalId = locationText ? ODIVELAS_LOCATION_TEXT_TO_CANONICAL[locationText] : undefined;
+  if (canonicalId) {
+    return resolved(canonicalId, "ODIVELAS_EXPLICIT_LOCATION_TEXT_MAPPING");
+  }
+  return unresolved("NO_EXPLICIT_ODIVELAS_LOCATION_TEXT_MAPPING");
+}
+
+/**
+ * Shared by resolveVillageUndergroundObservation()/resolveMeoArenaObservation()
+ * — see SOURCE_ID_TO_FIXED_CANONICAL_VENUE's doc comment above for why a
+ * fixed-venue source is deliberately resolved by source_id rather than a
+ * per-Observation field.
+ */
+function resolveFixedVenueSource(observation, method) {
+  const canonicalId = SOURCE_ID_TO_FIXED_CANONICAL_VENUE[observation?.source_id];
+  if (canonicalId) {
+    return resolved(canonicalId, method);
+  }
+  return unresolved("NO_FIXED_VENUE_MAPPING_FOR_SOURCE");
+}
+
+export function resolveVillageUndergroundObservation(observation) {
+  return resolveFixedVenueSource(observation, "VILLAGE_UNDERGROUND_FIXED_SINGLE_VENUE_SOURCE");
+}
+
+export function resolveMeoArenaObservation(observation) {
+  return resolveFixedVenueSource(observation, "MEO_ARENA_FIXED_SINGLE_VENUE_SOURCE");
+}
+
 /**
  * Dispatch on Observation.source_id to the right explicit resolver. A
  * source with no resolver defined here is always UNRESOLVED, never
@@ -109,6 +202,18 @@ export function resolveObservation(observation) {
   }
   if (observation?.source_id === "teatro-variedades-capitolio") {
     return resolveCapitolioObservation(observation);
+  }
+  if (observation?.source_id === "bota-anjos") {
+    return resolveBotaObservation(observation);
+  }
+  if (observation?.source_id === "cm-odivelas-agenda-cultura") {
+    return resolveOdivelasObservation(observation);
+  }
+  if (observation?.source_id === "village-underground-lisboa") {
+    return resolveVillageUndergroundObservation(observation);
+  }
+  if (observation?.source_id === "meo-arena") {
+    return resolveMeoArenaObservation(observation);
   }
   return unresolved("NO_RESOLVER_FOR_SOURCE");
 }

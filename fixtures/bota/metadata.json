@@ -1,0 +1,37 @@
+{
+  "source_id": "bota-anjos",
+  "task": "LISBON-AUTOMATIC-SUBSET-01",
+  "source_homepage": "https://www.botaanjos.com/",
+  "events_index_url": "https://www.botaanjos.com/programacao",
+  "acquisition_shape": "PER_EVENT_ICS",
+  "retrieved_at": "2026-08-24T00:39:41.936Z",
+  "requests_made": [
+    {
+      "slug": "a-lei-da-terra",
+      "url": "https://www.botaanjos.com/programacao/a-lei-da-terra?format=ical",
+      "http_status": 200,
+      "content_type": "text/calendar",
+      "retained_fixture": "fixtures/bota/events/a-lei-da-terra.ics"
+    },
+    {
+      "slug": "fred-martins",
+      "url": "https://www.botaanjos.com/programacao/fred-martins?format=ical",
+      "http_status": 200,
+      "content_type": "text/calendar",
+      "retained_fixture": "fixtures/bota/events/fred-martins.ics"
+    },
+    {
+      "slug": "josyara",
+      "url": "https://www.botaanjos.com/programacao/josyara?format=ical",
+      "http_status": 200,
+      "content_type": "text/calendar",
+      "retained_fixture": "fixtures/bota/events/josyara.ics"
+    }
+  ],
+  "total_live_requests": 3,
+  "findings": {
+    "uid_stability": "STABLE (same Squarespace platform behaviour as Village Underground).",
+    "location_field": "Present on every retained sample, identical exact string across all 3: \"BOTA, Largo de Santa Barbara, 3D, Lisboa, Portugal\" (escaped commas unescaped by ingestion/ics/parse.mjs).",
+    "geo_field_untrusted": "Present on every retained sample, identical exact value across all 3: GEO:40.720756;-74.000761 — directly confirmed WRONG (resolves outside Lisbon, in the United States), consistent with a Squarespace platform-default/placeholder location. Never used for map coordinates — see ingestion/bota/observation-adapter.mjs."
+  }
+}

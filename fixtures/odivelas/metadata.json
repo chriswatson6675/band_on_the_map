@@ -1,0 +1,35 @@
+{
+  "source_id": "cm-odivelas-agenda-cultura",
+  "task": "LISBON-AUTOMATIC-SUBSET-01",
+  "source_homepage": "https://www.cm-odivelas.pt",
+  "rss_directory_url": "https://www.cm-odivelas.pt/rss-feed",
+  "events_feed_url": "https://www.cm-odivelas.pt/pages/322.rss",
+  "discovery_note": "sources/lisbon.json records only that an /rss-feed link was observed on the culture page. That page is itself a directory of several distinct named feeds (RSS de Notícias at /pages/321.rss, RSS de Eventos at /pages/322.rss) — ingestion/odivelas/discovery.mjs finds the one labelled RSS de Eventos rather than hardcoding its path.",
+  "retrieved_at": "2026-08-24T00:41:39.621Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://www.cm-odivelas.pt/rss-feed",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "discover the RSS de Eventos feed URL",
+      "retained_fixture": "fixtures/odivelas/rss-feed-directory-excerpt.html (bounded excerpt)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://www.cm-odivelas.pt/pages/322.rss",
+      "http_status": 200,
+      "content_type": "application/rss+xml; charset=utf-8",
+      "purpose": "retrieve the events feed",
+      "retained_fixture": "fixtures/odivelas/rss-de-eventos-excerpt.rss (bounded excerpt, first 3 of 30 live items)"
+    }
+  ],
+  "total_live_requests": 2,
+  "findings": {
+    "item_count_live": 30,
+    "pubdate_is_event_time": "This feed exposes no separate event-start field distinct from pubDate; cross-checking retained live items (an evening theatre item with pubDate reading 21:00 local-equivalent) shows pubDate is reused to carry the actual event date/time, not a distinct publish timestamp — see ingestion/odivelas/observation-adapter.mjs.",
+    "venue_field": "No structured venue field exists. Item description HTML commonly (not always) contains a Contacto: {name} line naming a department or venue — extracted verbatim into location_text, never split or asserted as a canonical venue name."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "source_id": "teatro-variedades-capitolio",
+  "task": "LISBON-AUTOMATIC-SUBSET-01",
+  "note": "Extends BOTM-MULTISOURCE-LINKS-01 (fixtures/capitolio/events.json, 5 hand-selected candidate pages) with genuine automatic discovery from the venue own agenda index, per this task brief.",
+  "agenda_index_url": "https://teatrovariedades-capitolio.pt/agenda/capitolio/",
+  "retrieved_at": "2026-08-24T00:41:39.625Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://teatrovariedades-capitolio.pt/agenda/capitolio/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "discover every currently-listed individual event page URL",
+      "retained_fixture": "fixtures/capitolio/discovery/agenda-index-excerpt.html (bounded excerpt, first 8 of 31 live links)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://teatrovariedades-capitolio.pt/evento/hugo-lobo-trio-convida-madalena-caldeira/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "validate the bounded event-content extractor against a page already governed in fixtures/capitolio/events.json",
+      "retained_fixture": "fixtures/capitolio/pages/hugo-lobo-trio-convida-madalena-caldeira.html (bounded window)"
+    }
+  ],
+  "findings": {
+    "event_link_count_live": 31,
+    "cross_check": "ingestion/capitolio/discovery.mjs re-extracted the Hugo Lobo Trio page live and produced field-for-field identical values to the already-governed fixtures/capitolio/events.json record for wp_shortlink_post_id 2908 (title, series_tagline, date_iso 2026-08-02, time_text, venue_text, duration_minutes, age_rating, price_text null, ticket_url null)."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "source_id": "village-underground-lisboa",
+  "task": "LISBON-AUTOMATIC-SUBSET-01",
+  "source_homepage": "https://vulisboa.com/",
+  "events_index_url": "https://vulisboa.com/eventos",
+  "acquisition_shape": "PER_EVENT_ICS",
+  "retrieved_at": "2026-08-24T00:39:30.032Z",
+  "requests_made": [
+    {
+      "slug": "afro-encircle-vul",
+      "url": "https://vulisboa.com/eventos/afro-encircle-vul?format=ical",
+      "http_status": 200,
+      "content_type": "text/calendar",
+      "retained_fixture": "fixtures/village-underground/events/afro-encircle-vul.ics"
+    },
+    {
+      "slug": "treble-showcase-setembro",
+      "url": "https://vulisboa.com/eventos/treble-showcase-setembro?format=ical",
+      "http_status": 200,
+      "content_type": "text/calendar",
+      "retained_fixture": "fixtures/village-underground/events/treble-showcase-setembro.ics"
+    },
+    {
+      "slug": "synk-1st-anniversary",
+      "url": "https://vulisboa.com/eventos/synk-1st-anniversary?format=ical",
+      "http_status": 200,
+      "content_type": "text/calendar",
+      "retained_fixture": "fixtures/village-underground/events/synk-1st-anniversary.ics"
+    }
+  ],
+  "total_live_requests": 3,
+  "findings": {
+    "uid_stability": "STABLE. Directly re-fetched the same event (afro-encircle-vul) twice during discovery and confirmed an identical ICS UID both times, unlike Hot Clube de Portugal's EventON UID. Safe to use as source_record_id (see ingestion/village-underground/observation-adapter.mjs).",
+    "location_field": "Confirmed absent from every retained sample's ICS (no LOCATION property at all) — not merely unobserved by chance across 3 samples."
+  }
+}

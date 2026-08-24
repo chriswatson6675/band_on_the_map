@@ -95,3 +95,46 @@ export function parseHotClubeDiscovery(html) {
 export function findDiscoveryRecord(records, eventId) {
   return records.find((record) => record.event_id === String(eventId)) ?? null;
 }
+
+// LISBON-AUTOMATIC-SUBSET-01: the small additional discovery step a live
+// collector genuinely needs — finding each event's own "Calendário" ICS
+// download link (docs/sources/HOT_CLUBE.md's proven
+// admin-ajax.php?action=eventon_ics_download endpoint) — kept separate
+// from parseHotClubeDiscovery() above (unchanged, still exactly what
+// BOTM-HOT-CLUBE-EVENT-URL-01 proved) rather than folding into it, so
+// existing callers/tests are unaffected.
+const ICS_LINK_RE = /class='evo_ics_nCal'|class="evo_ics_nCal"/;
+
+/**
+ * Parse one Hot Clube homepage HTML document into
+ * `{ event_id, ics_url }` records — one per distinct event_id, reading
+ * each event's own rendered "Calendário" anchor href verbatim (HTML-
+ * entity-unescaped: `&amp;` -> `&`) rather than reconstructing the
+ * `sunix`/`eunix`/`loca`/`locn` query parameters by hand. `ics_url` is
+ * null for an event whose container has no such link (never guessed).
+ */
+export function parseHotClubeIcsLinks(html) {
+  if (typeof html !== "string" || html.trim() === "") {
+    throw new Error("Expected non-empty Hot Clube homepage HTML");
+  }
+
+  // A wider window than parseHotClubeDiscovery()'s default: the
+  // "Calendário" ICS link (and the Add-to-Google-Calendar link right
+  // after it) render considerably further into the card than the
+  // Schema.org microdata block that default window was sized for —
+  // directly confirmed against the live page (~6.4KB into the card).
+  const records = [];
+  for (const { eventId, window } of eventWindows(html, 12000)) {
+    if (records.some((r) => r.event_id === eventId)) continue;
+
+    let icsUrl = null;
+    if (ICS_LINK_RE.test(window)) {
+      const hrefMatch = /href=['"]([^'"]+action=eventon_ics_download[^'"]*)['"]/.exec(window);
+      icsUrl = hrefMatch ? hrefMatch[1].replace(/&amp;/g, "&") : null;
+    }
+
+    records.push({ event_id: eventId, ics_url: icsUrl });
+  }
+
+  return records;
+}

@@ -1,0 +1,34 @@
+{
+  "source_id": "meo-arena",
+  "task": "LISBON-AUTOMATIC-SUBSET-01",
+  "source_homepage": "https://arena.meo.pt",
+  "agenda_url": "https://arena.meo.pt/agenda-completa",
+  "acquisition_shape": "BOUNDED_SERVER_RENDERED_HTML_LISTING",
+  "retrieved_at": "2026-08-24T00:41:39.623Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://arena.meo.pt/agenda-completa",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "retrieve the full agenda listing",
+      "retained_fixture": "fixtures/meo-arena/agenda-completa-excerpt.html (bounded excerpt, first 5 of 31 live cards)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://arena.meo.pt/contactos/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "venue address/coordinate evidence for venues/lisbon.json (not an Observation acquisition request)"
+    }
+  ],
+  "total_live_requests": 2,
+  "findings": {
+    "card_count_live": 31,
+    "stable_identifier": "Each card own first-party /agenda/{slug}_pt/{id} Info link embeds a numeric id, independently corroborated by the same id appearing in that card own Blueticket ticket link and poster-image eventId query parameter.",
+    "no_time_of_day": "The listing exposes only a DD MON YYYY date per card, no time-of-day — start.certainty is honestly DATE_ONLY, never fabricated to UTC_INSTANT.",
+    "venue_identity": "No per-card venue name is repeated on this listing (every card here is this one arena) — resolved by source_id in ingestion/venue/resolver.mjs, not fabricated per-record."
+  }
+}
