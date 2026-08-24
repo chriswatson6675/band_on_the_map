@@ -24,7 +24,8 @@ geocoding, no event editing.
 Persistence logic itself lives in
 `ingestion/geocoding/manual-coordinate-store.mjs` (read/validate/atomic
 write/remove), `ingestion/geocoding/operator-write-gate.mjs` (the
-production/Vercel write gate), and
+production/hosted-deployment write gate — absolutely denies both Vercel
+and Netlify, see §4), and
 `ingestion/geocoding/venue-coordinate-dashboard.mjs` (assembles the
 dashboard's view model from the live estate). Map coordinate composition
 (canonical vs. manual precedence) lives in
@@ -116,17 +117,36 @@ makes the venue reappear in the next generated queue automatically.
 
 ## 4. Local-only write semantics
 
+**Hosted deployments are read-only operator surfaces.** Manual coordinate
+writes are supported ONLY from the real local repository — never from a
+hosted deployment's own filesystem, which is ephemeral and is never the
+canonical, Git-tracked `venues/manual-coordinates.json`.
+
 - **Local `next dev`**: writes are allowed by default.
-- **A local production build (`next build && next start`)**: writes
-  require the explicit `BOTM_OPERATOR_MODE=1` environment variable.
+- **A local production build (`next build && next start`), run directly
+  on your own machine, not on any hosted platform**: writes require the
+  explicit `BOTM_OPERATOR_MODE=1` environment variable.
 - **Vercel** (`process.env.VERCEL` set): writes are **always** rejected,
-  with no override — this is a hard fail-closed rule, checked first, in
-  `ingestion/geocoding/operator-write-gate.mjs`'s `operatorWritesAllowed()`.
+  with **no override** — this is a hard fail-closed rule, checked first,
+  in `ingestion/geocoding/operator-write-gate.mjs`'s
+  `operatorWritesAllowed()`. `BOTM_OPERATOR_MODE=1` does **not** change
+  this.
+- **Netlify** (`process.env.NETLIFY` set — this repository's real
+  deployment surface, see `netlify.toml`): writes are **always**
+  rejected, with **no override**, exactly like Vercel. `BOTM_OPERATOR_MODE=1`
+  does **not** change this either.
+
+Vercel and Netlify writes are both **absolutely disabled** — there is no
+environment variable, flag, or configuration that makes either platform's
+hosted deployment able to persist a manual coordinate. Do not read
+anything in this document as implying Netlify (or Vercel) persistence is
+supported; it is not, by design.
 
 A denied write returns an explicit `403 { ok: false, error:
-"WRITE_DISABLED", detail: "..." }` from
-`app/api/operator/manual-coordinates/route.ts` — it never pretends
-persistence succeeded. The browser only ever submits `venue_id`,
+"WRITE_DISABLED", detail: "VERCEL_HOSTED_WRITES_DISABLED" |
+"NETLIFY_HOSTED_WRITES_DISABLED" | "PRODUCTION_WRITES_REQUIRE_BOTM_OPERATOR_MODE"
+}` from `app/api/operator/manual-coordinates/route.ts` — it never
+pretends persistence succeeded. The browser only ever submits `venue_id`,
 `latitude`, `longitude`, and an optional `note`; the endpoint never
 accepts a filesystem path of any kind, and the canonical store path is
 always resolved internally, never from request input.
