@@ -139,8 +139,28 @@ h1 em { color: var(--coral); font-style: italic; }
 .maplibregl-ctrl-attrib a { color: var(--teal-dark); }
 .maplibregl-ctrl-group { border-radius: 8px; box-shadow: 0 6px 16px rgba(18, 60, 61, .12); }
 
-/* Custom coral marker */
-.botm-marker { position: relative; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+/* Custom coral marker
+   BOTM-MAP-MARKER-ANCHOR-FIX-01: this element is MapLibre's marker ROOT
+   (new Marker({ element: el }) in components/DiscoveryMap.tsx) — MapLibre
+   owns its geographic screen positioning via its own `.maplibregl-marker`
+   rule (position: absolute; top: 0; left: 0; ...), which it pairs with an
+   inline `transform: translate(...)` recomputed every frame from the
+   marker's lng/lat. maplibre-gl.css is imported before this file (see
+   app/layout.tsx), so a `position: relative` declared here on the SAME
+   element (both classes apply to one DOM node) has equal selector
+   specificity and — being later in the cascade — used to win, silently
+   putting the marker back into normal document flow instead of leaving it
+   purely transform-positioned. That caused each pin's true screen position
+   to be its in-flow layout position PLUS MapLibre's transform, drifting
+   from its real geographic point (visibly worst while panning/zooming,
+   since flow layout and the transform target can disagree). Fix: do not
+   declare `position` here at all — let `.maplibregl-marker`'s own
+   `position: absolute` apply uncontested; it already provides a valid
+   positioning context for `.botm-marker-pulse`'s `position: absolute`
+   below. Do not add a transform to this root rule — animation/scaling
+   stays confined to `.botm-marker-pin` (see :hover/.is-active below), so
+   this root remains a stable anchor MapLibre alone controls. */
+.botm-marker { width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .botm-marker-pulse { position: absolute; width: 34px; height: 34px; border-radius: 50%; background: rgba(232, 135, 110, .35); animation: botm-pulse 2.4s ease-out infinite; }
 .botm-marker-pin { position: relative; width: 28px; height: 28px; border-radius: 50%; background: var(--coral); border: 3px solid var(--paper); box-shadow: 0 2px 8px rgba(18, 60, 61, .3); transition: transform .2s ease, background .2s ease; display: flex; align-items: center; justify-content: center; color: var(--paper); font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; line-height: 1; }
 .botm-marker:hover .botm-marker-pin { transform: scale(1.2); }
