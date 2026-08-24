@@ -23,7 +23,7 @@
 import { resolveObservation } from "../venue/resolver.mjs";
 import { MAP_ELIGIBLE_LOCATION_STATUSES } from "../venue/contract.mjs";
 
-function isValidCoordinate(latitude, longitude) {
+export function isValidCoordinate(latitude, longitude) {
   return (
     typeof latitude === "number" &&
     !Number.isNaN(latitude) &&
@@ -34,6 +34,44 @@ function isValidCoordinate(latitude, longitude) {
     longitude >= -180 &&
     longitude <= 180
   );
+}
+
+// VENUE-MANUAL-COORDINATES-DASHBOARD-01 — the one deterministic place
+// canonical-vs-manual map coordinate precedence is decided. Priority:
+//   1. canonical CONFIRMED coordinates
+//   2. canonical GEOCODED coordinates
+//   3. a valid MANUAL_OPERATOR_ENTRY override (venues/manual-coordinates.json,
+//      loaded and passed in by the caller — this module stays dependency-
+//      free/browser-safe and never touches the filesystem itself)
+//   4. no usable map coordinates
+//
+// A manual entry NEVER overrides existing CONFIRMED/GEOCODED coordinates
+// — if one somehow still exists for a venue that has since become
+// CONFIRMED/GEOCODED, the canonical coordinates win and the stale manual
+// entry is simply never consulted. This function never mutates the Venue
+// or the manual entry passed in.
+export function resolveVenueMapCoordinates(venue, manualEntry) {
+  if (venue && MAP_ELIGIBLE_LOCATION_STATUSES.has(venue.location_status) && isValidCoordinate(venue.latitude, venue.longitude)) {
+    return { eligible: true, latitude: venue.latitude, longitude: venue.longitude, source: venue.location_status };
+  }
+  // A manual override is only ever consulted for an ADDRESS_ONLY venue —
+  // never for UNRESOLVED (which by definition has no evidenced identity
+  // to attach a coordinate to at all) — matching this project's existing
+  // "an unresolved gig is preferable to a false map pin" rule.
+  if (
+    venue?.location_status === "ADDRESS_ONLY" &&
+    manualEntry &&
+    manualEntry.method === "MANUAL_OPERATOR_ENTRY" &&
+    isValidCoordinate(manualEntry.latitude, manualEntry.longitude)
+  ) {
+    return {
+      eligible: true,
+      latitude: manualEntry.latitude,
+      longitude: manualEntry.longitude,
+      source: "MANUAL_OPERATOR_ENTRY",
+    };
+  }
+  return { eligible: false, latitude: null, longitude: null, source: null };
 }
 
 function sourceName(sourceId, sourceRegistryEntries) {
@@ -53,6 +91,15 @@ function sourceName(sourceId, sourceRegistryEntries) {
  *                               only to look up each source's
  *                               human-readable name — this module never
  *                               hardcodes a source name itself
+ *   options.manualCoordinatesByVenueId - (VENUE-MANUAL-COORDINATES-DASHBOARD-01,
+ *                               optional, defaults to none) a Map or plain
+ *                               object keyed by venue_id whose value is one
+ *                               venues/manual-coordinates.json entry — see
+ *                               resolveVenueMapCoordinates above for the
+ *                               precedence rule. Omitting this parameter
+ *                               leaves this function's behaviour completely
+ *                               unchanged from before manual coordinates
+ *                               existed (CONFIRMED/GEOCODED-only eligibility).
  *
  * Markers are built in Observation-array order (each new map-eligible
  * venue_id appends a marker the first time it's seen), so a fixed input
@@ -64,8 +111,12 @@ function sourceName(sourceId, sourceRegistryEntries) {
  * from their source, and no listing is ever assigned a canonical Event
  * identity of any kind (no `event_id`/`canonical_event_id`/`id`).
  */
-export function projectObservationsToMapMarkers(observations, { venues, sourceRegistry } = {}) {
+export function projectObservationsToMapMarkers(observations, { venues, sourceRegistry, manualCoordinatesByVenueId } = {}) {
   const venueById = new Map((venues ?? []).map((venue) => [venue.venue_id, venue]));
+  const manualByVenueId =
+    manualCoordinatesByVenueId instanceof Map
+      ? manualCoordinatesByVenueId
+      : new Map(Object.entries(manualCoordinatesByVenueId ?? {}));
   const markersById = new Map();
 
   for (const observation of observations ?? []) {
@@ -74,15 +125,15 @@ export function projectObservationsToMapMarkers(observations, { venues, sourceRe
 
     const venue = venueById.get(resolution.venue_id);
     if (!venue) continue;
-    if (!MAP_ELIGIBLE_LOCATION_STATUSES.has(venue.location_status)) continue;
-    if (!isValidCoordinate(venue.latitude, venue.longitude)) continue;
+    const composed = resolveVenueMapCoordinates(venue, manualByVenueId.get(venue.venue_id));
+    if (!composed.eligible) continue;
 
     if (!markersById.has(venue.venue_id)) {
       markersById.set(venue.venue_id, {
         venue_id: venue.venue_id,
         canonical_name: venue.canonical_name,
-        latitude: venue.latitude,
-        longitude: venue.longitude,
+        latitude: composed.latitude,
+        longitude: composed.longitude,
         address: venue.address,
         listings: [],
       });

@@ -81,6 +81,8 @@ import { toObservations as zdbToObservations } from "../galeria-ze-dos-bois/obse
 import { resolveObservation } from "../venue/resolver.mjs";
 import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
 import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
+import { isValidCoordinate } from "../map/projection.mjs";
+import { MAP_ELIGIBLE_LOCATION_STATUSES } from "../venue/contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUTPUT_PATH = resolve(ROOT, "fixtures/map/lisbon-porto-overnight-coverage-01-live-run-proof.json");
@@ -552,6 +554,26 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
   const resolvedButUnmappedCount = resolvedCount - rawMapEligibleCount;
   const associatedCount = associations.filter((a) => a.association_status === "ASSOCIATED").length;
 
+  // VENUE-MANUAL-COORDINATES-DASHBOARD-01: per-venue breakdown of exactly
+  // which canonical Venue each resolved-but-unmapped Observation belongs
+  // to — cheaply derivable from `resolutions` (already computed above)
+  // plus each Observation's own resolved venue_id's current
+  // location_status/coordinates. This is the exact ("Unlocks N current
+  // listings"), never-estimated per-venue figure the operator dashboard
+  // (ingestion/geocoding/venue-coordinate-dashboard.mjs) reads from this
+  // proof's committed JSON output — never guessed, never a live query at
+  // dashboard render time.
+  const venueById = new Map(venues.map((venue) => [venue.venue_id, venue]));
+  const resolvedButUnmappedByVenueId = {};
+  for (const { resolution } of resolutions) {
+    if (resolution.resolution_status !== "RESOLVED") continue;
+    const venue = venueById.get(resolution.venue_id);
+    if (!venue) continue;
+    const isMapEligible = MAP_ELIGIBLE_LOCATION_STATUSES.has(venue.location_status) && isValidCoordinate(venue.latitude, venue.longitude);
+    if (isMapEligible) continue;
+    resolvedButUnmappedByVenueId[resolution.venue_id] = (resolvedButUnmappedByVenueId[resolution.venue_id] ?? 0) + 1;
+  }
+
   return {
     label,
     source_results: sourceResults.map((r) => ({
@@ -569,6 +591,7 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
     unresolved_venue_count: unresolvedCount,
     unresolved: unresolvedList,
     resolved_but_unmapped_count: resolvedButUnmappedCount,
+    resolved_but_unmapped_by_venue_id: resolvedButUnmappedByVenueId,
     raw_map_eligible_count: rawMapEligibleCount,
     association_group_count: associatedCount,
     display_listing_count: displayListingCount,
@@ -671,6 +694,10 @@ async function main() {
       resolved_venue_count: lisbonSummary.resolved_venue_count + portoSummary.resolved_venue_count,
       unresolved_venue_count: lisbonSummary.unresolved_venue_count + portoSummary.unresolved_venue_count,
       resolved_but_unmapped_count: lisbonSummary.resolved_but_unmapped_count + portoSummary.resolved_but_unmapped_count,
+      resolved_but_unmapped_by_venue_id: {
+        ...lisbonSummary.resolved_but_unmapped_by_venue_id,
+        ...portoSummary.resolved_but_unmapped_by_venue_id,
+      },
       raw_map_eligible_count: lisbonSummary.raw_map_eligible_count + portoSummary.raw_map_eligible_count,
       display_listing_count: lisbonSummary.display_listing_count + portoSummary.display_listing_count,
       map_marker_count: lisbonSummary.map_marker_count + portoSummary.map_marker_count,

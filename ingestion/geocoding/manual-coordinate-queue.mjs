@@ -24,6 +24,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { loadManualCoordinateStore } from "./manual-coordinate-store.mjs";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const REPORT_PATH = resolve(ROOT, "fixtures/geocoding/manual-coordinate-queue.json");
 
@@ -52,13 +54,26 @@ async function loadRegistryVenues(path, root) {
  * both registries whose location_status is still ADDRESS_ONLY, derived
  * live from venues/lisbon.json + venues/porto.json — never hardcoded,
  * never mutating the source registries.
+ *
+ * VENUE-MANUAL-COORDINATES-DASHBOARD-01: a venue that already carries a
+ * valid MANUAL_OPERATOR_ENTRY in venues/manual-coordinates.json is
+ * excluded from this OUTSTANDING queue — it has already been handled by
+ * an operator — WITHOUT altering its canonical location_status, which
+ * stays exactly ADDRESS_ONLY (this function never mutates
+ * venues/lisbon.json or venues/porto.json). Removing that manual entry
+ * (the dashboard's "Remove manual coordinates" action) makes the venue
+ * reappear here automatically on the next call — no separate bookkeeping.
  */
 export async function buildManualCoordinateQueue({ root = ROOT } = {}) {
+  const manualStore = await loadManualCoordinateStore({ root });
+  const manuallyCompletedVenueIds = new Set(manualStore.entries.map((entry) => entry.venue_id));
+
   const entries = [];
   for (const { region, path } of REGISTRIES) {
     const venues = await loadRegistryVenues(path, root);
     for (const venue of venues) {
       if (venue.location_status !== "ADDRESS_ONLY") continue;
+      if (manuallyCompletedVenueIds.has(venue.venue_id)) continue;
       entries.push({
         region,
         venue_id: venue.venue_id,
@@ -75,7 +90,10 @@ export async function buildManualCoordinateQueue({ root = ROOT } = {}) {
     generated_note:
       "Report-only artifact. Does not mutate venues/lisbon.json or venues/porto.json, and does not " +
       "add a new location_status value — MANUAL_COORDINATE_REQUIRED is an operational queue label on " +
-      "this report, not canonical Venue schema. Regenerate with `npm run report:manual-coordinate-queue`.",
+      "this report, not canonical Venue schema. Excludes venues already carrying a valid " +
+      "MANUAL_OPERATOR_ENTRY in venues/manual-coordinates.json (see " +
+      "ingestion/geocoding/manual-coordinate-store.mjs). Regenerate with " +
+      "`npm run report:manual-coordinate-queue`.",
     total_address_only: entries.length,
     entries,
   };
