@@ -8,12 +8,19 @@ async function loadPortoVenues() {
   return registry.venues;
 }
 
-test("venues/porto.json contains exactly the three evidence-backed venues known as of VENUE-AUTO-ONBOARDING-01", async () => {
+test("venues/porto.json contains exactly the six evidence-backed venues known as of LISBON-PORTO-VENUE-ESTATE-01", async () => {
   const venues = await loadPortoVenues();
-  assert.equal(venues.length, 3);
+  assert.equal(venues.length, 6);
   assert.deepEqual(
     venues.map((v) => v.venue_id).sort(),
-    ["venue-porto-casa-da-musica", "venue-porto-teatro-campo-alegre", "venue-porto-teatro-rivoli"],
+    [
+      "venue-porto-capela-incomum",
+      "venue-porto-casa-da-musica",
+      "venue-porto-hot-five-jazz-blues-club",
+      "venue-porto-super-bock-arena-pavilhao-rosa-mota",
+      "venue-porto-teatro-campo-alegre",
+      "venue-porto-teatro-rivoli",
+    ],
   );
 });
 

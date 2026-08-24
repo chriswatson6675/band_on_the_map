@@ -109,12 +109,24 @@ test("against the REAL committed registries, the queue matches the live ADDRESS_
   const report = await buildManualCoordinateQueue();
   const ids = report.entries.map((e) => e.venue_id).sort();
   assert.deepEqual(ids, [
+    "venue-lisboa-aula-magna-reitoria-da-universidade-de-lisboa",
     "venue-lisboa-bota-anjos",
     "venue-lisboa-casa-capitao",
+    "venue-lisboa-casa-independente",
+    "venue-lisboa-centro-cultural-de-belem-ccb",
+    "venue-lisboa-clube-de-fado",
+    "venue-lisboa-fama-d-alfama",
+    "venue-lisboa-galeria-ze-dos-bois-zdb",
+    "venue-lisboa-hot-clube-de-portugal",
     "venue-lisboa-igreja-e-convento-da-graca",
+    "venue-lisboa-museu-do-fado",
+    "venue-lisboa-teatro-sao-luiz",
     "venue-lisboa-village-underground-lisboa",
     "venue-odivelas-biblioteca-municipal-d-dinis",
     "venue-odivelas-centro-cultural-malaposta",
+    "venue-porto-capela-incomum",
+    "venue-porto-hot-five-jazz-blues-club",
+    "venue-porto-super-bock-arena-pavilhao-rosa-mota",
   ]);
   for (const entry of report.entries) {
     assert.equal(entry.queue_status, "MANUAL_COORDINATE_REQUIRED");
