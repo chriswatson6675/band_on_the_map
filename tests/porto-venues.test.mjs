@@ -8,12 +8,12 @@ async function loadPortoVenues() {
   return registry.venues;
 }
 
-test("venues/porto.json contains exactly the two evidence-backed venues from this proof", async () => {
+test("venues/porto.json contains exactly the three evidence-backed venues known as of VENUE-AUTO-ONBOARDING-01", async () => {
   const venues = await loadPortoVenues();
-  assert.equal(venues.length, 2);
+  assert.equal(venues.length, 3);
   assert.deepEqual(
     venues.map((v) => v.venue_id).sort(),
-    ["venue-porto-casa-da-musica", "venue-porto-teatro-rivoli"],
+    ["venue-porto-casa-da-musica", "venue-porto-teatro-campo-alegre", "venue-porto-teatro-rivoli"],
   );
 });
 

@@ -451,12 +451,18 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
   };
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
+/**
+ * VENUE-AUTO-ONBOARDING-01: the live-acquisition half of main() below,
+ * factored out so ingestion/venue-onboarding/run.mjs (`npm run
+ * onboard:venues`) can reuse the exact same nine-source acquisition
+ * this package already proved, rather than re-implementing any
+ * collector. Returns everything main() needs to build its own summary/
+ * proof — main()'s own behaviour and output are completely unchanged by
+ * this refactor.
+ */
+export async function acquireLisbonPorto(args = {}) {
   const lisbonRegistry = JSON.parse(await readFile(resolve(ROOT, "sources/lisbon.json"), "utf8"));
   const portoRegistry = JSON.parse(await readFile(resolve(ROOT, "sources/porto.json"), "utf8"));
-  const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
-  const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
 
   console.log(`LISBON-PORTO-OVERNIGHT-COVERAGE-01 live run starting (${new Date().toISOString()})`);
   if (args.from || args.to) console.log(`  date bounds: from=${args.from ?? "(none)"} to=${args.to ?? "(none)"}`);
@@ -478,6 +484,32 @@ async function main() {
   const hotClubeObs = lisbonObservations.filter((o) => o.source_id === "hot-clube-de-portugal");
   const capitolioObs = lisbonObservations.filter((o) => o.source_id === "teatro-variedades-capitolio");
   const lisbonAssociations = associateHotClubeCapitolio(hotClubeObs, capitolioObs);
+
+  return {
+    lisbonRegistry,
+    portoRegistry,
+    lisbonResults,
+    portoResults,
+    lisbonObservations,
+    portoObservations,
+    lisbonAssociations,
+  };
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
+  const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
+
+  const {
+    lisbonRegistry,
+    portoRegistry,
+    lisbonResults,
+    portoResults,
+    lisbonObservations,
+    portoObservations,
+    lisbonAssociations,
+  } = await acquireLisbonPorto(args);
 
   const lisbonSummary = summariseCity({
     label: "Lisbon",

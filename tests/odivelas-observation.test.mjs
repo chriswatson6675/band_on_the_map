@@ -95,14 +95,38 @@ test("dateTimeFromPubDate honestly falls back to TEXT_ONLY for an unrecognised s
 
 // 7. venue resolution fails closed.
 
-test("Odivelas venue resolution starts fail-closed: every retained item is UNRESOLVED (no evidenced mapping yet)", async () => {
+test("Odivelas's own hardcoded resolver table stays fail-closed: every retained item is UNRESOLVED via resolveOdivelasObservation (still no HARDCODED mapping — see ingestion/venue/resolver.mjs's ODIVELAS_LOCATION_TEXT_TO_CANONICAL, deliberately left empty)", async () => {
   const items = await loadItems();
   const observations = toObservations(items, { retrievedAt: "2026-08-24T00:00:00Z" });
   for (const o of observations) {
     const result = resolveOdivelasObservation(o);
     assert.equal(result.resolution_status, "UNRESOLVED");
     assert.equal(result.venue_id, null);
-    assert.deepEqual(resolveObservation(o), result);
+  }
+});
+
+// VENUE-AUTO-ONBOARDING-01: resolveObservation() now ALSO checks the
+// data-driven mapping table (venues/source-venue-mappings.json), so it
+// can legitimately differ from the still-empty hardcoded
+// resolveOdivelasObservation() above for the one retained item whose
+// exact location_text ("Centro Cultural Malaposta") this task
+// independently evidence-admitted — see venues/candidate-research.json.
+// Every OTHER retained item (no evidenced mapping) still resolves the
+// same way through both functions.
+test("resolveObservation resolves the one retained Odivelas item newly mapped by VENUE-AUTO-ONBOARDING-01's data-driven layer; every other retained item is still UNRESOLVED via both paths", async () => {
+  const items = await loadItems();
+  const observations = toObservations(items, { retrievedAt: "2026-08-24T00:00:00Z" });
+
+  const malaposta = observations.find((o) => o.location_text === "Centro Cultural Malaposta");
+  assert.ok(malaposta, "the retained fixture must still contain the Malaposta item this assertion depends on");
+  const malapostaResult = resolveObservation(malaposta);
+  assert.equal(malapostaResult.resolution_status, "RESOLVED");
+  assert.equal(malapostaResult.venue_id, "venue-odivelas-centro-cultural-malaposta");
+  assert.match(malapostaResult.resolution_method, /^DATA_DRIVEN_MAPPING:/);
+
+  for (const o of observations) {
+    if (o === malaposta) continue;
+    assert.deepEqual(resolveObservation(o), resolveOdivelasObservation(o));
   }
 });
 

@@ -5,7 +5,7 @@
 //
 //   { venue_id, resolution_status, resolution_method }
 //
-// Uses only explicit, hand-authored mappings from real, retained
+// Uses explicit, hand-authored mappings from real, retained
 // source-specific identifiers/text to a canonical venue_id (see
 // venues/lisbon.json and, since LISBON-PORTO-OVERNIGHT-COVERAGE-01,
 // venues/porto.json) — deliberately no fuzzy name matching. Anything not
@@ -15,10 +15,26 @@
 // existing country-level, not city-level, scoping in
 // ingestion/map/projection.mjs) rather than being split per city.
 //
+// VENUE-AUTO-ONBOARDING-01: resolveObservation() below now ALSO checks a
+// second, DATA-DRIVEN mapping table (venues/source-venue-mappings.json,
+// via ingestion/venue-onboarding/data-driven-resolver.mjs) whenever the
+// per-source hardcoded functions below leave an Observation unresolved.
+// This is deliberate: every hardcoded table in this file is frozen as
+// historical record (migrating it is unnecessary regression risk — see
+// that task's brief), but a NEW venue never needs a new hardcoded
+// function or if/else branch here — it is onboarded purely by adding a
+// mapping entry to that JSON file (see `npm run onboard:venues`,
+// ingestion/venue-onboarding/run.mjs). The data-driven layer uses the
+// exact same "no fuzzy fallback" rule as every table below: an exact
+// (source_id, key_type, key) match or nothing.
+//
 // This is Venue reconciliation only. It does not create, merge, or
 // deduplicate Events or Observations — a resolved AgendaLX Observation
 // and a resolved Hot Clube Observation that happen to share a venue_id
 // (see the Capitólio case) remain two separate Observations.
+
+import sourceVenueMappings from "../../venues/source-venue-mappings.json" with { type: "json" };
+import { resolveFromMappings } from "../venue-onboarding/data-driven-resolver.mjs";
 
 export const RESOLUTION_STATUSES = new Set(["RESOLVED", "UNRESOLVED"]);
 
@@ -224,11 +240,20 @@ export function resolveTeatroMunicipalPortoObservation(observation) {
 }
 
 /**
- * Dispatch on Observation.source_id to the right explicit resolver. A
- * source with no resolver defined here is always UNRESOLVED, never
- * guessed at generically.
+ * Dispatch on Observation.source_id to the right explicit, hardcoded
+ * resolver. A source with no resolver defined here is always
+ * UNRESOLVED here — never guessed at generically. This is the layer
+ * every table above this function feeds; VENUE-AUTO-ONBOARDING-01 never
+ * adds a new branch here for a new venue (see resolveObservation below).
  */
-export function resolveObservation(observation) {
+// Exported (VENUE-AUTO-ONBOARDING-01) so ingestion/venue-onboarding/run.mjs
+// can compute a resolution against a FRESHLY-built mappings array (its
+// own just-admitted, still-in-memory entries) rather than the
+// process-start-frozen `sourceVenueMappings` JSON import above — a
+// static ESM JSON import cannot hot-reload mid-process. Behaviour of
+// resolveObservation() below (the normal, real entry point every other
+// caller uses) is completely unaffected by this export.
+export function resolveViaExplicitMappings(observation) {
   if (observation?.source_id === "agendalx") {
     return resolveAgendalxObservation(observation);
   }
@@ -257,4 +282,31 @@ export function resolveObservation(observation) {
     return resolveTeatroMunicipalPortoObservation(observation);
   }
   return unresolved("NO_RESOLVER_FOR_SOURCE");
+}
+
+/**
+ * Resolve one Observation to a canonical venue_id.
+ *
+ * VENUE-AUTO-ONBOARDING-01: tries every existing hardcoded mapping
+ * first (resolveViaExplicitMappings, completely unchanged behaviour —
+ * every existing test asserting a specific hardcoded outcome keeps
+ * passing); only when that leaves an Observation UNRESOLVED does this
+ * also try the data-driven mapping table
+ * (venues/source-venue-mappings.json, via
+ * ingestion/venue-onboarding/data-driven-resolver.mjs). Either path can
+ * resolve an Observation; neither can override the other, and a
+ * mapping entry can never resolve something the hardcoded tables above
+ * already claimed (explicit mappings always take priority, matching
+ * this file's existing "first, most-trusted table wins" convention).
+ */
+export function resolveObservation(observation) {
+  const explicit = resolveViaExplicitMappings(observation);
+  if (explicit.resolution_status === "RESOLVED") {
+    return explicit;
+  }
+  const dataDriven = resolveFromMappings(observation, sourceVenueMappings.mappings);
+  if (dataDriven.resolution_status === "RESOLVED") {
+    return dataDriven;
+  }
+  return explicit;
 }

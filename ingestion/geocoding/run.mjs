@@ -73,7 +73,14 @@ function cacheFixturePath(venueId, cacheDir) {
   return resolve(cacheDir, `${venueId}.json`);
 }
 
-async function loadCachedFixture(venueId, cacheDir) {
+// Exported (VENUE-AUTO-ONBOARDING-01) so a caller with its own bounded
+// live-request cap (ingestion/venue-onboarding/run.mjs) can decide
+// BEFORE calling geocodeOneVenue() whether a given target would need a
+// genuinely live request, without duplicating this cache-read/identity-
+// check logic. Behaviour of this module's own CLI entry point
+// (`npm run geocode:venues`) is completely unchanged.
+export { CACHE_DIR };
+export async function loadCachedFixture(venueId, cacheDir) {
   try {
     return JSON.parse(await readFile(cacheFixturePath(venueId, cacheDir), "utf8"));
   } catch (error) {

@@ -1,0 +1,226 @@
+{
+  "$schema_note": "VENUE-AUTO-ONBOARDING-01 — bounded, retained research evidence for every distinct venue candidate found in a live Lisbon+Porto acquisition run on 2026-08-24 (see docs/VENUE_AUTO_ONBOARDING_01.md). This is INPUT to ingestion/venue-onboarding/admission.mjs, not itself a mapping or a Venue — it records what was researched and the bounded, documented verdict, so ingestion/venue-onboarding/run.mjs (`npm run onboard:venues`) can make a deterministic, data-driven admission decision without any runtime web search (item 9 of this task's brief: research happens HERE, once, retained as data — never as a runtime call). Each entry is keyed by the exact (source_id, key_type, key) a real Observation's ingestion/venue-onboarding/candidates.mjs#deriveCandidateKey() would produce. An entry not present here for some future candidate is handled as NO_RESEARCH_ON_RECORD (deferred, never guessed) by admission.mjs — this file is never treated as exhaustive.",
+  "entries": [
+    {
+      "source_id": "teatro-municipal-do-porto",
+      "key_type": "VENUE_NAME",
+      "key": "Campo Alegre",
+      "verdict": "ADMIT_ADDRESS_ONLY",
+      "canonical_name": "Teatro Campo Alegre",
+      "country_code": "PT",
+      "city": "Porto",
+      "municipality": "Porto",
+      "address": "Rua das Estrelas, 4150-762 Porto",
+      "evidence_level": "B",
+      "evidence": [
+        {
+          "url": "https://www.teatromunicipaldoporto.pt/PT/quem-somos/contactos/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official Teatro Municipal do Porto 'Contactos' page states Campo Alegre's own address, distinct from the Rivoli address on the same page: 'Rua das Estrelas, 4150-762 Porto'."
+        },
+        {
+          "url": "https://cultura.cm-porto.pt/teatros/teatro-municipal-do-porto_1",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "Câmara Municipal do Porto's own official culture portal independently states the identical Campo Alegre address ('Rua das Estrelas. 4150-762 Porto'), corroborating rather than being the sole source."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "Teatro Campo Alegre is the Teatro Municipal do Porto's own second performance pole (its 'experimental pole'), with its own address stated on the venue's own official contacts page and independently corroborated by the Porto municipal culture authority's own page for the same theatre — LEVEL A/B evidence per this task's ladder. Highest-value candidate by waiting-Observation count."
+    },
+    {
+      "source_id": "teatro-municipal-do-porto",
+      "key_type": "VENUE_NAME",
+      "key": "Biblioteca Municipal Almeida Garrett",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "A genuine, real municipal library building (part of Bibliotecas Municipais do Porto), off-site from Teatro Municipal do Porto's own Rivoli/Campo Alegre halls — ingestion/teatro-municipal-porto/observation-adapter.mjs's own doc comment already names this exact location as deliberately unmapped. This task's bounded search could not reach a first-party address within scope: the official library page (bmp.cm-porto.pt/bmag) returned HTTP 500, and the Porto municipal culture portal's own Teatro Municipal do Porto page does not list library addresses. Not rejected as non-a-venue — deferred for insufficient address evidence, matching this project's 'an unresolved gig is preferable to a false map marker' rule. Only 1 waiting Observation."
+    },
+    {
+      "source_id": "teatro-municipal-do-porto",
+      "key_type": "VENUE_NAME",
+      "key": "Rivoli e Campo Alegre",
+      "verdict": "REJECT",
+      "status": "AMBIGUOUS",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "This retained venue_name string names TWO distinct venues at once for one event ('Pequenas bibliotecas temporárias') — Teatro Rivoli and Teatro Campo Alegre are two separate buildings with two separate addresses (see venues/porto.json and this file's Campo Alegre entry). No single venue_id can be assigned without guessing which building the event is actually at; never split or fuzzy-resolved."
+    },
+    {
+      "source_id": "cm-odivelas-agenda-cultura",
+      "key_type": "LOCATION_TEXT",
+      "key": "Centro Cultural Malaposta",
+      "verdict": "ADMIT_ADDRESS_ONLY",
+      "canonical_name": "Centro Cultural Malaposta",
+      "country_code": "PT",
+      "city": "Odivelas",
+      "municipality": "Odivelas",
+      "address": "Rua Angola, 2620-492 Olival Basto",
+      "evidence_level": "C",
+      "evidence": [
+        {
+          "url": "https://www.cm-odivelas.pt/autarquia/contactos/espacos-de-cultura-e-desporto",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "Official Câmara Municipal de Odivelas 'Espaços de Cultura e Desporto' contacts directory lists 'Centro Cultural Malaposta — Rua Angola, 2620-492 Olival Basto'."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "LEVEL C: official council cultural-authority page for the exact named venue, per this task's evidence ladder. cm-odivelas-agenda-cultura is a genuine municipal CITY_FEED (per ingestion/odivelas/observation-adapter.mjs's own doc comment) spanning many venues/departments; this admission is scoped ONLY to the exact retained location_text string 'Centro Cultural Malaposta', not the feed generally."
+    },
+    {
+      "source_id": "cm-odivelas-agenda-cultura",
+      "key_type": "LOCATION_TEXT",
+      "key": "Biblioteca Municipal D.Dinis",
+      "verdict": "ADMIT_ADDRESS_ONLY",
+      "canonical_name": "Biblioteca Municipal D. Dinis",
+      "country_code": "PT",
+      "city": "Odivelas",
+      "municipality": "Odivelas",
+      "address": "Rua Guilherme Gomes Fernandes (Fim), 2675-625 Odivelas",
+      "evidence_level": "C",
+      "evidence": [
+        {
+          "url": "https://www.cm-odivelas.pt/autarquia/contactos/espacos-de-cultura-e-desporto",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "Official Câmara Municipal de Odivelas 'Espaços de Cultura e Desporto' contacts directory lists 'Biblioteca Municipal D.Dinis — Rua Guilherme Gomes Fernandes (Fim) — 2675-625 Odivelas' (the main pole — distinct from its Pontinha/Caneças satellite poles, which this mapping does not cover)."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "LEVEL C admission, same official municipal directory page as Centro Cultural Malaposta. The exact retained location_text 'Biblioteca Municipal D.Dinis' (no space after 'D.') is used as the mapping key verbatim, matching this project's exact-string, non-fuzzy convention."
+    },
+    {
+      "source_id": "cm-odivelas-agenda-cultura",
+      "key_type": "SOURCE_ID",
+      "key": "cm-odivelas-agenda-cultura",
+      "verdict": "REJECT",
+      "status": "SOURCE_DATA_INADEQUATE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "This SOURCE_ID-level candidate groups every cm-odivelas-agenda-cultura record whose retained description carries no 'Contacto:' line at all (no venue_name, no location_text) — genuinely no location signal, not merely an unmapped one. cm-odivelas-agenda-cultura is independently documented (ingestion/odivelas/observation-adapter.mjs) as a genuinely multi-venue municipal city feed spanning many different council venues/departments; admitting this SOURCE_ID candidate would incorrectly imply one shared physical venue for what are actually many different unknown locations. Deliberately never admitted — recorded here explicitly rather than left as a silent absence, so this decision is auditable."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "3780",
+      "verdict": "ADMIT_ADDRESS_ONLY",
+      "canonical_name": "Casa Capitão",
+      "country_code": "PT",
+      "city": "Lisboa",
+      "municipality": "Lisboa",
+      "address": "Rua do Grilo, 119, Beato Innovation District",
+      "evidence_level": "B",
+      "evidence": [
+        {
+          "url": "https://casa-capitao.com",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official Casa Capitão website (Beato, Lisboa cultural space — concerts, exhibitions, artistic residencies) states its own address: 'Rua do Grilo, 119, Beato Innovation District'. No postal code was found on the fetched page within this task's bounded search, so none is fabricated here; secondary (non-first-party) sources disagree on the exact postcode digits (1950-142/144/146 variously reported), which is exactly why this project does not treat them as address authority."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "docs/VENUE_RESOLUTION.md previously flagged this AgendaLX venue_id 3780 (slug casa-do-capitao) as unresolved because the obvious-looking domain casadocapitao.pt turned out to be unrelated Azores tourism accommodation. This task independently found the CORRECT official domain (casa-capitao.com, no 'do') and confirmed it is genuinely a Lisbon cultural/music venue in Beato — LEVEL B evidence, its own first-party page."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "2676",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "\"Centro Vasco da Gama\" (Sunset Sessions). Matches docs/VENUE_RESOLUTION.md's prior finding exactly: the shopping centre's own official site returned no fetchable first-party address content within this task's bounded search (client-rendered/bot-protected). No third-party listing was substituted as authority."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "694",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "\"Museu de Lisboa - Teatro Romano\" (Sardinhas com Bigodes). Matches docs/VENUE_RESOLUTION.md's prior finding: every first-party page attempted (museudelisboa.pt) returned no usable address content within this task's bounded search."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "13",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "\"Parque da Belavista\" (MEO Kalorama). A large, multi-stage municipal festival park (matches docs/VENUE_RESOLUTION.md's prior finding: 'no single point is the venue'). The official Lisboa.pt municipal directory pages for this park (lisboa.pt and informacoeseservicos.lisboa.pt) returned HTTP 403 within this task's bounded search — no first-party single-point address was confirmed. Per item 11 of this task's brief, a genuine bounded park MAY be admitted with sufficiently specific evidence; that evidence was not obtained here, so this remains deferred rather than admitted."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "741",
+      "verdict": "REJECT",
+      "status": "OFFSITE_OR_NON_VENUE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "\"Junta de Freguesia de Santa Maria Maior\" (Fado na Rua). A parish administrative council, not a performance venue — the event itself is a roving street programme ('Fado na Rua' = 'Fado in the street'). Matches docs/VENUE_RESOLUTION.md's prior documented finding exactly; independently re-confirmed, not re-litigated from scratch."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "1343",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "\"Jardim do Arco do Cego\" (Avenidas Hot Jazz). A specific, permanent, named public garden — not a temporary outdoor area — but the official Lisboa.pt municipal directory page for it returned HTTP 403 within this task's bounded search, so no first-party single-point address was confirmed. Matches docs/VENUE_RESOLUTION.md's prior finding of 'no single-point official address found'. Same underlying place as the Hot Clube LOCATION_TEXT candidate below; deliberately NOT merged across sources (no fuzzy/implicit cross-source matching) — each source's candidate is evaluated, and deferred, independently."
+    },
+    {
+      "source_id": "agendalx",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "705",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "\"Lisboa ao Vivo\" (Bees & Honey). A genuine, identifiable live-music venue (LAV — Lisboa ao Vivo, lisboaaovivo.com) was found this time (an improvement over docs/VENUE_RESOLUTION.md's prior 'no official first-party page could be found'), but the fetched official page carried no postal address within this task's bounded search (only a phone number) — insufficient to admit."
+    },
+    {
+      "source_id": "hot-clube-de-portugal",
+      "key_type": "LOCATION_TEXT",
+      "key": "Jardim do Arco do Cego Rua Dona Filipa de Vilhena",
+      "verdict": "REJECT",
+      "status": "INSUFFICIENT_ADDRESS_EVIDENCE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "Same real garden as the AgendaLX SOURCE_VENUE_ID 1343 candidate above (Jardim do Arco do Cego) — deliberately evaluated as its own independent Hot Clube-sourced candidate, not merged across sources. Official municipal directory page unreachable (HTTP 403) within this task's bounded search; matches docs/VENUE_RESOLUTION.md's prior finding."
+    },
+    {
+      "source_id": "hot-clube-de-portugal",
+      "key_type": "LOCATION_TEXT",
+      "key": "Muzeu Praça Municipal 62",
+      "verdict": "REJECT",
+      "status": "OFFSITE_OR_NON_VENUE",
+      "evidence": [],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "docs/VENUE_RESOLUTION.md already established this is Muzeu – Pensamento e Arte Contemporânea DST, a museum in Braga — a different city entirely, hosting a touring 'Jazz no Museu' series curated by Hot Clube. Correctly out of scope for the Lisbon/Porto venue registries, not a failed lookup."
+    },
+    {
+      "source_id": "teatro-variedades-capitolio",
+      "key_type": "SOURCE_ID",
+      "key": "teatro-variedades-capitolio",
+      "verdict": "ADMIT_EXISTING_VENUE_MAPPING",
+      "venue_id": "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
+      "evidence_level": "A",
+      "evidence": [
+        {
+          "url": "https://teatrovariedades-capitolio.pt/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The operator's own top-level agenda page exposes three distinct agenda tabs: a general listing, /agenda/teatro-variedades/, and /agenda/capitolio/ — confirming these are two separately-programmed buildings sharing one operator, not one undifferentiated feed. This source's own collector (ingestion/lisbon-porto/run.mjs's collectCapitolio()) fetches ONLY /agenda/capitolio/."
+        },
+        {
+          "url": "https://teatrovariedades-capitolio.pt/contactos/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Confirms both Teatro Variedades and Cineteatro Capitólio share the one Parque Mayer complex address already evidenced in venues/lisbon.json for the canonical venue, with separate per-venue contact emails/phones."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "Source-level structural admission (this task's item 10): every event on this source's own venue-scoped agenda tab (/agenda/capitolio/) is, by the source's own site structure, already about the Cineteatro Capitólio building — independent of whether that page's own 'Local' field additionally names a more specific sub-location (e.g. 'Terraço do Capitólio', already resolved by ingestion/venue/resolver.mjs's existing hardcoded table). This maps to the SAME already-canonical venue, never a new one — reusing this repository's own established precedent for a single-venue-scoped source (SOURCE_ID_TO_FIXED_CANONICAL_VENUE: casa-da-musica, meo-arena, village-underground-lisboa), applied here via data rather than a new hardcoded table entry."
+    }
+  ]
+}

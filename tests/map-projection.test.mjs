@@ -61,10 +61,16 @@ test("1. 19 real retained Observations are produced", async () => {
   assert.equal(all.length, 19);
 });
 
-test("2. 8 Observations resolve to a canonical venue", async () => {
+test("2. 9 Observations resolve to a canonical venue (8 via the original hardcoded tables, +1 — Casa Capitão, record 241833 — via VENUE-AUTO-ONBOARDING-01's data-driven mapping)", async () => {
   const { all } = await loadAllObservations();
   const resolvedCount = all.filter((o) => resolveObservation(o).resolution_status === "RESOLVED").length;
-  assert.equal(resolvedCount, 8);
+  assert.equal(resolvedCount, 9);
+
+  const casaCapitao = all.find((o) => o.source_record_id === "241833");
+  const result = resolveObservation(casaCapitao);
+  assert.equal(result.resolution_status, "RESOLVED");
+  assert.equal(result.venue_id, "venue-lisboa-casa-capitao");
+  assert.match(result.resolution_method, /^DATA_DRIVEN_MAPPING:/);
 });
 
 test("3-7. the map projection contains exactly 1 marker, at Capitólio's exact coordinates, with exactly 6 listings", async () => {

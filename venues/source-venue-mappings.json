@@ -1,0 +1,95 @@
+{
+  "$schema_note": "VENUE-AUTO-ONBOARDING-01 — governed, data-driven Source -> canonical Venue mappings, consumed by ingestion/venue-onboarding/data-driven-resolver.mjs and dispatched into ingestion/venue/resolver.mjs's resolveObservation(). Every entry retains: source_id, source_key_type (matching ingestion/venue-onboarding/candidates.mjs's CANDIDATE_KEY_TYPES), source_key (the exact, normalised key — see candidates.mjs's deriveCandidateKey), venue_id, evidence, and created/retrieved provenance. Adding a new venue mapping is a DATA change here, never a code change in ingestion/venue/resolver.mjs. Existing historical hardcoded mappings already in ingestion/venue/resolver.mjs (AgendaLX Capitólio/Graça/BOTA, Hot Clube Capitólio, the Capitólio venue-page location_text table, BOTA/Odivelas/fixed-venue-source tables) are deliberately left untouched by this package — they are not migrated here, per this task's explicit 'unnecessary regression risk' guidance. This file starts empty; every entry present after a real run was appended by `npm run onboard:venues` (ingestion/venue-onboarding/run.mjs), never hand-authored, from the bounded, evidence-gated decisions in venues/candidate-research.json.",
+  "mappings": [
+    {
+      "source_id": "agendalx",
+      "source_key_type": "SOURCE_VENUE_ID",
+      "source_key": "3780",
+      "venue_id": "venue-lisboa-casa-capitao",
+      "method": "VENUE-AUTO-ONBOARDING-01: ADMIT_ADDRESS_ONLY (B)",
+      "evidence": [
+        {
+          "url": "https://casa-capitao.com",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official Casa Capitão website (Beato, Lisboa cultural space — concerts, exhibitions, artistic residencies) states its own address: 'Rua do Grilo, 119, Beato Innovation District'. No postal code was found on the fetched page within this task's bounded search, so none is fabricated here; secondary (non-first-party) sources disagree on the exact postcode digits (1950-142/144/146 variously reported), which is exactly why this project does not treat them as address authority."
+        }
+      ],
+      "created_at": "2026-08-24",
+      "retrieved_at": "2026-08-24"
+    },
+    {
+      "source_id": "teatro-variedades-capitolio",
+      "source_key_type": "SOURCE_ID",
+      "source_key": "teatro-variedades-capitolio",
+      "venue_id": "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
+      "method": "VENUE-AUTO-ONBOARDING-01: ADMIT_EXISTING_VENUE_MAPPING (A)",
+      "evidence": [
+        {
+          "url": "https://teatrovariedades-capitolio.pt/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The operator's own top-level agenda page exposes three distinct agenda tabs: a general listing, /agenda/teatro-variedades/, and /agenda/capitolio/ — confirming these are two separately-programmed buildings sharing one operator, not one undifferentiated feed. This source's own collector (ingestion/lisbon-porto/run.mjs's collectCapitolio()) fetches ONLY /agenda/capitolio/."
+        },
+        {
+          "url": "https://teatrovariedades-capitolio.pt/contactos/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Confirms both Teatro Variedades and Cineteatro Capitólio share the one Parque Mayer complex address already evidenced in venues/lisbon.json for the canonical venue, with separate per-venue contact emails/phones."
+        }
+      ],
+      "created_at": "2026-08-24",
+      "retrieved_at": "2026-08-24"
+    },
+    {
+      "source_id": "cm-odivelas-agenda-cultura",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Centro Cultural Malaposta",
+      "venue_id": "venue-odivelas-centro-cultural-malaposta",
+      "method": "VENUE-AUTO-ONBOARDING-01: ADMIT_ADDRESS_ONLY (C)",
+      "evidence": [
+        {
+          "url": "https://www.cm-odivelas.pt/autarquia/contactos/espacos-de-cultura-e-desporto",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "Official Câmara Municipal de Odivelas 'Espaços de Cultura e Desporto' contacts directory lists 'Centro Cultural Malaposta — Rua Angola, 2620-492 Olival Basto'."
+        }
+      ],
+      "created_at": "2026-08-24",
+      "retrieved_at": "2026-08-24"
+    },
+    {
+      "source_id": "cm-odivelas-agenda-cultura",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Biblioteca Municipal D.Dinis",
+      "venue_id": "venue-odivelas-biblioteca-municipal-d-dinis",
+      "method": "VENUE-AUTO-ONBOARDING-01: ADMIT_ADDRESS_ONLY (C)",
+      "evidence": [
+        {
+          "url": "https://www.cm-odivelas.pt/autarquia/contactos/espacos-de-cultura-e-desporto",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "Official Câmara Municipal de Odivelas 'Espaços de Cultura e Desporto' contacts directory lists 'Biblioteca Municipal D.Dinis — Rua Guilherme Gomes Fernandes (Fim) — 2675-625 Odivelas' (the main pole — distinct from its Pontinha/Caneças satellite poles, which this mapping does not cover)."
+        }
+      ],
+      "created_at": "2026-08-24",
+      "retrieved_at": "2026-08-24"
+    },
+    {
+      "source_id": "teatro-municipal-do-porto",
+      "source_key_type": "VENUE_NAME",
+      "source_key": "Campo Alegre",
+      "venue_id": "venue-porto-teatro-campo-alegre",
+      "method": "VENUE-AUTO-ONBOARDING-01: ADMIT_ADDRESS_ONLY (B)",
+      "evidence": [
+        {
+          "url": "https://www.teatromunicipaldoporto.pt/PT/quem-somos/contactos/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official Teatro Municipal do Porto 'Contactos' page states Campo Alegre's own address, distinct from the Rivoli address on the same page: 'Rua das Estrelas, 4150-762 Porto'."
+        },
+        {
+          "url": "https://cultura.cm-porto.pt/teatros/teatro-municipal-do-porto_1",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "Câmara Municipal do Porto's own official culture portal independently states the identical Campo Alegre address ('Rua das Estrelas. 4150-762 Porto'), corroborating rather than being the sole source."
+        }
+      ],
+      "created_at": "2026-08-24",
+      "retrieved_at": "2026-08-24"
+    }
+  ]
+}
