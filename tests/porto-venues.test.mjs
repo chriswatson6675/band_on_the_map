@@ -24,12 +24,29 @@ test("every venue in venues/porto.json passes validateVenue()", async () => {
   }
 });
 
-test("both Porto venues are honestly ADDRESS_ONLY — no coordinates were fabricated tonight", async () => {
+// VENUE-GEOCODING-01: Casa da Música's official address was deterministically
+// geocoded (a specific, single-building amenity=concert_hall OSM match with
+// agreeing postcode/house_number/city — see
+// fixtures/geocoding/nominatim/venue-porto-casa-da-musica.json) and promoted
+// to GEOCODED. Teatro Rivoli's own address query returned only road/square-
+// level OSM results (no building-specific match), so it fails-closed and
+// honestly remains ADDRESS_ONLY — no coordinate was guessed for it.
+test("Casa da Música was deterministically GEOCODED; Teatro Rivoli honestly remains ADDRESS_ONLY (no coordinate guessed)", async () => {
   const venues = await loadPortoVenues();
+
+  const casaDaMusica = venues.find((v) => v.venue_id === "venue-porto-casa-da-musica");
+  assert.equal(casaDaMusica.location_status, "GEOCODED");
+  assert.equal(typeof casaDaMusica.latitude, "number");
+  assert.equal(typeof casaDaMusica.longitude, "number");
+  assert.equal(casaDaMusica.coordinate_provenance.method, "GEOCODED_FROM_OFFICIAL_ADDRESS");
+  assert.equal(casaDaMusica.coordinate_provenance.query_address, casaDaMusica.address);
+
+  const rivoli = venues.find((v) => v.venue_id === "venue-porto-teatro-rivoli");
+  assert.equal(rivoli.location_status, "ADDRESS_ONLY");
+  assert.equal(rivoli.latitude, null);
+  assert.equal(rivoli.longitude, null);
+
   for (const venue of venues) {
-    assert.equal(venue.location_status, "ADDRESS_ONLY");
-    assert.equal(venue.latitude, null);
-    assert.equal(venue.longitude, null);
     assert.ok(typeof venue.address === "string" && venue.address.length > 0);
     assert.ok(Array.isArray(venue.evidence) && venue.evidence.length >= 1);
   }

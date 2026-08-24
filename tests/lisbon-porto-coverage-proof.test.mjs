@@ -60,16 +60,30 @@ test("all 8 retained Porto Observations fall within the 2026-08-24..2026-12-31 p
   assert.equal(proof.porto.observations_within_date_bounds, proof.porto.raw_observation_total);
 });
 
-test("Porto produces zero map markers tonight — both venues are honestly ADDRESS_ONLY, not fabricated CONFIRMED pins", async () => {
+// VENUE-GEOCODING-01: Casa da Música's official address was
+// deterministically GEOCODED (see fixtures/geocoding/nominatim/
+// venue-porto-casa-da-musica.json and venues/porto.json's own
+// coordinate_provenance) — it now legitimately produces Porto's first map
+// marker. Teatro Rivoli's own address query returned only road/square-level
+// OSM results, so it fails deterministic acceptance and honestly remains
+// ADDRESS_ONLY, contributing no marker.
+test("Porto now produces exactly one map marker (Casa da Música, GEOCODED) — Rivoli honestly remains ADDRESS_ONLY, not fabricated", async () => {
   const proof = await buildLisbonPortoOvernightCoverageProof();
-  assert.equal(proof.porto.map_marker_count, 0);
-  assert.deepEqual(proof.porto.markers, []);
+  assert.equal(proof.porto.map_marker_count, 1);
+  assert.equal(proof.porto.markers.length, 1);
+  assert.equal(proof.porto.markers[0].venue_id, "venue-porto-casa-da-musica");
+
+  const venueRegistry = JSON.parse(
+    await readFile(new URL("../venues/porto.json", import.meta.url), "utf8"),
+  );
+  const rivoli = venueRegistry.venues.find((v) => v.venue_id === "venue-porto-teatro-rivoli");
+  assert.equal(rivoli.location_status, "ADDRESS_ONLY");
 });
 
-test("the combined map_marker_count is exactly the Lisbon subset's own marker count (Porto contributes none yet)", async () => {
+test("the combined map_marker_count is the Lisbon subset's own marker count plus Casa da Música's new Porto marker", async () => {
   const proof = await buildLisbonPortoOvernightCoverageProof();
-  assert.equal(proof.combined.map_marker_count, proof.lisbon_subset.markers.length);
-  assert.equal(proof.combined.map_marker_count, 2);
+  assert.equal(proof.combined.map_marker_count, proof.lisbon_subset.markers.length + proof.porto.map_marker_count);
+  assert.equal(proof.combined.map_marker_count, 3);
 });
 
 test("combined raw_observation_total is the sum of the two halves", async () => {

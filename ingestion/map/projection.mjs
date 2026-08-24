@@ -10,14 +10,18 @@
 //
 // Fail-closed map eligibility: a Venue is placed on the map ONLY when
 // resolution_status is RESOLVED, the canonical Venue exists in the
-// registry, its location_status is CONFIRMED, and it carries valid
-// numeric coordinates. ADDRESS_ONLY and UNRESOLVED venues never receive a
-// marker, and no fallback/guessed coordinate is ever substituted.
+// registry, its location_status is CONFIRMED or GEOCODED (VENUE-
+// GEOCODING-01 — see ingestion/venue/contract.mjs's
+// MAP_ELIGIBLE_LOCATION_STATUSES for the shared definition), and it
+// carries valid numeric coordinates. ADDRESS_ONLY and UNRESOLVED venues
+// never receive a marker, and no fallback/guessed coordinate is ever
+// substituted.
 //
 // Dependency-free; safe to import from a browser bundle (no Node
 // built-ins here or in ingestion/venue/resolver.mjs, which this imports).
 
 import { resolveObservation } from "../venue/resolver.mjs";
+import { MAP_ELIGIBLE_LOCATION_STATUSES } from "../venue/contract.mjs";
 
 function isValidCoordinate(latitude, longitude) {
   return (
@@ -70,7 +74,7 @@ export function projectObservationsToMapMarkers(observations, { venues, sourceRe
 
     const venue = venueById.get(resolution.venue_id);
     if (!venue) continue;
-    if (venue.location_status !== "CONFIRMED") continue;
+    if (!MAP_ELIGIBLE_LOCATION_STATUSES.has(venue.location_status)) continue;
     if (!isValidCoordinate(venue.latitude, venue.longitude)) continue;
 
     if (!markersById.has(venue.venue_id)) {

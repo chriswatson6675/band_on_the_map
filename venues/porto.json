@@ -1,6 +1,6 @@
 {
   "region": "Porto (Portugal)",
-  "cohort_note": "LISBON-PORTO-OVERNIGHT-COVERAGE-01: a bounded, evidence-driven proof for the first two Porto sources actually implemented tonight (casa-da-musica, teatro-municipal-do-porto) — not a claim of complete Porto venue coverage. Follows the same evidence model and location_status rules as venues/lisbon.json (see docs/VENUE_RESOLUTION.md). Both entries below are ADDRESS_ONLY: a real, first-party-evidenced address was found for each, but no first-party outbound map link carrying explicit marker coordinates was found within this task's bounded search — per docs/VENUE_RESOLUTION.md this is the honest, expected outcome under a 'no bulk geocoding, no guessing' rule, not a shortfall to paper over. See docs/LISBON_PORTO_OVERNIGHT_COVERAGE_01.md for the resulting map-eligibility impact (zero Porto map markers from tonight's proof) and the recommended follow-up.",
+  "cohort_note": "LISBON-PORTO-OVERNIGHT-COVERAGE-01: a bounded, evidence-driven proof for the first two Porto sources actually implemented tonight (casa-da-musica, teatro-municipal-do-porto) — not a claim of complete Porto venue coverage. Follows the same evidence model and location_status rules as venues/lisbon.json (see docs/VENUE_RESOLUTION.md). VENUE-GEOCODING-01 subsequently geocoded Casa da Música's official address (deterministically accepted, now GEOCODED); Teatro Rivoli's own address query returned only road/square-level OSM results (no building-specific match) and honestly remains ADDRESS_ONLY — see docs/LISBON_PORTO_OVERNIGHT_COVERAGE_01.md and fixtures/geocoding/nominatim/ for the geocoding evidence.",
   "venues": [
     {
       "venue_id": "venue-porto-casa-da-musica",
@@ -9,17 +9,33 @@
       "city": "Porto",
       "municipality": "Porto",
       "address": "Av. da Boavista 604-610, 4149-071 Porto",
-      "latitude": null,
-      "longitude": null,
-      "location_status": "ADDRESS_ONLY",
+      "latitude": 41.1589025,
+      "longitude": -8.6307748,
+      "location_status": "GEOCODED",
       "evidence": [
         {
           "url": "https://casadamusica.com/informacoes/contactos/",
           "kind": "OFFICIAL_VENUE_WEBSITE",
           "note": "Official 'Contactos' page. States 'MORADA: Av. da Boavista, 604-610 4149-071 Porto'. No coordinates, embedded map, or outbound map link with coordinate data was found on this page, or on the site's 'Como Chegar' directions page (HTTP 403 to this proof's client), within this proof's bounded search."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Av.+da+Boavista+604-610%2C+4149-071+Porto&format=jsonv2&addressdetails=1&limit=5&countrycodes=pt",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own already-evidenced official address (\"Av. da Boavista 604-610, 4149-071 Porto\") — see fixtures/geocoding/nominatim/venue-porto-casa-da-musica.json for the full cached response. Matched OSM feature: way/603359226. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
         }
       ],
-      "retrieved_at": "2026-08-24"
+      "retrieved_at": "2026-08-24",
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Av. da Boavista 604-610, 4149-071 Porto",
+        "result_osm_type": "way",
+        "result_osm_id": "603359226",
+        "result_display_name": "Casa da Música, 604-610, Avenida da Boavista, Cedofeita, Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, 4149-071, Portugal",
+        "matched_postcode": "4149-071",
+        "matched_city": "Porto",
+        "retrieved_at": "2026-08-24T08:31:38.868Z"
+      }
     },
     {
       "venue_id": "venue-porto-teatro-rivoli",

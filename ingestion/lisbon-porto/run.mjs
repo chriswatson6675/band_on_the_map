@@ -378,6 +378,22 @@ async function acquireAll(sourceIds, registryEntries, registryLabel) {
   return results;
 }
 
+// VENUE-GEOCODING-01 terminology cleanup: the field previously named
+// `raw_observation_total` here actually held the DATE-BOUNDED Observation
+// count (main() below applies withinDateBounds() before calling this
+// function) — not a genuinely raw, pre-bound count. The truly raw,
+// pre-adapter count already lived correctly on each per-source result as
+// `raw_record_count`. This function now exposes three unambiguous,
+// correctly-named totals instead of one misleadingly-named one:
+//
+//   raw_record_total            - sum of every source's own raw_record_count
+//                                  (pre-adapter, pre-date-bound records)
+//   observation_total_before_bounds - sum of every source's own
+//                                  observation_count (post-adapter
+//                                  Observations, still pre-date-bound)
+//   observation_total_in_bounds - `observations.length` as actually passed
+//                                  in here (post-date-bound — this is what
+//                                  the old, misleading field name held)
 function summariseCity({ label, sourceResults, observations, venues, sourceRegistry, associations = [] }) {
   const resolutions = observations.map((observation) => ({
     observation,
@@ -398,6 +414,16 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
 
   const markers = projectObservationsToDisplayMarkers(observations, { venues, sourceRegistry, associations });
   const displayListingCount = markers.reduce((sum, m) => sum + m.display_listings.length, 0);
+  // "Raw map-eligible": every individual map-eligible Observation listing,
+  // BEFORE the HCP<->Capitólio association layer groups any pair into one
+  // display listing (display_listing_count, above, is the grouped/display
+  // count customers actually see).
+  const rawMapEligibleCount = markers.reduce((sum, m) => sum + m.listings.length, 0);
+  // Resolved to a real canonical venue_id, but that venue is not (yet)
+  // map-eligible — either ADDRESS_ONLY/UNRESOLVED location_status, or
+  // missing invalid coordinates. This is exactly the bottleneck
+  // VENUE-GEOCODING-01 targets.
+  const resolvedButUnmappedCount = resolvedCount - rawMapEligibleCount;
   const associatedCount = associations.filter((a) => a.association_status === "ASSOCIATED").length;
 
   return {
@@ -410,10 +436,14 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
       notes: r.notes,
       ...(r.error !== undefined ? { error: r.error } : {}),
     })),
-    raw_observation_total: observations.length,
+    raw_record_total: sourceResults.reduce((sum, r) => sum + r.raw_record_count, 0),
+    observation_total_before_bounds: sourceResults.reduce((sum, r) => sum + r.observation_count, 0),
+    observation_total_in_bounds: observations.length,
     resolved_venue_count: resolvedCount,
     unresolved_venue_count: unresolvedCount,
     unresolved: unresolvedList,
+    resolved_but_unmapped_count: resolvedButUnmappedCount,
+    raw_map_eligible_count: rawMapEligibleCount,
     association_group_count: associatedCount,
     display_listing_count: displayListingCount,
     map_marker_count: markers.length,
@@ -476,9 +506,14 @@ async function main() {
     lisbon: lisbonSummary,
     porto: portoSummary,
     combined: {
-      raw_observation_total: lisbonSummary.raw_observation_total + portoSummary.raw_observation_total,
+      raw_record_total: lisbonSummary.raw_record_total + portoSummary.raw_record_total,
+      observation_total_before_bounds:
+        lisbonSummary.observation_total_before_bounds + portoSummary.observation_total_before_bounds,
+      observation_total_in_bounds: lisbonSummary.observation_total_in_bounds + portoSummary.observation_total_in_bounds,
       resolved_venue_count: lisbonSummary.resolved_venue_count + portoSummary.resolved_venue_count,
       unresolved_venue_count: lisbonSummary.unresolved_venue_count + portoSummary.unresolved_venue_count,
+      resolved_but_unmapped_count: lisbonSummary.resolved_but_unmapped_count + portoSummary.resolved_but_unmapped_count,
+      raw_map_eligible_count: lisbonSummary.raw_map_eligible_count + portoSummary.raw_map_eligible_count,
       display_listing_count: lisbonSummary.display_listing_count + portoSummary.display_listing_count,
       map_marker_count: lisbonSummary.map_marker_count + portoSummary.map_marker_count,
     },
@@ -496,15 +531,22 @@ async function main() {
       );
       for (const note of result.notes ?? []) console.log(`      note: ${note}`);
     }
-    console.log(`  Observation total (bounded): ${summary.raw_observation_total}`);
+    console.log(`  Raw record total (pre-adapter, pre-date-bound): ${summary.raw_record_total}`);
+    console.log(`  Observation total before bounds: ${summary.observation_total_before_bounds}`);
+    console.log(`  Observation total in bounds: ${summary.observation_total_in_bounds}`);
     console.log(`  Resolved venues: ${summary.resolved_venue_count} / Unresolved: ${summary.unresolved_venue_count}`);
+    console.log(`  Resolved-but-unmapped: ${summary.resolved_but_unmapped_count}`);
+    console.log(`  Raw map-eligible (ungrouped): ${summary.raw_map_eligible_count}`);
     console.log(`  Association groups: ${summary.association_group_count}`);
     console.log(`  Display listings: ${summary.display_listing_count}`);
     console.log(`  Map markers: ${summary.map_marker_count}`);
   }
 
   console.log(`\n=== Combined ===`);
-  console.log(`  Observation total: ${proof.combined.raw_observation_total}`);
+  console.log(`  Observation total in bounds: ${proof.combined.observation_total_in_bounds}`);
+  console.log(`  Resolved-but-unmapped: ${proof.combined.resolved_but_unmapped_count}`);
+  console.log(`  Raw map-eligible (ungrouped): ${proof.combined.raw_map_eligible_count}`);
+  console.log(`  Display listings: ${proof.combined.display_listing_count}`);
   console.log(`  Map markers: ${proof.combined.map_marker_count}`);
   console.log(`  Wrote ${OUTPUT_PATH}`);
 }

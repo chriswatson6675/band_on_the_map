@@ -289,3 +289,31 @@ See the final report for exact pass/fail counts. In summary: `npm test`
 None encountered that required stopping the package. Every deferral
 above was a bounded, documented engineering/evidence judgement call, not
 an access-control bypass, fabrication, or destructive action.
+
+## VENUE-GEOCODING-01 follow-up
+
+A later, separate task addressed the "Rivoli/Campo Alegre and Casa da
+Música coordinates" near-term win named above — see
+`docs/VENUE_RESOLUTION.md`'s "four honest states" section and
+`ingestion/geocoding/` for the full design. Using OpenStreetMap Nominatim
+(a deliberate, bounded, one-time, rate-limited geocode of exactly five
+already-`ADDRESS_ONLY` canonical venues' own official addresses — never
+bulk/automatic/runtime geocoding), the outcome was:
+
+- **`venue-porto-casa-da-musica`** — deterministically **GEOCODED**
+  (`41.1589025, -8.6307748`): a single, specific `amenity=concert_hall`
+  OSM match with an agreeing postcode, house number, and city. This
+  immediately unlocked Casa da Música's 60 already-resolved-but-unmapped
+  Observations onto the map (Porto's first map marker).
+- **`venue-porto-teatro-rivoli`**, **`venue-lisboa-igreja-e-convento-da-graca`**,
+  **`venue-lisboa-bota-anjos`**, and **`venue-lisboa-village-underground-lisboa`**
+  — each honestly **remained `ADDRESS_ONLY`**: Nominatim's own returned
+  candidates for each address were either road/square-level results with
+  no building-specific match (Rivoli, Graça, BOTA) or had a conflicting
+  postcode against a different real building at the same street number
+  (Village Underground). None was force-accepted — see
+  `fixtures/geocoding/nominatim/` for every retained raw response.
+
+Campo Alegre remains untouched and out of scope (no address has been
+independently evidenced for it at all, so it was never a geocoding
+candidate).

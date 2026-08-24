@@ -10,18 +10,39 @@
 //
 // Dependency-free, matching the rest of this repository's ingestion code.
 
-export const LOCATION_STATUSES = new Set(["CONFIRMED", "ADDRESS_ONLY", "UNRESOLVED"]);
+export const LOCATION_STATUSES = new Set(["CONFIRMED", "GEOCODED", "ADDRESS_ONLY", "UNRESOLVED"]);
+
+// The two location_status values whose coordinates are trusted enough to
+// place a marker on the map (see ingestion/map/projection.mjs). Kept here
+// (not just inline in the projection module) so every consumer shares one
+// definition of "map-eligible" rather than re-deriving it.
+export const MAP_ELIGIBLE_LOCATION_STATUSES = new Set(["CONFIRMED", "GEOCODED"]);
 
 /**
  *   CONFIRMED     - a non-empty address AND coordinates are both
- *                    evidenced; validateVenue() requires both
+ *                    evidenced DIRECTLY through the venue/official
+ *                    authority itself (e.g. an official page's own linked
+ *                    Google Maps place marker) — validateVenue() requires
+ *                    both. Never used for a geocoder-derived coordinate.
+ *   GEOCODED      - (VENUE-GEOCODING-01) a non-empty address AND
+ *                    coordinates are both present, but the coordinates
+ *                    were deterministically DERIVED by geocoding the
+ *                    venue's own already independently evidenced official
+ *                    address (see ingestion/geocoding/), not read
+ *                    directly from a first-party source. Structurally
+ *                    identical requirements to CONFIRMED (address +
+ *                    coordinates + evidence), but permanently distinct in
+ *                    meaning and provenance — a GEOCODED venue must carry
+ *                    a `coordinate_provenance` object recording how, and
+ *                    must never be silently relabeled CONFIRMED.
  *   ADDRESS_ONLY  - a trustworthy, non-empty address is evidenced, but no
  *                    first-party coordinate evidence was found — latitude
  *                    and longitude must be null; this is the honest,
  *                    expected outcome when this project's "no bulk
  *                    third-party geocoding, no guessing" rule means a
  *                    real, correctly-addressed venue still has no
- *                    coordinates yet
+ *                    coordinates yet (until/unless a later, explicit
+ *                    geocoding task promotes it to GEOCODED)
  *   UNRESOLVED    - neither an address nor coordinates could be
  *                    confidently evidenced; address, latitude, and
  *                    longitude must all be null
@@ -64,6 +85,10 @@ export function createVenue(fields) {
     longitude: fields.longitude ?? null,
     location_status: fields.location_status ?? "UNRESOLVED",
     evidence: fields.evidence ?? [],
+    // Only meaningful (and required) for GEOCODED — see validateVenue().
+    // Left undefined-by-default for every other status so existing
+    // CONFIRMED/ADDRESS_ONLY/UNRESOLVED venue objects are unaffected.
+    ...(fields.coordinate_provenance !== undefined ? { coordinate_provenance: fields.coordinate_provenance } : {}),
   };
 
   const errors = validateVenue(venue);
@@ -85,6 +110,13 @@ export function createVenue(fields) {
  *     (-90..90) / longitude (-180..180) values, backed by at least one
  *     evidence entry;
  *   - CONFIRMED requires a non-empty address AND coordinates;
+ *   - GEOCODED requires a non-empty address AND coordinates AND a
+ *     coordinate_provenance object recording GEOCODED_FROM_OFFICIAL_ADDRESS
+ *     — structurally like CONFIRMED, but never interchangeable with it;
+ *   - a coordinate_provenance whose method is GEOCODED_FROM_OFFICIAL_ADDRESS
+ *     may only appear on a GEOCODED venue, never a CONFIRMED one (coordinates
+ *     directly evidenced through the venue/official authority itself must
+ *     never be relabeled as geocoder-derived, or vice versa);
  *   - ADDRESS_ONLY requires a non-empty address AND forbids coordinates;
  *   - UNRESOLVED forbids both an address and coordinates.
  */
@@ -117,6 +149,11 @@ export function validateVenue(venue) {
     }
   }
 
+  const provenanceMethod =
+    venue?.coordinate_provenance && typeof venue.coordinate_provenance === "object"
+      ? venue.coordinate_provenance.method
+      : undefined;
+
   if (venue?.location_status === "CONFIRMED") {
     if (!hasAddress) {
       errors.push("a CONFIRMED venue must carry a non-empty address");
@@ -124,6 +161,29 @@ export function validateVenue(venue) {
     if (!hasLat || !hasLng) {
       errors.push(
         "a CONFIRMED venue must carry coordinates (use ADDRESS_ONLY if only the address is evidenced)",
+      );
+    }
+    if (provenanceMethod === "GEOCODED_FROM_OFFICIAL_ADDRESS") {
+      errors.push(
+        "a CONFIRMED venue must not carry a GEOCODED_FROM_OFFICIAL_ADDRESS coordinate_provenance (use location_status GEOCODED instead — never relabel a geocoded coordinate as first-party CONFIRMED)",
+      );
+    }
+  } else if (venue?.location_status === "GEOCODED") {
+    if (!hasAddress) {
+      errors.push("a GEOCODED venue must carry a non-empty address");
+    }
+    if (!hasLat || !hasLng) {
+      errors.push(
+        "a GEOCODED venue must carry coordinates (from ingestion/geocoding/ — use ADDRESS_ONLY if geocoding has not yet succeeded)",
+      );
+    }
+    if (!venue.coordinate_provenance || typeof venue.coordinate_provenance !== "object") {
+      errors.push(
+        "a GEOCODED venue must carry a coordinate_provenance object recording how its coordinates were derived",
+      );
+    } else if (provenanceMethod !== "GEOCODED_FROM_OFFICIAL_ADDRESS") {
+      errors.push(
+        "a GEOCODED venue's coordinate_provenance.method must be GEOCODED_FROM_OFFICIAL_ADDRESS",
       );
     }
   } else if (venue?.location_status === "ADDRESS_ONLY") {

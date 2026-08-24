@@ -47,27 +47,54 @@ that coordinate was treated as tier-3 evidence and retained; where no
 such first-party coordinate evidence existed, the venue stops at an
 evidenced address rather than a guessed pin.
 
-### `location_status`: three honest states, not two
+### `location_status`: four honest states, not two
 
-- **`CONFIRMED`** — address *and* coordinates are both evidenced. Only one
-  venue reached this in this proof: **Capitólio**, whose EGEAC page links
-  its own official Google Maps shortlink
-  (`https://maps.app.goo.gl/PgnLPrz43VZjvVRt8`), which resolves to
-  Google's place page for "Cineteatro Capitólio" carrying an explicit
-  marker coordinate (`38.7188712, -9.1466143`).
+- **`CONFIRMED`** — address *and* coordinates are both evidenced DIRECTLY
+  through the venue/official authority itself. Two venues have reached
+  this: **Capitólio**, whose EGEAC page links its own official Google Maps
+  shortlink (`https://maps.app.goo.gl/PgnLPrz43VZjvVRt8`), which resolves
+  to Google's place page for "Cineteatro Capitólio" carrying an explicit
+  marker coordinate (`38.7188712, -9.1466143`); and **MEO Arena**, whose
+  own official Contactos page links its own Google Maps place page
+  (`38.7685312, -9.0940297`).
+- **`GEOCODED`** (VENUE-GEOCODING-01) — address *and* coordinates are both
+  present, but the coordinates were deterministically DERIVED by
+  geocoding the venue's own already independently evidenced official
+  address (`ingestion/geocoding/`, OpenStreetMap Nominatim), not read
+  directly from a first-party source. Structurally identical requirements
+  to `CONFIRMED` (address + coordinates + evidence), but permanently
+  distinct in meaning/provenance — see `ingestion/venue/contract.mjs` and
+  `docs/LISBON_PORTO_OVERNIGHT_COVERAGE_01.md`'s VENUE-GEOCODING-01
+  section. **Casa da Música** reached this state: a single, specific
+  `amenity=concert_hall` OSM match with an agreeing postcode, house
+  number, and city. **Teatro Rivoli**, **Igreja e Convento da Graça**,
+  **BOTA Anjos**, and **Village Underground Lisboa** were all attempted
+  and honestly failed deterministic acceptance (each candidate was either
+  road/square-level only, or had a conflicting postcode/house number) —
+  they remain `ADDRESS_ONLY`, not guessed into `GEOCODED`.
 - **`ADDRESS_ONLY`** — a trustworthy address is evidenced, but no
-  first-party coordinate evidence was found. This is the honest, expected
-  outcome for most real venues under a "no bulk geocoding, no guessing"
-  rule: **Igreja e Convento da Graça** and **BOTA Anjos** both have a real,
-  confirmed street address from their own official sites, and genuinely
-  no coordinates yet.
+  first-party coordinate evidence was found, AND (as of VENUE-GEOCODING-01)
+  either geocoding has not yet been attempted or a bounded, deterministic
+  geocoding attempt failed to accept any candidate. This is the honest,
+  expected outcome for many real venues under a "no bulk geocoding, no
+  guessing" rule: **Igreja e Convento da Graça**, **BOTA Anjos**, **Village
+  Underground Lisboa**, and **Teatro Rivoli** (`venues/porto.json`) all
+  have a real, confirmed street address from their own official sites, and
+  genuinely no coordinates yet.
 - **`UNRESOLVED`** — neither could be confidently evidenced. See "Fail-
   closed behaviour" below.
 
 `validateVenue()` enforces this as more than documentation:
-`UNRESOLVED` venues are rejected if they carry any coordinate,
-`CONFIRMED` venues are rejected if they don't, and any venue that does
-carry coordinates must cite at least one evidence entry.
+`UNRESOLVED` venues are rejected if they carry any coordinate, `CONFIRMED`
+and `GEOCODED` venues are rejected if they don't, `GEOCODED` venues are
+additionally rejected without a `coordinate_provenance` object naming
+`GEOCODED_FROM_OFFICIAL_ADDRESS`, a `CONFIRMED` venue is rejected if it
+*does* carry that same provenance method (a geocoded coordinate may never
+be relabeled first-party `CONFIRMED`), and any venue that does carry
+coordinates must cite at least one evidence entry. Map eligibility
+(`ingestion/map/projection.mjs`) now accepts both `CONFIRMED` and
+`GEOCODED` — see `MAP_ELIGIBLE_LOCATION_STATUSES` in
+`ingestion/venue/contract.mjs`.
 
 ## Explicit mappings, not fuzzy matching
 
