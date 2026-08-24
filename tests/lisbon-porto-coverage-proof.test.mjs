@@ -1,0 +1,90 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test from "node:test";
+import { buildLisbonPortoOvernightCoverageProof } from "../ingestion/lisbon-porto/generate-proof.mjs";
+import { buildLisbonAutomaticSubsetProof } from "../ingestion/lisbon-subset/generate-proof.mjs";
+import { buildLisbonMapProof } from "../ingestion/map/generate-proof.mjs";
+
+const PROOF_PATH = new URL("../fixtures/map/lisbon-porto-overnight-coverage-01-proof.json", import.meta.url);
+
+test("the committed lisbon-porto-overnight-coverage-01-proof.json exactly matches what code regenerates from the same retained fixtures", async () => {
+  const regenerated = await buildLisbonPortoOvernightCoverageProof();
+  const committed = JSON.parse(await readFile(PROOF_PATH, "utf8"));
+  assert.deepEqual(committed, regenerated);
+});
+
+test("regenerating twice from the same retained fixtures produces byte-identical output (deterministic rerun)", async () => {
+  const first = await buildLisbonPortoOvernightCoverageProof();
+  const second = await buildLisbonPortoOvernightCoverageProof();
+  assert.deepEqual(first, second);
+});
+
+// Existing invariants must not regress: LISBON-AUTOMATIC-SUBSET-01's own
+// proof, and the original three-source BOTM-MULTISOURCE-LINKS-01 proof
+// underneath it, stay completely untouched by this package.
+
+test("the embedded lisbon_subset block is byte-identical to LISBON-AUTOMATIC-SUBSET-01's own standalone proof", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  const standalone = await buildLisbonAutomaticSubsetProof();
+  assert.deepEqual(proof.lisbon_subset, standalone);
+  assert.equal(proof.lisbon_subset.total_underlying_observations, 38);
+});
+
+test("the original three-source BOTM-MULTISOURCE-LINKS-01 proof remains completely unaffected", async () => {
+  const original = await buildLisbonMapProof();
+  assert.equal(original.total_underlying_observations, 24);
+  assert.equal(original.markers.length, 1);
+});
+
+test("the Capitólio 11-raw/6-display invariant survives unchanged inside the combined package", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  const capitolio = proof.lisbon_subset.markers.find(
+    (m) => m.venue_id === "venue-lisboa-cineteatro-capitolio-teatro-raul-solnado",
+  );
+  assert.ok(capitolio);
+  assert.equal(capitolio.listings.length, 11);
+  assert.equal(capitolio.display_listings.length, 6);
+});
+
+// New Porto contribution.
+
+test("both new Porto sources contribute Observations from real retained fixtures", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  assert.equal(proof.porto.per_source_observation_counts["casa-da-musica"], 3);
+  assert.equal(proof.porto.per_source_observation_counts["teatro-municipal-do-porto"], 5);
+  assert.equal(proof.porto.raw_observation_total, 8);
+});
+
+test("all 8 retained Porto Observations fall within the 2026-08-24..2026-12-31 proof window", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  assert.equal(proof.porto.observations_within_date_bounds, proof.porto.raw_observation_total);
+});
+
+test("Porto produces zero map markers tonight — both venues are honestly ADDRESS_ONLY, not fabricated CONFIRMED pins", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  assert.equal(proof.porto.map_marker_count, 0);
+  assert.deepEqual(proof.porto.markers, []);
+});
+
+test("the combined map_marker_count is exactly the Lisbon subset's own marker count (Porto contributes none yet)", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  assert.equal(proof.combined.map_marker_count, proof.lisbon_subset.markers.length);
+  assert.equal(proof.combined.map_marker_count, 2);
+});
+
+test("combined raw_observation_total is the sum of the two halves", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  assert.equal(
+    proof.combined.raw_observation_total,
+    proof.lisbon_subset.total_underlying_observations + proof.porto.raw_observation_total,
+  );
+  assert.equal(proof.combined.raw_observation_total, 46);
+});
+
+test("no BOTA GEO leakage and no cross-source fact leakage regress inside the combined package", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  const json = JSON.stringify(proof);
+  // The known-bad BOTA placeholder coordinate must never appear as a used marker location.
+  assert.ok(!json.includes('"latitude": 40.720756'));
+  assert.ok(!json.includes('"longitude": -74.000761'));
+});

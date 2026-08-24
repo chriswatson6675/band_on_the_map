@@ -1,0 +1,517 @@
+#!/usr/bin/env node
+// LISBON-PORTO-OVERNIGHT-COVERAGE-01 — the one manual entry point this
+// package adds: `npm run ingest:lisbon-porto` (optionally
+// `-- --from=YYYY-MM-DD --to=YYYY-MM-DD`).
+//
+// Orchestrates the bounded, nine-source pipeline (the seven already-proven
+// Lisbon sources from LISBON-AUTOMATIC-SUBSET-01, unchanged, plus the two
+// new Porto sources proven tonight):
+//
+//   selected source registry entries (sources/lisbon.json + sources/porto.json)
+//     -> acquire first-party source records (live HTTP, these sources only)
+//     -> adapt each into the existing Observation model
+//     -> apply date bounds
+//     -> resolve venues (ingestion/venue/resolver.mjs, now Lisbon+Porto-aware)
+//     -> apply existing bounded association logic (Hot Clube <-> Capitólio
+//        only — unchanged, Lisbon-only)
+//     -> generate grouped customer-facing display listings
+//        (ingestion/map/group-associated-listings.mjs, unchanged)
+//     -> project resolved listings into map markers
+//     -> regenerate a combined Lisbon+Porto live-run proof output
+//     -> emit a detailed, per-city coverage summary
+//
+// This is a live-network, manually-triggered script. Every source's
+// acquisition is isolated in its own try/catch: one source's failure is
+// recorded and reported, never allowed to abort any other source or the
+// run as a whole. No fallback/synthetic data is ever substituted for a
+// failed source. This script reuses every already-proven module rather
+// than reimplementing it — see ingestion/lisbon-subset/run.mjs, whose
+// seven Lisbon collectors are called here completely unchanged.
+
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { fetchText, extractLinkHeaderUrl } from "../http/fetch.mjs";
+
+import { toObservations as agendalxToObservations } from "../agendalx/observation-adapter.mjs";
+import { parseHotClubeIcsLinks } from "../hot-clube/discovery.mjs";
+import { toObservation as hotClubeToObservation } from "../hot-clube/observation-adapter.mjs";
+import { parseCapitolioAgendaLinks, extractCapitolioEventFacts } from "../capitolio/discovery.mjs";
+import { toObservations as capitolioToObservations } from "../capitolio/observation-adapter.mjs";
+import { parseVillageUndergroundDiscovery } from "../village-underground/discovery.mjs";
+import { toObservation as vuToObservation } from "../village-underground/observation-adapter.mjs";
+import { parseBotaDiscovery } from "../bota/discovery.mjs";
+import { toObservation as botaToObservation } from "../bota/observation-adapter.mjs";
+import { findEventsFeedUrl } from "../odivelas/discovery.mjs";
+import { toObservations as odivelasToObservations } from "../odivelas/observation-adapter.mjs";
+import { parseRSS } from "../rss/parse.mjs";
+import { parseMeoArenaAgenda } from "../meo-arena/discovery.mjs";
+import { toObservations as meoArenaToObservations } from "../meo-arena/observation-adapter.mjs";
+
+import { parseCasaDaMusicaAgenda, parseCasaDaMusicaNextPageUrl } from "../casa-da-musica/discovery.mjs";
+import { toObservations as casaDaMusicaToObservations } from "../casa-da-musica/observation-adapter.mjs";
+import { parseTeatroMunicipalPortoAgenda } from "../teatro-municipal-porto/discovery.mjs";
+import { toObservations as teatroMunicipalPortoToObservations } from "../teatro-municipal-porto/observation-adapter.mjs";
+
+import { resolveObservation } from "../venue/resolver.mjs";
+import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
+import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const OUTPUT_PATH = resolve(ROOT, "fixtures/map/lisbon-porto-overnight-coverage-01-live-run-proof.json");
+
+// Considerate-client bound on Casa da Música pagination — see
+// ingestion/casa-da-musica/discovery.mjs's doc comment. Never followed
+// unboundedly.
+const CASA_DA_MUSICA_MAX_PAGES = 5;
+
+export const LISBON_SOURCE_IDS = [
+  "agendalx",
+  "hot-clube-de-portugal",
+  "teatro-variedades-capitolio",
+  "village-underground-lisboa",
+  "bota-anjos",
+  "cm-odivelas-agenda-cultura",
+  "meo-arena",
+];
+
+export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto"];
+
+function parseArgs(argv) {
+  const args = { from: null, to: null };
+  for (const arg of argv) {
+    const fromMatch = /^--from=(.+)$/.exec(arg);
+    const toMatch = /^--to=(.+)$/.exec(arg);
+    if (fromMatch) args.from = fromMatch[1];
+    if (toMatch) args.to = toMatch[1];
+  }
+  return args;
+}
+
+function withinDateBounds(observation, from, to) {
+  const date = observation?.start?.date;
+  if (!date) return true; // never drop an Observation with a genuinely unknown date
+  if (from && date < from) return false;
+  if (to && date > to) return false;
+  return true;
+}
+
+async function loadRegistryEntry(entries, sourceId, registryLabel) {
+  const entry = entries.find((candidate) => candidate.id === sourceId);
+  if (!entry) throw new Error(`"${sourceId}" is not present in ${registryLabel}`);
+  return entry;
+}
+
+// ---------------------------------------------------------------------
+// Lisbon collectors — unchanged from ingestion/lisbon-subset/run.mjs.
+// ---------------------------------------------------------------------
+
+async function collectAgendalx() {
+  const url =
+    "https://www.agendalx.pt/wp-json/agendalx/v1/events?search=&page=1&per_page=10&categories=musica&tags=&venues=&time=&type=event";
+  const res = await fetchText(url, { headers: { Accept: "application/json" } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = JSON.parse(res.text);
+  const observations = agendalxToObservations(
+    { records, metadata: { retrieved_at: res.retrievedAt, request_url: url, content_type: res.contentType } },
+    { fixturePath: null },
+  );
+  return { rawRecordCount: records.length, observations, notes: [] };
+}
+
+async function collectHotClube() {
+  const homepage = await fetchText("https://hcp.pt/", {});
+  if (!homepage.ok) throw new Error(`HTTP ${homepage.status} from https://hcp.pt/`);
+  const icsLinks = parseHotClubeIcsLinks(homepage.text);
+  const observations = [];
+  const notes = [];
+  let rawRecordCount = 0;
+  for (const { event_id, ics_url } of icsLinks) {
+    if (!ics_url) {
+      notes.push(`event ${event_id}: no ICS download link found on the homepage card`);
+      continue;
+    }
+    rawRecordCount += 1;
+    const icsRes = await fetchText(encodeURI(ics_url), {});
+    if (!icsRes.ok) {
+      notes.push(`event ${event_id}: ICS fetch HTTP ${icsRes.status}`);
+      continue;
+    }
+    const fixturePath = `LIVE:hot-clube-de-portugal:${event_id}`;
+    observations.push(
+      hotClubeToObservation({
+        eventId: event_id,
+        icsText: icsRes.text,
+        fixturePath,
+        metadata: {
+          retrieved_at: homepage.retrievedAt,
+          requests_made: [{ url: ics_url, content_type: icsRes.contentType, retained_fixture: fixturePath }],
+        },
+        eventLinks: {},
+      }),
+    );
+  }
+  return { rawRecordCount, observations, notes };
+}
+
+async function collectCapitolio() {
+  const indexUrl = "https://teatrovariedades-capitolio.pt/agenda/capitolio/";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const eventUrls = parseCapitolioAgendaLinks(indexRes.text);
+  const records = [];
+  const notes = [];
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    const shortlink = extractLinkHeaderUrl(pageRes.linkHeader, "shortlink");
+    const postIdMatch = shortlink ? /[?&]p=(\d+)/.exec(shortlink) : null;
+    if (!postIdMatch) {
+      notes.push(`${eventUrl}: no rel=shortlink Link header with a numeric post id — skipped, not guessed`);
+      continue;
+    }
+    const facts = extractCapitolioEventFacts(pageRes.text);
+    records.push({
+      wp_shortlink_post_id: postIdMatch[1],
+      url: eventUrl,
+      retrieved_at: pageRes.retrievedAt,
+      http_status: pageRes.status,
+      content_type: pageRes.contentType,
+      ...facts,
+    });
+  }
+  const observations = capitolioToObservations({ records });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+async function collectVillageUnderground() {
+  const indexUrl = "https://vulisboa.com/eventos";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const discovered = parseVillageUndergroundDiscovery(indexRes.text);
+  const observations = [];
+  const notes = [];
+  for (const { slug, event_url: eventUrl, ics_url: icsUrl } of discovered) {
+    const icsRes = await fetchText(icsUrl, {});
+    if (!icsRes.ok) {
+      notes.push(`${slug}: ICS fetch HTTP ${icsRes.status}`);
+      continue;
+    }
+    try {
+      observations.push(
+        vuToObservation({
+          slug,
+          eventUrl,
+          icsUrl,
+          icsText: icsRes.text,
+          retrievedAt: icsRes.retrievedAt,
+          contentType: icsRes.contentType,
+          fixturePath: `LIVE:village-underground-lisboa:${slug}`,
+        }),
+      );
+    } catch (error) {
+      notes.push(`${slug}: ${error.message}`);
+    }
+  }
+  return { rawRecordCount: discovered.length, observations, notes };
+}
+
+async function collectBota() {
+  const indexUrl = "https://www.botaanjos.com/programacao";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const discovered = parseBotaDiscovery(indexRes.text);
+  const observations = [];
+  const notes = [];
+  for (const { slug, event_url: eventUrl, ics_url: icsUrl } of discovered) {
+    const icsRes = await fetchText(icsUrl, {});
+    if (!icsRes.ok) {
+      notes.push(`${slug}: ICS fetch HTTP ${icsRes.status}`);
+      continue;
+    }
+    try {
+      observations.push(
+        botaToObservation({
+          slug,
+          eventUrl,
+          icsUrl,
+          icsText: icsRes.text,
+          retrievedAt: icsRes.retrievedAt,
+          contentType: icsRes.contentType,
+          fixturePath: `LIVE:bota-anjos:${slug}`,
+        }),
+      );
+    } catch (error) {
+      notes.push(`${slug}: ${error.message}`);
+    }
+  }
+  return { rawRecordCount: discovered.length, observations, notes };
+}
+
+async function collectOdivelas() {
+  const directoryUrl = "https://www.cm-odivelas.pt/rss-feed";
+  const directoryRes = await fetchText(directoryUrl, {});
+  if (!directoryRes.ok) throw new Error(`HTTP ${directoryRes.status} from ${directoryUrl}`);
+  const feedUrl = findEventsFeedUrl(directoryRes.text);
+  if (!feedUrl) throw new Error('"RSS de Eventos" link not found on the RSS directory page');
+  const feedRes = await fetchText(feedUrl, {});
+  if (!feedRes.ok) throw new Error(`HTTP ${feedRes.status} from ${feedUrl}`);
+  const { items } = parseRSS(feedRes.text);
+  const observations = odivelasToObservations(items, {
+    retrievedAt: feedRes.retrievedAt,
+    sourceUrl: feedUrl,
+    contentType: feedRes.contentType,
+    fixturePath: null,
+  });
+  return { rawRecordCount: items.length, observations, notes: [] };
+}
+
+async function collectMeoArena() {
+  const agendaUrl = "https://arena.meo.pt/agenda-completa";
+  const agendaRes = await fetchText(agendaUrl, {});
+  if (!agendaRes.ok) throw new Error(`HTTP ${agendaRes.status} from ${agendaUrl}`);
+  const cards = parseMeoArenaAgenda(agendaRes.text);
+  const observations = meoArenaToObservations(cards, {
+    retrievedAt: agendaRes.retrievedAt,
+    sourceUrl: agendaUrl,
+    contentType: agendaRes.contentType,
+    fixturePath: null,
+  });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+// ---------------------------------------------------------------------
+// New Porto collectors.
+// ---------------------------------------------------------------------
+
+async function collectCasaDaMusica() {
+  const notes = [];
+  const allRecords = [];
+  let url = "https://casadamusica.com/agenda/";
+  let pagesFetched = 0;
+  let lastRes = null;
+
+  while (url && pagesFetched < CASA_DA_MUSICA_MAX_PAGES) {
+    const res = await fetchText(url, {});
+    pagesFetched += 1;
+    if (!res.ok) {
+      if (pagesFetched === 1) throw new Error(`HTTP ${res.status} from ${url}`);
+      notes.push(`page ${pagesFetched} (${url}): HTTP ${res.status} — stopping pagination`);
+      break;
+    }
+    lastRes = res;
+    allRecords.push(...parseCasaDaMusicaAgenda(res.text));
+    url = parseCasaDaMusicaNextPageUrl(res.text);
+  }
+  if (url && pagesFetched >= CASA_DA_MUSICA_MAX_PAGES) {
+    notes.push(`stopped after ${CASA_DA_MUSICA_MAX_PAGES} pages (considerate-client bound); more pages exist`);
+  }
+
+  const observations = casaDaMusicaToObservations(allRecords, {
+    retrievedAt: lastRes?.retrievedAt ?? null,
+    sourceUrl: "https://casadamusica.com/agenda/",
+    contentType: lastRes?.contentType ?? null,
+    fixturePath: null,
+  });
+  return { rawRecordCount: allRecords.length, observations, notes };
+}
+
+async function collectTeatroMunicipalPorto() {
+  const url = "https://www.teatromunicipaldoporto.pt/pt/programa/?categoria=musica";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseTeatroMunicipalPortoAgenda(res.text);
+  const observations = teatroMunicipalPortoToObservations(records, {
+    retrievedAt: res.retrievedAt,
+    sourceUrl: url,
+    contentType: res.contentType,
+    fixturePath: null,
+  });
+  return { rawRecordCount: records.length, observations, notes: [] };
+}
+
+const COLLECTORS = {
+  agendalx: collectAgendalx,
+  "hot-clube-de-portugal": collectHotClube,
+  "teatro-variedades-capitolio": collectCapitolio,
+  "village-underground-lisboa": collectVillageUnderground,
+  "bota-anjos": collectBota,
+  "cm-odivelas-agenda-cultura": collectOdivelas,
+  "meo-arena": collectMeoArena,
+  "casa-da-musica": collectCasaDaMusica,
+  "teatro-municipal-do-porto": collectTeatroMunicipalPorto,
+};
+
+async function acquireAll(sourceIds, registryEntries, registryLabel) {
+  const results = [];
+  for (const sourceId of sourceIds) {
+    process.stdout.write(`  acquiring ${sourceId} ... `);
+    try {
+      await loadRegistryEntry(registryEntries, sourceId, registryLabel); // fails closed if the registry entry itself is missing
+      const { rawRecordCount, observations, notes } = await COLLECTORS[sourceId]();
+      console.log(`ok (${rawRecordCount} raw record(s), ${observations.length} Observation(s))`);
+      results.push({
+        source_id: sourceId,
+        success: true,
+        raw_record_count: rawRecordCount,
+        observation_count: observations.length,
+        observations,
+        notes,
+      });
+    } catch (error) {
+      console.log(`FAILED: ${error.message}`);
+      results.push({
+        source_id: sourceId,
+        success: false,
+        error: error.message,
+        raw_record_count: 0,
+        observation_count: 0,
+        observations: [],
+        notes: [],
+      });
+    }
+  }
+  return results;
+}
+
+function summariseCity({ label, sourceResults, observations, venues, sourceRegistry, associations = [] }) {
+  const resolutions = observations.map((observation) => ({
+    observation,
+    resolution: resolveObservation(observation),
+  }));
+  const resolvedCount = resolutions.filter((r) => r.resolution.resolution_status === "RESOLVED").length;
+  const unresolvedCount = resolutions.length - resolvedCount;
+  const unresolvedList = resolutions
+    .filter((r) => r.resolution.resolution_status !== "RESOLVED")
+    .map((r) => ({
+      source_id: r.observation.source_id,
+      source_record_id: r.observation.source_record_id,
+      title: r.observation.title,
+      venue_name: r.observation.venue_name,
+      location_text: r.observation.location_text,
+      resolution_method: r.resolution.resolution_method,
+    }));
+
+  const markers = projectObservationsToDisplayMarkers(observations, { venues, sourceRegistry, associations });
+  const displayListingCount = markers.reduce((sum, m) => sum + m.display_listings.length, 0);
+  const associatedCount = associations.filter((a) => a.association_status === "ASSOCIATED").length;
+
+  return {
+    label,
+    source_results: sourceResults.map((r) => ({
+      source_id: r.source_id,
+      success: r.success,
+      raw_record_count: r.raw_record_count,
+      observation_count: r.observation_count,
+      notes: r.notes,
+      ...(r.error !== undefined ? { error: r.error } : {}),
+    })),
+    raw_observation_total: observations.length,
+    resolved_venue_count: resolvedCount,
+    unresolved_venue_count: unresolvedCount,
+    unresolved: unresolvedList,
+    association_group_count: associatedCount,
+    display_listing_count: displayListingCount,
+    map_marker_count: markers.length,
+    markers,
+  };
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const lisbonRegistry = JSON.parse(await readFile(resolve(ROOT, "sources/lisbon.json"), "utf8"));
+  const portoRegistry = JSON.parse(await readFile(resolve(ROOT, "sources/porto.json"), "utf8"));
+  const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
+  const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
+
+  console.log(`LISBON-PORTO-OVERNIGHT-COVERAGE-01 live run starting (${new Date().toISOString()})`);
+  if (args.from || args.to) console.log(`  date bounds: from=${args.from ?? "(none)"} to=${args.to ?? "(none)"}`);
+
+  console.log("\n-- Lisbon (7 sources) --");
+  const lisbonResults = await acquireAll(LISBON_SOURCE_IDS, lisbonRegistry.entries, "sources/lisbon.json");
+
+  console.log("\n-- Porto (2 sources) --");
+  const portoResults = await acquireAll(PORTO_SOURCE_IDS, portoRegistry.entries, "sources/porto.json");
+
+  const boundObs = (results) =>
+    results
+      .flatMap((r) => r.observations)
+      .filter((o) => (args.from || args.to ? withinDateBounds(o, args.from, args.to) : true));
+
+  const lisbonObservations = boundObs(lisbonResults);
+  const portoObservations = boundObs(portoResults);
+
+  const hotClubeObs = lisbonObservations.filter((o) => o.source_id === "hot-clube-de-portugal");
+  const capitolioObs = lisbonObservations.filter((o) => o.source_id === "teatro-variedades-capitolio");
+  const lisbonAssociations = associateHotClubeCapitolio(hotClubeObs, capitolioObs);
+
+  const lisbonSummary = summariseCity({
+    label: "Lisbon",
+    sourceResults: lisbonResults,
+    observations: lisbonObservations,
+    venues: lisbonVenues.venues,
+    sourceRegistry: lisbonRegistry.entries,
+    associations: lisbonAssociations,
+  });
+
+  const portoSummary = summariseCity({
+    label: "Porto",
+    sourceResults: portoResults,
+    observations: portoObservations,
+    venues: [...lisbonVenues.venues, ...portoVenues.venues],
+    sourceRegistry: [...lisbonRegistry.entries, ...portoRegistry.entries],
+    associations: [],
+  });
+
+  const proof = {
+    label: "LISBON-PORTO-OVERNIGHT-COVERAGE-01 live run proof — a point-in-time snapshot, NOT deterministic fixture data",
+    note:
+      "Generated by ingestion/lisbon-porto/run.mjs from real, live HTTP acquisition against the nine bounded sources (7 Lisbon, unchanged from LISBON-AUTOMATIC-SUBSET-01, plus 2 new Porto). Re-running this command later will legitimately produce different counts as each source's own real-world listings change — see fixtures/map/lisbon-porto-overnight-coverage-01-proof.json for the deterministic, fixture-backed regeneration proof instead.",
+    run_at: new Date().toISOString(),
+    date_bounds: { from: args.from, to: args.to },
+    lisbon: lisbonSummary,
+    porto: portoSummary,
+    combined: {
+      raw_observation_total: lisbonSummary.raw_observation_total + portoSummary.raw_observation_total,
+      resolved_venue_count: lisbonSummary.resolved_venue_count + portoSummary.resolved_venue_count,
+      unresolved_venue_count: lisbonSummary.unresolved_venue_count + portoSummary.unresolved_venue_count,
+      display_listing_count: lisbonSummary.display_listing_count + portoSummary.display_listing_count,
+      map_marker_count: lisbonSummary.map_marker_count + portoSummary.map_marker_count,
+    },
+  };
+
+  await mkdir(dirname(OUTPUT_PATH), { recursive: true });
+  await writeFile(OUTPUT_PATH, `${JSON.stringify(proof, null, 2)}\n`, "utf8");
+
+  for (const summary of [lisbonSummary, portoSummary]) {
+    console.log(`\n=== ${summary.label} run summary ===`);
+    for (const result of summary.source_results) {
+      const status = result.success ? "OK" : "FAILED";
+      console.log(
+        `  [${status}] ${result.source_id}: raw=${result.raw_record_count} observations=${result.observation_count}${result.error ? ` error="${result.error}"` : ""}`,
+      );
+      for (const note of result.notes ?? []) console.log(`      note: ${note}`);
+    }
+    console.log(`  Observation total (bounded): ${summary.raw_observation_total}`);
+    console.log(`  Resolved venues: ${summary.resolved_venue_count} / Unresolved: ${summary.unresolved_venue_count}`);
+    console.log(`  Association groups: ${summary.association_group_count}`);
+    console.log(`  Display listings: ${summary.display_listing_count}`);
+    console.log(`  Map markers: ${summary.map_marker_count}`);
+  }
+
+  console.log(`\n=== Combined ===`);
+  console.log(`  Observation total: ${proof.combined.raw_observation_total}`);
+  console.log(`  Map markers: ${proof.combined.map_marker_count}`);
+  console.log(`  Wrote ${OUTPUT_PATH}`);
+}
+
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

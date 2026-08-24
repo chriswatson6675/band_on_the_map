@@ -1,0 +1,44 @@
+{
+  "source_id": "casa-da-musica",
+  "task": "LISBON-PORTO-OVERNIGHT-COVERAGE-01",
+  "source_homepage": "https://casadamusica.com",
+  "agenda_url": "https://casadamusica.com/agenda/",
+  "acquisition_shape": "BOUNDED_SERVER_RENDERED_HTML_LISTING_WITH_SCHEMA_ORG_EVENT_MICRODATA",
+  "retrieved_at": "2026-08-24T01:34:47.000Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://casadamusica.com/agenda/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "retrieve the first page of the public agenda listing",
+      "retained_fixture": "fixtures/casa-da-musica/agenda-page-1-excerpt.html (bounded excerpt, first 3 of 12 live cards on page 1 of 11)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://casadamusica.com/informacoes/contactos/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "venue address evidence for venues/porto.json (not an Observation acquisition request)"
+    },
+    {
+      "n": 3,
+      "method": "GET",
+      "url": "https://casadamusica.com/wp-json/wp/v2/event?per_page=3",
+      "http_status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "purpose": "research only: confirmed a WordPress 'event'/'session' custom-post-type REST namespace exists (x-wp-total 1390), but no usable performance-date field was found there within this bounded proof — the /agenda/ HTML listing's own <time datetime=...> attributes are used instead. Not used to build any Observation."
+    }
+  ],
+  "total_live_requests": 3,
+  "findings": {
+    "card_count_live_page_1": 12,
+    "total_pages_observed": "at least 11 (rel=\"next\" pagination link chain observed; only page 1 fetched for this bounded proof)",
+    "stable_identifier": "Each card's own first-party /event/{slug}/?selected_session={id} link embeds Casa da Música's own numeric WordPress 'session' custom-post-type id (independently corroborated against wp-json/wp/v2/session/{id}) — used as source_record_id.",
+    "date_time": "Each card carries a machine-readable <time datetime=\"YYYY-MM-DD HH:MM:SS\"> attribute (local Portugal wall-clock time, no UTC offset or Z suffix) — confirmed twice per card in independent human-readable and machine forms. certainty is honestly FLOATING_LOCAL (a real, unambiguous calendar date and local time, but no confirmed UTC offset), never fabricated to UTC_INSTANT.",
+    "venue_identity": "Every card on /agenda/ is a session inside the one Casa da Música building; a per-card sub-location (auditorium/room, e.g. 'Sala 2') is shown but not a separate venue name. Resolved by source_id in ingestion/venue/resolver.mjs, matching the MEO Arena/Village Underground precedent.",
+    "genre_text": "Each card carries a source-provided descriptive line beneath the title (e.g. 'Fado e Música Tradicional Portuguesa') — retained as source-provided descriptive text, not asserted as a governed taxonomy."
+  }
+}

@@ -7,9 +7,13 @@
 //
 // Uses only explicit, hand-authored mappings from real, retained
 // source-specific identifiers/text to a canonical venue_id (see
-// venues/lisbon.json) — deliberately no fuzzy name matching. Anything not
+// venues/lisbon.json and, since LISBON-PORTO-OVERNIGHT-COVERAGE-01,
+// venues/porto.json) — deliberately no fuzzy name matching. Anything not
 // explicitly mapped resolves as UNRESOLVED: per docs/VENUE_RESOLUTION.md,
-// an unresolved gig is preferable to a false map pin.
+// an unresolved gig is preferable to a false map pin. This module stays
+// one shared, city-agnostic dispatcher (matching getMarkersForCountry()'s
+// existing country-level, not city-level, scoping in
+// ingestion/map/projection.mjs) rather than being split per city.
 //
 // This is Venue reconciliation only. It does not create, merge, or
 // deduplicate Events or Observations — a resolved AgendaLX Observation
@@ -111,6 +115,24 @@ const ODIVELAS_LOCATION_TEXT_TO_CANONICAL = {};
 const SOURCE_ID_TO_FIXED_CANONICAL_VENUE = {
   "village-underground-lisboa": "venue-lisboa-village-underground-lisboa",
   "meo-arena": "venue-lisboa-meo-arena",
+  // Casa da Música (LISBON-PORTO-OVERNIGHT-COVERAGE-01): every session on
+  // its /agenda/ listing happens inside the one building — see
+  // ingestion/casa-da-musica/observation-adapter.mjs's doc comment for why
+  // a per-card room/auditorium sub-location does not change that.
+  "casa-da-musica": "venue-porto-casa-da-musica",
+};
+
+// Teatro Municipal do Porto (LISBON-PORTO-OVERNIGHT-COVERAGE-01): unlike
+// Casa da Música, this feed is genuinely multi-venue (Rivoli / Campo
+// Alegre / off-site locations such as libraries) — see
+// ingestion/teatro-municipal-porto/observation-adapter.mjs. Only the exact
+// retained venue_name string "Rivoli" is mapped, matching this project's
+// exact-string, non-fuzzy convention (Hot Clube/BOTA/Capitólio). Off-site
+// locations (e.g. "Biblioteca Municipal Almeida Garrett") and "Campo
+// Alegre" (not yet independently address-evidenced in venues/porto.json)
+// are deliberately left unmapped.
+const TEATRO_MUNICIPAL_PORTO_VENUE_NAME_TO_CANONICAL = {
+  Rivoli: "venue-porto-teatro-rivoli",
 };
 
 function resolved(venueId, method) {
@@ -188,6 +210,19 @@ export function resolveMeoArenaObservation(observation) {
   return resolveFixedVenueSource(observation, "MEO_ARENA_FIXED_SINGLE_VENUE_SOURCE");
 }
 
+export function resolveCasaDaMusicaObservation(observation) {
+  return resolveFixedVenueSource(observation, "CASA_DA_MUSICA_FIXED_SINGLE_VENUE_SOURCE");
+}
+
+export function resolveTeatroMunicipalPortoObservation(observation) {
+  const venueName = observation?.venue_name;
+  const canonicalId = venueName ? TEATRO_MUNICIPAL_PORTO_VENUE_NAME_TO_CANONICAL[venueName] : undefined;
+  if (canonicalId) {
+    return resolved(canonicalId, "TEATRO_MUNICIPAL_PORTO_EXPLICIT_VENUE_NAME_MAPPING");
+  }
+  return unresolved("NO_EXPLICIT_TEATRO_MUNICIPAL_PORTO_VENUE_NAME_MAPPING");
+}
+
 /**
  * Dispatch on Observation.source_id to the right explicit resolver. A
  * source with no resolver defined here is always UNRESOLVED, never
@@ -214,6 +249,12 @@ export function resolveObservation(observation) {
   }
   if (observation?.source_id === "meo-arena") {
     return resolveMeoArenaObservation(observation);
+  }
+  if (observation?.source_id === "casa-da-musica") {
+    return resolveCasaDaMusicaObservation(observation);
+  }
+  if (observation?.source_id === "teatro-municipal-do-porto") {
+    return resolveTeatroMunicipalPortoObservation(observation);
   }
   return unresolved("NO_RESOLVER_FOR_SOURCE");
 }

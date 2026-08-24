@@ -1,0 +1,35 @@
+{
+  "source_id": "teatro-municipal-do-porto",
+  "task": "LISBON-PORTO-OVERNIGHT-COVERAGE-01",
+  "source_homepage": "https://www.teatromunicipaldoporto.pt",
+  "agenda_url": "https://www.teatromunicipaldoporto.pt/pt/programa/?categoria=musica",
+  "acquisition_shape": "BOUNDED_SERVER_RENDERED_HTML_LISTING_GROUPED_BY_MONTH",
+  "retrieved_at": "2026-08-24T01:33:47.000Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://www.teatromunicipaldoporto.pt/pt/programa/?categoria=musica",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "retrieve the site's own music-category-filtered programme listing (categoria=musica is the source's own query parameter, not invented here)",
+      "retained_fixture": "fixtures/teatro-municipal-porto/programa-musica-setembro-excerpt.html (bounded excerpt: the first article's data-value=\"Setembro 2026\" group, first 4 of its live grid-items)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://www.teatromunicipaldoporto.pt/PT/quem-somos/contactos/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "venue address evidence (Rivoli) for venues/porto.json (not an Observation acquisition request)"
+    }
+  ],
+  "total_live_requests": 2,
+  "findings": {
+    "months_observed_live": ["Setembro 2026", "Outubro 2026", "Novembro 2026"],
+    "structure": "Each <article data-value=\"Month YYYY\"> groups that month's <div class=\"grid-item\" id=\"p_{slug}\"> cards. No numeric id is rendered anywhere on this listing; the slug from the card's own id/permalink is the only source-derived identifier available, so it is used as source_record_id (a documented judgement call, not independently re-verified for long-term stability the way Village Underground's ICS UID was).",
+    "date_time": "Each card exposes one or more '.horario-item' occurrences: a day-of-month ('.dia_dia') and an HH:MM time ('.hora'), with month/year supplied only by the containing article's own data-value attribute, not repeated per-card. Some cards genuinely list more than one dated occurrence (e.g. Fri 18 + Sat 19 Set) for the same programme entry — handled the same way AgendaLX's recurring-occurrence series are handled: one Observation per card, start = the first occurrence, full occurrence list preserved honestly in source_fields.occurrences, end left empty.",
+    "venue_identity": "A '.local-p' venue-name span (e.g. 'Rivoli') plus an optional '.sep' sub-location (e.g. 'Praça D. João I') is repeated per card — genuinely multi-venue, unlike Casa da Música. Only 'Rivoli' is explicitly resolved in this proof (venues/porto.json); off-site locations such as 'Biblioteca Municipal Almeida Garrett' are deliberately left UNRESOLVED, mirroring the Odivelas 'Fado na Rua' precedent in docs/VENUE_RESOLUTION.md.",
+    "music_filter": "This fixture was retrieved through the site's own ?categoria=musica query parameter, so every retained record is already source-classified as music — no separate genre inference was added by this project."
+  }
+}
