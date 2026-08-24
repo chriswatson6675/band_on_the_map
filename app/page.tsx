@@ -68,7 +68,7 @@ export default function Home() {
     [country],
   );
   const listingCount = useMemo(
-    () => visibleMarkers.reduce((sum, marker) => sum + marker.listings.length, 0),
+    () => visibleMarkers.reduce((sum, marker) => sum + (marker.display_listings?.length ?? marker.listings.length), 0),
     [visibleMarkers],
   );
 
