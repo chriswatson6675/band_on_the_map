@@ -1,0 +1,112 @@
+{
+  "investigation_id": "example-headless-defer-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.0",
+  "investigated_at": "2026-08-25T00:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "PASSIVE_PROBE + STRUCTURAL inspection against a retained synthetic fixture (Level 1/2 only, no browser session)"
+  },
+  "source_candidate_id": "example-headless-defer-01-candidate",
+  "source_id": null,
+  "venue_reference": "SYNTHETIC GOVERNANCE FIXTURE — Example Client-Rendered Venue Portal (not a real venue; exists only to prove DEFER is a valid, fully-validating outcome)",
+  "official_url": "https://example.net/events",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-shell"],
+    "notes": "The retained fixture's footer text names this candidate, but nothing independently confirms the page is this candidate's authoritative official site within this bounded investigation."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": null,
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-shell"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_SHELL",
+      "url": "https://example.net/events",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-shell"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "No server-rendered event markup, JSON-LD, or embedded JSON was present in the initial HTTP response to inspect.",
+      "evidence_refs": ["ev-shell"]
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "Same — nothing to assess without browser-rendered content, which this bounded investigation did not escalate to.",
+      "evidence_refs": ["ev-shell"]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": null,
+      "evidence_refs": ["ev-shell"]
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": null,
+      "evidence_refs": ["ev-shell"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The footer names a city (\"Lisboa\") but no address; not treated as a confirmed venue location.",
+      "evidence_refs": ["ev-shell"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": null,
+      "evidence_refs": ["ev-shell"]
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": null,
+      "evidence_refs": ["ev-shell"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "Event data is populated entirely client-side after initial page load; Level 1 (passive/static) and Level 2 (structural) inspection found no discoverable server-rendered markup, JSON-LD, embedded JSON, or public JSON/feed/API endpoint."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "No public, non-browser acquisition path was discoverable within a bounded Level 1/2 investigation.",
+      "Escalating to Level 3 browser observation was judged not yet justified for this synthetic low-priority fixture candidate. Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a legitimate, complete investigation outcome here rather than forcing coverage or guessing at an acquisition path."
+    ],
+    "evidence_refs": ["ev-shell"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-shell",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Synthetic retained initial HTTP HTML response: an empty SPA shell with no server-rendered event markup, JSON-LD, or discoverable embedded JSON.",
+      "acquired_from": "https://example.net/events (synthetic — example.net is IANA-reserved for documentation per RFC 2606, never a real venue; this file was authored directly, not fetched live)",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Synthetic fixture authored for this governance package — not a live HTTP_GET",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/example-headless-defer-01/evidence/shell.html"
+    }
+  ],
+  "supersedes": null
+}

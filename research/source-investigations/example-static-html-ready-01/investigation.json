@@ -1,0 +1,124 @@
+{
+  "investigation_id": "example-static-html-ready-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.0",
+  "investigated_at": "2026-08-25T00:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "PASSIVE_PROBE + PLATFORM_CLASSIFICATION against a retained synthetic fixture (Level 1/2 only, no browser session)"
+  },
+  "source_candidate_id": "example-static-html-ready-01-candidate",
+  "source_id": null,
+  "venue_reference": "SYNTHETIC GOVERNANCE FIXTURE — Example Municipal Cultural Centre (not a real venue; exists only to prove the READY_FOR_ACTIVATION validator gate end-to-end)",
+  "official_url": "https://example.org/agenda",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-html-response"],
+    "notes": "The retained fixture's own <title> and event markup self-identify as this candidate's official agenda page. Synthetic evidence only — see README.md."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": null,
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-html-response"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://example.org/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-html-response"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Synthetic Test Concert Night",
+      "notes": "Extracted from .event-card .event-title in the retained fixture.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-10",
+      "notes": "Extracted from .event-card .event-date; DATE_ONLY certainty — no time-of-day component in this field.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The page shows free text \"Doors from 21h (no timezone stated)\" — a floating local time, not a confirmed UTC instant. Not promoted to a precise value.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "The source does not expose an end time or date for this event.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Synthetic Venue Address, Lisboa",
+      "notes": "Extracted from .event-card .event-venue.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "evt-0001",
+      "notes": "The event card's own data-event-id attribute, echoed in its detail-page URL slug (/agenda/evt-0001). Treated as stable for this fixture because the source itself uses it as the record's own identifying attribute and URL path segment — the same class of reasoning documented for a genuine source in docs/OBSERVATION_PIPELINE.md's Hot Clube section, not because it merely looks stable.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://example.org/agenda/evt-0001",
+      "notes": "The event card's own detail-page link.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "The source does not expose price information anywhere in the retained fixture.",
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-html-response", "ev-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Every READY_FOR_ACTIVATION gate in docs/SOURCE_INVESTIGATION_POLICY.md is satisfied against retained, cited evidence for this synthetic fixture.",
+      "This is a governance-framework test fixture proving the validator's gate logic, not a real investigated source — it must never be used to seed sources/*.json or activate a real collector."
+    ],
+    "evidence_refs": ["ev-html-response", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-html-response",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Synthetic retained HTML response representing a static event-listing page with one event card.",
+      "acquired_from": "https://example.org/agenda (synthetic — example.org is IANA-reserved for documentation per RFC 2606, never a real venue; this file was authored directly, not fetched live)",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Synthetic fixture authored for this governance package — not a live HTTP_GET",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/example-static-html-ready-01/evidence/agenda.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Deterministic, reproducible re-parse of evidence/agenda.html confirms the STATIC_EVENT_LIST-family field extraction recorded in field_assessment above — one event card, the same title/date/venue/id/url values, on every run.",
+      "acquired_from": "research/source-investigations/example-static-html-ready-01/evidence/agenda.html",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Deterministic re-parse of the retained fixture (no network access)",
+      "content_type": null,
+      "byte_faithful": false,
+      "path": null
+    }
+  ],
+  "supersedes": null
+}
