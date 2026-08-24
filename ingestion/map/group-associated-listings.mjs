@@ -23,6 +23,16 @@ function listingIdentity(listing) {
  *   options.venues/.sourceRegistry - same as projectObservationsToMapMarkers
  *   options.associations    - result of associateHotClubeCapitolio(...)
  *                              (or [] if none apply)
+ *   options.manualCoordinatesByVenueId - (VENUE-MANUAL-COORDINATES-DASHBOARD-01A,
+ *                              optional) forwarded UNCHANGED to
+ *                              projectObservationsToMapMarkers — see that
+ *                              function's own doc comment in
+ *                              ingestion/map/projection.mjs for the exact
+ *                              precedence rule. This module makes no
+ *                              coordinate decisions of its own; it only
+ *                              adds the association/grouping layer on top
+ *                              of whatever markers projectObservationsToMapMarkers
+ *                              already produced.
  *
  * Returns markers shaped exactly like projectObservationsToMapMarkers's
  * output (including the unchanged `listings` array), plus one additional
@@ -36,9 +46,9 @@ function listingIdentity(listing) {
  */
 export function projectObservationsToDisplayMarkers(
   observations,
-  { venues, sourceRegistry, associations = [] } = {},
+  { venues, sourceRegistry, associations = [], manualCoordinatesByVenueId } = {},
 ) {
-  const markers = projectObservationsToMapMarkers(observations, { venues, sourceRegistry });
+  const markers = projectObservationsToMapMarkers(observations, { venues, sourceRegistry, manualCoordinatesByVenueId });
 
   const groupIndexByIdentity = new Map();
   const associatedGroups = [];

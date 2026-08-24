@@ -10,12 +10,17 @@
 //
 // Fail-closed map eligibility: a Venue is placed on the map ONLY when
 // resolution_status is RESOLVED, the canonical Venue exists in the
-// registry, its location_status is CONFIRMED or GEOCODED (VENUE-
-// GEOCODING-01 — see ingestion/venue/contract.mjs's
-// MAP_ELIGIBLE_LOCATION_STATUSES for the shared definition), and it
-// carries valid numeric coordinates. ADDRESS_ONLY and UNRESOLVED venues
-// never receive a marker, and no fallback/guessed coordinate is ever
-// substituted.
+// registry, and it ends up with valid numeric coordinates through
+// resolveVenueMapCoordinates() below — either directly, because
+// location_status is CONFIRMED or GEOCODED (VENUE-GEOCODING-01 — see
+// ingestion/venue/contract.mjs's MAP_ELIGIBLE_LOCATION_STATUSES for the
+// shared definition), or, as of VENUE-MANUAL-COORDINATES-DASHBOARD-01,
+// because the venue is ADDRESS_ONLY and carries a valid
+// MANUAL_OPERATOR_ENTRY override (venues/manual-coordinates.json). A
+// stale manual entry is never used once a venue becomes CONFIRMED/
+// GEOCODED — canonical coordinates always win. UNRESOLVED venues never
+// receive a marker under any circumstance, and no fallback/guessed
+// coordinate is ever substituted.
 //
 // Dependency-free; safe to import from a browser bundle (no Node
 // built-ins here or in ingestion/venue/resolver.mjs, which this imports).

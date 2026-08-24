@@ -81,8 +81,8 @@ import { toObservations as zdbToObservations } from "../galeria-ze-dos-bois/obse
 import { resolveObservation } from "../venue/resolver.mjs";
 import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
 import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
-import { isValidCoordinate } from "../map/projection.mjs";
-import { MAP_ELIGIBLE_LOCATION_STATUSES } from "../venue/contract.mjs";
+import { resolveVenueMapCoordinates } from "../map/projection.mjs";
+import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUTPUT_PATH = resolve(ROOT, "fixtures/map/lisbon-porto-overnight-coverage-01-live-run-proof.json");
@@ -522,7 +522,26 @@ async function acquireAll(sourceIds, registryEntries, registryLabel) {
 //   observation_total_in_bounds - `observations.length` as actually passed
 //                                  in here (post-date-bound — this is what
 //                                  the old, misleading field name held)
-function summariseCity({ label, sourceResults, observations, venues, sourceRegistry, associations = [] }) {
+// VENUE-MANUAL-COORDINATES-DASHBOARD-01A: `manualCoordinatesByVenueId`
+// (a Map keyed by venue_id, built once in main() from
+// venues/manual-coordinates.json) is forwarded unchanged into
+// projectObservationsToDisplayMarkers and used for the
+// resolved-but-unmapped breakdown below, so BOTH the real display/map
+// surface and this metric are driven by the exact same
+// resolveVenueMapCoordinates() composition rule — never two independently
+// duplicated eligibility checks. Defaults to an empty Map so every
+// existing caller (venue-onboarding/run.mjs, this file's own deterministic
+// tests) that doesn't pass one keeps its prior CONFIRMED/GEOCODED-only
+// behaviour completely unchanged.
+export function summariseCity({
+  label,
+  sourceResults,
+  observations,
+  venues,
+  sourceRegistry,
+  associations = [],
+  manualCoordinatesByVenueId = new Map(),
+}) {
   const resolutions = observations.map((observation) => ({
     observation,
     resolution: resolveObservation(observation),
@@ -540,7 +559,12 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
       resolution_method: r.resolution.resolution_method,
     }));
 
-  const markers = projectObservationsToDisplayMarkers(observations, { venues, sourceRegistry, associations });
+  const markers = projectObservationsToDisplayMarkers(observations, {
+    venues,
+    sourceRegistry,
+    associations,
+    manualCoordinatesByVenueId,
+  });
   const displayListingCount = markers.reduce((sum, m) => sum + m.display_listings.length, 0);
   // "Raw map-eligible": every individual map-eligible Observation listing,
   // BEFORE the HCP<->Capitólio association layer groups any pair into one
@@ -569,8 +593,12 @@ function summariseCity({ label, sourceResults, observations, venues, sourceRegis
     if (resolution.resolution_status !== "RESOLVED") continue;
     const venue = venueById.get(resolution.venue_id);
     if (!venue) continue;
-    const isMapEligible = MAP_ELIGIBLE_LOCATION_STATUSES.has(venue.location_status) && isValidCoordinate(venue.latitude, venue.longitude);
-    if (isMapEligible) continue;
+    // Same composition rule as projectObservationsToMapMarkers (via
+    // projectObservationsToDisplayMarkers above) — a manual coordinate
+    // resolves a venue exactly as eligible here as it does on the real
+    // map/display surface, never a second, independently-drifting check.
+    const composed = resolveVenueMapCoordinates(venue, manualCoordinatesByVenueId.get(resolution.venue_id));
+    if (composed.eligible) continue;
     resolvedButUnmappedByVenueId[resolution.venue_id] = (resolvedButUnmappedByVenueId[resolution.venue_id] ?? 0) + 1;
   }
 
@@ -650,6 +678,15 @@ async function main() {
   const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
   const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
 
+  // VENUE-MANUAL-COORDINATES-DASHBOARD-01A: load the canonical manual-
+  // coordinate override store ONCE here — this is the one Node/server
+  // composition layer permitted to touch the filesystem for it (see
+  // ingestion/geocoding/manual-coordinate-store.mjs's own doc comment);
+  // the browser-safe projection modules below never read it themselves,
+  // they only ever receive this already-built lookup.
+  const manualStore = await loadManualCoordinateStore();
+  const manualCoordinatesByVenueId = new Map(manualStore.entries.map((entry) => [entry.venue_id, entry]));
+
   const {
     lisbonRegistry,
     portoRegistry,
@@ -667,6 +704,7 @@ async function main() {
     venues: lisbonVenues.venues,
     sourceRegistry: lisbonRegistry.entries,
     associations: lisbonAssociations,
+    manualCoordinatesByVenueId,
   });
 
   const portoSummary = summariseCity({
@@ -676,6 +714,7 @@ async function main() {
     venues: [...lisbonVenues.venues, ...portoVenues.venues],
     sourceRegistry: [...lisbonRegistry.entries, ...portoRegistry.entries],
     associations: [],
+    manualCoordinatesByVenueId,
   });
 
   const proof = {
