@@ -104,13 +104,21 @@ export type GroupDisplayListing = {
 
 export type DisplayListing = SingleDisplayListing | GroupDisplayListing;
 
+// `listings` (the raw, ungrouped, one-per-Observation array) is optional:
+// the committed publication artifact (data/public/lisbon-porto-map.json,
+// see ingestion/map/publication.mjs — BOTM-PUBLIC-MAP-LIVE-DATA-01) is
+// deliberately MINIMAL and never includes it, since `display_listings`
+// already carries everything a customer needs. Older/simpler proof
+// payloads (e.g. fixtures/map/lisbon-map-proof.json) may still carry it;
+// toDisplayListings() below falls back to it only when `display_listings`
+// itself is absent.
 export type MapMarker = {
   venue_id: string;
   canonical_name: string;
   latitude: number;
   longitude: number;
   address: string | null;
-  listings: MapListing[];
+  listings?: MapListing[];
   display_listings?: DisplayListing[];
 };
 
@@ -194,7 +202,7 @@ function createMarkerElement(count: number): HTMLElement {
 // lost by an older/simpler proof payload.
 function toDisplayListings(marker: MapMarker): DisplayListing[] {
   if (marker.display_listings) return marker.display_listings;
-  return marker.listings.map((listing) => ({ kind: "SINGLE" as const, ...listing }));
+  return (marker.listings ?? []).map((listing) => ({ kind: "SINGLE" as const, ...listing }));
 }
 
 function SingleListing({ listing }: { listing: SingleDisplayListing }) {
@@ -347,7 +355,7 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     }
 
     const instances = markers.map((marker) => {
-      const count = marker.display_listings?.length ?? marker.listings.length;
+      const count = marker.display_listings?.length ?? marker.listings?.length ?? 0;
       const el = createMarkerElement(count);
       el.addEventListener("click", () => {
         const allMarkers = document.querySelectorAll(".botm-marker");

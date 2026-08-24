@@ -1,0 +1,300 @@
+// BOTM-PUBLIC-MAP-LIVE-DATA-01 — the pure, dependency-free heart of the
+// product publication boundary.
+//
+// This module NEVER touches the filesystem or the network itself. It
+// takes already-acquired Observations, already-loaded canonical Venue/
+// source registries, and an already-loaded manual-coordinate lookup (see
+// ingestion/geocoding/manual-coordinate-store.mjs), and produces:
+//
+//   1. buildPortugalMarkers()      - the SAME display markers real
+//      customers already see, using the SAME
+//      projectObservationsToDisplayMarkers() /
+//      resolveVenueMapCoordinates() semantics as `npm run
+//      ingest:lisbon-porto` (ingestion/lisbon-porto/run.mjs) — this is
+//      deliberately ONE PIPELINE, not a second homepage-only projection.
+//   2. buildPublicationArtifact()  - the MINIMAL, product-facing shape
+//      committed to data/public/lisbon-porto-map.json and read by
+//      app/page.tsx. It never dumps proof/debug fields (unresolved
+//      lists, resolution methods, raw ungrouped `listings`, etc.) — only
+//      what the public site needs to render/search the current product.
+//   3. validatePublicationArtifact() - schema + internal cross-check
+//      validation, used both by tests and by the atomic-write layer
+//      (ingestion/map/publish-artifact-io.mjs) to refuse ever replacing a
+//      good committed artifact with a broken one.
+//   4. isCatastrophicPublicationRun() - the one, deliberately simple,
+//      documented rule for when a live run must NOT be published — see
+//      its own doc comment below.
+//
+// Being import-safe and side-effect-free, this module is exercised
+// directly by deterministic tests (no live network, no filesystem writes)
+// and reused unchanged by ingestion/publish-map-data/run.mjs (the live,
+// operator-triggered `npm run publish:map-data` entry point) and, later,
+// by the future scheduler this package hands off to.
+
+import { projectObservationsToDisplayMarkers } from "./group-associated-listings.mjs";
+import { isValidCoordinate } from "./projection.mjs";
+
+/**
+ * Build the combined Lisbon+Porto display-marker set that becomes the
+ * public "Portugal" country bucket — the exact same
+ * projectObservationsToDisplayMarkers() call every other real display/map
+ * surface in this repository already uses (ingestion/lisbon-porto/run.mjs's
+ * summariseCity(), ingestion/venue-onboarding/run.mjs). Lisbon and Porto
+ * are combined into ONE marker list here because the public product is
+ * "Portugal", not two separately-branded cities — the previous obsolete
+ * fixture only covered Lisbon; this package's whole point is that Porto
+ * markers must not be dropped.
+ *
+ * `lisbonAssociations` (Hot Clube <-> Capitólio) is Lisbon-only by
+ * construction (associateHotClubeCapitolio only ever pairs those two
+ * Lisbon source_ids) and is safe to pass alongside Porto observations —
+ * it simply never matches any Porto listing identity.
+ */
+export function buildPortugalMarkers({
+  lisbonObservations,
+  portoObservations,
+  lisbonVenues,
+  portoVenues,
+  lisbonSourceRegistry,
+  portoSourceRegistry,
+  lisbonAssociations = [],
+  manualCoordinatesByVenueId,
+}) {
+  const combinedObservations = [...(lisbonObservations ?? []), ...(portoObservations ?? [])];
+  const combinedVenues = [...(lisbonVenues ?? []), ...(portoVenues ?? [])];
+  const combinedSourceRegistry = [...(lisbonSourceRegistry ?? []), ...(portoSourceRegistry ?? [])];
+
+  return projectObservationsToDisplayMarkers(combinedObservations, {
+    venues: combinedVenues,
+    sourceRegistry: combinedSourceRegistry,
+    associations: lisbonAssociations,
+    manualCoordinatesByVenueId,
+  });
+}
+
+/**
+ * Trim one full display marker (as produced by
+ * projectObservationsToDisplayMarkers, which also carries the raw,
+ * ungrouped `listings` array used only for internal proof/debug
+ * accounting) down to the minimal, product-facing shape this package's
+ * brief calls for: venue_id, canonical_name, latitude, longitude,
+ * address, display_listings. `display_listings` itself is passed through
+ * completely unchanged — it is already the governed, customer-facing
+ * association layer (ingestion/map/group-associated-listings.mjs); this
+ * function never collapses or reshapes it further.
+ */
+export function toPublicationMarker(marker) {
+  return {
+    venue_id: marker.venue_id,
+    canonical_name: marker.canonical_name,
+    latitude: marker.latitude,
+    longitude: marker.longitude,
+    address: marker.address,
+    display_listings: marker.display_listings,
+  };
+}
+
+/**
+ * Assemble the full publication artifact object (the exact shape written
+ * to data/public/lisbon-porto-map.json). `generatedAt` is accepted as a
+ * parameter rather than computed here (never `new Date()` inside this
+ * function) so this function stays pure and deterministic for identical
+ * inputs — a requirement the tests rely on directly.
+ *
+ * Croatia is always published as an empty marker list: this repository
+ * has no Croatian source registry, no Croatian venues, and no Croatian
+ * Observations of any kind — see docs/PUBLIC_MAP_LIVE_DATA_01.md. Never
+ * fabricated, never inferred.
+ */
+export function buildPublicationArtifact({
+  generatedAt,
+  from,
+  to,
+  portugalMarkers,
+  sourceResults,
+  observationCount,
+}) {
+  const publicationMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
+  const displayListingCount = publicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+  const successCount = (sourceResults ?? []).filter((result) => result.success).length;
+  const failureCount = (sourceResults ?? []).length - successCount;
+
+  return {
+    generated_at: generatedAt,
+    window: { from: from ?? null, to: to ?? null },
+    source_report: {
+      success_count: successCount,
+      failure_count: failureCount,
+      sources: (sourceResults ?? []).map((result) => ({
+        source_id: result.source_id,
+        success: result.success,
+        raw_record_count: result.raw_record_count,
+        observation_count: result.observation_count,
+        ...(result.error !== undefined ? { error: result.error } : {}),
+      })),
+    },
+    counts: {
+      observation_count: observationCount,
+      display_listing_count: displayListingCount,
+      map_marker_count: publicationMarkers.length,
+    },
+    countries: {
+      Portugal: { markers: publicationMarkers },
+      Croatia: { markers: [] },
+    },
+  };
+}
+
+function isValidDisplayListing(listing) {
+  if (!listing || typeof listing !== "object") return false;
+  if (listing.kind === "SINGLE") {
+    return typeof listing.source_id === "string" && typeof listing.source_record_id === "string";
+  }
+  if (listing.kind === "GROUP") {
+    return Array.isArray(listing.sources) && listing.sources.length > 0;
+  }
+  return false;
+}
+
+/**
+ * Validate a publication artifact's schema AND its own internal
+ * cross-checks (PUBLIC ARTIFACT CROSS-CHECK — the task's own requirement
+ * that `counts.display_listing_count` and `counts.map_marker_count` are
+ * never independently-computed drifting totals, but exactly derived from
+ * `countries.Portugal.markers` itself). Returns an array of human-readable
+ * error strings; empty means valid. Never throws.
+ *
+ * This is the ONE gate ingestion/map/publish-artifact-io.mjs's atomic
+ * writer calls before ever touching disk — a failing artifact is refused
+ * before a temp file is even opened, so a failed validation can never
+ * replace a previously good committed artifact.
+ */
+export function validatePublicationArtifact(artifact) {
+  const errors = [];
+  if (!artifact || typeof artifact !== "object") return ["artifact must be an object"];
+
+  if (typeof artifact.generated_at !== "string" || Number.isNaN(Date.parse(artifact.generated_at))) {
+    errors.push("generated_at must be a valid ISO 8601 timestamp string");
+  }
+
+  if (!artifact.window || typeof artifact.window !== "object") {
+    errors.push("window must be an object");
+  } else {
+    if (artifact.window.from !== null && typeof artifact.window.from !== "string") {
+      errors.push("window.from must be a string or null");
+    }
+    if (artifact.window.to !== null && typeof artifact.window.to !== "string") {
+      errors.push("window.to must be a string or null");
+    }
+  }
+
+  if (!artifact.source_report || !Array.isArray(artifact.source_report.sources)) {
+    errors.push("source_report.sources must be an array");
+  } else {
+    const sources = artifact.source_report.sources;
+    for (const source of sources) {
+      if (!source || typeof source.source_id !== "string" || typeof source.success !== "boolean") {
+        errors.push(`source_report entry is malformed: ${JSON.stringify(source)}`);
+      }
+    }
+    const derivedSuccessCount = sources.filter((s) => s?.success).length;
+    if (artifact.source_report.success_count !== derivedSuccessCount) {
+      errors.push("source_report.success_count does not match sources[].success — drifting total");
+    }
+    if (artifact.source_report.failure_count !== sources.length - derivedSuccessCount) {
+      errors.push("source_report.failure_count does not match sources[].success — drifting total");
+    }
+  }
+
+  if (!artifact.countries || typeof artifact.countries !== "object") {
+    errors.push("countries must be an object");
+    return errors; // nothing further can be checked safely
+  }
+
+  for (const countryName of ["Portugal", "Croatia"]) {
+    const country = artifact.countries[countryName];
+    if (!country || !Array.isArray(country.markers)) {
+      errors.push(`countries.${countryName}.markers must be an array`);
+    }
+  }
+
+  const portugalMarkers = artifact.countries.Portugal?.markers;
+  if (Array.isArray(portugalMarkers)) {
+    let listingSum = 0;
+    const seenVenueIds = new Set();
+    for (const marker of portugalMarkers) {
+      if (!marker || typeof marker.venue_id !== "string" || marker.venue_id.trim() === "") {
+        errors.push(`marker is missing a valid venue_id: ${JSON.stringify(marker)}`);
+        continue;
+      }
+      if (seenVenueIds.has(marker.venue_id)) {
+        errors.push(`duplicate marker venue_id: ${marker.venue_id}`);
+      }
+      seenVenueIds.add(marker.venue_id);
+
+      if (typeof marker.canonical_name !== "string" || marker.canonical_name.trim() === "") {
+        errors.push(`${marker.venue_id}: canonical_name must be a non-empty string`);
+      }
+      if (!isValidCoordinate(marker.latitude, marker.longitude)) {
+        errors.push(`${marker.venue_id}: invalid coordinates (${marker.latitude}, ${marker.longitude})`);
+      }
+      if (!Array.isArray(marker.display_listings) || marker.display_listings.length === 0) {
+        errors.push(`${marker.venue_id}: display_listings must be a non-empty array`);
+      } else {
+        for (const listing of marker.display_listings) {
+          if (!isValidDisplayListing(listing)) {
+            errors.push(`${marker.venue_id}: malformed display listing ${JSON.stringify(listing)}`);
+          }
+        }
+        listingSum += marker.display_listings.length;
+      }
+    }
+
+    if (!artifact.counts || typeof artifact.counts !== "object") {
+      errors.push("counts must be an object");
+    } else {
+      if (artifact.counts.map_marker_count !== portugalMarkers.length) {
+        errors.push(
+          `counts.map_marker_count (${artifact.counts.map_marker_count}) does not match countries.Portugal.markers.length (${portugalMarkers.length}) — no independently-computed drifting totals allowed`,
+        );
+      }
+      if (artifact.counts.display_listing_count !== listingSum) {
+        errors.push(
+          `counts.display_listing_count (${artifact.counts.display_listing_count}) does not match the sum of markers[].display_listings.length (${listingSum}) — no independently-computed drifting totals allowed`,
+        );
+      }
+      if (typeof artifact.counts.observation_count !== "number" || artifact.counts.observation_count < 0) {
+        errors.push("counts.observation_count must be a non-negative number");
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * CATASTROPHIC-RUN RULE (documented once, here, and nowhere else):
+ *
+ * A publication run is CATASTROPHIC — and must never replace the
+ * previously committed publication artifact — when EITHER:
+ *
+ *   (a) zero of the attempted sources succeeded (total acquisition
+ *       failure — every one of the 13 sources' own try/catch isolation
+ *       reported failure), OR
+ *   (b) the resulting Portugal map marker count is zero (the run
+ *       "succeeded" in some narrow technical sense but produced a
+ *       genuinely unusable/empty product — an empty map is exactly the
+ *       kind of catastrophic-but-not-technically-erroring run this rule
+ *       exists to catch).
+ *
+ * A run where at least one source succeeds AND produces at least one
+ * Portugal map marker is considered publishable — even if several other
+ * sources failed. This matches this project's existing, already-proven
+ * source-isolation semantics (ingestion/lisbon-porto/run.mjs's
+ * acquireAll(): one source's failure never blocks the others) — no
+ * additional availability threshold (e.g. "at least N/13 sources must
+ * succeed") is invented here, per this task's own instruction not to.
+ */
+export function isCatastrophicPublicationRun({ sourceSuccessCount, portugalMarkerCount }) {
+  return sourceSuccessCount === 0 || portugalMarkerCount === 0;
+}
