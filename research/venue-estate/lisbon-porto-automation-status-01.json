@@ -1,0 +1,78 @@
+{
+  "$schema_note": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01 — automation-status metadata layered ON TOP OF the frozen LISBON-PORTO-VENUE-ESTATE-01 discovery snapshot (research/venue-estate/lisbon-porto-venue-estate-01.json), which this file does NOT modify. Each entry here records, for a venue candidate this package actually assessed for automation, what was found and decided. Not exhaustive over all 69 candidates — only candidates this package's own bounded P1 assessment reached (the three named P1 priorities, plus the secondary P1 backlog this package verified against sources/lisbon.json's own source_priority field). A candidate absent from this file was simply not re-assessed this package; consult research/venue-estate/lisbon-porto-venue-estate-01.json's own acquisition_feasibility field for its prior standing.",
+  "task": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01",
+  "assessed_at": "2026-08-24",
+  "summary": {
+    "venue_estate_automated_count_before": 12,
+    "venue_estate_automated_count_after": 15,
+    "canonical_venues_with_automated_source_before": 11,
+    "canonical_venues_with_automated_source_after": 14,
+    "total_venue_estate_candidates": 69,
+    "note": "\"automated count\" (of 69) counts research CANDIDATES whose existing/newly-admitted canonical venue_id is now reachable by at least one source actually wired into `npm run ingest:lisbon-porto`'s COLLECTORS map; \"canonical venues with an automated source\" counts DISTINCT venue_ids (a small number of venue-estate candidates are duplicate/alias entries pointing at the same canonical venue, e.g. the Capitólio/Teatro Variedades duplicate, so the two counts are not identical)."
+  },
+  "entries": [
+    {
+      "venue_candidate_id": "cand-porto-super-bock-arena",
+      "canonical_name": "Super Bock Arena — Pavilhão Rosa Mota",
+      "canonical_venue_id": "venue-porto-super-bock-arena-pavilhao-rosa-mota",
+      "automated_source_ids": ["super-bock-arena"],
+      "automation_status": "AUTOMATED_THIS_PACKAGE",
+      "classification": "B_SMALL_STATIC_HTML_ADAPTER",
+      "notes": "Verified current site: 'The Events Calendar' WordPress plugin list view, 40 raw records live (24 music-tagged via this venue's own first-party category taxonomy), full dated 2026-2027 programme, no pagination needed. Implemented via ingestion/super-bock-arena/. Venue already canonical (ADDRESS_ONLY) from LISBON-PORTO-VENUE-ESTATE-01 — this package added the source only."
+    },
+    {
+      "venue_candidate_id": "cand-lisboa-lav-lisboa-ao-vivo",
+      "canonical_name": "LAV – Lisboa ao Vivo",
+      "canonical_venue_id": "venue-lisboa-lav-lisboa-ao-vivo",
+      "automated_source_ids": ["lav-lisboa-ao-vivo"],
+      "automation_status": "AUTOMATED_THIS_PACKAGE",
+      "classification": "C_JSON_OR_API",
+      "notes": "Verified current site: a genuine first-party JSON-LD Event array embedded directly on /agenda/, confirmed-UTC startDate/endDate, 10 raw records live. Implemented via ingestion/lav/. NOT previously canonical (LISBON-PORTO-VENUE-ESTATE-01 found the address only via secondary sources and declined to admit it) — this package admitted it as a NEW ADDRESS_ONLY canonical Venue via `npm run onboard:venues`, using this same source's own first-party address evidence (never hand-authored, never re-geocoded — coordinate research stays closed)."
+    },
+    {
+      "venue_candidate_id": "cand-porto-hot-five-jazz-blues-club",
+      "canonical_name": "Hot Five Jazz & Blues Club",
+      "canonical_venue_id": "venue-porto-hot-five-jazz-blues-club",
+      "automated_source_ids": [],
+      "automation_status": "DEFERRED_DATE_INADEQUATE",
+      "classification": "F_DATE_INADEQUATE",
+      "notes": "Verified current site (homepage + /shows/ page + wp-json root): no dated calendar of individual performances exists anywhere in the server-rendered HTML — only a static 'Quinta à domingo, 21h30-02h30' recurring-hours line. No JSON-LD, no iframe, no third-party ticketing embed, no custom REST endpoint carrying show dates. This matches this same venue's own event-evidence records in LISBON-PORTO-VENUE-ESTATE-01 being honestly flagged low-confidence ('year inferred from retrieval context'). No full calendar date can be safely derived — deferred, per this task's absolute no-invented-dates rule. Remains the strongest unautomated P1 opportunity if a future session finds a dated source (e.g. an Instagram/Facebook feed with genuine dates, or a booking-platform page not reached this session)."
+    },
+    {
+      "venue_candidate_id": "cand-lisboa-galeria-ze-dos-bois",
+      "canonical_name": "Galeria Zé dos Bois (ZDB)",
+      "canonical_venue_id": "venue-lisboa-galeria-ze-dos-bois-zdb",
+      "automated_source_ids": ["galeria-ze-dos-bois"],
+      "automation_status": "AUTOMATED_THIS_PACKAGE",
+      "classification": "B_SMALL_STATIC_HTML_ADAPTER",
+      "notes": "Secondary P1 backlog item (source_priority P1 in sources/lisbon.json, monitoring_status READY_FOR_TECHNICAL_PROOF before this package). Verified current site: /en/programme/ lists 26 raw items with a genuine first-party area+category taxonomy; 14 are area=Music/category=Concerts, each with a full DD.MM.YY date and 12-hour time. Implemented via ingestion/galeria-ze-dos-bois/. Venue already canonical (ADDRESS_ONLY) from LISBON-PORTO-VENUE-ESTATE-01."
+    },
+    {
+      "venue_candidate_id": "cand-lisboa-fama-dalfama",
+      "canonical_name": "Fama d'Alfama",
+      "canonical_venue_id": "venue-lisboa-fama-d-alfama",
+      "automated_source_ids": [],
+      "automation_status": "DEFERRED_DATE_INADEQUATE",
+      "classification": "F_DATE_INADEQUATE",
+      "notes": "Secondary P1 backlog item (source_priority P1). Verified current site: /agenda-de-fados-em-lisboa/ publishes a genuine day-by-day performer roster, but every date is a bare weekday NAME (\"Sábado\", \"Domingo\", ...) with no calendar date, month, or year anywhere on the page — a real recurring roster, not individually dated events. No safe calendar date derivable — deferred, not implemented."
+    },
+    {
+      "venue_candidate_id": "cand-lisboa-museu-do-fado",
+      "canonical_name": "Museu do Fado",
+      "canonical_venue_id": "venue-lisboa-museu-do-fado",
+      "automated_source_ids": [],
+      "automation_status": "NOT_ATTEMPTED_THIS_PACKAGE",
+      "classification": "B_SMALL_STATIC_HTML_ADAPTER",
+      "notes": "Secondary P1 backlog item (source_priority P1). Verified current site: /eventos lists 6 raw items with a genuine first-party category ('Concerto', 'Workshop', 'Visitas', or none), full 'D month, YYYY' dates including year, and a per-item venue-name field (its two live 'Concerto'-tagged items are both off-site at Centro Cultural de Belém, not this venue's own building). Genuinely deterministic and implementable (classification B), but only 2 of 6 raw records are currently music-tagged — deliberately NOT implemented this package in favour of the three higher-yield sources actually built, per this task's 'quality over count' rule. The strongest remaining P1 opportunity after Hot Five for a future package: small, clean, real dated evidence, would reuse the exact same category+venue-name pattern already proven for cm-gaia-eventos/teatro-municipal-do-porto."
+    },
+    {
+      "venue_candidate_id": "cand-lisboa-casa-independente",
+      "canonical_name": "Casa Independente",
+      "canonical_venue_id": "venue-lisboa-casa-independente",
+      "automated_source_ids": [],
+      "automation_status": "DEFERRED_DATE_INADEQUATE",
+      "classification": "F_DATE_INADEQUATE",
+      "notes": "P2 in sources/lisbon.json (not one of the P1 priorities), assessed anyway as part of this package's secondary-backlog verification pass. Verified current site: /agenda/ lists dated cards ('SEXTA FEIRA / 21 AGO / 23H'), but no year appears anywhere on the page for any entry — deferred, not implemented, per the absolute no-invented-year rule (today being 2026-08-24 makes a 2026 guess tempting but explicitly disallowed)."
+    }
+  ]
+}

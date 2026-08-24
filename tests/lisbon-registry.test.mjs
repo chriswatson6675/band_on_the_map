@@ -7,10 +7,10 @@ async function loadJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, import.meta.url), "utf8"));
 }
 
-test("sources/lisbon.json contains the 25 first-wave entries plus BOTM-MULTISOURCE-LINKS-01's Capitólio addition (26 total)", async () => {
+test("sources/lisbon.json contains the 25 first-wave entries plus BOTM-MULTISOURCE-LINKS-01's Capitólio addition and LISBON-PORTO-P1-SOURCE-AUTOMATION-01's LAV addition (27 total)", async () => {
   const registry = await loadJson("../sources/lisbon.json");
   assert.equal(Array.isArray(registry.entries), true);
-  assert.equal(registry.entries.length, 26);
+  assert.equal(registry.entries.length, 27);
 });
 
 test("every entry in sources/lisbon.json passes registry validation", async () => {
@@ -19,10 +19,11 @@ test("every entry in sources/lisbon.json passes registry validation", async () =
   assert.deepEqual(errors, []);
 });
 
-test("every first-wave entry carries research provenance from BOTM-RESEARCH-LISBON-SOURCES-01, except the later Capitólio addition", async () => {
+test("every first-wave entry carries research provenance from BOTM-RESEARCH-LISBON-SOURCES-01, except later additions/technical-proof passes", async () => {
   const registry = await loadJson("../sources/lisbon.json");
-  const firstWave = registry.entries.filter((entry) => entry.id !== "teatro-variedades-capitolio");
-  assert.equal(firstWave.length, 25);
+  const laterAdditions = new Set(["teatro-variedades-capitolio", "galeria-ze-dos-bois", "lav-lisboa-ao-vivo"]);
+  const firstWave = registry.entries.filter((entry) => !laterAdditions.has(entry.id));
+  assert.equal(firstWave.length, 24);
   for (const entry of firstWave) {
     assert.equal(entry.research_provenance.research_id, "BOTM-RESEARCH-LISBON-SOURCES-01");
     assert.equal(entry.research_provenance.review_date, "2026-08-23");
@@ -37,6 +38,18 @@ test("the Capitólio entry added by BOTM-MULTISOURCE-LINKS-01 honestly carries i
   assert.equal(capitolio.research_provenance.review_date, "2026-08-24");
   assert.equal(capitolio.source_type, "VENUE");
   assert.equal(capitolio.rights_status, "UNKNOWN");
+});
+
+test("galeria-ze-dos-bois' technical-proof pass and the new lav-lisboa-ao-vivo entry carry LISBON-PORTO-P1-SOURCE-AUTOMATION-01 provenance", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  for (const id of ["galeria-ze-dos-bois", "lav-lisboa-ao-vivo"]) {
+    const entry = registry.entries.find((e) => e.id === id);
+    assert.ok(entry, `expected entry ${id} to exist`);
+    assert.equal(entry.research_provenance.research_id, "LISBON-PORTO-P1-SOURCE-AUTOMATION-01");
+    assert.equal(entry.research_provenance.review_date, "2026-08-24");
+    assert.equal(entry.monitoring_status, "TECHNICAL_PATH_PROVEN");
+    assert.equal(entry.lifecycle_status, "TECHNICALLY_REVIEWED");
+  }
 });
 
 test("AgendaLX appears exactly once in the Lisbon registry", async () => {
@@ -82,9 +95,9 @@ test("AgendaLX's monitoring and lifecycle state are consistent, not contradictor
   assert.equal(agendalx.rights_status, "AMBER");
 });
 
-test("distributions across sources/lisbon.json each total exactly 26", async () => {
+test("distributions across sources/lisbon.json each total exactly 27", async () => {
   const registry = await loadJson("../sources/lisbon.json");
-  assert.equal(registry.entries.length, 26);
+  assert.equal(registry.entries.length, 27);
 
   function countBy(field) {
     const counts = {};
@@ -100,9 +113,9 @@ test("distributions across sources/lisbon.json each total exactly 26", async () 
 
   const sum = (counts) => Object.values(counts).reduce((total, n) => total + n, 0);
 
-  assert.equal(sum(byType), 26, `source_type counts: ${JSON.stringify(byType)}`);
-  assert.equal(sum(byAcquisition), 26, `acquisition_method counts: ${JSON.stringify(byAcquisition)}`);
-  assert.equal(sum(byLifecycle), 26, `lifecycle_status counts: ${JSON.stringify(byLifecycle)}`);
+  assert.equal(sum(byType), 27, `source_type counts: ${JSON.stringify(byType)}`);
+  assert.equal(sum(byAcquisition), 27, `acquisition_method counts: ${JSON.stringify(byAcquisition)}`);
+  assert.equal(sum(byLifecycle), 27, `lifecycle_status counts: ${JSON.stringify(byLifecycle)}`);
 });
 
 test("no first-wave entry carries rights_status RED without a non-empty explanation, and none currently do", async () => {
@@ -135,7 +148,7 @@ test("the three entries previously misclassified RED are now UNKNOWN with an unr
   }
 });
 
-test("the six research-identified structured sources are exactly the entries using API_JSON/RSS/ICS_CALENDAR", async () => {
+test("the structured sources are exactly the entries using API_JSON/RSS/ICS_CALENDAR/JSON_LD_EVENT/EMBEDDED_JSON", async () => {
   const registry = await loadJson("../sources/lisbon.json");
   const structuredMethods = new Set(["API_JSON", "RSS", "ICS_CALENDAR", "JSON_LD_EVENT", "EMBEDDED_JSON"]);
   const structured = registry.entries
@@ -149,6 +162,7 @@ test("the six research-identified structured sources are exactly the entries usi
     "cm-odivelas-agenda-cultura",
     "forum-luisa-todi",
     "hot-clube-de-portugal",
+    "lav-lisboa-ao-vivo",
     "village-underground-lisboa",
   ]);
 });

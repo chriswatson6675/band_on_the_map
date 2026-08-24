@@ -221,6 +221,61 @@
       ],
       "retrieved_at": "2026-08-24",
       "reasoning": "Source-level structural admission (this task's item 10): every event on this source's own venue-scoped agenda tab (/agenda/capitolio/) is, by the source's own site structure, already about the Cineteatro Capitólio building — independent of whether that page's own 'Local' field additionally names a more specific sub-location (e.g. 'Terraço do Capitólio', already resolved by ingestion/venue/resolver.mjs's existing hardcoded table). This maps to the SAME already-canonical venue, never a new one — reusing this repository's own established precedent for a single-venue-scoped source (SOURCE_ID_TO_FIXED_CANONICAL_VENUE: casa-da-musica, meo-arena, village-underground-lisboa), applied here via data rather than a new hardcoded table entry."
+    },
+    {
+      "source_id": "super-bock-arena",
+      "key_type": "SOURCE_ID",
+      "key": "super-bock-arena",
+      "verdict": "ADMIT_EXISTING_VENUE_MAPPING",
+      "venue_id": "venue-porto-super-bock-arena-pavilhao-rosa-mota",
+      "evidence_level": "A",
+      "evidence": [
+        {
+          "url": "https://www.superbockarena.pt/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "This source's every retained Observation is a fixed-single-venue candidate (venue_name/location_text both intentionally null — see ingestion/super-bock-arena/observation-adapter.mjs's own doc comment), the same pattern already used for casa-da-musica/meo-arena/village-underground. venue-porto-super-bock-arena-pavilhao-rosa-mota is already an admitted ADDRESS_ONLY canonical Venue (LISBON-PORTO-VENUE-ESTATE-01, from this same official site's own address text)."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01: super-bock-arena's own agenda listing covers only this one physical arena, already canonical — a straightforward existing-venue mapping, not a new admission."
+    },
+    {
+      "source_id": "galeria-ze-dos-bois",
+      "key_type": "VENUE_NAME",
+      "key": "Galeria Zé dos Bois",
+      "verdict": "ADMIT_EXISTING_VENUE_MAPPING",
+      "venue_id": "venue-lisboa-galeria-ze-dos-bois-zdb",
+      "evidence_level": "A",
+      "evidence": [
+        {
+          "url": "https://zedosbois.org/en/programme/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "This source's own programme listing carries a per-entry `local` field; the exact string 'Galeria Zé dos Bois' names this venue's own main building, already an admitted ADDRESS_ONLY canonical Venue (LISBON-PORTO-VENUE-ESTATE-01). Other exact `local` strings this same source genuinely also uses ('Igreja St. George', 'LAV - Lisboa Ao Vivo', 'ZDB 8 MARVILA') are deliberately NOT covered by this entry — no research on record for them, so they remain honestly UNRESOLVED."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01: the venue's own main-building name, exactly as this source states it, mapped to the already-canonical Venue admitted from the same venue's own official contacts page."
+    },
+    {
+      "source_id": "lav-lisboa-ao-vivo",
+      "key_type": "SOURCE_ID",
+      "key": "lav-lisboa-ao-vivo",
+      "verdict": "ADMIT_ADDRESS_ONLY",
+      "canonical_name": "LAV – Lisboa ao Vivo",
+      "country_code": "PT",
+      "city": "Lisboa",
+      "municipality": "Lisboa",
+      "address": "Av. Marechal Gomes da Costa, 29B1, 1800-255 Lisboa",
+      "evidence_level": "B",
+      "evidence": [
+        {
+          "url": "https://lisboaaovivo.com/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "This venue's own /agenda/ listing embeds a first-party JSON-LD Event array; a minority of records (those naming 'LAV – Sala 1'/'LAV – Sala 2' as location.name) carry a fully-populated location.address PostalAddress: streetAddress 'Av. Marechal Gomes da Costa, 29B1', addressLocality 'Lisbon', addressRegion 'Lisboa', postalCode '1800-255', addressCountry 'Portugal' — read directly from this same source's own structured data, not a secondary listing. LISBON-PORTO-VENUE-ESTATE-01 had already found this same address via secondary (ticketing-site) sources but left it un-admitted pending first-party confirmation; this package supplies that confirmation from the source's own agenda page."
+        }
+      ],
+      "retrieved_at": "2026-08-24",
+      "reasoning": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01: every retained Observation from this source is a fixed-single-venue candidate (venue_name/location_text both intentionally null, matching the casa-da-musica/meo-arena/village-underground pattern), so the candidate key is this source's own SOURCE_ID. First-party address evidence is directly embedded in the same JSON-LD this source's own collector reads — no coordinates are exposed anywhere in that same evidence, so ADDRESS_ONLY (never CONFIRMED) per this task's closed coordinate-research boundary."
     }
   ]
 }

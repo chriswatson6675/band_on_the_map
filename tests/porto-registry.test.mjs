@@ -7,10 +7,10 @@ async function loadJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, import.meta.url), "utf8"));
 }
 
-test("sources/porto.json contains the 19-entry LISBON-PORTO-OVERNIGHT-COVERAGE-01 first-wave cohort", async () => {
+test("sources/porto.json contains the 19-entry LISBON-PORTO-OVERNIGHT-COVERAGE-01 first-wave cohort plus LISBON-PORTO-P1-SOURCE-AUTOMATION-01's Super Bock Arena addition (20 total)", async () => {
   const registry = await loadJson("../sources/porto.json");
   assert.equal(Array.isArray(registry.entries), true);
-  assert.equal(registry.entries.length, 19);
+  assert.equal(registry.entries.length, 20);
 });
 
 test("every entry in sources/porto.json passes registry validation", async () => {
@@ -26,11 +26,13 @@ test("every entry in sources/porto.json passes registry validation", async () =>
 // reassessing task, per registry.schema.json's own documented "seeded or
 // last reassessed from" semantics. Every other entry's research provenance
 // is untouched.
-test("every entry carries research provenance from its original research task, except cm-gaia-eventos (reassessed under PORTO-COVERAGE-02)", async () => {
+test("every entry carries research provenance from its original research task, except cm-gaia-eventos (reassessed under PORTO-COVERAGE-02) and super-bock-arena (added under LISBON-PORTO-P1-SOURCE-AUTOMATION-01)", async () => {
   const registry = await loadJson("../sources/porto.json");
   for (const entry of registry.entries) {
     if (entry.id === "cm-gaia-eventos") {
       assert.equal(entry.research_provenance.research_id, "PORTO-COVERAGE-02");
+    } else if (entry.id === "super-bock-arena") {
+      assert.equal(entry.research_provenance.research_id, "LISBON-PORTO-P1-SOURCE-AUTOMATION-01");
     } else {
       assert.equal(entry.research_provenance.research_id, "BOTM-RESEARCH-PORTO-SOURCES-01");
     }
@@ -38,10 +40,10 @@ test("every entry carries research provenance from its original research task, e
   }
 });
 
-test("exactly the three technically-proven entries are TECHNICALLY_REVIEWED / TECHNICAL_PATH_PROVEN", async () => {
+test("exactly the four technically-proven entries are TECHNICALLY_REVIEWED / TECHNICAL_PATH_PROVEN", async () => {
   const registry = await loadJson("../sources/porto.json");
   const proven = registry.entries.filter((e) => e.lifecycle_status === "TECHNICALLY_REVIEWED").map((e) => e.id).sort();
-  assert.deepEqual(proven, ["casa-da-musica", "cm-gaia-eventos", "teatro-municipal-do-porto"]);
+  assert.deepEqual(proven, ["casa-da-musica", "cm-gaia-eventos", "super-bock-arena", "teatro-municipal-do-porto"]);
   for (const entry of registry.entries) {
     if (proven.includes(entry.id)) {
       assert.equal(entry.monitoring_status, "TECHNICAL_PATH_PROVEN");

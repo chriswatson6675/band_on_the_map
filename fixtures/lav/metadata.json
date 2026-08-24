@@ -1,0 +1,36 @@
+{
+  "source_id": "lav-lisboa-ao-vivo",
+  "task": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01",
+  "source_homepage": "https://lisboaaovivo.com",
+  "agenda_url": "https://lisboaaovivo.com/agenda/",
+  "acquisition_shape": "BOUNDED_FIRST_PARTY_JSON_LD_EVENT_ARRAY",
+  "retrieved_at": "2026-08-24T14:05:00.000Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://lisboaaovivo.com/agenda/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "retrieve the public agenda listing, whose HTML body embeds a genuine <script type=\"application/ld+json\"> Event array directly (no HTML-card scraping needed)",
+      "retained_fixture": "fixtures/lav/agenda-excerpt.html (the full, unmodified 10-event JSON-LD block plus a minimal wrapper — every field retained verbatim)"
+    },
+    {
+      "n": 2,
+      "method": "GET",
+      "url": "https://lisboaaovivo.com/contactos/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "venue-identity research only (not an Observation acquisition request) — corroborates the address already found in the agenda page's own JSON-LD"
+    }
+  ],
+  "total_live_requests": 2,
+  "findings": {
+    "event_count_live": 10,
+    "pagination": "Not investigated — 10 upcoming events were returned by a single fetch; no next-page indicator was present.",
+    "stable_identifier": "No numeric id is exposed in the JSON-LD; every Event's own permalink slug (from its own `url` field, /evento/{slug}/) is used as source_record_id.",
+    "date_time": "startDate/endDate carry an explicit '+00:00' UTC offset — a genuinely confirmed UTC instant (unlike Super Bock Arena's own Events-Calendar list view, which carries no offset at all). certainty is honestly UTC_INSTANT.",
+    "music_filtering": "No per-event category/genre field exists anywhere in this source's JSON-LD. Every retained record becomes an Observation, matching the existing MEO Arena/Village Underground precedent for a single music/nightlife VENUE-type source with no per-event taxonomy to filter on.",
+    "venue_identity": "Most records' location.name is the bare string 'LAV'; two records ('LAV – Sala 1', 'LAV – Sala 2') additionally carry a fully-populated location.address PostalAddress — this venue's own first-party address evidence, used to admit it as a new ADDRESS_ONLY canonical Venue via `npm run onboard:venues` (never hand-authored). Room-level location.name is retained in source_fields.room only, matching the Casa da Música 'room is not a separate venue' precedent."
+  }
+}

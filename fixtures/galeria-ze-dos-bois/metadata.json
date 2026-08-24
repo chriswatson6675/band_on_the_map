@@ -1,0 +1,29 @@
+{
+  "source_id": "galeria-ze-dos-bois",
+  "task": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01",
+  "source_homepage": "https://zedosbois.org",
+  "agenda_url": "https://zedosbois.org/en/programme/",
+  "acquisition_shape": "BOUNDED_SERVER_RENDERED_HTML_LISTING_MULTI_DISCIPLINE_PROGRAMME",
+  "retrieved_at": "2026-08-24T14:10:00.000Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://zedosbois.org/en/programme/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "retrieve the full public programme listing (no pagination indicator found live — a single fetch returned all 26 current/upcoming programme items across every discipline)",
+      "retained_fixture": "fixtures/galeria-ze-dos-bois/programme-excerpt.html (bounded excerpt: 6 of 26 live entries, selected to exercise area/category music filtering across Exhibitions/Workshops/Theater/Concerts and both off-site and own-building venue text)"
+    }
+  ],
+  "total_live_requests": 1,
+  "findings": {
+    "item_count_live_full_page": 26,
+    "music_tagged_count_live": 14,
+    "pagination": "None found live — a single fetch is genuinely complete.",
+    "stable_identifier": "No numeric id is exposed anywhere on this listing; every item's own permalink slug (/en/programa/{slug}/) is used as source_record_id.",
+    "date_time": "Every live 'Music'/'Concerts' entry carries a genuine 'DD.MM.YY' day plus a 12-hour time (e.g. '<span class=\"day\">09.09.26</span><span class=\"hour\">09:30PM</span>'). This venue's own non-music Exhibitions/Workshops entries instead carry a plain multi-day range whose own leading portion omits its own year (e.g. '23.05 — 26.09.26') — this collector deliberately does not derive a date from that shape (fails closed, TEXT_ONLY), since no live music entry has ever used it.",
+    "music_filtering": "This venue's own first-party `area`/`categorias` taxonomy (area=\"Music\" AND category=\"Concerts\") is the one deterministic filter applied — genuinely excludes this same venue's own Visual Arts/Exhibitions, Learning/Workshops, and Performing Arts/Theater programming (all real, live entries).",
+    "venue_identity": "This is a genuinely multi-location listing: most entries' own `local` text is 'Galeria Zé dos Bois' (this venue's own main building, already canonical), but a handful are off-site (e.g. 'Igreja St. George', 'LAV - Lisboa Ao Vivo', 'ZDB 8 MARVILA'). Only the exact string 'Galeria Zé dos Bois' resolves, via a new data-driven mapping entry (venues/source-venue-mappings.json); every other exact string is deliberately left unmapped rather than guessed at."
+  }
+}

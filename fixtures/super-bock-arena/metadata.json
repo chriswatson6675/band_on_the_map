@@ -1,0 +1,29 @@
+{
+  "source_id": "super-bock-arena",
+  "task": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01",
+  "source_homepage": "https://www.superbockarena.pt",
+  "agenda_url": "https://www.superbockarena.pt/agenda/",
+  "acquisition_shape": "BOUNDED_SERVER_RENDERED_HTML_LISTING_THE_EVENTS_CALENDAR_WORDPRESS_PLUGIN",
+  "retrieved_at": "2026-08-24T14:00:00.000Z",
+  "requests_made": [
+    {
+      "n": 1,
+      "method": "GET",
+      "url": "https://www.superbockarena.pt/agenda/",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "purpose": "retrieve the full public agenda listing (no pagination link was found live — a single fetch returns all 40 currently-booked events, September 2026 through November 2027)",
+      "retained_fixture": "fixtures/super-bock-arena/agenda-excerpt.html (bounded excerpt: 6 of 40 live event blocks, selected to exercise both music/non-music category filtering and same-year/cross-year date derivation)"
+    }
+  ],
+  "total_live_requests": 1,
+  "findings": {
+    "card_count_live_full_page": 40,
+    "music_tagged_count_live": 24,
+    "pagination": "None found live (no <link rel=\"next\">, no 'next' nav item) — a single fetch is genuinely complete.",
+    "stable_identifier": "Each event's own WordPress post id, embedded directly in id=\"post-{id}\" on its wrapping <div> — read literally, never derived from title/slug.",
+    "date_time": "Each card's own <span class=\"tribe-event-date-start\"> carries 'D Month, HH:MM' for a same-year event (no year digits at all) or 'D Month YYYY, HH:MM' for a different-year one. This collector combines the card's own text with its governing <h2> month/year section header — both read directly from the page — to derive a full calendar date; a card/header month mismatch fails closed rather than guessing. See ingestion/super-bock-arena/discovery.mjs and observation-adapter.mjs doc comments for the full live-evidence writeup, including the off-by-one header-attribution bug this collector deliberately avoids (a header can render as TRAILING content inside the PRECEDING event's own block).",
+    "music_filtering": "This venue's own tribe-events-category-{slug} classes are a genuine first-party taxonomy — MUSIC_CATEGORY_SLUGS (pop-rock, musica-brasileira, musica-portuguesa, eletronica, fado, classica, forro, sertanejo, concertos-en) are retained; gaming/circo/stand-up-comedy/danca/infantil-2/musical are genuinely excluded live examples (BLAST Premier esports, Cirque du Soleil, Eros Prado stand-up, Music Circus Show on Ice, Patrulha Pata ao Vivo).",
+    "venue_identity": "Every card on this one listing page is this one physical arena — resolved by source_id via a NEW data-driven mapping entry (venues/source-venue-mappings.json), not a new hardcoded ingestion/venue/resolver.mjs branch."
+  }
+}

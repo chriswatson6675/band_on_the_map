@@ -20,6 +20,14 @@
 //     -> regenerate a combined Lisbon+Porto live-run proof output
 //     -> emit a detailed, per-city coverage summary
 //
+// LISBON-PORTO-P1-SOURCE-AUTOMATION-01 adds three more sources on top of
+// the above, converting three strong P1 venue-estate candidates into live
+// deterministic collectors: galeria-ze-dos-bois and lav-lisboa-ao-vivo
+// (Lisbon), super-bock-arena (Porto). Every existing source above is
+// completely unchanged; the new three are isolated in their own
+// try/catch exactly like every other source, so one of them failing
+// never affects the other nine.
+//
 // This is a live-network, manually-triggered script. Every source's
 // acquisition is isolated in its own try/catch: one source's failure is
 // recorded and reported, never allowed to abort any other source or the
@@ -60,6 +68,16 @@ import {
 } from "../cm-gaia-eventos/discovery.mjs";
 import { toObservations as cmGaiaEventosToObservations } from "../cm-gaia-eventos/observation-adapter.mjs";
 
+import {
+  parseSuperBockArenaAgenda,
+  filterMusicRecords as filterSuperBockArenaMusicRecords,
+} from "../super-bock-arena/discovery.mjs";
+import { toObservations as superBockArenaToObservations } from "../super-bock-arena/observation-adapter.mjs";
+import { parseLavAgendaJsonLd } from "../lav/discovery.mjs";
+import { toObservations as lavToObservations } from "../lav/observation-adapter.mjs";
+import { parseZdbProgramme, filterMusicRecords as filterZdbMusicRecords } from "../galeria-ze-dos-bois/discovery.mjs";
+import { toObservations as zdbToObservations } from "../galeria-ze-dos-bois/observation-adapter.mjs";
+
 import { resolveObservation } from "../venue/resolver.mjs";
 import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
 import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
@@ -85,9 +103,11 @@ export const LISBON_SOURCE_IDS = [
   "bota-anjos",
   "cm-odivelas-agenda-cultura",
   "meo-arena",
+  "galeria-ze-dos-bois",
+  "lav-lisboa-ao-vivo",
 ];
 
-export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto", "cm-gaia-eventos"];
+export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto", "cm-gaia-eventos", "super-bock-arena"];
 
 function parseArgs(argv) {
   const args = { from: null, to: null };
@@ -384,6 +404,58 @@ async function collectCmGaiaEventos() {
   return { rawRecordCount: musicRecords.length, observations, notes };
 }
 
+async function collectGaleriaZeDosBois() {
+  const url = "https://zedosbois.org/en/programme/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseZdbProgramme(res.text);
+  const musicRecords = filterZdbMusicRecords(records);
+  const observations = zdbToObservations(musicRecords, {
+    retrievedAt: res.retrievedAt,
+    sourceUrl: url,
+    contentType: res.contentType,
+    fixturePath: null,
+  });
+  return {
+    rawRecordCount: musicRecords.length,
+    observations,
+    notes: [`${records.length} raw record(s) across all areas/categories; ${musicRecords.length} tagged Music/Concerts and retained`],
+  };
+}
+
+async function collectLav() {
+  const url = "https://lisboaaovivo.com/agenda/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseLavAgendaJsonLd(res.text);
+  const observations = lavToObservations(records, {
+    retrievedAt: res.retrievedAt,
+    sourceUrl: url,
+    contentType: "application/ld+json",
+    fixturePath: null,
+  });
+  return { rawRecordCount: records.length, observations, notes: [] };
+}
+
+async function collectSuperBockArena() {
+  const url = "https://www.superbockarena.pt/agenda/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseSuperBockArenaAgenda(res.text);
+  const musicRecords = filterSuperBockArenaMusicRecords(records);
+  const observations = superBockArenaToObservations(musicRecords, {
+    retrievedAt: res.retrievedAt,
+    sourceUrl: url,
+    contentType: res.contentType,
+    fixturePath: null,
+  });
+  return {
+    rawRecordCount: musicRecords.length,
+    observations,
+    notes: [`${records.length} raw record(s) across all categories; ${musicRecords.length} tagged with a music category and retained`],
+  };
+}
+
 const COLLECTORS = {
   agendalx: collectAgendalx,
   "hot-clube-de-portugal": collectHotClube,
@@ -392,9 +464,12 @@ const COLLECTORS = {
   "bota-anjos": collectBota,
   "cm-odivelas-agenda-cultura": collectOdivelas,
   "meo-arena": collectMeoArena,
+  "galeria-ze-dos-bois": collectGaleriaZeDosBois,
+  "lav-lisboa-ao-vivo": collectLav,
   "casa-da-musica": collectCasaDaMusica,
   "teatro-municipal-do-porto": collectTeatroMunicipalPorto,
   "cm-gaia-eventos": collectCmGaiaEventos,
+  "super-bock-arena": collectSuperBockArena,
 };
 
 async function acquireAll(sourceIds, registryEntries, registryLabel) {
@@ -518,10 +593,10 @@ export async function acquireLisbonPorto(args = {}) {
   console.log(`LISBON-PORTO-OVERNIGHT-COVERAGE-01 live run starting (${new Date().toISOString()})`);
   if (args.from || args.to) console.log(`  date bounds: from=${args.from ?? "(none)"} to=${args.to ?? "(none)"}`);
 
-  console.log("\n-- Lisbon (7 sources) --");
+  console.log(`\n-- Lisbon (${LISBON_SOURCE_IDS.length} sources) --`);
   const lisbonResults = await acquireAll(LISBON_SOURCE_IDS, lisbonRegistry.entries, "sources/lisbon.json");
 
-  console.log("\n-- Porto (3 sources) --");
+  console.log(`\n-- Porto (${PORTO_SOURCE_IDS.length} sources) --`);
   const portoResults = await acquireAll(PORTO_SOURCE_IDS, portoRegistry.entries, "sources/porto.json");
 
   const boundObs = (results) =>

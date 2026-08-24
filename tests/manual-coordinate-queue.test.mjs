@@ -119,6 +119,7 @@ test("against the REAL committed registries, the queue matches the live ADDRESS_
     "venue-lisboa-galeria-ze-dos-bois-zdb",
     "venue-lisboa-hot-clube-de-portugal",
     "venue-lisboa-igreja-e-convento-da-graca",
+    "venue-lisboa-lav-lisboa-ao-vivo",
     "venue-lisboa-museu-do-fado",
     "venue-lisboa-teatro-sao-luiz",
     "venue-lisboa-village-underground-lisboa",
