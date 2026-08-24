@@ -214,16 +214,40 @@ test("9. this package's research files never mention a geocoder provider or coor
 });
 
 // 10. manual-coordinate queue remains valid (report-only label, schema unchanged)
-test("10. LOCATION_STATUSES is unchanged and the manual-coordinate queue includes every newly admitted ADDRESS_ONLY venue", async () => {
+// BOTM-MANUAL-COORDINATES-PRESERVE-MERGE-01: "newly admitted ADDRESS_ONLY
+// venue" (this package's own admissions) and "currently outstanding
+// manual-coordinate exception" (this repo's live queue) are two distinct
+// concepts — a newly admitted venue that a human operator has since
+// completed via the dashboard is correctly EXCLUDED from the outstanding
+// queue, without ever losing its ADDRESS_ONLY canonical status. This test
+// now asserts the correct, weaker-but-precise relationship: every admitted
+// venue is in exactly one of {outstanding queue, manually completed} —
+// never neither (that would mean it vanished from tracking entirely) and
+// never both (the exclusion logic must actually exclude it).
+test("10. LOCATION_STATUSES is unchanged and every newly admitted ADDRESS_ONLY venue is either still outstanding in the manual-coordinate queue or already manually completed by the operator", async () => {
   const { LOCATION_STATUSES } = await import("../ingestion/venue/contract.mjs");
   assert.deepEqual([...LOCATION_STATUSES].sort(), ["ADDRESS_ONLY", "CONFIRMED", "GEOCODED", "UNRESOLVED"]);
+
+  const { loadManualCoordinateStore } = await import("../ingestion/geocoding/manual-coordinate-store.mjs");
+  const manualStore = await loadManualCoordinateStore();
+  const manuallyCompletedIds = new Set(manualStore.entries.map((e) => e.venue_id));
 
   const queue = await loadJson("fixtures/geocoding/manual-coordinate-queue.json");
   const queueIds = new Set(queue.entries.map((e) => e.venue_id));
   const estate = await loadVenueEstate();
   const admittedIds = estate.venues.filter((v) => v.admitted_this_package).map((v) => v.existing_canonical_venue_id);
+
   for (const id of admittedIds) {
-    assert.ok(queueIds.has(id), `${id}: newly admitted ADDRESS_ONLY venue missing from the manual-coordinate queue`);
+    const inQueue = queueIds.has(id);
+    const manuallyCompleted = manuallyCompletedIds.has(id);
+    assert.ok(
+      inQueue || manuallyCompleted,
+      `${id}: newly admitted ADDRESS_ONLY venue is neither in the outstanding manual-coordinate queue nor manually completed — it has vanished from tracking`,
+    );
+    assert.ok(
+      !(inQueue && manuallyCompleted),
+      `${id}: cannot be simultaneously outstanding in the queue and manually completed — the exclusion logic failed`,
+    );
   }
   for (const entry of queue.entries) {
     assert.equal(entry.queue_status, "MANUAL_COORDINATE_REQUIRED");

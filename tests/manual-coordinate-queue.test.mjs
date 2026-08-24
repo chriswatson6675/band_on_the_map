@@ -105,32 +105,39 @@ test("the queue is derived live, not hardcoded: an empty registry produces an em
   assert.deepEqual(report.entries, []);
 });
 
-test("against the REAL committed registries, the queue matches the live ADDRESS_ONLY set exactly", async () => {
+// BOTM-MANUAL-COORDINATES-PRESERVE-MERGE-01: the queue represents
+// "ADDRESS_ONLY venues still needing coordinates", NOT "all ADDRESS_ONLY
+// venues forever" — venues/manual-coordinates.json now carries 7 real,
+// human operator-entered completions, so the queue is correctly no longer
+// the full ADDRESS_ONLY set. This is derived live from the real registries
+// + the real manual-coordinate store — never a hardcoded venue_id list —
+// so it keeps holding as the operator completes more venues over time.
+test("against the REAL committed registries: the queue equals the live ADDRESS_ONLY set minus manually completed venues, derived — never hardcoded", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const lisbon = JSON.parse(await readFile(new URL("../venues/lisbon.json", import.meta.url), "utf8"));
+  const porto = JSON.parse(await readFile(new URL("../venues/porto.json", import.meta.url), "utf8"));
+  const allVenues = [...lisbon.venues, ...porto.venues];
+  const byId = new Map(allVenues.map((v) => [v.venue_id, v]));
+  const addressOnlyIds = new Set(allVenues.filter((v) => v.location_status === "ADDRESS_ONLY").map((v) => v.venue_id));
+
+  const { loadManualCoordinateStore } = await import("../ingestion/geocoding/manual-coordinate-store.mjs");
+  const manualStore = await loadManualCoordinateStore();
+  const manuallyCompletedIds = new Set(manualStore.entries.map((e) => e.venue_id));
+
+  const expectedQueueIds = [...addressOnlyIds].filter((id) => !manuallyCompletedIds.has(id)).sort();
+
   const report = await buildManualCoordinateQueue();
   const ids = report.entries.map((e) => e.venue_id).sort();
-  assert.deepEqual(ids, [
-    "venue-lisboa-aula-magna-reitoria-da-universidade-de-lisboa",
-    "venue-lisboa-bota-anjos",
-    "venue-lisboa-casa-capitao",
-    "venue-lisboa-casa-independente",
-    "venue-lisboa-centro-cultural-de-belem-ccb",
-    "venue-lisboa-clube-de-fado",
-    "venue-lisboa-fama-d-alfama",
-    "venue-lisboa-galeria-ze-dos-bois-zdb",
-    "venue-lisboa-hot-clube-de-portugal",
-    "venue-lisboa-igreja-e-convento-da-graca",
-    "venue-lisboa-lav-lisboa-ao-vivo",
-    "venue-lisboa-museu-do-fado",
-    "venue-lisboa-teatro-sao-luiz",
-    "venue-lisboa-village-underground-lisboa",
-    "venue-odivelas-biblioteca-municipal-d-dinis",
-    "venue-odivelas-centro-cultural-malaposta",
-    "venue-porto-capela-incomum",
-    "venue-porto-hot-five-jazz-blues-club",
-    "venue-porto-super-bock-arena-pavilhao-rosa-mota",
-  ]);
+  assert.deepEqual(ids, expectedQueueIds);
+
   for (const entry of report.entries) {
     assert.equal(entry.queue_status, "MANUAL_COORDINATE_REQUIRED");
     assert.ok(entry.address, "every queued venue must still carry its evidenced address");
+    // Requirement 7: no CONFIRMED/GEOCODED/UNRESOLVED venue can leak in.
+    const venue = byId.get(entry.venue_id);
+    assert.ok(venue, `${entry.venue_id}: queue entry does not correspond to a real canonical venue`);
+    assert.equal(venue.location_status, "ADDRESS_ONLY");
   }
+
+  assert.ok(report.entries.length > 0, "sanity: the real repository currently still has outstanding coordinate exceptions");
 });
