@@ -31,7 +31,15 @@ const WORKFLOW_PATH = fileURLToPath(new URL("../.github/workflows/deploy-beatmap
 const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 async function readWorkflow() {
-  return readFile(WORKFLOW_PATH, "utf8");
+  // Normalize CRLF -> LF: the blob committed to git is LF-only (verified
+  // separately), but a LOCAL checkout's line endings depend on that
+  // worktree's own core.autocrlf setting, which varies machine-to-machine
+  // and even worktree-to-worktree on the same machine. This suite's
+  // regexes assume LF; the real GitHub Actions runner (Linux) always
+  // checks out LF regardless, so this normalization only affects local
+  // test portability, never what actually runs in CI.
+  const raw = await readFile(WORKFLOW_PATH, "utf8");
+  return raw.replace(/\r\n/g, "\n");
 }
 
 // Strips `#`-comment lines before doesNotMatch-style checks, matching the
