@@ -83,6 +83,8 @@ import { buildEventsUrl } from "../events-calendar-api/client.mjs";
 import { toObservations as ccbToObservations } from "../events-calendar-api/observation-adapter.mjs";
 import { CCB_MUSIC_CONFIG } from "../ccb/config.mjs";
 
+import { withRetries } from "../unattended-runner/retry.mjs";
+
 import { resolveObservation } from "../venue/resolver.mjs";
 import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
 import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
@@ -523,13 +525,64 @@ const COLLECTORS = {
   "super-bock-arena": collectSuperBockArena,
 };
 
-async function acquireAll(sourceIds, registryEntries, registryLabel) {
+// `retryPolicy` (BOTM-UNATTENDED-COLLECTION-RUNNER-01, optional — every
+// existing caller that omits it keeps today's exact single-attempt
+// behaviour, byte-for-byte unchanged): `{ maxAttempts, retryDelayMs,
+// isTransient, delayFn }`, forwarded straight to
+// ingestion/unattended-runner/retry.mjs's withRetries(). Only a genuinely
+// TRANSIENT failure (network/timeout/5xx — see that module's own
+// classifier) is retried; a permanent failure (bad request, malformed
+// content, a structural "not found") fails on the first attempt exactly
+// as it always has.
+//
+// `collectors` (optional, defaults to the real COLLECTORS map below) lets
+// a caller substitute synthetic sources for a deterministic, offline test
+// of this EXACT loop/retry/isolation logic — see
+// tests/unattended-runner.test.mjs — without duplicating it.
+async function acquireAll(sourceIds, registryEntries, registryLabel, retryPolicy = null, collectors = COLLECTORS) {
   const results = [];
   for (const sourceId of sourceIds) {
     process.stdout.write(`  acquiring ${sourceId} ... `);
     try {
       await loadRegistryEntry(registryEntries, sourceId, registryLabel); // fails closed if the registry entry itself is missing
-      const { rawRecordCount, observations, notes } = await COLLECTORS[sourceId]();
+
+      if (retryPolicy) {
+        const outcome = await withRetries(() => collectors[sourceId](), {
+          ...retryPolicy,
+          onAttempt: ({ attempt, error, willRetry }) => {
+            if (!error) return;
+            process.stdout.write(`\n    attempt ${attempt} failed: ${error.message}${willRetry ? " (retrying)" : ""}`);
+          },
+        });
+        if (outcome.ok) {
+          const { rawRecordCount, observations, notes } = outcome.result;
+          console.log(`\n  -> ok (${rawRecordCount} raw record(s), ${observations.length} Observation(s), ${outcome.attempts} attempt(s))`);
+          results.push({
+            source_id: sourceId,
+            success: true,
+            raw_record_count: rawRecordCount,
+            observation_count: observations.length,
+            observations,
+            notes,
+            attempts: outcome.attempts,
+          });
+        } else {
+          console.log(`\n  -> FAILED after ${outcome.attempts} attempt(s): ${outcome.error.message}`);
+          results.push({
+            source_id: sourceId,
+            success: false,
+            error: outcome.error.message,
+            raw_record_count: 0,
+            observation_count: 0,
+            observations: [],
+            notes: [],
+            attempts: outcome.attempts,
+          });
+        }
+        continue;
+      }
+
+      const { rawRecordCount, observations, notes } = await collectors[sourceId]();
       console.log(`ok (${rawRecordCount} raw record(s), ${observations.length} Observation(s))`);
       results.push({
         source_id: sourceId,
@@ -538,6 +591,7 @@ async function acquireAll(sourceIds, registryEntries, registryLabel) {
         observation_count: observations.length,
         observations,
         notes,
+        attempts: 1,
       });
     } catch (error) {
       console.log(`FAILED: ${error.message}`);
@@ -549,11 +603,14 @@ async function acquireAll(sourceIds, registryEntries, registryLabel) {
         observation_count: 0,
         observations: [],
         notes: [],
+        attempts: 1,
       });
     }
   }
   return results;
 }
+
+export { acquireAll };
 
 // VENUE-GEOCODING-01 terminology cleanup: the field previously named
 // `raw_observation_total` here actually held the DATE-BOUNDED Observation
@@ -694,10 +751,10 @@ export async function acquireLisbonPorto(args = {}) {
   if (args.from || args.to) console.log(`  date bounds: from=${args.from ?? "(none)"} to=${args.to ?? "(none)"}`);
 
   console.log(`\n-- Lisbon (${LISBON_SOURCE_IDS.length} sources) --`);
-  const lisbonResults = await acquireAll(LISBON_SOURCE_IDS, lisbonRegistry.entries, "sources/lisbon.json");
+  const lisbonResults = await acquireAll(LISBON_SOURCE_IDS, lisbonRegistry.entries, "sources/lisbon.json", args.retryPolicy ?? null);
 
   console.log(`\n-- Porto (${PORTO_SOURCE_IDS.length} sources) --`);
-  const portoResults = await acquireAll(PORTO_SOURCE_IDS, portoRegistry.entries, "sources/porto.json");
+  const portoResults = await acquireAll(PORTO_SOURCE_IDS, portoRegistry.entries, "sources/porto.json", args.retryPolicy ?? null);
 
   const boundObs = (results) =>
     results

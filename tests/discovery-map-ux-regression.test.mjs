@@ -22,6 +22,14 @@ import { buildVenueFeatureCollection, sumGigCounts } from "../ingestion/map/clus
 // hardcoded here — CCB's own real-time record count fluctuates slightly
 // run to run (a live API), so this file asserts the exact counts of
 // whatever is currently committed, not a number independently guessed at.
+//
+// BOTM-UNATTENDED-COLLECTION-RUNNER-01's bounded live proof run
+// (`npm run unattended`, a genuine live re-acquisition through the new
+// canonical unattended command, not a hand edit) legitimately regenerated
+// the committed artifact again: display listings moved 315 -> 361 (more
+// real, currently-live events across the same 14 sources at the moment
+// that proof ran); the marker count stayed exactly 13 (no venue gained or
+// lost map eligibility).
 
 const PUBLICATION_PATH = new URL("../data/public/lisbon-porto-map.json", import.meta.url);
 
@@ -35,9 +43,9 @@ test("the committed publication artifact is still valid per its own schema/cross
   assert.deepEqual(errors, []);
 });
 
-test("baseline preserved: 315 display listings (was 266 before CCB's manual coordinate made it map-eligible)", async () => {
+test("baseline preserved: 361 display listings (was 266 before CCB's manual coordinate made it map-eligible; 315 before the unattended runner's live proof re-acquired current data)", async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.display_listing_count, 315);
+  assert.equal(artifact.counts.display_listing_count, 361);
 });
 
 test("baseline preserved: 13 venue markers (was 12 before CCB's manual coordinate made it map-eligible)", async () => {
@@ -68,7 +76,7 @@ test("CCB's marker uses exactly the operator-supplied coordinate pair, not a rou
   assert.equal(ccb.longitude, -9.2073); // -9.20730 and -9.2073 are the identical IEEE754 value
 });
 
-test("cluster aggregate gig count across the full live dataset sums to the same 315 total the venue panel/publication artifact already reports", async () => {
+test("cluster aggregate gig count across the full live dataset sums to the same total the venue panel/publication artifact already reports", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   assert.equal(sumGigCounts(portugalMarkers), artifact.counts.display_listing_count);
