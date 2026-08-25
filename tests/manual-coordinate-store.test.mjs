@@ -395,3 +395,18 @@ test("the real committed venues/manual-coordinates.json validates cleanly and ha
   const store = await loadManualCoordinateStore();
   assert.deepEqual(validateManualCoordinateStore(store), []);
 });
+
+// BOTM-CCB-MANUAL-COORDINATE-01: the real committed CCB entry carries
+// exactly the operator-supplied coordinate pair (38.695679 / -9.20730 —
+// JSON/IEEE754 serializes the latter as -9.2073, the identical numeric
+// value, never a deliberate rounding), method MANUAL_OPERATOR_ENTRY, and
+// resolves against the SAME already-canonical venue this package did not
+// create or duplicate.
+test("BOTM-CCB-MANUAL-COORDINATE-01: the real committed CCB manual-coordinate entry carries exactly the operator-supplied pair", async () => {
+  const store = await loadManualCoordinateStore();
+  const ccb = findManualEntry(store, "venue-lisboa-centro-cultural-de-belem-ccb");
+  assert.ok(ccb, "expected a manual-coordinate entry for venue-lisboa-centro-cultural-de-belem-ccb");
+  assert.equal(ccb.latitude, 38.695679);
+  assert.equal(ccb.longitude, -9.2073);
+  assert.equal(ccb.method, MANUAL_ENTRY_METHOD);
+});
