@@ -1,0 +1,68 @@
+=== hard-club-porto-02 offline derivation proof ===
+
+--- Step 1: parse the warm-session AJAX list fragment ---
+OK:   parsed exactly 22 events from ajax-agenda-warm.html (got 22)
+
+--- Step 2: derive YYYY-MM-DD for every event via slug-year + list day/month ---
+  351-festival-urbano-11-e-12-de-setembro-2026               11 Set  -> 2026-09-11
+  johnny-hooker-euro-tour-2026-2026                          12 Set  -> 2026-09-12
+  2zdinizz-patrono-tour-2026                                 13 Set  -> 2026-09-13
+  axisrock-fest-26-2026                                      18 Set  -> 2026-09-18
+  beto-guedes-2026                                           26 Set  -> 2026-09-26
+  dr-manuel-sans-segarra-a-supraconsciancia-existe-2026      28 Set  -> 2026-09-28
+  conquistadont-show-de-comedia-del-tercer-mundo-2026        01 Out  -> 2026-10-01
+  transvision-vamp-2026                                      01 Out  -> 2026-10-01
+  mercury-rev-2026                                           02 Out  -> 2026-10-02
+  ira-2026                                                   03 Out  -> 2026-10-03
+  morgenshtern-2026                                          08 Out  -> 2026-10-08
+  ist-ist-2026                                               09 Out  -> 2026-10-09
+  terrakota-2026                                             16 Out  -> 2026-10-16
+  rodox-originals-tour-2026                                  16 Out  -> 2026-10-16
+  isa-buzzi-tour-clube-dos-coracoes-partidos-2026            24 Out  -> 2026-10-24
+  kasta-2026                                                 26 Out  -> 2026-10-26
+  moonspell-invicta-halloween-2026                           31 Out  -> 2026-10-31
+  moonspell-invicta-halloween-2026-parte-ii-2026             01 Nov  -> 2026-11-01
+  the-twilight-sad-2026                                      14 Nov  -> 2026-11-14
+  lebanon-hanover-2026                                       21 Nov  -> 2026-11-21
+  u-d-o-porto-hard-club-2027                                 29 Jan  -> 2027-01-29
+  fresno-eurotour-2027-carta-de-adeus-2027                   12 Fev  -> 2027-02-12
+OK:   every one of the 22 sampled events resolved to exactly one YYYY-MM-DD (no slug lacked a trailing year)
+OK:   sample crosses the year boundary (years present: 2026, 2027)
+OK:   20 events resolve to 2026 and 2 resolve to 2027 (got 20/2)
+
+--- Step 3: cross-check derived year against independent first-party title/description text ---
+  MATCH    johnny-hooker-euro-tour-2026-2026 (slug/list-derived year 2026) -- event's own <h3> subtitle states "EURO TOUR 2026" directly
+  MATCH    moonspell-invicta-halloween-2026-parte-ii-2026 (slug/list-derived year 2026) -- event's own <h3> subtitle states "INVICTA HALLOWEEN 2026 PARTE II" directly
+  MATCH    fresno-eurotour-2027-carta-de-adeus-2027 (slug/list-derived year 2027) -- event's own <h3> title states "FRESNO EUROTOUR 2027" directly (2027-side of the boundary)
+  MATCH    u-d-o-porto-hard-club-2027 (slug/list-derived year 2027) -- event's own loadevent free-text description states the tour "regressam a estrada no inicio de 2027" (2027-side of the boundary)
+  MATCH    lebanon-hanover-2026 (slug/list-derived year 2026) -- event's own loadevent free-text description states the FULL date "21 de Novembro de 2026" directly
+  MATCH    moonspell-invicta-halloween-2026 (slug/list-derived year 2026) -- event's own loadevent free-text description states "Em 2026" in direct connection with this show
+OK:   zero contradictions between the slug-derived year and independent first-party title/description corroboration (checked 6 events, including both sides of the 2026/2027 boundary)
+
+--- Step 4: cross-check derived dates against the linked-ticketing survey ---
+  15 linked ticket pages supplied an exact machine-readable date; cross-checked against the slug/list-derived date
+OK:   zero contradictions between slug/list-derived dates and linked ticket-page dates (15 events cross-checked)
+
+--- Step 4b: IRA! worked example (addendum) ---
+OK:   Hard Club's own loadevent fragment for ira-2026 links directly to https://www.clubedoingresso.com/evento/ira-porto
+OK:   the linked clubedoingresso.com page states the full date "03 de Outubro de 2026" directly
+OK:   the linked clubedoingresso.com page states the venue as "Hard Club Porto"
+OK:   the slug/list-derived date for ira-2026 (2026-10-03) matches the linked ticket page's stated full date exactly
+
+--- Step 5: archive excerpt -- 5 further real year-boundary crossings ---
+OK:   retained archive excerpt contains at least 5 "Happy Neo Year" New Year's Eve events (got 7)
+  neopop-presents-happy-neo-year-2024           "NEOPOP Presents Happy Neo Year" dated "31 Dez" -> 2024-12-31
+  neopop-presents-happy-neo-year-2023           "NEOPOP Presents Happy Neo Year" dated "31 Dez" -> 2023-12-31
+  neopop-presents-x-happy-neo-year-2022         "NEOPOP presents X HAPPY NEO YEAR" dated "31 Dez" -> 2022-12-31
+  happy-neo-year-2021                           "Happy Neo Year" dated "31 Dez" -> 2021-12-31
+  happy-neo-year-2019                           "HAPPY NEO YEAR" dated "31 Dez" -> 2019-12-31
+  happy-neo-year-2018-2019-2018                 "HAPPY NEO YEAR! 2018/2019" dated "31 Dez" -> 2018-12-31
+  happy-neo-year-2017                           "HAPPY NEO YEAR" dated "31 Dez" -> 2017-12-31
+OK:   every "Happy Neo Year" event's slug year matches its own 31 Dez date exactly (including "HAPPY NEO YEAR! 2018/2019", whose title names BOTH years while its slug/date correctly resolve to 2018-12-31, proving the slug -- not title branding -- tracks the actual occurrence date)
+
+--- Step 6: negative control -- the rule must flag, not guess, when slug context is absent ---
+OK:   the retained archive excerpt contains the genuine anomalous record (slug literally "2020", blank title)
+OK:   the derivation rule correctly REFUSES to resolve the anomalous "2020" record (no hyphen-prefixed -YYYY segment) rather than guessing a date from its bare slug (reason: slug "2020" has no trailing -YYYY segment)
+
+=== 14 checks run, 0 failed ===
+OFFLINE PROOF: PASSED

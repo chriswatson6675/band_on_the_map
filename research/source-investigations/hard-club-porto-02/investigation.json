@@ -1,0 +1,1131 @@
+{
+  "investigation_id": "hard-club-porto-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-25T09:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "NEW investigation against the LIVE public site under policy v1.2, re-starting the probe ladder at Level 1 (not continued/copied from hard-club-porto-01). PASSIVE_STATIC via curl against https://www.hardclubporto.com/ and its agenda page (cold); STRUCTURAL via curl against the publicly-referenced /include/ajax_functions.php AJAX endpoint (funcoes.js), testing both a cold no-session request and, informed by the historical hard-club-porto-01 finding, a warm two-step session-bootstrap request directly at Level 2 -- confirming the full day+month+slug data path without ever needing a browser. Sampled all 22 currently-listed events (11 Sep 2026 - 12 Feb 2027, crossing the 2026/2027 boundary). Tested a candidate deterministic year-derivation rule (event's own canonical URL slug's trailing year, combined with the list's own day+month) against independent first-party corroboration (event titles/descriptions), Hard Club's own retained past-events archive (5 further real year boundaries via 'Happy Neo Year' events), and, per an explicit addendum, Hard Club's own venue-designated linked third-party ticket pages (IRA! worked example plus a 22-event survey). Authored and ran a dependency-free, no-network offline derivation proof (evidence/offline-proof.mjs) reproducing every claim deterministically against retained fixtures."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain, cold, unauthenticated GET of the official home page (evidence/home.html) and agenda page (evidence/agenda-cold.html) -- freshly re-acquired for this investigation, not reused from hard-club-porto-01 -- shows the main event list is an empty client-rendered shell: <div id=\"postswrapper\" class=\"eventos\"><ul class=\"item\"></ul></div>, zero server-rendered event cards. No JSON-LD/schema.org block, no RSS/ICS/alternate link. A separate small nav widget (<ul class=\"agenda\">) IS server-rendered even in a cold fetch and shows day+abbreviated-month text (e.g. \"11 Set\", \"12 Set\", \"13 Set\") for only the 3 nearest events -- useful corroboration, but not the full list this investigation needs to sample.",
+      "evidence_refs": [
+        "ev-home-html",
+        "ev-headers-home",
+        "ev-agenda-cold-html",
+        "ev-headers-agenda-cold"
+      ]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspected the page's own public JS (evidence/funcoes.js), freshly re-fetched and re-confirmed to publicly reference the first-party AJAX endpoint /include/ajax_functions.php (action=load-agenda for the list, action=loadevent for per-event price/description/ticket-link) -- not brute-forced, discoverable by reading the site's own script, per this policy's Level 2 definition. A cold, no-prior-session structural GET of load-agenda (evidence/ajax-agenda-cold2.html) reproduces the exact day-only ambiguity ('11 ', no month) both hard-club-porto-01 (v1.1) and the older sources/porto.json note recorded. Per this task's explicit guidance to prefer confirming the known two-step HTTP path at Levels 1/2 without a browser where possible, this investigation then directly tested -- still entirely at Level 2, still zero browser involvement -- whether a normal prior GET of /PT/agenda/ in the same cookie jar (evidence/agenda-pageload.html) changes the AJAX endpoint's response: it does. The warm-session load-agenda fetch (evidence/ajax-agenda-warm.html) returns full day+abbreviated-Portuguese-month text (e.g. \"12 Set\", \"29 Jan\", \"12 Fev\") for all 22 currently-listed events, spanning 11 Sep 2026 through 12 Feb 2027 and crossing the 2026/2027 year boundary. The archive page (evidence/arquivo.html) was also checked for a month/year filter widget; none exists, matching the historical finding. This independently re-confirms, with fresh evidence and without ever needing a browser, the two-step session-bootstrap mechanism hard-club-porto-01 (v1.1) originally discovered via Level 3 browser observation. Because a genuine, reproducible, non-browser HTTP path fully answers the acquisition question, this is logged SUFFICIENT and escalation terminates here -- Level 3 (browser observation) is not attempted in this investigation because it is not needed, not because it was skipped.",
+      "evidence_refs": [
+        "ev-funcoes-js",
+        "ev-headers-funcoes",
+        "ev-ajax-agenda-cold2",
+        "ev-headers-ajax-agenda-cold2",
+        "ev-agenda-pageload",
+        "ev-headers-agenda-pageload",
+        "ev-ajax-agenda-warm",
+        "ev-headers-ajax-agenda-warm",
+        "ev-cookies-warm",
+        "ev-arquivo-html",
+        "ev-headers-arquivo"
+      ]
+    }
+  ],
+  "source_candidate_id": "hard-club-porto-02-candidate",
+  "source_id": null,
+  "venue_reference": "Hard Club — Porto, Portugal (live-music venue in the Mercado Ferreira Borges building, Praça do Infante D. Henrique)",
+  "official_url": "https://www.hardclubporto.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home-html",
+      "ev-agenda-cold-html",
+      "ev-o-hard-club",
+      "ev-event-detail-johnny-hooker"
+    ],
+    "notes": "The retained home page, agenda page, and about page all self-identify as \"Hard Club\" (title tags, footer branding, footer address \"Praça do Infante D. Henrique, Porto, Portugal\", links to instagram.com/hardclubporto, facebook.com/hardclubporto) and the about page explicitly names \"Mercado Ferreira Borges\" as the venue's own building. This is a FRESH, independent re-confirmation performed live in THIS investigation (2026-08-25T08:26-09:34Z), not copied from hard-club-porto-01 -- it agrees with, and independently reproduces, that prior finding."
+  },
+  "site_classification": {
+    "acquisition_class": "SPA_API_DISCOVERABLE",
+    "platform": "Custom/bespoke PHP site (response header X-Powered-By: PHP/5.6.40; no recognised CMS/framework fingerprint). The public agenda page is an empty shell whose event list is populated client-side via a first-party jQuery AJAX call to /include/ajax_functions.php, referenced directly and only in the page's own funcoes.js -- not a documented public API, but publicly discoverable by reading the site's own script, per docs/SOURCE_INVESTIGATION_POLICY.md Level 2. Freshly re-confirmed in this investigation.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-funcoes-js",
+      "ev-headers-home",
+      "ev-ajax-agenda-warm"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "SESSION_BOOTSTRAP_PAGE (required prerequisite GET, not itself an event data source)",
+      "url": "https://www.hardclubporto.com/PT/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-agenda-pageload",
+        "ev-headers-agenda-pageload"
+      ]
+    },
+    {
+      "kind": "AJAX_EVENT_LIST_FRAGMENT (warm session -- day+month+canonical-slug present for all 22 events)",
+      "url": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&langid=1&passo=30&evento=",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm",
+        "ev-headers-ajax-agenda-warm"
+      ]
+    },
+    {
+      "kind": "AJAX_EVENT_LIST_FRAGMENT (cold/no-session request -- day-of-month only, no month; rejected as insufficient on its own)",
+      "url": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&langid=1&passo=30&evento=",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ajax-agenda-cold2",
+        "ev-headers-ajax-agenda-cold2"
+      ]
+    },
+    {
+      "kind": "AJAX_EVENT_DETAIL_FRAGMENT (loadevent action -- price + free-text description + ticket link, keyed by the event's own URL slug)",
+      "url": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id={event_url_slug}&type=load-agenda&index={n}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ajax-loadevent-2zdinizz",
+        "ev-ajax-loadevent-351-festival",
+        "ev-ajax-loadevent-axisrock",
+        "ev-ajax-loadevent-beto-guedes",
+        "ev-ajax-loadevent-conquistadont",
+        "ev-ajax-loadevent-dr-manuel",
+        "ev-ajax-loadevent-fresno",
+        "ev-ajax-loadevent-ira",
+        "ev-ajax-loadevent-isa-buzzi",
+        "ev-ajax-loadevent-ist-ist",
+        "ev-ajax-loadevent-johnny-hooker",
+        "ev-ajax-loadevent-kasta",
+        "ev-ajax-loadevent-lebanon-hanover",
+        "ev-ajax-loadevent-mercury-rev",
+        "ev-ajax-loadevent-moonspell-parte-ii",
+        "ev-ajax-loadevent-moonspell",
+        "ev-ajax-loadevent-morgenshtern",
+        "ev-ajax-loadevent-rodox",
+        "ev-ajax-loadevent-terrakota",
+        "ev-ajax-loadevent-twilight-sad",
+        "ev-ajax-loadevent-transvision-vamp",
+        "ev-ajax-loadevent-udo"
+      ]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE (canonical slug URL; no JSON-LD/schema.org/<time> element; content itself loaded client-side)",
+      "url": "https://www.hardclubporto.com/PT/evento/{slug}/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-event-detail-johnny-hooker",
+        "ev-headers-event-detail-johnny-hooker"
+      ]
+    },
+    {
+      "kind": "ARCHIVE_AJAX_FRAGMENT (load-arquivo action -- past events; used only for secondary year-boundary corroboration, not part of the primary current/future sample)",
+      "url": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-arquivo&start=0&langid=1&passo=15&evento=",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-arquivo-boundary-excerpt",
+        "ev-headers-ajax-arquivo-warm"
+      ]
+    },
+    {
+      "kind": "EXTERNAL_LINKED_TICKETING_PAGE (ADDENDUM: venue-designated, event-specific third-party ticket link, embedded directly in Hard Club's own loadevent AJAX fragment via the 'bilhetes' anchor -- the LINK itself is first-party; the linked PAGE's content is third-party. Used only as secondary/corroborating evidence in this investigation, never as the sole basis for any PROVEN field -- see field_assessment.start_date.notes and README.md's LINKED TICKETING ANALYSIS section for why current v1.2 cannot treat this as DETERMINISTIC_CONTEXT on its own.)",
+      "url": "https://www.clubedoingresso.com/evento/ira-porto",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-clubedoingresso-ira",
+        "ev-headers-clubedoingresso-ira",
+        "ev-bol-lebanon-hanover",
+        "ev-westlive-udo",
+        "ev-headers-westlive-udo",
+        "ev-linked-ticketing-survey"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "JOHNNY HOOKER | EURO TOUR 2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Extracted deterministically from the <h3> heading (main title) and its nested <p class=\"demi\"> (subtitle) in the warm-session AJAX list fragment; consistent across all 22 sampled events (evidence/ajax-agenda-warm.html), confirmed offline (evidence/offline-proof-output.txt). Representative sample event chosen for consistency with the field's stable identifier (see source_record_id below). No combination with surrounding context is needed -- the title/subtitle are stated directly by the event's own <h3>/<p> markup, hence DIRECT_SOURCE, not DETERMINISTIC_CONTEXT.",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm",
+        "ev-offline-proof",
+        "ev-offline-proof-output"
+      ],
+      "derivation": null
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-12",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "THE central finding of this v1.2 re-investigation. Hard Club's own warm-session AJAX list fragment (evidence/ajax-agenda-warm.html) supplies, for every one of the 22 currently-listed events, TWO separate, retained, first-party pieces of context: (1) a day+abbreviated-Portuguese-month text in the 'data' field (e.g. \"12 Set\"), and (2) the event's own canonical URL-path slug, which the source ITSELF already uses (per the stable-identifier rule, see source_record_id below) as the DOM id attribute, the /PT/evento/{slug}/ canonical detail-page path, and the id parameter of its own loadevent AJAX call -- and that slug carries a trailing '-YYYY' segment (e.g. \"johnny-hooker-euro-tour-2026-2026\" -> 2026). Concatenating these two retained, first-party, source-owned signals as YYYY-MM-DD is a fixed, mechanical, exactly-one-result rule -- it does NOT rely on list order/sequence (the historical hard-club-porto-01 (v1.1) investigation correctly refused to do that, and this investigation does not either; see offline-proof.mjs Step 5's finding that Hard Club's own past-events archive list is NOT even reliably chronological). This mapping is not merely assumed: it was mechanically cross-checked, offline, against (a) 6 events' independent first-party title/subtitle/description text (all match, zero contradictions, including both sides of the 2026/2027 boundary: Johnny Hooker '...EURO TOUR 2026', Moonspell Parte II '...HALLOWEEN 2026 PARTE II', Fresno '...EUROTOUR 2027', U.D.O.'s description 'regressam a estrada no inicio de 2027', Lebanon Hanover's description stating the FULL date '21 de Novembro de 2026' directly, Moonspell's description 'Em 2026'); (b) 15 of 22 events' Hard Club-linked, venue-designated, event-specific third-party ticket pages (see the ADDENDUM data_paths entry and evidence/linked-ticketing-survey.json -- these are cited only as ADDITIONAL corroboration, never as the basis itself, since a third-party page cannot supply first-party context under this policy's DETERMINISTIC_CONTEXT definition); and (c) 5 further real year boundaries (2017/18 through 2023/24) in Hard Club's own retained past-events archive, via its own recurring 'Happy Neo Year' New Year's Eve events, including one whose OWN title states both years ('HAPPY NEO YEAR! 2018/2019') while its slug/date correctly resolve to 2018-12-31 -- proving the slug tracks the actual occurrence date, not tour-name/season branding. Zero contradictions were found anywhere in the sample. The rule also correctly REFUSES to resolve (rather than guessing) a genuine anomalous archive record whose slug carries no such segment (evidence/offline-proof-output.txt Step 6). Representative value shown here is for JOHNNY HOOKER (12 Set, slug suffix -2026 -> 2026-09-12); all 22 events resolve identically per evidence/offline-proof-output.txt -- 20 to 2026, 2 to 2027 (u-d-o-porto-hard-club-2027 -> 2027-01-29; fresno-eurotour-2027-carta-de-adeus-2027 -> 2027-02-12).",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm",
+        "ev-offline-proof",
+        "ev-offline-proof-output",
+        "ev-ajax-loadevent-johnny-hooker",
+        "ev-ajax-loadevent-moonspell-parte-ii",
+        "ev-ajax-loadevent-fresno",
+        "ev-ajax-loadevent-udo",
+        "ev-ajax-loadevent-lebanon-hanover",
+        "ev-ajax-loadevent-moonspell",
+        "ev-linked-ticketing-survey",
+        "ev-clubedoingresso-ira",
+        "ev-bol-lebanon-hanover",
+        "ev-arquivo-boundary-excerpt"
+      ],
+      "derivation": {
+        "rule": "The event's own canonical URL-path slug (source-owned; used by the site itself as the DOM id attribute, the /PT/evento/{slug}/ canonical detail-page path, and the id parameter of its own loadevent AJAX call) carries a trailing '-YYYY' segment stating the calendar year. The site's own AJAX event-list fragment separately states each event's day-of-month plus abbreviated Portuguese month (e.g. '12 Set'). Concatenate the slug's trailing year with the list's day+month as YYYY-MM-DD; if the slug carries no such trailing segment, the event is left explicitly unresolved rather than assigned any value. This mapping was mechanically cross-checked against independent first-party evidence (each event's own title/subtitle text and/or loadevent free-text description) for every event in the sample where such corroboration exists, with zero contradictions found, including on both sides of the 2026/2027 boundary and across five further real historical year boundaries in the source's own retained past-events archive.",
+        "inputs": [
+          "12 Set (day+abbreviated-month, from Hard Club's own warm-session AJAX event-list fragment)",
+          "johnny-hooker-euro-tour-2026-2026 (event's own canonical URL-path slug, trailing '-2026' segment)"
+        ]
+      }
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The 'local_hora' field gives a room label plus a 24-hour local time (e.g. \"Sala 2 : 20H00\"), consistently present for every sampled event, but with no explicit timezone/UTC marker anywhere in the response -- a floating local time only, per docs/OBSERVATION_PIPELINE.md's certainty model (FLOATING_LOCAL), not promoted to a confirmed UTC instant. This is unchanged from the historical hard-club-porto-01 (v1.1) finding; this investigation's year-derivation work does not extend to timezone resolution, which is a separate, unresolved question.",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm"
+      ],
+      "derivation": null
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is exposed anywhere in the retained list fragment, detail fragment, or event detail page for any sampled event. Unchanged from the historical hard-club-porto-01 (v1.1) finding.",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm",
+        "ev-ajax-loadevent-johnny-hooker",
+        "ev-event-detail-johnny-hooker"
+      ],
+      "derivation": null
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Hard Club, Praça do Infante D. Henrique, Porto, Portugal (Mercado Ferreira Borges building)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Site-wide address freshly re-confirmed from the footer (evidence/home.html, evidence/agenda-cold.html) and explicit building-name confirmation freshly re-confirmed from the about page (evidence/o-hard-club.html). The whole hardclubporto.com site is Hard Club's own single official agenda -- every event listed on it is inherently a Hard Club event by virtue of the site's own self-identification, not a per-event inference. Each individual event additionally carries its own room label (\"Sala 1\" or \"Sala 2\") directly in the same 'local_hora' field used for time -- e.g. Johnny Hooker plays \"Sala 2\".",
+      "evidence_refs": [
+        "ev-home-html",
+        "ev-agenda-cold-html",
+        "ev-o-hard-club",
+        "ev-ajax-agenda-warm"
+      ],
+      "derivation": null
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "johnny-hooker-euro-tour-2026-2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own URL-path slug (e.g. \"johnny-hooker-euro-tour-2026-2026\") is used consistently, by the source itself, as: (a) the list-fragment anchor's own \"id\" DOM attribute, (b) the canonical event-detail page URL segment (/PT/evento/{slug}/), freshly re-confirmed via a hidden input on that page echoing the same value, and (c) the \"id\" parameter the page's own click handler (callEvento in evidence/funcoes.js) passes to the loadevent AJAX action. This matches this policy's stable-identifier rule (\"derived from a deterministic source property whose own stability is itself evidenced\"). This SAME already-proven stability is what underwrites treating the slug's trailing year segment as reliable DETERMINISTIC_CONTEXT for start_date above -- a value the source itself already trusts as its own canonical identity is not merely 'looks like an ID', it is the ID. The fragment's numeric \"data-rel\" attribute remains confirmed NOT stable (a pagination position index) and must never be used as source_record_id, matching the historical hard-club-porto-01 finding.",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm",
+        "ev-funcoes-js",
+        "ev-event-detail-johnny-hooker"
+      ],
+      "derivation": null
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.hardclubporto.com/PT/evento/johnny-hooker-euro-tour-2026-2026/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Canonical per-event detail page URL, directly built from the site's own anchor href in the list fragment (evidence/ajax-agenda-warm.html) and freshly re-confirmed by fetching that exact URL (evidence/event-detail-johnny-hooker.html).",
+      "evidence_refs": [
+        "ev-ajax-agenda-warm",
+        "ev-event-detail-johnny-hooker"
+      ],
+      "derivation": null
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "25€- 55€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Exposed via a second, per-event AJAX call (action=loadevent, keyed by the event's own URL slug), not in the main list fragment. Freshly re-confirmed for multiple sampled events at different price shapes: Johnny Hooker \"25€- 55€\", IRA! \"35€\" (flat), U.D.O. \"45€\" (flat), +351 Festival Urbano \"22€-30€\" (range). The same response also carries an external ticketing link (see the ADDENDUM linked-ticketing analysis) and a free-text description, both venue-authored first-party content.",
+      "evidence_refs": [
+        "ev-ajax-loadevent-johnny-hooker",
+        "ev-ajax-loadevent-ira",
+        "ev-ajax-loadevent-udo",
+        "ev-ajax-loadevent-351-festival"
+      ],
+      "derivation": null
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ajax-agenda-warm",
+      "ev-headers-ajax-agenda-warm",
+      "ev-offline-proof",
+      "ev-offline-proof-output"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The full day+month event-list fragment is only returned once the requesting HTTP client has first performed a normal GET of /PT/agenda/ (or another page in the same session) to establish a PHPSESSID cookie, then repeats that same cookie plus a Referer header on the AJAX call. A cookie-naive single-request fetch silently returns day-only text with no error and no different HTTP status -- any future collector must implement this two-step flow explicitly (matches the historical hard-club-porto-01 finding; freshly re-confirmed with new evidence in this investigation)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The list fragment's own 'data-rel' attribute is a small sequential integer that resets across pagination and must never be used as source_record_id -- only the anchor's own 'id' attribute / URL slug should be used (see field_assessment.source_record_id.notes). Matches the historical hard-club-porto-01 finding."
+      },
+      {
+        "severity": "MINOR",
+        "description": "ADDENDUM: Hard Club's own free-text loadevent description for IRA! (evidence/ajax-loadevent-ira-2026.html) states the tour arrives 'em marco de 2026' (March 2026), while the event's own list day/month (03 Out), slug year (2026), and the linked clubedoingresso.com ticket page (which independently states 'Sabado, 03 de Outubro de 2026') all agree on October, not March. This is a genuine internal inconsistency in Hard Club's own marketing copy for this one event -- not a contradiction of the slug/list-derived date (which several INDEPENDENT signals corroborate), but a concrete illustration of why free-text descriptions are not used as the primary basis for any PROVEN field in this investigation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Every activation gate in docs/SOURCE_INVESTIGATION_POLICY.md (v1.2) is satisfied against retained, cited, freshly-acquired evidence: identity.status is PROVEN (re-confirmed live, evidence/home.html + evidence/o-hard-club.html + evidence/event-detail-johnny-hooker.html); site_classification.acquisition_class (SPA_API_DISCOVERABLE) is a resolved, supported, non-blocking class; at least one data_paths entry is PUBLIC+CONFIRMED (the warm-session AJAX list fragment); field_assessment.title.state is PROVEN; field_assessment.start_date.state is PROVEN (not UNKNOWN/NOT_PRESENT); field_assessment.source_record_id.state is PROVEN; collector_assessment.recommended_family (STATIC_EVENT_LIST) is a known family; at least one evidence[] item is DETERMINISTIC_DERIVATION (evidence/offline-proof.mjs + evidence/offline-proof-output.txt); no unresolved CRITICAL blocker exists (only 3 MINOR); decision.evidence_refs cites supporting evidence.",
+      "The v1.2-specific gate is also satisfied: field_assessment.start_date's basis is DETERMINISTIC_CONTEXT and it cites ev-offline-proof / ev-offline-proof-output, both evidence_class DETERMINISTIC_DERIVATION, proving the slug-year + list-day/month combination was genuinely reproduced offline, not merely asserted.",
+      "The calendar YEAR -- the single gap that kept hard-club-porto-01 (v1.1) at HUMAN_REVIEW -- is now honestly resolved for every one of the 22 sampled events via a fixed, mechanical, first-party-only rule (the event's own canonical URL-path slug's trailing year segment, combined with the list's own day+month text), NOT via list order/sequence, NOT via today's date, and NOT via any AI plausibility judgement. The rule was falsification-tested, not merely proposed: 6 independent first-party title/description corroborations (zero contradictions, including both sides of the 2026/2027 boundary), 15 independent linked-ticket-page corroborations (zero contradictions), and 5 further real historical year boundaries in Hard Club's own archive (zero contradictions, including one event whose own title names BOTH years yet whose slug/date resolve correctly) all agree. The rule also correctly refuses to resolve a genuine record lacking the necessary slug context, rather than guessing.",
+      "The ADDENDUM's linked-ticketing investigation (IRA! and the broader 22-event survey) provides strong ADDITIONAL corroboration but was deliberately NOT used as the basis for any PROVEN field, because a third-party ticket page -- even one directly, specifically linked by Hard Club's own structured event data -- does not meet this policy's definition of 'first-party context' for DETERMINISTIC_CONTEXT. See README.md's LINKED TICKETING ANALYSIS section for the full governance analysis and the smallest concrete change (a new LINKED_TICKETING_SOURCE-style basis/evidence class) that would let it count directly in a future policy version.",
+      "This decision is a RESEARCH CONCLUSION ONLY. It does not modify sources/*.json, any venues/*.json registry, manual-coordinates.json, data/public/*, or scheduler configuration, and does not activate a collector. A separate, explicitly-authorised step is required to act on it, per 'Investigation and activation are separate' in docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": [
+      "ev-ajax-agenda-warm",
+      "ev-offline-proof",
+      "ev-offline-proof-output",
+      "ev-linked-ticketing-survey",
+      "ev-clubedoingresso-ira",
+      "ev-arquivo-boundary-excerpt"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: home page (after redirect to /PT/), self-identifying as Hard Club with footer address 'Praça do Infante D. Henrique, Porto, Portugal' and social links instagram.com/hardclubporto, facebook.com/hardclubporto. Freshly re-acquired for this investigation.",
+      "acquired_from": "https://www.hardclubporto.com/ (redirects to https://www.hardclubporto.com/PT/)",
+      "acquired_at": "2026-08-25T08:26:30Z",
+      "method": "HTTP GET via curl -L, custom User-Agent BandOnTheMap-SourceInvestigation/0.2",
+      "content_type": "text/html; charset=windows-1252",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/home.html"
+    },
+    {
+      "evidence_id": "ev-headers-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the home page fetch, including Set-Cookie: PHPSESSID and X-Powered-By: PHP/5.6.40.",
+      "acquired_from": "https://www.hardclubporto.com/",
+      "acquired_at": "2026-08-25T08:26:30Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-cold-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: a cold (no prior session), unauthenticated GET of the public agenda page. The main event list is an empty client-rendered shell (<div id=\"postswrapper\"><ul class=\"item\"></ul></div>); a separate small nav widget (<ul class=\"agenda\">) IS server-rendered and shows only the 3 nearest events with day+abbreviated-month text -- not the full list.",
+      "acquired_from": "https://www.hardclubporto.com/PT/agenda/",
+      "acquired_at": "2026-08-25T08:26:35Z",
+      "method": "HTTP GET via curl, custom User-Agent BandOnTheMap-SourceInvestigation/0.2",
+      "content_type": "text/html; charset=windows-1252",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/agenda-cold.html"
+    },
+    {
+      "evidence_id": "ev-headers-agenda-cold",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the cold agenda page fetch.",
+      "acquired_from": "https://www.hardclubporto.com/PT/agenda/",
+      "acquired_at": "2026-08-25T08:26:35Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-agenda-cold.txt"
+    },
+    {
+      "evidence_id": "ev-o-hard-club",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: the 'o hard club' about page, explicitly naming 'Mercado Ferreira Borges' as the venue's own building -- freshly re-acquired for identity confirmation in this investigation.",
+      "acquired_from": "https://www.hardclubporto.com/PT/o-hard-club/",
+      "acquired_at": "2026-08-25T09:34:30Z",
+      "method": "HTTP GET via curl, custom User-Agent BandOnTheMap-SourceInvestigation/0.2",
+      "content_type": "text/html; charset=windows-1252",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/o-hard-club.html"
+    },
+    {
+      "evidence_id": "ev-headers-o-hard-club",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the about-page fetch.",
+      "acquired_from": "https://www.hardclubporto.com/PT/o-hard-club/",
+      "acquired_at": "2026-08-25T09:34:30Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-o-hard-club.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-johnny-hooker",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: the Johnny Hooker canonical event-detail page. Confirms the canonical slug-based URL, a hidden input echoing the same slug (id=\"event\" value=\"johnny-hooker-euro-tour-2026-2026\"), and confirms no JSON-LD/schema.org/<time datetime> element is present. Freshly re-acquired for this investigation.",
+      "acquired_from": "https://www.hardclubporto.com/PT/evento/johnny-hooker-euro-tour-2026-2026/",
+      "acquired_at": "2026-08-25T09:34:00Z",
+      "method": "HTTP GET via curl, custom User-Agent BandOnTheMap-SourceInvestigation/0.2",
+      "content_type": "text/html; charset=windows-1252",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/event-detail-johnny-hooker.html"
+    },
+    {
+      "evidence_id": "ev-headers-event-detail-johnny-hooker",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the Johnny Hooker event-detail page fetch.",
+      "acquired_from": "https://www.hardclubporto.com/PT/evento/johnny-hooker-euro-tour-2026-2026/",
+      "acquired_at": "2026-08-25T09:34:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-event-detail-johnny-hooker.txt"
+    },
+    {
+      "evidence_id": "ev-funcoes-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw public JS file referenced by the agenda page. Defines getContent()/callEvento(), which publicly reference the /include/ajax_functions.php endpoint with action=load-agenda and action=loadevent -- the basis for the Level 2 structural probe. Freshly re-acquired and re-confirmed identical in substance to the historical hard-club-porto-01 finding.",
+      "acquired_from": "https://www.hardclubporto.com/js/funcoes.js",
+      "acquired_at": "2026-08-25T08:27:05Z",
+      "method": "HTTP GET via curl, custom User-Agent BandOnTheMap-SourceInvestigation/0.2",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/funcoes.js"
+    },
+    {
+      "evidence_id": "ev-headers-funcoes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the funcoes.js fetch.",
+      "acquired_from": "https://www.hardclubporto.com/js/funcoes.js",
+      "acquired_at": "2026-08-25T08:27:05Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-funcoes.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-agenda-cold2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body from the load-agenda AJAX endpoint, fetched with a fresh cookie jar, browser-like headers, and a Referer header, but WITHOUT first performing a real prior page load in that same session. Returns the full 22-event fragment, but every event's date field is day-only (e.g. \"11 \"), no month -- reproducing the exact ambiguity both the historical hard-club-porto-01 (v1.1) investigation and the older sources/porto.json note recorded.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&rand=0.123456&langid=1&passo=30&evento=",
+      "acquired_at": "2026-08-25T08:27:35Z",
+      "method": "HTTP GET via curl with -c/-b cookie jar, browser-like User-Agent/Accept-Language headers, no prior page load in the session",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-agenda-cold2.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-agenda-cold2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the cold/no-session load-agenda AJAX fetch (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&rand=0.123456&langid=1&passo=30&evento=",
+      "acquired_at": "2026-08-25T08:27:35Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-agenda-cold2.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-pageload",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The prerequisite prior GET of the agenda page, made with the SAME cookie jar later reused for evidence/ajax-agenda-warm.html, to establish a real PHPSESSID before the AJAX call. This is a plain, non-browser HTTP request -- the two-step flow was tested directly at Level 2 (STRUCTURAL) in this investigation, without needing a browser session at all.",
+      "acquired_from": "https://www.hardclubporto.com/PT/agenda/",
+      "acquired_at": "2026-08-25T08:27:40Z",
+      "method": "HTTP GET via curl with a fresh cookie jar (-c/-b), browser-like User-Agent",
+      "content_type": "text/html; charset=windows-1252",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/agenda-pageload.html"
+    },
+    {
+      "evidence_id": "ev-headers-agenda-pageload",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the warm-up agenda page fetch, showing the PHPSESSID cookie set.",
+      "acquired_from": "https://www.hardclubporto.com/PT/agenda/",
+      "acquired_at": "2026-08-25T08:27:40Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-agenda-pageload.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-agenda-warm",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "THE key positive finding of this investigation: the load-agenda AJAX endpoint, fetched with the SAME cookie jar as evidence/agenda-pageload.html (i.e. a warm session) plus a Referer header. Returns the full 22-event fragment with day+abbreviated-Portuguese-month text (e.g. \"12 Set\", \"29 Jan\", \"12 Fev\") AND each event's own canonical URL-path slug, for every one of the 22 currently-listed events, spanning 11 Sep 2026 through 12 Feb 2027 -- crossing the 2026/2027 calendar-year boundary. Independently re-confirms and reproduces (with fresh evidence, in this investigation) the two-step session-bootstrap mechanism the historical hard-club-porto-01 (v1.1) investigation discovered via browser observation -- this time established directly at Level 2 (STRUCTURAL), with no browser needed. The primary retained fixture for the offline derivation proof.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&rand=0.987654&langid=1&passo=30&evento=",
+      "acquired_at": "2026-08-25T08:27:45Z",
+      "method": "HTTP GET via curl, reusing a cookie jar warmed by a real prior GET of /PT/agenda/ (evidence/agenda-pageload.html), plus -e Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-agenda-warm.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-agenda-warm",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the warm-session load-agenda AJAX fetch (200 OK, live server response).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&rand=0.987654&langid=1&passo=30&evento=",
+      "acquired_at": "2026-08-25T08:27:45Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-agenda-warm.txt"
+    },
+    {
+      "evidence_id": "ev-cookies-warm",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The Netscape-format cookie jar (containing the live PHPSESSID) reused across the warm-session agenda fetch and all 22 loadevent probes -- retained for reproducibility/provenance of the two-step flow.",
+      "acquired_from": "https://www.hardclubporto.com/ (curl cookie jar, -c/-b)",
+      "acquired_at": "2026-08-25T08:27:40Z",
+      "method": "curl -c/-b cookie jar file",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/cookies-warm.txt"
+    },
+    {
+      "evidence_id": "ev-arquivo-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: the 'eventos passados' (past events) archive page. Checked for a month/year filter widget or calendar UI; none found -- matching the historical hard-club-porto-01 finding.",
+      "acquired_from": "https://www.hardclubporto.com/PT/arquivo/",
+      "acquired_at": "2026-08-25T08:30:00Z",
+      "method": "HTTP GET via curl, custom User-Agent BandOnTheMap-SourceInvestigation/0.2",
+      "content_type": "text/html; charset=windows-1252",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/arquivo.html"
+    },
+    {
+      "evidence_id": "ev-headers-arquivo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the archive page fetch.",
+      "acquired_from": "https://www.hardclubporto.com/PT/arquivo/",
+      "acquired_at": "2026-08-25T08:30:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-arquivo.txt"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-arquivo-warm",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the warm-session load-arquivo AJAX fetch that produced the archive excerpt below (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-arquivo&start=0&rand=0.55555&langid=1&passo=15&evento=",
+      "acquired_at": "2026-08-25T08:30:10Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-arquivo-warm.txt"
+    },
+    {
+      "evidence_id": "ev-arquivo-boundary-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, retained excerpt (9 event blocks) of Hard Club's own load-arquivo AJAX response (1,246 real past-event records total; the full 611KB response was NOT retained in full per this policy's evidence-boundedness rule -- only the blocks material to this investigation's year-derivation claim were extracted, verbatim, from the live response). Contains 7 real \"Happy Neo Year\" New Year's Eve events (each dated \"31 Dez\", each slug-tagged with the outgoing year) spanning 5 further real year boundaries (2017/18, 2018/19, 2021/22, 2022/23, 2023/24), including one event whose own title states BOTH years (\"HAPPY NEO YEAR! 2018/2019\") while correctly slug/date-resolving to 2018-12-31 -- proving the slug tracks the actual occurrence date, not tour/season branding. Also contains the genuine anomalous record used as this investigation's negative control: slug literally \"2020\" (no hyphen-prefixed year segment), blank title, malformed context -- used to prove the derivation rule fails loudly rather than guessing when context is absent. The extracted HTML fragments themselves are byte-identical to what the live response contained for those specific <li> blocks.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-arquivo&start=0&rand=0.55555&langid=1&passo=15&evento= (bounded excerpt of a much larger live response; full response not retained)",
+      "acquired_at": "2026-08-25T08:30:10Z",
+      "method": "HTTP GET via curl (warm session), then a scripted extraction (Python) isolating only the 'Happy Neo Year'/'NEOPOP...Happy Neo Year' blocks plus the one anomalous \"2020\" block, discarding the remaining ~1,237 unrelated archive records",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/arquivo-boundary-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically parses evidence/ajax-agenda-warm.html (all 22 sampled events), derives YYYY-MM-DD for each via the slug-trailing-year + list day/month rule, cross-checks the derived year against independent first-party title/description text (6 events) and against the linked-ticketing survey (15 events) and the IRA! worked example, cross-checks 5 further historical year boundaries via the retained archive excerpt (7 'Happy Neo Year' events), and proves the rule fails loudly (does not guess) against the genuine anomalous archive record. Asserts zero contradictions throughout.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-08-25T09:39:00Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`, run in this investigation directory: exits 0, 14/14 checks pass, \"OFFLINE PROOF: PASSED\". Confirms all 22 events resolve to exactly one date each (20 in 2026, 2 in 2027), zero contradictions against 6 independent first-party corroboration signals, zero contradictions against 15 linked-ticket-page dates, the IRA! worked example matches exactly, 7 archive 'Happy Neo Year' events across 5 further year boundaries all resolve correctly, and the anomalous archive record is correctly refused rather than guessed.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against retained fixtures only; no network access",
+      "acquired_at": "2026-08-25T09:39:05Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/offline-proof-output.txt"
+    },
+    {
+      "evidence_id": "ev-clubedoingresso-ira",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: the clubedoingresso.com ticket page for IRA! at Hard Club, reached via the exact URL Hard Club's own loadevent AJAX fragment links to. States the full date \"Sábado, 03 de Outubro de 2026\" and venue \"Hard Club Porto\" / \"Praça do Infante D. Henrique\" directly, plus a matching schema.org Product/Offer block (price 35.00 EUR, matching Hard Club's own loadevent price). This is the addendum's primary worked example of a venue-designated, event-specific, first-party-linked (but third-party-hosted) ticket page.",
+      "acquired_from": "https://www.clubedoingresso.com/evento/ira-porto",
+      "acquired_at": "2026-08-25T09:33:09Z",
+      "method": "HTTP GET via curl -L, browser-like User-Agent",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/clubedoingresso-ira.html"
+    },
+    {
+      "evidence_id": "ev-headers-clubedoingresso-ira",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the clubedoingresso.com IRA! ticket page fetch.",
+      "acquired_from": "https://www.clubedoingresso.com/evento/ira-porto",
+      "acquired_at": "2026-08-25T09:33:09Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-clubedoingresso-ira.txt"
+    },
+    {
+      "evidence_id": "ev-bol-lebanon-hanover",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: the bol.pt ticket page for Lebanon Hanover at Hard Club, reached via the exact URL Hard Club's own loadevent AJAX fragment links to (evidence/ajax-loadevent-lebanon-hanover-2026.html). States 'Comprar bilhetes para 21/11/2026' -- an exact full date -- matching both Hard Club's own list day/month (\"21 Nov\") + slug year (\"-2026\") AND Hard Club's own loadevent free-text description (\"21 de Novembro de 2026\"). A second, independently-provider full worked example (bol.pt, distinct from clubedoingresso.com).",
+      "acquired_from": "https://www.bol.pt/Comprar/Bilhetes/167668-lebanon_hanover-hard_club_li/",
+      "acquired_at": "2026-08-25T09:34:52Z",
+      "method": "HTTP GET via curl -L, browser-like User-Agent",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/bol-lebanon-hanover.html"
+    },
+    {
+      "evidence_id": "ev-westlive-udo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: the westlive.mticket.eu ticket widget page for U.D.O. at Hard Club, reached via the exact URL Hard Club's own loadevent AJAX fragment links to. Retained as an honest NEGATIVE example: this page is a client-side-rendered JS single-page-app shell with no static HTML content (empty <title>, no visible date/year anywhere in the raw response) -- passively fetched, no date recoverable without executing JavaScript, which this investigation does not do. Demonstrates that linked ticketing pages are NOT a uniformly reliable corroboration source across all 10 providers found in the sample.",
+      "acquired_from": "https://westlive.mticket.eu/widget586site12853/widget/event/179025",
+      "acquired_at": "2026-08-25T08:34:00Z",
+      "method": "HTTP GET via curl -L, browser-like User-Agent",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/westlive-udo.html"
+    },
+    {
+      "evidence_id": "ev-headers-westlive-udo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the westlive.mticket.eu U.D.O. widget fetch.",
+      "acquired_from": "https://westlive.mticket.eu/widget586site12853/widget/event/179025",
+      "acquired_at": "2026-08-25T08:34:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-westlive-udo.txt"
+    },
+    {
+      "evidence_id": "ev-linked-ticketing-survey",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Mechanically-generated survey (fixed regex date-pattern extraction; no AI judgement) covering the remaining 20 of the 22 sampled events' Hard Club-linked ticket pages (IRA! and Lebanon Hanover retained in full separately; U.D.O.'s westlive.mticket.eu widget also retained in full as the negative example above). Each of the 20 pages was fetched once live (2026-08-25) and searched for an exact machine-readable event date (schema.org itemprop=\"startDate\", JSON start_date fields, or 'Comprar bilhetes para DD/MM/YYYY' text), scoped to exclude unrelated 'similar events' carousel blocks appearing elsewhere on the same page. Raw page bytes were not separately retained for all 20 (bounded evidence discipline) -- this file itself, retained under the governed evidence root, is the record of what was mechanically found: 15 of 20 supplied an exact date (all 15 matching the Hard Club slug/list-derived date with zero contradictions); 5 (axisrock/shotgun.live, dr-manuel/weeztix, johnny-hooker/q2ingressos.com.br, rodox/camarotetickets, terrakota/shotgun.live) are client-rendered JS pages with no statically-recoverable date, consistent with the westlive.mticket.eu negative example.",
+      "acquired_from": "20 distinct third-party ticketing URLs (ticketline.pt x6, bol.pt x3, shotgun.live x2, ticketshop.eu x2, and one each of clubedoingresso.com, enterticket.es, weeztix.com, q2ingressos.com.br, camarotetickets.com) -- see field_assessment notes and README.md for the full per-event table",
+      "acquired_at": "2026-08-25T09:38:00Z",
+      "method": "Scripted: `curl -L` fetch of each URL once, followed by fixed-regex (Python) date-pattern extraction; output retained as JSON",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/linked-ticketing-survey.json"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-2zdinizz",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"2zdinizz-patrono-tour-2026\" event (index=3 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=2zdinizz-patrono-tour-2026&type=load-agenda&index=3",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-2zdinizz-patrono-tour-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-2zdinizz",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"2zdinizz-patrono-tour-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=2zdinizz-patrono-tour-2026&type=load-agenda&index=3",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-2zdinizz-patrono-tour-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-351-festival",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"351-festival-urbano-11-e-12-de-setembro-2026\" event (index=1 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=351-festival-urbano-11-e-12-de-setembro-2026&type=load-agenda&index=1",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-351-festival-urbano-11-e-12-de-setembro-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-351-festival",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"351-festival-urbano-11-e-12-de-setembro-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=351-festival-urbano-11-e-12-de-setembro-2026&type=load-agenda&index=1",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-351-festival-urbano-11-e-12-de-setembro-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-axisrock",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"axisrock-fest-26-2026\" event (index=4 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=axisrock-fest-26-2026&type=load-agenda&index=4",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-axisrock-fest-26-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-axisrock",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"axisrock-fest-26-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=axisrock-fest-26-2026&type=load-agenda&index=4",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-axisrock-fest-26-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-beto-guedes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"beto-guedes-2026\" event (index=5 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=beto-guedes-2026&type=load-agenda&index=5",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-beto-guedes-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-beto-guedes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"beto-guedes-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=beto-guedes-2026&type=load-agenda&index=5",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-beto-guedes-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-conquistadont",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"conquistadont-show-de-comedia-del-tercer-mundo-2026\" event (index=7 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=conquistadont-show-de-comedia-del-tercer-mundo-2026&type=load-agenda&index=7",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-conquistadont-show-de-comedia-del-tercer-mundo-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-conquistadont",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"conquistadont-show-de-comedia-del-tercer-mundo-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=conquistadont-show-de-comedia-del-tercer-mundo-2026&type=load-agenda&index=7",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-conquistadont-show-de-comedia-del-tercer-mundo-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-dr-manuel",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"dr-manuel-sans-segarra-a-supraconsciancia-existe-2026\" event (index=6 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=dr-manuel-sans-segarra-a-supraconsciancia-existe-2026&type=load-agenda&index=6",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-dr-manuel-sans-segarra-a-supraconsciancia-existe-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-dr-manuel",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"dr-manuel-sans-segarra-a-supraconsciancia-existe-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=dr-manuel-sans-segarra-a-supraconsciancia-existe-2026&type=load-agenda&index=6",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-dr-manuel-sans-segarra-a-supraconsciancia-existe-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-fresno",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"fresno-eurotour-2027-carta-de-adeus-2027\" event (index=22 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=fresno-eurotour-2027-carta-de-adeus-2027&type=load-agenda&index=22",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-fresno-eurotour-2027-carta-de-adeus-2027.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-fresno",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"fresno-eurotour-2027-carta-de-adeus-2027\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=fresno-eurotour-2027-carta-de-adeus-2027&type=load-agenda&index=22",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-fresno-eurotour-2027-carta-de-adeus-2027.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-ira",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"ira-2026\" event (index=10 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=ira-2026&type=load-agenda&index=10",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-ira-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-ira",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"ira-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=ira-2026&type=load-agenda&index=10",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-ira-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-isa-buzzi",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"isa-buzzi-tour-clube-dos-coracoes-partidos-2026\" event (index=15 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=isa-buzzi-tour-clube-dos-coracoes-partidos-2026&type=load-agenda&index=15",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-isa-buzzi-tour-clube-dos-coracoes-partidos-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-isa-buzzi",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"isa-buzzi-tour-clube-dos-coracoes-partidos-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=isa-buzzi-tour-clube-dos-coracoes-partidos-2026&type=load-agenda&index=15",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-isa-buzzi-tour-clube-dos-coracoes-partidos-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-ist-ist",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"ist-ist-2026\" event (index=12 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=ist-ist-2026&type=load-agenda&index=12",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-ist-ist-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-ist-ist",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"ist-ist-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=ist-ist-2026&type=load-agenda&index=12",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-ist-ist-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-johnny-hooker",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"johnny-hooker-euro-tour-2026-2026\" event (index=2 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=johnny-hooker-euro-tour-2026-2026&type=load-agenda&index=2",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-johnny-hooker-euro-tour-2026-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-johnny-hooker",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"johnny-hooker-euro-tour-2026-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=johnny-hooker-euro-tour-2026-2026&type=load-agenda&index=2",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-johnny-hooker-euro-tour-2026-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-kasta",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"kasta-2026\" event (index=16 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=kasta-2026&type=load-agenda&index=16",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-kasta-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-kasta",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"kasta-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=kasta-2026&type=load-agenda&index=16",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-kasta-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-lebanon-hanover",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"lebanon-hanover-2026\" event (index=20 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=lebanon-hanover-2026&type=load-agenda&index=20",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-lebanon-hanover-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-lebanon-hanover",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"lebanon-hanover-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=lebanon-hanover-2026&type=load-agenda&index=20",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-lebanon-hanover-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-mercury-rev",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"mercury-rev-2026\" event (index=9 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=mercury-rev-2026&type=load-agenda&index=9",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-mercury-rev-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-mercury-rev",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"mercury-rev-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=mercury-rev-2026&type=load-agenda&index=9",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-mercury-rev-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-moonspell-parte-ii",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"moonspell-invicta-halloween-2026-parte-ii-2026\" event (index=18 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=moonspell-invicta-halloween-2026-parte-ii-2026&type=load-agenda&index=18",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-moonspell-invicta-halloween-2026-parte-ii-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-moonspell-parte-ii",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"moonspell-invicta-halloween-2026-parte-ii-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=moonspell-invicta-halloween-2026-parte-ii-2026&type=load-agenda&index=18",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-moonspell-invicta-halloween-2026-parte-ii-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-moonspell",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"moonspell-invicta-halloween-2026\" event (index=17 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=moonspell-invicta-halloween-2026&type=load-agenda&index=17",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-moonspell-invicta-halloween-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-moonspell",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"moonspell-invicta-halloween-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=moonspell-invicta-halloween-2026&type=load-agenda&index=17",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-moonspell-invicta-halloween-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-morgenshtern",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"morgenshtern-2026\" event (index=11 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=morgenshtern-2026&type=load-agenda&index=11",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-morgenshtern-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-morgenshtern",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"morgenshtern-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=morgenshtern-2026&type=load-agenda&index=11",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-morgenshtern-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-rodox",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"rodox-originals-tour-2026\" event (index=14 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=rodox-originals-tour-2026&type=load-agenda&index=14",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-rodox-originals-tour-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-rodox",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"rodox-originals-tour-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=rodox-originals-tour-2026&type=load-agenda&index=14",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-rodox-originals-tour-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-terrakota",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"terrakota-2026\" event (index=13 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=terrakota-2026&type=load-agenda&index=13",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-terrakota-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-terrakota",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"terrakota-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=terrakota-2026&type=load-agenda&index=13",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-terrakota-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-twilight-sad",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"the-twilight-sad-2026\" event (index=19 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=the-twilight-sad-2026&type=load-agenda&index=19",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-the-twilight-sad-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-twilight-sad",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"the-twilight-sad-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=the-twilight-sad-2026&type=load-agenda&index=19",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-the-twilight-sad-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-transvision-vamp",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"transvision-vamp-2026\" event (index=8 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=transvision-vamp-2026&type=load-agenda&index=8",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-transvision-vamp-2026.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-transvision-vamp",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"transvision-vamp-2026\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=transvision-vamp-2026&type=load-agenda&index=8",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-transvision-vamp-2026.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-loadevent-udo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body: Hard Club's own loadevent AJAX detail fragment for the \"u-d-o-porto-hard-club-2027\" event (index=21 in the warm-session list), including its price and, where present, its \"bilhetes\" (buy tickets) link and free-text description.",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=u-d-o-porto-hard-club-2027&type=load-agenda&index=21",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl, reusing the warm cookie jar (evidence/cookies-warm.txt) plus a Referer header",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-u-d-o-porto-hard-club-2027.html"
+    },
+    {
+      "evidence_id": "ev-headers-ajax-loadevent-udo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the \"u-d-o-porto-hard-club-2027\" loadevent probe (200 OK).",
+      "acquired_from": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=u-d-o-porto-hard-club-2027&type=load-agenda&index=21",
+      "acquired_at": "2026-08-25T09:29:00Z",
+      "method": "HTTP GET via curl -D",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hard-club-porto-02/evidence/headers-ajax-loadevent-u-d-o-porto-hard-club-2027.txt"
+    }
+  ],
+  "supersedes": "hard-club-porto-01"
+}
