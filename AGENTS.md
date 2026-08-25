@@ -17,5 +17,10 @@ source, read `docs/SOURCE_INVESTIGATION_POLICY.md` in full. In short:
   `INSUFFICIENT` first;
 - investigation must never activate a source — that requires a separate,
   explicitly-authorised action;
-- unknown facts must never be invented;
+- unknown facts must never be invented, and a missing year is never filled
+  in just because today's date makes one seem likely;
+- a precise fact may be derived from retained context under policy `v1.2`
+  (e.g. a page heading + an event card's day combine to a full date), but
+  only mechanically, with a `derivation` citing the exact inputs and rule —
+  plausible/likely (`AI_INFERENCE`) reasoning can never be `PROVEN`;
 - existing canonical/public data must not be mutated during investigation.
