@@ -15,6 +15,7 @@ which this package deliberately does not close).
 | File | Purpose |
 |---|---|
 | `install.sh` | idempotent install/update script — see below |
+| `check-deploy-tree.sh` | explicit pre-checkout working-tree reconciliation — see "Runtime artifact vs pinned deployment" below |
 | `systemd/botm-unattended.service` | `oneshot` unit running one `npm run unattended` cycle |
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
 
@@ -51,6 +52,41 @@ touches the checkout at all. Deploying new application code is always a
 separate, deliberate re-run of `install.sh` with a new `--ref`, reviewed
 and chosen by a human. **We want event collection automatic; we do not
 want arbitrary new application code self-deploying twice a day.**
+
+## Runtime artifact vs pinned deployment (`BOTM-COLLECTOR-DEPLOY-HARDENING-01`)
+
+The unattended collector (`npm run unattended`) legitimately rewrites the
+**tracked** `data/public/lisbon-porto-map.json` on every run — that is its
+whole job, and it is expected, healthy production behaviour (see
+`docs/UNATTENDED_RUNNER.md`), not an operator mistake. In practice this
+means the deployed checkout is routinely "dirty" by the time a human
+re-runs `install.sh` for a new pinned-SHA deployment: a bare
+`git checkout --detach <ref>` correctly refuses to silently overwrite a
+locally-modified tracked file.
+
+`install.sh` now reconciles this automatically and explicitly via
+[`deploy/check-deploy-tree.sh`](check-deploy-tree.sh), run just before the
+checkout step:
+
+- if the working tree is clean, or the **only** local modification is
+  exactly `data/public/lisbon-porto-map.json` (unstaged, ordinary
+  modification — never staged, never deleted/renamed), that ONE file's
+  local change is discarded (`git checkout -- data/public/lisbon-porto-map.json`)
+  intentionally and loudly logged, and the deployment proceeds — the file
+  is regenerated fresh by the very next unattended/publication run anyway;
+- **any other** unexpected working-tree state — a different modified
+  tracked file, any staged change (including a staged change to the
+  artifact itself), any untracked file, a deletion of the artifact instead
+  of an ordinary modification — stops deployment immediately, unchanged,
+  exactly as a bare `git checkout` already did before this hardening.
+  Nothing is ever discarded in that case.
+
+This mechanism never runs a generic `git stash` across the whole
+repository, and never accumulates stash entries. **Operators should no
+longer need to manually `git stash` routine collector output before
+running `install.sh`** — if a deployment is refused, it means something
+genuinely unexpected (beyond the known generated artifact) is present in
+the working tree and needs a human to look at it directly.
 
 ## Install / update
 

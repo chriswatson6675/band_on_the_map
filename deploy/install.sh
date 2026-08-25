@@ -23,6 +23,13 @@
 #   1. create the `botm` system user/group if missing (non-login, no home
 #      shell)
 #   2. clone the repository into APP_DIR if missing, else fetch
+#   3a. reconcile the working tree via deploy/check-deploy-tree.sh: the
+#      ONE known, deterministic, collector-regenerated runtime artifact
+#      (data/public/lisbon-porto-map.json) is discarded automatically and
+#      explicitly if that is the ONLY local modification present; ANY
+#      other dirty/staged/untracked state stops this script here, before
+#      anything is checked out -- see deploy/check-deploy-tree.sh and
+#      deploy/README.md's "Runtime artifact vs pinned deployment"
 #   3. checkout the EXACT ref given via --ref (required -- this script
 #      refuses to run without one, so an update is always an explicit,
 #      reviewable choice)
@@ -40,6 +47,13 @@
 # proof-run step that must succeed first.
 
 set -euo pipefail
+
+# BOTM-COLLECTOR-DEPLOY-HARDENING-01: resolved from THIS script's own
+# location (never $APP_DIR) so the co-located deploy/check-deploy-tree.sh
+# always matches the version of install.sh actually being run -- this
+# matters on the very deployment that introduces check-deploy-tree.sh
+# itself, where the OLD checked-out tree at $APP_DIR does not have it yet.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 APP_DIR="/opt/band-on-the-map"
 REPO_URL="https://github.com/chriswatson6675/band_on_the_map.git"
@@ -96,6 +110,14 @@ else
   echo "Existing checkout found at $APP_DIR — fetching..."
   git -C "$APP_DIR" fetch origin
 fi
+
+# --- 3a. reconcile the ONE known, deterministic runtime-generated ------
+#     artifact (data/public/lisbon-porto-map.json) before switching
+#     commits -- see deploy/check-deploy-tree.sh. Every other kind of
+#     dirty working tree, staged change, or unexpected file still stops
+#     deployment here, exactly as a bare checkout already did before.
+echo "Checking working tree state before switching commits..."
+"$SCRIPT_DIR/check-deploy-tree.sh" "$APP_DIR"
 
 echo "Checking out $REF (detached — this deployment is pinned, not tracking a branch tip)..."
 git -C "$APP_DIR" checkout --detach "$REF"
