@@ -570,6 +570,9 @@ Both layers together reject, among other things:
 - `AI_INTERPRETATION` evidence marked `byte_faithful: true`;
 - `READY_FOR_ACTIVATION` alongside an unresolved `CRITICAL` blocker;
 - a missing `investigated_at` timestamp or `policy_version`;
+- a `policy_version` that is well-formed but not in
+  `SUPPORTED_POLICY_VERSIONS` (today, anything other than exactly
+  `BOTM-SOURCE-INVESTIGATION-v1.1`) — see "Policy versioning" below;
 - an unknown decision, evidence-class, or acquisition-classification
   value;
 - a malformed URL where a URL is required;
@@ -590,14 +593,62 @@ Both layers together reject, among other things:
 ## Policy versioning
 
 This policy is versioned (`BOTM-SOURCE-INVESTIGATION-v1.1`). Every
-investigation record carries its `policy_version`.
-`ingestion/source-investigation/contract.mjs` validates the *shape* of
-that string (`BOTM-SOURCE-INVESTIGATION-v<major>.<minor>`) rather than
-pinning to one exact current value, so a future policy version can be
-introduced — and coexist with records written under an earlier one —
-without every existing investigation becoming invalid overnight. A
-version that changes validation *rules*, not just prose, should ship as a
-new minor/major version with its own note in this document.
+investigation record carries its `policy_version`, and
+`ingestion/source-investigation/contract.mjs` checks it in two separate
+steps that must not be confused with each other:
+
+1. **Shape.** Is the string even well-formed —
+   `BOTM-SOURCE-INVESTIGATION-v<major>.<minor>`? This is deliberately
+   generic and does not name `v1.1` specifically, because the *naming
+   scheme itself* is expected to outlive any one version.
+2. **Support.** Is this specific version one the *current validator
+   implementation* actually knows how to check?
+   `SUPPORTED_POLICY_VERSIONS` in `contract.mjs` answers this, and today
+   it contains exactly one entry: `v1.1`. **A record declaring any other
+   version — including an older, perfectly well-formed one like
+   `v1.0` — fails validation outright**, with an explicit
+   `unsupported policy_version "..." — current validator supports
+   BOTM-SOURCE-INVESTIGATION-v1.1` error. It is never silently
+   re-validated under `v1.1`'s rules.
+
+**Why fail closed instead of reinterpreting.** A validator that accepted
+any well-formed `policy_version` string and then applied *today's* rules
+to it regardless would be lying about what it checked — a `v1.0` record
+would appear to pass "validation" while actually only ever having been
+checked against `v1.1`'s requirements (`probe_history` and everything
+else added since), which is not what a `v1.0` investigator was ever held
+to and not a genuine re-validation of what `v1.0` actually required. Fail
+closed instead: an unsupported version is a clearly reported error, not a
+silent reinterpretation.
+
+**Historical records remain durable, not silently re-checked.** This is
+consistent with "History and supersession" above: an old
+`investigation.json` is never rewritten just because the policy moved on.
+A `v1.0` record stays exactly as it is, on disk, as part of the
+project's history — this validator simply cannot currently re-validate
+it under `v1.0`'s own original rules, and says so plainly instead of
+guessing.
+
+**What introducing real `v1.2` support requires.** Bumping
+`POLICY_VERSION` (or widening `SUPPORTED_POLICY_VERSIONS`) on its own is
+not enough and must never be done as a shortcut. Future coexistence needs
+genuine **version-specific validation/dispatch** — implemented
+explicitly, not assumed — before a new version's records can validate.
+Concretely, that means one of:
+
+- a documented, deliberate decision that `v1.2`'s rules are a strict
+  superset of / fully compatible with `v1.1`'s, so the existing
+  `validateInvestigation()` genuinely already implements them correctly
+  for both versions, **or**
+- dispatching to a version-specific validation function (e.g.
+  `validateInvestigationV1_1()` / `validateInvestigationV1_2()`) selected
+  by `record.policy_version`, so each version is checked against the
+  rules it actually had.
+
+Either way, the new version must be added to `SUPPORTED_POLICY_VERSIONS`
+deliberately, alongside its own tests — never by widening
+`POLICY_VERSION_PATTERN` or the supported-versions set without that work,
+and never by simply pointing an old version's records at new rules.
 
 **`v1.1`** (`BOTM-SOURCE-INVESTIGATION-GOVERNANCE-01A`) added the
 required `probe_history[]` field and its validation rules (see "Probe
@@ -607,6 +658,16 @@ governance fixtures under `research/source-investigations/` were updated
 in place to `v1.1` and given real `probe_history` entries, rather than
 being superseded, since they are governance test fixtures rather than
 real investigation conclusions — see each fixture's own README.md.
+
+**Implementation note** (`BOTM-SOURCE-INVESTIGATION-GOVERNANCE-01B`,
+still `v1.1`): this task made version *support* explicit.
+Previously, any well-formed `policy_version` string validated using
+`v1.1`'s rules regardless of its actual value, which contradicted the
+"future versions coexist" intent stated above without ever actually
+implementing it. `SUPPORTED_POLICY_VERSIONS` closes that gap — see
+"Support" above. This did not change what a `v1.1` record itself
+requires, only what happens to a record declaring a *different* version,
+so it did not warrant its own version bump.
 
 ## How this supports arbitrary city/town onboarding
 

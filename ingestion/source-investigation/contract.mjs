@@ -20,12 +20,32 @@
 
 export const POLICY_VERSION = "BOTM-SOURCE-INVESTIGATION-v1.1";
 
-// Any policy_version matching this shape is accepted structurally, not
-// just the current POLICY_VERSION constant — future policy versions must
-// be able to coexist with records written under earlier ones (see the
-// policy doc's "Policy versioning" section). A version-specific rule
-// change belongs in a new version of this contract, not a tightened regex.
+// The shape a policy_version string must have to even be considered —
+// used only to distinguish a malformed value from a well-formed-but-
+// unsupported one in the error message below. Matching this shape does
+// NOT mean the version is accepted; see SUPPORTED_POLICY_VERSIONS.
 const POLICY_VERSION_PATTERN = /^BOTM-SOURCE-INVESTIGATION-v\d+\.\d+$/;
+
+// The policy version(s) THIS validator implementation actually knows how
+// to validate. Historical policy versions are intended to remain durable
+// (an old investigation.json is never rewritten just because the policy
+// moved on — see docs/SOURCE_INVESTIGATION_POLICY.md's "Policy
+// versioning" and "History and supersession" sections), but durability of
+// the *record* is not the same thing as this module being able to
+// re-validate it under its own original rules. Today this validator
+// implements exactly one version's rules — v1.1 — so that is the only
+// member here. A record declaring any other policy_version, including an
+// older, well-formed one such as v1.0, fails closed: it is NEVER silently
+// reinterpreted under v1.1 semantics, because a validator that did that
+// would not actually be checking what that version's policy asked for.
+//
+// Introducing support for a new version (e.g. v1.2) requires deliberate,
+// explicit work here: version-specific validation/dispatch (e.g. routing
+// to a per-version rule set, or a documented statement that v1.2's rules
+// are additive/compatible with v1.1's and can reuse this same function),
+// added to SUPPORTED_POLICY_VERSIONS, and covered by its own tests — never
+// just widening POLICY_VERSION_PATTERN or this Set without that work.
+export const SUPPORTED_POLICY_VERSIONS = new Set([POLICY_VERSION]);
 
 export const INVESTIGATOR_TYPES = new Set(["AI", "HUMAN", "AI_WITH_HUMAN_REVIEW"]);
 
@@ -321,6 +341,15 @@ export function validateInvestigation(record) {
 
   if (!isNonEmptyString(record.policy_version) || !POLICY_VERSION_PATTERN.test(record.policy_version)) {
     errors.push(`policy_version is required and must match ${POLICY_VERSION_PATTERN}`);
+  } else if (!SUPPORTED_POLICY_VERSIONS.has(record.policy_version)) {
+    // Well-formed, but not a version this validator implementation
+    // actually knows how to check — fail closed rather than silently
+    // applying today's (v1.1) rules to a different version's record. See
+    // SUPPORTED_POLICY_VERSIONS above for what introducing real support
+    // for another version requires.
+    errors.push(
+      `unsupported policy_version "${record.policy_version}" — current validator supports ${[...SUPPORTED_POLICY_VERSIONS].join(", ")}`,
+    );
   }
 
   if (!isParseableTimestamp(record.investigated_at)) {
