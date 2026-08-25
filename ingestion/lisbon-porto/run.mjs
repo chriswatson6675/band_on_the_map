@@ -78,6 +78,11 @@ import { toObservations as lavToObservations } from "../lav/observation-adapter.
 import { parseZdbProgramme, filterMusicRecords as filterZdbMusicRecords } from "../galeria-ze-dos-bois/discovery.mjs";
 import { toObservations as zdbToObservations } from "../galeria-ze-dos-bois/observation-adapter.mjs";
 
+import { fetchAllEvents } from "../events-calendar-api/fetch-all.mjs";
+import { buildEventsUrl } from "../events-calendar-api/client.mjs";
+import { toObservations as ccbToObservations } from "../events-calendar-api/observation-adapter.mjs";
+import { CCB_MUSIC_CONFIG } from "../ccb/config.mjs";
+
 import { resolveObservation } from "../venue/resolver.mjs";
 import { associateHotClubeCapitolio } from "../association/hot-clube-capitolio.mjs";
 import { projectObservationsToDisplayMarkers } from "../map/group-associated-listings.mjs";
@@ -107,6 +112,7 @@ export const LISBON_SOURCE_IDS = [
   "meo-arena",
   "galeria-ze-dos-bois",
   "lav-lisboa-ao-vivo",
+  "ccb-centro-cultural-belem",
 ];
 
 export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto", "cm-gaia-eventos", "super-bock-arena"];
@@ -317,6 +323,48 @@ async function collectMeoArena() {
   return { rawRecordCount: cards.length, observations, notes: [] };
 }
 
+// BOTM-CCB-ACTIVATION-01: Centro Cultural de Belém (CCB), the first
+// production source using the reusable Events Calendar REST API collector
+// family (ingestion/events-calendar-api/) — see
+// research/source-investigations/ccb-lisbon-01/ (decision:
+// READY_FOR_ACTIVATION) and docs/sources/EVENTS_CALENDAR_API.md. No
+// CCB-specific parsing lives here: this function only supplies CCB's own
+// config (ingestion/ccb/config.mjs) to the generic pagination/adapter
+// modules, matching every other collector in this file's own
+// { rawRecordCount, observations, notes } return shape. A page-1 failure
+// is a genuine source failure (thrown, matching every other single-page
+// collector's convention); a failure on a LATER page is recorded as a
+// note and the already-collected records are still returned, matching
+// collectCasaDaMusica()/collectCmGaiaEventos()'s existing pagination
+// failure convention above.
+async function collectCcb() {
+  const result = await fetchAllEvents(CCB_MUSIC_CONFIG);
+
+  if (!result.ok && result.pagesFetched <= 1) {
+    const firstError = result.errors[0];
+    throw new Error(
+      firstError ? `${firstError.message} (page ${firstError.page}, ${firstError.url})` : "Events Calendar API request failed",
+    );
+  }
+
+  const notes = [];
+  for (const err of result.errors) {
+    notes.push(`page ${err.page} (${err.url}): ${err.message} — stopping pagination`);
+  }
+  if (result.truncated) {
+    notes.push(`stopped after ${result.pagesFetched} page(s) (configured maxPages=${CCB_MUSIC_CONFIG.maxPages} bound); more pages may exist`);
+  }
+
+  const observations = ccbToObservations(result.records, CCB_MUSIC_CONFIG, {
+    retrievedAt: new Date().toISOString(),
+    sourceUrl: buildEventsUrl(CCB_MUSIC_CONFIG),
+    contentType: "application/json",
+    fixturePath: null,
+  });
+
+  return { rawRecordCount: result.records.length, observations, notes };
+}
+
 // ---------------------------------------------------------------------
 // New Porto collectors.
 // ---------------------------------------------------------------------
@@ -468,6 +516,7 @@ const COLLECTORS = {
   "meo-arena": collectMeoArena,
   "galeria-ze-dos-bois": collectGaleriaZeDosBois,
   "lav-lisboa-ao-vivo": collectLav,
+  "ccb-centro-cultural-belem": collectCcb,
   "casa-da-musica": collectCasaDaMusica,
   "teatro-municipal-do-porto": collectTeatroMunicipalPorto,
   "cm-gaia-eventos": collectCmGaiaEventos,

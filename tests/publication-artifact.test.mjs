@@ -378,12 +378,18 @@ test("16. loading the manual-coordinate store and building publication markers n
   assert.equal(after, before, "venues/manual-coordinates.json must be byte-identical after a publication build");
 });
 
-// --- 17. the 13 source collectors remain exactly as-is (no new/removed source) ---
+// --- 17. the source collectors remain exactly as-is (no unexpected new/removed source) ---
 
-test("17. the source id lists driving publication still total exactly 13 sources (9 Lisbon + 4 Porto), unchanged", () => {
-  assert.equal(LISBON_SOURCE_IDS.length, 9);
+// BOTM-CCB-ACTIVATION-01 added exactly one new Lisbon source
+// (ccb-centro-cultural-belem, via the reusable Events Calendar REST API
+// collector family) — the first legitimate change to this total since
+// LISBON-PORTO-P1-SOURCE-AUTOMATION-01. 9 Lisbon + 4 Porto = 13 -> 10
+// Lisbon + 4 Porto = 14.
+test("17. the source id lists driving publication still total exactly 14 sources (10 Lisbon + 4 Porto)", () => {
+  assert.equal(LISBON_SOURCE_IDS.length, 10);
   assert.equal(PORTO_SOURCE_IDS.length, 4);
-  assert.equal(LISBON_SOURCE_IDS.length + PORTO_SOURCE_IDS.length, 13);
+  assert.equal(LISBON_SOURCE_IDS.length + PORTO_SOURCE_IDS.length, 14);
+  assert.ok(LISBON_SOURCE_IDS.includes("ccb-centro-cultural-belem"));
 });
 
 // --- catastrophic-run rule ---

@@ -21,9 +21,14 @@ test("every entry in sources/lisbon.json passes registry validation", async () =
 
 test("every first-wave entry carries research provenance from BOTM-RESEARCH-LISBON-SOURCES-01, except later additions/technical-proof passes", async () => {
   const registry = await loadJson("../sources/lisbon.json");
-  const laterAdditions = new Set(["teatro-variedades-capitolio", "galeria-ze-dos-bois", "lav-lisboa-ao-vivo"]);
+  const laterAdditions = new Set([
+    "teatro-variedades-capitolio",
+    "galeria-ze-dos-bois",
+    "lav-lisboa-ao-vivo",
+    "ccb-centro-cultural-belem",
+  ]);
   const firstWave = registry.entries.filter((entry) => !laterAdditions.has(entry.id));
-  assert.equal(firstWave.length, 24);
+  assert.equal(firstWave.length, 23);
   for (const entry of firstWave) {
     assert.equal(entry.research_provenance.research_id, "BOTM-RESEARCH-LISBON-SOURCES-01");
     assert.equal(entry.research_provenance.review_date, "2026-08-23");
@@ -50,6 +55,21 @@ test("galeria-ze-dos-bois' technical-proof pass and the new lav-lisboa-ao-vivo e
     assert.equal(entry.monitoring_status, "TECHNICAL_PATH_PROVEN");
     assert.equal(entry.lifecycle_status, "TECHNICALLY_REVIEWED");
   }
+});
+
+test("BOTM-CCB-ACTIVATION-01: the ccb-centro-cultural-belem entry carries its own, later research provenance and corrected acquisition method", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  const ccb = registry.entries.find((entry) => entry.id === "ccb-centro-cultural-belem");
+  assert.ok(ccb, "expected a ccb-centro-cultural-belem entry");
+  assert.equal(ccb.research_provenance.research_id, "BOTM-CCB-ACTIVATION-01");
+  assert.equal(ccb.research_provenance.review_date, "2026-08-25");
+  assert.equal(ccb.acquisition_method, "API_JSON");
+  assert.equal(ccb.monitoring_status, "TECHNICAL_PATH_PROVEN");
+  assert.equal(ccb.lifecycle_status, "TECHNICALLY_REVIEWED");
+  // Reaching TECHNICALLY_REVIEWED never implies a rights review happened —
+  // rights_status must stay exactly what it was (UNKNOWN), never silently
+  // upgraded as a side effect of proving the technical path.
+  assert.equal(ccb.rights_status, "UNKNOWN");
 });
 
 test("AgendaLX appears exactly once in the Lisbon registry", async () => {
@@ -159,6 +179,7 @@ test("the structured sources are exactly the entries using API_JSON/RSS/ICS_CALE
   assert.deepEqual(structured, [
     "agendalx",
     "bota-anjos",
+    "ccb-centro-cultural-belem",
     "cm-odivelas-agenda-cultura",
     "forum-luisa-todi",
     "hot-clube-de-portugal",

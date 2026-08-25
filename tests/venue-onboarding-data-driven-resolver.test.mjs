@@ -84,6 +84,14 @@ test("resolveObservation resolves the real Casa Capitão Observation via the com
   assert.equal(result.venue_id, "venue-lisboa-casa-capitao");
 });
 
+test("BOTM-CCB-ACTIVATION-01: resolveObservation resolves a real CCB Observation via the committed data-driven mapping (SOURCE_VENUE_ID)", () => {
+  const observation = obs({ source_id: "ccb-centro-cultural-belem", source_fields: { venue_id: 117320 } });
+  const result = resolveObservation(observation);
+  assert.equal(result.resolution_status, "RESOLVED");
+  assert.equal(result.venue_id, "venue-lisboa-centro-cultural-de-belem-ccb");
+  assert.equal(result.resolution_method, "DATA_DRIVEN_MAPPING:SOURCE_VENUE_ID");
+});
+
 test("resolveObservation still leaves a genuinely unmapped venue_name UNRESOLVED", () => {
   const observation = obs({ source_id: "teatro-municipal-do-porto", venue_name: "Somewhere Nobody Verified" });
   assert.equal(resolveObservation(observation).resolution_status, "UNRESOLVED");

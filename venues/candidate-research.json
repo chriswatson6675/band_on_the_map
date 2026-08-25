@@ -276,6 +276,28 @@
       ],
       "retrieved_at": "2026-08-24",
       "reasoning": "LISBON-PORTO-P1-SOURCE-AUTOMATION-01: every retained Observation from this source is a fixed-single-venue candidate (venue_name/location_text both intentionally null, matching the casa-da-musica/meo-arena/village-underground pattern), so the candidate key is this source's own SOURCE_ID. First-party address evidence is directly embedded in the same JSON-LD this source's own collector reads — no coordinates are exposed anywhere in that same evidence, so ADDRESS_ONLY (never CONFIRMED) per this task's closed coordinate-research boundary."
+    },
+    {
+      "source_id": "ccb-centro-cultural-belem",
+      "key_type": "SOURCE_VENUE_ID",
+      "key": "117320",
+      "verdict": "ADMIT_EXISTING_VENUE_MAPPING",
+      "venue_id": "venue-lisboa-centro-cultural-de-belem-ccb",
+      "evidence_level": "A",
+      "evidence": [
+        {
+          "url": "https://www.ccb.pt/contatos/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Already the sole evidence backing the existing canonical venue venues/lisbon.json#venue-lisboa-centro-cultural-de-belem-ccb (ADDRESS_ONLY, LISBON-PORTO-VENUE-ESTATE-01): CCB's own official contacts page states 'Praça do Império, 1449-003 Lisboa'."
+        },
+        {
+          "url": "https://www.ccb.pt/wp-json/tribe/events/v1/events/?categories=musica",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "BOTM-CCB-ACTIVATION-01: the source's own public Events Calendar REST API (research/source-investigations/ccb-lisbon-01/, decision READY_FOR_ACTIVATION) returns a structured `venue` object on every event record. Its numeric `venue.id` is 117320 for every one of the 20 events independently sampled in that governed investigation (research/source-investigations/ccb-lisbon-01/evidence/body-tribe-api-musica.json + body-tribe-api-musica-p2.json), and that same object's own address/city/zip ('Praça do Império', 'Lisboa', '1449-003') matches venues/lisbon.json's existing evidence exactly — the source's own stable venue identifier for the SAME already-canonical building, not a new venue."
+        }
+      ],
+      "retrieved_at": "2026-08-25",
+      "reasoning": "BOTM-CCB-ACTIVATION-01: CCB's REST API is a genuinely fixed-single-venue source at the `musica` category this collector is configured for (every sampled record shares the one venue.id) — ingestion/events-calendar-api/observation-adapter.mjs's generic mapping already surfaces this source-owned identifier directly as Observation.source_fields.venue_id (matching AgendaLX's own precedent for a numeric SOURCE_VENUE_ID key, e.g. the Casa Capitão entry above), so no new hardcoded resolver branch is needed — mapped here, via data, to the SAME already-canonical venue this repository already admitted independently under LISBON-PORTO-VENUE-ESTATE-01, exactly mirroring this file's own teatro-variedades-capitolio / super-bock-arena / galeria-ze-dos-bois ADMIT_EXISTING_VENUE_MAPPING precedent. No fresh venue-estate research was performed for this entry; it reuses only already-governed evidence."
     }
   ]
 }
