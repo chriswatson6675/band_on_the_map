@@ -18,7 +18,7 @@
 // "READY_FOR_ACTIVATION" here never enables a collector or updates
 // sources/*.json — see "Investigation vs activation" in the policy doc.
 
-export const POLICY_VERSION = "BOTM-SOURCE-INVESTIGATION-v1.0";
+export const POLICY_VERSION = "BOTM-SOURCE-INVESTIGATION-v1.1";
 
 // Any policy_version matching this shape is accepted structurally, not
 // just the current POLICY_VERSION constant — future policy versions must
@@ -121,6 +121,25 @@ export const DECISION_STATUSES = new Set([
 ]);
 
 const DECISIONS_REQUIRING_REASONS = new Set(["DEFER", "HUMAN_REVIEW", "REJECT"]);
+
+// The escalation ladder (docs/SOURCE_INVESTIGATION_POLICY.md's "Escalation
+// ladder" section), machine-recorded via probe_history[]. Level -> the one
+// method name that level must carry; strictly sequential, never skippable.
+// DEFER is deliberately not represented here — it is a decision.status
+// outcome, not a probe level (see "DEFER behaviour" below).
+export const PROBE_LEVEL_METHODS = new Map([
+  [1, "PASSIVE_STATIC"],
+  [2, "STRUCTURAL"],
+  [3, "BROWSER_OBSERVATION"],
+  [4, "BROWSER_COLLECTOR_CANDIDATE"],
+]);
+
+export const PROBE_METHODS = new Set(PROBE_LEVEL_METHODS.values());
+
+// SUFFICIENT/BLOCKED both terminate escalation — no probe_history entry may
+// follow one. Only INSUFFICIENT justifies moving to the next level.
+export const PROBE_OUTCOMES = new Set(["SUFFICIENT", "INSUFFICIENT", "BLOCKED"]);
+const PROBE_OUTCOMES_TERMINATING_ESCALATION = new Set(["SUFFICIENT", "BLOCKED"]);
 
 // Evidence provenance classes. AI_INTERPRETATION must never be usable as
 // (or claim to be) DIRECT_EVIDENCE — enforced below, not just by naming.
@@ -267,6 +286,9 @@ function collectEvidenceRefs(record, allRefs) {
   };
 
   push(record?.identity?.evidence_refs);
+  for (const probe of record?.probe_history ?? []) {
+    push(probe?.evidence_refs);
+  }
   push(record?.site_classification?.evidence_refs);
   for (const dataPath of record?.data_paths ?? []) {
     push(dataPath?.evidence_refs);
@@ -355,6 +377,71 @@ export function validateInvestigation(record) {
         errors.push("identity.evidence_refs must be non-empty when identity.confidence is HIGH");
       }
     }
+  }
+
+  // --- probe_history (escalation ladder) ---
+  // Structural/sequential validation only here; the acquisition_class and
+  // recommended_family cross-checks that need probeHistory happen after
+  // those blocks are parsed, below.
+  const probeHistory = record.probe_history;
+  if (!Array.isArray(probeHistory) || probeHistory.length === 0) {
+    errors.push(
+      "probe_history is required and must contain at least one entry, starting at level 1 (PASSIVE_STATIC) — an investigation can never validate having jumped straight to a higher escalation level without a retained lower-level attempt",
+    );
+  } else {
+    let previous = null;
+    probeHistory.forEach((entry, index) => {
+      const at = (field) => `probe_history[${index}].${field}`;
+
+      if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+        errors.push(`probe_history[${index}] must be an object`);
+        previous = null;
+        return;
+      }
+
+      const level = entry.level;
+      const levelValid = PROBE_LEVEL_METHODS.has(level);
+      if (!levelValid) {
+        errors.push(`${at("level")} must be one of ${[...PROBE_LEVEL_METHODS.keys()].join(", ")}`);
+      }
+
+      if (index === 0 && level !== 1) {
+        errors.push("probe_history[0] must be level 1 — escalation cannot begin at a higher level");
+      }
+
+      if (levelValid && entry.method !== PROBE_LEVEL_METHODS.get(level)) {
+        errors.push(`${at("method")} must be "${PROBE_LEVEL_METHODS.get(level)}" for level ${level}`);
+      } else if (!levelValid && !PROBE_METHODS.has(entry.method)) {
+        errors.push(`${at("method")} must be one of ${[...PROBE_METHODS].join(", ")}`);
+      }
+
+      if (!PROBE_OUTCOMES.has(entry.outcome)) {
+        errors.push(`${at("outcome")} must be one of ${[...PROBE_OUTCOMES].join(", ")}`);
+      }
+
+      if (!isNonEmptyString(entry.reason)) {
+        errors.push(`${at("reason")} is required — why this level was attempted, and (if escalating) why the prior level was insufficient`);
+      }
+
+      if (!isStringArray(entry.evidence_refs) || entry.evidence_refs.length === 0) {
+        errors.push(`${at("evidence_refs")} must be a non-empty array of strings — every probe attempt needs cited retained evidence`);
+      }
+
+      if (previous) {
+        if (typeof level === "number" && typeof previous.level === "number" && level !== previous.level + 1) {
+          errors.push(
+            `${at("level")} must be exactly one more than the previous entry's level (${previous.level}) — escalation levels cannot be skipped`,
+          );
+        }
+        if (PROBE_OUTCOMES_TERMINATING_ESCALATION.has(previous.outcome)) {
+          errors.push(
+            `${at("level")} cannot follow probe_history[${index - 1}], whose outcome was ${previous.outcome} — escalation is only justified when the preceding level's outcome is INSUFFICIENT`,
+          );
+        }
+      }
+
+      previous = entry;
+    });
   }
 
   // --- site_classification ---
@@ -478,6 +565,25 @@ export function validateInvestigation(record) {
           errors.push(`collector_assessment.blockers[${index}].description is required`);
         }
       });
+    }
+  }
+
+  // --- classification cross-checks against probe_history ---
+  // These only make an assertion when probe_history is itself an array;
+  // its own required/shape errors are already reported above.
+  if (Array.isArray(probeHistory)) {
+    const reachedLevel = (min) => probeHistory.some((p) => typeof p?.level === "number" && p.level >= min);
+
+    if (siteClassification?.acquisition_class === "HEADLESS_REQUIRED" && !reachedLevel(3)) {
+      errors.push(
+        "site_classification.acquisition_class is HEADLESS_REQUIRED but probe_history contains no level 3 (BROWSER_OBSERVATION) entry — this classification must be demonstrated by a retained browser-observation probe, not merely asserted",
+      );
+    }
+
+    if (collectorAssessment?.recommended_family === "BROWSER_RENDERED" && !reachedLevel(3)) {
+      errors.push(
+        "collector_assessment.recommended_family is BROWSER_RENDERED but probe_history contains no level 3 (BROWSER_OBSERVATION) entry",
+      );
     }
   }
 

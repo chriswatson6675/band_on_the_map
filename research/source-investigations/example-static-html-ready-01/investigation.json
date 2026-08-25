@@ -1,11 +1,20 @@
 {
   "investigation_id": "example-static-html-ready-01",
-  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.0",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
   "investigated_at": "2026-08-25T00:00:00Z",
   "investigator": {
     "type": "AI",
-    "method": "PASSIVE_PROBE + PLATFORM_CLASSIFICATION against a retained synthetic fixture (Level 1/2 only, no browser session)"
+    "method": "PASSIVE_PROBE + PLATFORM_CLASSIFICATION against a retained synthetic fixture (Level 1 only — sufficient on its own, no escalation needed)"
   },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The plain, unauthenticated HTTP response (evidence/agenda.html) already exposes a full server-rendered event card with title, date, time text, venue, a stable per-event id/URL slug, and a detail-page link. Nothing further was needed, so escalation to Level 2/3/4 was never attempted — this fixture deliberately does not pretend structural or browser escalation was required.",
+      "evidence_refs": ["ev-html-response"]
+    }
+  ],
   "source_candidate_id": "example-static-html-ready-01-candidate",
   "source_id": null,
   "venue_reference": "SYNTHETIC GOVERNANCE FIXTURE — Example Municipal Cultural Centre (not a real venue; exists only to prove the READY_FOR_ACTIVATION validator gate end-to-end)",

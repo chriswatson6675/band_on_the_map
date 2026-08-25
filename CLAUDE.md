@@ -22,6 +22,13 @@ never forget:
 - **Retained investigation/evidence files are mandatory.** Identity,
   platform classification, discovered data paths, field assessments, and the
   decision all need cited, retained evidence — not prose claims.
+- **The escalation ladder (`probe_history`) must be populated as you go, not
+  backfilled.** Every investigation starts at Level 1 (`PASSIVE_STATIC`) and
+  may only escalate to Level 2/3/4 after the prior level is retained as
+  genuinely `INSUFFICIENT`. Browser/headless work (Level 3+) requires real,
+  retained Level 1/2 attempts first — you may not write a fictitious
+  escalation sequence after the fact to make a shortcut investigation
+  validate.
 - **Investigation must not activate a source unless explicitly authorised.**
   Reaching `READY_FOR_ACTIVATION` in an investigation record never edits
   `sources/*.json` or any registry. That is a separate, explicitly-approved

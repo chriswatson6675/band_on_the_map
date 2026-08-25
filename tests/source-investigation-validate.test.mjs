@@ -53,9 +53,12 @@ async function makeFixtureRoot() {
 function validRecord(overrides = {}) {
   return {
     investigation_id: "fixture-01",
-    policy_version: "BOTM-SOURCE-INVESTIGATION-v1.0",
+    policy_version: "BOTM-SOURCE-INVESTIGATION-v1.1",
     investigated_at: "2026-08-25T00:00:00Z",
     investigator: { type: "AI", method: "PASSIVE_PROBE" },
+    probe_history: [
+      { level: 1, method: "PASSIVE_STATIC", outcome: "INSUFFICIENT", reason: "not yet investigated", evidence_refs: [] },
+    ],
     source_candidate_id: null,
     source_id: null,
     venue_reference: "Fixture Venue",

@@ -1,14 +1,37 @@
 {
   "investigation_id": "example-headless-defer-01",
-  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.0",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
   "investigated_at": "2026-08-25T00:00:00Z",
   "investigator": {
     "type": "AI",
-    "method": "PASSIVE_PROBE + STRUCTURAL inspection against a retained synthetic fixture (Level 1/2 only, no browser session)"
+    "method": "Full escalation ladder against a retained synthetic fixture: PASSIVE_STATIC, STRUCTURAL, then a controlled BROWSER_OBSERVATION session"
   },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Initial HTTP response is an empty client-rendered shell (evidence/shell.html) — no server-rendered event markup, JSON-LD, or embedded JSON anywhere in the response.",
+      "evidence_refs": ["ev-shell"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "The public JS application bundle (evidence/bundle-excerpt.js) was inspected. It references an internal data endpoint (/internal/api/events) but exposes no public JSON/feed/API path and no bootstrap/page-data blob of its own.",
+      "evidence_refs": ["ev-bundle-excerpt"]
+    },
+    {
+      "level": 3,
+      "method": "BROWSER_OBSERVATION",
+      "outcome": "BLOCKED",
+      "reason": "A controlled browser session observed the public page's network activity (evidence/network-log.json). The only endpoint serving event data returns 401 and requires an authenticated session cookie not present for an unauthenticated visitor — a legitimate access-control boundary, not something this framework acquires or bypasses.",
+      "evidence_refs": ["ev-network-log"]
+    }
+  ],
   "source_candidate_id": "example-headless-defer-01-candidate",
   "source_id": null,
-  "venue_reference": "SYNTHETIC GOVERNANCE FIXTURE — Example Client-Rendered Venue Portal (not a real venue; exists only to prove DEFER is a valid, fully-validating outcome)",
+  "venue_reference": "SYNTHETIC GOVERNANCE FIXTURE — Example Client-Rendered Venue Portal (not a real venue; exists only to prove a full 1→2→3 escalation to a legitimate BLOCKED boundary still validates, and that BLOCKED terminates escalation rather than justifying a Level 4 attempt)",
   "official_url": "https://example.net/events",
   "identity": {
     "status": "PARTIAL",
@@ -17,10 +40,10 @@
     "notes": "The retained fixture's footer text names this candidate, but nothing independently confirms the page is this candidate's authoritative official site within this bounded investigation."
   },
   "site_classification": {
-    "acquisition_class": "CLIENT_RENDERED",
+    "acquisition_class": "UNSUPPORTED",
     "platform": null,
     "confidence": "HIGH",
-    "evidence_refs": ["ev-shell"]
+    "evidence_refs": ["ev-shell", "ev-bundle-excerpt", "ev-network-log"]
   },
   "data_paths": [
     {
@@ -30,20 +53,28 @@
       "status": "REJECTED",
       "confidence": "HIGH",
       "evidence_refs": ["ev-shell"]
+    },
+    {
+      "kind": "BROWSER_OBSERVED_NETWORK_ENDPOINT",
+      "url": "https://example.net/internal/api/events",
+      "access": "PRIVATE",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-network-log"]
     }
   ],
   "field_assessment": {
     "title": {
       "state": "UNKNOWN",
       "value": null,
-      "notes": "No server-rendered event markup, JSON-LD, or embedded JSON was present in the initial HTTP response to inspect.",
-      "evidence_refs": ["ev-shell"]
+      "notes": "No server-rendered event markup, JSON-LD, or embedded JSON was present in the initial HTTP response, and the only data endpoint found requires session authentication this framework does not use.",
+      "evidence_refs": ["ev-shell", "ev-network-log"]
     },
     "start_date": {
       "state": "UNKNOWN",
       "value": null,
-      "notes": "Same — nothing to assess without browser-rendered content, which this bounded investigation did not escalate to.",
-      "evidence_refs": ["ev-shell"]
+      "notes": "Same — nothing to assess without an authenticated session, which this investigation does not obtain.",
+      "evidence_refs": ["ev-shell", "ev-network-log"]
     },
     "time": {
       "state": "UNKNOWN",
@@ -79,21 +110,22 @@
   "collector_assessment": {
     "recommended_family": null,
     "confidence": "NONE",
-    "evidence_refs": [],
+    "evidence_refs": ["ev-network-log"],
     "blockers": [
       {
-        "severity": "MAJOR",
-        "description": "Event data is populated entirely client-side after initial page load; Level 1 (passive/static) and Level 2 (structural) inspection found no discoverable server-rendered markup, JSON-LD, embedded JSON, or public JSON/feed/API endpoint."
+        "severity": "CRITICAL",
+        "description": "The only endpoint that serves event data requires an authenticated session cookie, confirmed by direct browser network observation (Level 3). No public, unauthenticated acquisition path exists. Acquiring or reusing session credentials to bypass this is forbidden by docs/SOURCE_INVESTIGATION_POLICY.md."
       }
     ]
   },
   "decision": {
     "status": "DEFER",
     "reasons": [
-      "No public, non-browser acquisition path was discoverable within a bounded Level 1/2 investigation.",
-      "Escalating to Level 3 browser observation was judged not yet justified for this synthetic low-priority fixture candidate. Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a legitimate, complete investigation outcome here rather than forcing coverage or guessing at an acquisition path."
+      "Levels 1 and 2 (passive/static, structural) were both genuinely insufficient — no public server-rendered markup, feed, or discoverable JSON/API endpoint was found.",
+      "Level 3 (browser observation) confirmed the only endpoint serving event data is session-authenticated and returns 401 for an unauthenticated visitor — a legitimate BLOCKED boundary per docs/SOURCE_INVESTIGATION_POLICY.md, not a reason to attempt Level 4 or any other bypass.",
+      "Per the policy's escalation ladder, a BLOCKED level terminates escalation; DEFER is the correct, complete outcome here rather than forcing coverage or acquiring session credentials."
     ],
-    "evidence_refs": ["ev-shell"]
+    "evidence_refs": ["ev-shell", "ev-bundle-excerpt", "ev-network-log"]
   },
   "evidence": [
     {
@@ -106,6 +138,28 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/example-headless-defer-01/evidence/shell.html"
+    },
+    {
+      "evidence_id": "ev-bundle-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Synthetic retained excerpt of the page's public JS application bundle, referencing an internal (non-public) data endpoint.",
+      "acquired_from": "https://example.net/events (synthetic — bundle excerpt authored directly for this fixture, not fetched live)",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Synthetic fixture authored for this governance package — not a live fetch",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/example-headless-defer-01/evidence/bundle-excerpt.js"
+    },
+    {
+      "evidence_id": "ev-network-log",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Synthetic retained network observation from a controlled browser session against the public page: the internal data endpoint returns 401 without a session cookie.",
+      "acquired_from": "https://example.net/events (synthetic browser session — authored directly for this fixture, not a real captured session)",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Synthetic fixture authored for this governance package — not a live browser session",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/example-headless-defer-01/evidence/network-log.json"
     }
   ],
   "supersedes": null

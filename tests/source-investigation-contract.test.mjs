@@ -38,6 +38,15 @@ function baseInvestigation(overrides = {}) {
     policy_version: POLICY_VERSION,
     investigated_at: "2026-08-25T00:00:00Z",
     investigator: { type: "AI", method: "PASSIVE_PROBE against a synthetic fixture" },
+    probe_history: [
+      {
+        level: 1,
+        method: "PASSIVE_STATIC",
+        outcome: "SUFFICIENT",
+        reason: "the retained fixture already exposed everything needed",
+        evidence_refs: ["ev-1"],
+      },
+    ],
     source_candidate_id: "test-candidate-01",
     source_id: null,
     venue_reference: "Test Fixture Venue",
@@ -120,7 +129,6 @@ test("validateInvestigation accepts unknown facts left honestly UNKNOWN (no fabr
     field_assessment: emptyFieldAssessment(),
     collector_assessment: emptyCollectorAssessment(),
     decision: { ...emptyDecision(), status: "HUMAN_REVIEW", reasons: ["nothing resolved yet"] },
-    evidence: [],
   });
   const errors = validateInvestigation(record);
   assert.deepEqual(errors, []);
@@ -354,8 +362,11 @@ test("known-vocabulary constants stay in sync with what the validator accepts", 
   for (const value of ACQUISITION_CLASSES) {
     const record = baseInvestigation({ decision: { status: "HUMAN_REVIEW", reasons: ["n/a"], evidence_refs: [] } });
     record.site_classification.acquisition_class = value;
+    // Only the vocabulary-membership message is relevant here — HEADLESS_REQUIRED
+    // legitimately adds its own (unrelated) probe_history cross-check error,
+    // which is exercised separately in tests/source-investigation-probe-history.test.mjs.
     assert.ok(
-      !validateInvestigation(record).some((e) => e.startsWith("site_classification.acquisition_class")),
+      !validateInvestigation(record).some((e) => e.startsWith("site_classification.acquisition_class must be one of")),
       `${value} should be an accepted acquisition_class`,
     );
   }
