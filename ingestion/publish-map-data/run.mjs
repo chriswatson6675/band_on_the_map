@@ -51,6 +51,7 @@ import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
+import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
 import { buildPortugalMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
 
@@ -76,6 +77,11 @@ async function main() {
 
   const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
   const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
+
+  // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
+  // venue registries above — this script never writes artists/*.json.
+  const artistRegistry = await loadArtistRegistry();
+  const artistLinks = await loadArtistLinks();
 
   // Read-only: this script never writes venues/manual-coordinates.json.
   const manualStore = await loadManualCoordinateStore();
@@ -105,6 +111,8 @@ async function main() {
     portoSourceRegistry: portoRegistry.entries,
     lisbonAssociations,
     manualCoordinatesByVenueId,
+    artistRegistry: artistRegistry.artists,
+    artistLinks: artistLinks.links,
   });
 
   console.log(`\n=== Acquisition summary ===`);
@@ -134,6 +142,7 @@ async function main() {
     portugalMarkers,
     sourceResults,
     observationCount,
+    artistRegistry: artistRegistry.artists,
   });
 
   const result = await writePublicationArtifactAtomic(artifact);

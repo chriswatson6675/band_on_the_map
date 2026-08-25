@@ -54,6 +54,7 @@ import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
+import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
 import { buildPortugalMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic } from "../map/publish-artifact-io.mjs";
 import { acquireRunLock, releaseRunLock } from "./lock.mjs";
@@ -136,6 +137,13 @@ export async function runUnattendedCycle(args = {}) {
 
     const lisbonVenues = JSON.parse(await readFile(resolve(root, "venues/lisbon.json"), "utf8"));
     const portoVenues = JSON.parse(await readFile(resolve(root, "venues/porto.json"), "utf8"));
+    // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
+    // venue registries above — falls back to an empty registry/link set
+    // for an isolated test root that never seeded artists/*.json, exactly
+    // like loadManualCoordinateStore() already does for a missing
+    // venues/manual-coordinates.json.
+    const artistRegistry = await loadArtistRegistry({ root });
+    const artistLinks = await loadArtistLinks({ root });
     const manualStore = await loadManualCoordinateStore({ root });
     const manualCoordinatesByVenueId = new Map(manualStore.entries.map((entry) => [entry.venue_id, entry]));
 
@@ -148,6 +156,8 @@ export async function runUnattendedCycle(args = {}) {
       portoSourceRegistry: portoRegistry.entries,
       lisbonAssociations,
       manualCoordinatesByVenueId,
+      artistRegistry: artistRegistry.artists,
+      artistLinks: artistLinks.links,
     });
     const displayListingCount = portugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
 
@@ -168,6 +178,7 @@ export async function runUnattendedCycle(args = {}) {
         portugalMarkers,
         sourceResults,
         observationCount,
+        artistRegistry: artistRegistry.artists,
       });
       const writeResult = await writePublicationArtifactAtomic(artifact, { root });
       if (writeResult.ok) {

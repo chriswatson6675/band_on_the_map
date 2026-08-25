@@ -4,7 +4,22 @@ import { useEffect, useMemo, useState } from "react";
 import { DiscoveryMap, type MapMarker, type SearchCountry } from "@/components/DiscoveryMap";
 import { getMarkersForCountry } from "@/ingestion/map/projection.mjs";
 import { resolveMapData } from "@/ingestion/map/runtime-publication.mjs";
+import {
+  filterMarkersByArtistId,
+  filterMarkersByGenre,
+  findArtistByExactName,
+  searchArtists,
+} from "@/ingestion/map/artist-genre-search.mjs";
 import publicationData from "@/data/public/lisbon-porto-map.json";
+
+// Mirrors the publication artifact's own top-level `artists` search index
+// (ingestion/map/publication.mjs's buildArtistIndex()) — not the full
+// enriched Artist record, just enough for the search field below.
+type ArtistIndexEntry = {
+  artist_id: string;
+  canonical_name: string;
+  aliases: string[];
+};
 
 // data/public/lisbon-porto-map.json is the committed, BUNDLED-AT-BUILD-TIME
 // fallback PRODUCT PUBLICATION ARTIFACT (BOTM-PUBLIC-MAP-LIVE-DATA-01) —
@@ -90,6 +105,13 @@ export default function Home() {
   // surface or for tests.
   const [publicationArtifact, setPublicationArtifact] = useState(BUNDLED_ARTIFACT);
   const [dataSource, setDataSource] = useState<"runtime" | "bundled">("bundled");
+  // BEATMAPPED-ENRICHMENT-PILOT-01 — "Any" matches filterMarkersByGenre's
+  // own no-op convention; selectedArtistId is only ever set from an exact
+  // canonical_name match (see the Artist field's onChange below) — never
+  // a fuzzy guess, matching this pilot's conservative identity rule.
+  const [selectedGenre, setSelectedGenre] = useState("Any");
+  const [artistQuery, setArtistQuery] = useState("");
+  const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!RUNTIME_MAP_DATA_URL) return; // unset -> bundled fallback only, no network call at all
@@ -112,10 +134,51 @@ export default function Home() {
     () => getMarkersForCountry(country, portugalMarkers) as MapMarker[],
     [country, portugalMarkers],
   );
-  const listingCount = useMemo(
-    () => visibleMarkers.reduce((sum, marker) => sum + (marker.display_listings?.length ?? marker.listings?.length ?? 0), 0),
-    [visibleMarkers],
+
+  // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
+  // Artist search index (ingestion/map/publication.mjs's
+  // buildArtistIndex()); empty for a pre-pilot/runtime artifact that
+  // hasn't been re-published with artist enrichment yet.
+  const artistIndex = useMemo(
+    () => (publicationArtifact.artists as ArtistIndexEntry[]) ?? [],
+    [publicationArtifact],
   );
+
+  // Genre and Artist each independently narrow visibleMarkers down to
+  // matching display listings only (ingestion/map/artist-genre-search.mjs)
+  // — the mapped object stays the Event throughout; selecting an Artist
+  // never turns the Artist itself into a pin.
+  const filteredMarkers = useMemo(() => {
+    const byGenre = filterMarkersByGenre(visibleMarkers, selectedGenre) as MapMarker[];
+    return filterMarkersByArtistId(byGenre, selectedArtistId) as MapMarker[];
+  }, [visibleMarkers, selectedGenre, selectedArtistId]);
+
+  const listingCount = useMemo(
+    () => filteredMarkers.reduce((sum, marker) => sum + (marker.display_listings?.length ?? marker.listings?.length ?? 0), 0),
+    [filteredMarkers],
+  );
+
+  // Narrows the Artist datalist's own suggestions as the visitor types —
+  // separate from selectedArtistId (which only an exact match sets, see
+  // handleArtistQueryChange below).
+  const artistSuggestions = useMemo(
+    () => searchArtists(artistQuery, artistIndex) as ArtistIndexEntry[],
+    [artistQuery, artistIndex],
+  );
+
+  function handleArtistQueryChange(value: string) {
+    setArtistQuery(value);
+    if (value.trim() === "") {
+      setSelectedArtistId(null);
+      return;
+    }
+    // Only an EXACT canonical_name match (e.g. picked from the datalist)
+    // narrows the map — matching this pilot's conservative identity rule
+    // (similar names alone are never enough), never a partial-substring
+    // guess while the visitor is still mid-typing.
+    const exact = findArtistByExactName(value, artistIndex);
+    setSelectedArtistId(exact ? exact.artist_id : null);
+  }
 
   return (
     <main className="site-shell" data-map-data-source={dataSource}>
@@ -194,9 +257,32 @@ export default function Home() {
               <span className="field-label">Genre</span>
               <span className="field-control">
                 <MusicIcon />
-                <select defaultValue="Any" aria-label="Genre">
+                <select
+                  value={selectedGenre}
+                  aria-label="Genre"
+                  onChange={(event) => setSelectedGenre(event.target.value)}
+                >
                   {genres.map((genre) => <option key={genre}>{genre}</option>)}
                 </select>
+              </span>
+            </label>
+            <label className="field">
+              <span className="field-label">Artist</span>
+              <span className="field-control">
+                <MusicIcon />
+                <input
+                  type="text"
+                  list="artist-search-options"
+                  aria-label="Artist"
+                  placeholder="Any artist"
+                  value={artistQuery}
+                  onChange={(event) => handleArtistQueryChange(event.target.value)}
+                />
+                <datalist id="artist-search-options">
+                  {artistSuggestions.map((artist) => (
+                    <option key={artist.artist_id} value={artist.canonical_name} />
+                  ))}
+                </datalist>
               </span>
             </label>
             <label className="field">
@@ -233,20 +319,24 @@ export default function Home() {
             </div>
           </div>
           <div className={`map-placeholder ${view === "list" ? "list-mode" : ""}`}>
-            <DiscoveryMap country={country} markers={visibleMarkers} />
-            <div className={`map-status ${visibleMarkers.length > 0 ? "" : "is-empty"}`} aria-live="polite">
-              {visibleMarkers.length > 0 ? (
+            <DiscoveryMap country={country} markers={filteredMarkers} />
+            <div className={`map-status ${filteredMarkers.length > 0 ? "" : "is-empty"}`} aria-live="polite">
+              {filteredMarkers.length > 0 ? (
                 <>
                   <p className="empty-kicker">Live music in {country}</p>
                   <p>
                     {listingCount} real source listing{listingCount === 1 ? "" : "s"} across{" "}
-                    {visibleMarkers.length} venue{visibleMarkers.length === 1 ? "" : "s"}
+                    {filteredMarkers.length} venue{filteredMarkers.length === 1 ? "" : "s"}
                   </p>
                 </>
               ) : (
                 <>
                   <p className="empty-kicker">{country}</p>
-                  <p>No listings here yet — we&apos;re still gathering source data for {country}.</p>
+                  <p>
+                    {selectedArtistId || selectedGenre !== "Any"
+                      ? "No listings match this search yet — try a different artist or genre."
+                      : `No listings here yet — we're still gathering source data for ${country}.`}
+                  </p>
                 </>
               )}
             </div>

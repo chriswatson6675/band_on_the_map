@@ -33,6 +33,7 @@
 
 import { projectObservationsToDisplayMarkers } from "./group-associated-listings.mjs";
 import { isValidCoordinate } from "./projection.mjs";
+import { attachArtistGenres } from "./attach-artist-genres.mjs";
 
 /**
  * Build the combined Lisbon+Porto display-marker set that becomes the
@@ -49,6 +50,16 @@ import { isValidCoordinate } from "./projection.mjs";
  * construction (associateHotClubeCapitolio only ever pairs those two
  * Lisbon source_ids) and is safe to pass alongside Porto observations —
  * it simply never matches any Porto listing identity.
+ *
+ * `artistRegistry`/`artistLinks` (BEATMAPPED-ENRICHMENT-PILOT-01, both
+ * optional, default to none): the canonical Artist roster
+ * (artists/artists.json's own `artists` array) and the explicit
+ * Event->Artist links (artists/event-artist-links.json's own `links`
+ * array). When supplied, every display listing gains an `artists` field
+ * via attachArtistGenres() — see that module's own doc comment. Omitting
+ * either leaves every listing's `artists` field an empty array, and
+ * every existing caller that omits both keeps today's exact behaviour
+ * otherwise unchanged.
  */
 export function buildPortugalMarkers({
   lisbonObservations,
@@ -59,17 +70,21 @@ export function buildPortugalMarkers({
   portoSourceRegistry,
   lisbonAssociations = [],
   manualCoordinatesByVenueId,
+  artistRegistry = [],
+  artistLinks = [],
 }) {
   const combinedObservations = [...(lisbonObservations ?? []), ...(portoObservations ?? [])];
   const combinedVenues = [...(lisbonVenues ?? []), ...(portoVenues ?? [])];
   const combinedSourceRegistry = [...(lisbonSourceRegistry ?? []), ...(portoSourceRegistry ?? [])];
 
-  return projectObservationsToDisplayMarkers(combinedObservations, {
+  const markers = projectObservationsToDisplayMarkers(combinedObservations, {
     venues: combinedVenues,
     sourceRegistry: combinedSourceRegistry,
     associations: lisbonAssociations,
     manualCoordinatesByVenueId,
   });
+
+  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
 }
 
 /**
@@ -95,6 +110,58 @@ export function toPublicationMarker(marker) {
 }
 
 /**
+ * BEATMAPPED-ENRICHMENT-PILOT-01 — builds the publication artifact's
+ * top-level `artists` search index: one entry per canonical Artist in
+ * `artistRegistry` (artists/artists.json's own `artists` array), each
+ * carrying its own genre claims plus every linked upcoming Event this
+ * publication run actually produced a marker for.
+ *
+ * This is the ONE place Artist search results are assembled — the public
+ * site never re-derives "this Artist's events" by re-walking every
+ * marker's display_listings itself (see ingestion/map/
+ * artist-genre-search.mjs, which searches THIS index, then narrows
+ * markers by artist_id for the map).
+ *
+ * "Upcoming" means the listing's own start.date is >= asOfDate, OR the
+ * listing's date is genuinely unknown (null) — an unknown date is never
+ * silently dropped, matching this project's "absence of evidence is
+ * never turned into a fact" rule; it is surfaced, not hidden. asOfDate
+ * is accepted as a parameter (never computed here) so this stays pure.
+ */
+export function buildArtistIndex(publicationMarkers, artistRegistry, asOfDate) {
+  const events = [];
+  for (const marker of publicationMarkers ?? []) {
+    for (const listing of marker.display_listings ?? []) {
+      if (!(listing.artists?.length > 0)) continue;
+      const date = listing.start?.date ?? null;
+      if (asOfDate && date && date < asOfDate) continue; // past event — not "upcoming"
+      const event = {
+        venue_id: marker.venue_id,
+        venue_name: marker.canonical_name,
+        address: marker.address,
+        latitude: marker.latitude,
+        longitude: marker.longitude,
+        title: listing.kind === "GROUP" ? listing.display_title : listing.title,
+        start: listing.start,
+        end: listing.end,
+        event_url: listing.kind === "SINGLE" ? listing.event_url : null,
+      };
+      for (const artist of listing.artists) {
+        events.push({ artist_id: artist.artist_id, event });
+      }
+    }
+  }
+
+  return (artistRegistry ?? []).map((artist) => ({
+    artist_id: artist.artist_id,
+    canonical_name: artist.canonical_name,
+    aliases: artist.aliases ?? [],
+    genres: artist.genres ?? [],
+    events: events.filter((e) => e.artist_id === artist.artist_id).map((e) => e.event),
+  }));
+}
+
+/**
  * Assemble the full publication artifact object (the exact shape written
  * to data/public/lisbon-porto-map.json). `generatedAt` is accepted as a
  * parameter rather than computed here (never `new Date()` inside this
@@ -105,6 +172,14 @@ export function toPublicationMarker(marker) {
  * has no Croatian source registry, no Croatian venues, and no Croatian
  * Observations of any kind — see docs/PUBLIC_MAP_LIVE_DATA_01.md. Never
  * fabricated, never inferred.
+ *
+ * `artistRegistry` (BEATMAPPED-ENRICHMENT-PILOT-01, optional, defaults to
+ * []): forwarded to buildArtistIndex() as the artifact's top-level
+ * `artists` search index. Omitting it publishes `artists: []` — every
+ * existing caller/test that omits it keeps today's exact artifact shape
+ * otherwise unchanged (display_listings' own `artists` field, if
+ * present from buildPortugalMarkers, is passed through unaffected either
+ * way).
  */
 export function buildPublicationArtifact({
   generatedAt,
@@ -113,6 +188,7 @@ export function buildPublicationArtifact({
   portugalMarkers,
   sourceResults,
   observationCount,
+  artistRegistry = [],
 }) {
   const publicationMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
   const displayListingCount = publicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
@@ -142,6 +218,7 @@ export function buildPublicationArtifact({
       Portugal: { markers: publicationMarkers },
       Croatia: { markers: [] },
     },
+    artists: buildArtistIndex(publicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
   };
 }
 
@@ -265,6 +342,32 @@ export function validatePublicationArtifact(artifact) {
       }
       if (typeof artifact.counts.observation_count !== "number" || artifact.counts.observation_count < 0) {
         errors.push("counts.observation_count must be a non-negative number");
+      }
+    }
+  }
+
+  // BEATMAPPED-ENRICHMENT-PILOT-01: `artists` is optional (an artifact
+  // built before this pilot, or by a caller that omitted artistRegistry,
+  // legitimately has none) — only validated when present, and never
+  // required to be non-empty.
+  if (artifact.artists !== undefined) {
+    if (!Array.isArray(artifact.artists)) {
+      errors.push("artists must be an array when present");
+    } else {
+      for (const artist of artifact.artists) {
+        if (!artist || typeof artist.artist_id !== "string" || artist.artist_id.trim() === "") {
+          errors.push(`artists entry is missing a valid artist_id: ${JSON.stringify(artist)}`);
+          continue;
+        }
+        if (typeof artist.canonical_name !== "string" || artist.canonical_name.trim() === "") {
+          errors.push(`${artist.artist_id}: canonical_name must be a non-empty string`);
+        }
+        if (!Array.isArray(artist.genres)) {
+          errors.push(`${artist.artist_id}: genres must be an array`);
+        }
+        if (!Array.isArray(artist.events)) {
+          errors.push(`${artist.artist_id}: events must be an array`);
+        }
       }
     }
   }

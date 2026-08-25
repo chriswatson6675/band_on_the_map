@@ -66,6 +66,18 @@ export type ListingDateTime = {
   certainty: string;
 };
 
+// BEATMAPPED-ENRICHMENT-PILOT-01 — one genre claim as attached by
+// ingestion/map/attach-artist-genres.mjs (mirroring
+// ingestion/artist/contract.mjs's own genre-claim shape). `confidence` is
+// carried through for a future debug surface but never rendered as a
+// false-precision score here.
+export type GenreClaim = { family: string; tag: string | null; confidence?: string };
+
+// A canonical Artist as attached to a display listing — never the full
+// Artist record (no aliases/provenance here), just enough to render a
+// name and its genre chips.
+export type ArtistRef = { artist_id: string; canonical_name: string; genres: GenreClaim[] };
+
 export type MapListing = {
   source_id: string;
   source_record_id: string;
@@ -74,6 +86,9 @@ export type MapListing = {
   start: ListingDateTime;
   end: ListingDateTime;
   event_url: string | null;
+  // Optional: absent/empty on a listing with no curated Event->Artist
+  // link (see docs/ARTIST_ENRICHMENT.md) — never fabricated.
+  artists?: ArtistRef[];
 };
 
 // A source reference inside a GROUP display listing — the same source
@@ -116,6 +131,10 @@ export type GroupDisplayListing = {
   end: ListingDateTime;
   sources: DisplayListingSourceRef[];
   fact_comparison: FactComparison;
+  // See MapListing's own `artists` field doc comment above — resolved
+  // per underlying source and deduplicated (ingestion/map/
+  // attach-artist-genres.mjs), never fabricated for a GROUP with no link.
+  artists?: ArtistRef[];
 };
 
 export type DisplayListing = SingleDisplayListing | GroupDisplayListing;
@@ -268,6 +287,33 @@ function createMarkerElement(marker: MapMarker, displayListings: DisplayListing[
   return el;
 }
 
+// BEATMAPPED-ENRICHMENT-PILOT-01 — renders the Artist(s)/genre(s) a
+// listing inherited (product decision #8), when a curated Event->Artist
+// link exists. A listing with no link (artists absent/empty) renders
+// nothing here — never a fabricated/guessed Artist. Genre confidence is
+// deliberately never shown as a numeric score (product decision: "do not
+// pretend confidence is scientifically precise").
+function ArtistGenreChips({ artists }: { artists?: ArtistRef[] }) {
+  if (!artists || artists.length === 0) return null;
+  const genreLabels = Array.from(
+    new Set(artists.flatMap((artist) => artist.genres.map((g) => g.tag ?? g.family))),
+  );
+  return (
+    <div className="venue-panel-listing-artists">
+      <p className="venue-panel-listing-artist-names">
+        {artists.map((artist) => artist.canonical_name).join(", ")}
+      </p>
+      {genreLabels.length > 0 && (
+        <ul className="venue-panel-listing-genre-chips">
+          {genreLabels.map((label) => (
+            <li key={label} className="venue-panel-listing-genre-chip">{label}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function SingleListing({ listing }: { listing: SingleDisplayListing }) {
   const dateLabel = formatDateLabel(listing.start);
   const timeLabel = formatTimeLabel(listing.start);
@@ -281,6 +327,7 @@ function SingleListing({ listing }: { listing: SingleDisplayListing }) {
           <span className="venue-panel-listing-date">{listing.start.raw}</span>
         )}
       </div>
+      <ArtistGenreChips artists={listing.artists} />
       <p className="venue-panel-listing-source">{listing.source_name ?? listing.source_id}</p>
       {listing.event_url && (
         <a href={listing.event_url} target="_blank" rel="noopener noreferrer" className="venue-panel-listing-link">
@@ -304,6 +351,7 @@ function GroupListing({ listing }: { listing: GroupDisplayListing }) {
           <span className="venue-panel-listing-date">{listing.start.raw}</span>
         )}
       </div>
+      <ArtistGenreChips artists={listing.artists} />
       <p className="venue-panel-listing-sources-heading">Sources</p>
       <ul className="venue-panel-listing-sources">
         {listing.sources.map((source, i) => (
@@ -392,6 +440,17 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     // ref's `.current` inside a cleanup closure satisfied.
     const domMarkers = domMarkersRef.current;
 
+    // BEATMAPPED-ENRICHMENT-PILOT-01 fix: which MapMarker object each
+    // existing DOM marker was last built from — venue_id -> marker
+    // reference. Needed because a filter change (Genre/Artist) can leave
+    // a venue's venue_id in place while genuinely changing its
+    // display_listings (and therefore its pin count and its click
+    // handler's own venue-panel content) — without this, `domMarkers.has
+    // (venueId)` alone would keep reusing a stale marker/click-handler
+    // closure from before the filter changed, showing an out-of-date
+    // panel for a venue whose visible pin count had already updated.
+    const markerDataByVenueId = new globalThis.Map<string, MapMarker>();
+
     const initialView = COUNTRY_MAP_VIEWS[initialCountryRef.current];
     const map = new Map({
       container: containerRef.current,
@@ -433,10 +492,20 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
         const venueId = feature.properties?.venue_id as string | undefined;
         if (!venueId || currentIds.has(venueId)) continue;
         currentIds.add(venueId);
-        if (domMarkers.has(venueId)) continue;
 
         const marker = venueByIdRef.current.get(venueId);
         if (!marker) continue;
+
+        // Skip only when this venue's DOM marker already reflects THIS
+        // exact marker object — a genuinely new filter result (a new
+        // array from filterMarkersByGenre/filterMarkersByArtistId, see
+        // app/page.tsx) is a new object even when venue_id is unchanged,
+        // so this still rebuilds when a filter narrows/widens which
+        // display listings a persisting venue carries.
+        if (domMarkers.has(venueId) && markerDataByVenueId.get(venueId) === marker) continue;
+
+        const existingDomMarker = domMarkers.get(venueId);
+        if (existingDomMarker) existingDomMarker.remove();
 
         const displayListings = toDisplayListings(marker);
         const el = createMarkerElement(marker, displayListings);
@@ -455,12 +524,14 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
           .setLngLat([marker.longitude, marker.latitude])
           .addTo(map);
         domMarkers.set(venueId, domMarker);
+        markerDataByVenueId.set(venueId, marker);
       }
 
       for (const [venueId, domMarker] of domMarkers) {
         if (!currentIds.has(venueId)) {
           domMarker.remove();
           domMarkers.delete(venueId);
+          markerDataByVenueId.delete(venueId);
         }
       }
     }
