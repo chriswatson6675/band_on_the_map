@@ -1,8 +1,13 @@
 # Source Investigation Policy
 
-Policy version: `BOTM-SOURCE-INVESTIGATION-v1.1`
+Latest policy version: `BOTM-SOURCE-INVESTIGATION-v1.2`
+(`BOTM-SOURCE-INVESTIGATION-v1.1` remains independently supported — see
+"Policy versioning" below)
 Tasks: `BOTM-SOURCE-INVESTIGATION-GOVERNANCE-01`,
-`BOTM-SOURCE-INVESTIGATION-GOVERNANCE-01A`
+`BOTM-SOURCE-INVESTIGATION-GOVERNANCE-01A`,
+`BOTM-SOURCE-INVESTIGATION-GOVERNANCE-01B`,
+`BOTM-DIFFICULT-SOURCE-TRIAL-01`,
+`BOTM-GIG-FACT-DERIVATION-GOVERNANCE-02`
 
 This is the canonical, human-readable policy governing how AI (or a human)
 may investigate an event-source or venue-calendar candidate — a website,
@@ -302,12 +307,156 @@ Retain the same honesty already established for Observations (see
 exactly what the source genuinely exposes — a full UTC instant, a local
 datetime with timezone, a floating local datetime, a date only, text only,
 an ambiguous day/month/year, or nothing at all. If a page shows only
-`"17"`, the investigator must not infer `September 17 2026` because
-surrounding context makes that convenient. An `AMBIGUOUS` (or `PARTIAL` /
-`NOT_PRESENT` / `UNKNOWN`) field-assessment state must never carry a
-precise claimed `value` — `ingestion/source-investigation/contract.mjs`
-enforces this directly: `value` may only be non-null when `state` is
-`PROVEN`.
+`"17"`, the investigator must not infer `September 17 2026` **merely
+because today's date, common sense, or a probable season makes that
+convenient** — see "Field-value basis (v1.2)" immediately below for the
+one narrow, mechanical exception (deterministic contextual derivation)
+this policy actually permits, and why it is not the same thing as
+guessing. An `AMBIGUOUS` (or `PARTIAL` / `NOT_PRESENT` / `UNKNOWN`)
+field-assessment state must never carry a precise claimed `value` —
+`ingestion/source-investigation/contract.mjs` enforces this directly:
+`value` may only be non-null when `state` is `PROVEN`.
+
+## Field-value basis (v1.2): deterministic contextual derivation
+
+**Why this exists.** `BOTM-DIFFICULT-SOURCE-TRIAL-01`, the framework's
+first real-world trial, exposed a genuine gap: arts and music websites
+routinely omit repeated context from individual event cards — a page
+heading states `"September 2026"` once and every card beneath it just
+says `"17"`; a programme page states `"2026/27 Season"` once and events
+say `"12 October"`; a venue's own agenda page never repeats its own name
+on every card. Under `v1.1` alone, a precise value effectively needed to
+be restated at the individual field/card level to become `PROVEN` — which
+is more restrictive than what a human reading the same retained page
+would honestly conclude, and pushed investigators toward leaving genuinely
+determinable facts as `UNKNOWN`/`PARTIAL` even when the source's own
+structure settles them without ambiguity.
+
+**The principle.** *"Not repeated on the event card" does not mean
+"unknown" when retained first-party source context determines the value
+uniquely.* But — and this is just as important — **"obvious to a human"
+alone is not a validation rule.** `v1.2` (`BOTM-GIG-FACT-DERIVATION-
+GOVERNANCE-02`) resolves this tension by requiring every `PROVEN`
+field-assessment value to carry an explicit `basis`, drawn from a
+tightly-controlled vocabulary (`FIELD_BASIS_VALUES` in
+`ingestion/source-investigation/contract.mjs`):
+
+- **`DIRECT_SOURCE`** — the exact claimed fact is directly expressed by
+  one piece of retained first-party evidence. Example: a retained
+  `JSON-LD` block's own `"startDate": "2026-09-17T21:00:00+01:00"`.
+- **`DETERMINISTIC_CONTEXT`** — the exact fact is not repeated in the
+  field's own immediate location, but is *mechanically, reproducibly*
+  combined from **two or more** retained pieces of first-party context.
+  Example: a retained page heading stating `"September 2026"` plus a
+  retained event card stating `"17"`, combined by a stated, fixed rule,
+  yields `2026-09-17` — and nothing else. Requires a `derivation` object
+  (see below). Permitted **only** when the derivation has exactly one
+  valid result and is reproducible without model judgement.
+- **`AI_INFERENCE`** — the value depends on plausibility, common sense,
+  interpretation, prediction, or model judgement. Example: *"today is
+  August 2026, the card says `17 September`, so it's probably this
+  September."* This is **not** production-safe merely because it is
+  likely correct — `AI_INFERENCE` can never be the `basis` of a `PROVEN`
+  field. A fact whose only basis is inference stays `PARTIAL`,
+  `AMBIGUOUS`, or `UNKNOWN`.
+
+**Evidence class vs. field-value basis — do not confuse these.**
+`evidence[].evidence_class` (`DIRECT_EVIDENCE` / `DETERMINISTIC_DERIVATION`
+/ `AI_INTERPRETATION` / `OPERATOR_DECISION`, unchanged since `v1.1`)
+describes **how a piece of retained evidence was obtained**.
+`field_assessment.*.basis` describes **how a field's precise value was
+established from that evidence**. A `DETERMINISTIC_CONTEXT` field
+normally cites `DIRECT_EVIDENCE` items for its raw inputs (the heading,
+the card) *and*, where required for activation, a
+`DETERMINISTIC_DERIVATION` evidence item proving the combination was
+actually reproduced offline — see "Offline derivation proof" below.
+
+**The `derivation` object.** Required, and meaningful, only when `basis`
+is `DETERMINISTIC_CONTEXT`:
+
+```json
+{
+  "state": "PROVEN",
+  "value": "2026-09-17",
+  "basis": "DETERMINISTIC_CONTEXT",
+  "notes": "heading establishes month/year, card establishes day",
+  "evidence_refs": ["ev-calendar-heading", "ev-event-card"],
+  "derivation": {
+    "rule": "the nearest preceding month/year heading governs every event row beneath it until the next heading; concatenate with the row's own day",
+    "inputs": ["September 2026", "17"]
+  }
+}
+```
+
+`derivation.rule` must be a non-empty string stating the mechanical
+combination rule. `derivation.inputs` must be an array of **at least two**
+strings — `DETERMINISTIC_CONTEXT` means combining more than one retained
+piece of context; a single ambiguous source is not a combination, and
+`contract.mjs` rejects it structurally. A `DIRECT_SOURCE` entry must
+**not** carry a populated `derivation` — there is nothing to combine, and
+inventing derivation metadata for a fact the source already states
+outright is itself a form of dishonesty this policy rejects (see test
+`13` in `tests/source-investigation-v1_2.test.mjs`).
+
+**Contextual inheritance works the same way for every field, not just
+dates.** The same `basis`/`derivation` model applies to `title`,
+`start_date`, `time`, `end`, `venue_location`, `source_record_id`,
+`event_url`, and `price` alike:
+
+- *Venue*: a page is the official agenda for "Sala X"; child event cards
+  omit the venue. If retained source **structure** proves every child
+  event is nested inside that venue's own section (not merely printed
+  near it), `venue_location` may be `PROVEN` / `DETERMINISTIC_CONTEXT`.
+- *Price*: a section heading states `"Entrada livre"`; every event card
+  structurally contained within that section omits its own price. If that
+  containment is mechanically provable, `price` may be `PROVEN` /
+  `FREE` / `DETERMINISTIC_CONTEXT`.
+
+**Do not over-generalise inheritance beyond what source structure actually
+proves.** A venue name appearing once, near the top of a page, with dozens
+of unrelated event cards below it, is not automatically inherited by all
+of them — the structural containment (or an equivalently explicit,
+retained relationship) has to be genuinely demonstrable, not assumed from
+visual proximity or general page layout.
+
+**The anti-guessing rule is mechanically limited — read this honestly.**
+`contract.mjs` enforces what it structurally *can*: that `basis` is
+present only when `PROVEN`, that `AI_INFERENCE` can never be a `PROVEN`
+basis, that `DETERMINISTIC_CONTEXT` cites a non-empty rule and at least
+two inputs, and — as a best-effort, mechanical safety net — that a
+`derivation.rule` does not contain telltale plausibility language ("today",
+"probably", "likely", "assume", "obviously", and similar). **It cannot
+execute arbitrary domain logic to verify that a given rule genuinely
+yields exactly one result**, and a rule text that smuggles in a hidden
+reliance on today's date, agent knowledge, venue habit, or an unstated
+assumption while avoiding all of those words is a policy violation this
+module cannot detect — the same honest limitation this framework already
+has for verifying that a site genuinely is a candidate's first-party
+official presence. The investigator's own discipline, an accurate
+self-labelling of `basis`, and (where required for activation) a genuine
+offline reproduction remain load-bearing; the validator is a backstop, not
+a proof engine.
+
+**Offline derivation proof.** For a `DETERMINISTIC_CONTEXT` field required
+for `READY_FOR_ACTIVATION` (today, `title` and `start_date` — the same
+fields `v1.1` already gates), the field's own `evidence_refs` must include
+at least one `DETERMINISTIC_DERIVATION` evidence item — a small, bounded,
+dependency-free, **no-network** script that re-parses the retained
+fixture(s) and reproduces the claimed combination deterministically. This
+must never become a production collector; it exists only to prove the
+derivation is genuinely reproducible, not merely asserted. See
+`research/source-investigations/example-deterministic-context-ready-01/`
+for a complete worked example.
+
+**Worked examples:**
+
+| Source context | Claim | Valid? | Basis |
+|---|---|---|---|
+| `"17 September 2026"` stated directly | `2026-09-17` | ✅ | `DIRECT_SOURCE` |
+| Heading `"September 2026"`, card `"17"` | `2026-09-17` | ✅ | `DETERMINISTIC_CONTEXT` |
+| Programme states `"2026/27 Season"` + `"October"`, with the source's own explicit, retained season-boundary rule (season N/N+1 runs Sept(N)–Aug(N+1)) | `2026-10-12` | ✅ | `DETERMINISTIC_CONTEXT` (only if the season→year mapping is itself explicit and mechanical, not assumed) |
+| Today is August 2026; card says `"17 September"`; no page/section/year context | `2026-09-17` | ❌ | would be `AI_INFERENCE` — stays `AMBIGUOUS`/`UNKNOWN` |
+| Heading `"2026/27 Season"`, card `"17"`, no month context | any specific date | ❌ | cannot be determined from retained context alone — stays unresolved |
 
 ## Third-party sources
 
@@ -441,6 +590,18 @@ Gate 12 ("the investigation validator passes") already subsumes every
 skips a level, or claims `HEADLESS_REQUIRED`/`BROWSER_RENDERED` without a
 retained Level 3 probe.
 
+**Under `v1.2`**, gates 4 and 5 (`title`, `start_date`) accept either
+`basis: "DIRECT_SOURCE"` or `basis: "DETERMINISTIC_CONTEXT"` — both are
+first-class, activation-eligible provenance. `basis: "AI_INFERENCE"` can
+never satisfy either gate, and structurally cannot even coexist with
+`state: "PROVEN"` in the first place (see "Field-value basis (v1.2)"
+above), so an `AI_INFERENCE`-based claim fails validation outright rather
+than merely failing the activation gate. Additionally, gate 4/5 fields
+whose `basis` is `DETERMINISTIC_CONTEXT` must themselves cite a
+`DETERMINISTIC_DERIVATION` evidence item proving the contextual
+combination was reproduced offline — a field-specific refinement of gate
+9, not a relaxation of it.
+
 ## The investigation record
 
 Machine shape: `ingestion/source-investigation/contract.mjs`
@@ -482,7 +643,10 @@ implementation detail; this is the durable concept):
   `start_date`, `time`, `end`, `venue_location`, `source_record_id`,
   `event_url`) plus the optional `price`, each an object with `state`
   (`FIELD_STATES`), `value` (non-null only when `state` is `PROVEN`),
-  `notes`, `evidence_refs`;
+  `notes`, `evidence_refs` — and, **under `v1.2` only**, `basis`
+  (`FIELD_BASIS_VALUES`; non-null only when `state` is `PROVEN`) and
+  `derivation` (`{rule, inputs}`; non-null only when `basis` is
+  `DETERMINISTIC_CONTEXT`) — see "Field-value basis (v1.2)" above;
 - `collector_assessment` — `recommended_family` (nullable;
   `COLLECTOR_FAMILIES` member or `"NEW_FAMILY_REQUIRED"`), `confidence`,
   `evidence_refs`, `blockers[]` (`severity` + `description`);
@@ -500,6 +664,13 @@ implementation detail; this is the durable concept):
 `UNKNOWN` (genuinely not yet resolved) and `NOT_PRESENT` (the source
 genuinely does not expose this fact) are both first-class outcomes — never
 collapsed into each other or into "failure".
+
+Under `v1.2`, a `PROVEN` state additionally requires a `basis` —
+`FIELD_BASIS_VALUES = DIRECT_SOURCE | DETERMINISTIC_CONTEXT |
+AI_INFERENCE` — and `basis` must itself be `DIRECT_SOURCE` or
+`DETERMINISTIC_CONTEXT`; `AI_INFERENCE` can never satisfy `PROVEN`. See
+"Field-value basis (v1.2)" above for the full model. `v1.1` records have
+no `basis` field at all and are never required to add one.
 
 ### Site/acquisition classification
 
@@ -571,8 +742,9 @@ Both layers together reject, among other things:
 - `READY_FOR_ACTIVATION` alongside an unresolved `CRITICAL` blocker;
 - a missing `investigated_at` timestamp or `policy_version`;
 - a `policy_version` that is well-formed but not in
-  `SUPPORTED_POLICY_VERSIONS` (today, anything other than exactly
-  `BOTM-SOURCE-INVESTIGATION-v1.1`) — see "Policy versioning" below;
+  `SUPPORTED_POLICY_VERSIONS` (today, anything other than
+  `BOTM-SOURCE-INVESTIGATION-v1.1` or `v1.2`) — see "Policy versioning"
+  below;
 - an unknown decision, evidence-class, or acquisition-classification
   value;
 - a malformed URL where a URL is required;
@@ -588,28 +760,42 @@ Both layers together reject, among other things:
   or no `evidence_refs`;
 - `acquisition_class: "HEADLESS_REQUIRED"` or
   `recommended_family: "BROWSER_RENDERED"` with no retained Level 3
-  (`BROWSER_OBSERVATION`) probe.
+  (`BROWSER_OBSERVATION`) probe;
+- **`v1.2` only** — a `PROVEN` field with no `basis`, or a non-`PROVEN`
+  field carrying a `basis`; `basis: "AI_INFERENCE"` on any `PROVEN`
+  field; `basis: "DETERMINISTIC_CONTEXT"` with no `derivation`, fewer
+  than two `derivation.inputs`, or a `derivation.rule` containing
+  plausibility language ("today", "probably", "assume", and similar —
+  see "Field-value basis (v1.2)" above); a `derivation` populated on a
+  `DIRECT_SOURCE` entry; a `READY_FOR_ACTIVATION` gated field with basis
+  `DETERMINISTIC_CONTEXT` but no cited `DETERMINISTIC_DERIVATION`
+  evidence item.
 
 ## Policy versioning
 
-This policy is versioned (`BOTM-SOURCE-INVESTIGATION-v1.1`). Every
-investigation record carries its `policy_version`, and
+This policy is versioned. Two versions are currently supported side by
+side — `BOTM-SOURCE-INVESTIGATION-v1.1` and `BOTM-SOURCE-INVESTIGATION-
+v1.2` — each with its own genuine, independently-implemented rule set.
+Every investigation record carries its `policy_version`, and
 `ingestion/source-investigation/contract.mjs` checks it in two separate
 steps that must not be confused with each other:
 
 1. **Shape.** Is the string even well-formed —
    `BOTM-SOURCE-INVESTIGATION-v<major>.<minor>`? This is deliberately
-   generic and does not name `v1.1` specifically, because the *naming
-   scheme itself* is expected to outlive any one version.
+   generic and does not name any one version specifically, because the
+   *naming scheme itself* is expected to outlive any one version.
 2. **Support.** Is this specific version one the *current validator
-   implementation* actually knows how to check?
-   `SUPPORTED_POLICY_VERSIONS` in `contract.mjs` answers this, and today
-   it contains exactly one entry: `v1.1`. **A record declaring any other
-   version — including an older, perfectly well-formed one like
-   `v1.0` — fails validation outright**, with an explicit
+   implementation* actually knows how to check? `SUPPORTED_POLICY_VERSIONS`
+   in `contract.mjs` answers this — today, `v1.1` and `v1.2`. **A record
+   declaring any other version — including an older, perfectly well-formed
+   one like `v1.0` — fails validation outright**, with an explicit
    `unsupported policy_version "..." — current validator supports
-   BOTM-SOURCE-INVESTIGATION-v1.1` error. It is never silently
-   re-validated under `v1.1`'s rules.
+   BOTM-SOURCE-INVESTIGATION-v1.1, BOTM-SOURCE-INVESTIGATION-v1.2` error.
+   It is never silently re-validated under either supported version's
+   rules — `validateInvestigation()` dispatches on the *exact* declared
+   version to `validateInvestigationV1_1()` or `validateInvestigationV1_2()`
+   (see "What `v1.2` support actually required" below); nothing falls
+   through from one version's rules to another's.
 
 **Why fail closed instead of reinterpreting.** A validator that accepted
 any well-formed `policy_version` string and then applied *today's* rules
@@ -629,23 +815,31 @@ project's history — this validator simply cannot currently re-validate
 it under `v1.0`'s own original rules, and says so plainly instead of
 guessing.
 
-**What introducing real `v1.2` support requires.** Bumping
-`POLICY_VERSION` (or widening `SUPPORTED_POLICY_VERSIONS`) on its own is
-not enough and must never be done as a shortcut. Future coexistence needs
-genuine **version-specific validation/dispatch** — implemented
-explicitly, not assumed — before a new version's records can validate.
-Concretely, that means one of:
+**What `v1.2` support actually required** (and what any future `v1.3`+
+must repeat). Bumping `POLICY_VERSION` (or widening
+`SUPPORTED_POLICY_VERSIONS`) on its own would never have been enough, and
+must never be done as a shortcut. Genuine coexistence needed
+**version-specific validation/dispatch** — implemented explicitly, not
+assumed. Concretely, `v1.2` took the second of the two options this
+section always documented as legitimate:
 
-- a documented, deliberate decision that `v1.2`'s rules are a strict
-  superset of / fully compatible with `v1.1`'s, so the existing
-  `validateInvestigation()` genuinely already implements them correctly
-  for both versions, **or**
-- dispatching to a version-specific validation function (e.g.
-  `validateInvestigationV1_1()` / `validateInvestigationV1_2()`) selected
-  by `record.policy_version`, so each version is checked against the
-  rules it actually had.
+- a documented, deliberate decision that a new version's rules are a
+  strict superset of / fully compatible with the prior version's, so the
+  existing validation function genuinely already implements them
+  correctly for both versions (not what `v1.2` did — its field-assessment
+  shape genuinely changed), **or**
+- dispatching to a version-specific validation function — what `v1.2`
+  did: `validateInvestigationV1_1()` and `validateInvestigationV1_2()`
+  are two separate, independently-readable functions in `contract.mjs`,
+  selected by `record.policy_version` inside the public
+  `validateInvestigation()` dispatcher, so each version is checked
+  against the rules it actually had. Everything `v1.2` did not
+  deliberately change (`probe_history`, `evidence[]`, `identity`,
+  `site_classification`, `data_paths`, `collector_assessment`, `decision`,
+  activation gates other than the field-basis additions) is implemented
+  identically in both functions.
 
-Either way, the new version must be added to `SUPPORTED_POLICY_VERSIONS`
+Either way, a new version must be added to `SUPPORTED_POLICY_VERSIONS`
 deliberately, alongside its own tests — never by widening
 `POLICY_VERSION_PATTERN` or the supported-versions set without that work,
 and never by simply pointing an old version's records at new rules.
@@ -668,6 +862,27 @@ implementing it. `SUPPORTED_POLICY_VERSIONS` closes that gap — see
 "Support" above. This did not change what a `v1.1` record itself
 requires, only what happens to a record declaring a *different* version,
 so it did not warrant its own version bump.
+
+**`v1.2`** (`BOTM-GIG-FACT-DERIVATION-GOVERNANCE-02`) added the
+`basis`/`derivation` field-value-provenance model to `field_assessment`
+entries — see "Field-value basis (v1.2)" above — a genuine rules change
+prompted directly by `BOTM-DIFFICULT-SOURCE-TRIAL-01`, the framework's
+first real-world trial, which showed `v1.1` alone was too restrictive for
+arts/music sites that establish context once (a month heading, a venue
+section, a "free entry" section) rather than repeating it per event.
+Implemented as a genuinely separate `validateInvestigationV1_2()`
+function, not a widened `v1.1` check — see "What `v1.2` support actually
+required" above. `v1.1` records, including the framework's own two
+synthetic `v1.1` fixtures and all three real `BOTM-DIFFICULT-SOURCE-
+TRIAL-01` investigations (`hard-club-porto-01`, `maus-habitos-porto-01`,
+`gulbenkian-lisbon-01`), were **not** edited or upgraded — they remain
+exactly as originally recorded, validating under `v1.1`'s original rules
+only. A new synthetic `v1.2` fixture,
+`research/source-investigations/example-deterministic-context-ready-01/`,
+was added instead of retrofitting an existing one. Per "History and
+supersession" above, if any `v1.1` investigation is later reconsidered
+under `v1.2`, that must be a **new** investigation record whose
+`supersedes` field names the original — never a rewrite of it.
 
 ## How this supports arbitrary city/town onboarding
 

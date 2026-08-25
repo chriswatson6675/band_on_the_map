@@ -35,7 +35,16 @@ never forget:
   action.
 - **Unknown facts must never be invented.** No fabricated dates, years,
   times, timezones, venue identities, or stable record IDs — ever, even when
-  a guess "looks obviously right".
+  a guess "looks obviously right". Never invent a missing year just because
+  today's date makes one seem likely.
+- **A precise fact may be derived from retained context, but only
+  mechanically (policy `v1.2`).** If a page states "September 2026" once and
+  an event card only says "17", the full date may be recorded as `PROVEN`
+  with `basis: "DETERMINISTIC_CONTEXT"` — but only with a `derivation`
+  object citing the exact inputs and a reproducible combination rule. AI
+  plausibility ("today is August, so it's probably this September") is
+  `AI_INFERENCE` and can **never** be `PROVEN`, no matter how likely it
+  looks.
 - **Existing canonical/public data must not be mutated during
   investigation.** Never touch `data/public/*`, `venues/*.json` registries,
   `venues/manual-coordinates.json`, or `sources/*.json` as a side effect of

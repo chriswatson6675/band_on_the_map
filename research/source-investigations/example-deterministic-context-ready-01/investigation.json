@@ -1,0 +1,164 @@
+{
+  "investigation_id": "example-deterministic-context-ready-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-25T00:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "PASSIVE_PROBE + PLATFORM_CLASSIFICATION against a retained synthetic fixture (Level 1 only — sufficient on its own), demonstrating v1.2's DIRECT_SOURCE and DETERMINISTIC_CONTEXT field-value basis model"
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The plain, unauthenticated HTTP response (evidence/programme.html) already exposes a full server-rendered event row. The row itself repeats only the day-of-month, title, time text, id, and detail link — the month/year, venue, and price are each established once by an enclosing heading/section rather than repeated per row. Nothing further was needed.",
+      "evidence_refs": ["ev-html-response"]
+    }
+  ],
+  "source_candidate_id": "example-deterministic-context-ready-01-candidate",
+  "source_id": null,
+  "venue_reference": "SYNTHETIC GOVERNANCE FIXTURE — Example Contextual-Date Municipal Venue (not a real venue; exists only to prove policy v1.2's DIRECT_SOURCE / DETERMINISTIC_CONTEXT field-value basis model end-to-end, including contextual inheritance of venue and price)",
+  "official_url": "https://example.org/programme",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-html-response"],
+    "notes": "The retained fixture's own <title> self-identifies as this candidate's official programme page. Synthetic evidence only — see README.md."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": null,
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-html-response"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://example.org/programme",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-html-response"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Synthetic Contextual Concert Night",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event row's own <h2 class=\"event-title\"> states the full title directly — no combination with surrounding context needed.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-17",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event row itself states only the day-of-month (\"17\"). The enclosing <h2 class=\"month-heading\">September 2026</h2> is retained, first-party context that mechanically governs every row beneath it until the next such heading (there is only one heading and one row in this bounded fixture, so containment is unambiguous). Combining \"September 2026\" + \"17\" via the fixed, source-agnostic rule \"<Month> <Year>\" + \"<Day>\" -> \"<Year>-<MM>-<DD>\" yields exactly one result, reproduced offline in evidence/offline-proof-output.txt. Today's date, agent knowledge, or a probable/likely season were never consulted.",
+      "evidence_refs": ["ev-html-response", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": {
+        "rule": "The nearest preceding <h2 class=\"month-heading\"> establishes the month and year for every event row that follows it until the next such heading; the row's own <span class=\"event-day\"> supplies the day. Concatenate as <Year>-<MM>-<DD>. Exactly one heading governs this row in the retained fixture, so the combination is unambiguous.",
+        "inputs": ["September 2026", "17"]
+      }
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The row shows free text \"21h (sem fuso horário indicado)\" — a floating local time, not a confirmed UTC instant. Not promoted to a precise value.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The source does not expose an end time or date for this event.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Sala X",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event row does not itself name a venue. It is retained as structurally nested inside <section id=\"sala-x\" class=\"venue-section\" data-venue-name=\"Sala X\"> — a source-authored structural container, not an inference — proving every row inside it belongs to Sala X. Reproduced offline in evidence/offline-proof-output.txt (checks the row's data-event-id literally appears within the matched section body).",
+      "evidence_refs": ["ev-html-response", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": {
+        "rule": "Every event row structurally nested (in the retained DOM) inside a <section class=\"venue-section\" data-venue-name=\"...\"> inherits that section's data-venue-name as its venue. Containment is checked mechanically: the row's own data-event-id must literally appear within the matched section's body — this is a structural parse check, not a judgement based on visual proximity or page layout.",
+        "inputs": ["Sala X (venue-section heading/data-venue-name)", "event row is structurally nested inside that section"]
+      }
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "synthetic-contextual-concert-night-2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event row's own data-event-id attribute, directly stated, matching this project's existing stable-identifier rule (a source-authored identifying attribute, not merely something that looks numeric/stable).",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://example.org/programme/synthetic-contextual-concert-night-2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event row's own detail-page link, stated directly.",
+      "evidence_refs": ["ev-html-response"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "FREE",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event row does not itself state a price. It is retained as structurally nested inside <section class=\"price-section\" data-price-label=\"Entrada livre\"> — this source's own explicit free-admission label for every row inside that section. Reproduced offline in evidence/offline-proof-output.txt. This is exactly the kind of inheritance docs/SOURCE_INVESTIGATION_POLICY.md warns must NOT be over-generalised beyond what the source structure actually proves — here it is proven by direct containment, not assumed.",
+      "evidence_refs": ["ev-html-response", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": {
+        "rule": "Every event row structurally nested inside a <section class=\"price-section\" data-price-label=\"Entrada livre\"> inherits FREE as its price — \"Entrada livre\" is this source's own explicit free-admission label, not an inferred absence of a price field.",
+        "inputs": ["Entrada livre (price-section heading/data-price-label)", "event row is structurally nested inside that section"]
+      }
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-html-response", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Every READY_FOR_ACTIVATION gate in docs/SOURCE_INVESTIGATION_POLICY.md (v1.2) is satisfied against retained, cited evidence for this synthetic fixture, including the v1.2-only requirement that a DETERMINISTIC_CONTEXT-basis gated field (start_date) cite an offline DETERMINISTIC_DERIVATION proof.",
+      "This is a governance-framework test fixture proving the v1.2 field-value-basis validator gate logic end-to-end, not a real investigated source — it must never be used to seed sources/*.json or activate a real collector."
+    ],
+    "evidence_refs": ["ev-html-response", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-html-response",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Synthetic retained HTML response representing a static event-listing page: one event row, with month/year, venue, and price each established once by an enclosing heading/section rather than repeated per row.",
+      "acquired_from": "https://example.org/programme (synthetic — example.org is IANA-reserved for documentation per RFC 2606, never a real venue; this file was authored directly, not fetched live)",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Synthetic fixture authored for this governance package — not a live HTTP_GET",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/example-deterministic-context-ready-01/evidence/programme.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically parses evidence/programme.html and mechanically combines the month/year heading + day-of-month into a single date, the venue-section heading + structural containment into a single venue, and the price-section heading + structural containment into a single price — proving each DETERMINISTIC_CONTEXT claim above is reproducible, not asserted.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/example-deterministic-context-ready-01/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, \"OFFLINE PROOF: PASSED\", and prints the derived title/start_date/venue/price/source_record_id/event_url plus the exact derivation inputs used for each DETERMINISTIC_CONTEXT field, matching field_assessment above exactly.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against the retained fixture only; no network access",
+      "acquired_at": "2026-08-25T00:00:00Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/example-deterministic-context-ready-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

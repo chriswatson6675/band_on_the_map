@@ -70,7 +70,7 @@ test("2. a v1.0 record fails explicitly as unsupported, not silently under v1.1 
   const errors = validateInvestigation(record);
   assert.ok(
     errors.includes(
-      'unsupported policy_version "BOTM-SOURCE-INVESTIGATION-v1.0" — current validator supports BOTM-SOURCE-INVESTIGATION-v1.1',
+      'unsupported policy_version "BOTM-SOURCE-INVESTIGATION-v1.0" — current validator supports BOTM-SOURCE-INVESTIGATION-v1.1, BOTM-SOURCE-INVESTIGATION-v1.2',
     ),
   );
   // It must be the *version* check that fails this record, not some
@@ -80,12 +80,16 @@ test("2. a v1.0 record fails explicitly as unsupported, not silently under v1.1 
   assert.equal(errors.length, 1);
 });
 
-test("3. a v1.2 record fails explicitly as unsupported, not silently under v1.1 rules", () => {
-  const record = minimalRecord({ policy_version: "BOTM-SOURCE-INVESTIGATION-v1.2" });
+test("3. a v1.3 record fails explicitly as unsupported, not silently under v1.1/v1.2 rules", () => {
+  // v1.2 itself is now genuinely supported (BOTM-GIG-FACT-DERIVATION-
+  // GOVERNANCE-02) — see tests/source-investigation-v1_2.test.mjs for that
+  // coverage. This test now exercises the next, still-unsupported minor
+  // version instead, to keep proving the same "fails closed" behaviour.
+  const record = minimalRecord({ policy_version: "BOTM-SOURCE-INVESTIGATION-v1.3" });
   const errors = validateInvestigation(record);
   assert.ok(
     errors.includes(
-      'unsupported policy_version "BOTM-SOURCE-INVESTIGATION-v1.2" — current validator supports BOTM-SOURCE-INVESTIGATION-v1.1',
+      'unsupported policy_version "BOTM-SOURCE-INVESTIGATION-v1.3" — current validator supports BOTM-SOURCE-INVESTIGATION-v1.1, BOTM-SOURCE-INVESTIGATION-v1.2',
     ),
   );
   assert.equal(errors.length, 1);
@@ -125,7 +129,7 @@ test("5. no record is silently evaluated under the wrong policy semantics — th
   // its policy_version is swapped to an unsupported value. If the
   // validator ever "fell through" to applying v1.1 semantics regardless
   // of the declared version, this record would incorrectly pass.
-  for (const unsupportedVersion of ["BOTM-SOURCE-INVESTIGATION-v1.0", "BOTM-SOURCE-INVESTIGATION-v0.9", "BOTM-SOURCE-INVESTIGATION-v1.2"]) {
+  for (const unsupportedVersion of ["BOTM-SOURCE-INVESTIGATION-v1.0", "BOTM-SOURCE-INVESTIGATION-v0.9", "BOTM-SOURCE-INVESTIGATION-v1.3"]) {
     const record = minimalRecord({ policy_version: unsupportedVersion });
     const errors = validateInvestigation(record);
     assert.ok(
@@ -135,5 +139,7 @@ test("5. no record is silently evaluated under the wrong policy semantics — th
     assert.ok(errors.every((e) => e.includes(unsupportedVersion) || e.includes("unsupported policy_version")));
   }
 
-  assert.deepEqual([...SUPPORTED_POLICY_VERSIONS], [POLICY_VERSION]);
+  // v1.2 is now genuinely supported (BOTM-GIG-FACT-DERIVATION-GOVERNANCE-02)
+  // alongside v1.1 — see tests/source-investigation-v1_2.test.mjs.
+  assert.deepEqual([...SUPPORTED_POLICY_VERSIONS], [POLICY_VERSION, "BOTM-SOURCE-INVESTIGATION-v1.2"]);
 });
