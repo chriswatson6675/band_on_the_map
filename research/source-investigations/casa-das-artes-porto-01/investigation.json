@@ -1,0 +1,275 @@
+{
+  "investigation_id": "casa-das-artes-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:35:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC then Level 2 STRUCTURAL. All retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) against the given official_url, one category-archive page, three static informational pages, one single-post detail page, and the site's own public WordPress REST API (posts/pages list endpoints plus the API discovery root). No official events-URL existed anywhere in this repository's registries beforehand; http://casadasartes.gov.pt/ was supplied directly as the known official website in the task itself, not discovered via WebSearch. Level 1 (visual/HTML inspection of the homepage and its nav menu) found no agenda/programação/eventos/calendário link and only 3 sticky blog posts with no visible pagination, but was judged INSUFFICIENT on its own to be confident this reflected the site's true total content. Level 2 (querying the site's own public wp-json REST API totals and route list) mechanically confirmed the same conclusion authoritatively: exactly 3 posts and 11 pages sitewide, no calendar-plugin REST namespace registered. A dependency-free, no-network Node offline-proof script re-parsed every retained file to cross-check X-WP-Total headers against parsed JSON array lengths, cross-check the one event-like post's date text (day+month only, no year) across the homepage/category/single-post/REST renderings, and confirm the absence of JSON-LD Event data and .ics links. Level 2 was SUFFICIENT; no escalation to Level 3/4 (browser/headless) was attempted or warranted, because every page fetched was already fully server-rendered plain HTML — the finding is that the source has not published current event data, not that a rendering technology is hiding it."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA) of the given official_url http://casadasartes.gov.pt/ returned 200 OK directly (no redirect needed) with fully server-rendered WordPress HTML: a real nav menu, the venue's own logo/branding, and a footer. The primary nav menu (7 top-level items plus 2 dropdown sub-items) contains NO agenda/programação/eventos/calendário link at all — only Visitas, Serviço Educativo, Cineclube, Arquivo, Horários, Contactos, and an Instituto Público Património Cultural dropdown (A Casa, Galeria). The homepage's 'blog' listing area (this is a WP 'blog' template, id=\"blog\") shows exactly 3 sticky posts (Salão Piolho, Bilheteira online, Cineclube do Porto), each carrying a visible 'posted-date' of 2023-2024, with no 'older posts'/pagination control and an empty 'Notícias Recentes' sidebar widget. A follow-up fetch of /category/musica/ (the closest thing to a music-specific listing) showed only 2 of those same 3 posts, again with no pagination. This visual/HTML-only inspection strongly suggested the site is dormant and exposes no current event data, but was not by itself a mechanically authoritative total (a nav item could in principle be hidden/orphaned, or the homepage template could in principle omit posts that still exist), so escalation to Level 2 was warranted to check the site's own structured metadata rather than relying on rendered-HTML appearance alone.",
+      "evidence_refs": ["ev-root", "ev-category-musica"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Queried the site's own publicly-exposed WordPress REST API: https://casadasartes.gov.pt/wp-json/wp/v2/posts (X-WP-Total: 3), https://casadasartes.gov.pt/wp-json/wp/v2/pages (X-WP-Total: 11), and the API discovery root https://casadasartes.gov.pt/wp-json/ (281 registered routes from WordPress core plus the installed Jetpack, Contact Form 7, Duplicator, and Google Site Kit plugins). This mechanically confirms, from the site's own authoritative metadata rather than eyeballed HTML, that the ENTIRE site has exactly 3 posts ever published sitewide (most recent 2024-10-29T10:52:53, ~665 days / ~22 months before this investigation) and exactly 11 static pages, none titled or slugged as an agenda/programação/eventos/calendário page, and that NO calendar/events-plugin REST namespace (e.g. tribe/events, eventon, the-events-calendar) is registered at all. This settles the question Level 1 could only suggest: the source currently exposes no current or future event/programme data through any public path. No escalation to Level 3 (browser observation) is warranted — every page fetched (homepage, category archive, static pages, single-post page) was already fully server-rendered plain HTML with no client-side rendering framework in evidence; a browser session could not reveal event content that the site's own REST API totals have already settled does not exist.",
+      "evidence_refs": ["ev-wpjson-posts", "ev-wpjson-pages", "ev-wpjson-root", "ev-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "casa-das-artes-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Casa das Artes — Porto, Portugal (a cultural centre operated under the DRCN / Instituto Público Património Cultural — Direção Regional de Cultura do Norte umbrella, at Rua Ruben A, nº 210, Porto; hosts a cinema club, occasional concerts/screenings, exhibitions, and educational activities)",
+  "official_url": "http://casadasartes.gov.pt/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-root", "ev-contactos"],
+    "notes": "The given official_url was independently re-verified by this investigation's own retained evidence, not merely assumed correct: the homepage's own <title> ('Casa das Artes – Porto'), its site-branding text ('Casa das Artes' / 'Porto'), and its custom logo image all match; the /contactos/ page states the real-world street address 'Rua Ruben A, nº 210' (Porto), which matches the actual, well-known Casa das Artes venue location; the nav menu links to an 'Instituto Público Património Cultural' section under /drcn/, consistent with this being a genuine DRCN (Direção Regional de Cultura do Norte)-operated .gov.pt property, not a third-party or unofficial page. Plain http:// (without following any redirect) already returns 200 OK directly with this content — confirmed by a separate curl fetch with no -L flag — so the given URL is directly the correct, live official address, not merely a stub that redirects elsewhere. No prior loose note or discrepancy needed to be reconciled here (unlike the gulbenkian-lisbon-01 investigation's contacts-page 403 discrepancy) — this investigation's own task instructions supplied the official_url directly, and this investigation only had to independently confirm it, which it did."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "Plain WordPress (self-hosted, PHP/7.4.33, nginx) using a custom/bespoke theme (CSS classes prefixed 'popularis-'), with Jetpack, Contact Form 7, Duplicator, and Google Site Kit plugins active per the site's own wp-json API route enumeration (281 total registered routes). No calendar/events plugin (e.g. The Events Calendar / tribe-events, EventOn, WP Event Manager) is installed — confirmed by the complete absence of any matching REST namespace among all 281 routes. Every page sampled (homepage, category archive, static pages, single-post page) is fully server-rendered plain HTML with no client-side rendering framework in evidence — this is not a CLIENT_RENDERED site, it genuinely just has no event content published on it.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-root", "ev-category-musica", "ev-wpjson-root", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_HOMEPAGE",
+      "url": "http://casadasartes.gov.pt/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-root", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_POSTS",
+      "url": "https://casadasartes.gov.pt/wp-json/wp/v2/posts",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-posts", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_PAGES",
+      "url": "https://casadasartes.gov.pt/wp-json/wp/v2/pages",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-pages", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_ROOT (route discovery, confirms no calendar plugin registered)",
+      "url": "https://casadasartes.gov.pt/wp-json/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-root", "ev-offline-proof"]
+    },
+    {
+      "kind": "DEDICATED_AGENDA_OR_PROGRAMACAO_PAGE",
+      "url": "N/A — searched and confirmed not to exist",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-root", "ev-wpjson-pages", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The site's sole event-like content (the 'Salão Piolho' post, post id 3231) states the actual film/programme title only as free-text prose inside the post body ('O ÚLTIMO DOS HOMENS de F. W. Murnau | Com Filipe Raposo') — the WP post's own structured title field is the generic 'Salão Piolho' (the name of the room/series), not the specific programme title. A regex/heuristic could extract the bolded first content line, but there is no structured event-title field distinct from the post title, and this is based on a single, ~22-months-stale sample — not a live, current capability. Left PARTIAL rather than PROVEN or NOT_PRESENT: the information exists and is extractable but not through a reliable structured field.",
+      "evidence_refs": ["ev-salao-piolho", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "notes": "The sole event-like post states its date only as '23 de NOVEMBRO | Sábado | 18h | Casa das Artes' — day and month, no year anywhere in that line or elsewhere in the retained page (mechanically confirmed in evidence/offline-proof.mjs: no 4-digit year present). The post's own 'posted-date' metadata (29 de Outubro, 2024, cross-checked against the REST API's date field 2024-10-29T10:52:53) makes 2024 a plausible real-world inference, but the source itself never states that year for the event — inferring it would be exactly the kind of invented value this policy forbids. Recorded honestly as AMBIGUOUS, never promoted to a precise claimed value. Separately: even if this one historical date were resolved, it is already long past relative to this investigation's date (2026-08-25), and no current/future-dated event exists anywhere on the site (see collector_assessment.blockers).",
+      "evidence_refs": ["ev-salao-piolho", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The same unstructured prose line states '18h' for the sole event-like post, but as free text within the same line as the date (no structured time field, no explicit timezone/offset). Extractable with a fragile heuristic, not a reliable structured field, and based on a single stale sample.",
+      "evidence_refs": ["ev-salao-piolho", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No end time or end date is stated anywhere for the sole event-like post, or anywhere else on the site.",
+      "evidence_refs": ["ev-salao-piolho"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The sole event-like post's prose date line states 'Casa das Artes' inline (trivially true, since this is the venue's own site), and the site's own /contactos/ page independently states the real street address 'Rua Ruben A, nº 210' (Porto) — but neither is a structured per-event location field; the address is a sitewide fact, not something tied to a specific event record.",
+      "evidence_refs": ["ev-salao-piolho", "ev-contactos", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "WordPress's own numeric post id (e.g. 3231 for the 'Salão Piolho' post) is documented and exposed by the source's own public REST API ('id' field on https://casadasartes.gov.pt/wp-json/wp/v2/posts/3231, reachable via the general posts list) and was empirically cross-checked as identical across four independent renderings of the same post: the homepage's 'post-3231' DOM class, the /category/musica/ archive, the single-post page's own 'post-3231' DOM class, and the REST API's 'id' field (all four reproduced identically in evidence/offline-proof.mjs). This satisfies the stable-identifier rule (documented by the source's own REST API AND proven empirically stable). CAVEAT recorded honestly: this identifies a WordPress POST (a news/announcement item), not a distinct 'event' entity — if this venue resumes active posting, a future collector should treat each qualifying post as one candidate event record, understanding that a single post may describe zero, one, or (in principle) multiple screenings/concerts in its prose body.",
+      "evidence_refs": ["ev-root", "ev-category-musica", "ev-salao-piolho", "ev-wpjson-posts", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each post's own canonical permalink (e.g. https://casadasartes.gov.pt/salao-piolho-2/) matches exactly across the homepage card's href, the /category/musica/ archive's href, and the REST API's own 'link'/'guid.rendered' fields for the same post id — reproduced identically in evidence/offline-proof.mjs. Reliable and stable when a qualifying post exists.",
+      "evidence_refs": ["ev-root", "ev-wpjson-posts", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The sole event-like post states 'M/12 | Entrada livre sujeita à lotação das salas' ('free admission subject to room capacity') as free prose text within the post body, not as a structured price/admission field. Extractable with a fragile heuristic, from a single stale sample only.",
+      "evidence_refs": ["ev-salao-piolho"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-wpjson-posts", "ev-wpjson-pages", "ev-wpjson-root", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The site currently exposes no current or future event/programme data through any public path sampled. Its own REST API confirms exactly 3 posts have ever been published sitewide, the most recent 665 days (~22 months) before this investigation's date, and none of its 11 static pages is an agenda/programação/eventos page. No calendar/events plugin is installed. A collector cannot be responsibly recommended or built against zero live/current samples — there is nothing to acquire at this time."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Even the one historical event-like post (Salão Piolho, post 3231) embeds its date/time/price only as unstructured prose inside the post body, with no JSON-LD, no ICS export, and no structured custom fields (confirmed absent by evidence/offline-proof.mjs). If this venue resumes posting in the future, a collector would need fragile prose/regex heuristics per post rather than a reliable structured extraction pattern, and the source's own date text for that post omitted the year entirely — a future collector must never infer a year that the source itself does not state."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "This is a content-availability finding, not a technical acquisition barrier: identity is PROVEN (this is genuinely the official, government-operated Casa das Artes do Porto site) and the site is fully server-rendered plain WordPress HTML with a working public REST API — nothing here is technically hard to fetch.",
+      "However, the site's own authoritative REST API metadata (X-WP-Total headers, cross-checked against parsed JSON array lengths in evidence/offline-proof.mjs) mechanically confirms it has published exactly 3 posts ever, the most recent 665 days before this investigation, and has no dedicated agenda/programação page among its 11 static pages and no calendar-plugin REST namespace among its 281 registered API routes.",
+      "field_assessment.start_date.state is AMBIGUOUS (not UNKNOWN/NOT_PRESENT — it was genuinely assessed) because the site's sole event-like content states a date as day+month prose with no year, and that content is itself already stale relative to the investigation date.",
+      "collector_assessment.blockers contains one CRITICAL entry: there is currently no live/current event data to build or validate a collector against. This is exactly the situation DEFER exists for — per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a legitimate, complete outcome, not a failure to be papered over by guessing or by forcing an activation recommendation onto a source with no current data.",
+      "The escalation ladder was followed honestly: Level 1 (PASSIVE_STATIC) was retained as INSUFFICIENT because visual/HTML inspection alone could not be fully authoritative about site-wide totals; Level 2 (STRUCTURAL, querying the site's own public REST API) was SUFFICIENT and settled the question. No browser/headless escalation (Level 3/4) was attempted or needed, since every page was already server-rendered plain HTML — this is not a rendering problem.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every claim above (post/page totals vs REST headers, no calendar-plugin route, no JSON-LD/ICS anywhere sampled, the yearless date line, identity's street address).",
+      "Recommendation for a future investigator: periodically re-check this exact site (its official_url) for renewed posting activity — the CRITICAL blocker here is about the current absence of data, not a structural defect in the site itself, so a future re-investigation (a new investigation_id, per this policy's supersession model) could reasonably reach a different conclusion if the venue resumes active use of its own site.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry."
+    ],
+    "evidence_refs": ["ev-wpjson-posts", "ev-wpjson-pages", "ev-wpjson-root", "ev-salao-piolho", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the given official_url, fetched as plain http:// with no redirect-following (-L omitted): returned 200 OK directly with full server-rendered WordPress homepage content — nav menu (no agenda/programação link), site branding, and a 'blog' area showing exactly 3 sticky posts with visible posted-dates in 2023-2024, no pagination control, and an empty 'Notícias Recentes' widget.",
+      "acquired_from": "http://casadasartes.gov.pt/",
+      "acquired_at": "2026-08-25T01:32:55Z",
+      "method": "curl -sS -D headers-00-http-plain-noredirect.txt -o body-00-http-plain-noredirect.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no -L)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-00-http-plain-noredirect.html"
+    },
+    {
+      "evidence_id": "ev-category-musica",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the site's own 'Música' (Music) category archive page — the closest thing to a music-specific listing this site exposes. Shows only 2 of the same 3 sitewide posts, no additional/hidden content, no pagination.",
+      "acquired_from": "https://casadasartes.gov.pt/category/musica/",
+      "acquired_at": "2026-08-25T01:32:07Z",
+      "method": "curl -sS -D headers-02-category-musica.txt -o body-02-category-musica.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-02-category-musica.html"
+    },
+    {
+      "evidence_id": "ev-wpjson-posts",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response body and headers for the site's own public WordPress REST API posts list endpoint. X-WP-Total header reads 3; the parsed array contains exactly 3 post objects (ids 3231/3116/2782), each with its own 'date', 'slug', 'link', and full 'content.rendered' — including the sole event-like post's date/time/price prose. Most recent post date: 2024-10-29T10:52:53.",
+      "acquired_from": "https://casadasartes.gov.pt/wp-json/wp/v2/posts?per_page=20&orderby=date&order=desc",
+      "acquired_at": "2026-08-25T01:32:22Z",
+      "method": "curl -sS -D headers-03-wpjson-posts.txt -o body-03-wpjson-posts.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET against a publicly-exposed, unauthenticated REST endpoint)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-03-wpjson-posts.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-pages",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response body and headers for the site's own public WordPress REST API pages list endpoint. X-WP-Total header reads 11; the parsed array contains exactly 11 page objects, none titled or slugged as an agenda/programação/eventos/calendário page.",
+      "acquired_from": "https://casadasartes.gov.pt/wp-json/wp/v2/pages?per_page=50",
+      "acquired_at": "2026-08-25T01:32:43Z",
+      "method": "curl -sS -D headers-04-wpjson-pages.txt -o body-04-wpjson-pages.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-04-wpjson-pages.json"
+    },
+    {
+      "evidence_id": "ev-horarios",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the /horarios/ (opening hours) static page: 'Terça a Sexta: 11h00/18h30' / 'Sábado: 14h30/20h45' — genuine, current-reading sitewide operating hours (not per-event data), retained to support identity/legitimacy assessment.",
+      "acquired_from": "https://casadasartes.gov.pt/horarios/",
+      "acquired_at": "2026-08-25T01:33:17Z",
+      "method": "curl -sS -D headers-05-horarios.txt -o body-05-horarios.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-05-horarios.html"
+    },
+    {
+      "evidence_id": "ev-noticias",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the /noticias/ (news) static page: this page literally still contains WordPress's own default placeholder text ('This is the page where users will find your site's blog') and an empty 'Notícias Recentes' widget — direct evidence that this section of the site was never actually populated/finished, corroborating the wp-json totals finding rather than merely asserting it.",
+      "acquired_from": "https://casadasartes.gov.pt/noticias/",
+      "acquired_at": "2026-08-25T01:33:18Z",
+      "method": "curl -sS -D headers-06-noticias.txt -o body-06-noticias.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-06-noticias.html"
+    },
+    {
+      "evidence_id": "ev-salao-piolho",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the single-post page of the site's sole event-like content ('Salão Piolho', post id 3231): states its date/time only as prose ('23 de NOVEMBRO | Sábado | 18h | Casa das Artes', no year), the specific film title/credits as prose, and admission ('Entrada livre sujeita à lotação das salas') as prose. No JSON-LD, no .ics link, no structured event fields anywhere on the page.",
+      "acquired_from": "https://casadasartes.gov.pt/salao-piolho-2/",
+      "acquired_at": "2026-08-25T01:33:19Z",
+      "method": "curl -sS -D headers-07-salao-piolho.txt -o body-07-salao-piolho.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-07-salao-piolho.html"
+    },
+    {
+      "evidence_id": "ev-contactos",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the /contactos/ page: states the real-world street address 'Rua Ruben A, nº 210' (Porto), used to independently confirm venue identity.",
+      "acquired_from": "https://casadasartes.gov.pt/contactos/",
+      "acquired_at": "2026-08-25T01:33:46Z",
+      "method": "curl -sS -D headers-08-contactos.txt -o body-08-contactos.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-08-contactos.html"
+    },
+    {
+      "evidence_id": "ev-wpjson-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response body for the WordPress REST API discovery root: enumerates 281 registered routes across WordPress core and the installed Jetpack, Contact Form 7, Duplicator, and Google Site Kit plugins. No calendar/events-plugin namespace (tribe/events, eventon, the-events-calendar, wp-event-manager, etc.) is present anywhere in the list.",
+      "acquired_from": "https://casadasartes.gov.pt/wp-json/",
+      "acquired_at": "2026-08-25T01:34:12Z",
+      "method": "curl -sS -D headers-09-wpjson-root.txt -o body-09-wpjson-root.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/body-09-wpjson-root.json"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against all retained evidence files above. Mechanically re-parses the homepage and category-page post cards, cross-checks X-WP-Total headers against parsed JSON array lengths for both the posts (3) and pages (11) REST endpoints, confirms no calendar-plugin route among 281 registered routes, confirms no JSON-LD Event/MusicEvent block or .ics link anywhere in the 6 retained HTML files sampled, confirms the sole event-like post's date line carries no year digit, cross-checks that post's id (3231) identically across 4 independent renderings, and confirms the /contactos/ page's street address. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/casa-das-artes-porto-01/evidence/ (all body-*.html and body-*.json files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:40:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/casa-das-artes-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,266 @@
+{
+  "investigation_id": "museu-do-fado-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl (no WebFetch/AI-markdown conversion, real descriptive User-Agent) against the venue's own home page, its public events list page (https://museudofado.pt/eventos), and 4 individual event detail pages linked directly from that list page. Inspected retained HTML/headers for identity signals (footer address/contacts, EGEAC linkage, og:site_name), a source-defined event-type taxonomy (the events-page <select name=\"type\"> options), JSON-LD/ICS/WordPress fingerprints (none found), and a plain server-rendered structured field block per event (Data/Horas/Até/Termina/Local/Preços). A dependency-free, no-network Node offline-proof script re-parsed the retained files deterministically to cross-check list-page card fields against detail-page fields for all 4 sampled events, to mechanically confirm the source's own 'Arquivo' (archive/past) label agrees with its own displayed date relative to the retained HTTP Date response header, and to confirm no JSON-LD/WordPress fingerprints are present. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA) of https://museudofado.pt returned 200 OK with a fully server-rendered page (footer contacts/address, EGEAC link, official site name in <meta property=\"og:site_name\">). A second plain curl GET of the candidate events page https://museudofado.pt/eventos (given in this investigation's brief) also returned 200 OK with a fully server-rendered list of 7 event cards (6 ordinary + 1 highlighted/featured), each carrying a title, a source-defined event-type category (from the page's own <select name=\"type\"> taxonomy: Apresentação/Concerto/Programação Online/Teatro/Tertúlia/Vários/Visitas/Workshop), a venue/location name, a date, and — for already-occurred events — an explicit 'Arquivo' (archive) label. Following 4 of those cards' own hrefs to their detail pages (also plain curl GETs) returned 200 OK pages each containing a consistent structured field block (Data/Horas/Até/Termina/Local/Preços, i.e. Date/Time/Until-date/End-time/Location/Price) plus an <h1> title and an og:url matching the URL actually followed. List-card title/date/location reproduced exactly on the matching detail page for all 3 sampled ordinary cards, and title/location reproduced exactly for the 1 sampled highlighted card (which does not expose date/category in its own list-page markup) — all mechanically re-verified in evidence/offline-proof.mjs, no network. This already answers identity, platform classification, data-path discovery, and field assessment without needing to inspect JS bundles, embedded page-data blobs, or open a browser (no JSON-LD, ICS, or WordPress fingerprints were found anywhere in the retained evidence either), so escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-eventos-body",
+        "ev-eventos-headers",
+        "ev-detail-marco",
+        "ev-detail-sul",
+        "ev-detail-popup",
+        "ev-detail-fadosoueu",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "museu-do-fado-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Museu do Fado — Lisboa, Portugal (EGEAC-managed municipal museum; this investigation targets its own public 'Eventos' listing at museudofado.pt, not any third-party listing)",
+  "official_url": "https://museudofado.pt/eventos",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-eventos-body"],
+    "notes": "museudofado.pt was given as the known official website in this investigation's brief and independently re-confirmed by this investigation's own retained evidence, not merely assumed: the retained events-page's own og:site_name is 'Museu do Fado', its footer gives the museum's real, well-known street address ('Museu do Fado, Largo do Chafariz de Dentro, N.º 1, 1100-139 Lisboa', phone +351 218 823 470, email info@museudofado.pt), the footer links directly to https://www.egeac.pt/ (the Lisbon municipal cultural-management company the brief describes this venue as 'EGEAC-adjacent' to), and museum admission tickets are sold via a linked bol.pt listing under the exact name 'Museu do Fado'. The candidate events page given in the brief, https://museudofado.pt/eventos, was independently verified to be correct and did not need correction: it returned 200 OK with <title>Eventos - Museu do Fado</title> and og:url exactly matching the URL requested."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom server-rendered PHP web application (Laravel-style session cookie name 'museu_do_fado_session' observed in response headers on every fetch; a Vue.js-driven directive layer — v-if/@submit/@click — powers the search/filter form only, not the event data itself, which is fully present in the initial server-rendered HTML with no client-side rendering required). Not WordPress: no wp-content/wp-json/wordpress fingerprint appears anywhere in any of the 6 retained HTML files (confirmed mechanically in evidence/offline-proof.mjs). No JSON-LD Event/MusicEvent schema.org blocks, no ICS export links, and no recognisable off-the-shelf calendar plugin (The Events Calendar, EventOn, Squarespace) were found on either the list page or any of the 4 sampled detail pages — event data is instead exposed as a plain, well-structured, server-rendered HTML field layout: list cards with title/category/location/date (+ an explicit 'Arquivo' archive-past label), and detail pages with a consistent Data/Horas/Até/Termina/Local/Preços field block.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-eventos-body", "ev-eventos-headers", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://museudofado.pt/eventos",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-eventos-body", "ev-eventos-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://museudofado.pt/evento/marco-rodrigues-canta-carlos-do-carmo",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGINATION (observed only, not fetched beyond page 1)",
+      "url": "https://museudofado.pt/eventos?page=2",
+      "access": "UNKNOWN",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-eventos-body"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Reliably extractable from both the list page (h6.gry on ordinary cards, div.title on the one highlighted card) and each detail page's <h1>. Verified identical between list and detail for 4/4 sampled events ('Marco Rodrigues canta Carlos do Carmo', 'SUL', 'Pop-Up Fado', 'O Fado Sou Eu!'). Left null here (a general capability finding across a 4-event sample, not one single event) — see evidence/offline-proof-output.txt for the per-event values.",
+      "evidence_refs": ["ev-eventos-body", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's 'Data' field gives a full calendar date in 'D month, YYYY' Portuguese text form (e.g. '7 novembro, 2026'), cross-checked exactly against the same event's list-page date text for the 3 sampled ordinary cards, and mechanically parsed into a comparable JS Date for all 4 sampled events. This is a floating local date/time — no explicit UTC offset or IANA timezone appears anywhere in the retained HTML; Europe/Lisbon is a reasonable real-world inference but was never promoted to a fabricated UTC instant. A minority of list-page events use a multi-date RANGE format instead ('25 julho - 5 setembro, 2026', observed on 'Visitas Cantadas') — this investigation's offline proof deliberately does NOT attempt to mechanically parse a range into one single date, and no range-format event was included in the sampled 4.",
+      "evidence_refs": ["ev-eventos-body", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's 'Horas' field gives a plain 'HH:MM' time-of-day (e.g. '19:00'), present on 4/4 sampled events. Same floating-local caveat as start_date: reliably extractable, but not a confirmed UTC instant since no timezone/offset is stated by the source anywhere in the retained evidence.",
+      "evidence_refs": ["ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page additionally exposes 'Até' (an end/until date) and 'Termina' (an end time-of-day), present and populated on 4/4 sampled events (e.g. Marco Rodrigues: Até '7 novembro, 2026', Termina '20:30'). For the 4 sampled single-day events, 'Até' always equalled 'Data' (start date), i.e. these were all single-day occurrences; this investigation did not sample a genuinely multi-day event's detail page, so it cannot confirm what 'Até'/'Termina' resolve to for one (the list page's 'Visitas Cantadas' multi-date-range card was seen but its detail page was not fetched, to keep the retained sample bounded).",
+      "evidence_refs": ["ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's 'Local' field gives a venue/room name, reliably extractable and identical to the matching list-card's location text for the 3 sampled ordinary cards (e.g. 'Centro Cultural de Belém - Grande Auditório', 'Centro Cultural de Belém - Pequeno Auditório', 'Museu do Fado' itself). The source genuinely varies this per event (some events are off-site at Centro Cultural de Belém, not at the museum's own Largo do Chafariz de Dentro address) rather than hard-coding one venue; this investigation did not silently normalise the two into one address. Only a venue/room NAME is exposed on these pages, not a separate structured street address per event — a collector would need to resolve 'Centro Cultural de Belém' to its own coordinates separately, not infer them from the museum's own footer address.",
+      "evidence_refs": ["ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-eventos-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "No numeric internal event ID is exposed anywhere in the retained HTML of any sampled page (no data-event-id attribute, no JSON-LD @id, no visible page-data blob carrying one — a large, unrelated site-wide fado-lyrics-player JSON blob is present on every page but does not reference the current event). The only candidate stable identifier is the event's own URL slug (e.g. 'marco-rodrigues-canta-carlos-do-carmo'), which is used consistently as both the list-page card's href and the detail page's own og:url for all 4 sampled events (mechanically re-verified in evidence/offline-proof.mjs, no network) — i.e. it is 'derived from a deterministic source property whose own stability is itself evidenced' in the sense of the stable-identifier rule, but ONLY within this single observation. This investigation did not re-fetch the same event slugs on a second occasion (>=24h apart, per the pattern already established for other investigations in this repository), so slug stability over TIME is not yet empirically proven — it could not honestly be marked PROVEN on this single-observation basis. ALTERNATIVE IDENTITY STRATEGY (documented per the activation-gate requirement): use the event's URL slug (the path segment after /evento/) as the source-record identifier candidate, but treat it as PARTIAL/unconfirmed until a repeat observation confirms the same event keeps the same slug across at least one re-fetch. A separate, secondary candidate — the bol.pt ticket-purchase URL's own numeric ID (e.g. '162165' in .../Bilhetes/162165-marco_rodrigues.../) — is a THIRD-PARTY ticketing-platform ID, not documented or controlled by museudofado.pt itself, and per this policy's third-party-sources rule must not be treated as first-party source authority for identity.",
+      "evidence_refs": ["ev-eventos-body", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's own og:url matches exactly the URL that was actually followed (which itself matches the href used on the list page), for 4/4 sampled events — mechanically re-verified in evidence/offline-proof.mjs. No <link rel=\"canonical\"> tag was found on these pages, so og:url was used as the canonical-URL proxy instead; this is recorded honestly rather than silently assumed equivalent.",
+      "evidence_refs": ["ev-eventos-body", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Every sampled detail page has a 'Preços' field giving either a price range (e.g. 'Marco Rodrigues': '12,50€-25,00€', 'SUL': '12,00€-15,00€') or a flat per-person fee (e.g. 'Pop-Up Fado': '3 € por pessoa', 'O Fado Sou Eu!': '3€ por pessoa'). The raw retained HTML encodes the currency symbol as the literal entity '&euro;', which a collector must HTML-decode rather than treat as literal text. Recorded as a range/label string, never collapsed to one fabricated single number when a range was shown. A ticket-purchase link (to bol.pt) was present for the two paid Centro Cultural de Belém events but absent for the two lower-cost museum-run workshops, which instead give an email-reservation instruction — this variation is recorded honestly, not smoothed over.",
+      "evidence_refs": ["ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-eventos-body", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "source_record_id has no source-documented stable identifier and this investigation only observed the site once; the URL slug is the recommended candidate identity key, but its stability over time is not yet empirically proven (see field_assessment.source_record_id.notes). A future step should re-fetch the same sampled event slugs >=24h apart before treating slug-based identity as fully proven."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The public events list at /eventos is a single, undifferentiated archive spanning at least 2009-2026 (154 pages observed via pagination), mixing already-occurred events (explicitly labelled 'Arquivo' by the source itself) with current/future ones on the very same listing, in a non-strictly-chronological order (the first page mixed a November 2026 event next to a July 2026 already-occurred one). A collector must filter on the source's own 'Arquivo' label and/or parse+compare each event's own date, not assume the list is pre-filtered to only current/future events or sorted chronologically."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No explicit timezone/UTC offset is stated anywhere in the retained evidence for any date/time field (start, end, or otherwise) — dates/times are floating-local Portuguese text. A collector must not silently promote these to a fabricated UTC instant without an explicit, separately-justified Europe/Lisbon assumption."
+      },
+      {
+        "severity": "MINOR",
+        "description": "A source-side data-quality bug was observed and retained: the events-page <meta property=\"og:image\"> value is malformed, concatenating the domain twice ('https://museudofado.pthttps://museudofado.pt/img/...'). This does not block field extraction for the fields this investigation assessed, but is recorded as evidence the source can carry small data-quality bugs a collector should be defensive against, not assume implies a broader parsing risk."
+      },
+      {
+        "severity": "MINOR",
+        "description": "One list-page event ('Visitas Cantadas') uses a multi-date RANGE format ('25 julho - 5 setembro, 2026') rather than a single date; this investigation's retained sample and offline proof deliberately did not attempt to parse or fetch this event's own detail page, so start_date/end semantics for a genuinely multi-date/recurring event are UNKNOWN, not assessed by this investigation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (footer address/contacts, EGEAC link, og:site_name, bol.pt ticketing listing under the museum's own name), independently re-confirmed rather than assumed from the brief's 'known official website' note. The brief's candidate events page (https://museudofado.pt/eventos) was independently verified correct and needed no correction.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class — every sampled page (list and detail) is fully server-rendered with no client-side rendering required for the event data itself; confirmed by the offline-proof script finding zero JSON-LD and zero WordPress fingerprints across all 6 retained HTML files.",
+      "Two data_paths entries (the events list page and the detail-page pattern) are access:PUBLIC and status:CONFIRMED against retained evidence.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN (start_date is not UNKNOWN/NOT_PRESENT).",
+      "field_assessment.source_record_id.state is PARTIAL (not PROVEN, honestly, since only one observation was made), but its notes explicitly document the alternative identity strategy (URL slug) required by the activation gate, including the honest caveat that slug stability over time is not yet empirically proven and recommending a repeat observation before full confidence.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every field-extraction and cross-check claim above, including confirming the source's own 'Arquivo' label agrees with its own displayed date relative to the retained HTTP Date response header.",
+      "collector_assessment.blockers contains only MINOR entries (unconfirmed long-term slug stability, an undifferentiated 2009-2026 archive requiring the source's own Arquivo-label/date filtering, no stated timezone, one small source-side og:image data bug, and one unsampled multi-date-range event type) — none CRITICAL.",
+      "The source itself exposes an explicit event-type taxonomy (the events page's own <select name=\"type\"> options: Apresentação/Concerto/Programação Online/Teatro/Tertúlia/Vários/Visitas/Workshop) that a future collector should use to select genuine live-programme categories (Concerto, Teatro, Apresentação, etc.) rather than guessing from vibes.",
+      "This investigation independently re-derived — never assumed — the loose prior note that 'a dated auditorium programme is confirmed through Nov 2026': the retained sample genuinely includes a real, currently-listed, non-archived Centro Cultural de Belém 'Grande Auditório' concert dated 7 novembro 2026 (Marco Rodrigues canta Carlos do Carmo). This investigation does not claim this is necessarily the LAST such date (later /eventos pagination pages were observed to exist but not fetched, to keep the retained sample bounded), only that this specific date is genuinely present in retained first-party evidence.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-eventos-body", "ev-detail-marco", "ev-detail-sul", "ev-detail-popup", "ev-detail-fadosoueu", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Museu do Fado home page, used to independently re-confirm official identity (og:site_name, footer contacts/address, EGEAC link).",
+      "acquired_from": "https://museudofado.pt",
+      "acquired_at": "2026-08-25T01:29:52Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the home-page request: 200 OK, Apache, a 'museu_do_fado_session' Laravel-style session cookie, no WordPress/CDN-specific headers.",
+      "acquired_from": "https://museudofado.pt",
+      "acquired_at": "2026-08-25T01:29:52Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-eventos-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the public events list page: 6 ordinary server-rendered event cards + 1 highlighted/featured card, a source-defined event-type <select> taxonomy, a year/month archive filter (2009-2026), and pagination links up to page 154.",
+      "acquired_from": "https://museudofado.pt/eventos",
+      "acquired_at": "2026-08-25T01:29:53Z",
+      "method": "curl -sS -D headers-eventos.txt -o body-eventos.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-eventos.html"
+    },
+    {
+      "evidence_id": "ev-eventos-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same events-list request: 200 OK, includes the server-observed Date response header used by evidence/offline-proof.mjs as the reference 'now' for the Arquivo-label cross-check.",
+      "acquired_from": "https://museudofado.pt/eventos",
+      "acquired_at": "2026-08-25T01:29:53Z",
+      "method": "curl -sS -D headers-eventos.txt (same request as ev-eventos-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/headers-eventos.txt"
+    },
+    {
+      "evidence_id": "ev-detail-marco",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Marco Rodrigues canta Carlos do Carmo' event detail page (7 novembro 2026, Centro Cultural de Belém - Grande Auditório, 19:00-20:30, 12,50€-25,00€, bol.pt ticket link).",
+      "acquired_from": "https://museudofado.pt/evento/marco-rodrigues-canta-carlos-do-carmo",
+      "acquired_at": "2026-08-25T01:33:10Z",
+      "method": "curl -sS -D headers-detail-marco-rodrigues-canta-carlos-do-carmo.txt -o body-detail-marco-rodrigues-canta-carlos-do-carmo.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-marco-rodrigues-canta-carlos-do-carmo.html"
+    },
+    {
+      "evidence_id": "ev-detail-sul",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'SUL' event detail page (30 outubro 2026, Centro Cultural de Belém - Pequeno Auditório, 20:00-21:30, 12,00€-15,00€, bol.pt ticket link).",
+      "acquired_from": "https://museudofado.pt/evento/sul",
+      "acquired_at": "2026-08-25T01:33:12Z",
+      "method": "curl -sS -D headers-detail-sul.txt -o body-detail-sul.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-sul.html"
+    },
+    {
+      "evidence_id": "ev-detail-popup",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Pop-Up Fado' event detail page (3 setembro 2026, Museu do Fado, 11:00-12:30, 3€ per person, email-reservation instruction instead of a bol.pt link).",
+      "acquired_from": "https://museudofado.pt/evento/pop-up-fado-4",
+      "acquired_at": "2026-08-25T01:33:13Z",
+      "method": "curl -sS -D headers-detail-pop-up-fado-4.txt -o body-detail-pop-up-fado-4.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-pop-up-fado-4.html"
+    },
+    {
+      "evidence_id": "ev-detail-fadosoueu",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'O Fado Sou Eu!' event detail page (the one highlighted/featured card on the list page; 26 agosto 2026, Museu do Fado, 11:00-12:00, 3€ per person, email-reservation instruction).",
+      "acquired_from": "https://museudofado.pt/evento/o-fado-sou-eu",
+      "acquired_at": "2026-08-25T01:33:14Z",
+      "method": "curl -sS -D headers-detail-o-fado-sou-eu.txt -o body-detail-o-fado-sou-eu.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-o-fado-sou-eu.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses the list page's event-type taxonomy and 6 ordinary + 1 highlighted card, cross-checks each of the 4 sampled detail pages' title/date/location against the corresponding list-page card (4/4 matched), extracts Data/Horas/Até/Termina/Local/Preços for each, confirms each sampled event's parsed start is at/after the retained server 'now' (proving the sample is genuinely current/future, not stale archive data), cross-checks the source's own 'Arquivo' archive label against its own displayed date for every parsed card, and confirms zero JSON-LD/WordPress fingerprints across all 6 retained HTML files. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/museu-do-fado-lisbon-01/evidence/ (all body-*.html and headers-eventos.txt files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:44:30Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/museu-do-fado-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

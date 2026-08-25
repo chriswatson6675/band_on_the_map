@@ -1,0 +1,31 @@
+Parsed 26 event cards from body-programme-en.html
+OK:   found 26 event cards (>= 1)
+Cards whose list-page date text contains a 4-digit year: 0/26
+OK:   confirmed: zero list-page event cards state a calendar year in their date text (day+month only)
+Distinct categories observed on the sampled list page: music, theatre, thinking, dance
+OK:   category "music" is present alongside at least one non-music category (e.g. theatre/dance/thinking)
+
+--- Per-sample-event detail-page checks ---
+batucadeiras-das-olaias-pt: postId=35378 title="Batucadeiras das Olaias (PT)" dates="9 September / Wednesday, 5:30pm" venue="Largo do Picadeiro" price="Free admission, subject to the venue’s capacity." duration=(not present) yearStatedInDates=false
+OK:   batucadeiras-das-olaias-pt: stable WordPress shortlink post id extracted (35378)
+picadeiro-fest-2026: postId=35347 title="PICADEIRO FEST 2026" dates="9 to 13 September / Wednesday to Sunday, 5:30pm and 7:30pm" venue="Largo do Picadeiro, sala Bernardo Sassetti e sala Mário Viegas" price="Free admission, subject to capacity." duration=(not present) yearStatedInDates=false
+OK:   picadeiro-fest-2026: stable WordPress shortlink post id extracted (35347)
+o-pai: postId=35368 title="O PAI (The Father)" dates="16 to 27 September / Wednesday to Saturday, 8.00 pm; Sunday, 5.30 pm" venue="Sala Luis Miguel Cintra" price="€12 to €15 (with discounts) | (free with the Culture Pass – available only at the Theatre box office) / <button type="button" class='info-preco' data-toggle="modal" data-target="#info-modal"> View more </button>" duration=1h30 aprox. yearStatedInDates=false
+OK:   o-pai: stable WordPress shortlink post id extracted (35368)
+as-ilhas-desconhecidas: postId=35404 title="As Ilhas Desconhecidas (The Unknown Islands)" dates="10 to 20 dDecember / Wednesday to Saturday, 8pm; Sunday, 5:30pm" venue="Sala Luis Miguel Cintra" price="€12 to €15 (with discounts) | (free with the Culture Pass – available only at the Theatre box office) / <button type="button" class='info-preco' data-toggle="modal" data-target="#info-modal"> View more </button>" duration=(not present) yearStatedInDates=false
+OK:   as-ilhas-desconhecidas: stable WordPress shortlink post id extracted (35404)
+vacuo: postId=35306 title="VÁCUO" dates="28 to 31 January / Thursday to Saturday, 7:30 pm; Sunday, 4 pm" venue="Sala Mário Viegas" price="Prices to be confirmed" duration=(not present) yearStatedInDates=false
+OK:   vacuo: stable WordPress shortlink post id extracted (35306)
+
+OK:   empirical stability: independent re-fetch of batucadeiras-das-olaias-pt reproduced the identical shortlink post id (35378)
+OK:   empirical stability: independent re-fetch of batucadeiras-das-olaias-pt returned a byte-identical HTML body
+
+--- Auxiliary /wp-json/custom/v1/espetaculos cross-check ---
+Parsed 11 auxiliary-API (date, title) entries across 6 sampled months.
+OK:   found 11 auxiliary-API entries (>= 1)
+Cross-check "André Rosinha Trio": list-page date text="14 <abbr title="January">jan</abbr>" (no year) <-> auxiliary API date="2027-01-14" (year=2027)
+OK:   mechanically recovered year 2027 for "André Rosinha Trio" via the auxiliary API -- NOT invented, cross-matched from two independently retained source documents
+Auxiliary-API entries for "NA MINHA BOCA": 3 (dates: 2027-01-15, 2027-01-16, 2027-01-17); present on static list page: false
+OK:   confirmed (not silently reconciled): "NA MINHA BOCA" appears in the auxiliary API but nowhere in the retained static programme list -- the two data paths do not correspond 1:1, so the auxiliary API cannot be treated as a reliable/complete supplementary feed
+
+RESULT: all checks passed against retained evidence (5/5 sample events fully cross-checked; year-gap and auxiliary-API unreliability both mechanically confirmed).

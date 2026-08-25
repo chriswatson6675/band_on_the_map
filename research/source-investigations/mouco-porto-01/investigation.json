@@ -1,0 +1,264 @@
+{
+  "investigation_id": "mouco-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. The task-provided candidate domain (www.moucohotel.pt) was probed first via plain curl; it failed to resolve via DNS. Per instructions, a bounded WebSearch was then used purely as a DISCOVERY LEAD (never as evidence) to check whether a different official domain existed; it consistently returned the same moucohotel.pt domain plus a mouco.pt contact-email domain, both of which were then independently re-probed via direct curl (all three: www.moucohotel.pt, moucohotel.pt, mouco.pt) and via a third-party DNS-over-HTTPS resolver (dns.google), which confirmed genuine lame delegation / REFUSED at the domains' own authoritative nameservers, not a local/transient failure. Two independent third-party pages (an events aggregator and a listings magazine) were fetched via curl as discovery-lead evidence and both independently corroborate moucohotel.pt as the venue's real site. Because the live domain is unreachable, the Wayback Machine's public availability API and a retained historical snapshot (dated 2025-03-23, well before this investigation) were fetched via curl to check the last known live state; it showed the domain, when it did resolve, served a JS anti-bot/anti-headless challenge interstitial (Imunify360 WebShield) to plain requests rather than real content. A dependency-free, no-network Node offline-proof script mechanically re-confirmed every one of these findings from the retained fixture files. Level 1 was BLOCKED (both by current DNS unreachability and, historically, by an explicit anti-bot access-control challenge); escalation to Level 2/3/4 was not attempted because both blocking conditions are unaffected by deeper static/structural inspection or a browser session (DNS resolution is a prerequisite for all of them, and defeating the anti-headless fingerprinting is explicitly prohibited by policy)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "BLOCKED",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) against all three known/discovered domain forms of the candidate's official site (https://www.moucohotel.pt, https://moucohotel.pt, https://mouco.pt) all failed at the DNS resolution step (curl exit 6, 'Could not resolve host') — no HTTP request could even be sent. This was independently re-checked (not just trusted as a possible local resolver quirk) via a direct curl GET to a public third-party DNS-over-HTTPS API (dns.google): both mouco.pt and moucohotel.pt return DNS Status 2 (SERVFAIL) with an explicit 'Name servers refused query (lame delegation?)' comment, meaning the domains' own delegated authoritative nameservers (ns1/ns2.wtservers.com) actively refuse to answer — a genuine, source-side DNS misconfiguration/outage, not a fluke of this investigation's network. A general-network sanity check (fetching google.com and, separately, an unrelated .pt domain used in a prior investigation) both succeeded normally, ruling out a broader local DNS problem. Because the live site is unreachable, the last known live state was checked via the Wayback Machine's public availability API and one retained archived snapshot (2025-03-23, well over a year before this investigation) — that historical snapshot's own response headers ('x-archive-orig-server: imunify360-webshield/1.21') and body (title 'One moment, please...', text 'Please wait while your request is being verified...', plus an obfuscated script explicitly testing navigator.webdriver, headless/bytespider user-agent strings, plugin/mimetype array shape, and outerWidth/outerHeight for headless-browser fingerprints) show that even when the domain did resolve, a plain unauthenticated request was served an anti-bot/anti-headless JS challenge interstitial, not real site or event content. Two independent third-party pages (a Porto events aggregator and a Time Out Porto listing), retained as discovery-lead evidence only, both link to https://moucohotel.pt as the venue's official site, corroborating that this is genuinely the right candidate domain rather than a wrong guess. All of this was mechanically re-confirmed, with zero network access, by evidence/offline-proof.mjs. Escalation to Level 2 (STRUCTURAL) or Level 3 (BROWSER_OBSERVATION) was not attempted: DNS resolution is a hard prerequisite for both, and the historical evidence indicates the site is actively engineered to detect and block exactly the kind of automated/headless client that Level 3 would introduce — attempting to defeat that fingerprinting to get past it is explicitly prohibited by docs/SOURCE_INVESTIGATION_POLICY.md, and escalating further would not change the current DNS outcome regardless.",
+      "evidence_refs": [
+        "ev-curl-error-moucohotel-root",
+        "ev-curl-error-moucohotel-nowww",
+        "ev-curl-error-mouco-pt",
+        "ev-dns-check-moucohotel",
+        "ev-dns-check-mouco",
+        "ev-wayback-availability",
+        "ev-wayback-snapshot-headers",
+        "ev-wayback-snapshot-body",
+        "ev-discovery-agendaporto",
+        "ev-discovery-timeout",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "mouco-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "M.Ou.Co (Música e Outras Coisas) — Porto, Portugal (Bonfim neighbourhood); a combined hotel / concert-hall / restaurant / 'musicoteca' cultural venue on Rua de Frei Heitor Pinto, opened 2021",
+  "official_url": "https://moucohotel.pt",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-discovery-agendaporto", "ev-discovery-timeout", "ev-dns-check-moucohotel", "ev-wayback-snapshot-body"],
+    "notes": "The task-provided candidate URL (https://www.moucohotel.pt) does not resolve via DNS at all, so this investigation could not independently confirm identity the normal way (its own retained fetch of the source's own title/address/organizer markup). Per instructions, a bounded WebSearch was used strictly as a DISCOVERY LEAD, and its leads were then independently re-checked with retained curl evidence: two separate third-party pages (agenda-porto.pt's own venue listing and Time Out Porto's listing, both retained in evidence/) independently and consistently link to https://moucohotel.pt as the venue's official site, and the Time Out page's own embedded schema.org PostalAddress JSON gives a Porto/Bonfim address (postalCode 4300-081) consistent with the task's stated location. A Wayback Machine snapshot (2025-03-23) of that exact domain also exists, corroborating the domain was genuinely live and hotel/venue-branded at some point (its response was gated behind a bot challenge, not a parked-domain or unrelated-business page). This is real, retained, cited evidence — but it is all THIRD-PARTY corroboration, never the source's own first-party self-description, and per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section a discovery lead must never be promoted to identity authority. identity.status is therefore PARTIAL (a real, evidenced, consistent candidate — not a wrong guess, not ambiguous/conflicting) rather than PROVEN, at LOW confidence, honestly reflecting that this investigation was never able to directly verify the source's own claim of itself."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": "Genuinely unknown for the current live site (unreachable). The one retained historical data point — a 2025-03-23 Wayback Machine snapshot — shows the origin server identified itself as 'imunify360-webshield/1.21' (an anti-bot/WAF product that serves JS-challenge interstitials), which explains why even a real Wayback crawl only captured a challenge page rather than the actual site markup. No CMS, calendar plugin, JSON-LD, or event-listing markup was ever observed in any retained evidence.",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-wayback-snapshot-headers", "ev-wayback-snapshot-body"]
+  },
+  "data_paths": [
+    {
+      "kind": "OFFICIAL_DOMAIN_HOMEPAGE",
+      "url": "https://moucohotel.pt",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-curl-error-moucohotel-nowww", "ev-curl-error-moucohotel-root", "ev-dns-check-moucohotel", "ev-wayback-snapshot-body"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "No first-party page — event-listing or otherwise — was ever successfully retrieved from the candidate's official domain in this investigation. The only retained content from that domain is a historical (2025-03-23) Wayback Machine snapshot of its homepage, and that snapshot is itself an anti-bot JS challenge interstitial, not the real page. No title-extraction claim can honestly be made.",
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "Same reason as title: no first-party event content was ever retrieved. No date claim, precise or otherwise, can honestly be made.",
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "Same reason as title/start_date.",
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "Same reason as title/start_date.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "A Porto/Bonfim postal address (4300-081) appears in a third-party page's own structured data (evidence/body-discovery-timeout.html), but that is third-party discovery-lead material, not the source's own first-party statement of itself, and is not retained here as a proven field value per docs/SOURCE_INVESTIGATION_POLICY.md's third-party-sources rule.",
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "No identifier scheme of any kind was ever observed, since no first-party event page was reachable. Nothing was invented as a substitute.",
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "notes": "No event page or list page was ever reachable, so no event_url pattern is known.",
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The candidate's only known official domain(s) — www.moucohotel.pt, moucohotel.pt, and the associated mouco.pt — do not currently resolve via DNS. Confirmed by three direct curl attempts (all 'Could not resolve host', exit 6) and independently corroborated by a third-party DNS-over-HTTPS resolver reporting genuine lame delegation / REFUSED from the domains' own authoritative nameservers. No acquisition method (static, structural, or browser-based) can reach a host that does not resolve; this is not fixable by escalating the probe ladder."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "Even the last known live state of the domain (Wayback Machine snapshot, 2025-03-23) shows it served every plain unauthenticated request an explicit anti-bot/anti-headless JS challenge interstitial (Imunify360 WebShield), including active fingerprinting for navigator.webdriver, headless/bytespider user agents, plugin/mimetype array shape, and zero outerWidth/outerHeight. Even if DNS is restored, plain static acquisition may continue to be challenge-gated by design, and a browser-based collector would need to defeat that fingerprinting — explicitly prohibited by docs/SOURCE_INVESTIGATION_POLICY.md ('never defeat CAPTCHAs, bypass authentication... or evade explicit access controls')."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The candidate's only known official domain(s) do not currently resolve via DNS — confirmed independently by direct curl (all three domain forms) and a third-party DNS-over-HTTPS resolver reporting genuine lame delegation at the domains' own authoritative nameservers, not a local network fluke (a control fetch of an unrelated, known-good .pt domain succeeded normally in the same session).",
+      "No first-party content of any kind — homepage, event list, or single event page — was ever retrieved from the candidate's own domain. All field_assessment entries are honestly UNKNOWN; none was fabricated to compensate.",
+      "The best available historical evidence (a pre-outage Wayback Machine snapshot) shows the site was, when it last resolved, gated behind an anti-bot/anti-headless JS challenge (Imunify360 WebShield) that explicitly fingerprints for automated clients — an explicit access-control boundary this policy prohibits attempting to defeat, so further escalation (Level 2/3/4) would not change the outcome and was correctly not attempted.",
+      "site_classification.acquisition_class is UNKNOWN and identity.status is only PARTIAL — none of the READY_FOR_OFFLINE_PROOF or READY_FOR_ACTIVATION gates are honestly met, nor could they be claimed met.",
+      "collector_assessment.blockers includes one unresolved CRITICAL blocker (DNS unreachability), which alone rules out READY_FOR_ACTIVATION even if every other gate had been met.",
+      "This is a legitimate, complete DEFER outcome per docs/SOURCE_INVESTIGATION_POLICY.md's 'DEFER does not require exhausting the ladder' — escalating a browser/headless session merely to prove the investigation 'tried everything' before deferring is explicitly not required, and would face the identical DNS blocker regardless.",
+      "Re-investigation is recommended if/when the domain is observed to resolve again; in the meantime the venue remains a real, third-party-corroborated candidate (per identity.notes) that should not be discarded outright, only deferred."
+    ],
+    "evidence_refs": [
+      "ev-curl-error-moucohotel-root",
+      "ev-curl-error-moucohotel-nowww",
+      "ev-curl-error-mouco-pt",
+      "ev-dns-check-moucohotel",
+      "ev-dns-check-mouco",
+      "ev-wayback-availability",
+      "ev-wayback-snapshot-headers",
+      "ev-wayback-snapshot-body",
+      "ev-discovery-agendaporto",
+      "ev-discovery-timeout",
+      "ev-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-curl-error-moucohotel-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained log of a direct curl GET attempt against the task-provided candidate URL, https://www.moucohotel.pt — failed at DNS resolution before any HTTP request could be sent.",
+      "acquired_from": "https://www.moucohotel.pt",
+      "acquired_at": "2026-08-25T01:34:36Z",
+      "method": "curl -sS -D evidence/headers-moucohotel-root.txt -o evidence/body-moucohotel-root.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://www.moucohotel.pt\" (stderr captured to this file; no HTTP response was ever received, so no headers/body file exists)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/curl-error-moucohotel-root.txt"
+    },
+    {
+      "evidence_id": "ev-curl-error-moucohotel-nowww",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained log of a direct curl GET attempt against https://moucohotel.pt (no www) — same DNS resolution failure.",
+      "acquired_from": "https://moucohotel.pt",
+      "acquired_at": "2026-08-25T01:34:37Z",
+      "method": "curl -sS -D evidence/headers-moucohotel-nowww.txt -o evidence/body-moucohotel-nowww.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://moucohotel.pt\" (stderr captured to this file; no HTTP response was ever received)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/curl-error-moucohotel-nowww.txt"
+    },
+    {
+      "evidence_id": "ev-curl-error-mouco-pt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained log of a direct curl GET attempt against https://mouco.pt (the domain used for the venue's own contact email, info@mouco.pt, per WebSearch discovery leads) — same DNS resolution failure.",
+      "acquired_from": "https://mouco.pt",
+      "acquired_at": "2026-08-25T01:34:37Z",
+      "method": "curl -sS -D evidence/headers-mouco-pt.txt -o evidence/body-mouco-pt.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://mouco.pt\" (stderr captured to this file; no HTTP response was ever received)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/curl-error-mouco-pt.txt"
+    },
+    {
+      "evidence_id": "ev-dns-check-moucohotel",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response from a public third-party DNS-over-HTTPS resolver (dns.google) for moucohotel.pt/A, fetched to independently verify the DNS failure was not a local-resolver artefact. Reports DNS Status 2 (SERVFAIL) with an explicit 'Name servers refused query (lame delegation?)' comment, naming the domain's own authoritative nameservers (ns1/ns2.wtservers.com) as the ones refusing.",
+      "acquired_from": "https://dns.google/resolve?name=moucohotel.pt&type=A",
+      "acquired_at": "2026-08-25T01:31:05Z",
+      "method": "curl -sS --max-time 15 \"https://dns.google/resolve?name=moucohotel.pt&type=A\" -o evidence/dns-check-moucohotel-pt.json",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/dns-check-moucohotel-pt.json"
+    },
+    {
+      "evidence_id": "ev-dns-check-mouco",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Same check as ev-dns-check-moucohotel, for mouco.pt/A. Same result: DNS Status 2 (SERVFAIL), lame delegation / REFUSED from ns1/ns2.wtservers.com.",
+      "acquired_from": "https://dns.google/resolve?name=mouco.pt&type=A",
+      "acquired_at": "2026-08-25T01:31:00Z",
+      "method": "curl -sS --max-time 15 \"https://dns.google/resolve?name=mouco.pt&type=A\" -o evidence/dns-check-mouco-pt.json",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/dns-check-mouco-pt.json"
+    },
+    {
+      "evidence_id": "ev-wayback-availability",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON from the Internet Archive's public Wayback Machine availability API, confirming an archived snapshot of moucohotel.pt exists (2025-03-23, itself served HTTP 200 by archive.org at capture time). Consulted only because the live domain is currently unreachable, to establish the last known live state.",
+      "acquired_from": "http://archive.org/wayback/available?url=moucohotel.pt",
+      "acquired_at": "2026-08-25T01:33:00Z",
+      "method": "curl -sS --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"http://archive.org/wayback/available?url=moucohotel.pt\" -o evidence/wayback-check-moucohotel.json",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/wayback-check-moucohotel.json"
+    },
+    {
+      "evidence_id": "ev-wayback-snapshot-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers from web.archive.org for the 2025-03-23 replay of moucohotel.pt's homepage. Includes 'x-archive-orig-server: imunify360-webshield/1.21', preserving the ORIGINAL server's own identifying header from the time of capture — direct evidence the origin server used an Imunify360 WebShield anti-bot/WAF product. This is a third-party-hosted historical replay, not a live first-party fetch, and is not treated as proof of the site's CURRENT state.",
+      "acquired_from": "https://web.archive.org/web/20250323202250/http://moucohotel.pt/",
+      "acquired_at": "2026-08-25T01:33:27Z",
+      "method": "curl -sS -D evidence/headers-wayback-moucohotel-root.txt -o evidence/body-wayback-moucohotel-root.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://web.archive.org/web/20250323202250/http://moucohotel.pt/\"",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/mouco-porto-01/evidence/headers-wayback-moucohotel-root.txt"
+    },
+    {
+      "evidence_id": "ev-wayback-snapshot-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML body from the same 2025-03-23 web.archive.org replay of moucohotel.pt's homepage. Shows an anti-bot/anti-headless JS interstitial ('One moment, please...' / 'Please wait while your request is being verified...') with an obfuscated fingerprinting script testing navigator.webdriver, headless/bytespider user-agent strings, plugin/mimetype array shape, and outerWidth/outerHeight — NOT real site or event content. Marked not byte-faithful because Wayback's own playback layer (wombat.js rewriting, an injected banner) modifies the replayed bytes relative to what moucohotel.pt originally served, even though the ORIGINAL response's own bytes clearly were themselves already just this challenge page (confirmed via the preserved x-archive-orig-* headers and x-archive-orig-content-length matching this body's approximate size).",
+      "acquired_from": "https://web.archive.org/web/20250323202250/http://moucohotel.pt/",
+      "acquired_at": "2026-08-25T01:33:27Z",
+      "method": "curl -sS -D evidence/headers-wayback-moucohotel-root.txt -o evidence/body-wayback-moucohotel-root.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://web.archive.org/web/20250323202250/http://moucohotel.pt/\"",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/mouco-porto-01/evidence/body-wayback-moucohotel-root.html"
+    },
+    {
+      "evidence_id": "ev-discovery-agendaporto",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for agenda-porto.pt's own venue listing page for 'Outsite M.Ou.Co.'. Retained as a THIRD-PARTY DISCOVERY LEAD only (per docs/SOURCE_INVESTIGATION_POLICY.md, never as identity authority) — its own markup links directly to https://moucohotel.pt/ as the venue's website, corroborating that domain is genuinely the right candidate.",
+      "acquired_from": "https://www.agenda-porto.pt/en/local/outsite-mouco/",
+      "acquired_at": "2026-08-25T01:32:21Z",
+      "method": "curl -sS -D evidence/headers-discovery-agendaporto.txt -o evidence/body-discovery-agendaporto.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://www.agenda-porto.pt/en/local/outsite-mouco/\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/body-discovery-agendaporto.html"
+    },
+    {
+      "evidence_id": "ev-discovery-timeout",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for Time Out Porto's listing page for 'M.Ou.Co.'. Retained as a THIRD-PARTY DISCOVERY LEAD only — its own markup (including an embedded schema.org PostalAddress JSON block, postalCode 4300-081, Porto) links to https://moucohotel.pt as the venue's website, further corroborating the domain and giving a Bonfim/Porto address consistent with the task's stated location.",
+      "acquired_from": "https://www.timeout.pt/porto/pt/coisas-para-fazer/m-ou-co",
+      "acquired_at": "2026-08-25T01:32:22Z",
+      "method": "curl -sS -D evidence/headers-discovery-timeout.txt -o evidence/body-discovery-timeout.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://www.timeout.pt/porto/pt/coisas-para-fazer/m-ou-co\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/mouco-porto-01/evidence/body-discovery-timeout.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-confirms: both DNS-over-HTTPS checks report SERVFAIL/lame-delegation, all three curl attempts genuinely failed at DNS resolution, the Wayback snapshot exists and its body/headers show an anti-bot challenge fronted by Imunify360 WebShield, both third-party discovery pages reference moucohotel.pt, and — an anti-fabrication check — zero retained files anywhere contain any MusicEvent/Event JSON-LD node, proving no event data was invented to compensate for the domain being unreachable. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/mouco-porto-01/evidence/ (all files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:44:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/mouco-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

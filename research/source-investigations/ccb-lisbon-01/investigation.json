@@ -1,0 +1,346 @@
+{
+  "investigation_id": "ccb-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: all retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent. Fetched the known candidate music-events listing page (301-redirected to its canonical https://www.ccb.pt/event/category/musica/), which itself server-renders The Events Calendar (Pro) WordPress plugin markup and advertises its own public REST API endpoint for the same category. Fetched that REST API (two pages, 20 sampled event records out of a reported 90), the REST API's own category-taxonomy endpoint (26 categories, 3 pages), three individual event detail pages (their schema.org JSON-LD Event blocks), and two independent single-event REST API lookups to cross-check id/date/url stability against the list endpoint. Also fetched robots.txt and a site search for 'jardim de verão' to independently re-check the prior loose note's claims. A dependency-free, no-network Node offline-proof script mechanically re-parsed every retained file to cross-check all of the above. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA) of the candidate music-events page 301-redirected to https://www.ccb.pt/event/category/musica/ and returned 200 OK, fully server-rendered by WordPress + The Events Calendar Pro (body classes post-type-archive-tribe_events / events-category-musica; wp-content/plugins/the-events-calendar and events-calendar-pro assets). That same static HTML page's own <head> already advertised a public REST API link (rel=alternate) for the identical category filter: https://www.ccb.pt/wp-json/tribe/events/v1/events/?categories=musica. A plain curl GET of that endpoint returned 200 OK with well-formed, paginated JSON (90 total musica-tagged records, 9 pages of 10) giving id, title, start_date/end_date (local + separate utc_start_date/utc_end_date + timezone), venue (name/address/city/postal code), cost/cost_details, categories, and a canonical url per record. Independent single-event REST API lookups for two sampled ids reproduced the list endpoint's id/title/start_date/end_date/url byte-for-byte. Three sampled detail pages each carried a schema.org JSON-LD Event block with an explicit UTC-offset startDate/endDate, matching the REST API values. This already answers identity, platform classification, data-path discovery, and field assessment via nothing but plain unauthenticated HTTP requests, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted. (Two genuine complications were found and are recorded honestly rather than smoothed over: a systematic 302-redirect bug on date-suffixed permalinks for multi-occurrence recurring events, reproduced twice across unrelated series; and ticket price being absent from the REST API's cost fields for real paid concerts, requiring the detail page's own static price table instead.)",
+      "evidence_refs": [
+        "ev-home",
+        "ev-list-musica-html",
+        "ev-api-musica-p1",
+        "ev-api-musica-p2",
+        "ev-api-categories",
+        "ev-detail-sinfonia5",
+        "ev-detail-amor-sin-pena",
+        "ev-single-281912",
+        "ev-single-294811",
+        "ev-detail-cantar-0912-redirect",
+        "ev-detail-cantar-0913",
+        "ev-detail-norquestra-1002-redirect",
+        "ev-robots",
+        "ev-search-jardim",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "ccb-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Centro Cultural de Belém (CCB) — Lisboa, Portugal (a large multidisciplinary cultural centre — museum/MAAT-adjacent programming, congress centre, gardens, and a broad performing-arts programme covering music, theatre, dance, performance, and family/schools activities). This investigation targeted only the site's own 'musica' (music) event category, not its full programme.",
+  "official_url": "https://www.ccb.pt/event/category/musica/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-list-musica-html", "ev-api-musica-p1"],
+    "notes": "https://ccb.pt was given as the known official website and independently re-confirmed by this investigation's own retained evidence, not merely assumed: the homepage's own footer reads '© 2026 Fundação Centro Cultural de Belém - Todos os direitos reservados', the Yoast SEO JSON-LD Organization block on the music-listing page names 'Centro Cultural de Belém' with url https://www.ccb.pt/, and every sampled event's REST API venue object and JSON-LD location both independently give the same real, well-known address (Praça do Império, 1449-003 Lisboa) with the foundation's public phone number. ccb.pt itself 301-redirects to www.ccb.pt (X-Redirect-By: WordPress), and the given candidate music-events URL (https://ccb.pt/eventos/categoria/musica) 301-redirects to https://www.ccb.pt/eventos/categoria/musica/ which itself immediately serves content whose own <link rel=canonical> declares https://www.ccb.pt/event/category/musica/ as the true canonical URL for this listing (WordPress + The Events Calendar's default 'event' rewrite slug, not 'eventos'). CORRECTION TO THE GIVEN CANDIDATE URL: the given https://ccb.pt/eventos/categoria/musica is a working redirect chain, not a dead link, but the source's own stated canonical is https://www.ccb.pt/event/category/musica/ — this investigation's official_url reflects that canonical, not the original guess."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress, running The Events Calendar + Events Calendar Pro (well-known, widely-deployed calendar plugins — tribe-events-calendar-pro-style-css, events-calendar-pro asset paths, tribe_js_config with events_post_type: 'tribe_events'). The plugin's own bundled REST API v1 (https://www.ccb.pt/wp-json/tribe/events/v1/) is public, unauthenticated, and directly linked from the plugin's own rendered HTML (<link rel=alternate>) — this is a KNOWN_CALENDAR_PLUGIN whose acquisition path resolves to a genuinely PUBLIC_JSON_API, not merely server-rendered HTML. Each individual event's own detail page additionally emits a schema.org JSON-LD Event block (via Yoast SEO) with an explicit UTC-offset startDate/endDate, corroborating the REST API's own local+UTC+timezone fields.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list-musica-html", "ev-api-musica-p1", "ev-detail-sinfonia5", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://www.ccb.pt/wp-json/tribe/events/v1/events/?categories=musica",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-musica-p1", "ev-api-musica-p2", "ev-offline-proof"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_SINGLE_EVENT",
+      "url": "https://www.ccb.pt/wp-json/tribe/events/v1/events/{id}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-single-281912", "ev-single-294811", "ev-offline-proof"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_CATEGORY_TAXONOMY",
+      "url": "https://www.ccb.pt/wp-json/tribe/events/v1/categories",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-categories", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.ccb.pt/event/category/musica/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-list-musica-html"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD_AND_PRICE_TABLE",
+      "url": "https://www.ccb.pt/evento/sinfonia-n-o-5-de-beethoven/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-sinfonia5", "ev-detail-amor-sin-pena", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API's own 'title' field is directly extractable and reliable — verified identical to each sampled detail page's own JSON-LD 'name' for 3/3 detail-page cross-checks (Sinfonia n.º 5 de Beethoven, Amor Sin Pena, Cantar Juntos pelo Mundo). Left null here (a general capability finding across a 20-event sample, not one single event) — see evidence/offline-proof-output.txt for the per-event values.",
+      "evidence_refs": ["ev-api-musica-p1", "ev-detail-sinfonia5", "ev-detail-amor-sin-pena", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API gives a full local calendar date + time-of-day in 'YYYY-MM-DD HH:MM:SS' form under 'start_date', PLUS a separately-computed 'utc_start_date' and an explicit IANA 'timezone' field ('Europe/Lisbon') — a stronger guarantee than a bare floating-local datetime. Independently corroborated by each sampled detail page's own JSON-LD 'startDate', which additionally carries an explicit numeric UTC offset ('2026-09-27T17:00:00+01:00') rather than being floating-local at all. Both representations agreed exactly for all 3 sampled detail-page cross-checks (mechanically re-verified in evidence/offline-proof.mjs).",
+      "evidence_refs": ["ev-api-musica-p1", "ev-detail-sinfonia5", "ev-detail-amor-sin-pena", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The time-of-day portion of 'start_date'/'utc_start_date' (REST API) and the JSON-LD 'startDate' (detail page, with explicit +01:00 offset) agree exactly for every sampled event. This is a genuinely stronger guarantee than a bare floating-local time, since an explicit UTC offset removes the DST/timezone ambiguity noted as a caveat in a prior sibling investigation (gulbenkian-lisbon-01).",
+      "evidence_refs": ["ev-detail-sinfonia5", "ev-detail-amor-sin-pena", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API 'end_date'/'utc_end_date' and detail-page JSON-LD 'endDate' both present and mutually consistent for every sampled event. One honestly-recorded nuance: for a multi-day umbrella event (e.g. 'Festa Temporada 2026_2027', REST id 292314), the top-level start/end span the ENTIRE multi-day run (2026-09-11 20:00 to 2026-09-13 20:00), not one single performance — a future collector must not assume start/end always describes a single continuous session without checking whether the record represents an umbrella/festival entry versus one specific performance.",
+      "evidence_refs": ["ev-api-musica-p1", "ev-detail-sinfonia5", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API's 'venue' object gives a full structured Place (name, address, city, postal code, phone), and every sampled detail page's JSON-LD 'location' independently gives the identical name/address/postal-code/phone. All 20 sampled musica-category events shared the same single venue object (Centro Cultural de Belém, Praça do Império, 1449-003 Lisboa) in this sample window — the source did not expose an off-site event within the sampled 20, unlike the sibling gulbenkian-lisbon-01 investigation which found one off-site outdoor concert.",
+      "evidence_refs": ["ev-api-musica-p1", "ev-detail-sinfonia5", "ev-detail-amor-sin-pena", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API's numeric 'id' (a WordPress post ID) is documented by the source itself as a stable per-record identifier — each record exposes its own 'rest_url' (.../events/{id}) as a canonical self-reference — and was proven empirically stable across two independent acquisition paths (the list endpoint and a direct single-event GET to that same id) for 2/2 sampled ids, including one recurring-series member (id 294811, the 2026-09-12 occurrence of 'Cantar Juntos pelo Mundo'), whose sibling occurrence (2026-09-13) carries a genuinely DIFFERENT id (294814) rather than sharing one id across dates. This is a materially stronger guarantee than the sibling gulbenkian-lisbon-01 investigation found (where a multi-date production shared one id across all its performances) — here each date-distinct occurrence already has its own distinct, stable numeric id, so no composite-key workaround is needed for source_record_id itself. IMPORTANT, HONESTLY-RECORDED CAVEAT (distinct from id stability): the HTML detail-page PERMALINK for the FIRST chronological occurrence of a multi-date recurring series (e.g. id 294811's own 'url' field value, .../cantar-juntos-pelo-mundo-3/2026-09-12/) 302-redirects to a DIFFERENT occurrence's page (.../2026-09-13/) rather than serving that occurrence's own page — reproduced identically on a second, unrelated recurring series (Festival BIG BANG — Norquestra, 2026-10-02 redirecting to 2026-10-03). The single-event REST API endpoint for the affected id is UNAFFECTED by this bug and continues to report the correct date. A collector should rely on the REST API's own per-id fields as ground truth and treat the HTML permalink as unreliable for the first occurrence of a recurring series specifically when fetching HTML for supplementary fields (e.g. price) not exposed by the REST API.",
+      "evidence_refs": ["ev-api-musica-p1", "ev-single-281912", "ev-single-294811", "ev-detail-cantar-0912-redirect", "ev-detail-cantar-0913", "ev-detail-norquestra-1002-redirect", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The REST API's own 'url' field is a well-formed, verbatim-extractable canonical URL string, byte-identical between the list endpoint and the single-event endpoint for both sampled ids (so EXTRACTING the value is fully reliable). Marked PARTIAL rather than PROVEN specifically because empirically, FOLLOWING that url does not always land on a page describing that exact record: for the first chronological occurrence of a multi-date recurring series, the url 302-redirects to a sibling occurrence's page instead (see source_record_id.notes and collector_assessment.blockers) — reproduced twice, across two unrelated series, so this is treated as a systematic site behaviour rather than an isolated glitch. A future collector can safely use event_url as a human-facing reference link, but must not assume the fetched page it eventually resolves to necessarily describes the specific id/date it looked up, and should prefer the REST API's own per-id JSON fields over re-scraping the HTML target for that record's own data.",
+      "evidence_refs": ["ev-api-musica-p1", "ev-single-294811", "ev-detail-cantar-0912-redirect", "ev-detail-cantar-0913", "ev-detail-norquestra-1002-redirect", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The REST API's own 'cost'/'cost_details' fields were EMPTY for every one of the 20 sampled musica-category events, including confirmed real, paid, ticketed concerts (e.g. 'Sinfonia n.º 5 de Beethoven', which links to an external ticketing system, ccb.bol.pt, and is clearly not free). This event management plugin's cost field appears to not be populated on this particular site, or ticketing is managed entirely by the external bol.pt system rather than through the plugin's own cost field. Price IS reliably present, however, as a static, server-rendered price table on the detail page's own HTML (a 'Preços' section listing multiple price points per seat category, e.g. 20€-40€ for the Beethoven concert) alongside a 'Comprar Bilhete' button linking to https://ccb.bol.pt/Comprar/Bilhetes/.... Marked PARTIAL, not PROVEN, because this requires HTML scraping of the detail page (a second acquisition step beyond the JSON API) and a genuinely multi-value price range/tiered structure rather than one single number — this investigation extracted 11 distinct price values from one sampled event's price table and did not attempt to build a general parser for every seating/discount permutation across all events.",
+      "evidence_refs": ["ev-api-musica-p1", "ev-detail-sinfonia5", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-api-musica-p1", "ev-api-musica-p2", "ev-single-281912", "ev-single-294811", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The first chronological occurrence of a multi-date recurring event series has an HTML detail-page permalink (as given verbatim by the REST API's own 'url' field) that 302-redirects to a DIFFERENT occurrence's page rather than its own — reproduced identically across two unrelated event series (Cantar Juntos pelo Mundo: 2026-09-12 -> redirects to 2026-09-13; Festival BIG BANG Norquestra: 2026-10-02 -> redirects to 2026-10-03). A collector that follows 'url' to scrape HTML-only fields (chiefly price, since the REST API's own cost field is unpopulated) for the FIRST occurrence of a recurring series risks silently attributing a sibling occurrence's price/content to the wrong record. Mitigation: the REST API's own per-id JSON fields (id/title/start_date/end_date/venue) are unaffected and remain reliable; only HTML-only supplementary fields for the first-occurrence id are at risk, and a collector should either skip HTML-only enrichment for first-occurrence ids in a recurring series or detect and handle the redirect explicitly (e.g. abort/flag rather than trust the resulting page)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The REST API's cost/cost_details fields were empty for every sampled event, including confirmed real, paid concerts. Price is only obtainable, when needed, via a second HTML fetch of the detail page's own static price table (multiple values per seat/discount category) — this is a genuinely separate acquisition step from the primary JSON API, not a single machine-readable field."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The site's own 'musica' event category is cross-tagged with several non-music categories on many records (e.g. 'teatro', 'performance', 'instalacao', 'escolas', 'familias', 'festival') — for example 'Festival BIG BANG LX2026' carries both 'musica' and 'teatro'. A future collector filtering strictly to live-music/gig-style events (as opposed to CCB's much broader family/schools/festival/multidisciplinary programming under the same 'musica' tag) should apply additional judgement on categories/description rather than treating every 'musica'-tagged record as a standalone concert."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (homepage footer copyright, Yoast Organization JSON-LD, and the venue address independently corroborated by both the REST API's venue object and every sampled detail page's own JSON-LD location) — the given candidate URL was independently re-verified and its true canonical corrected (https://www.ccb.pt/event/category/musica/), not merely assumed from the prior note.",
+      "site_classification.acquisition_class is PUBLIC_JSON_API, a resolved/supported class — the site's own HTML advertises a public, unauthenticated REST API v1 endpoint (The Events Calendar Pro's bundled API) that returns structured JSON with id/title/date/venue/categories/url per record.",
+      "Multiple data_paths entries (the JSON API list endpoint, the JSON API single-event endpoint, and the JSON API category-taxonomy endpoint) are access:PUBLIC and status:CONFIRMED against retained evidence.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN (start_date is not UNKNOWN/NOT_PRESENT), with the added strength of an explicit UTC-offset timestamp on every sampled detail page's JSON-LD, not merely a floating-local datetime.",
+      "field_assessment.source_record_id.state is PROVEN under the stable-identifier rule (self-documented by the source's own REST API 'rest_url' self-reference, and proven empirically stable across two independent acquisition routes — the list endpoint and the single-event endpoint — for 2/2 sampled ids, including a recurring-series member whose sibling occurrence correctly carries a distinct id).",
+      "collector_assessment.recommended_family is JSON_API, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every field-extraction, id-stability, and anomaly claim above, including the redirect bug (reproduced 2/2) and the empty-cost-field finding.",
+      "collector_assessment.blockers contains one MAJOR entry (the recurring-event first-occurrence permalink redirect bug) and two MINOR entries (unpopulated cost field requiring an HTML fallback; cross-tagging with non-music categories) — none CRITICAL, and the MAJOR blocker has a clear, already-documented mitigation (prefer the REST API's own per-id JSON fields; treat HTML-only enrichment for first-occurrence recurring ids with caution) rather than being an unresolved unknown.",
+      "This investigation independently re-checked, and could not corroborate, two claims from the prior loose research note: (1) it found no 'Jardim de Verão' category anywhere in the site's full 26-entry public category taxonomy, and a site search for the exact phrase returned a generic no-direct-match 'Sugestões' page rather than any matching event/series — recorded honestly as a discrepancy, not silently reconciled, since it is entirely possible this is a past/seasonal series not currently live, was renamed, or was never a distinct on-site taxonomy category in the first place; (2) rather than a 'dated HTML event list', this investigation found a modern, well-structured, actively maintained public JSON REST API — the HTML listing page itself advertises that API. Current, independently retained evidence wins over the prior note per this task's instructions.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "Rights note (out of this policy's scope per docs/DATA_RIGHTS.md, recorded here only for downstream awareness): the site footer reads 'Todos os direitos reservados' (all rights reserved) and robots.txt does not disallow /event/, /evento/, or /wp-json/ — the prior note's characterisation ('all-rights-reserved footer, no explicit prohibition either') was independently reproduced by this investigation's own retained evidence (ev-home, ev-robots) and is left for the separate rights framework to resolve, not decided here."
+    ],
+    "evidence_refs": ["ev-home", "ev-list-musica-html", "ev-api-musica-p1", "ev-api-musica-p2", "ev-api-categories", "ev-detail-sinfonia5", "ev-detail-amor-sin-pena", "ev-single-281912", "ev-single-294811", "ev-detail-cantar-0912-redirect", "ev-detail-cantar-0913", "ev-detail-norquestra-1002-redirect", "ev-robots", "ev-search-jardim", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the CCB homepage (after the ccb.pt -> www.ccb.pt 301 redirect), including the footer copyright line ('© 2026 Fundação Centro Cultural de Belém - Todos os direitos reservados').",
+      "acquired_from": "https://www.ccb.pt/",
+      "acquired_at": "2026-08-25T01:29:27Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET; the bare https://ccb.pt/ request first returned a retained 301 to this URL)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-list-musica-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the music-events category listing page (after the given candidate URL's 301 redirect chain resolved to https://www.ccb.pt/eventos/categoria/musica/, whose own <link rel=canonical> declares https://www.ccb.pt/event/category/musica/). Contains The Events Calendar Pro platform fingerprints, a Yoast SEO Organization/CollectionPage JSON-LD block, and a <link rel=alternate> advertising the site's own public REST API endpoint for this same category.",
+      "acquired_from": "https://www.ccb.pt/eventos/categoria/musica/",
+      "acquired_at": "2026-08-25T01:29:28Z",
+      "method": "curl -sS -D headers-eventos-musica.txt -o body-eventos-musica.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET; the given https://ccb.pt/eventos/categoria/musica first returned a retained 301 to this URL)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-eventos-musica.html"
+    },
+    {
+      "evidence_id": "ev-api-musica-p1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response, page 1 of the public REST API's musica-category event list: 10 of 90 total events, each with id/title/start_date/end_date/utc dates/timezone/venue/cost/categories/url.",
+      "acquired_from": "https://www.ccb.pt/wp-json/tribe/events/v1/events/?categories=musica",
+      "acquired_at": "2026-08-25T01:30:11Z",
+      "method": "curl -sS -D headers-tribe-api-musica.txt -o body-tribe-api-musica.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-tribe-api-musica.json"
+    },
+    {
+      "evidence_id": "ev-api-musica-p2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response, page 2 of the same REST API musica-category event list (events 11-20 of 90).",
+      "acquired_from": "https://www.ccb.pt/wp-json/tribe/events/v1/events/?categories=musica&page=2",
+      "acquired_at": "2026-08-25T01:30:50Z",
+      "method": "curl -sS -D headers-tribe-api-musica-p2.txt -o body-tribe-api-musica-p2.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-tribe-api-musica-p2.json"
+    },
+    {
+      "evidence_id": "ev-api-categories",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON responses for all 3 pages of the REST API's own event-category taxonomy endpoint (26 categories total, 10+10+6 across the 3 retained pages). Used to independently check for a 'Jardim de Verão'-like category — none was found.",
+      "acquired_from": "https://www.ccb.pt/wp-json/tribe/events/v1/categories (and &page=2, &page=3)",
+      "acquired_at": "2026-08-25T01:31:25Z",
+      "method": "curl -sS -D headers-tribe-categories.txt -o body-tribe-categories.json (page 1, headers retained); curl -sS -o body-tribe-categories-p2.json / -p3.json (pages 2-3, status confirmed 200 via curl -w) --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-tribe-categories.json"
+    },
+    {
+      "evidence_id": "ev-detail-sinfonia5",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Sinfonia n.º 5 de Beethoven' event detail page (REST API id 281912): a schema.org JSON-LD Event block with an explicit UTC-offset startDate/endDate, plus a static server-rendered 'Preços' price table (11 distinct values, €20-€40) and a 'Comprar Bilhete' button linking to the external ticketing system ccb.bol.pt — proof this is a real paid concert whose price is absent from the REST API's own cost field.",
+      "acquired_from": "https://www.ccb.pt/evento/sinfonia-n-o-5-de-beethoven/",
+      "acquired_at": "2026-08-25T01:33:17Z",
+      "method": "curl -sS -D headers-detail-sinfonia5.txt -o body-detail-sinfonia5.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-detail-sinfonia5.html"
+    },
+    {
+      "evidence_id": "ev-detail-amor-sin-pena",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Amor Sin Pena – Língua e Memória na Música Ibérica do Século XVI' event detail page (REST API id 284286): a schema.org JSON-LD Event block with explicit UTC-offset startDate/endDate matching the REST API values exactly, and a 'Comprar Bilhete' ticketing link.",
+      "acquired_from": "https://www.ccb.pt/evento/amor-sin-pena-lingua-e-memoria-na-musica-iberica-do-seculo-xvi/",
+      "acquired_at": "2026-08-25T01:34:01Z",
+      "method": "curl -sS -D headers-detail-amor-sin-pena.txt -o body-detail-amor-sin-pena.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-detail-amor-sin-pena.html"
+    },
+    {
+      "evidence_id": "ev-single-281912",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON for a direct, independent single-event REST API lookup of id 281912 (Sinfonia n.º 5 de Beethoven), used to cross-check id/title/start_date/end_date/url stability against the list-endpoint record for the same id — matched byte-for-byte.",
+      "acquired_from": "https://www.ccb.pt/wp-json/tribe/events/v1/events/281912",
+      "acquired_at": "2026-08-25T01:33:19Z",
+      "method": "curl -sS -D headers-tribe-single-281912.txt -o body-tribe-single-281912.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-tribe-single-281912.json"
+    },
+    {
+      "evidence_id": "ev-single-294811",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON for a direct, independent single-event REST API lookup of id 294811 (Cantar Juntos pelo Mundo, the 2026-09-12 occurrence of a 2-date recurring series). Matched the list-endpoint record byte-for-byte, and — despite the HTML permalink for this same id/url redirecting to a different date (see ev-detail-cantar-0912-redirect) — this REST API record correctly and unambiguously reports the 2026-09-12 date, proving the JSON API's per-id data is unaffected by the HTML routing bug.",
+      "acquired_from": "https://www.ccb.pt/wp-json/tribe/events/v1/events/294811",
+      "acquired_at": "2026-08-25T01:34:04Z",
+      "method": "curl -sS -D headers-tribe-single-294811.txt -o body-tribe-single-294811.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-tribe-single-294811.json"
+    },
+    {
+      "evidence_id": "ev-detail-cantar-0912-redirect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers (302 Found, Location header) for a GET of the exact date-suffixed detail-page URL that the REST API itself gives as id 294811's own 'url' field. Direct proof of the redirect-away anomaly: this URL does NOT serve a page describing the 2026-09-12 occurrence; it redirects to the 2026-09-13 occurrence's page instead.",
+      "acquired_from": "https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-12/",
+      "acquired_at": "2026-08-25T01:34:01Z",
+      "method": "curl -sS -D headers-detail-cantar-juntos-0912.txt -o body-detail-cantar-juntos-0912.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (curl does not auto-follow redirects here; the empty/near-empty body-detail-cantar-juntos-0912.html is the retained 302 response body itself)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/headers-detail-cantar-juntos-0912.txt"
+    },
+    {
+      "evidence_id": "ev-detail-cantar-0913",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the page the previous redirect actually lands on (2026-09-13 occurrence, REST API id 294814): its own JSON-LD Event startDate (2026-09-13T15:00:00+01:00) confirms this is genuinely a DIFFERENT occurrence's content than what was requested, not merely a URL-normalisation redirect to the same content.",
+      "acquired_from": "https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-13/",
+      "acquired_at": "2026-08-25T01:34:20Z",
+      "method": "curl -sS -D headers-detail-cantar-juntos-0913.txt -o body-detail-cantar-juntos-0913.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-detail-cantar-juntos-0913.html"
+    },
+    {
+      "evidence_id": "ev-detail-norquestra-1002-redirect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers (302 Found, Location header) for a GET of a second, unrelated recurring series' first-occurrence date-suffixed permalink ('Festival BIG BANG — Norquestra (PT)', REST API id 285978, 2026-10-02 occurrence). Redirects to the 2026-10-03 occurrence's page instead — reproducing the same anomaly found on ev-detail-cantar-0912-redirect on a completely different event series, establishing this as a systematic site behaviour rather than a one-off fluke.",
+      "acquired_from": "https://www.ccb.pt/evento/festival-big-bang-norquestra-pt/2026-10-02/",
+      "acquired_at": "2026-08-25T01:35:13Z",
+      "method": "curl -sS -D headers-detail-norquestra-1002.txt -o body-detail-norquestra-1002.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/headers-detail-norquestra-1002.txt"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained robots.txt: no Disallow entry covers /event/, /evento/, or /wp-json/ — the paths this investigation's recommended acquisition strategy relies on are not robots-excluded.",
+      "acquired_from": "https://www.ccb.pt/robots.txt",
+      "acquired_at": "2026-08-25T01:32:55Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-search-jardim",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for a genuine site search of 'jardim de verão' (the prior loose note's claimed outdoor summer series). The page's own <title> reflects the query was actually run, but the page shows a generic 'As nossas Sugestões' (no-direct-match suggestions) heading rather than any matching event/category result — used together with ev-api-categories (no such taxonomy category exists) to independently re-check, and fail to corroborate, the prior note's claim.",
+      "acquired_from": "https://www.ccb.pt/?s=jardim+de+ver%C3%A3o",
+      "acquired_at": "2026-08-25T01:31:56Z",
+      "method": "curl -sS -D headers-search-jardim.txt -o body-search-jardim.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/body-search-jardim.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against all of the retained evidence files above. Mechanically re-verifies the platform fingerprint and REST API self-advertisement, the 20-event/26-category REST API pagination shape, id/title/date/url stability between the list and single-event endpoints for 2 sampled ids, explicit-UTC-offset JSON-LD dates and venue address matching across 3 detail pages, the 2/2 reproduced recurring-permalink redirect anomaly (with the single-event API shown unaffected), the empty-cost-field-vs-HTML-price-table finding (11 extracted price values), and the 'jardim de verão' non-finding (26/26 categories accounted for, no match; search page shows generic suggestions). Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/ccb-lisbon-01/evidence/ (all body-*.html, body-*.json, and headers-*.txt files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:44:10Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ccb-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,261 @@
+{
+  "investigation_id": "hot-five-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: no WebSearch or other discovery lead was needed — the candidate official URL (https://hotfive.pt/) was already given. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion): the home page, the dedicated /shows/ event-listing page, the wp-json REST discovery root (fully enumerated, not just the Link header), the site's RSS feed, and one third-party lebillet.eu ticketing page (fetched only as non-authoritative corroboration of the missing-year question, per policy's Third-party sources rule). A dependency-free, no-network Node offline-proof script re-parsed every retained file deterministically: extracted and cross-checked all 52 event cards on /shows/ plus the home page's 4-card mini-list, mechanically proved zero of the 56 combined date strings contain a 4-digit year, proved title+date composite-key uniqueness, ruled out wp-json and the RSS feed as usable event data paths, and confirmed the third-party page's independent year statement without using it to promote any hotfive.pt-first-party field to PROVEN. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA, -L to follow this WordPress site's benign wp-cron redirect on every request) of https://hotfive.pt/ and https://hotfive.pt/shows/ returned 200 OK with fully server-rendered Elementor page-builder content: a 'nexT shows' mini-list (4 cards) on the home page and a full 'Shows' list (52 cards, grouped under JULY/AUGUST/SEPTEMBER month headers) on /shows/, each card giving a title, a 'DD mon' date string (Portuguese month abbreviation, no year), and (for 47/52 cards) an outbound 'Buy tickets' href to a third-party ticketing platform (lebillet.eu). A plain curl fetch of the wp-json REST discovery root (already advertised via the response's own Link header) was fully enumerated (294 routes) and contained zero wp/v2 content routes related to events/shows/calendar/agenda — ruling out a structured REST data path. A plain curl fetch of the site's own advertised RSS feed (/feed/) showed it holds only stale WordPress-theme-demo placeholder posts (2016-2023, one guid still referencing an old domain 'hotfivenew.pt') — ruling it out as an event data path too. No schema.org Event/MusicEvent JSON-LD, no ICS link, and no recognisable calendar/booking CMS plugin (e.g. The Events Calendar, EventOn) were found anywhere in either page's HTML or the wp-json route list. This already answers identity, platform classification, data-path discovery, and field assessment without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted. One additional plain curl fetch was made of a single third-party lebillet.eu ticket page purely to honestly document (not to authoritatively prove) that a linked external ticketing page independently states a full calendar year, per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' rule — this was never treated as first-party proof for hotfive.pt's own start_date field.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-shows-body",
+        "ev-shows-headers",
+        "ev-wpjson",
+        "ev-feed",
+        "ev-lebillet-1981",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "hot-five-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Hot Five Jazz & Blues Club — Porto, Portugal (a single-location, single-room live-music venue; legal operator 'Deztrezepauta, Lda.', self-published on-site)",
+  "official_url": "https://hotfive.pt/shows/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-shows-body"],
+    "notes": "The task-provided URL https://hotfive.pt/ was independently verified as the venue's own official presence, and CORRECTED/REFINED for this investigation's data_paths and official_url to the dedicated event-listing page https://hotfive.pt/shows/ (a plain internal WordPress permalink of the same site, reached via the home page's own 'See All' buttons) — the home page carries only a small rolling excerpt of the same schedule. Retained evidence: <title>'Início - HOTFIVE®'</title> and og:site_name 'HOTFIVE®' with og:description 'Jazz&Blues Club Porto'; body text 'Since 2006, the Hot Five Jazz&Blues Club has been a cultural landmark in Porto ... hosted more than 14,000 live concerts ... weekly jam sessions'; a shared footer block giving the legal operator name and Portuguese tax id ('Deztrezepauta, Lda. / NIF: 515188301'), a street address ('R. de Guerra Junqueiro 495, 4150-098 Porto'), a phone number, an on-site email (jazz@hotfive.pt, same domain as the site itself), and a matching Instagram handle (@hotfivejazzbluesclub, consistent with the venue's own name). MINOR SELF-INCONSISTENCY, recorded honestly rather than silently resolved: the page's own <meta og:description> says 'Since 2005' while the page's own visible body text two sections later says 'Since 2006, the Hot Five Jazz&Blues Club has been a cultural landmark' — the source disagrees with itself by one year about its own founding date; this does not affect identity confidence (both numbers clearly refer to the same venue) but is not smoothed over."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (generator 'https://wordpress.org/?v=7.1' per the retained RSS feed) with the Elementor page-builder plugin, Yoast SEO, and PixelYourSite Free — event listings are hand-authored Elementor 'icon-box' + 'button' widget blocks laid out in columns on two ordinary WordPress Pages (post ids 61585 / home, 63450 / /shows/), NOT a dedicated events/calendar custom post type or plugin. Confirmed by fully enumerating the site's own wp-json REST discovery root (294 routes): zero wp/v2 content routes relate to events, shows, calendar, agenda, or any recognisable calendar-plugin namespace (e.g. no 'tribe/events' from The Events Calendar, no EventOn routes). No schema.org Event/MusicEvent JSON-LD script tag exists anywhere on either retained page (only a generic Yoast WebPage/WebSite JSON-LD graph, identical in shape to a non-event page). No ICS export link was found. Ticket purchasing is entirely outsourced to a third-party platform, lebillet.eu, via plain outbound hyperlinks — hotfive.pt itself exposes no per-event permalink, no price text, and no time-of-day per event.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-shows-body", "ev-home-body", "ev-wpjson", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://hotfive.pt/shows/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-shows-body", "ev-shows-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_MINI_LIST (home page 'nexT shows' excerpt, verbatim subset of the /shows/ page)",
+      "url": "https://hotfive.pt/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_ROOT (fully enumerated — no event/show/calendar/agenda content route found)",
+      "url": "https://hotfive.pt/wp-json/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson", "ev-offline-proof"]
+    },
+    {
+      "kind": "RSS_FEED (checked — contains only stale 2016-2023 theme-demo placeholder posts, no event data)",
+      "url": "https://hotfive.pt/feed/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-feed", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Reliably extractable from every one of the 52 event cards on /shows/ and all 4 cards on the home mini-list (elementor-icon-box-title). Examples: 'Live Jazz', 'Jam Session', 'Amy Winehouse (Back to Amy)', 'The Rolling Stones (Stoned!)', 'All About... Bossanova'. Left null here (a general capability finding across the full sample, not one single event) — see evidence/offline-proof-output.txt for every extracted title.",
+      "evidence_refs": ["ev-shows-body", "ev-home-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "Every one of the 52 event cards on /shows/ (and all 4 on the home mini-list) carries a day+Portuguese-month-abbreviation date string in the shape 'DD mon' (e.g. '28 ago', '03 set'; one card, 'The House of Gatsby', shows a combined two-day string '10 & 11 jul' instead of two separate cards). This part is reliably, consistently present. HOWEVER: this investigation mechanically confirmed (evidence/offline-proof.mjs, a regex check against all 56 combined date strings from both pages) that NO year appears anywhere in this first-party evidence — not in any event card, not in the page's Yoast-generated metadata (its 'article:modified_time' is a WordPress page-EDIT timestamp, not an event date), and not in any WP media-library upload-folder path (e.g. '/wp-content/uploads/2026/07/...' is when an IMAGE FILE was uploaded, not when a show happens — this investigation deliberately did NOT use either of those as a stand-in for a stated year, which is exactly the low-confidence inference this task's own prior note flags as a past mistake on this same venue). A single third-party ticketing page (lebillet.eu, linked from hotfive.pt's own 'Buy tickets' buttons) independently states a full year in its own <title> ('LIVE JAZZ - Porto, Porto - 28, Agosto, 2026 | LeBillet') — retained as evidence (ev-lebillet-1981) and honestly recorded as real, non-fabricated corroboration that the schedule is for 2026, but per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' rule ('[ticketing sites] must not automatically become authority for [the] candidate's first-party facts [...] its own dates') this investigation does NOT use it to promote this field to PROVEN. state is therefore PARTIAL, not PROVEN, and value stays null.",
+      "evidence_refs": ["ev-shows-body", "ev-home-body", "ev-lebillet-1981", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No per-event time-of-day appears on any of the 52 event cards (date text is 'DD mon' only, never HH:MM or 'Xh'). The source does state one general, venue-wide operating-hours line elsewhere on the /shows/ page footer ('Das 21h30 às 02h30', i.e. 'From 21:30 to 02:30') alongside a weekly cadence line ('Quinta à domingo', i.e. Thursday-to-Sunday) — this matches the task's prior loose note about a Thu-Sun cadence, and is retained as evidence, but it is a single fixed venue-hours statement, not a per-event start time, and was NOT used to populate this per-event field.",
+      "evidence_refs": ["ev-shows-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No per-event end date/time appears anywhere in retained evidence. The same general venue-hours closing time ('02h30') referenced under 'time' above is a fixed nightly closing time for the venue as a whole, not a per-event end datetime, and was not used here.",
+      "evidence_refs": ["ev-shows-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Hot Five is a single-room, single-address venue — every event happens at the same place, unlike a multi-hall foundation. The address 'R. de Guerra Junqueiro 495, 4150-098 Porto' appears identically in the shared footer of both the home page and the /shows/ page (mechanically confirmed identical in evidence/offline-proof.mjs), alongside the legal operator name and NIF already cited under identity.",
+      "evidence_refs": ["ev-shows-body", "ev-home-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "47 of the 52 event cards carry an outbound href to a third-party ticketing platform (lebillet.eu) containing a numeric id (e.g. '.../event/1981/live-jazz-28-agosto-Porto-POR'). This id is NOT documented by hotfive.pt itself as its own canonical identifier — it is assigned by the external ticketing vendor lebillet.eu, referenced only via an outbound hyperlink hotfive.pt's own page happens to embed — so per the stable-identifier rule and the 'Third-party sources' section it cannot be treated as PROVEN on the strength of hotfive.pt's own authority alone. It was also only observed via a SINGLE fetch of the page (no repeated-observation stability proof was attempted in this bounded investigation). The remaining 5/52 cards ('Exceptionally Closed!' placeholders x4, plus one ticketless 'Jam Session' on 12 jul) have no id/link of any kind. ALTERNATIVE IDENTITY STRATEGY (documented per the stable-identifier rule's explicit alternative-strategy allowance): a composite key of (event title text + the source's own 'DD mon' date text) was mechanically proven unique across all 52 retained cards in the current snapshot (evidence/offline-proof.mjs, zero duplicate keys). This key is entirely first-party (title + date text both come from hotfive.pt itself) and does not depend on the third-party ticketing id, but it inherits the same missing-year ambiguity as start_date and would need re-validating per re-scrape window (e.g. once the schedule cycles past a full year and day+month combinations repeat).",
+      "evidence_refs": ["ev-shows-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "hotfive.pt exposes no first-party per-event permalink or detail page — every event card's only outbound link (where present at all) goes directly to the third-party ticketing platform lebillet.eu. Recorded honestly as NOT_PRESENT rather than substituting the third-party ticket URL as if it were the source's own first-party event_url (see docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section).",
+      "evidence_refs": ["ev-shows-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No price or admission text (no '€' symbol at all) appears anywhere in either retained hotfive.pt page. Where price information exists at all, it lives only on the third-party lebillet.eu ticket pages, which per policy are not treated as first-party source authority here.",
+      "evidence_refs": ["ev-shows-body", "ev-home-body"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-shows-body", "ev-home-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No calendar year is stated anywhere in hotfive.pt's own first-party evidence (home page, /shows/ page, RSS feed, or wp-json metadata) — every event date is day+month only ('DD mon'). This investigation deliberately does not repeat this repository's own earlier flagged mistake of inferring a year from surrounding context for this exact venue. A third-party ticketing page linked from hotfive.pt's own 'Buy tickets' buttons does independently state a full year, but per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' rule that cannot automatically become authority for hotfive.pt's own first-party date facts. Resolving this for a real collector needs an explicit, separately-authorised decision — e.g. an approved deterministic year-rollover rule applied at collector-build time (distinct from investigation-time guessing), or a deliberate, explicit policy extension permitting bounded corroboration from this specific linked ticketing partner. This investigation does not make that call unilaterally; it is recorded here so a human reviewing this record cannot miss it."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The /shows/ page does not prune past events: at fetch time (2026-08-25) it still listed July dates ('02 jul' onward) alongside current August/September ones. A collector must filter by real-world date once the year question above is resolved, not assume every card on the page is upcoming."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Per-event identity depends on either a third-party ticketing id (not first-party, not repeat-observation-proven stable) or a first-party (title + date-text) composite key (proven unique in this one snapshot, but untested across repeated observations and inherits the missing-year ambiguity) — see field_assessment.source_record_id.notes for the full alternative-strategy writeup."
+      },
+      {
+        "severity": "MINOR",
+        "description": "5 of 52 cards ('Exceptionally Closed!' x4, one ticketless 'Jam Session') have no outbound ticket link at all — a collector must handle title+date-only cards gracefully rather than assuming every card has a lebillet.eu href."
+      },
+      {
+        "severity": "MINOR",
+        "description": "One card ('The House of Gatsby') gives a combined two-day date string ('10 & 11 jul') in a single description field, unlike other multi-day acts (e.g. the Abba tribute) which instead appear as two separate single-date cards. A collector must handle this irregular multi-date text shape rather than assuming every card maps 1:1 to exactly one date."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (self-published legal operator name, Portuguese tax id, street address, phone, on-domain email, and a matching social handle) — independently verified, not assumed from the task's prior loose note.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class — both retained pages are plain server-rendered WordPress/Elementor HTML with no calendar plugin, confirmed by fully enumerating the site's own wp-json REST root and finding zero event-related content routes.",
+      "Two data_paths entries (the /shows/ full list and the home page mini-list) are access:PUBLIC and status:CONFIRMED against retained evidence; two further candidate paths (wp-json, RSS feed) were actively checked and honestly REJECTED rather than left uninvestigated.",
+      "field_assessment.title.state is PROVEN.",
+      "field_assessment.start_date.state is PARTIAL, not UNKNOWN/NOT_PRESENT — day+month is reliably, mechanically extractable from every card; the year is honestly recorded as absent from all first-party evidence rather than invented, satisfying the activation gate's explicit allowance for an honestly-assessed non-PROVEN state.",
+      "field_assessment.source_record_id.state is PARTIAL with an explicit alternative identity strategy documented in its notes (a first-party title+date-text composite key, proven unique in the retained snapshot), satisfying the activation gate's alternative-strategy branch.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family, at HIGH confidence — the extraction mechanics themselves (title, date text, ticket href presence/absence) are simple, deterministic, and offline-proven.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every claim above, including the zero-year-string proof, the home/shows subset match, the composite-key uniqueness check, and the wp-json/RSS ruling-out.",
+      "collector_assessment.blockers contains exactly one MAJOR item (the missing calendar year, which requires a separate, explicitly-authorised human/operator decision at collector-build time — not something this investigation resolves or guesses) and four MINOR items, none CRITICAL.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md, and MUST resolve the MAJOR year blocker (via an explicitly-approved deterministic rule, never a silent guess) before any date reaches a real Event/Observation record."
+    ],
+    "evidence_refs": ["ev-shows-body", "ev-home-body", "ev-wpjson", "ev-feed", "ev-lebillet-1981", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the HOTFIVE® home page: a 4-card 'nexT shows' mini-list excerpt of the schedule (title, 'DD mon' date text, outbound ticket href where present) plus the shared footer block (legal operator name/NIF, address, phone, email, social handles). Fetched with -L to follow this WordPress site's benign wp-cron redirect (a 302 with a 'doing_wp_cron=...' Location header on essentially every request, an artifact of WP-Cron triggering on pageview, not a real content redirect).",
+      "acquired_from": "https://hotfive.pt/",
+      "acquired_at": "2026-08-25T01:30:32Z",
+      "method": "curl -sS -L -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" https://hotfive.pt/ (plain unauthenticated HTTP GET, redirect followed)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same home-page request sequence: an initial 302 wp-cron redirect followed by a 200 OK final response, x-powered-by PHP/8.2.33, x-redirect-by WordPress, a Link header advertising the wp-json REST root.",
+      "acquired_from": "https://hotfive.pt/",
+      "acquired_at": "2026-08-25T01:30:32Z",
+      "method": "curl -sS -L -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-shows-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the dedicated https://hotfive.pt/shows/ page: the full 52-card schedule grouped under JULY/AUGUST/SEPTEMBER month headers (title, 'DD mon' date text, outbound lebillet.eu ticket href for 47/52 cards), plus the shared footer info block (venue-wide opening hours 'Das 21h30 às 02h30', weekly cadence 'Quinta à domingo', address, legal operator name/NIF, phone, email, social handles).",
+      "acquired_from": "https://hotfive.pt/shows/",
+      "acquired_at": "2026-08-25T01:31:00Z",
+      "method": "curl -sS -L -D headers-shows.txt -o body-shows.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" https://hotfive.pt/shows/ (plain unauthenticated HTTP GET, redirect followed)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/body-shows.html"
+    },
+    {
+      "evidence_id": "ev-shows-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same /shows/ request sequence: initial 302 wp-cron redirect, then 200 OK, x-powered-by PHP/8.2.33, Link headers advertising the wp-json REST root and this specific page's own wp/v2/pages/63450 REST resource.",
+      "acquired_from": "https://hotfive.pt/shows/",
+      "acquired_at": "2026-08-25T01:31:00Z",
+      "method": "curl -sS -L -D headers-shows.txt (same request as ev-shows-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/headers-shows.txt"
+    },
+    {
+      "evidence_id": "ev-wpjson",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response body for the site's full wp-json REST discovery root (294 routes enumerated). Used to mechanically rule out a structured events/shows/calendar REST data path — the only routes whose path contains 'event' are unrelated third-party plugin telemetry endpoints (Google Site Kit survey-event, PixelYourSite's Facebook event relay, Elementor's own send-event UI telemetry), none of which are wp/v2 content routes.",
+      "acquired_from": "https://hotfive.pt/wp-json/",
+      "acquired_at": "2026-08-25T01:31:51Z",
+      "method": "curl -sS -L -D headers-wpjson.txt -o body-wpjson.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" https://hotfive.pt/wp-json/ (plain unauthenticated HTTP GET, redirect followed)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/body-wpjson.json"
+    },
+    {
+      "evidence_id": "ev-feed",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained RSS XML for the site's own advertised feed (linked via <link rel=\"alternate\" type=\"application/rss+xml\"> on both retained pages). Contains only 10 stale WordPress-theme-demo placeholder posts dated 2016-2023 (lorem-ipsum titles, one guid still pointing at an old domain 'hotfivenew.pt') — no event data whatsoever. Used to rule this out as a usable event data path.",
+      "acquired_from": "https://hotfive.pt/feed/",
+      "acquired_at": "2026-08-25T01:34:36Z",
+      "method": "curl -sS -L -D headers-feed.txt -o body-feed.xml --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" https://hotfive.pt/feed/ (plain unauthenticated HTTP GET, redirect followed)",
+      "content_type": "text/xml; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/body-feed.xml"
+    },
+    {
+      "evidence_id": "ev-lebillet-1981",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for ONE third-party ticketing page (lebillet.eu), reached via one of hotfive.pt's own outbound 'Buy tickets' hrefs, fetched purely to honestly document that this linked external platform independently states a full calendar year in its own <title>/meta ('LIVE JAZZ - Porto, Porto - 28, Agosto, 2026 | LeBillet'). This is genuine, real, retained DIRECT_EVIDENCE of what THIS THIRD-PARTY PAGE says — it is explicitly NOT treated as first-party authority for any hotfive.pt field per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' rule, and no hotfive.pt field_assessment entry was promoted to PROVEN using it.",
+      "acquired_from": "https://lebillet.eu/event/1981/live-jazz-28-agosto-Porto-POR",
+      "acquired_at": "2026-08-25T01:32:52Z",
+      "method": "curl -sS -L -D headers-lebillet-1981.txt -o body-lebillet-1981.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://lebillet.eu/event/1981/live-jazz-28-agosto-Porto-POR\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/body-lebillet-1981.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-parses all 52 /shows/-page cards and all 4 home-page mini-list cards; proves the home mini-list is a verbatim subset of the /shows/ list; proves, by regex over all 56 combined date strings, that ZERO contain a 4-digit year; proves a (title + date-text) composite key is unique across all 52 cards; confirms the shared venue address and general opening-hours/cadence text appear identically on both pages; re-parses the retained wp-json document and confirms zero wp/v2 content routes relate to events/shows/calendar/agenda; re-parses the retained RSS feed and confirms it holds only stale 2016-2023 placeholder posts; and confirms the one retained third-party lebillet.eu page's <title> independently states '2026'. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/hot-five-porto-01/evidence/ (all body-*.html/.json/.xml files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:50:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/hot-five-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

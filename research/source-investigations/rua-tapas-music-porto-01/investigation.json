@@ -1,0 +1,290 @@
+{
+  "investigation_id": "rua-tapas-music-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:40:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC then Level 2 STRUCTURAL, both via plain curl (no WebFetch, no JS execution, no browser). Fetched the venue's own homepage, its own embedded page-routing data (to discover candidate slugs without guessing), the two most plausible discovered slugs (/agenda and /events), the site's own Wix-generated sitemap index and pages-sitemap, robots.txt, and the About page. Inspected retained HTML/JSON for schema.org LocalBusiness/Event/MusicEvent JSON-LD, the site's embedded Wix bootstrap/warmup-data blob, and any '_api/' endpoint strings exposed in the static markup. A dependency-free, no-network Node offline-proof script re-parsed every retained file to mechanically re-derive each claim below. Both Level 1 and Level 2 were retained as INSUFFICIENT for finding usable event data (though sufficient for identity and platform classification); escalation stopped there and the investigation reached DEFER rather than opening a browser session, per the policy's explicit allowance that DEFER never requires exhausting the ladder."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of the homepage (https://www.ruatapas.com/), the site's own robots.txt, sitemap.xml, and pages-sitemap.xml, and the About page (https://www.ruatapas.com/blank-1) were all retained. The homepage returned a schema.org LocalBusiness JSON-LD block (name, address, phone) confirming venue identity, and Wix platform fingerprints (static.parastorage.com, static.wixstatic.com asset hosts, 'Server: cloudflare' fronting a Wix site). The homepage's own embedded page-routing data (pageUriSEO list, part of the plain HTTP response body, not a separate fetch) exposed two real, source-defined candidate slugs, 'agenda' and 'events', without this investigation guessing either. Neither the homepage nor the About page contains any Event/MusicEvent JSON-LD, any ISO-date-like event content, or anything beyond a generic marketing tagline ('LIVE MUSIC EVERY NIGHT!!!' on the About page) and the venue's own recurring opening-hours schedule. The site's own Wix-generated pages-sitemap.xml (its own authoritative page list for indexing) lists neither /agenda nor /events at all. This was sufficient to establish identity and platform, but genuinely insufficient to determine whether either discovered candidate slug actually exposes usable event data — that required fetching them directly, which is what Level 1 continued into next (still Level 1, since fetching a directly-discovered same-site URL with a plain GET is still PASSIVE_STATIC, not structural JS/bootstrap inspection).",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-sitemap-index", "ev-pages-sitemap", "ev-robots", "ev-about-body", "ev-offline-proof"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Level 1's own discovered slugs were fetched (https://www.ruatapas.com/events -> Wix's own 404 page; https://www.ruatapas.com/agenda -> a real 200 OK page titled 'Agenda | Rua Tapas Music Bar'), which already told us a genuine Wix Events & Tickets app page exists but is not indexed. This alone did not resolve whether that page exposes usable event data, so this investigation inspected the agenda page's embedded Wix bootstrap/viewer-model JSON (the 'wix-warmup-data' SSR blob and adjacent platform metadata) to identify the CMS/framework precisely (WordPress-style plugin fingerprinting does not apply here; this is Wix's own 'Wix Events & Tickets' TPA, appDefinitionId 140603ad-af8d-84a5-2c80-a0f60cb47351, referenced only by an internal wixArtifactId, not a callable URL) and to look for a stable, publicly-documented JSON/feed/API path serving this app's event list. The only '_api/' paths visible in the agenda page's static HTML are generic Wix platform bootstrap endpoints (access-tokens, dynamicmodel, one-app-session-web/.../businesses) shared by every Wix site, not a dedicated events-fetch REST path. The agenda page's JSON-LD contains zero Event/MusicEvent nodes, and its wix-warmup-data blob is small (1,495 characters), consistent with (not conclusive proof of) an unpopulated widget. No stable public data path could be established without either guessing/calling an undocumented private Wix internal API (explicitly prohibited by this policy's 'What may AI NOT infer?' section) or executing JavaScript in a browser to see whether the widget renders any events client-side.",
+      "evidence_refs": ["ev-events-body", "ev-events-headers", "ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "rua-tapas-music-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Rua Tapas & Music Bar - Restaurant — 24 Travessa de Cedofeita, 4050-449 Porto, Portugal (Cedofeita neighbourhood); a small bar/restaurant advertising live music, not a dedicated concert hall",
+  "official_url": "https://www.ruatapas.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body"],
+    "notes": "The known official website given for this investigation (https://www.ruatapas.com/) was independently re-confirmed, not merely assumed: the retained homepage's own schema.org LocalBusiness JSON-LD gives name 'Rua Tapas & Music Bar - Restaurant', address '24 Travessa de Cedofeita, 4050-449 Porto, PT', and telephone '917356644'; the page <title> is 'Rua Tapas & Music Bar Restaurant | Live Music | Travessa de Cedofeita 24, Porto, Portugal'. No correction to the given URL was needed — it resolves directly (200 OK, no redirect chain observed) to this venue's own site, hosted on Wix's own infrastructure (static.parastorage.com / static.wixstatic.com / Server: cloudflare). The site's own nav also links its own Facebook (facebook.com/RUATAPAS) and Instagram (instagram.com/rua_tapasmusic) accounts, which this investigation did NOT fetch or scrape (out of scope per this task's instructions) but records as DIRECT_EVIDENCE of the venue's own self-declared social presence, not as evidence of Facebook/Instagram's own content."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Wix (Thunderbolt renderer). The venue has the 'Wix Events & Tickets' first-party app installed (appDefinitionId 140603ad-af8d-84a5-2c80-a0f60cb47351), exposed at /agenda as a real, live, 200-OK page ('Schedule'/'agenda-page' widget), referenced internally as wixArtifactId:com.wixpress.wix-events-web. This is a genuine dedicated events feature (unlike a bare brochure site with no events concept at all), but its actual per-event content, if any, is rendered by a client-side OOI (out-of-iframe) widget rather than server-rendered into the static HTML or exposed via a discoverable stable JSON path in the markup this investigation retained.",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_HOMEPAGE",
+      "url": "https://www.ruatapas.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_AGENDA_PAGE_WIX_EVENTS_APP",
+      "url": "https://www.ruatapas.com/agenda",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENTS_SLUG_404",
+      "url": "https://www.ruatapas.com/events",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-body", "ev-events-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "SITEMAP_XML",
+      "url": "https://www.ruatapas.com/pages-sitemap.xml",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-pages-sitemap", "ev-offline-proof"]
+    },
+    {
+      "kind": "WIX_GENERIC_BOOTSTRAP_API (observed as strings only, not called — no event-specific path found)",
+      "url": "https://www.ruatapas.com/_api/v2/dynamicmodel",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No individual event record was found anywhere in retained evidence for this candidate to extract a title from. The agenda page (the one page that could plausibly carry one) has zero Event/MusicEvent JSON-LD and zero server-rendered event cards as currently fetched. Recorded NOT_PRESENT rather than UNKNOWN because this is a positive, evidenced finding (converging signals: empty JSON-LD, tiny warmup-data blob, sitemap exclusion of the page, generic marketing tagline instead of billed acts) — not merely 'not yet checked'. Residual uncertainty is honestly noted: this investigation did not execute JavaScript in a browser, so it cannot fully rule out the widget rendering real events client-side that a static fetch cannot see; see collector_assessment.blockers and the decision rationale.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Same basis as field_assessment.title: no dated event record was found. No ISO-date-like string, JSON-LD startDate, or any other date construct tied to a specific named event was found on the homepage, agenda page, or About page in retained evidence.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No event-specific time-of-day was found. The only time-of-day data present on the site is the venue's own recurring opening-hours schedule (businessSchedule periods embedded in the homepage's Wix bootstrap data, e.g. opens 19:30 most nights) — this describes the venue's hours, not any individual event's start time, and was not treated as event data.",
+      "evidence_refs": ["ev-home-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No event end time/date was found, for the same reason as start_date/time above — there is no event record to have one.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Kept conservative and consistent with the other fields: no event record exists in retained evidence to test per-event location extraction against, so this is recorded NOT_PRESENT rather than assumed. Separately (and this is an identity fact, not a field_assessment claim), the venue's own single, fixed physical address IS independently PROVEN via identity.evidence_refs (schema.org LocalBusiness JSON-LD) — see the identity block above — but this investigation deliberately did not promote that into a per-event 'venue_location: PROVEN' claim, since doing so would extrapolate from venue identity to event-record structure without an actual event record to verify against.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No source-defined identifier of any kind (numeric ID, slug, JSON-LD @id) was found for any event, because no event record exists in retained evidence. No alternative identity strategy is proposed here for the same reason a strategy would be premature to invent — there is nothing yet to identify. This should be revisited if/when the venue's Wix Events app is later observed to carry real events.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No individual event detail-page URL was found; the only concrete URLs discovered are the agenda LIST page itself (https://www.ruatapas.com/agenda, which is empty of event content) and the dead /events slug (404).",
+      "evidence_refs": ["ev-agenda-body", "ev-events-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No event ticket price was found, for the same reason as the other fields. The site does have separate food/drink menu pricing at /menu and /our-menu-drinks, but that is restaurant menu pricing, not event ticket pricing, and was out of scope for this investigation's field_assessment (which concerns event records, not the food menu).",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-agenda-body", "ev-events-body", "ev-pages-sitemap", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "As of this investigation's retained fetches, the venue's own Wix Events & Tickets app page (/agenda) exposes zero structured, dated event records by any static means (no JSON-LD Event/MusicEvent, no server-rendered event cards, tiny warmup-data blob, and excluded from the site's own sitemap). There is currently nothing for a collector of any family to acquire. This is a data-availability blocker, not an access-control or technical blocker — it may resolve itself if the venue populates the widget with real events in the future, in which case this investigation should be superseded by a fresh one, not silently reopened."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation did not execute JavaScript (no browser/headless session opened), so it cannot fully rule out the /agenda widget client-rendering real events that a plain HTTP fetch cannot see. The converging static signals (see field_assessment notes) make this unlikely, but it is not proven impossible. A future re-investigation could justify a Level 3 (BROWSER_OBSERVATION) probe specifically to settle this, if the venue's apparent programme (the About page's own 'LIVE MUSIC EVERY NIGHT!!!' claim) later looks worth the added cost to verify."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The only discoverable API-shaped paths on the agenda page are generic Wix platform bootstrap endpoints (access-tokens, dynamicmodel, one-app-session-web/.../businesses), not a dedicated events-fetch REST path. Even if events existed, calling Wix's actual internal events-fetch API would mean using a private API not publicly documented/exposed by the site for this purpose, which this policy explicitly prohibits — so JSON_API/PUBLIC_JSON_API is not a viable recommended family here regardless of whether events exist."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence — this is a real, independently re-verified official venue site (schema.org LocalBusiness JSON-LD matching name/address/phone, matching the given official URL with no correction needed).",
+      "site_classification.acquisition_class is CLIENT_RENDERED: a genuine Wix Events & Tickets app page exists at /agenda, but it is currently empty of any structured event data by every static means this investigation checked (Level 1 PASSIVE_STATIC and Level 2 STRUCTURAL), and no stable public JSON/feed/API path could be identified without either guessing a private Wix internal API (prohibited) or opening a browser.",
+      "Every field_assessment entry (title, start_date, time, end, venue_location, source_record_id, event_url, price) is honestly NOT_PRESENT — there is currently no event record anywhere in retained evidence to extract any field from. This is an honest, evidenced absence finding, not an unresolved UNKNOWN left blank out of laziness — nine independent, mechanically-reproducible checks in evidence/offline-proof.mjs all corroborate it (see evidence/offline-proof-output.txt).",
+      "collector_assessment.recommended_family is left null (not NEW_FAMILY_REQUIRED, not an existing family) because there is currently no data for any family to acquire — recommending a family now would be premature/hypothetical, not evidenced.",
+      "collector_assessment.blockers contains one MAJOR blocker (no current event data to acquire) and two MINOR blockers (residual JS-rendering uncertainty; no publicly-usable event-specific API path) — no CRITICAL blocker, and this is not an access-control/CAPTCHA/paywall situation, just an honestly-evidenced absence of currently acquirable data.",
+      "This matches the prior loose research note's caution ('apparent static listing, not yet independently fetch-verified') but goes further and corrects it with real retained evidence: this investigation did independently fetch-verify the site, and found the venue's dedicated events feature to be present but currently unpopulated, not merely 'static' in the sense of a working but unverified feed. DEFER, not REJECT, because this is a plausibly time-varying situation (the venue could add real events to this same widget later) and not a structural access-control or policy-forbidden situation that would make automated acquisition permanently unsafe.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a complete, legitimate outcome that never requires exhausting the escalation ladder to Level 3/4 — this investigation judged that opening a browser session was not worth the added cost given how strongly the converging static/structural signals already point to 'no current event data', and this decision is recorded as a deliberate judgement call, not an omission.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; any future action (including re-investigating this same candidate later under a new investigation_id with supersedes set to this one) is a separate, explicitly-authorised step."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-events-body", "ev-pages-sitemap", "ev-about-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Rua Tapas & Music homepage: schema.org LocalBusiness + WebSite JSON-LD, Wix platform fingerprints, embedded page-routing data (pageUriSEO list including 'agenda' and 'events'), and embedded businessSchedule opening-hours data.",
+      "acquired_from": "https://www.ruatapas.com/",
+      "acquired_at": "2026-08-25T01:31:16Z",
+      "method": "curl -sS -D evidence/headers-home.txt -o evidence/body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same homepage request: 200 OK, Cloudflare-fronted, Wix 'x-wix-request-id' header confirming the Wix platform.",
+      "acquired_from": "https://www.ruatapas.com/",
+      "acquired_at": "2026-08-25T01:31:16Z",
+      "method": "curl -sS -D evidence/headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for https://www.ruatapas.com/agenda: a real, live 200 OK page titled 'Agenda | Rua Tapas Music Bar' (the venue's Wix Events & Tickets app page), containing zero Event/MusicEvent JSON-LD, a small (1,495-character) wix-warmup-data SSR blob, and only generic Wix platform '_api/' bootstrap endpoint strings (no event-specific REST path).",
+      "acquired_from": "https://www.ruatapas.com/agenda",
+      "acquired_at": "2026-08-25T01:32:28Z",
+      "method": "curl -sS -D evidence/headers-agenda.txt -o evidence/body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /agenda request: 200 OK, confirming the page genuinely exists and is served normally (not blocked/challenged).",
+      "acquired_from": "https://www.ruatapas.com/agenda",
+      "acquired_at": "2026-08-25T01:32:28Z",
+      "method": "curl -sS -D evidence/headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-events-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for https://www.ruatapas.com/events: Wix's own 404 page (title '404 | Rua Tapas Music Bar') — direct proof this slug, despite appearing in the site's own routing data, does not resolve to a live page.",
+      "acquired_from": "https://www.ruatapas.com/events",
+      "acquired_at": "2026-08-25T01:32:26Z",
+      "method": "curl -sS -D evidence/headers-events.txt -o evidence/body-events.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-events.html"
+    },
+    {
+      "evidence_id": "ev-events-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /events request. Wix serves its custom 404 page with an HTTP 200 status (soft-404 behaviour, common on Wix) rather than a literal HTTP 404 — the dead-slug finding rests on the retained page's own <title> content (see ev-events-body), not on the HTTP status code alone.",
+      "acquired_from": "https://www.ruatapas.com/events",
+      "acquired_at": "2026-08-25T01:32:26Z",
+      "method": "curl -sS -D evidence/headers-events.txt (same request as ev-events-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/headers-events.txt"
+    },
+    {
+      "evidence_id": "ev-sitemap-index",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained sitemap index (https://www.ruatapas.com/sitemap.xml), a Wix-generated sitemapindex pointing at pages-sitemap.xml.",
+      "acquired_from": "https://www.ruatapas.com/sitemap.xml",
+      "acquired_at": "2026-08-25T01:34:01Z",
+      "method": "curl -sS -D evidence/headers-sitemap.txt -o evidence/body-sitemap.xml --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-sitemap.xml"
+    },
+    {
+      "evidence_id": "ev-pages-sitemap",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained pages-sitemap.xml: the site's own authoritative, Wix-generated list of 9 indexable URLs. Neither /agenda nor /events appears anywhere in it — the venue's own site excludes its events page from its own sitemap.",
+      "acquired_from": "https://www.ruatapas.com/pages-sitemap.xml",
+      "acquired_at": "2026-08-25T01:34:06Z",
+      "method": "curl -sS -D evidence/headers-pages-sitemap.txt -o evidence/body-pages-sitemap.xml --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-pages-sitemap.xml"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained robots.txt: 'Allow: /' generally, no disallow rule affecting /agenda or /events — confirms the events page's absence from the sitemap is a genuine content/publishing choice, not a robots-level access restriction this investigation ran into.",
+      "acquired_from": "https://www.ruatapas.com/robots.txt",
+      "acquired_at": "2026-08-25T01:34:22Z",
+      "method": "curl -sS -D evidence/headers-robots.txt -o evidence/body-robots.txt --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-about-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the About page (https://www.ruatapas.com/blank-1, <title>'About | Rua Tapas Music Bar'</title>): contains the marketing tagline 'LIVE MUSIC EVERY NIGHT!!!' but no dated, per-event schedule content.",
+      "acquired_from": "https://www.ruatapas.com/blank-1",
+      "acquired_at": "2026-08-25T01:34:21Z",
+      "method": "curl -sS -D evidence/headers-blank-1.txt -o evidence/body-blank-1.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/body-blank-1.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against all retained evidence files above. Mechanically re-derives: the homepage's LocalBusiness JSON-LD identity fields; that the homepage's own routing data exposes 'agenda' and 'events' as candidate slugs without guessing; that /events is the site's own 404 page and /agenda is a real page; that the agenda page has zero Event/MusicEvent JSON-LD nodes and a small warmup-data blob; that the site's own sitemap excludes both /agenda and /events; that only generic Wix bootstrap '_api/' paths are present (no event-specific REST path); and that the About page has a marketing tagline with no ISO-date-like content. Exited 0 with all 9 checks passing.",
+      "acquired_from": "research/source-investigations/rua-tapas-music-porto-01/evidence/ (all body-*.html and body-*.xml files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:41:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/rua-tapas-music-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,34 @@
+--- 1. DNS resolution check (dns.google DNS-over-HTTPS API) ---
+mouco.pt: Status=2 Comment="Name servers refused query (lame delegation?) [ns1.wtservers.com.(138.199.231.191), ns1.wtservers.com.(45.154.66.253), 185.118.112.2]."
+OK:   mouco.pt: DNS Status is 2 (SERVFAIL), confirming resolution genuinely fails
+OK:   mouco.pt: Comment confirms lame delegation / REFUSED from the domain's own authoritative nameservers
+moucohotel.pt: Status=2 Comment="Name servers refused query (lame delegation?) [ns2.wtservers.com.(185.118.112.2), ns2.wtservers.com.(138.199.231.191), 45.154.66.253]."
+OK:   moucohotel.pt: DNS Status is 2 (SERVFAIL), confirming resolution genuinely fails
+OK:   moucohotel.pt: Comment confirms lame delegation / REFUSED from the domain's own authoritative nameservers
+
+--- 2. Direct curl attempts (this investigation's own retained logs) ---
+www.moucohotel.pt: "Could not resolve host" present=true, exit code 6 present=true
+OK:   www.moucohotel.pt: direct curl attempt genuinely failed at DNS resolution (exit 6)
+moucohotel.pt: "Could not resolve host" present=true, exit code 6 present=true
+OK:   moucohotel.pt: direct curl attempt genuinely failed at DNS resolution (exit 6)
+mouco.pt: "Could not resolve host" present=true, exit code 6 present=true
+OK:   mouco.pt: direct curl attempt genuinely failed at DNS resolution (exit 6)
+
+--- 3. Historical (Wayback Machine) snapshot check ---
+Closest snapshot: available=true status=200 timestamp=20250323202250 url=http://web.archive.org/web/20250323202250/http://moucohotel.pt/
+OK:   a Wayback Machine snapshot of moucohotel.pt exists and was itself served as HTTP 200 by archive.org
+Archived homepage body: challenge title=true, challenge text=true, headless/webdriver fingerprinting script=true
+OK:   archived homepage is an anti-bot/anti-headless JS challenge interstitial, not real page/event content
+Archived response headers mention Imunify360 WebShield: true
+OK:   archive.org's x-archive-orig-server header confirms the original response was fronted by Imunify360 WebShield (a bot-challenge/WAF product)
+
+--- 4. Third-party discovery-lead corroboration (never treated as identity authority) ---
+body-discovery-agendaporto.html: 1 reference(s) to moucohotel.pt
+OK:   body-discovery-agendaporto.html: independently references moucohotel.pt as the venue's site (discovery lead only, not proof)
+body-discovery-timeout.html: 2 reference(s) to moucohotel.pt
+OK:   body-discovery-timeout.html: independently references moucohotel.pt as the venue's site (discovery lead only, not proof)
+
+--- 5. Anti-fabrication sanity check: no event/JSON-LD data was actually captured ---
+OK:   confirmed: zero retained evidence files contain any MusicEvent/Event JSON-LD node — no event data was fabricated or silently smuggled in
+
+RESULT: all checks passed against retained evidence. DNS failure and historical anti-bot posture both mechanically confirmed; zero event data exists in any retained file.

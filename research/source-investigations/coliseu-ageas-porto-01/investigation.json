@@ -1,0 +1,380 @@
+{
+  "investigation_id": "coliseu-ageas-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:41:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (INSUFFICIENT) then Level 2 STRUCTURAL (SUFFICIENT). All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion). Level 1: curl GETs of https://www.coliseu.pt, /agenda, and a candidate /evento/:slug detail route all returned byte-identical, empty client-rendered shells (<div id=\"root\"></div>, no JSON-LD, no server-rendered event data) — independently re-confirming the prior loose note in sources/porto.json. Level 2: the same public page's own /env-config.js (also fetched via curl) exposes a GRAPHQL_API config value; the referenced GraphQL endpoint (https://nest.coliseu.pt/graph/) was probed with plain, read-only, non-mutating GraphQL queries (a __typename liveness check, then standard GraphQL introspection of the query schema and the Event/Room types, then a bounded 5-event sample query, then two eventBySlug lookups to empirically cross-check id stability, then a direct GET of a client route pattern found in the retained JS bundle). All of these are ordinary read-only GraphQL-over-HTTP requests to a publicly CORS-open (Access-Control-Allow-Origin: *) endpoint already referenced by the site's own public client code — not a private/internal API, not authentication bypass, not brute force. A dependency-free, no-network Node offline-proof script re-parsed every retained evidence file deterministically to cross-check all claims below. Level 2 was SUFFICIENT; no browser/headless session (Level 3) was ever opened."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://www.coliseu.pt, https://www.coliseu.pt/agenda, and https://www.coliseu.pt/evento/20260912-he-s-back-michael-jackson-tribute all returned 200 OK with byte-identical 3,817-byte HTML bodies: a bare `<!doctype html>` shell whose entire visible body is `<div id=\"root\"></div>` plus loader/vendor `<script>` tags (`/static/js/2.3d9474f6.chunk.js`, `/static/js/main.21e302c3.chunk.js`) and a `<noscript>` message stating JavaScript is required. No JSON-LD, no RSS/ICS link, no server-rendered event cards or listing text anywhere in the retained bodies, and all three distinct routes returned the exact same bytes/ETag — confirming genuine client-side (React SPA) catch-all routing, not per-route server rendering. This independently re-confirms (never merely trusts) the pre-existing loose note in sources/porto.json describing a webpackJsonpcoliseu-react client-rendered bundle. Level 1 alone cannot answer identity beyond page title/meta text, cannot classify a data path, and exposes zero event fields, so escalation to Level 2 was justified.",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-agenda-body", "ev-agenda-headers", "ev-evento-body", "ev-evento-headers", "ev-offline-proof"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspecting the same public page's own referenced assets (per Level 2 guidance: public JS/bootstrap data and publicly-referenced endpoints) found /env-config.js — itself served publicly at https://www.coliseu.pt/env-config.js — declaring `GRAPHQL_API: \"https://nest.coliseu.pt/graph/\"`. A plain GET to that endpoint returned `400 Bad Request` with body `\"GET query missing.\"` and `Access-Control-Allow-Origin: *`, i.e. a live, public, CORS-open GraphQL server documenting its own expected protocol. A minimal read-only `{__typename}` query returned `{\"data\":{\"__typename\":\"Query\"}}`; standard GraphQL introspection (also read-only, not a mutation, not credentialed) then revealed a full public query schema including `events`/`eventBySlug` and an `Event` type with id/name/startDate/slug/category/room/promoter/ticketsUrl/estimatedDuration fields, but no price/cost field anywhere in the 179-type schema. A bounded 5-event sample query (paging limit 5, isVisible:true, isArchived:false, sorted by startDate ascending) returned totalCount 72 and 5 fully-populated event records with genuine UTC ISO `startDate` instants. Two of those five ids were independently cross-checked via a separate `eventBySlug` query path and reproduced identically (2/2), satisfying the stable-identifier rule empirically. The retained main JS bundle was also confirmed (via the offline-proof script) to literally contain the React route pattern `/evento/:slug`, and a direct curl GET of that constructed URL for one sampled event's slug resolved 200 OK (not 404). This already fully answers identity, platform classification, data-path discovery, and field assessment without needing any JS execution or browser session, so escalation to Level 3 (BROWSER_OBSERVATION) was not attempted.",
+      "evidence_refs": ["ev-env-config", "ev-main-bundle", "ev-vendor-bundle", "ev-graphql-get", "ev-graphql-typename", "ev-graphql-introspect", "ev-graphql-eventtype", "ev-graphql-roomtype", "ev-graphql-schema-types", "ev-graphql-eventsfield", "ev-graphql-events-sample", "ev-graphql-eventbyslug-1", "ev-graphql-eventbyslug-2", "ev-evento-body", "ev-evento-headers", "ev-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "coliseu-ageas-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Coliseu Porto Ageas — R. de Passos Manuel 137, 4000-385 Porto, Portugal (large concert hall with multiple rooms/spaces, including 'Sala Principal' and 'Coliseu Box', per the venue's own GraphQL API data)",
+  "official_url": "https://www.coliseu.pt/agenda",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-env-config", "ev-graphql-events-sample"],
+    "notes": "https://www.coliseu.pt was provided as the known official website in this task, and this investigation independently re-confirmed it from its own retained evidence: the retained home-page HTML's own <title> is 'Coliseu Porto Ageas' and its meta description names 'O Coliseu Porto' with a stated 75-year history matching the well-known real venue. The GraphQL backend host (nest.coliseu.pt) is a same-registrable-domain subdomain referenced directly and only by this official site's own first-party /env-config.js (not discovered via a third party or search engine) — and its own data is self-referential: one sampled event (id 1911, 'PROMENADE 2026') lists its own `promoter.name` as literally 'Coliseu Porto Ageas'. DISCREPANCY WITH THE OLDER, LOOSE sources/porto.json NOTE (not silently carried forward): that note recorded acquisition_method: 'UNKNOWN' with acquisition_path_detail concluding 'No server-rendered listing or JSON/JSON-LD was found within this bounded search. Would require a headless-browser collector family this project has not built.' This investigation's own Level 1 re-fetch reproduces that shell finding exactly (still true), but its Level 2 escalation — which the older note explicitly did not attempt ('not attempted further tonight') — found a genuine public JSON API. The old note is recorded here as superseded by this investigation's own deeper, independently retained evidence, not silently assumed correct or silently overwritten (sources/porto.json itself was never touched by this investigation, per policy)."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Front end: a React single-page app served as a static, fully client-rendered bundle (create-react-app-style webpack chunks: /static/js/2.*.chunk.js, main.*.chunk.js), with React Router client-side routes including /agenda and /evento/:slug (confirmed present verbatim in the retained main bundle). Backend: a separate, publicly-hosted GraphQL API (Apollo/GraphQL server fingerprints — 'apollographql'/'apollodata' strings — found in the retained vendor JS bundle; server itself is Express-powered per its own X-Powered-By header) at https://nest.coliseu.pt/graph/, with introspection enabled and CORS fully open (Access-Control-Allow-Origin: *). This is a client-rendered SPA whose own frontend publicly discloses a genuine, queryable public JSON (GraphQL) API — distinct from a plain CLIENT_RENDERED site with no discoverable data path.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-env-config", "ev-main-bundle", "ev-vendor-bundle", "ev-graphql-typename", "ev-graphql-introspect", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (client-rendered shell only — REJECTED as a direct data path)",
+      "url": "https://www.coliseu.pt/agenda",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "GRAPHQL_API_ENDPOINT",
+      "url": "https://nest.coliseu.pt/graph/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-env-config", "ev-graphql-get", "ev-graphql-typename", "ev-graphql-introspect", "ev-graphql-eventsfield", "ev-graphql-eventtype", "ev-graphql-events-sample", "ev-graphql-eventbyslug-1", "ev-graphql-eventbyslug-2", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_ROUTE (client-rendered shell; URL pattern confirmed to resolve, but detail data itself comes from the GraphQL API above, not this route's own HTML)",
+      "url": "https://www.coliseu.pt/evento/20260912-he-s-back-michael-jackson-tribute",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-evento-body", "ev-evento-headers", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The GraphQL Event type's `name` field is reliably present on every sampled event (e.g. 'He´s Back | Michael Jackson Tribute', 'Sigur Rós - The Orchestral Tour', 'Bruna Louise: Novo Show', 'PROMENADE 2026 - Os Prelúdios de Liszt', 'PRIMEIRA BOX apresenta: Ed + João Não & Lil Noon + Rodrigo 13'), non-null (NON_NULL String per the introspected schema) for 5/5 sampled events. Left null here (a general capability finding across the sample, not one single event) — see evidence/offline-proof-output.txt for the per-event values.",
+      "evidence_refs": ["ev-graphql-eventtype", "ev-graphql-events-sample", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The GraphQL Event type's `startDate` field (schema type DateTime, NON_NULL) is a genuine UTC ISO-8601 instant ending in 'Z' for all 5 sampled events (e.g. '2026-09-12T20:00:00.000Z'), not merely a floating local datetime — a stronger guarantee than several prior investigations in this repository have found. No ambiguity about date-vs-time-only was observed.",
+      "evidence_refs": ["ev-graphql-eventtype", "ev-graphql-events-sample", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The time-of-day portion of the same `startDate` UTC instant (e.g. '20:00:00.000Z'). Same evidence as start_date.",
+      "evidence_refs": ["ev-graphql-events-sample", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The Event type exposes `estimatedDuration` (a NON_NULL Float, observed in seconds — e.g. 8100 = 2.25h for the Michael Jackson tribute show), which the offline-proof script mechanically combines with startDate to derive an approximate end instant. This is deliberately NOT marked PROVEN: the field is explicitly named 'estimated' by the source itself, not an authoritative scheduled/confirmed end time, so promoting a derived value to a precise claimed 'end' would overstate what the source actually guarantees. A future collector may use it as a best-effort approximate end, clearly labelled as such.",
+      "evidence_refs": ["ev-graphql-eventtype", "ev-graphql-events-sample", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The Event type's `room` field (Room object: id/name only, per introspection) gives a named space within the already-identified venue for every sampled event ('Sala Principal' for 4/5 sampled events, 'Coliseu Box' for 1/5). The Room type itself carries no independent street address or coordinates — venue_location resolves to 'this named room, within Coliseu Porto Ageas' rather than a separately-geocoded address; the venue's own physical address is not exposed by this API at all (it lives only in this repository's own venues/manual-coordinates registry, which this investigation did not touch).",
+      "evidence_refs": ["ev-graphql-roomtype", "ev-graphql-events-sample", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The Event type's `id` field (schema type ID, NON_NULL) was proven empirically stable: for 2 of the 5 sampled events, independently re-querying the exact same event via a completely separate query path (`eventBySlug(slug: ...)` instead of the `events` list query) reproduced the identical id both times (1951/1951 and 1923/1923 — see evidence/offline-proof-output.txt Step 7). This satisfies the stable-identifier rule via empirical proof (repeated acquisition of the same record via two different paths returning the same id). No multi-occurrence/multi-session id-sharing ambiguity (of the kind found in the gulbenkian-lisbon-01 investigation) was observed in this bounded sample, though this investigation did not specifically search for a recurring/multi-date production to stress-test that edge case — a future, larger sample should re-check this.",
+      "evidence_refs": ["ev-graphql-events-sample", "ev-graphql-eventbyslug-1", "ev-graphql-eventbyslug-2", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "A public, canonical-looking event detail URL is deterministically constructible as https://www.coliseu.pt/evento/{slug}, where {slug} is the API's own `slug` field (e.g. '20260912-he-s-back-michael-jackson-tribute'). The React route pattern '/evento/:slug' was found verbatim, byte-for-byte, in the retained main JS bundle (not guessed), and a direct curl GET of that constructed URL for one sampled event resolved 200 OK (not a 404), confirming the server recognises the route. The resulting page is itself only the same empty client-rendered shell (the actual event content still comes from the GraphQL API, not this HTML), which is recorded honestly rather than implied to be a server-rendered detail page.",
+      "evidence_refs": ["ev-evento-body", "ev-evento-headers", "ev-graphql-events-sample", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No price, cost, or ticket-price field exists anywhere on the Event type, nor anywhere in the full 179-type GraphQL schema (mechanically confirmed by grepping the retained full schema-type-list evidence for any price/cost-named type — none found). The Event type does expose `ticketsSeller` (e.g. 'TICKETLINE', 'BLUETICKET') and `ticketsUrl` pointing to a third-party ticketing site, where price presumably is shown — but that is a separate third-party page this investigation did not fetch, and using a third-party ticketing site as first-party price authority is exactly the kind of use this policy's 'Third-party sources' section says must be explicitly governed elsewhere, not assumed here.",
+      "evidence_refs": ["ev-graphql-eventtype", "ev-graphql-schema-types", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-graphql-introspect", "ev-graphql-events-sample", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "`ticketsUrl` is not consistently a full absolute URL across sampled events: 3/5 sampled events returned a bare relative slug/path fragment (e.g. 'sigur-ros-102947', or a session-specific fragment like 'he-s-back-michael-jackson-tribute-104399/sessao/125992_16_1789243200'), while 2/5 returned a complete https:// URL to a different domain (bol.pt). A collector must combine `ticketsSeller` with `ticketsUrl` using seller-specific URL-construction rules (not yet reverse-engineered here), rather than assuming ticketsUrl is always directly usable as-is."
+      },
+      {
+        "severity": "MINOR",
+        "description": "`estimatedDuration` is explicitly source-labelled as an estimate, not an authoritative end time — a collector deriving `end` from startDate + estimatedDuration must propagate that this is an approximation, never present it as a confirmed venue-scheduled end."
+      },
+      {
+        "severity": "MINOR",
+        "description": "GraphQL introspection being enabled in production is itself notable (many production APIs disable it) — a future collector should not assume this stays enabled indefinitely, and should have a fallback of hand-written queries (already captured in this investigation's evidence) if introspection is later disabled."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation's bounded 5-event sample happened not to include any multi-date/recurring production sharing one id across dates (the pattern found at gulbenkian-lisbon-01). A larger future sample should specifically check whether Coliseu's API has the same subEvent-style id-sharing edge case before fully trusting source_record_id as always 1:1 with a single performance instance."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence: the known official URL's own retained HTML title/meta match the well-known real venue, and the discovered GraphQL API host is a same-registrable-domain, first-party-referenced subdomain whose own data is self-referential (a promoter literally named 'Coliseu Porto Ageas').",
+      "site_classification.acquisition_class is PUBLIC_JSON_API, a resolved/supported class — a live, public, CORS-open, introspectable GraphQL endpoint was independently discovered and queried.",
+      "The GraphQL endpoint data_paths entry is access:PUBLIC and status:CONFIRMED against retained evidence (multiple successful, bounded, read-only queries).",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN (start_date is a genuine UTC ISO instant, not merely floating-local).",
+      "field_assessment.source_record_id.state is PROVEN under the stable-identifier rule, empirically demonstrated: the same id reproduced identically across two independent query paths for 2/2 cross-checked events.",
+      "collector_assessment.recommended_family is JSON_API, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every claim above (shell-emptiness, env-config API discovery, schema introspection, sample-field presence, id-stability cross-check, and event_url route resolution).",
+      "collector_assessment.blockers contains only MINOR entries (ticketsUrl format inconsistency, estimatedDuration being approximate-only, introspection-availability fragility, and an unverified multi-date-id edge case) — none CRITICAL.",
+      "This investigation used only ordinary, read-only, unauthenticated GraphQL-over-HTTP requests to a publicly CORS-open endpoint already referenced by the site's own public client code — no CAPTCHA/login/paywall was encountered or bypassed, no mutation was ever sent, and no private/undocumented API was assumed (the endpoint documents its own protocol in its own error message and supports standard introspection).",
+      "This decision independently supersedes, in effect, the older loose sources/porto.json note describing this candidate as requiring a headless-browser collector — that note's own Level 1 finding (empty shell) is still correct and was independently re-confirmed here, but its conclusion stopped at Level 1 and never attempted the Level 2 structural escalation that this investigation completed. Per policy, this investigation.json is the authoritative research conclusion, but it does NOT itself edit sources/*.json or any registry.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-env-config", "ev-graphql-typename", "ev-graphql-introspect", "ev-graphql-eventtype", "ev-graphql-events-sample", "ev-graphql-eventbyslug-1", "ev-graphql-eventbyslug-2", "ev-evento-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Coliseu Porto Ageas home page: a bare client-rendered shell (`<div id=\"root\"></div>`), no JSON-LD, no server-rendered content.",
+      "acquired_from": "https://www.coliseu.pt",
+      "acquired_at": "2026-08-25T01:30:42Z",
+      "method": "curl -sS -D evidence/headers-home.txt -o evidence/body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the home-page request: 200 OK, nginx, Content-Length 3828 (raw byte count as delivered; the offline-proof script measures 3817 decoded text characters), ETag \"6a7cb2a0-ef4\".",
+      "acquired_from": "https://www.coliseu.pt",
+      "acquired_at": "2026-08-25T01:30:42Z",
+      "method": "curl -sS -D evidence/headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate events page https://www.coliseu.pt/agenda — byte-identical to ev-home-body, confirming SPA catch-all routing rather than a distinct server-rendered agenda listing.",
+      "acquired_from": "https://www.coliseu.pt/agenda",
+      "acquired_at": "2026-08-25T01:30:42Z",
+      "method": "curl -sS -D evidence/headers-agenda.txt -o evidence/body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /agenda request: 200 OK, identical ETag/Content-Length to the home page, same Last-Modified timestamp as the static build.",
+      "acquired_from": "https://www.coliseu.pt/agenda",
+      "acquired_at": "2026-08-25T01:30:42Z",
+      "method": "curl -sS -D evidence/headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-env-config",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JS response body for the site's own publicly-served runtime config file, which declares `GRAPHQL_API: \"https://nest.coliseu.pt/graph/\"` — the discovery lead for this investigation's Level 2 escalation.",
+      "acquired_from": "https://www.coliseu.pt/env-config.js",
+      "acquired_at": "2026-08-25T01:31:04Z",
+      "method": "curl -sS -D evidence/headers-env-config.txt -o evidence/body-env-config.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-env-config.js"
+    },
+    {
+      "evidence_id": "ev-main-bundle",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained main JS bundle (519,052 bytes), referenced by the public agenda page's own <script> tag. Mechanically confirmed (offline-proof.mjs) to contain the literal React route strings \"/agenda\" and \"/evento/:slug\", and Portuguese event-related identifier tokens (Agenda, eventos, homeAgenda) and ticketing-partner names (BLUETICKET, Ticketline).",
+      "acquired_from": "https://www.coliseu.pt/static/js/main.21e302c3.chunk.js",
+      "acquired_at": "2026-08-25T01:31:12Z",
+      "method": "curl -sS -D evidence/headers-main-bundle.txt -o evidence/body-main-bundle.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-main-bundle.js"
+    },
+    {
+      "evidence_id": "ev-vendor-bundle",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained vendor JS bundle (1,808,976 bytes), referenced by the public agenda page's own <script> tag. Contains Apollo/GraphQL client library fingerprints ('apollographql', 'apollodata' strings, 41 occurrences of 'graphql'), supporting the platform classification that the SPA uses Apollo Client against the discovered GraphQL API.",
+      "acquired_from": "https://www.coliseu.pt/static/js/2.3d9474f6.chunk.js",
+      "acquired_at": "2026-08-25T01:31:13Z",
+      "method": "curl -sS -D evidence/headers-vendor-bundle.txt -o evidence/body-vendor-bundle.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-vendor-bundle.js"
+    },
+    {
+      "evidence_id": "ev-graphql-get",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a plain, unauthenticated GET (no query parameter) of the discovered GraphQL endpoint: HTTP 400 with body \"GET query missing.\", Access-Control-Allow-Origin: *, X-Powered-By: Express — proof the endpoint is live, publicly reachable, and documents its own expected protocol.",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:32:05Z",
+      "method": "curl -sS -D evidence/headers-graphql-get.txt -o evidence/body-graphql-get.txt --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-get.txt"
+    },
+    {
+      "evidence_id": "ev-graphql-typename",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a minimal, read-only GraphQL query ({__typename}) against the discovered endpoint: HTTP 200, body {\"data\":{\"__typename\":\"Query\"}} — proof the endpoint executes ordinary GraphQL queries.",
+      "acquired_from": "https://nest.coliseu.pt/graph/?query=%7B__typename%7D",
+      "acquired_at": "2026-08-25T01:32:22Z",
+      "method": "curl -sS -D evidence/headers-graphql-typename.txt -o evidence/body-graphql-typename.txt --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query={__typename}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-typename.txt"
+    },
+    {
+      "evidence_id": "ev-graphql-introspect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a standard, read-only GraphQL introspection query listing the top-level Query type's field names — revealing `events`, `eventBySlug`, `eventCategories`, `promoters`, `rooms`, and others.",
+      "acquired_from": "https://nest.coliseu.pt/graph/?query=query%7B__schema%7BqueryType%7Bfields%7Bname%7D%7D%7D%7D",
+      "acquired_at": "2026-08-25T01:32:40Z",
+      "method": "curl -sS -D evidence/headers-graphql-introspect.txt -o evidence/body-graphql-introspect.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{__schema{queryType{fields{name}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-introspect.json"
+    },
+    {
+      "evidence_id": "ev-graphql-eventsfield",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL introspection query listing every top-level Query field together with its arguments (used to discover the `events` field's `paging`/`filter`/`sorting` arguments).",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:33:05Z",
+      "method": "curl -sS -D evidence/headers-graphql-eventsfield.txt -o evidence/body-graphql-eventsfield.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{__schema{queryType{fields{name args{name type{name kind ofType{name kind}}}}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-eventsfield.json"
+    },
+    {
+      "evidence_id": "ev-graphql-eventtype",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL introspection query listing every field of the `Event` type: id, name, description, state, startDate, slug, isVisible, estimatedDuration, ticketsSeller, ticketsUrl, category, room, promoter, and others — with no price/cost field present.",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:33:40Z",
+      "method": "curl -sS -D evidence/headers-graphql-eventtype.txt -o evidence/body-graphql-eventtype.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{__type(name:\\\"Event\\\"){name fields{name type{name kind ofType{name kind}}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-eventtype.json"
+    },
+    {
+      "evidence_id": "ev-graphql-roomtype",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL introspection query listing every field of the `Room` type: only id, name, createdAt, updatedAt — no address/coordinates field.",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:38:10Z",
+      "method": "curl -sS -D evidence/headers-graphql-roomtype.txt -o evidence/body-graphql-roomtype.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{__type(name:\\\"Room\\\"){name fields{name type{name kind ofType{name kind}}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-roomtype.json"
+    },
+    {
+      "evidence_id": "ev-graphql-schema-types",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL introspection query listing the names of all 179 types in the full public schema — mechanically grepped (offline-proof.mjs) to confirm no price/cost-named type exists anywhere in the API.",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:38:10Z",
+      "method": "curl -sS -D evidence/headers-graphql-schema-types.txt -o evidence/body-graphql-schema-types.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{__schema{types{name}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-schema-types.json"
+    },
+    {
+      "evidence_id": "ev-graphql-events-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a bounded, read-only GraphQL query for 5 upcoming, visible, non-archived events (paging limit 5, sorted by startDate ascending): totalCount 72, with id/name/slug/startDate/estimatedDuration/ticketsSeller/ticketsUrl/minimumAge/category/room/promoter for each of the 5 sampled events (He's Back | Michael Jackson Tribute, Sigur Rós, Bruna Louise, PROMENADE 2026, PRIMEIRA BOX).",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:34:05Z",
+      "method": "curl -sS -D evidence/headers-graphql-events-sample.txt -o evidence/body-graphql-events-sample.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{events(paging:{limit:5},sorting:[{field:startDate,direction:ASC}],filter:{isVisible:{is:true},isArchived:{is:false}}){totalCount nodes{id name slug startDate isVisible isArchived estimatedDuration ticketsSeller ticketsUrl minimumAge category{name} room{name} promoter{name}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-events-sample.json"
+    },
+    {
+      "evidence_id": "ev-graphql-eventbyslug-1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only `eventBySlug` GraphQL query for the sampled 'He's Back | Michael Jackson Tribute' event, queried via an independent path from the events-list query: id 1951 reproduced identically, plus state:\"ACTIVE\".",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:37:20Z",
+      "method": "curl -sS -D evidence/headers-graphql-eventbyslug.txt -o evidence/body-graphql-eventbyslug.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{eventBySlug(slug:\\\"20260912-he-s-back-michael-jackson-tribute\\\"){id name slug startDate state estimatedDuration category{name} room{name} promoter{name}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-eventbyslug.json"
+    },
+    {
+      "evidence_id": "ev-graphql-eventbyslug-2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a second, independent `eventBySlug` GraphQL query for the sampled 'Sigur Rós - The Orchestral Tour' event: id 1923 reproduced identically, plus state:\"ACTIVE\". Together with ev-graphql-eventbyslug-1, this is the empirical stability proof for source_record_id (2/2 matches).",
+      "acquired_from": "https://nest.coliseu.pt/graph/",
+      "acquired_at": "2026-08-25T01:37:45Z",
+      "method": "curl -sS -D evidence/headers-graphql-eventbyslug-2.txt -o evidence/body-graphql-eventbyslug-2.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{eventBySlug(slug:\\\"20260913-sigur-ros-the-orchestral-tour\\\"){id name slug startDate state}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-eventbyslug-2.json"
+    },
+    {
+      "evidence_id": "ev-evento-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for a constructed event detail URL (https://www.coliseu.pt/evento/{slug}), using the React route pattern found in the retained main bundle and the slug from the sampled GraphQL event data. Byte-identical shell to the home/agenda pages, but the important finding is the HTTP status (200, not 404) confirming the server recognises this route.",
+      "acquired_from": "https://www.coliseu.pt/evento/20260912-he-s-back-michael-jackson-tribute",
+      "acquired_at": "2026-08-25T01:34:50Z",
+      "method": "curl -sS -D evidence/headers-evento-page.txt -o evidence/body-evento-page.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-evento-page.html"
+    },
+    {
+      "evidence_id": "ev-evento-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the constructed event-detail-route request: 200 OK, same ETag/Content-Length/Last-Modified as the home and agenda pages (confirms SPA catch-all serving, not a distinct 404 page).",
+      "acquired_from": "https://www.coliseu.pt/evento/20260912-he-s-back-michael-jackson-tribute",
+      "acquired_at": "2026-08-25T01:34:50Z",
+      "method": "curl -sS -D evidence/headers-evento-page.txt (same request as ev-evento-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/headers-evento-page.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-confirms: the shell-emptiness/byte-identity of home/agenda/evento pages, the env-config.js GraphQL host discovery, the literal route-pattern strings in the main bundle, GraphQL liveness and full schema introspection (including the absence of any price/cost-named field or type), the 5-event bounded sample's field completeness, the 2/2 empirical id-stability cross-check, the 200-OK resolution of the constructed event_url, and the ticketsUrl format inconsistency. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/coliseu-ageas-porto-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:41:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/coliseu-ageas-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

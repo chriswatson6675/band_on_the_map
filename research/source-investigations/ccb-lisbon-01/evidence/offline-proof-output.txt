@@ -1,0 +1,57 @@
+--- 1. HTML listing page platform fingerprint ---
+OK:   body class carries "post-type-archive-tribe_events" and "events-category-musica" (The Events Calendar archive for the musica category)
+OK:   listing page itself advertises the public REST API endpoint: https://www.ccb.pt/wp-json/tribe/events/v1/events/?categories=musica
+canonical URL on the /eventos/categoria/musica request: https://www.ccb.pt/event/category/musica/
+OK:   canonical URL matches the redirected/observed https://www.ccb.pt/event/category/musica/
+
+--- 2. REST API list pages ---
+page 1: 10 events, total=90, total_pages=9
+page 2: 10 events
+OK:   both retained pages contain 10 events each (per_page default)
+OK:   all 20 sampled events carry the "musica" category (source-defined taxonomy, not guessed)
+OK:   all 20 sampled event ids are unique numeric values (no collisions in this sample)
+
+--- 3. Cross-check: list endpoint vs single-event endpoint ---
+Sinfonia n.º 5 de Beethoven (single-occurrence): list.start_date=2026-09-27 17:00:00 single.start_date=2026-09-27 17:00:00 list.url=https://www.ccb.pt/evento/sinfonia-n-o-5-de-beethoven/ single.url=https://www.ccb.pt/evento/sinfonia-n-o-5-de-beethoven/
+OK:   Sinfonia n.º 5 de Beethoven (single-occurrence): id/title/start_date/end_date/url are byte-identical between the list endpoint and the single-event endpoint
+Cantar Juntos pelo Mundo, 2026-09-12 occurrence (recurring series member): list.start_date=2026-09-12 15:00:00 single.start_date=2026-09-12 15:00:00 list.url=https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-12/ single.url=https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-12/
+OK:   Cantar Juntos pelo Mundo, 2026-09-12 occurrence (recurring series member): id/title/start_date/end_date/url are byte-identical between the list endpoint and the single-event endpoint
+
+--- 4. Detail-page JSON-LD Event blocks ---
+Sinfonia n.º 5 de Beethoven: name="Sinfonia n.º 5 de Beethoven" startDate=2026-09-27T17:00:00+01:00 endDate=2026-09-27T18:30:00+01:00 venue="Centro Cultural de Belém"
+OK:   Sinfonia n.º 5 de Beethoven: startDate/endDate carry an explicit UTC offset (not a floating local datetime)
+OK:   Sinfonia n.º 5 de Beethoven: startDate/endDate match the expected retained values exactly
+OK:   Sinfonia n.º 5 de Beethoven: JSON-LD venue name/address matches the REST API's own venue object (Centro Cultural de Belém, Praça do Império, 1449-003 Lisboa)
+Amor Sin Pena: name="Amor Sin Pena – Língua e Memória na Música Ibérica do Século XVI" startDate=2026-09-13T17:00:00+01:00 endDate=2026-09-13T18:00:00+01:00 venue="Centro Cultural de Belém"
+OK:   Amor Sin Pena: startDate/endDate carry an explicit UTC offset (not a floating local datetime)
+OK:   Amor Sin Pena: startDate/endDate match the expected retained values exactly
+OK:   Amor Sin Pena: JSON-LD venue name/address matches the REST API's own venue object (Centro Cultural de Belém, Praça do Império, 1449-003 Lisboa)
+Cantar Juntos pelo Mundo (09-13 occurrence): name="Cantar Juntos pelo Mundo" startDate=2026-09-13T15:00:00+01:00 endDate=2026-09-13T16:30:00+01:00 venue="Centro Cultural de Belém"
+OK:   Cantar Juntos pelo Mundo (09-13 occurrence): startDate/endDate carry an explicit UTC offset (not a floating local datetime)
+OK:   Cantar Juntos pelo Mundo (09-13 occurrence): startDate/endDate match the expected retained values exactly
+OK:   Cantar Juntos pelo Mundo (09-13 occurrence): JSON-LD venue name/address matches the REST API's own venue object (Centro Cultural de Belém, Praça do Império, 1449-003 Lisboa)
+OK:   REST API venue object (list endpoint) matches the same CCB address independently
+
+--- 5. Recurring-event date-suffixed permalink redirect anomaly ---
+Cantar Juntos pelo Mundo: requested https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-12/ -> status=302 Location=https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-13/
+OK:   Cantar Juntos pelo Mundo: confirmed 302 redirect AWAY from the requested date-suffixed occurrence, to a different date (https://www.ccb.pt/evento/cantar-juntos-pelo-mundo-3/2026-09-13/)
+Festival BIG BANG — Norquestra (PT): requested https://www.ccb.pt/evento/festival-big-bang-norquestra-pt/2026-10-02/ -> status=302 Location=https://www.ccb.pt/evento/festival-big-bang-norquestra-pt/2026-10-03/
+OK:   Festival BIG BANG — Norquestra (PT): confirmed 302 redirect AWAY from the requested date-suffixed occurrence, to a different date (https://www.ccb.pt/evento/festival-big-bang-norquestra-pt/2026-10-03/)
+OK:   redirect anomaly reproduced 2/2 times across unrelated event series -- treated as a systematic site behaviour, not a one-off fluke
+OK:   despite the HTML permalink redirecting elsewhere, the single-event REST API endpoint for id 294811 still correctly reports start_date=2026-09-12 15:00:00 -- the JSON API's per-id data is unaffected by the HTML routing bug
+
+--- 6. Price field: REST API vs detail-page HTML ---
+OK:   REST API cost/cost_details for id 281912 (Sinfonia n.º 5 de Beethoven) are empty, despite this being a real ticketed concert -- price is NOT reliably available from the JSON API alone
+prices extracted from the static "Preços" DOM table on the detail page: 40, 35, 30, 25, 24, 24, 35, 30, 20, 28, 20
+OK:   extracted 11 distinct price values (€20-€40) from the detail page's static, server-rendered price table
+OK:   detail page links to an external ticketing system (ccb.bol.pt) via a "Comprar Bilhete" button, confirming this is a real paid, ticketed event, not free admission
+
+--- 7. "Jardim de Verão" cross-check against the prior loose note ---
+total categories reported by REST API: 26; retained across 3 pages: 26
+OK:   retained category pages (26) account for the full reported total (26) -- nothing left unpaged/unseen
+OK:   no "jardim"/"verão" category exists anywhere in the full 26-entry public category taxonomy
+search page <title>: You searched for jardim de verão - Centro Cultural de Belém
+page shows a generic "As nossas Sugestões" (no-direct-match suggestions) heading: true
+OK:   a site search for "jardim de verão" was genuinely performed (title reflects the query) and returned a generic suggestions page, not a matching result -- consistent with no such series being currently discoverable, contradicting the prior loose note
+
+RESULT: all checks passed against retained evidence (20 list-endpoint events across 2 pages; 3 detail pages cross-checked; 2/2 recurring-permalink redirect anomalies reproduced; "jardim de verão" independently re-checked and not found).

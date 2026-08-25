@@ -1,0 +1,46 @@
+Homepage fetch (plain http://casadasartes.gov.pt/, no -L): status line = "HTTP/1.1 200 OK"
+OK:   plain http:// (no redirect follow) returned 200 OK directly — the official_url is served as-is, not merely a redirect stub
+OK:   homepage <title> confirms "Casa das Artes"
+Primary nav menu HTML length: 3615 chars
+OK:   confirmed: primary nav menu contains no agenda/programação/eventos/calendário link
+Top-level nav items found: Visitas | Serviço Educativo | Cineclube | Arquivo | Horários
+
+Homepage sticky-post cards parsed: 3
+  - post-3231 "Salão Piolho" posted="29 de Outubro, 2024" url=https://casadasartes.gov.pt/salao-piolho-2/
+  - post-3116 "Bilheteira online" posted="4 de Março, 2024" url=https://casadasartes.gov.pt/bilheteira-online/
+  - post-2782 "Cineclube do Porto" posted="12 de Setembro, 2023" url=https://casadasartes.gov.pt/cineclube-do-porto/
+OK:   homepage shows exactly 3 post cards (matches the investigation's claim, not merely an eyeballed count)
+
+/category/musica/ post cards parsed: 2
+  - post-3231 "Salão Piolho"
+  - post-3116 "Bilheteira online"
+OK:   every post shown under /category/musica/ is one of the same 3 sitewide posts already seen on the homepage (no additional/hidden music post)
+
+wp-json posts: X-WP-Total header = 3, parsed JSON array length = 3
+OK:   X-WP-Total header matches the parsed JSON array length, and both equal 3 — the ENTIRE site has exactly 3 posts ever published, mechanically confirmed via the site's own REST API, not merely by eyeballing the rendered homepage
+Most recent post: id=3231 slug=salao-piolho-2 date=2024-10-29T10:52:53
+Staleness: 665 days between most recent post (2024-10-29T10:52:53) and investigation date (2026-08-25)
+OK:   confirmed: the most recent post is more than a year (665 days) stale relative to the investigation date — the site has not been actively updated with new posts recently
+
+Salão Piolho (post 3231): REST date="2024-10-29T10:52:53", homepage posted-date text="29 de Outubro, 2024"
+OK:   REST API date (2024-10-29) and homepage-rendered Portuguese posted-date text (29 de Outubro, 2024) agree for the same post
+
+wp-json pages: X-WP-Total header = 11, parsed JSON array length = 11
+OK:   X-WP-Total header matches parsed JSON array length, and both equal 11 — the ENTIRE site has exactly 11 static pages
+Pages: servico-educativo, cineclube-do-porto, arquivo, politica-de-privacidade, galeria, horarios, visitas, drcn, a_casa, contactos, noticias
+OK:   confirmed: none of the 11 pages' slugs/titles is agenda/programação/eventos/calendário-like
+
+wp-json API root: 281 registered routes
+OK:   confirmed: no known calendar/events-plugin REST namespace (tribe/events, eventon, the-events-calendar, wp-event-manager) is registered among all 281 routes
+
+Salão Piolho single-post page date/time line: "23 de NOVEMBRO | Sábado | 18h | Casa das Artes"
+OK:   confirmed: the source states the event date as "23 de NOVEMBRO | Sábado | 18h" with NO year digit anywhere in that line — a claimed exact date/year would be an invented value, not one the source itself states (AMBIGUOUS is the honest field_assessment.start_date state, not PROVEN)
+Single-post page post id marker: post-3231
+OK:   single-post page's own post-3231 DOM marker matches the REST API's id 3231 for the same slug (salao-piolho-2)
+
+Checked 6 retained HTML files for JSON-LD Event/MusicEvent blocks and .ics links.
+OK:   confirmed: no JSON-LD Event/MusicEvent structured data anywhere in the retained sample
+OK:   confirmed: no .ics calendar export link anywhere in the retained sample
+OK:   confirmed: /contactos/ page states the address "Rua Ruben A, nº 210" (Porto), matching the real-world Casa das Artes venue
+
+RESULT: all checks passed against retained evidence — casadasartes.gov.pt is a genuine official site with NO current/future event data exposed through any public path sampled (no agenda/programação page, no calendar-plugin REST namespace, sitewide total of 3 posts, most recent ~22 months stale, and its sole event-like post's date is unstructured day+month prose with no year).
