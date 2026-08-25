@@ -1,0 +1,68 @@
+# BOTM-RUNTIME-PUBLICATION-BRIDGE-01
+#
+# systemd unit for the tiny, read-only publication HTTP service
+# (ingestion/publication-server/run.mjs, `npm run serve:map-data`) that
+# lets the public website fetch fresh map data without a Git commit or a
+# Netlify rebuild. Unlike botm-unattended.service (a bounded, twice-daily
+# `oneshot`), this is a small LONG-RUNNING service -- it never runs a
+# collector, never writes anything, and only ever reads the same
+# data/public/lisbon-porto-map.json botm-unattended.service already
+# produces atomically.
+#
+# NOT installed/enabled/started by this package -- this file is prepared,
+# reviewed, repository-controlled, and ready for the future live
+# deployment package once an HTTPS reverse proxy is in front of it (see
+# deploy/README.md's "HTTPS boundary" -- this unit binds to localhost only
+# by default and must never be exposed directly to the internet as a raw
+# HTTP endpoint).
+#
+# Install (future package, not this one): copy to
+# /etc/systemd/system/botm-publication.service, `systemctl daemon-reload`,
+# then `systemctl enable --now botm-publication.service` once a reverse
+# proxy is confirmed in front of it.
+
+[Unit]
+Description=Band on the Map -- read-only runtime publication endpoint (GET /map-data, GET /health)
+Documentation=https://github.com/chriswatson6675/band_on_the_map/blob/main/docs/RUNTIME_PUBLICATION_BRIDGE.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=botm
+Group=botm
+# Same application directory and same restricted service user as
+# botm-unattended.service (deploy/systemd/botm-unattended.service) -- one
+# checkout, one dedicated non-root account, two small units with distinct
+# jobs.
+WorkingDirectory=/opt/band-on-the-map
+ExecStart=/usr/bin/npm run serve:map-data
+Environment=NODE_ENV=production
+# Safe local-only bind by default (see ingestion/publication-server/run.mjs's
+# own DEFAULT_HOST) -- override only once a reverse proxy terminates HTTPS
+# on this same host and forwards to it, never to accept raw internet
+# traffic directly on this process:
+#   Environment=BOTM_PUBLICATION_HOST=127.0.0.1
+#   Environment=BOTM_PUBLICATION_PORT=8787
+# Restrict the browser-facing origin once the live BOTM site origin is
+# known (defaults to "*" -- safe because this endpoint is read-only,
+# uncredentialed, public gig data with no cookies/auth of any kind):
+#   Environment=BOTM_PUBLICATION_ALLOWED_ORIGIN=https://bandonthemap.example
+
+# Long-running service, not a bounded cycle -- restart it if it crashes,
+# with a short delay to avoid a tight crash loop. This is a different
+# concern from BOTM's own per-source acquisition retries
+# (ingestion/unattended-runner/retry.mjs), which this unit has nothing to
+# do with -- it never calls a collector.
+Restart=on-failure
+RestartSec=5s
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=botm-publication
+
+[Install]
+WantedBy=multi-user.target
