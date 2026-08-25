@@ -1,0 +1,82 @@
+# BOTM-DIGITALOCEAN-UNATTENDED-DEPLOYMENT-01
+#
+# systemd oneshot service running exactly one BOTM unattended collection +
+# publication cycle: `npm run unattended` (ingestion/unattended-runner/run.mjs
+# — see docs/UNATTENDED_RUNNER.md). This unit owns NO retry logic and NO
+# concurrency logic of its own — BOTM's own bounded per-source retry policy
+# and its own local-lockfile overlap guard (runtime/unattended-run.lock)
+# are already authoritative; duplicating either here would be exactly the
+# kind of parallel architecture this package's own brief prohibits.
+#
+# Install: copy this file to /etc/systemd/system/botm-unattended.service,
+# then `systemctl daemon-reload`. See deploy/README.md for the full,
+# step-by-step installation procedure. Do not edit the installed copy
+# directly on the server — change this file in the repository, redeploy,
+# and reload.
+
+[Unit]
+Description=Band on the Map -- unattended collection and publication cycle
+Documentation=https://github.com/chriswatson6675/band_on_the_map/blob/main/docs/UNATTENDED_RUNNER.md
+# Best-effort network wait; BOTM's own per-source acquisition already
+# tolerates a source being briefly unreachable (isolated failure, bounded
+# retry) -- this is only to avoid an entirely pointless run immediately at
+# boot before the network interface is even up.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=botm
+Group=botm
+# Set to the actual deployed application directory -- see deploy/README.md
+# ("Server directory"). Must match where deploy/install.sh checked out the
+# repository.
+WorkingDirectory=/opt/band-on-the-map
+ExecStart=/usr/bin/npm run unattended
+Environment=NODE_ENV=production
+
+# No interactive input of any kind reaches this unit -- systemd services
+# have no attached TTY/stdin by default, matching
+# ingestion/unattended-runner/run.mjs's own "no interactive input" design.
+
+# Deterministic, honest exit handling -- BOTM's own process.exitCode is
+# never masked:
+#   0 = HEALTHY or DEGRADED (a real run completed; see the health report
+#       at runtime/health-reports/latest.json for which)
+#   1 = FAILED (publication could not safely complete)
+#   2 = refused to start (another run was already in progress) --
+#       registered below as an additional "clean" exit so systemd does not
+#       report a benign overlap refusal as a crashed unit; the run genuinely
+#       did nothing in that case, which is the correct, safe behaviour.
+SuccessExitStatus=0 2
+
+# No restart: BOTM's own bounded retry policy already owns per-source
+# retries (initial attempt + up to 2 retries, transient failures only --
+# see ingestion/unattended-runner/retry.mjs). A systemd-level Restart=
+# here would duplicate that logic and risk a restart storm against a
+# genuinely FAILED run instead of waiting for the next scheduled timer
+# tick, which is this project's own deliberate, deterministic retry
+# cadence at the service level.
+Restart=no
+
+# Generous but bounded -- the live proof of this exact command completing
+# against all active sources took under 3 minutes; this leaves large
+# headroom without letting a genuinely stuck run hang the unit forever.
+TimeoutStartSec=30min
+
+# Standard, conservative hardening -- does not change what this unit does,
+# only what it is permitted to touch. NOT live-verified against the real
+# deployment target in this package (no authorised SSH access was
+# available -- see the FINAL REPORT of this task); the operator should
+# confirm after first enabling that these directives do not interfere
+# with npm's own runtime needs (e.g. its cache directory) in the exact
+# target environment, and relax them if so.
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=botm-unattended
+
+[Install]
+WantedBy=multi-user.target

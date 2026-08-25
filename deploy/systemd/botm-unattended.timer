@@ -1,0 +1,32 @@
+# BOTM-DIGITALOCEAN-UNATTENDED-DEPLOYMENT-01
+#
+# Twice-daily schedule for botm-unattended.service. Gig programmes do not
+# need minute-level polling -- this cadence keeps server load and cost low
+# on a modest hobby-project droplet while still catching changes reasonably
+# quickly. Adjustable later: edit this file, `systemctl daemon-reload`,
+# `systemctl restart botm-unattended.timer`.
+#
+# Install: copy this file to /etc/systemd/system/botm-unattended.timer,
+# then `systemctl daemon-reload`. Enable and start only AFTER a manual
+# `systemctl start botm-unattended.service` proof run has succeeded -- see
+# deploy/README.md.
+
+[Unit]
+Description=Run Band on the Map's unattended collection cycle twice daily
+Documentation=https://github.com/chriswatson6675/band_on_the_map/blob/main/docs/UNATTENDED_RUNNER.md
+
+[Timer]
+# ~06:15 and ~18:15 UTC.
+OnCalendar=*-*-* 06:15:00 UTC
+OnCalendar=*-*-* 18:15:00 UTC
+
+# If the server was off/rebooting at a scheduled time, run once as soon as
+# the timer is next active again, rather than silently skipping that cycle.
+Persistent=true
+
+# Small jitter -- harmless for a single timer on a dedicated host; kept as
+# a cheap, standard habit rather than a requirement.
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target
