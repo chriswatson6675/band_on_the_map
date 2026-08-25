@@ -1,0 +1,215 @@
+{
+  "investigation_id": "casa-independente-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:40:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (no WebFetch/AI-markdown conversion) against the venue's own homepage, its /agenda/ events page, its /contactos/ contacts page, and its /sobre/ about page. Inspected retained HTML for JSON-LD, calendar-plugin fingerprints, and embedded JSON (none found) versus a plain server-rendered, hand-authored Elementor page listing individual event blocks (weekday/day-month/hour heading + event-type heading + artist-name heading). Cross-checked venue identity against the about/contacts pages' own text (1863 building date, 2012 founding date, street address, email) and cross-checked each event's inferred year (taken from a single page-level month/year heading) against the actual computed day-of-week for that date versus the source's own weekday label, via a dependency-free, no-network Node offline-proof script. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA) of https://casaindependente.com/agenda/ returned 200 OK with a fully server-rendered page: no JSON-LD, no RSS/ICS, no recognisable calendar plugin (The Events Calendar, EventOn, FullCalendar) — instead a hand-authored WordPress/Elementor page containing, under one 'Agosto 2026' month/year heading, four sequential per-event blocks each giving a weekday name, a 'DD MES' day/month, an 'HH H' hour, an event-type label ('DJ Set' on all four), and an artist-name heading. No per-event URLs, ids, or data attributes exist anywhere on the page. Companion curl GETs of the homepage, /contactos/, and /sobre/ independently confirmed venue identity (real street address, email, 1863 building date, 2012 founding date) without needing any JS execution, API discovery, or browser session. This already answers identity, platform classification, data-path discovery, and field assessment (including the honest limits — no ids, no per-event URLs) without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-agenda-body",
+        "ev-agenda-headers",
+        "ev-home-body",
+        "ev-contactos-body",
+        "ev-sobre-body",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "casa-independente-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Casa Independente — Largo do Intendente 45, 1100-285 Lisboa, Portugal (a multidisciplinary cultural-association venue in an 1863 building, founded 2012; concerts, DJ sets/parties, exhibitions, and other programming across its 'Salão Tigre', 'Pátio', and 'Andar de Cima' spaces)",
+  "official_url": "https://casaindependente.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-contactos-body", "ev-sobre-body"],
+    "notes": "Independently verified from this investigation's own retained evidence, not from the task prompt's context note. The homepage's own <title> is 'Casa Independente'. The retained /sobre/ (about) page states in its own prose: 'A Casa Independente nasceu em 2012, no coração do Largo do Intendente, em Lisboa, fundada por Inês Valdez e Patrícia Craveiro Lopes' and 'O edifício que hoje nos acolhe foi construído em 1863 para receber a Associação do Registo Civil...' — independently corroborating both the 1863 building date and the 2012 founding date given in the task's context note (which was not itself treated as evidence). The retained /contactos/ page states the street address 'Largo do Intendente 45  1100-285' and contact email 'info@casaindependente.com'. All of these are cross-checked mechanically in evidence/offline-proof-output.txt. The site does not use any 'cultural association' legal-form language on its own public pages within this bounded sample (that framing in the task's context note was not independently confirmed one way or the other and is not asserted here as a proven fact)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress 6.8.3 with the Elementor 4.2.3 page builder (Royal Elementor Kit theme + Royal Elementor Addons plugin), evidenced by the wp-json REST discovery Link header, /wp-content/uploads/... asset paths, the 'generator' meta tags, and Elementor's own data-elementor-* markup. The /agenda/ event listing is NOT produced by any recognisable calendar plugin (no The Events Calendar, EventOn, FullCalendar, or similar markup was found) and carries no JSON-LD, RSS, or ICS. It is a manually hand-authored Elementor page: one page-level month/year heading ('Agosto 2026') followed by a flat sequence of per-event heading/text-editor widget blocks that an editor appears to type in directly each month. No per-event ids, slugs, or URLs exist anywhere in the retained markup.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://casaindependente.com/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_PAGE_ENDPOINT (observed via Link header only, not explored)",
+      "url": "https://casaindependente.com/wp-json/wp/v2/pages/8657",
+      "access": "UNKNOWN",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-agenda-headers"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The artist/act name (e.g. 'DIDI', 'Jayde & Lagryma', 'Patisol', 'Fatumata') is reliably extractable from a plain <h1> inside a text-editor widget immediately following each date block and a short event-type heading. All 4 sampled events in the retained window carried the event-type label 'DJ Set' — this investigation only observed that one type value within its bounded sample; the page may show other types (e.g. concerts, festas) in other months, which this investigation did not sample. Left null here (a general capability finding across a 4-event sample, not one single event) — see evidence/offline-proof-output.txt for the per-event values.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event block states its own day + 3-letter Portuguese month abbreviation (e.g. '21 AGO'), but NO event block states its own year. The year is stated exactly once, at the top of the page, in a single page-level heading ('Agosto 2026') that governs every card beneath it in this retained fetch (only one such heading exists on the whole page). Combining the two (day/month from the card, year from the page heading) is a mechanical, source-derived combination — not a guess based on 'today's date' or convenience. This investigation went further and cross-checked the result: for all 4 sampled events, the actual computed day-of-week for the derived date (pure calendar math, e.g. 2026-08-21 is genuinely a Friday) matched the source's own weekday label on that card (e.g. 'SEXTA FEIRA'/'SEXTA' = Friday) in 4/4 cases (evidence/offline-proof-output.txt). This is a real, deterministic corroboration that the year-from-heading combination is internally consistent for this fetch, though it does not by itself prove what a future page with multiple month sections would do (see collector_assessment.blockers). Timing is floating-local: no explicit timezone/UTC offset is stated anywhere in the retained HTML.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event block states an hour-only time (e.g. '23H' = 23:00) on the same date heading as the day/month. No minutes and no timezone/offset are stated anywhere in the retained HTML for any of the 4 sampled events — recorded honestly as hour-precision only, not padded with an invented ':00' presented as more precise than it is, and not promoted to a confirmed UTC instant.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No end time or end date is stated anywhere in the retained HTML for any of the 4 sampled events — only a single start hour per event. The source genuinely does not expose this fact within this bounded sample.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Casa Independente is a single-venue site — the /agenda/ page itself never repeats an address per event, but the retained /contactos/ page states the venue's own street address ('Largo do Intendente 45  1100-285') and the retained /sobre/ page independently corroborates the same 'Largo do Intendente' location in its own founding-history prose. Since every event on this page is unambiguously hosted at this one venue (no other location is ever mentioned), this address applies uniformly to all sampled events, not per-event structured data.",
+      "evidence_refs": ["ev-contactos-body", "ev-sobre-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No id, slug, data-attribute, or any other machine identifier exists anywhere in the retained /agenda/ HTML for any individual event — the page is a flat sequence of heading/text-editor widget blocks with only Elementor's own internal element ids (e.g. 'elementor-element-8d1a11a'), which are editor-authoring artifacts, not stable per-event identifiers (they are not tied to event identity — the same event's block could be re-typed and get a new Elementor element id without any change in meaning). Per the stable-identifier rule, this is honestly recorded as NOT_PRESENT rather than promoted to PROVEN using a plausible-looking but unproven id. ALTERNATIVE IDENTITY STRATEGY (documented per policy, not proven): a future collector could synthesize a composite key from (venue_reference + derived ISO date + normalised artist-name slug), e.g. 'casa-independente-2026-08-21-didi'. This is workable for the observed pattern (one act per date-slot) but has not been empirically tested against a case where two acts share one date/time slot, which this bounded sample never exhibited.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No individual event detail page or per-event URL exists anywhere on this site within this bounded sample — every event's only information lives directly on the shared /agenda/ page, and there is no <a href> per event card to follow (unlike gulbenkian-lisbon-01, where each card linked to its own detail page). A collector could only ever cite the single shared https://casaindependente.com/agenda/ URL for every event, which is not a unique per-event URL and is recorded honestly as NOT_PRESENT rather than silently substituting the shared list-page URL as if it were a proven per-event value.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No price, admission fee, or free-entry label is stated anywhere in the retained HTML for any of the 4 sampled events (unlike gulbenkian-lisbon-01's static price DOM node per event). The source genuinely does not expose this fact within this bounded sample.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-agenda-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The source exposes no per-event id and no per-event URL at all. A collector has no source-documented stable identity to anchor an Observation to and must rely entirely on a synthesized composite key (venue + derived date + artist-name slug) and the single shared agenda-page URL for every event. This has not been empirically tested against same-date/same-slot double-bookings, artist-name spelling drift between visits, or the source silently re-typing/removing a past event without a trace."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "The year for every event is inferred from exactly one page-level month/year heading that is never repeated per-event. This investigation's retained fetch only ever showed a single month section (Agosto 2026) with no example of how the page behaves once it spans a month boundary (e.g. does a second 'Setembro 2026' heading appear underneath, are past events removed, does the whole page get replaced). A collector built against this single-month fixture could silently misattribute the year if that structural assumption turns out to be wrong for a multi-month page state that was never observed here."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The source's own weekday-label text is inconsistently formatted even within this 4-event sample ('SEXTA FEIRA' vs 'SEXTA' for the same weekday) — evidence the page is hand-typed per event, not template-generated. This does not currently break date parsing (only the numeric 'DD MES' line is load-bearing) but signals the whole page is manually maintained and could drift in other, less predictable ways (e.g. a differently formatted hour string, a typo in the month abbreviation) without any structural warning."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No admission price/ticket information and no event end-time are exposed for any sampled event; both fields are honestly NOT_PRESENT rather than fabricated."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence, independently re-established from this investigation's own retained evidence (homepage title, about-page founding/building-date prose, contacts-page address/email) rather than assumed from the task prompt's context note.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class — the /agenda/ page is fully server-rendered with no client-side rendering, no bot-block, and no CAPTCHA encountered.",
+      "One data_paths entry (the agenda page) is access:PUBLIC and status:CONFIRMED against retained evidence.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN (start_date is not UNKNOWN/NOT_PRESENT), satisfying the mechanical activation-gate checks for those two fields.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every field-extraction claim above, including a genuine calendar-math cross-check (source's own weekday label vs. the actual computed day-of-week for the derived date) for all 4/4 sampled events.",
+      "However, this investigation deliberately stops short of READY_FOR_ACTIVATION. Two MAJOR blockers are recorded, not merely MINOR ones: (1) the source exposes no per-event id and no per-event URL whatsoever, so any collector identity strategy is entirely synthetic and untested against edge cases (same-slot double-bookings, artist-name drift) that this bounded 4-event, single-month sample never exercised; (2) the year-per-event depends on exactly one page-level heading whose behaviour across a month boundary (does a second heading appear, are past events dropped, is the whole page replaced) was never observed in this fetch, since the retained sample only ever showed one month ('Agosto 2026'). Both are honest, structural gaps in what this investigation could observe in a single bounded fetch, not failures of the parse itself.",
+      "The recommended path forward is a second, later observation of https://casaindependente.com/agenda/ after the calendar rolls into September 2026, specifically to observe how the page's month-heading structure behaves across a month boundary, before any decision to recommend READY_FOR_ACTIVATION. This is a deliberate, honestly-scoped deferral of the activation decision, not a gap papered over by guessing.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; any future re-investigation of this candidate should be recorded as a new investigation_id with supersedes pointing back at this one, per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-home-body", "ev-contactos-body", "ev-sobre-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Casa Independente homepage, used to independently confirm basic site identity (page <title> 'Casa Independente') before treating the agenda/contacts/about pages as authoritative.",
+      "acquired_from": "https://casaindependente.com",
+      "acquired_at": "2026-08-25T01:29:41Z",
+      "method": "curl -sS -D evidence/headers-home.txt -o evidence/body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-independente-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the public events/agenda page: a hand-authored Elementor page with one 'Agosto 2026' month/year heading followed by 4 sequential per-event blocks (weekday/day-month/hour heading, event-type heading, artist-name heading). No JSON-LD, ICS, RSS, calendar plugin, per-event id, or per-event URL is present anywhere.",
+      "acquired_from": "https://casaindependente.com/agenda/",
+      "acquired_at": "2026-08-25T01:29:53Z",
+      "method": "curl -sS -D evidence/headers-agenda.txt -o evidence/body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-independente-lisbon-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same agenda-page request: 200 OK, nginx-fronted, PHP 8.4.24, and a Link header advertising the WordPress REST API root and this specific page's own wp/v2/pages endpoint — supporting the WordPress platform classification.",
+      "acquired_from": "https://casaindependente.com/agenda/",
+      "acquired_at": "2026-08-25T01:29:53Z",
+      "method": "curl -sS -D evidence/headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-independente-lisbon-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-contactos-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the public contacts page, including the venue's own stated street address ('Largo do Intendente 45  1100-285'), opening hours, and contact email ('info@casaindependente.com').",
+      "acquired_from": "https://casaindependente.com/contactos/",
+      "acquired_at": "2026-08-25T01:31:42Z",
+      "method": "curl -sS -D evidence/headers-contactos.txt -o evidence/body-contactos.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-independente-lisbon-01/evidence/body-contactos.html"
+    },
+    {
+      "evidence_id": "ev-sobre-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the public about page, including the venue's own history prose independently corroborating the 1863 building construction date, the 2012 founding date, and the Largo do Intendente location.",
+      "acquired_from": "https://casaindependente.com/sobre/",
+      "acquired_at": "2026-08-25T01:32:06Z",
+      "method": "curl -sS -D evidence/headers-sobre.txt -o evidence/body-sobre.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casa-independente-lisbon-01/evidence/body-sobre.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses the agenda page's one month/year heading and 4 event blocks, derives a full date per event by combining the card's day/month with the page's year, cross-checks each derived date's actual computed day-of-week against the source's own weekday label (4/4 matched), extracts title/type/hour per event, confirms the weekday-label formatting inconsistency, and independently re-confirms the 1863/2012/address/email facts from the about and contacts pages. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/casa-independente-lisbon-01/evidence/ (body-agenda.html, body-contactos.html, body-sobre.html, all read locally, no network)",
+      "acquired_at": "2026-08-25T01:39:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/casa-independente-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,31 @@
+Month/year headings found on the agenda page: ["Agosto 2026"]
+OK:   exactly one month/year heading found — no ambiguity about which heading governs the cards below it
+Parsed page heading -> month=8 (Agosto) year=2026
+OK:   page heading "Agosto 2026" parses cleanly to month=8, year=2026
+
+Parsed 4 event block(s) from body-agenda.html
+OK:   found 4 event block(s) (>= 1)
+
+--- Per-event derivation ---
+"DIDI" (DJ Set​): weekday label="SEXTA FEIRA" -> derived date=2026-08-21, computed day-of-week=5, expected from label=5, match=true, hour=23H
+OK:   "DIDI": source's own weekday label ("SEXTA FEIRA") matches the actual computed day-of-week for 2026-08-21 — mechanical corroboration that the year inferred from the single page-level heading is consistent, not merely assumed
+"Jayde & Lagryma" (DJ Set): weekday label="SÁBADO" -> derived date=2026-08-22, computed day-of-week=6, expected from label=6, match=true, hour=23H
+OK:   "Jayde & Lagryma": source's own weekday label ("SÁBADO") matches the actual computed day-of-week for 2026-08-22 — mechanical corroboration that the year inferred from the single page-level heading is consistent, not merely assumed
+"Patisol" (DJ Set): weekday label="SEXTA" -> derived date=2026-08-28, computed day-of-week=5, expected from label=5, match=true, hour=23H
+OK:   "Patisol": source's own weekday label ("SEXTA") matches the actual computed day-of-week for 2026-08-28 — mechanical corroboration that the year inferred from the single page-level heading is consistent, not merely assumed
+"Fatumata" (DJ Set): weekday label="SÁBADO" -> derived date=2026-08-29, computed day-of-week=6, expected from label=6, match=true, hour=23H
+OK:   "Fatumata": source's own weekday label ("SÁBADO") matches the actual computed day-of-week for 2026-08-29 — mechanical corroboration that the year inferred from the single page-level heading is consistent, not merely assumed
+
+Distinct weekday label spellings observed: SEXTA FEIRA | SÁBADO | SEXTA
+OK:   confirmed: the source's own weekday-label text is NOT consistently formatted across cards in this sample (hand-authored page, not template-generated) — recorded honestly as a MAJOR blocker risk, even though it does not affect date parsing since only the numeric day+month line is load-bearing
+
+--- Contacts page checks ---
+OK:   address extracted from contacts page: "Largo do Intendente 45  1100-285"
+OK:   contact email extracted from contacts page: "info@casaindependente.com"
+
+--- About page checks ---
+OK:   about page states the building was "construído em 1863" — independently corroborates the 1863 building date
+OK:   about page states Casa Independente "nasceu em 2012" — independently corroborates the 2012 founding date
+OK:   about page also references Largo do Intendente, consistent with the contacts page address
+
+RESULT: all checks passed against retained evidence (4 event(s) fully derived and cross-checked; identity independently corroborated from the about + contacts pages).

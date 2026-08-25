@@ -1,0 +1,257 @@
+{
+  "investigation_id": "fama-dalfama-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T01:40:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) against: the venue's own homepage, the given candidate 'Agenda de Fados' page (verified as the correct, live events page — not corrected, it was already right), the site's wp-json REST route listing, and its RSS feed. Inspected the retained agenda-page HTML for JSON-LD Event/MusicEvent data (none found — only standard Yoast WebPage/Organization schema), ICS export links (none found), known calendar-plugin fingerprints (none found — bespoke Elementor + Premium-Addons-for-Elementor page, not The Events Calendar/EventOn/Squarespace), and a plain server-rendered day-by-day performer list (found: 31 sequential day-blocks, one per day of August 2026, each pairing a DD/MM heading + Portuguese weekday name + a performer-names paragraph). A dependency-free, no-network Node offline-proof script re-parsed the retained HTML/JSON/XML files to mechanically re-derive every claim below, including a real Gregorian-calendar cross-check (year taken from the page's own 'AGOSTO 2026' heading, never from today's real-world date) confirming all 31 day-blocks' self-stated weekday names are internally consistent. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://famadalfama.pt (homepage), https://famadalfama.pt/agenda-de-fados-em-lisboa/ (the given candidate events page), https://famadalfama.pt/wp-json/ (REST route listing), and https://famadalfama.pt/feed/ (RSS) all returned 200 OK. The agenda page's raw, unrendered HTML already contained the ENTIRE month of August 2026 as 31 sequential, fully server-rendered day-blocks (date + weekday + performer names) with no JS execution needed to reveal them — confirmed by grepping the retained static file directly for all 31 'DD/MM' headings. The homepage's own Yoast JSON-LD Organization node and footer address independently confirmed venue identity. The wp-json route listing (383 routes) contained no agenda/event/fado/calendar-shaped custom REST route, and the RSS feed contained zero <item> entries, ruling out PUBLIC_JSON_API and RSS as usable data paths. This already answers identity, platform classification, data-path discovery, and field assessment for a genuine nightly-recurring-performer calendar without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-agenda-body",
+        "ev-agenda-headers",
+        "ev-wpjson-body",
+        "ev-wpjson-headers",
+        "ev-feed-body",
+        "ev-feed-headers",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "fama-dalfama-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Fama D'Alfama — fado house / restaurant, Rua do Terreiro do Trigo 80, Alfama, Lisboa, Portugal",
+  "official_url": "https://famadalfama.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-offline-proof"],
+    "notes": "Independently re-confirmed by this investigation's own retained evidence, not assumed from the prior loose note. The homepage's own Yoast schema-graph JSON-LD names an Organization node {\"name\": \"Fama D'Alfama Restaurante\", \"url\": \"https://famadalfama.pt/\"} with sameAs links to the venue's own Facebook (facebook.com/restaurantefamadalfama), Instagram (instagram.com/famadalfama), and TripAdvisor listing. The homepage footer independently states the street address 'Rua do Terreiro do Trigo 80' (Alfama, Lisboa — the neighbourhood and city are also explicitly stated in the homepage <title> 'Fama D'Alfama - Gastronomia e Fado Autêntico em Lisboa' and meta description). The agenda page shares the same canonical domain, the same Organization JSON-LD (via the site-wide Yoast graph), and its own <title> 'Agenda de Fados - Fama D'Alfama'. No postal code or a full multi-line postal address was found in the retained evidence — only the street address and city name are established this way, which is sufficient for PROVEN identity but noted honestly as a minor gap, not smoothed over."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (theme built on Elementor + Elementor Pro, with 'Premium Addons for Elementor' (its 'Display Conditions' feature, visible as pa-display-conditions-yes markers) and ElementsKit Lite) — a bespoke, hand-authored monthly calendar built as 31 sequential Elementor page sections directly inside one static page, not a recognisable off-the-shelf events/calendar plugin (not The Events Calendar, EventOn, or Squarespace). No JSON-LD Event/MusicEvent data is emitted anywhere (only the standard Yoast SEO WebPage/Organization/BreadcrumbList graph). No ICS export link was found. The site's wp-json REST route listing (383 routes) contains no agenda/event/fado/calendar-shaped custom route, and its RSS feed carries zero items — both checked and ruled out, not merely unchecked. The entire month's day-by-day performer schedule is present verbatim in the plain server-rendered HTML of the one agenda page; no client-side rendering or hidden data path was needed to read it.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-wpjson-body", "ev-feed-body", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_MONTHLY_CALENDAR_PAGE",
+      "url": "https://famadalfama.pt/agenda-de-fados-em-lisboa/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_ROOT (checked — no agenda/event-shaped custom route exists)",
+      "url": "https://famadalfama.pt/wp-json/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "RSS_FEED (checked — zero <item> entries, no blog-post-based events)",
+      "url": "https://famadalfama.pt/feed/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-feed-body", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each of the 31 day-blocks carries its own non-empty performer-names paragraph — the closest thing this source has to an event 'title' (there is no separate abstract show name; the performers ARE the listing, e.g. '01/08': 'Miguel Dias & Matilde Cid / Tomás Pauseiro – Guitarra Portuguesa / Diogo de Castro – Viola de Fado'). Verified mechanically for all 31/31 day-blocks (none empty) in evidence/offline-proof-output.txt. Left null here (a general capability finding across the full retained month, not one single event) — see evidence/offline-proof-output.txt for the actual per-day values, including the first 3 and last 3 as a representative sample.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The agenda page states the month/year exactly once ('AGOSTO 2026' heading) and each of the 31 day-blocks states its own day-of-month ('01/08' .. '31/08') plus its own Portuguese weekday name (e.g. 'Sábado', 'Domingo'). This gives a full calendar date per entry without inventing anything: the year and month come directly from the page's own explicit heading text, not from today's real-world date or any external assumption. This was cross-checked mechanically and NOT merely trusted: evidence/offline-proof.mjs recomputes, using pure Gregorian calendar arithmetic for the year 2026 (again, taken from the source's own stated heading — never from 'today'), the real weekday for every one of the 31 dates and confirms all 31/31 match the source's own stated weekday name exactly. This is a floating local date — no explicit UTC offset or IANA timezone is stated anywhere in the retained HTML; Europe/Lisbon is the obvious real-world timezone but this was never promoted to a fabricated UTC instant.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The retained page states, once, in a shared (site-wide footer) text block: 'Abrimos às 19h00' (opens 19:00) / 'Fado a partir das 20h30' (fado from 20:30). This is a genuine, unambiguous, explicit statement of the nightly fado start time — but it is a PAGE-LEVEL / VENUE-LEVEL constant, not a value re-stated inside each of the 31 day-blocks individually (mechanically confirmed: none of the 31 day-block matches in evidence/offline-proof.mjs contain their own distinct time text). No exception to this shared time was observed anywhere in the retained sample. A collector should treat 20h30 as the applicable start time for every night on this page unless a future re-fetch shows the source stating a per-night exception, which this investigation did not observe. Floating local time, same timezone caveat as start_date.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No end time or duration is stated anywhere in the retained homepage or agenda-page HTML, for the page as a whole or for any individual day-block.",
+      "evidence_refs": ["ev-agenda-body", "ev-home-body"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Every night's performance is at the venue's own single physical address — the source does not vary location per day-block (unlike, e.g., an outdoor-vs-indoor concert hall). The homepage footer (site-wide, present on the agenda page too via the same header/footer template) states the street address 'Rua do Terreiro do Trigo 80'; the city 'Lisboa' is explicitly stated in the homepage's own <title> and meta description. No postal code or geocoordinates were found in retained evidence, so precision beyond street + city is not proven — recorded honestly rather than guessed.",
+      "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "The source exposes NO id token of any kind for an individual night's performance — no data-attribute id, no per-day permalink/slug, no JSON-LD @id (there is no JSON-LD Event data at all on this source). Confirmed mechanically: evidence/offline-proof.mjs verifies zero of the 31 day-blocks contain their own <a href>, and the wp-json route listing has no agenda/event-shaped REST route that might expose one either. Per the stable-identifier rule, this must stay NOT_PRESENT rather than inventing a random hash. DOCUMENTED ALTERNATIVE IDENTITY STRATEGY (satisfying the READY_FOR_ACTIVATION gate's 'explicit alternative identity strategy' clause): a future collector should synthesize a composite key of (venue_reference + the calendar date derived from the page's own 'AGOSTO 2026' heading + each day-block's own 'DD/MM' heading, e.g. 'fama-dalfama-lisbon-01:2026-08-17'). This is safe because the source's own structure guarantees at most one day-block per calendar date — mechanically confirmed in evidence/offline-proof-output.txt (31 day-blocks, strictly ascending 1..31, no duplicate dates) — so (venue, date) is a genuine 1:1 key for this source's granularity, even though the source itself never states an opaque id.",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The source provides no per-night permalink — all 31 day-blocks share exactly one URL, the agenda page itself (https://famadalfama.pt/agenda-de-fados-em-lisboa/). Mechanically confirmed: evidence/offline-proof.mjs verifies zero of the 31 day-blocks contain their own <a href> anchor. A collector can honestly report this single shared page URL as 'where this fact was read', but it must never be treated as, or synthesized into, a distinct per-occurrence URL — hence PARTIAL rather than PROVEN (a URL genuinely exists and is reliably extractable, but it is not unique per record).",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No price, admission fee, ticket cost, or currency symbol ('€') was found anywhere in the retained homepage or agenda-page HTML (this is a restaurant with a nightly show, not a ticketed venue with a stated admission price on this page — a menu/reservation price may exist elsewhere on the site but was not part of this investigation's bounded retained sample).",
+      "evidence_refs": ["ev-agenda-body", "ev-home-body"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "No source-documented per-night identifier exists (see field_assessment.source_record_id.notes). A collector must synthesize a composite (venue_reference + calendar date) key rather than relying on any id from the source itself."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The nightly fado start time (20h30) is stated once as a page-level/venue-level constant, not repeated per day-block. A genuine per-night exception (e.g. a special/holiday schedule) would not be caught by a collector that hard-codes this constant unless the source's own markup changes to state it — this investigation observed no such exception in its retained sample, but did not test for one either."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation observed only a single snapshot of the agenda page, covering exactly the calendar month 'AGOSTO 2026'. The retained homepage's article:modified_time (2026-08-03T10:48:34Z, itself retained evidence) suggests the page is edited in place at least once during a given month, which is suggestive but not empirical proof that the same URL reliably rolls over to the next month (September 2026) with the same structure. A collector should re-observe this URL after the month boundary before relying on continuity, rather than assuming it from this one snapshot."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (homepage Yoast Organization JSON-LD name/url/sameAs, footer street address, and matching agenda-page title/domain), independently re-established rather than assumed from the prior loose research note.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class — the entire month's day-by-day performer calendar is present verbatim in the plain server-rendered HTML of one public page, with no client-side rendering required.",
+      "One data_paths entry (the agenda page) is access:PUBLIC and status:CONFIRMED against retained evidence; two alternative paths (wp-json REST, RSS) were actively checked and honestly REJECTED rather than left unexamined.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN (start_date is not UNKNOWN/NOT_PRESENT), with the start_date claim additionally backed by a genuine mechanical Gregorian-calendar self-consistency check across all 31 retained day-blocks (evidence/offline-proof-output.txt), not merely read and trusted.",
+      "field_assessment.source_record_id.state is honestly NOT_PRESENT (the source exposes no id token at all), but its notes document an explicit, evidenced alternative identity strategy (a composite venue+date key), satisfying the READY_FOR_ACTIVATION gate's alternative-strategy clause.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every extraction/self-consistency claim above, including 31/31 day-blocks matching real Gregorian weekday arithmetic for 2026.",
+      "collector_assessment.blockers contains only MINOR entries (no source-documented id, an unverified page-level time constant, and unverified month-to-month URL continuity) — none CRITICAL.",
+      "This independently re-verifies, rather than merely repeats, the prior loose research claim that this venue publishes 'a rare fado venue with a genuine, published day-by-day performer calendar' — this investigation's own retained evidence and mechanical cross-check confirm that claim was accurate for the sampled month, without treating the prior note itself as evidence.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-wpjson-body", "ev-feed-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Fama D'Alfama homepage: Yoast schema-graph JSON-LD (WebPage/WebSite/Organization/BreadcrumbList), footer street address 'Rua do Terreiro do Trigo 80', and the site-wide 'Abrimos às 19h00 / Fado a partir das 20h30' time text.",
+      "acquired_from": "https://famadalfama.pt",
+      "acquired_at": "2026-08-25T01:29:23Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the homepage request: 200 OK, nginx, PHP 8.2.33, WordPress REST API Link header (rel=\"https://api.w.org/\").",
+      "acquired_from": "https://famadalfama.pt",
+      "acquired_at": "2026-08-25T01:29:23Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate 'Agenda de Fados' page: 31 fully server-rendered day-blocks covering 'AGOSTO 2026' (01/08 through 31/08), each with its own DD/MM heading, Portuguese weekday name, and performer-names paragraph. No JSON-LD Event/MusicEvent data present (only standard Yoast WebPage/Organization/BreadcrumbList schema).",
+      "acquired_from": "https://famadalfama.pt/agenda-de-fados-em-lisboa/",
+      "acquired_at": "2026-08-25T01:29:32Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the agenda-page request: 200 OK, nginx, PHP 8.2.33, WordPress REST API Link header, WP page id 253.",
+      "acquired_from": "https://famadalfama.pt/agenda-de-fados-em-lisboa/",
+      "acquired_at": "2026-08-25T01:29:32Z",
+      "method": "curl -sS -D headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-wpjson-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response body for the site's wp-json REST API route listing (383 routes). Inspected for any agenda/event/fado/calendar-shaped custom route; none found — the standard WP core/plugin routes only (Elementor, Google Site Kit, etc.), confirming no PUBLIC_JSON_API data path exists for the nightly calendar.",
+      "acquired_from": "https://famadalfama.pt/wp-json/",
+      "acquired_at": "2026-08-25T01:31:34Z",
+      "method": "curl -sS -D headers-wpjson.txt -o body-wpjson.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/body-wpjson.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the wp-json root request: 200 OK, application/json, X-Robots-Tag: noindex.",
+      "acquired_from": "https://famadalfama.pt/wp-json/",
+      "acquired_at": "2026-08-25T01:31:34Z",
+      "method": "curl -sS -D headers-wpjson.txt (same request as ev-wpjson-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/headers-wpjson.txt"
+    },
+    {
+      "evidence_id": "ev-feed-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained XML response body for the site's default WordPress RSS feed: zero <item> entries (channel metadata only), confirming RSS is not a usable per-night data path — no blog posts are published per performance.",
+      "acquired_from": "https://famadalfama.pt/feed/",
+      "acquired_at": "2026-08-25T01:31:56Z",
+      "method": "curl -sS -D headers-feed.txt -o body-feed.xml --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/body-feed.xml"
+    },
+    {
+      "evidence_id": "ev-feed-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the RSS feed request: 200 OK, application/rss+xml.",
+      "acquired_from": "https://famadalfama.pt/feed/",
+      "acquired_at": "2026-08-25T01:31:56Z",
+      "method": "curl -sS -D headers-feed.txt (same request as ev-feed-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/headers-feed.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses the agenda page's 31 day-blocks, cross-checks every day-block's own stated weekday name against real Gregorian calendar arithmetic for 2026 (31/31 matched), confirms no day-block carries its own <a href> or distinct time text, re-parses the homepage's Organization JSON-LD, and confirms the wp-json route listing and RSS feed both rule out alternative data paths. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/fama-dalfama-lisbon-01/evidence/ (all body-*.html/json/xml files above, read locally, no network)",
+      "acquired_at": "2026-08-25T01:39:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/fama-dalfama-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

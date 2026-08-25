@@ -1,0 +1,40 @@
+Month/year heading "AGOSTO 2026" occurrences: 1
+OK:   exactly one explicit "AGOSTO 2026" month/year heading found on the retained agenda page
+
+Parsed 31 day-blocks from body-agenda.html
+OK:   found exactly 31 day-blocks, i.e. one entry per day of August (31 days)
+OK:   day-blocks appear in strict ascending order 1..31, all within month 08
+
+Weekday cross-check (source-stated weekday vs. mechanically computed Gregorian weekday for year 2026, taken from the page's own "AGOSTO 2026" heading): 31/31 matched
+OK:   every day-block's own stated weekday name matches real Gregorian calendar arithmetic for August 2026 — the source's combined date statements (month/year heading + per-day DD/MM + per-day weekday label) are internally self-consistent, supporting field_assessment.start_date.state: PROVEN
+OK:   all 31 day-blocks carry a non-empty performer-names paragraph (field_assessment.title is populated for every night, not merely a sample)
+OK:   no day-block contains its own <a href> permalink — confirms there is genuinely no per-night detail-page URL on this source (supports field_assessment.event_url notes)
+
+--- Sample day-blocks (first 3, last 3) ---
+01/08/2026 (Sábado): Miguel Dias & Matilde Cid | Tomás Pauseiro – Guitarra Portuguesa | Diogo de Castro – Viola de Fado
+02/08/2026 (Domingo): Filipa Vieira & Carolina Varela Ribeiro | Mike Martins – Guitarra Portuguesa | João Domingos – Viola de Fado
+03/08/2026 (Segunda-feira): Ana Margarida Prado & Joana Amendoeira | David Ribeiro – Guitarra Portuguesa | Manel Vaz da Silva – Viola de Fado
+29/08/2026 (Sábado): Ana Margarida Prado & Joana Amendoeira | Tomás Pauseiro – Guitarra Portuguesa | Diogo de Castro – Viola de Fado
+30/08/2026 (Domingo): Filipa Vieira & Carolina Varela Ribeiro | Daniel Freire – Guitarra Portuguesa | João Domingos – Viola de Fado
+31/08/2026 (Segunda-feira): Rodrigo Rebelo de Andrade & Joana Amendoeira | Sebastião Pereira – Guitarra Portuguesa | Manel Vaz da Silva – Viola de Fado
+
+Shared opening/fado-start time text occurrences: 1
+OK:   found shared time-of-day text: opens 19h00, fado from 20h30 — this applies to the page as a whole, not stated per individual day-block (no day-block carries its own distinct time text, confirmed by the day-block regex above never matching a time pattern)
+
+--- Homepage identity JSON-LD ---
+  Organization.name = "Fama D'Alfama Restaurante"
+  Organization.url  = "https://famadalfama.pt/"
+  Organization.sameAs = ["https://www.facebook.com/restaurantefamadalfama/","https://www.instagram.com/famadalfama/","https://www.tripadvisor.pt/Restaurant_Review-g189158-d13289882-Reviews-Restaurante_Fama_d_Alfama-Lisbon_Lisbon_District_Central_Portugal.html"]
+OK:   homepage's own retained JSON-LD Organization node carries the expected name/url and >=2 sameAs social profiles, supporting identity.status: PROVEN
+OK:   retained homepage HTML contains the street address "Rua do Terreiro do Trigo 80"
+
+--- wp-json route listing ---
+  total routes: 383
+  agenda/fado/calendar/show-shaped routes: []
+OK:   no agenda/fado/calendar/show-shaped custom REST route exists — confirms there is no separate PUBLIC_JSON_API data path for the nightly calendar; the agenda page's own server-rendered HTML is the only data path
+
+--- RSS feed ---
+  <item> count: 0
+OK:   retained RSS feed contains zero <item> entries — confirms RSS is not a usable per-night data path for this source
+
+RESULT: all checks passed against retained evidence (31 day-blocks fully cross-checked for internal date/weekday self-consistency, plus identity, platform, and negative-path checks).
