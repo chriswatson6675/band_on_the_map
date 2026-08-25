@@ -155,10 +155,24 @@ from the unrelated `v1.2` work was read, used, or committed by this package.
 
 ## 5. Deferred / not re-investigated this package
 
-- **Hard Club (Porto)** — existing `hard-club-porto-01` investigation already
-  documents, across two prior sessions, a genuine near-miss (day-of-month
-  resolvable, month fundamentally unresolvable) and is correctly `DEFER`.
-  No new evidence justified opening a third investigation tonight.
+- **Hard Club (Porto)** — not re-investigated this package because a valid
+  existing governed investigation (`hard-club-porto-01`) already exists.
+  That investigation escalated the full ladder and established: a
+  non-browser, two-step session-bootstrap → AJAX acquisition path (a plain
+  prior GET of the agenda page to establish a session cookie, then the same
+  first-party AJAX endpoint returns full day+month text for every event);
+  DAY and MONTH are reliably obtainable this way; the CALENDAR YEAR is the
+  one field the source never states in any structural response; and the
+  decision is **`HUMAN_REVIEW`**, not `DEFER` — the record is explicit that
+  `HUMAN_REVIEW` (rather than `DEFER`) was chosen because the acquisition
+  mechanism itself is strong and reproducible, and the remaining gap is a
+  deliberate year-resolution policy call, not a technical or access
+  blocker. No new evidence surfaced tonight that would justify opening a
+  new investigation; the separate gig-fact/context-derivation governance
+  work in progress elsewhere in this repository may later justify a new,
+  explicitly-superseding Hard Club investigation once a year-resolution
+  strategy exists, but this overnight batch correctly left the existing
+  historical record untouched rather than rewriting it.
 - **Maus Hábitos (Porto)** — existing `maus-habitos-porto-01` investigation
   already documents a `bond-frontend` client-rendered platform with no
   discoverable JSON endpoint. Given tonight's Coliseu Porto Ageas finding
