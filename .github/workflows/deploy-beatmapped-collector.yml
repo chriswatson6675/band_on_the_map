@@ -1,0 +1,239 @@
+name: Deploy BeatMapped Collector
+
+# BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02
+#
+# The ONE, human-triggered way to move the production DigitalOcean
+# collector to a new, already-approved main commit -- so a Founder can
+# deploy collector/enrichment/publication changes by clicking a button in
+# GitHub, without opening an interactive SSH session or using a Claude
+# session with production SSH access. This workflow is orchestration
+# only: it never reimplements deploy/install.sh's own logic (clone,
+# checkout, npm ci, systemd install) -- it only decides WHICH commit is
+# safe to hand to the existing, already-hardened deploy/install.sh
+# --ref=<sha> on the server (deploy/check-deploy-tree.sh's dirty-tree
+# protection is untouched and still fully in force there).
+#
+# Deliberately workflow_dispatch ONLY -- this must never run automatically
+# on push. See deploy/README.md's "Simple human deployment workflow" for
+# the full, plain-language procedure this Action is one step of.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Approved main commit SHA (full or short) to deploy to the production collector"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never run two deployments to the same production collector at once.
+  group: deploy-beatmapped-collector
+  cancel-in-progress: false
+
+jobs:
+  resolve-and-validate:
+    name: Resolve ref and validate approved main history
+    runs-on: ubuntu-latest
+    outputs:
+      resolved_sha: ${{ steps.resolve.outputs.resolved_sha }}
+    steps:
+      - name: Checkout full history (needed to validate ancestry against origin/main)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Resolve the requested ref to a full commit SHA
+        id: resolve
+        run: |
+          set -euo pipefail
+          REQUESTED="${{ inputs.ref }}"
+
+          if ! git cat-file -e "${REQUESTED}^{commit}" 2>/dev/null; then
+            echo "::error::Requested ref '${REQUESTED}' does not resolve to any commit in this repository."
+            exit 1
+          fi
+
+          RESOLVED_SHA="$(git rev-parse "${REQUESTED}^{commit}")"
+          echo "Requested ref:      ${REQUESTED}"
+          echo "Resolved full SHA:  ${RESOLVED_SHA}"
+          echo "resolved_sha=${RESOLVED_SHA}" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Deploy BeatMapped Collector"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Requested ref | \`${REQUESTED}\` |"
+            echo "| Resolved full SHA | \`${RESOLVED_SHA}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validate the resolved commit is reachable from origin/main (approved history only)
+        run: |
+          set -euo pipefail
+          RESOLVED_SHA="${{ steps.resolve.outputs.resolved_sha }}"
+
+          if git merge-base --is-ancestor "${RESOLVED_SHA}" origin/main; then
+            echo "Main-history validation: PASS -- ${RESOLVED_SHA} is reachable from origin/main."
+            echo "| Main-history validation | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Refusing to deploy ${RESOLVED_SHA} -- it is NOT reachable from origin/main. An arbitrary branch/PR/fork commit is never deployable merely because its SHA exists. Only approved main history may be deployed."
+            echo "| Main-history validation | ❌ FAIL — not reachable from origin/main |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy to production collector
+    needs: resolve-and-validate
+    runs-on: ubuntu-latest
+    # A dedicated Environment (deliberately NOT the repository's existing
+    # "Production"/"Preview" pair, which is Vercel's own auto-managed
+    # frontend-deployment environment and unrelated to this SSH-based
+    # collector deployment -- see deploy/README.md). Configure this
+    # Environment's secrets in GitHub repo Settings -> Environments
+    # before the first real run.
+    environment: beatmapped-collector-production
+    env:
+      RESOLVED_SHA: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
+      BEATMAPPED_APP_DIR: /opt/band-on-the-map
+    steps:
+      - name: Checkout the resolved commit (for schema-consistent runtime verification later)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
+
+      - name: Configure pinned SSH access (StrictHostKeyChecking=yes, never TOFU)
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          # The private key and the server's own known host-key line are
+          # both supplied as secrets -- never generated, never fetched via
+          # ssh-keyscan (that would be trust-on-first-use), and
+          # StrictHostKeyChecking is never disabled.
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy the resolved SHA via the existing hardened installer
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo ${BEATMAPPED_APP_DIR}/deploy/install.sh --ref=${RESOLVED_SHA}"
+          echo "| Deployment (deploy/install.sh --ref=…) | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify deployed HEAD and collector/timer/publication-service health (read-only)
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$RESOLVED_SHA" "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT'
+            set -euo pipefail
+            RESOLVED_SHA="$1"
+            APP_DIR="$2"
+
+            DEPLOYED_SHA="$(sudo -u botm git -C "$APP_DIR" rev-parse HEAD)"
+            if [ "$DEPLOYED_SHA" != "$RESOLVED_SHA" ]; then
+              echo "Deployed HEAD ($DEPLOYED_SHA) does not match the requested SHA ($RESOLVED_SHA)." >&2
+              exit 1
+            fi
+            echo "Deployed HEAD matches the requested SHA: $DEPLOYED_SHA"
+
+            systemctl is-enabled botm-unattended.timer
+            systemctl is-active botm-unattended.timer
+            systemctl is-active botm-publication.service
+            echo "Collector timer and publication service are healthy."
+          REMOTE_SCRIPT
+          echo "| Deployed SHA verified | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Collector timer / publication service | ✅ HEALTHY |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run one publication cycle through the existing unattended service
+        run: |
+          set -euo pipefail
+          # Uses the SAME systemd oneshot unit the twice-daily timer already
+          # triggers -- never a second/parallel collector process, never
+          # new polling infrastructure, never an altered cadence.
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT'
+            set -euo pipefail
+            APP_DIR="$1"
+
+            systemctl start botm-unattended.service
+            RESULT="$(systemctl show botm-unattended.service -p Result --value)"
+            echo "botm-unattended.service systemd Result: $RESULT"
+            if [ "$RESULT" != "success" ]; then
+              echo "Publication cycle did not complete successfully (systemd Result=$RESULT)." >&2
+              exit 1
+            fi
+
+            OVERALL_STATUS="$(sudo -u botm grep -o '"overall_status": *"[A-Z]*"' "$APP_DIR/runtime/health-reports/latest.json" | grep -o '"[A-Z]*"$' | tr -d '"' || echo unknown)"
+            echo "Publication run overall_status: $OVERALL_STATUS"
+            if [ "$OVERALL_STATUS" = "FAILED" ]; then
+              echo "Publication run reported overall_status=FAILED." >&2
+              exit 1
+            fi
+          REMOTE_SCRIPT
+          echo "| Publication cycle | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify the public runtime endpoint (generic — no enrichment-specific content asserted)
+        run: |
+          set -euo pipefail
+          curl -fsS https://data.beatmapped.com/map-data -o /tmp/map-data.json
+
+          cat > ./.deploy-verify-runtime.mjs <<'VERIFY_EOF'
+          import { readFileSync } from "node:fs";
+          import { validatePublicationArtifact } from "./ingestion/map/publication.mjs";
+
+          let artifact;
+          try {
+            artifact = JSON.parse(readFileSync("/tmp/map-data.json", "utf8"));
+          } catch {
+            console.error("Runtime endpoint did not return valid JSON.");
+            process.exit(1);
+          }
+
+          // Reuses the SAME schema validation the publication pipeline
+          // itself already uses (ingestion/map/publication.mjs) -- never a
+          // second, parallel schema invented here.
+          const errors = validatePublicationArtifact(artifact);
+          if (errors.length > 0) {
+            console.error("Runtime artifact failed publication schema validation:");
+            for (const e of errors) console.error(" - " + e);
+            process.exit(1);
+          }
+
+          const markerCount = artifact.countries?.Portugal?.markers?.length ?? 0;
+          if (markerCount === 0) {
+            console.error("Runtime artifact has zero Portugal markers — an empty publication is never treated as success.");
+            process.exit(1);
+          }
+
+          console.log("RUNTIME_GENERATED_AT=" + artifact.generated_at);
+          console.log("RUNTIME_MARKER_COUNT=" + markerCount);
+          console.log("RUNTIME_LISTING_COUNT=" + (artifact.counts?.display_listing_count ?? "unknown"));
+          VERIFY_EOF
+
+          node ./.deploy-verify-runtime.mjs | tee /tmp/runtime-verify-output.txt
+          rm -f ./.deploy-verify-runtime.mjs
+
+          GENERATED_AT=$(grep '^RUNTIME_GENERATED_AT=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          MARKERS=$(grep '^RUNTIME_MARKER_COUNT=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          LISTINGS=$(grep '^RUNTIME_LISTING_COUNT=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          {
+            echo "| Runtime endpoint (data.beatmapped.com/map-data) | ✅ PASS |"
+            echo "| Runtime generated_at | \`$GENERATED_AT\` |"
+            echo "| Runtime listings | $LISTINGS across $MARKERS Portugal venues |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up local SSH material
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts

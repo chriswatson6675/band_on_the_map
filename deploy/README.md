@@ -19,6 +19,53 @@ which this package deliberately does not close).
 | `systemd/botm-unattended.service` | `oneshot` unit running one `npm run unattended` cycle |
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
 
+## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
+
+Most changes to this repository need **no manual deployment step at all**:
+
+- **Frontend-only change** (UI, copy, styling, anything under `app/`
+  that doesn't touch the collector/enrichment/publication code paths) —
+  merge to `main`. Vercel's own GitHub integration picks it up and
+  deploys the frontend automatically. Nothing else to do.
+- **Collector, enrichment, or publication change** (anything the
+  DigitalOcean production collector actually runs —
+  `ingestion/unattended-runner/**`, `ingestion/map/**`,
+  `ingestion/publication-server/**`, `artists/**`, etc.) — merge to
+  `main`, then:
+  1. GitHub → **Actions** → **Deploy BeatMapped Collector**
+  2. **Run workflow**, enter the approved `main` commit SHA
+  3. Confirm the run finishes **green** — the run summary shows the
+     resolved SHA, main-history validation, deployment result,
+     collector/timer health, publication result, and the fresh runtime
+     `generated_at`/listing count directly, with no need to read raw logs.
+
+This is the [`.github/workflows/deploy-beatmapped-collector.yml`](../.github/workflows/deploy-beatmapped-collector.yml)
+Action — `workflow_dispatch` only, never triggered automatically on push
+(collector code reaching `main` and collector code actually running in
+production are two deliberately separate, human-gated events). It never
+duplicates `install.sh`'s own logic — it only decides which commit is
+safe to hand to it, then runs the exact same `deploy/install.sh --ref=<sha>`
+this document already describes below, over SSH, using this repository's
+own hardened, dirty-tree-aware installer.
+
+**Manual interactive SSH to the production droplet is emergency/debugging
+access only** — for investigating an unclear failure, or a situation the
+Action itself cannot safely resolve — never the normal way to deploy.
+Routine deployment should never require anyone (a human or a Claude
+session) to hold production SSH access directly.
+
+Before the Action can run for the very first time, an operator must
+configure its GitHub secrets once (see the Action file's own header
+comment and this repository's operational notes for the exact secret
+names: `BEATMAPPED_PROD_HOST`, `BEATMAPPED_PROD_USER`,
+`BEATMAPPED_PROD_SSH_KEY`, `BEATMAPPED_PROD_SSH_HOST_KEY`, under a
+GitHub Environment named `beatmapped-collector-production` — deliberately
+**not** this repository's existing `Production`/`Preview` Environments,
+which are Vercel's own auto-managed frontend-deployment pair and
+unrelated to this SSH-based collector deployment). This is a one-time
+setup step performed directly in GitHub's own UI; secret values are never
+generated or handled by an automated coding session.
+
 ## Requirements
 
 - **Node.js ≥ 20.9.0** (from `next`'s own `package.json` `engines` field —
