@@ -10,6 +10,8 @@ import {
   findArtistByExactName,
   searchArtists,
 } from "@/ingestion/map/artist-genre-search.mjs";
+import { filterMarkersByDateRange } from "@/ingestion/map/date-filter.mjs";
+import { computeQuickDateRange } from "@/ingestion/map/quick-dates.mjs";
 import publicationData from "@/data/public/lisbon-porto-map.json";
 
 // Mirrors the publication artifact's own top-level `artists` search index
@@ -47,6 +49,21 @@ const RUNTIME_MAP_DATA_URL = process.env.NEXT_PUBLIC_BOTM_MAP_DATA_URL || null;
 
 const genres = ["Any", "Rock", "Indie", "Alternative", "Electronic", "Jazz", "Folk", "Pop", "Metal"];
 const quickDates = ["Tonight", "This weekend", "Next 7 days", "This month"];
+
+// BEATMAPPED-DATE-FILTER-LIVE-01 — the ONE place this page reads the
+// visitor's actual current calendar date, using LOCAL (not UTC) Date
+// getters deliberately: this is genuinely "what calendar day is it for
+// the person clicking Quick dates right now", not a pure data
+// transform — ingestion/map/quick-dates.mjs's own computeQuickDateRange()
+// takes this as a plain input and does every subsequent calculation in
+// timezone-safe UTC-only arithmetic (see that module's own doc comment).
+function getVisitorTodayDateString(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
 
 function PinIcon() {
   return (
@@ -112,6 +129,16 @@ export default function Home() {
   const [selectedGenre, setSelectedGenre] = useState("Any");
   const [artistQuery, setArtistQuery] = useState("");
   const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
+  // BEATMAPPED-DATE-FILTER-LIVE-01 — "" (an empty <input type="date">'s
+  // own value) matches filterMarkersByDateRange()'s own no-op convention:
+  // no From and no To means no date restriction at all. activeQuickDate
+  // only tracks which Quick dates button (if any) most recently set these
+  // — purely a visual "active" indicator (see the button below), never
+  // read by the filtering logic itself; editing From/To directly clears
+  // it since neither preset then necessarily still describes the range.
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [activeQuickDate, setActiveQuickDate] = useState<string | null>(null);
 
   useEffect(() => {
     if (!RUNTIME_MAP_DATA_URL) return; // unset -> bundled fallback only, no network call at all
@@ -144,14 +171,19 @@ export default function Home() {
     [publicationArtifact],
   );
 
-  // Genre and Artist each independently narrow visibleMarkers down to
-  // matching display listings only (ingestion/map/artist-genre-search.mjs)
-  // — the mapped object stays the Event throughout; selecting an Artist
-  // never turns the Artist itself into a pin.
+  // Genre, Artist, and now From/To Date each independently narrow
+  // visibleMarkers down to matching display listings only
+  // (ingestion/map/artist-genre-search.mjs, ingestion/map/date-filter.mjs)
+  // — every dimension composes with AND semantics (a listing must survive
+  // ALL three to remain), while Genre's own existing multi-genre/additive
+  // OR behaviour is unchanged within that one dimension. The mapped
+  // object stays the Event throughout; selecting an Artist or a date
+  // range never turns anything but the Event itself into a pin.
   const filteredMarkers = useMemo(() => {
     const byGenre = filterMarkersByGenre(visibleMarkers, selectedGenre) as MapMarker[];
-    return filterMarkersByArtistId(byGenre, selectedArtistId) as MapMarker[];
-  }, [visibleMarkers, selectedGenre, selectedArtistId]);
+    const byArtist = filterMarkersByArtistId(byGenre, selectedArtistId) as MapMarker[];
+    return filterMarkersByDateRange(byArtist, fromDate, toDate) as MapMarker[];
+  }, [visibleMarkers, selectedGenre, selectedArtistId, fromDate, toDate]);
 
   const listingCount = useMemo(
     () => filteredMarkers.reduce((sum, marker) => sum + (marker.display_listings?.length ?? marker.listings?.length ?? 0), 0),
@@ -178,6 +210,26 @@ export default function Home() {
     // guess while the visitor is still mid-typing.
     const exact = findArtistByExactName(value, artistIndex);
     setSelectedArtistId(exact ? exact.artist_id : null);
+  }
+
+  // BEATMAPPED-DATE-FILTER-LIVE-01 — manually editing From/To no longer
+  // matches any one Quick dates preset exactly, so its own "active"
+  // highlight is cleared; the typed value itself is always respected
+  // regardless.
+  function handleFromDateChange(value: string) {
+    setFromDate(value);
+    setActiveQuickDate(null);
+  }
+  function handleToDateChange(value: string) {
+    setToDate(value);
+    setActiveQuickDate(null);
+  }
+
+  function handleQuickDateClick(key: string) {
+    const { from, to } = computeQuickDateRange(key, getVisitorTodayDateString());
+    setFromDate(from ?? "");
+    setToDate(to ?? "");
+    setActiveQuickDate(key);
   }
 
   return (
@@ -211,7 +263,18 @@ export default function Home() {
             <p className="eyebrow">Start exploring</p>
             <h2 id="search-heading">Find your next live moment</h2>
           </div>
-          <form className="search-form" onSubmit={(event) => event.preventDefault()}>
+          <form
+            className="search-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              // Filters already apply immediately as the visitor edits
+              // them (see the useMemo above) — Explore music stays present
+              // per the existing design but only ever scrolls the visitor
+              // to the already-current results, never re-triggers or
+              // gates the filtering itself.
+              document.getElementById("discover")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
             <label className="field field-where">
               <span className="field-label">Where</span>
               <span className="field-control">
@@ -232,14 +295,26 @@ export default function Home() {
               <span className="field-label">From</span>
               <span className="field-control">
                 <CalendarIcon />
-                <input type="date" aria-label="From date" />
+                <input
+                  type="date"
+                  aria-label="From date"
+                  value={fromDate}
+                  max={toDate || undefined}
+                  onChange={(event) => handleFromDateChange(event.target.value)}
+                />
               </span>
             </label>
             <label className="field">
               <span className="field-label">To</span>
               <span className="field-control">
                 <CalendarIcon />
-                <input type="date" aria-label="To date" />
+                <input
+                  type="date"
+                  aria-label="To date"
+                  value={toDate}
+                  min={fromDate || undefined}
+                  onChange={(event) => handleToDateChange(event.target.value)}
+                />
               </span>
             </label>
             <label className="field">
@@ -303,7 +378,16 @@ export default function Home() {
           </form>
           <div className="quick-dates" aria-label="Quick date options">
             <span className="quick-label">Quick dates</span>
-            {quickDates.map((date) => <button type="button" key={date}>{date}</button>)}
+            {quickDates.map((date) => (
+              <button
+                type="button"
+                key={date}
+                className={activeQuickDate === date ? "active" : ""}
+                onClick={() => handleQuickDateClick(date)}
+              >
+                {date}
+              </button>
+            ))}
           </div>
         </section>
 
@@ -333,8 +417,8 @@ export default function Home() {
                 <>
                   <p className="empty-kicker">{country}</p>
                   <p>
-                    {selectedArtistId || selectedGenre !== "Any"
-                      ? "No listings match this search yet — try a different artist or genre."
+                    {selectedArtistId || selectedGenre !== "Any" || fromDate || toDate
+                      ? "No listings match this search yet — try different dates, artist, or genre."
                       : `No listings here yet — we're still gathering source data for ${country}.`}
                   </p>
                 </>
