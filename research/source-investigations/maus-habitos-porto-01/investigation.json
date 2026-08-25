@@ -1,0 +1,414 @@
+{
+  "investigation_id": "maus-habitos-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T00:55:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Full escalation ladder against the live site: Level 1 plain curl GET of the discovery-lead events page and homepage; Level 2 inspection of the site's own publicly-referenced JS bootstrap/content bundles, sitemap.xml, and a referenced third-party ticketing subdomain; Level 3 a controlled Playwright browser session (ordinary public page load, network-request + rendered-DOM observation, no auth/bypass) against both the discovery-lead page and the site's current top-nav 'Programme' page. A deterministic offline re-parse of the retained fixtures (evidence/offline-proof.mjs) cross-checks every field_assessment value below and the staleness/currency findings."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain, unauthenticated GET of https://www.maushabitos.com/en/music-events/ (the prior research pass's discovery-lead events URL) returns a genuine server-rendered event-list block with real, structured per-event fields (title/rubrica, full date, time, venue label, price, description, per-event detail-page URL) for 10 events across 3 venues — this itself already disagrees with the older sources/porto.json note that claimed 'no server-rendered event markup ... found at all'. However, every one of those 10 events' visible dates reads March 2023 (e.g. 'Tue 21 Mar, 2023'), and nothing in the plain HTTP response on its own proves whether this represents current/live programming or a stale cached snapshot. Escalating to Level 2 was necessary to check the underlying CMS payload's own freshness metadata.",
+      "evidence_refs": ["ev-music-events-html", "ev-music-events-headers", "ev-root-html", "ev-root-headers"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Fetched the page's own publicly-referenced embedded-JSON content payload (window.BndLyrContent, served from a <script src> the page itself declares) and found each event item carries the CMS's own _created_at/_updated_at timestamps, all dated February-March 2023 -- not merely an old cache-busting query-string, but the platform's own recorded authoring/edit time for these records. The identical record, refetched via a differently-versioned (2026-05-25) build referenced from the event's own detail page, carries the exact same unchanged _updated_at, proving the record itself has not been touched in 3+ years even though the platform is still being redeployed. sitemap.xml (a legitimate, conventionally-discoverable public resource) shows individual /events/ detail pages created as late as October 2025, but no 2026 event anywhere in its 2,926 event-page entries, and the site-wide lastmod batch for most pages clusters on 2025-10-30 -- consistent with the sitemap itself not having been regenerated in roughly 10 months. The one alternate data path referenced in the site's own JS bundle (a 'Loja'/ticket-shop link to https://maushabitos.seetickets.com/search/all) 302-redirects to seetickets.com's generic 'no site configured' page, confirming that integration is decommissioned. No live/fresh public JSON, feed, or ticketing-API path was discoverable through static/structural inspection. Escalating to a real browser session was necessary to rule out a runtime-only (JS-fetched) data path invisible to a plain HTTP/bundle inspection.",
+      "evidence_refs": ["ev-content-blob", "ev-content-blob-headers", "ev-event-detail-html", "ev-event-detail-headers", "ev-event-detail-content-blob", "ev-homepage-content-blob", "ev-sitemap", "ev-struct-js-seetickets-excerpt", "ev-seetickets-headers", "ev-programme-html", "ev-programme-headers"]
+    },
+    {
+      "level": 3,
+      "method": "BROWSER_OBSERVATION",
+      "outcome": "SUFFICIENT",
+      "reason": "A controlled Playwright browser session loaded both https://www.maushabitos.com/en/music-events/ and the site's current top-nav 'Programme' page (https://www.maushabitos.com/en/espetaculos-clubbing/) as an ordinary visitor and captured every network request plus the fully-rendered DOM. In both cases the only content-bearing request made by the executed client-side app is a GET for the exact same versioned content blob already retrieved statically in Level 1/2 -- no separate runtime API/XHR/fetch call for current events exists anywhere in the request list, and the rendered DOM shows field-for-field identical (stale, March 2023) event data to the plain-HTTP response. The 'Programme' page additionally turned out to be a curated project/minisite hub (links to standalone campaign pages), not a dated events calendar at all, and both pages carry an 'Archive ->' link rather than a live listing. This conclusively answers the open question from Level 2 (no hidden, fresher, JS-only data path exists) and terminates escalation as SUFFICIENT -- proceeding to a Level 4 permanent browser collector would not change this outcome, since the underlying records themselves (not the rendering method) are what is stale.",
+      "evidence_refs": ["ev-browser-network-music-events", "ev-browser-network-programme", "ev-browser-snapshot-music-events", "ev-browser-snapshot-programme"]
+    }
+  ],
+  "source_candidate_id": "maus-habitos-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Maus Hábitos — Porto, Portugal (independent cultural centre / club with a music programme; R. de Passos Manuel 178, 4º Piso, 4000-382 Porto)",
+  "official_url": "https://www.maushabitos.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-root-html", "ev-music-events-html"],
+    "notes": "The site's own footer (retained in both evidence/root.html and evidence/music-events.html) self-identifies as 'Maus Hábitos', 'Rua Passos Manuel 178, 4º', '4000-382 Porto', with matching contact emails (geral@maushabitos.com, eventos@maushabitos.com) — consistent with the address already on file in sources/porto.json for this venue. X-Server-Name: bond-frontend and the maushabitos.com domain are directly observed on every response. Independently re-confirmed by this investigation's own evidence, not assumed from the prior research pass."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Bond Habits / bond-frontend (bndlyr.com CDN) — a JS site-builder platform that server-prerenders full HTML per screen AND assigns the same content as a JSON object (window.BndLyrContent) via a page-referenced <script src=\".../_p/content.<screenId>_0.js\">. The extraction mechanism itself is clean and trivially machine-parseable (proven in evidence/offline-proof.mjs); the practical blocker found by this investigation is data currency, not extractability — see collector_assessment.blockers.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-music-events-html", "ev-content-blob", "ev-browser-network-music-events"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.maushabitos.com/en/music-events/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-music-events-html", "ev-offline-proof"]
+    },
+    {
+      "kind": "EMBEDDED_JSON_CONTENT_BLOB",
+      "url": "https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.cHksH8JLZ_0.js",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-content-blob", "ev-offline-proof"]
+    },
+    {
+      "kind": "PROGRAMME_HUB_PAGE",
+      "url": "https://www.maushabitos.com/en/espetaculos-clubbing/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programme-html", "ev-browser-snapshot-programme"]
+    },
+    {
+      "kind": "SITEMAP_XML",
+      "url": "https://www.maushabitos.com/sitemap.xml",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-sitemap", "ev-offline-proof"]
+    },
+    {
+      "kind": "THIRD_PARTY_TICKETING_INTEGRATION",
+      "url": "https://maushabitos.seetickets.com/search/all",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-struct-js-seetickets-excerpt", "ev-seetickets-headers"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE_PATTERN",
+      "url": "https://www.maushabitos.com/en/events/230321-jazz-ii/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-html", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Jazz à Mesa",
+      "notes": "Extracted from the card's 'rubrica' heading text. Sample event only — this specific record's CMS _updated_at is 2023-02-27, over 3 years before this investigation's real-world date (2026-08-25); see collector_assessment.blockers for the currency problem this creates. Also worth flagging for a future investigator: for this event the visible heading ('Jazz à Mesa', a recurring series/night name) is separate from a second 'Details' text line naming the specific performers ('Porta Jazz apresenta: João Pedro Dias + João Fragoso') — the source is not fully consistent about whether the 'title' is the series name or the specific act; most of the other 9 sampled events instead have the specific act/event name directly in the heading position (e.g. 'Tripsyhell', 'Captain Boy', 'Gondwava').",
+      "evidence_refs": ["ev-music-events-html", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2023-03-21",
+      "notes": "Full day+month+year unambiguously present in both the rendered card ('Tue 21 Mar, 2023') and the underlying CMS record's own fields. This is a genuinely stale sample date, not a current or future event — no event with a 2026 (or even 2025-11-onward) date was found anywhere in this investigation's retained evidence, including a full pass over sitemap.xml's 2,926 /events/ entries (most recent lastmod: 2025-10-28). This field's extractability is proven; its currency is not — see decision.reasons and collector_assessment.blockers.",
+      "evidence_refs": ["ev-music-events-html", "ev-content-blob", "ev-offline-proof", "ev-sitemap"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "The rendered card shows a floating local time text ('21:00') with no explicit UTC offset or IANA timezone marker anywhere on the page. Portugal/Porto is reasonably inferable as Europe/Lisbon from the venue's known address, but per the source-investigation policy's date/time rule this framework does not silently promote an unstated timezone into a precise instant, so this is recorded as PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-music-events-html", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No end time or end date field was found anywhere in the retained listing markup, the embedded JSON content blob, or the individual event detail page for the sample event.",
+      "evidence_refs": ["ev-music-events-html", "ev-event-detail-html"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Maus Hábitos — Passos Manuel Porto, Rua Passos Manuel 178, 4º, 4000-382 Porto, Portugal",
+      "notes": "Each event card is grouped under a per-venue label ('Passos Manuel Porto' for this sample; the same page also lists 'Secret Garden Lisbon' and 'Teatro Municipal Vila Real' events, since this platform serves multiple co-branded venues from one site). The full postal address for the Porto venue is separately confirmed in the page footer.",
+      "evidence_refs": ["ev-music-events-html", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "230321-jazz-ii",
+      "notes": "Using the source's own URL slug as the stable identifier, per the policy's stable-identifier rule ('derived from a deterministic source property whose own stability is itself evidenced, e.g. a permalink URL slug the source uses as its own canonical path'). Empirically verified within this investigation: the listing card's own href (/en/events/230321-jazz-ii/) matches, character for character, the individual event detail page's own <link rel=\"canonical\"> tag (a genuine list->detail cross-check, reproduced deterministically in evidence/offline-proof.mjs), and the same slug also appears as the CMS's own internal _slug field. This is a stronger identity strategy than the CMS's opaque internal id (e.g. 'sj6qSd81GL7yDMgx'), which is also present and also stable but not human-legible/canonical in the same way.",
+      "evidence_refs": ["ev-music-events-html", "ev-event-detail-html", "ev-content-blob", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.maushabitos.com/en/events/230321-jazz-ii/",
+      "notes": "The event card's own detail-page link, independently confirmed to match the detail page's own canonical URL.",
+      "evidence_refs": ["ev-music-events-html", "ev-event-detail-html", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "€10",
+      "notes": "A dedicated price tag is present on most sampled event cards, either as a concrete amount (e.g. '€10', '€8', '€6', '€5' across the 10-event sample) or as an explicit 'Entrada Livre' (free admission) label for others (e.g. the Cinanima and Gondwava sample events) — both are genuine, clearly-labelled price states the source exposes, not an absent field.",
+      "evidence_refs": ["ev-music-events-html", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-offline-proof", "ev-sitemap", "ev-homepage-content-blob"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No genuinely current or future event was found anywhere in this investigation's retained evidence for this candidate. The discoverable listing pages this investigation checked (/en/music-events/, the current top-nav 'Programme' page /en/espetaculos-clubbing/) both serve event content whose own CMS-recorded _updated_at timestamps date to 2023, unchanged across a much newer (2026-05-25) platform build. sitemap.xml's 2,926 /events/ entries top out at an October 2025 lastmod, with zero 2026 events found. Meanwhile the site's homepage content blob and weekly-schedule content were genuinely updated as recently as July 2026 / February 2026 respectively, and the underlying platform (bond-frontend) is clearly still being actively redeployed — so this is not a defunct site, but the specific event-listing content this investigation could discover through normal public browsing appears to have stopped being regenerated roughly 10 months to 3.5 years ago, depending on the page. Building any collector against these pages today would harvest 2023 events and misrepresent them as upcoming programming on the public map — a correctness problem no collector-family choice can fix; it requires either finding a currently-maintained listing this investigation did not discover (a human should check the venue's own actively-updated Instagram/Facebook, both linked from the site footer, and/or contact the venue directly) or re-investigating later to see whether the listing pages resume updating."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Levels 1 and 2 were both genuinely insufficient: Level 1 found real server-rendered event markup (contradicting the prior research note that no such markup existed) but could not on its own establish whether it was current; Level 2 proved, via the CMS's own _created_at/_updated_at fields (not just a cache-busting version string), that the discoverable event-listing content is stale by 3+ years, and that the one alternate (ticketing) data path referenced in the site's own scripts is decommissioned.",
+      "Level 3 (a real, controlled browser session against both the discovery-lead page and the site's current top-nav Programme page) conclusively confirmed no fresher, JS-only data path exists — the rendered DOM and every network request match the static findings exactly — so escalating further (a Level 4 permanent browser collector) would not change the outcome, since the problem is data currency, not rendering method.",
+      "The extraction mechanism itself is proven and clean (see evidence/offline-proof.mjs, a deterministic, reproducible, no-network re-parse of the retained fixtures that confirms every field_assessment value above), but per docs/SOURCE_INVESTIGATION_POLICY.md this framework must never fabricate or assume currency, and no current/future event was found through any path checked. DEFER is the honest outcome, not READY_FOR_ACTIVATION or READY_FOR_OFFLINE_PROOF (offline proof already succeeded against the mechanism, but activation would still require a genuinely current event, which this investigation could not locate) and not REJECT (the site is a legitimate official first-party source and the acquisition mechanism works — it just currently has nothing verifiably current to acquire, which may change).",
+      "This finding disagrees in part with the prior sources/porto.json research note ('the raw HTTP response carries no server-rendered event markup at all, and no underlying JSON/API endpoint was found') — this investigation's own retained evidence shows the opposite: rich server-rendered event markup AND a directly parseable embedded JSON payload both exist. The two investigations agree, however, on the practical bottom line that this candidate is not presently ready for automated acquisition — for a different, more specific reason (proven data staleness rather than absence of markup/JSON)."
+    ],
+    "evidence_refs": ["ev-music-events-html", "ev-content-blob", "ev-event-detail-content-blob", "ev-sitemap", "ev-homepage-content-blob", "ev-browser-network-music-events", "ev-browser-network-programme", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-root-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body for the site homepage (identity/platform fingerprinting).",
+      "acquired_from": "https://www.maushabitos.com/",
+      "acquired_at": "2026-08-25T00:34:51Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/root.html"
+    },
+    {
+      "evidence_id": "ev-root-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the site homepage, including X-Server-Name: bond-frontend.",
+      "acquired_from": "https://www.maushabitos.com/",
+      "acquired_at": "2026-08-25T00:34:51Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-root.txt"
+    },
+    {
+      "evidence_id": "ev-music-events-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body for the discovery-lead events listing page — 10 server-rendered event cards across 3 venues, all dated March 2023.",
+      "acquired_from": "https://www.maushabitos.com/en/music-events/",
+      "acquired_at": "2026-08-25T00:34:58Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/music-events.html"
+    },
+    {
+      "evidence_id": "ev-music-events-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the discovery-lead events listing page.",
+      "acquired_from": "https://www.maushabitos.com/en/music-events/",
+      "acquired_at": "2026-08-25T00:34:58Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-music-events.txt"
+    },
+    {
+      "evidence_id": "ev-content-blob",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The events-listing screen's embedded JSON content payload (window.BndLyrContent), fetched from the <script src> the listing page itself publicly references. Contains each event item's own _created_at/_updated_at CMS timestamps, all dated Feb-Mar 2023.",
+      "acquired_from": "https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.cHksH8JLZ_0.js?v=1679400246891",
+      "acquired_at": "2026-08-25T00:35:30Z",
+      "method": "curl -sS -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1 (URL discovered via the listing page's own <script src> reference)",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/content-blob.js"
+    },
+    {
+      "evidence_id": "ev-content-blob-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the events-listing embedded JSON payload.",
+      "acquired_from": "https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.cHksH8JLZ_0.js?v=1679400246891",
+      "acquired_at": "2026-08-25T00:35:30Z",
+      "method": "curl -sS -D headers --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-content-blob.txt"
+    },
+    {
+      "evidence_id": "ev-boot-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The platform's small generic script-loader bundle (publicly referenced from every page's <script src>) — confirms sequential loading of content/struct/webplayer bundles, no direct API endpoint of its own.",
+      "acquired_from": "https://cdn.bndlyr.com/royale/boot.v202303110921.js",
+      "acquired_at": "2026-08-25T00:36:10Z",
+      "method": "curl -sS -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/boot.js"
+    },
+    {
+      "evidence_id": "ev-boot-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for boot.js.",
+      "acquired_from": "https://cdn.bndlyr.com/royale/boot.v202303110921.js",
+      "acquired_at": "2026-08-25T00:36:10Z",
+      "method": "curl -sS -D headers --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-boot.txt"
+    },
+    {
+      "evidence_id": "ev-struct-js-seetickets-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded (800-character) excerpt of the site's publicly-referenced JS application bundle (struct.js, ~6MB minified — only this site-specific excerpt is retained, not the whole generic framework bundle), showing a 'Loja' nav link to the maushabitos.seetickets.com ticketing subdomain.",
+      "acquired_from": "https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/struct.js?v=1679330151906",
+      "acquired_at": "2026-08-25T00:36:40Z",
+      "method": "curl -sS --max-time 30 -A BandOnTheMap-SourceInvestigation/0.1, then a bounded string-window excerpt taken around the one site-specific match of interest",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/struct-js-seetickets-reference-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-seetickets-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the maushabitos.seetickets.com ticketing subdomain referenced in the site's own script bundle — a 302 redirect to seetickets.com's generic '?nosite=' error, confirming this integration is decommissioned.",
+      "acquired_from": "https://maushabitos.seetickets.com/search/all",
+      "acquired_at": "2026-08-25T00:37:38Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-seetickets.txt"
+    },
+    {
+      "evidence_id": "ev-sitemap",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's public sitemap.xml (conventional well-known path) — 3,108 URL entries, 2,926 matching /events/, used to check whether any 2026 (or late-2025-onward) event page exists anywhere on the site beyond the sampled listing pages.",
+      "acquired_from": "https://www.maushabitos.com/sitemap.xml",
+      "acquired_at": "2026-08-25T00:41:10Z",
+      "method": "curl -sS -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "application/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/sitemap.xml"
+    },
+    {
+      "evidence_id": "ev-programme-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body for the site's current top-nav 'Programme' page — checked as an alternative candidate listing since /en/music-events/ is not itself in the live top navigation.",
+      "acquired_from": "https://www.maushabitos.com/en/espetaculos-clubbing/",
+      "acquired_at": "2026-08-25T00:37:55Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/programme.html"
+    },
+    {
+      "evidence_id": "ev-programme-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the Programme page.",
+      "acquired_from": "https://www.maushabitos.com/en/espetaculos-clubbing/",
+      "acquired_at": "2026-08-25T00:37:55Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-programme.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response body for the sample event's own detail page — used for the list->detail stable-identifier cross-check (canonical URL matches the listing card's href exactly).",
+      "acquired_from": "https://www.maushabitos.com/en/events/230321-jazz-ii/",
+      "acquired_at": "2026-08-25T00:42:31Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/event-detail-230321-jazz-ii.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the sample event's detail page.",
+      "acquired_from": "https://www.maushabitos.com/en/events/230321-jazz-ii/",
+      "acquired_at": "2026-08-25T00:42:31Z",
+      "method": "curl -sS -D headers -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/headers-event-detail.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-content-blob",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The sample event detail page's own embedded JSON content payload, served from a differently-versioned/much newer (2026-05-25) platform build than the listing page's blob, yet containing the exact same unchanged _updated_at for this record — proving the staleness is in the record itself, not merely a stale cached asset.",
+      "acquired_from": "https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.exposicoes_sj6qSd81GL7yDMgx.js?v=1779716994727",
+      "acquired_at": "2026-08-25T00:42:50Z",
+      "method": "curl -sS -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1 (URL discovered via the detail page's own <script src> reference)",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/event-detail-content-blob.js"
+    },
+    {
+      "evidence_id": "ev-homepage-content-blob",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site homepage's own embedded JSON content payload — used to show the platform/site as a whole is actively maintained (items created as recently as 2026-02-12), so the events-listing staleness is specific to that content, not the whole site being abandoned.",
+      "acquired_from": "https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.homepage_0.js?v=1784821778285",
+      "acquired_at": "2026-08-25T00:35:50Z",
+      "method": "curl -sS -o body --max-time 20 -A BandOnTheMap-SourceInvestigation/0.1 (URL discovered via the homepage's own <script src> reference)",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/homepage-content-blob.js"
+    },
+    {
+      "evidence_id": "ev-browser-network-music-events",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Captured network-request list from a controlled Playwright browser session against the discovery-lead events page — shows the only content-bearing request is the same versioned content blob already retrieved via plain curl; no live/runtime API call for current events exists.",
+      "acquired_from": "https://www.maushabitos.com/en/music-events/ (rendered in a controlled Playwright browser session, ordinary public page load, no auth)",
+      "acquired_at": "2026-08-25T00:40:24Z",
+      "method": "mcp__playwright__browser_navigate then mcp__playwright__browser_network_requests",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/browser-network-requests-music-events.txt"
+    },
+    {
+      "evidence_id": "ev-browser-network-programme",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Captured network-request list from a controlled Playwright browser session against the site's current top-nav Programme page — same pattern (only the versioned content blob, no live API call).",
+      "acquired_from": "https://www.maushabitos.com/en/espetaculos-clubbing/ (rendered in a controlled Playwright browser session, ordinary public page load, no auth)",
+      "acquired_at": "2026-08-25T00:40:59Z",
+      "method": "mcp__playwright__browser_navigate then mcp__playwright__browser_network_requests",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/browser-network-requests-programme.txt"
+    },
+    {
+      "evidence_id": "ev-browser-snapshot-music-events",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Excerpt of the Playwright accessibility-tree snapshot of the fully-rendered discovery-lead events page, showing the rendered DOM displays the same March 2023 sample event field-for-field, and a pagination control confirming the same 4 pages of stale events as the static response.",
+      "acquired_from": "https://www.maushabitos.com/en/music-events/ (rendered in a controlled Playwright browser session)",
+      "acquired_at": "2026-08-25T00:40:24Z",
+      "method": "mcp__playwright__browser_snapshot",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/browser-snapshot-music-events-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-browser-snapshot-programme",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Excerpt of the Playwright accessibility-tree snapshot of the fully-rendered Programme page, showing it is structurally a curated project/minisite hub rather than a dated events calendar.",
+      "acquired_from": "https://www.maushabitos.com/en/espetaculos-clubbing/ (rendered in a controlled Playwright browser session)",
+      "acquired_at": "2026-08-25T00:40:59Z",
+      "method": "mcp__playwright__browser_snapshot",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/browser-snapshot-programme-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured output of a bounded, dependency-free, no-network offline script that deterministically re-parses evidence/music-events.html, evidence/event-detail-230321-jazz-ii.html, evidence/content-blob.js, evidence/event-detail-content-blob.js, evidence/homepage-content-blob.js, and evidence/sitemap.xml: confirms every field_assessment value above via reproducible regex/JSON parsing, confirms the list->detail canonical-URL identity match, confirms the CMS record's _updated_at is unchanged across a 3+ year-newer platform build, confirms the homepage content blob is far more recently updated, and confirms zero 2026-dated /events/ pages exist anywhere in the retained sitemap. Re-running `node evidence/offline-proof.mjs` reproduces this output exactly, every time, offline.",
+      "acquired_from": "research/source-investigations/maus-habitos-porto-01/evidence/offline-proof.mjs",
+      "acquired_at": "2026-08-25T00:58:00Z",
+      "method": "node evidence/offline-proof.mjs (no network access)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maus-habitos-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

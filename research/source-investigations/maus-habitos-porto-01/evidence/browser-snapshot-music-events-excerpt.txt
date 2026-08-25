@@ -1,0 +1,36 @@
+Level 3 BROWSER_OBSERVATION evidence.
+
+Excerpt of the Playwright accessibility-tree snapshot
+(mcp__playwright__browser_snapshot) of the fully-rendered
+https://www.maushabitos.com/en/music-events/ page after client-side JS
+execution, captured 2026-08-25T00:40:24Z. This is rendered DOM evidence
+(not raw HTTP bytes) — retained to show what an ordinary visitor's
+browser actually displays, for direct comparison against the plain-HTTP
+response in evidence/music-events.html.
+
+First event card in the "Passos Manuel Porto" venue group, exactly as
+rendered:
+
+  link "Tue 21 Mar , 2023 21:00 23.03.21 Jazz II Event €10 Jazz à Mesa
+  Porta Jazz apresenta: João Pedro Dias + João Fragoso"
+    /url: /en/events/230321-jazz-ii/
+    - "Tue" / "21" / "Mar" / "," / "2023"
+    - "21:00"
+    - image "23.03.21 Jazz II"
+    - "Event" / "€10"
+    - "Jazz" / "à Mesa"
+    - "Porta Jazz apresenta: João Pedro Dias + João Fragoso"
+
+Pagination control below the Porto group reads "1 / 4" — i.e. the live,
+JS-rendered page still only shows the same 4 pages of March 2023 events
+found in the plain-HTTP response; browser rendering did not surface any
+event beyond what evidence/music-events.html already contains.
+
+Page footer link (present on this and the Programme page):
+  link [ref=f2e427]:
+    - /url: /en/music-archives/
+    - paragraph: "Arquivo de eventos →"
+
+This is identical, field-for-field, to what evidence/music-events.html
+(the plain curl response) already shows for this same event — confirming
+client-side JS execution surfaces no additional or fresher event data.

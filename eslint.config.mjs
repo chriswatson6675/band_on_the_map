@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Retained third-party evidence files (e.g. a venue's own public JS,
+    // captured verbatim for a governed source investigation per
+    // docs/SOURCE_INVESTIGATION_POLICY.md) are raw external material, not
+    // code this project authored or maintains — never lint them.
+    "research/source-investigations/**/evidence/**",
   ]),
 ]);
 

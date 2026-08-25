@@ -1,0 +1,34 @@
+Level 3 BROWSER_OBSERVATION evidence (secondary check).
+
+Controlled Playwright browser session against
+https://www.maushabitos.com/en/espetaculos-clubbing/ (the site's own
+current top-nav "Programme" link — checked as an alternative candidate
+for the venue's currently-promoted music listing, since the discovery-lead
+URL /en/music-events/ is not itself present in the current top navigation
+of the live site). Captured 2026-08-25.
+
+Tool: mcp__playwright__browser_navigate then
+mcp__playwright__browser_network_requests (static:true, filter
+content|api|json).
+
+=== Result ===
+14. [GET] https://fonts.googleapis.com/css?display=swap&family=Fahkwang:400%7CWork+Sans:400,500,300,700,600%7CRoboto:400%7CInter:400,700,300 => [200]
+27. [GET] https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.cifWoBsGW7K4r65k_0.js?v=1691437557537 => [200]
+34. [POST] https://region1.analytics.google.com/g/collect?...&dl=https%3A%2F%2Fwww.maushabitos.com%2Fen%2Fespetaculos-clubbing%2F&dt=Maus%20H%C3%A1bitos%20-%20Espet%C3%A1culos%20%26%20Clubbing&en=page_view... => [204]
+
+=== Finding ===
+Same pattern as /en/music-events/: the only content-bearing request is a
+GET for a versioned content blob (content.cifWoBsGW7K4r65k_0.js,
+v=1691437557537 => 2023-08-07T19:45:57.537Z, see
+evidence/headers-programme.txt / evidence/programme.html for the
+equivalent plain-HTTP fetch of this same page). No live API call for
+current events. A rendered-page snapshot of this URL (captured in the
+same browser session) shows it is structurally a curated
+project/minisite hub ("Sons em Palco Super Bock", "Havana Beat",
+"Vivarium Festival" — each a link to its own standalone minisite/project
+page) rather than a dated list of individual upcoming shows, and it also
+carries an "Archive →" link to /en/music-archives/, mirroring the pattern
+seen on /en/music-events/. This corroborates, via a second independent
+page and a second content-blob timestamp, that no actively-maintained
+single public listing of current/upcoming Maus Hábitos concert dates was
+discoverable in this investigation.

@@ -1,0 +1,42 @@
+=== Sample event extracted from evidence/music-events.html ===
+event_url        : https://www.maushabitos.com/en/events/230321-jazz-ii/
+source_record_id : 230321-jazz-ii
+start_date       : 2023-03-21 (raw: "Tue 21 Mar, 2023")
+time (local, no tz): 21:00
+price             : €10
+title (rubrica)   : Jazz à Mesa
+details line      : Porta Jazz apresenta: João Pedro Dias + João Fragoso
+venue label       : Passos Manuel Porto
+footer address    : Rua Passos Manuel 178, 4º, 4000-382 Porto
+
+=== Stable-identifier cross-check (list -> detail canonical) ===
+listing card href : https://www.maushabitos.com/en/events/230321-jazz-ii/
+detail page canonical: https://www.maushabitos.com/en/events/230321-jazz-ii/
+MATCH: true
+
+=== CMS record timestamps (proves staleness, not just cache-busting) ===
+From content.cHksH8JLZ_0.js (listing screen, fetched via curl AND observed live in browser):
+  _created_at: 2023-02-24T11:16:43.125Z  _updated_at: 2023-02-27T12:11:54.497Z  _slug: 230321-jazz-ii
+From content.exposicoes_sj6qSd81GL7yDMgx.js (detail page's own content blob, newer build v=1779716994727 / 2026-05-25):
+  _created_at: 2023-02-24T11:16:43.125Z  _updated_at: 2023-02-27T12:11:54.497Z  _slug: 230321-jazz-ii
+SAME record, unchanged _updated_at across a 3+ year-newer platform build: true
+
+Sample event's CMS _updated_at is 1274 days before this investigation's real-world date (2026-08-25) — i.e. ~3.5 years stale.
+
+=== Homepage content blob freshness (evidence/homepage-content-blob.js) ===
+Most recent _created_at among homepage content items: 2026-02-12T18:25:49.147Z
+(compare against the events-listing record's _updated_at above — homepage content is far more recent)
+
+=== sitemap.xml recency check ===
+Total <url> blocks: 3108  | blocks matching /events/: 2926
+Most recently modified /events/ page: 2025-10-28T18:47:17.437Z https://www.maushabitos.com/events/251101-vinyl-market/
+Any /events/ page with a 2026 lastmod found: false
+OK   eventUrl: expected="https://www.maushabitos.com/en/events/230321-jazz-ii/" actual="https://www.maushabitos.com/en/events/230321-jazz-ii/"
+OK   sourceRecordId: expected="230321-jazz-ii" actual="230321-jazz-ii"
+OK   startDate: expected="2023-03-21" actual="2023-03-21"
+OK   timeText: expected="21:00" actual="21:00"
+OK   price: expected="€10" actual="€10"
+OK   title: expected="Jazz à Mesa" actual="Jazz à Mesa"
+OK   venueLabel: expected="Passos Manuel Porto" actual="Passos Manuel Porto"
+
+All extracted fields match investigation.json's field_assessment values. Offline proof PASSED.

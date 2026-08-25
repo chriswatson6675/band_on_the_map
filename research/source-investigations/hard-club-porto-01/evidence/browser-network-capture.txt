@@ -1,0 +1,71 @@
+Level 3 BROWSER_OBSERVATION probe -- retained network capture.
+
+Tool: Playwright MCP browser (mcp__playwright__browser_navigate,
+mcp__playwright__browser_network_requests, mcp__playwright__browser_network_request).
+
+Navigation: browser_navigate to https://www.hardclubporto.com/PT/agenda/ as an
+ordinary, unauthenticated visitor (no login, no credentials, no CAPTCHA
+interaction -- a normal public page load).
+
+Selected network request captured by the browser during that normal page
+load (request #38 of the session's network log; 57 additional static
+asset requests -- images/fonts/CSS/JS -- and one Google Analytics beacon
+are omitted here as immaterial to event-data acquisition):
+
+  GET https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&rand=0.36360185256332256&langid=1&passo=15&evento=
+  Status: 200
+
+This is the SAME endpoint, action, and parameter shape that
+evidence/ajax-agenda.html and evidence/ajax-noprior.html were fetched
+from directly via curl (Level 1/2 probes) -- but in THIS case the browser
+had already performed a normal GET of https://www.hardclubporto.com/PT/agenda/
+immediately beforehand in the same browsing session/cookie jar, exactly as
+an ordinary visitor's browser does. The response body below is the full,
+verbatim response text returned to that request, as surfaced by
+mcp__playwright__browser_network_request(index=38, part="response-body").
+
+Full response body (first event shown in full for legibility; the
+remaining 21 events follow the identical per-event <li> shape and were
+independently re-confirmed via the plain-curl reproduction retained at
+evidence/ajax-agenda-session.html + evidence/headers-ajax-agenda-session.txt):
+
+<li class="items col0">
+<a href="/PT/evento/351-festival-urbano-11-e-12-de-setembro-2026/" data-alt="+351 FESTIVAL URBANO 11 e 12 de setembro " id="351-festival-urbano-11-e-12-de-setembro-2026" class="post_rel" data-rel="1">
+	<div class="img" style="background-image:url(/imagens/eventos/evento_img6a7b009c05ea9.jpg)">
+		<div class="info">
+			<h3>+351 FESTIVAL URBANO<p class="demi">11 e 12 de setembro<p></h3>
+		</div>
+	</div>
+	<div class="moreinfo">
+		<p class="data">11 Set</p>
+		<p class="local_hora">Sala 1 : 19H00</p>
+	</div>
+	</a>
+</li>
+[... 20 further <li class="items ..."> event blocks, each in the same
+shape, all carrying a "DD Mon" (day + Portuguese abbreviated month) date
+text, e.g. "12 Set", "01 Out", "31 Out", "01 Nov", "29 Jan", "12 Fev" --
+see evidence/ajax-agenda-session.html for the complete, byte-identical
+22-event fragment retained separately via plain curl, and
+evidence/offline-proof.mjs / evidence/offline-proof-output.txt for a
+deterministic, offline parse of all 22 entries confirming every one
+carries a "DD Mon" shaped date and none carries a 4-digit year ...]
+
+CRITICAL OBSERVATION driving this investigation's key finding: this
+response DIFFERS from the earlier Level 1/2 curl probes
+(evidence/ajax-agenda.html, evidence/ajax-noprior.html) ONLY in that the
+date field here reads "11 Set" (day + month) instead of "11 " (day only,
+identical params, identical endpoint). The only variable that changed is
+that this request's session had already performed a real prior page load
+of /PT/agenda/ in the same cookie jar before the AJAX call was made,
+exactly as an ordinary browser visit does automatically. This directly
+led to the reproduction retained at evidence/ajax-agenda-session.html,
+which confirms via plain (non-browser) curl that a simple two-step HTTP
+flow -- GET /PT/agenda/ once to establish a PHPSESSID cookie, then GET
+/include/ajax_functions.php with that same cookie and a Referer header --
+reliably reproduces the full "DD Mon" date text without requiring a
+persistent headless browser.
+
+No CAPTCHA, login wall, or other access-control boundary was encountered
+during this Level 3 probe; this was accordingly logged as SUFFICIENT, not
+BLOCKED.

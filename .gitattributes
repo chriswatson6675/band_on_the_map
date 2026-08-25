@@ -4,3 +4,12 @@
 # quirk in the retained Hot Clube samples — must never be rewritten by
 # git's line-ending conversion (core.autocrlf) on any platform.
 *.ics -text
+
+# Retained evidence for governed source investigations
+# (docs/SOURCE_INVESTIGATION_POLICY.md) includes files whose evidence_class
+# is DIRECT_EVIDENCE and byte_faithful: true — raw HTTP response bodies and
+# headers acquired live from a real source. Their exact byte content must
+# never be rewritten by git's line-ending conversion, on any platform, for
+# the same reason as the ICS rule above — a byte-faithful claim that git
+# silently mangled on checkout would no longer be true.
+research/source-investigations/**/evidence/** -text

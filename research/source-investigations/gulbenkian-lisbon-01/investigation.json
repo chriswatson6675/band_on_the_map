@@ -1,0 +1,268 @@
+{
+  "investigation_id": "gulbenkian-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-25T00:41:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: WebSearch used solely as a discovery lead to find the candidate official domain; all retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) against the site's public music-agenda list page and five detail pages, plus one contacts-page recheck. Inspected retained HTML for a source-defined event-type taxonomy, embedded schema.org JSON-LD Event/MusicEvent data, and a static price/admission DOM node. A dependency-free, no-network Node offline-proof script re-parsed the retained files deterministically to cross-check list-page event IDs against detail-page JSON-LD @id values and confirm field extraction. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA) of https://gulbenkian.pt/musica/agenda/ returned 200 OK with a fully server-rendered list of 24 event cards, each carrying a stable numeric data-event-id, a title, a source-defined event-type tag (fcg-card__meta-item: 'Concerto' on 22 cards, 'Transmissão' on 2), and a date/time text node. Following five of those cards' own hrefs to their detail pages (also plain curl GETs) returned 200 OK pages each containing a full schema.org JSON-LD MusicEvent/Event block with name, startDate, endDate, location, organizer, and a separate static DOM node giving price or free-admission text. The list page's data-event-id reproduced exactly as the numeric suffix of the corresponding detail page's own JSON-LD '@id' for all 5/5 sampled events (mechanically re-verified in evidence/offline-proof.mjs, no network). This already answers identity, platform classification, data-path discovery, and field assessment without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-list-body",
+        "ev-list-headers",
+        "ev-detail-vale",
+        "ev-detail-oedipus",
+        "ev-detail-kafka",
+        "ev-detail-diotima",
+        "ev-detail-beatrice-current",
+        "ev-detail-beatrice-stale",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "gulbenkian-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Fundação Calouste Gulbenkian — Lisbon, Portugal (specifically its 'Gulbenkian Música' concert/agenda programme, one part of the foundation's much broader museum/gardens/orchestra/exhibitions/talks/film/education programme)",
+  "official_url": "https://gulbenkian.pt/musica/agenda/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list-body", "ev-detail-vale", "ev-contacts-page"],
+    "notes": "gulbenkian.pt was located via WebSearch as a DISCOVERY LEAD only, then independently re-confirmed by this investigation's own retained evidence: the retained list page's own <title> ('Agenda – Gulbenkian Música'), canonical URL (https://gulbenkian.pt/musica/agenda/), and page footer text give the foundation's real, well-known street address ('Av. de Berna, 45A, 1067-001 Lisboa'); every sampled detail page's JSON-LD names \"organizer\": {\"name\": \"Fundação Calouste Gulbenkian\"}. DISCREPANCY WITH AN OLDER, LOOSE NOTE: docs/LISBON_PORTO_VENUE_ESTATE_01.md §ranking notes a prior session's 'contacts-page fetch was blocked (403)' for Gulbenkian, treated in this repo's governance as a loose discovery lead at most. This investigation independently re-fetched https://gulbenkian.pt/contacte-nos/ just now (plain curl, same UA) and got a normal 200 OK with a full contacts page (retained as ev-contacts-page) — no 403 was observed on this specific music-agenda/contacts investigation, today. Current retained evidence wins per this task's instructions; the old note's finding may have been transient, path-specific to a different URL, or has simply changed since — it is recorded here honestly as a disagreement, not silently reconciled or assumed still valid."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress multisite (site 3, path /musica/) serving a bespoke 'fcg-' prefixed events module (not a recognisable off-the-shelf calendar plugin such as The Events Calendar or EventOn) on top of a standard WP theme stack — evidenced by the wp-json REST discovery Link header, /wp-content/uploads/sites/3/... asset paths, and Alpine.js-driven filter UI on the list page. Each event's own detail page additionally emits a full schema.org JSON-LD Event/MusicEvent block, which is the most reliable structured field source.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list-body", "ev-list-headers", "ev-detail-vale", "ev-detail-oedipus", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://gulbenkian.pt/musica/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-list-body", "ev-list-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://gulbenkian.pt/musica/agenda/vale-do-silencio-3/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-vale", "ev-detail-oedipus", "ev-detail-kafka", "ev-detail-diotima", "ev-detail-beatrice-current", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_ROOT (observed via Link header only, not explored)",
+      "url": "https://gulbenkian.pt/musica/wp-json/",
+      "access": "UNKNOWN",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-list-headers"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Reliably extractable from both the list page (h3.fcg-card__title) and each detail page's JSON-LD 'name'. Verified identical between list and detail for 5/5 sampled events (e.g. 'Vale do Silêncio', 'Oedipus Rex', 'Kafka-Fragmente', 'Quarteto Diotima', 'Beatrice Rana'). Left null here (a general capability finding across a 5-event sample, not one single event) — see evidence/offline-proof-output.txt for the per-event values.",
+      "evidence_refs": ["ev-list-body", "ev-detail-vale", "ev-detail-oedipus", "ev-detail-kafka", "ev-detail-diotima", "ev-detail-beatrice-current", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's JSON-LD 'startDate' gives a full calendar date + time-of-day in 'YYYY-MM-DD HH:MM:SS' form (e.g. '2026-09-05 21:30:00'), and the date portion cross-checks exactly against the list page's own human-readable date text (e.g. '05 set 2026'). This is a floating local datetime — no explicit UTC offset or IANA timezone is present anywhere in the retained HTML/JSON-LD; Europe/Lisbon is a reasonable real-world inference but was never promoted to a fabricated UTC instant. For a multi-session production (see 'end' below and Oedipus Rex in collector_assessment.blockers), the reliable per-occurrence date is the one on the matching subEvent[] entry, not necessarily the top-level MusicEvent's own startDate (which can span the whole run).",
+      "evidence_refs": ["ev-list-body", "ev-detail-vale", "ev-detail-oedipus", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The time-of-day portion of the same JSON-LD 'startDate' string (e.g. '21:30'). Same floating-local caveat as start_date: reliably extractable, but not a confirmed UTC instant since no timezone/offset is stated by the source.",
+      "evidence_refs": ["ev-detail-vale", "ev-detail-oedipus", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "JSON-LD 'endDate' is present on every sampled detail page. For single-session events (Vale do Silêncio, Kafka-Fragmente, Quarteto Diotima, Beatrice Rana) the top-level endDate matches the single subEvent's endDate exactly. For a multi-session production, the top-level endDate instead spans the whole run (Oedipus Rex's top-level endDate is its SECOND performance's end time, not its first), while each individual performance's own end time lives on the matching subEvent[] entry. A collector must read subEvent[]-level dates per occurrence, not assume the top-level start/end always describes one single performance. Confirmed mechanically in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-detail-vale", "ev-detail-oedipus", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's JSON-LD 'location[].name' gives a Place name per event — usually 'Grande Auditório' (the foundation's main concert hall, at the foundation's own Av. de Berna, 45A, 1067-001 Lisboa address, itself confirmed from the site's own footer/contacts page), but at least one sampled event ('Vale do Silêncio') is an off-site outdoor concert at 'Parque Vale do Silêncio' — the source genuinely varies this per event rather than hard-coding one venue, and this investigation did not silently normalise the two into one address.",
+      "evidence_refs": ["ev-detail-vale", "ev-detail-oedipus", "ev-contacts-page", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The numeric id (e.g. 106594) is documented by the source itself as a canonical identifier (schema.org JSON-LD '@id': 'https://gulbenkian.pt/musica/MusicEvent/106594') and was proven empirically stable across an independent list-page rendering (its own data-event-id attribute) and the detail page's own JSON-LD, reproduced identically for 5/5 sampled events (evidence/offline-proof.mjs). This satisfies the stable-identifier rule (documented by the source AND proven empirically). IMPORTANT CAVEAT, documented honestly rather than smoothed over: this id identifies a PRODUCTION, not necessarily one single performance instance. A multi-date production (e.g. Oedipus Rex, id 106764, performed 2026-10-01 and 2026-10-02) exposes exactly one top-level id shared by both dates; the individual dates live only in an unlabelled subEvent[] array with no id of their own. A future collector building per-occurrence Observation identity should NOT assume source_record_id alone is unique per date — the recommended alternative/supplementary identity strategy is a composite key of (source_record_id + subEvent[].startDate), analogous to how this repository already handles Hot Clube de Portugal's non-stable ICS UID per docs/OBSERVATION_PIPELINE.md.",
+      "evidence_refs": ["ev-list-body", "ev-detail-vale", "ev-detail-oedipus", "ev-detail-kafka", "ev-detail-diotima", "ev-detail-beatrice-current", "ev-detail-beatrice-stale", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each detail page's own <link rel=\"canonical\"> and JSON-LD 'url' match the URL that was actually followed, and match the href on the corresponding list-page card. IMPORTANT CAVEAT, empirically discovered and honestly documented: a title-derived slug is NOT reliably reconstructable/guessable — this investigation initially guessed https://gulbenkian.pt/musica/agenda/beatrice-rana/ (no numeric suffix) and got a real 200 OK page, but it turned out to be a stale, unrelated 2020-03-24 Beatrice Rana concert (JSON-LD @id .../Event/65829), not the 2026-10-11 event actually listed on the current agenda (whose real, source-provided href is .../beatrice-rana-4/, JSON-LD @id .../MusicEvent/106821). A collector MUST take event_url directly from the list page's own <a href>, never construct/guess it from a title slug.",
+      "evidence_refs": ["ev-list-body", "ev-detail-beatrice-current", "ev-detail-beatrice-stale", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Every sampled detail page has a static, server-rendered <dd class=\"fcg-event-ticket-price__value\"> node giving either a price range (e.g. 'Oedipus Rex': '31,00 € – 70,00 €', 'Beatrice Rana': '24,00 € – 46,00 €') or a free-admission label ('Vale do Silêncio': 'Entrada Livre'; 'Kafka-Fragmente' and 'Quarteto Diotima': 'Entrada gratuita'). Recorded as a range/label string, never collapsed to one fabricated single number when a range was shown.",
+      "evidence_refs": ["ev-detail-vale", "ev-detail-oedipus", "ev-detail-kafka", "ev-detail-diotima", "ev-detail-beatrice-current", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list-body", "ev-detail-vale", "ev-detail-oedipus", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "A multi-session production shares one top-level source_record_id/JSON-LD @id across all of its performance dates; the source exposes per-date subEvent[] entries but gives them no id of their own. A collector must synthesize a composite per-occurrence key (source_record_id + subEvent startDate) rather than treating source_record_id alone as a 1:1 event-instance key."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The source's own JSON-LD can disagree with itself about eventStatus: for the sampled Oedipus Rex production the top-level MusicEvent showed 'EventCancelled' while both of its own subEvent[] entries showed 'EventScheduled' (and the list page itself displayed a normal 'Bilhetes disponíveis' / tickets-available label for it). A collector should read eventStatus at the subEvent (per-occurrence) level, not trust the top-level field blindly, and should not silently pick whichever value looks more convenient."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Title-derived URL slugs are not safe to guess/construct — an older, unrelated historical event can occupy the un-suffixed slug for a recurring performer name (see field_assessment.event_url.notes). A collector must always take event_url from the source's own current list-page markup."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (page title, canonical URL, JSON-LD organizer, and the foundation's real footer address), independently re-established rather than assumed from any prior note.",
+      "site_classification.acquisition_class is JSON_LD_EVENT, a resolved/supported class — every sampled detail page carries a full schema.org MusicEvent/Event JSON-LD block.",
+      "Two data_paths entries (the list page and the detail-page pattern) are access:PUBLIC and status:CONFIRMED against retained evidence.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN (start_date is not UNKNOWN/NOT_PRESENT).",
+      "field_assessment.source_record_id.state is PROVEN under the stable-identifier rule (self-documented by the source's own JSON-LD @id, and proven empirically stable across list-page and detail-page renderings for 5/5 sampled events), with an explicit, honestly-documented caveat/alternative composite-key strategy recorded in its notes for the multi-session-production edge case.",
+      "collector_assessment.recommended_family is JSON_LD, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every field-extraction and id-matching claim above.",
+      "collector_assessment.blockers contains only MINOR entries (id granularity for multi-date productions, an eventStatus self-inconsistency in the source's own data, and unsafe slug-guessing) — none CRITICAL.",
+      "The source itself exposes an explicit event-type taxonomy (fcg-card__meta-item: 'Concerto' vs 'Transmissão') that was used to identify the music/concert sample rather than guessing from vibes; a future collector should filter on 'Concerto' (and re-review any other category values that appear over time) to keep to genuine live-music/gig programming and exclude broadcast/relay screenings and, more importantly, exclude this foundation's much larger non-music programme (exhibitions, talks, film, education), which was never in this investigation's retained sample.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-list-body", "ev-detail-vale", "ev-detail-oedipus", "ev-detail-kafka", "ev-detail-diotima", "ev-detail-beatrice-current", "ev-detail-beatrice-stale", "ev-contacts-page", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-list-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Gulbenkian Música public agenda/list page: 24 server-rendered event cards, each with data-event-id, title, event-type meta tag ('Concerto'/'Transmissão'), and date/time text.",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/",
+      "acquired_at": "2026-08-25T00:35:53Z",
+      "method": "curl -sS -D headers-musica-agenda.txt -o body-musica-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-musica-agenda.html"
+    },
+    {
+      "evidence_id": "ev-list-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same list-page request: 200 OK, Cloudflare-fronted, and a Link header advertising the WordPress REST API root (rel=\"https://api.w.org/\"), supporting the WordPress platform classification.",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/",
+      "acquired_at": "2026-08-25T00:35:53Z",
+      "method": "curl -sS -D headers-musica-agenda.txt (same request as ev-list-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/headers-musica-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-detail-vale",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Vale do Silêncio' event detail page, including a full schema.org JSON-LD MusicEvent block (id 106594) and a static admission-price DOM node ('Entrada Livre').",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/vale-do-silencio-3/",
+      "acquired_at": "2026-08-25T00:37:05Z",
+      "method": "curl -sS -D headers-detail-vale-do-silencio.txt -o body-detail-vale-do-silencio.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-vale-do-silencio.html"
+    },
+    {
+      "evidence_id": "ev-detail-oedipus",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Oedipus Rex' event detail page, a two-performance production: JSON-LD MusicEvent (id 106764) with a top-level start/end spanning both dates, a subEvent[] array giving each individual performance's own start/end, a top-level eventStatus of 'EventCancelled' that disagrees with both subEvent-level 'EventScheduled' values, and a price-range DOM node ('31,00 € – 70,00 €').",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/oedipus-rex/",
+      "acquired_at": "2026-08-25T00:37:10Z",
+      "method": "curl -sS -D headers-detail-oedipus-rex.txt -o body-detail-oedipus-rex.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-oedipus-rex.html"
+    },
+    {
+      "evidence_id": "ev-detail-kafka",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Kafka-Fragmente' event detail page: JSON-LD MusicEvent (id 106787), single performance, free-admission DOM node ('Entrada gratuita').",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/kafka-fragmente/",
+      "acquired_at": "2026-08-25T00:37:58Z",
+      "method": "curl -sS -D headers-detail-kafka-fragmente.txt -o body-detail-kafka-fragmente.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-kafka-fragmente.html"
+    },
+    {
+      "evidence_id": "ev-detail-diotima",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'Quarteto Diotima' event detail page: JSON-LD MusicEvent (id 106799), single performance, free-admission DOM node ('Entrada gratuita').",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/quarteto-diotima/",
+      "acquired_at": "2026-08-25T00:37:58Z",
+      "method": "curl -sS -D headers-detail-quarteto-diotima.txt -o body-detail-quarteto-diotima.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-quarteto-diotima.html"
+    },
+    {
+      "evidence_id": "ev-detail-beatrice-current",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the CURRENT (2026-10-11) 'Beatrice Rana' event detail page at its real, source-provided slug: JSON-LD MusicEvent (id 106821, matching the list page's data-event-id), price-range DOM node ('24,00 € – 46,00 €').",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/beatrice-rana-4/",
+      "acquired_at": "2026-08-25T00:38:12Z",
+      "method": "curl -sS -D headers-detail-beatrice-rana-4.txt -o body-detail-beatrice-rana-4.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-beatrice-rana-4.html"
+    },
+    {
+      "evidence_id": "ev-detail-beatrice-stale",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for a GUESSED, un-suffixed slug that this investigation tried before discovering the real href on the list page. It resolved (200 OK) but to a stale, unrelated 2020-03-24 'Beatrice Rana' event (JSON-LD Event id 65829) — direct proof that title-derived slugs must never be guessed/constructed, only taken from the source's own current listing.",
+      "acquired_from": "https://gulbenkian.pt/musica/agenda/beatrice-rana/",
+      "acquired_at": "2026-08-25T00:37:58Z",
+      "method": "curl -sS -D headers-detail-beatrice-rana.txt -o body-detail-beatrice-rana.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-beatrice-rana.html"
+    },
+    {
+      "evidence_id": "ev-contacts-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the foundation's public contacts page, re-fetched to independently re-assess the older, loose note in docs/LISBON_PORTO_VENUE_ESTATE_01.md about a prior session's blocked (403) contacts-page fetch. This investigation's own fetch returned a normal 200 OK, not a 403 — recorded as an honest discrepancy with the old note, not silently reconciled.",
+      "acquired_from": "https://gulbenkian.pt/contacte-nos/",
+      "acquired_at": "2026-08-25T00:39:48Z",
+      "method": "curl -sS -D headers-contacte-nos.txt -o body-contacte-nos.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-contacte-nos.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses the list page's 24 event cards, confirms the 'Concerto'/'Transmissão' taxonomy, cross-checks each of the 5 sampled detail pages' JSON-LD @id against the list page's data-event-id (5/5 matched), extracts title/startDate/endDate/location/price for each, and reproduces the Oedipus Rex top-level-vs-subEvent eventStatus disagreement. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/gulbenkian-lisbon-01/evidence/ (all body-*.html files above, read locally, no network)",
+      "acquired_at": "2026-08-25T00:40:30Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/gulbenkian-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

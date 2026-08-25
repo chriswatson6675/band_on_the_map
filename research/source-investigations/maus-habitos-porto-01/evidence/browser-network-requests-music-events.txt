@@ -1,0 +1,35 @@
+Level 3 BROWSER_OBSERVATION evidence.
+
+Controlled Playwright browser session (ordinary public page load, no
+authentication, no form submission, no CAPTCHA/access-control bypass)
+against https://www.maushabitos.com/en/music-events/, captured
+2026-08-25 (session timestamp ~2026-08-25T00:40Z per in-page GA
+"_p"/"sid" params below).
+
+Tool: mcp__playwright__browser_navigate then
+mcp__playwright__browser_network_requests (static:false, then static:true
+filtered to content|api|json).
+
+=== Non-static requests (static:false) ===
+27. [GET] https://cdn.bndlyr.com/modules/seovVSuUlP6sd71C/by-bond-1.svg => [FAILED] net::ERR_BLOCKED_BY_ORB
+37. [GET] https://cdn.bndlyr.com/slstbe4votfbw7yg/_assets/html2canvasfixed2.js => [FAILED] net::ERR_BLOCKED_BY_ORB
+41. [POST] https://region1.analytics.google.com/g/collect?v=2&tid=G-G75GHNPKEN&gtm=45je68l1v9133526844za20g&_p=1787618422186&_gaz=1&gcd=13l3l3l3l1l1&npa=0&dma=0&ecid=1671063077&_eu=EAAIAGAC&are=1&cid=998259257.1787618424&ec_mode=a&frm=0&ir=1&pscdl=noapi&rcb=10&sr=1536x864&uaa=x86&uab=64&uafvl=Not%253DA%253FBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B151.0.7922.138%7CChromium%3B151.0.7922.138&uam=&uamb=0&uap=Windows&uapv=19.0.0&uaw=0&ul=en-gb&gaf=2&_s=1&tag_exp=115938465~115938469~118897920~118897930~119367802~119367810~120213116~120385423&sid=1787618423&sct=1&seg=0&dl=https%3A%2F%2Fwww.maushabitos.com%2Fen%2Fmusic-events%2F&dt=Music&en=page_view&_fv=1&_ss=1&tfd=2969 => [204]
+
+Note: 41 static requests not shown in this pass; run with "static" option
+to see them (captured separately below, filtered).
+
+=== Static requests matching content|api|json (static:true, filter applied) ===
+1. [GET] https://www.maushabitos.com/en/music-events/ => [200]
+21. [GET] https://fonts.googleapis.com/css?display=swap&family=Fahkwang:400%7CWork+Sans:400,500,300,700,600%7CRoboto:400%7CInter:400,700,300 => [200]
+34. [GET] https://cdn.bndlyr.com/slstbe4votfbw7yg/_p/content.cHksH8JLZ_0.js?v=1679400246891 => [200]
+41. [POST] https://region1.analytics.google.com/g/collect?... => [204]  (Google Analytics pageview beacon, not event data)
+
+=== Finding ===
+The only content-bearing request the fully-executed client-side app makes
+is a GET for the exact same versioned content blob
+(content.cHksH8JLZ_0.js?v=1679400246891) already retrieved directly via
+plain curl in Level 1/2 (see evidence/content-blob.js). No separate
+runtime API/XHR/fetch call for "current" events was observed anywhere in
+the full request list. This is the direct evidence supporting
+probe_history level 3's SUFFICIENT outcome: browser execution exposes no
+data path that plain HTTP retrieval did not already expose.
