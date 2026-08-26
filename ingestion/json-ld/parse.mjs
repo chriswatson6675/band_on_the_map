@@ -20,7 +20,7 @@
 // docs/SOURCE_INVESTIGATION_POLICY.md — and is left to a caller-supplied
 // `deriveId` function), and never determines Venue identity/coordinates.
 
-const LD_JSON_SCRIPT_RE = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+const LD_JSON_SCRIPT_RE = /<script[^>]*type=["']?application\/ld\+json["']?[^>]*>([\s\S]*?)<\/script>/gi;
 
 /**
  * Extract every JSON-LD document embedded in `html`, flattening
@@ -32,6 +32,14 @@ const LD_JSON_SCRIPT_RE = /<script[^>]*type=["']application\/ld\+json["'][^>]*>(
  * `{ strict: true }` to instead throw on the first parse failure, for a
  * caller that wants to notice a genuinely broken feed.
  */
+// BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: the `type`
+// attribute's quotes are now optional (`["']?`) — Tempodrom Berlin's own
+// real, live page genuinely emits `<script type=application/ld+json>`
+// with no quotes at all (valid, if unusual, HTML5), which the original
+// quote-requiring regex silently failed to match at all (zero nodes
+// extracted, not an error). A strictly backward-compatible widening: any
+// HTML this already matched (quoted, single- or double-quoted) still
+// matches identically.
 export function extractJsonLdNodes(html, { strict = false } = {}) {
   if (typeof html !== "string" || html.trim() === "") {
     throw new Error("extractJsonLdNodes requires non-empty HTML");

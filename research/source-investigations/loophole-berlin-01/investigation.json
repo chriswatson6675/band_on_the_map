@@ -1,0 +1,113 @@
+{
+  "investigation_id": "loophole-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:18:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the candidate official domain and several known static paths. The first domain found by search (loophole-berlin.com) turned out on direct inspection to be an unrelated parked/for-sale domain, not the venue's own site — WebSearch is a discovery lead only and was NOT trusted as authority; the real official domain (loophole.berlin) was found via a second, more specific search and confirmed as the venue's own (its 500-error page names the contact 'webmaster@loophole-berlin.atelierkbg.com', tying the domain to the venue's own hosting). Every path attempted on the real domain (homepage, /press-statement/, /robots.txt, /sitemap.xml) returned a genuine server-side error (403/500), not a rendered page — no event data was retrievable."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of the venue's real official domain (https://loophole.berlin/) returned HTTP 403 'Forbidden' (Apache generic error page, not a rendered page) for the homepage, and HTTP 500 'Internal Server Error' for /press-statement/, /robots.txt, and /sitemap.xml — every path attempted returned a genuine server-side error, never actual page content. This is consistent with independent discovery-lead context found via WebSearch (not treated as source authority) that the venue was banned from hosting concerts by the Ordnungsamt Berlin in July 2024 and has been seeking a new location — the official site appears genuinely broken/unmaintained, not merely bot-blocked. No event data, JSON-LD, feed, or API could be inspected because no page actually rendered.",
+      "evidence_refs": ["ev-domain-403", "ev-press-500", "ev-robots-500", "ev-parked-domain-trap"]
+    }
+  ],
+  "source_candidate_id": "loophole-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Loophole (small experimental live-music/showroom venue, Boddinstraße 60, Berlin-Neukölln — per independent discovery-lead context, banned from hosting concerts by the Ordnungsamt Berlin in July 2024 and seeking relocation)",
+  "official_url": "https://loophole.berlin/",
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-domain-403", "ev-press-500"],
+    "notes": "The domain loophole.berlin is very likely the venue's genuine official domain — its own 500-error page names a hosting contact 'webmaster@loophole-berlin.atelierkbg.com', directly tying the domain to the venue's name — but this could not be independently corroborated against the venue's own rendered content, because every page on the domain returned a server error (403/500) rather than actual content. identity.status is honestly recorded as AMBIGUOUS rather than PROVEN: strong circumstantial evidence (the error-page contact address), but no genuinely rendered first-party page content was ever retrieved to confirm it directly. A DIFFERENT domain, loophole-berlin.com, was initially surfaced by search and is explicitly NOT this venue — it is a parked/for-sale domain (its own retained page states 'This domain may be for sale!') and was rejected as a candidate rather than trusted."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": []
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The venue's official domain (loophole.berlin) returns a genuine server-side error (403/500) on every path attempted — homepage, press-statement page, robots.txt, and sitemap.xml. No content, event data, or platform fingerprint of any kind could be retrieved. Combined with the independently-found context that the venue was banned from hosting concerts in July 2024 and is seeking relocation, this reads as a genuinely broken/inactive site rather than a temporary glitch."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The venue's real official domain is identifiable with reasonable confidence (loophole.berlin, corroborated by its own error-page hosting contact) but returns only server errors (403/500) on every path tried — no event data, platform fingerprint, or even a rendered homepage could be retrieved.",
+      "A first, search-surfaced candidate domain (loophole-berlin.com) was correctly identified and rejected as an unrelated parked/for-sale domain rather than assumed to be the venue.",
+      "Independent discovery-lead context (not treated as source authority) indicates the physical venue was banned from hosting concerts by the Ordnungsamt Berlin in July 2024 and has been seeking a new location — consistent with a genuinely inactive/broken official site, not a transient error.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a legitimate, complete investigation outcome when reliable, honest automated acquisition cannot be established safely — escalating to a Level 2 structural probe would have nothing to inspect (every response is a bare server-generated error page with no application content, JS, or bootstrap data of any kind), so no genuine escalation opportunity exists to attempt.",
+      "This investigation should be revisited later (a new investigation_id, superseding this one) if/when the venue relaunches at a new location with a working site."
+    ],
+    "evidence_refs": ["ev-domain-403", "ev-press-500", "ev-robots-500", "ev-parked-domain-trap"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-domain-403",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP 403 Forbidden response (generic Apache error page, not a rendered site page) from the venue's real official domain's homepage.",
+      "acquired_from": "https://loophole.berlin/",
+      "acquired_at": "2026-08-26T12:17:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/loophole-berlin-01/evidence/official-domain-403.html"
+    },
+    {
+      "evidence_id": "ev-press-500",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP 500 Internal Server Error response from a specific subpage (/press-statement/) that a prior search result indicated existed on this domain; its own error page names the hosting contact 'webmaster@loophole-berlin.atelierkbg.com', corroborating (without fully proving) that this domain belongs to the venue.",
+      "acquired_from": "https://loophole.berlin/press-statement/",
+      "acquired_at": "2026-08-26T12:17:30Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/loophole-berlin-01/evidence/official-domain-press-statement-500.html"
+    },
+    {
+      "evidence_id": "ev-robots-500",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP 500 Internal Server Error response from /robots.txt on the same domain, confirming the failure is not path-specific.",
+      "acquired_from": "https://loophole.berlin/robots.txt",
+      "acquired_at": "2026-08-26T12:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/loophole-berlin-01/evidence/official-domain-robots-500.html"
+    },
+    {
+      "evidence_id": "ev-parked-domain-trap",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw response of the FIRST search-surfaced candidate domain (loophole-berlin.com), retained specifically to document why it was rejected: its own page states 'This domain may be for sale!' and carries a generic parked-domain template, not any venue content.",
+      "acquired_from": "https://loophole-berlin.com/",
+      "acquired_at": "2026-08-26T12:18:30Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/loophole-berlin-01/evidence/parked-domain-loophole-berlin-com.html"
+    }
+  ],
+  "supersedes": null
+}

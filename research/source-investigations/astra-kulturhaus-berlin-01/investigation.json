@@ -1,0 +1,174 @@
+{
+  "investigation_id": "astra-kulturhaus-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official homepage (a Rails/Turbolinks app whose homepage itself lists upcoming events as static server-rendered cards) and two individual event detail pages, each of which additionally embeds a schema.org MusicEvent JSON-LD block. Cross-checking the JSON-LD startDate against the same cards' own directly-stated local time fields across both sampled events revealed a real, consistently-reproduced timezone-offset bug in the JSON-LD field, documented honestly below rather than trusted at face value."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official homepage (https://astra-berlin.de/) immediately exposed upcoming events as fully server-rendered static HTML event cards, each carrying a machine-readable 'data-realdate' datetime+offset attribute plus separate Doors/Start time-value elements, a title, and an event kind. Two sampled event detail pages additionally each embedded a schema.org MusicEvent JSON-LD block (title/url/location all directly correct) and a fully structured two-tier price block (Abendkasse/Vorverkauf). No further escalation was needed; Level 1 fully answered the investigation question, including surfacing a genuine data-quality caveat in the JSON-LD's own startDate offset.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu"]
+    }
+  ],
+  "source_candidate_id": "astra-kulturhaus-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Astra Kulturhaus (mid-size concert venue on the RAW site, Revaler Str. 99, Friedrichshain, Berlin)",
+  "official_url": "https://astra-berlin.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"],
+    "notes": "The retained homepage's own <title> reads 'Astra Berlin | Home'. Independently, both sampled event detail pages' own JSON-LD directly states location.name 'Astra Berlin' and location.address 'Revaler Str. 99, 10245 Berlin', matching the venue's known RAW-site address — a second, distinct retained artifact confirming identity. The site's own JSON-LD self-references the 'www.astra-berlin.de' hostname as a variant of the same domain; the bare 'astra-berlin.de' hostname used to fetch all evidence here also returned HTTP 200 directly."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Ruby on Rails (Turbolinks) custom site. The homepage itself server-renders upcoming events as static cards (data-realdate attribute + separate Doors/Start time-value elements). Each event's own detail page additionally embeds a schema.org MusicEvent JSON-LD block using single-quoted script attributes (<script type='application/ld+json'>) — title/url/location are directly correct, but startDate was found, across two independently sampled events, to always literally state the local wall-clock time suffixed with a fixed, incorrect '+00:00' offset rather than the venue's true Europe/Berlin offset (see field_assessment.time notes and collector_assessment.blockers). No WordPress, Fourvenues, or Sanity signal detected; no ICS link found.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://astra-berlin.de/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://astra-berlin.de/events/2026-09-05-buzzcocks",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-buzzcocks"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "BUZZCOCKS",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event detail page's own JSON-LD 'name' field, matching the homepage card's own <h1 class=\"event__title\">.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-05",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event detail page's own JSON-LD 'startDate' date portion ('2026-09-05'), independently corroborated by the homepage card's own 'data-realdate=\"2026-09-05 19:00:00 +0200\"' date portion and its separate 'event__date--full' text ('05.09.26') — all three directly-stated fields agree on the calendar date (only the JSON-LD's time-of-day/offset component is unreliable, handled separately under 'time').",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "2026-09-05T18:00:00Z",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event detail page's own JSON-LD 'startDate' ('2026-09-05T20:00:00+00:00') is NOT used as this field's basis: cross-checking two independently sampled events (Buzzcocks and SKI AGGU) showed this JSON-LD field always literally states the local wall-clock 'Start' time with a fixed, incorrect '+00:00' offset appended, rather than the venue's true Europe/Berlin offset — i.e. it is internally inconsistent with the same page's own other directly-stated fields, and is flagged as a collector_assessment blocker rather than trusted. Instead, the homepage card's own machine-readable 'data-realdate' attribute directly states a full local datetime WITH the correct UTC offset for this date ('2026-09-05 19:00:00 +0200') — but for the card's Doors time, not the Start time. The same card's own nested Start time-value element directly states the true performance start clock time ('20:00') with no offset of its own. Combining these two retained, first-party fields mechanically (see derivation) yields a single full UTC instant for the true show start: 2026-09-05T18:00:00Z (20:00 CEST).",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"],
+      "derivation": {
+        "rule": "Each event card's own data-realdate attribute states a full local datetime with an explicit, correctly-formed UTC offset for that calendar date (representing Doors time). The same card's own nested Start time-value element states the true performance start clock time, with no offset of its own. Substitute the Start clock time for the data-realdate's time-of-day component, keeping data-realdate's own date and UTC offset unchanged, to produce one full UTC instant for the true show start. This derivation deliberately never uses the event detail page's own JSON-LD startDate field as an input, because that field was independently confirmed (via two sampled events) to always carry a fixed, incorrect '+00:00' offset suffix rather than the venue's real offset.",
+        "inputs": ["2026-09-05 19:00:00 +0200 (homepage card data-realdate, Doors)", "20:00 (homepage card Start time-value)"]
+      }
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Neither the event card, the event detail page, nor its JSON-LD state an end time.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Astra Berlin, Revaler Str. 99, 10245 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event detail page's own JSON-LD 'location.name'/'location.address' state this directly and identically on both sampled events.",
+      "evidence_refs": ["ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "2026-09-05-buzzcocks",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail-page URL path segment (date + slug, e.g. '/events/2026-09-05-buzzcocks') is the site's own canonical, directly-stated permalink for that specific occurrence, matching the JSON-LD's own 'url' field exactly — the same documented URL-slug stable-identifier strategy already used for moog-barcelona-01/LAV and for the other AEG-operated Berlin venues already investigated in this trial.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.astra-berlin.de/events/2026-09-05-buzzcocks",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event detail page's own JSON-LD 'url' field, stated directly.",
+      "evidence_refs": ["ev-event-detail-buzzcocks"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Vorverkauf 42,00 € (+ Geb.); Abendkasse 50,00 €",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event detail page's own structured price block directly states two named tiers ('Vorverkauf'/advance-sale and 'Abendkasse'/door-price) with exact amounts — a complete price breakdown, not merely a 'starting from' indicator.",
+      "evidence_refs": ["ev-event-detail-buzzcocks"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu", "ev-homepage"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "This source's own JSON-LD 'startDate' field carries a confirmed, reproducible timezone-offset bug: across both independently sampled events it literally states the local wall-clock start time with a fixed, incorrect '+00:00' UTC-offset suffix (e.g. '2026-09-05T20:00:00+00:00' for an actual 20:00 CEST / 18:00Z show), rather than the venue's true Europe/Berlin offset. A naive JSON_LD collector implementation that trusts this field's offset literally would silently record every event's start time 2 hours late (summer) or 1 hour late (winter). Any future collector for this source MUST derive the UTC start instant from the homepage card's own data-realdate + Start time-value fields (see field_assessment.time.derivation) instead of parsing JSON-LD startDate directly, or must strip and recompute the offset using the venue's known fixed Europe/Berlin timezone. This must be resolved before activation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from two independently retained artifacts (homepage title, and the JSON-LD's own location.name/address).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the homepage's upcoming-events listing plus two sampled event detail pages with JSON-LD.",
+      "title, start_date, and time all PROVEN — time via a documented DETERMINISTIC_CONTEXT derivation that deliberately bypasses this source's own confirmed-buggy JSON-LD offset field.",
+      "source_record_id and venue_location and price all PROVEN with basis DIRECT_SOURCE — this source exposes a genuinely complete price breakdown, unlike the AEG-operated sibling venues in this trial.",
+      "recommended_family JSON_LD, an existing documented collector family — no new family required, though a MAJOR blocker documents that the standard JSON-LD startDate parsing path must NOT be used naively for this specific source.",
+      "Not advanced to READY_FOR_ACTIVATION: (1) an unresolved MAJOR blocker exists (the JSON-LD offset bug, which any real collector implementation must specifically work around), and (2) no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for the DETERMINISTIC_CONTEXT time field (gate 9/v1.2 offline-proof requirement) — both are separate follow-up work, not performed as part of this investigation task."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, retained in full (byte-faithful raw HTTP response body) — server-renders upcoming events as static cards with data-realdate/Doors/Start markup.",
+      "acquired_from": "https://astra-berlin.de/",
+      "acquired_at": "2026-08-26T12:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-buzzcocks",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page, retained in full (byte-faithful raw HTTP response body) — includes a schema.org MusicEvent JSON-LD block and a structured two-tier price block.",
+      "acquired_from": "https://astra-berlin.de/events/2026-09-05-buzzcocks",
+      "acquired_at": "2026-08-26T12:41:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/event-detail-buzzcocks-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-ski-aggu",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second sampled event detail page, retained in full (byte-faithful raw HTTP response body), used to cross-check and confirm the JSON-LD startDate offset bug is reproducible, not a one-off.",
+      "acquired_from": "https://astra-berlin.de/events/2026-08-29-ski-aggu",
+      "acquired_at": "2026-08-26T12:44:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/event-detail-ski-aggu-raw.html"
+    }
+  ],
+  "supersedes": null
+}

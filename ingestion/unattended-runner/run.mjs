@@ -106,9 +106,10 @@ import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { acquireBarcelona } from "../barcelona/run.mjs";
+import { acquireBerlin } from "../berlin/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildSpainMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
 import { loadValidatedArtifact } from "../publication-server/run.mjs";
 import {
@@ -178,6 +179,7 @@ export async function runUnattendedCycle(args = {}) {
   const generatedAt = startedAt;
   const acquire = args.acquireLisbonPorto ?? acquireLisbonPorto;
   const acquireSpain = args.acquireBarcelona ?? acquireBarcelona;
+  const acquireGermany = args.acquireBerlin ?? acquireBerlin;
   const retentionGraceMs = args.retentionGraceMs ?? DEFAULT_RETENTION_GRACE_MS;
 
   console.log(`[unattended] run ${runId} starting at ${startedAt}`);
@@ -254,8 +256,25 @@ export async function runUnattendedCycle(args = {}) {
       console.error(`[unattended] Barcelona acquisition failed entirely: ${error?.message ?? error} — publishing with zero Spain markers this run, Portugal unaffected`);
     }
 
-    const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
-    const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length;
+    // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+    // Berlin/Germany joins Portugal and Barcelona in the same recurring
+    // cycle, reusing acquireBerlin() exactly as `npm run publish:map-data`
+    // already does — same total-throw isolation and same bounded retry
+    // policy as Barcelona above (closing the same previously-documented
+    // gap Barcelona had before BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01).
+    let berlinRegistry = { entries: [] };
+    let berlinResults;
+    let berlinObservations;
+    try {
+      ({ berlinRegistry, berlinResults, berlinObservations } = await acquireGermany({ retryPolicy }));
+    } catch (error) {
+      berlinResults = [acquisitionFailureSource("berlin-acquisition", error)];
+      berlinObservations = [];
+      console.error(`[unattended] Berlin acquisition failed entirely: ${error?.message ?? error} — publishing with zero Germany markers this run, Portugal/Spain unaffected`);
+    }
+
+    const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults];
+    const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length;
     const successCount = rawSourceResults.filter((result) => result.success).length;
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: annotate every source
@@ -267,6 +286,12 @@ export async function runUnattendedCycle(args = {}) {
     const sourceResults = annotateSourceProvenance({
       sourceResults: rawSourceResults,
       previousSourceReportSources: previousArtifact?.source_report?.sources ?? [],
+      // BEATMAPPED-RETENTION-COLD-START-BOOTSTRAP-AND-BERLIN-INTEGRATION-01:
+      // the SAME already-validated previousArtifact (loaded above via
+      // loadValidatedArtifact()) — only consulted as a cold-start fallback
+      // when a source has no explicit last_success_at yet. See
+      // annotateSourceProvenance()'s own doc comment.
+      previousArtifact,
       generatedAt,
       graceMs: retentionGraceMs,
     });
@@ -284,6 +309,7 @@ export async function runUnattendedCycle(args = {}) {
     const lisbonVenues = JSON.parse(await readFile(resolve(root, "venues/lisbon.json"), "utf8"));
     const portoVenues = JSON.parse(await readFile(resolve(root, "venues/porto.json"), "utf8"));
     const barcelonaVenues = JSON.parse(await readFile(resolve(root, "venues/barcelona.json"), "utf8"));
+    const berlinVenues = JSON.parse(await readFile(resolve(root, "venues/berlin.json"), "utf8"));
     // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
     // venue registries above — falls back to an empty registry/link set
     // for an isolated test root that never seeded artists/*.json, exactly
@@ -318,6 +344,14 @@ export async function runUnattendedCycle(args = {}) {
       artistRegistry: artistRegistry.artists,
       artistLinks: artistLinks.links,
     });
+    const germanyMarkers = buildGermanyMarkers({
+      berlinObservations,
+      berlinVenues: berlinVenues.venues,
+      berlinSourceRegistry: berlinRegistry.entries,
+      manualCoordinatesByVenueId,
+      artistRegistry: artistRegistry.artists,
+      artistLinks: artistLinks.links,
+    });
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: fill in eligible
     // last-known-good venues for every source that FAILED this run but is
@@ -330,9 +364,17 @@ export async function runUnattendedCycle(args = {}) {
     // map — see that function's own doc comment).
     const retainedEligibleSourceIds = sourceResults.filter((result) => result.retained_eligible).map((result) => result.source_id);
     const todayDateString = generatedAt.slice(0, 10);
+    // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+    // each eligible source's own already-computed last_success_at is
+    // passed through as that source's `retained_since` — see
+    // extractRetainableMarkersForSource()'s own doc comment for why this
+    // reuses the existing durable value rather than deriving a second one.
+    const lastSuccessAtBySourceId = new Map(sourceResults.map((result) => [result.source_id, result.last_success_at ?? null]));
     const combinedRetainedVenues = previousArtifact
       ? combineRetainedVenueMaps(
-          retainedEligibleSourceIds.map((sourceId) => extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString })),
+          retainedEligibleSourceIds.map((sourceId) =>
+            extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString, retainedSince: lastSuccessAtBySourceId.get(sourceId) ?? null }),
+          ),
         )
       : new Map();
 
@@ -344,30 +386,34 @@ export async function runUnattendedCycle(args = {}) {
 
     const retainedPortugalVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Portugal"));
     const retainedSpainVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Spain"));
+    const retainedGermanyVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Germany"));
     const mergedPortugalMarkers = mergeRetainedMarkers(portugalMarkers, retainedPortugalVenues);
     const mergedSpainMarkers = mergeRetainedMarkers(spainMarkers, retainedSpainVenues);
+    const mergedGermanyMarkers = mergeRetainedMarkers(germanyMarkers, retainedGermanyVenues);
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: every count/validation/
     // publication step from here on uses the MERGED (fresh + eligible
-    // retained) marker lists — `portugalMarkers`/`spainMarkers` themselves
-    // are never referenced again below this point, only their merged
-    // counterparts.
+    // retained) marker lists — `portugalMarkers`/`spainMarkers`/
+    // `germanyMarkers` themselves are never referenced again below this
+    // point, only their merged counterparts.
     const displayListingCount =
       mergedPortugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
-      mergedSpainMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
-    const mapMarkerCount = mergedPortugalMarkers.length + mergedSpainMarkers.length;
+      mergedSpainMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
+      mergedGermanyMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+    const mapMarkerCount = mergedPortugalMarkers.length + mergedSpainMarkers.length + mergedGermanyMarkers.length;
 
     const catastrophic = isCatastrophicPublicationRun({
       sourceSuccessCount: successCount,
       portugalMarkerCount: mergedPortugalMarkers.length,
       spainMarkerCount: mergedSpainMarkers.length,
+      germanyMarkerCount: mergedGermanyMarkers.length,
     });
 
     let publicationStatus;
     if (catastrophic) {
       publicationStatus = { succeeded: false, reason: "CATASTROPHIC_RUN" };
       console.error(
-        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain map marker(s)) — preserving the previous public artifact untouched`,
+        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain + ${mergedGermanyMarkers.length} Germany map marker(s)) — preserving the previous public artifact untouched`,
       );
     } else {
       const artifact = buildPublicationArtifact({
@@ -376,6 +422,7 @@ export async function runUnattendedCycle(args = {}) {
         to: args.to ?? null,
         portugalMarkers: mergedPortugalMarkers,
         spainMarkers: mergedSpainMarkers,
+        germanyMarkers: mergedGermanyMarkers,
         sourceResults,
         observationCount,
         artistRegistry: artistRegistry.artists,

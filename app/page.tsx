@@ -196,9 +196,18 @@ export default function Home() {
     () => (publicationArtifact.countries.Spain?.markers as MapMarker[] | undefined) ?? [],
     [publicationArtifact],
   );
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 — Germany's own
+  // bucket, read the same optional-chained way as Spain above: an
+  // artifact published before Berlin existed legitimately has no
+  // `countries.Germany` key at all and must still render every other
+  // country exactly as before rather than throwing.
+  const germanyMarkers = useMemo(
+    () => (publicationArtifact.countries.Germany?.markers as MapMarker[] | undefined) ?? [],
+    [publicationArtifact],
+  );
   const visibleMarkers = useMemo(
-    () => getMarkersForCountry(country, portugalMarkers, spainMarkers) as MapMarker[],
-    [country, portugalMarkers, spainMarkers],
+    () => getMarkersForCountry(country, portugalMarkers, spainMarkers, germanyMarkers) as MapMarker[],
+    [country, portugalMarkers, spainMarkers, germanyMarkers],
   );
 
   // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
@@ -295,6 +304,7 @@ export default function Home() {
             <span>Portugal</span>
             <span>Croatia</span>
             <span>Spain</span>
+            <span>Germany</span>
           </div>
         </section>
 
@@ -329,6 +339,7 @@ export default function Home() {
                   <option>Portugal</option>
                   <option>Croatia</option>
                   <option>Spain</option>
+                  <option>Germany</option>
                 </select>
               </span>
             </label>

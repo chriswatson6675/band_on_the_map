@@ -119,6 +119,36 @@ export function buildSpainMarkers({
 }
 
 /**
+ * BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: the
+ * Germany/Berlin sibling of buildPortugalMarkers()/buildSpainMarkers()
+ * above — same projectObservationsToDisplayMarkers() machinery, same
+ * manual-coordinate composition, same artist-genre attachment, so Berlin
+ * is never a second, independently-drifting projection path. `associations`
+ * defaults to `[]` (no hand-authored cross-source association pairs exist
+ * for Berlin yet, matching Spain's own precedent) — a future Berlin
+ * duplicate-listing case would need its own explicit, evidence-backed
+ * association module, following the Hot Clube/Capitólio precedent exactly.
+ */
+export function buildGermanyMarkers({
+  berlinObservations,
+  berlinVenues,
+  berlinSourceRegistry,
+  associations = [],
+  manualCoordinatesByVenueId,
+  artistRegistry = [],
+  artistLinks = [],
+}) {
+  const markers = projectObservationsToDisplayMarkers(berlinObservations ?? [], {
+    venues: berlinVenues ?? [],
+    sourceRegistry: berlinSourceRegistry ?? [],
+    associations,
+    manualCoordinatesByVenueId,
+  });
+
+  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
+}
+
+/**
  * Trim one full display marker (as produced by
  * projectObservationsToDisplayMarkers, which also carries the raw,
  * ungrouped `listings` array used only for internal proof/debug
@@ -230,16 +260,41 @@ export function buildPublicationArtifact({
   to,
   portugalMarkers,
   spainMarkers = [],
+  germanyMarkers = [],
   sourceResults,
   observationCount,
   artistRegistry = [],
 }) {
   const publicationPortugalMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
   const publicationSpainMarkers = (spainMarkers ?? []).map(toPublicationMarker);
-  const allPublicationMarkers = [...publicationPortugalMarkers, ...publicationSpainMarkers];
+  const publicationGermanyMarkers = (germanyMarkers ?? []).map(toPublicationMarker);
+  const allPublicationMarkers = [...publicationPortugalMarkers, ...publicationSpainMarkers, ...publicationGermanyMarkers];
   const displayListingCount = allPublicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
   const successCount = (sourceResults ?? []).filter((result) => result.success).length;
   const failureCount = (sourceResults ?? []).length - successCount;
+
+  // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+  // a pure rollup over listings ingestion/map/source-retention.mjs's
+  // extractRetainableMarkersForSource() already tagged `stale: true` (plus
+  // `retained_since`) when it built the retained-venue maps merged into
+  // portugalMarkers/spainMarkers/germanyMarkers by the caller — this block
+  // makes NO retention decision of its own, it only counts what already
+  // happened, so a caller that never uses source-retention.mjs (an
+  // artifact with no retained data) always gets zero-valued fields here,
+  // never a second, independently-drifting notion of "stale".
+  const staleListingCount = allPublicationMarkers.reduce(
+    (sum, marker) => sum + (marker.display_listings ?? []).filter((listing) => listing.stale === true).length,
+    0,
+  );
+  const staleSourceIds = new Set();
+  for (const marker of allPublicationMarkers) {
+    for (const listing of marker.display_listings ?? []) {
+      if (listing.stale !== true) continue;
+      for (const id of listing.kind === "GROUP" ? (listing.sources ?? []).map((s) => s.source_id) : [listing.source_id]) {
+        staleSourceIds.add(id);
+      }
+    }
+  }
 
   return {
     generated_at: generatedAt,
@@ -279,10 +334,22 @@ export function buildPublicationArtifact({
       display_listing_count: displayListingCount,
       map_marker_count: allPublicationMarkers.length,
     },
+    // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+    // additive, optional-in-spirit rollup (always present, but always
+    // zero-valued/empty for an artifact with no retained data — see
+    // validatePublicationArtifact() below) answering "how much of what
+    // was just published is carried-forward stale data, and from which
+    // sources" without a caller having to walk every marker's
+    // display_listings itself.
+    resilience: {
+      retained_stale_listing_count: staleListingCount,
+      retained_stale_source_ids: [...staleSourceIds].sort(),
+    },
     countries: {
       Portugal: { markers: publicationPortugalMarkers },
       Croatia: { markers: [] },
       Spain: { markers: publicationSpainMarkers },
+      Germany: { markers: publicationGermanyMarkers },
     },
     artists: buildArtistIndex(allPublicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
   };
@@ -394,9 +461,23 @@ export function validatePublicationArtifact(artifact) {
     }
   }
 
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: "Germany"
+  // joins "Spain" as another OPTIONAL country bucket, for the exact same
+  // reason Spain was optional relative to Portugal/Croatia — every
+  // artifact built before Berlin existed legitimately has no
+  // `countries.Germany` key at all. Its markers join the SAME global
+  // cross-checks below (map_marker_count/display_listing_count/venue_id
+  // uniqueness are the TOTAL across every published country).
+  if (artifact.countries.Germany !== undefined) {
+    if (!artifact.countries.Germany || !Array.isArray(artifact.countries.Germany.markers)) {
+      errors.push("countries.Germany.markers must be an array when present");
+    }
+  }
+
   const portugalMarkers = Array.isArray(artifact.countries.Portugal?.markers) ? artifact.countries.Portugal.markers : null;
   const spainMarkers = Array.isArray(artifact.countries.Spain?.markers) ? artifact.countries.Spain.markers : [];
-  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers] : null;
+  const germanyMarkers = Array.isArray(artifact.countries.Germany?.markers) ? artifact.countries.Germany.markers : [];
+  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers, ...germanyMarkers] : null;
 
   if (allCountryMarkers) {
     let listingSum = 0;
@@ -424,6 +505,22 @@ export function validatePublicationArtifact(artifact) {
           if (!isValidDisplayListing(listing)) {
             errors.push(`${marker.venue_id}: malformed display listing ${JSON.stringify(listing)}`);
           }
+          // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+          // both fields are fully optional (a freshly-acquired listing
+          // legitimately has neither) — only validated when present.
+          if (listing?.stale !== undefined && listing.stale !== true) {
+            errors.push(`${marker.venue_id}: display listing's stale, when present, must be exactly true (omit the field entirely for fresh data)`);
+          }
+          if (
+            listing?.retained_since !== undefined &&
+            listing.retained_since !== null &&
+            (typeof listing.retained_since !== "string" || Number.isNaN(Date.parse(listing.retained_since)))
+          ) {
+            errors.push(`${marker.venue_id}: display listing's retained_since must be a valid ISO 8601 timestamp string or null`);
+          }
+          if (listing?.retained_since !== undefined && listing.stale !== true) {
+            errors.push(`${marker.venue_id}: display listing has retained_since but is not marked stale — retained_since only applies to stale (carried-forward) listings`);
+          }
         }
         listingSum += marker.display_listings.length;
       }
@@ -444,6 +541,43 @@ export function validatePublicationArtifact(artifact) {
       }
       if (typeof artifact.counts.observation_count !== "number" || artifact.counts.observation_count < 0) {
         errors.push("counts.observation_count must be a non-negative number");
+      }
+    }
+
+    // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+    // `resilience` is OPTIONAL (an artifact predating this package, or
+    // hand-authored by a test fixture, legitimately has none) — but when
+    // present it must exactly match what is actually tagged `stale: true`
+    // across the markers just walked above, never an independently
+    // -drifting rollup.
+    if (artifact.resilience !== undefined) {
+      if (!artifact.resilience || typeof artifact.resilience !== "object") {
+        errors.push("resilience must be an object when present");
+      } else {
+        let derivedStaleListingCount = 0;
+        const derivedStaleSourceIds = new Set();
+        for (const marker of allCountryMarkers) {
+          for (const listing of marker?.display_listings ?? []) {
+            if (listing?.stale !== true) continue;
+            derivedStaleListingCount += 1;
+            for (const id of listing.kind === "GROUP" ? (listing.sources ?? []).map((s) => s.source_id) : [listing.source_id]) {
+              derivedStaleSourceIds.add(id);
+            }
+          }
+        }
+        if (artifact.resilience.retained_stale_listing_count !== derivedStaleListingCount) {
+          errors.push(
+            `resilience.retained_stale_listing_count (${artifact.resilience.retained_stale_listing_count}) does not match the actual count of listings tagged stale:true (${derivedStaleListingCount})`,
+          );
+        }
+        if (!Array.isArray(artifact.resilience.retained_stale_source_ids)) {
+          errors.push("resilience.retained_stale_source_ids must be an array");
+        } else {
+          const reported = new Set(artifact.resilience.retained_stale_source_ids);
+          if (reported.size !== derivedStaleSourceIds.size || [...derivedStaleSourceIds].some((id) => !reported.has(id))) {
+            errors.push("resilience.retained_stale_source_ids does not match the source_ids of listings actually tagged stale:true");
+          }
+        }
       }
     }
   }
@@ -509,6 +643,11 @@ export function validatePublicationArtifact(artifact) {
  * keeps EXACTLY today's behaviour: `spainMarkerCount` defaults to `0`, so
  * rule (b) reduces to the original `portugalMarkerCount === 0` check.
  */
-export function isCatastrophicPublicationRun({ sourceSuccessCount, portugalMarkerCount, spainMarkerCount = 0 }) {
-  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount === 0;
+export function isCatastrophicPublicationRun({
+  sourceSuccessCount,
+  portugalMarkerCount,
+  spainMarkerCount = 0,
+  germanyMarkerCount = 0,
+}) {
+  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount + germanyMarkerCount === 0;
 }

@@ -1,0 +1,189 @@
+{
+  "investigation_id": "waldbuehne-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage and its own 'programm-und-tickets' page. Both retained responses embed a single <script type=application/ld+json> block containing a full JSON array of schema.org MusicEvent objects (startDate/endDate/doorTime/location/performer/offers) for every currently listed upcoming show — no per-event crawling was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.waldbuehne-berlin.de/programm-und-tickets/ immediately exposed one <script type=application/ld+json> block containing a JSON array of 11 real, upcoming schema.org MusicEvent records with startDate, endDate, doorTime, a venue-address location block, performer, and an AggregateOffer (price/availability). This directly answers the investigation question at Level 1 — no structural/browser escalation was needed.",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    }
+  ],
+  "source_candidate_id": "waldbuehne-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Waldbühne Berlin (outdoor amphitheatre, Westend, Berlin — Glockenturmstraße 1, 14053 Berlin, in the Olympiapark)",
+  "official_url": "https://www.waldbuehne-berlin.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home-identity",
+      "ev-events-jsonld"
+    ],
+    "notes": "The venue's own homepage <title> ('Waldbühne Berlin | Eine der schönsten Freilichtbühnen Europas') and meta description both self-identify directly. Every sampled MusicEvent's own retained 'location' block independently confirms the same identity and address ('Waldbühne Berlin', 'Glockenturmstraße 1', 14053 Berlin — the venue's well-known real-world address inside the Olympiapark, Westend) with 'sameAs' pointing back at this exact domain."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "The venue's own 'programm-und-tickets' page (and its homepage) embed a single schema.org JSON-LD array of MusicEvent objects covering every currently listed upcoming show.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-jsonld"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://www.waldbuehne-berlin.de/programm-und-tickets/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Gianna Nannini",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'name' field, stated directly (e.g. 'Gianna Nannini', 'blink-182', 'Herbert Grönemeyer').",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-19",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The date portion of each JSON-LD MusicEvent's own 'startDate' field, an explicit ISO 8601 local datetime string (e.g. '2026-09-19T19:00:00') stated directly — no combination with separate context needed. No UTC offset is present in 'startDate' itself (see 'time' below for the floating-local caveat).",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The time-of-day portion of the same 'startDate' string, stated directly. 'startDate' carries no timezone offset/'Z' suffix anywhere in the sampled records, so this is honestly a floating local time (presumed Europe/Berlin), never upgraded to a proven UTC instant. A separate 'doorTime' field (also floating-local) is present on some records.",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each record's own 'endDate' field is present, but on every sampled record it is a date-only value equal to the same calendar day as 'startDate' with no time-of-day (e.g. startDate '2026-09-19T19:00:00', endDate '2026-09-19') — it reads as a same-day marker rather than a genuine event end time, so it was not promoted to a precise claimed end-time value.",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Waldbühne Berlin, Glockenturmstraße 1, 14053 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'location.name'/'location.address' block, stated directly — the literal string 'Waldbühne Berlin' with a full PostalAddress, identical on every sampled record (this source covers only the one physical venue).",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "gianna_nannini_2026-09-19_19",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric/opaque id field is exposed. Each event's own 'url' field is this source's own permanent event-detail path ('/event/{slug}/'), and the slug itself is source-authored and appears to deterministically encode artist + date + hour (e.g. 'gianna_nannini_2026-09-19_19') — the same documented URL-slug-as-source_record_id strategy already established for moog-barcelona-01 and LAV.",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.waldbuehne-berlin.de/event/gianna_nannini_2026-09-19_19/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'url' field, stated directly.",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Present on most sampled records as 'offers.price'/'lowPrice'/'highPrice' with 'priceCurrency': 'EUR' (e.g. 97.00 EUR for Gianna Nannini), but genuinely absent on at least one sampled record whose 'offers.availability' is 'http://schema.org/SoldOut' (Herbert Grönemeyer, 2027-06-15) — honestly recorded as PARTIAL rather than promoted to a value that would not hold for every record.",
+      "evidence_refs": [
+        "ev-events-jsonld"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-jsonld",
+      "waldbuehne-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from the venue's own homepage plus every sampled MusicEvent's own retained location/address block.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, with 11 real upcoming MusicEvent records retained from one request.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN, directly stated by the source (DIRECT_SOURCE, no combination needed).",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching the moog-barcelona-01/LAV precedent.",
+      "recommended_family JSON_LD — this project's own existing, generic, reusable module (ingestion/json-ld/parse.mjs) requires zero new code.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/json-ld-berlin-zero-code-cohort.test.mjs) — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-events-jsonld",
+      "waldbuehne-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (first 2500 chars, the <head>/<title>/meta-description region) of the venue's official homepage, retained for identity confirmation.",
+      "acquired_from": "https://www.waldbuehne-berlin.de/",
+      "acquired_at": "2026-08-26T13:12:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/waldbuehne-berlin-01/evidence/homepage-identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-jsonld",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The complete, real, retained <script type=application/ld+json> block from the venue's own 'programm-und-tickets' page — a JSON array of 11 real upcoming MusicEvent records (startDate/endDate/doorTime/location/performer/offers). This is the entire structured dataset currently exposed by that one page, not a truncated excerpt of a larger set.",
+      "acquired_from": "https://www.waldbuehne-berlin.de/programm-und-tickets/",
+      "acquired_at": "2026-08-26T13:13:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/waldbuehne-berlin-01/evidence/events-page-jsonld-full.html"
+    },
+    {
+      "evidence_id": "waldbuehne-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/json-ld-berlin-zero-code-cohort.test.mjs) re-parsing this investigation's own retained fixture via the EXISTING generic collector family and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/json-ld-berlin-zero-code-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/waldbuehne-berlin-01/evidence/events-page-jsonld-full.html"
+    }
+  ],
+  "supersedes": null
+}

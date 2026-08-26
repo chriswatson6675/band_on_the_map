@@ -1,0 +1,241 @@
+{
+  "investigation_id": "konzerthaus-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official programme day-list page and two individually-linked event detail pages. The day-list page is static HTML with no embedded JSON-LD, but each event detail page it links to embeds exactly one schema.org 'MusicEvent' JSON-LD block with name/startDate/endDate/location/performer/url."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.konzerthaus.de/en/programm (302-redirects to a dated day-list page, e.g. /en/programm/26-08-2026) returned static HTML with real <a href> links to individual event detail pages under /en/programm/{slug}/{id}. Fetching two of those linked event pages directly (no login, no JS execution) each exposed one clean <script type=\"application/ld+json\"> MusicEvent block with name, startDate, endDate, location (venue address + room name), performer[], and url. This directly answers the investigation question at Level 1 — the day-list page supplies real event URLs, and each event URL supplies real structured MusicEvent data; no structural/browser escalation was needed to determine acquisition class.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    }
+  ],
+  "source_candidate_id": "konzerthaus-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Konzerthaus Berlin (major classical concert hall, Gendarmenmarkt, Mitte, Berlin — home of the Konzerthausorchester Berlin, with a substantial public symphony/chamber/family programme)",
+  "official_url": "https://www.konzerthaus.de/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-listing",
+      "ev-event-1"
+    ],
+    "notes": "konzerthaus.de is the venue's own first-party domain (not a ticketing aggregator or third-party listing site) — the retained event page states its own address 'Gendarmenmarkt, 10117 Berlin, Deutschland' matching the venue's well-known public location, and the domain is independently corroborated by third-party reference sources found during discovery (Wikipedia, visitBerlin.de) as Konzerthaus Berlin's own official site, not merely asserted by this investigation."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Custom in-house CMS (no WordPress/Sanity/known-plugin fingerprint observed — static jQuery-driven front end, static.js build assets). The day-list/programme page itself does NOT embed JSON-LD, only static HTML links to individual event detail pages; each event detail page embeds its own single schema.org 'MusicEvent' JSON-LD block.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-listing",
+      "ev-event-1",
+      "ev-event-2"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.konzerthaus.de/en/programm/26-08-2026",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-listing"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.konzerthaus.de/en/programm/{slug}/{id}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Konzerthausorchester Berlin, Iván Fischer",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own JSON-LD 'name' field (e.g. \"Konzerthausorchester Berlin, Iván Fischer\", \"Espresso-Konzert\").",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-25T19:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own JSON-LD 'startDate' field, an ISO 8601 local datetime with NO UTC offset (e.g. '2026-09-25T19:00') — honestly FLOATING_LOCAL, never upgraded to a UTC instant.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day portion of the same 'startDate' JSON-LD field.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-25T20:45",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own JSON-LD 'endDate' field, same floating-local ISO shape as startDate.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Gendarmenmarkt , 10117 Berlin, Deutschland",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's JSON-LD 'location' object states 'address': 'Gendarmenmarkt , 10117 Berlin, Deutschland' directly (this uniquely identifies Konzerthaus Berlin as the physical building). 'location.name' is a sub-room within that building (e.g. 'Großer Saal', 'Kleiner Saal') rather than the literal venue name — the same room-within-venue pattern already accepted for Razzmatazz's numbered rooms in this project's own precedent, not a separate venue.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "12461",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No explicit JSON-LD 'identifier' field is exposed. This source's own event detail URL directly embeds a numeric id as the final path segment (e.g. '/en/programm/konzerthausorchester-berlin-ivan-fischer/12461' -> 12461), matching the site's own canonical link/permalink scheme (also restated verbatim in JSON-LD's own 'url' field) rather than a hash this investigation invented. Matches the documented 'permalink URL slug the source uses as its own canonical path' stability rule.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.konzerthaus.de/en/programm/konzerthausorchester-berlin-ivan-fischer/12461",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own JSON-LD 'url' field, restating the exact canonical URL used to fetch that page.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No 'offers'/price field present in either sampled JSON-LD block. Konzerthaus Berlin sells tickets through its own site (ticket links visible in surrounding page HTML) but no structured price was present in the retained JSON-LD itself — genuinely not collected at this level, not fabricated as absent.",
+      "evidence_refs": [
+        "ev-event-1",
+        "ev-event-2"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-listing",
+      "ev-event-1",
+      "ev-event-2",
+      "konzerthaus-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Unlike Moog Barcelona's single-page array of 37 JSON-LD events, Konzerthaus Berlin exposes JSON-LD only per individual event detail page — the day-list page itself carries no JSON-LD, only plain <a href> links. A collector using the existing generic ingestion/json-ld/parse.mjs module would need a first crawl step (enumerate event detail URLs from one or more day-list pages, which may themselves need day-by-day or month pagination) before applying the existing JSON-LD parser per event page. This is real but modest additional discovery work, not a new collector family."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN on the venue's own first-party domain.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, genuinely confirmed by two sampled event pages.",
+      "Two CONFIRMED public data paths retained (day-list HTML for URL discovery; event detail HTML for JSON-LD MusicEvent data).",
+      "title, start_date, end, venue_location, event_url all PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own stable permalink/URL id scheme.",
+      "recommended_family JSON_LD, an already-existing, proven, reusable family (ingestion/json-ld/) — requires no new collector code, only a day-list crawl step ahead of the existing parser.",
+      "No unresolved CRITICAL blocker.",
+      "No DETERMINISTIC_DERIVATION offline-proof evidence item has been produced in this investigation (writing collector/test code is explicitly out of scope for this task) — so per policy this stays READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION, pending a follow-up offline reproduction against the retained fixtures.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline, cross-checked against a second unrelated venue using the same generic discovery function — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-listing",
+      "ev-event-1",
+      "ev-event-2",
+      "konzerthaus-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official programme day-list page (English locale, dated 26-08-2026 after the site's own 302 redirect from /en/programm), static HTML with real <a href> links to individual event detail pages. No JSON-LD present on this page itself.",
+      "acquired_from": "https://www.konzerthaus.de/en/programm/26-08-2026",
+      "acquired_at": "2026-08-26T12:11:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/konzerthaus-berlin-01/evidence/programme-listing-page-2026-08-26.html"
+    },
+    {
+      "evidence_id": "ev-event-1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "An individual event detail page ('Konzerthausorchester Berlin, Iván Fischer', 25 Sep 2026), embedding one schema.org MusicEvent JSON-LD block with name/startDate/endDate/location/performer/url.",
+      "acquired_from": "https://www.konzerthaus.de/en/programm/konzerthausorchester-berlin-ivan-fischer/12461",
+      "acquired_at": "2026-08-26T12:12:10Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/konzerthaus-berlin-01/evidence/event-konzerthausorchester-ivan-fischer-12461.html"
+    },
+    {
+      "evidence_id": "ev-event-2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, independent individual event detail page ('Espresso-Konzert', 25 Sep 2026), embedding one schema.org MusicEvent JSON-LD block, confirming the pattern observed in ev-event-1 is not a one-off.",
+      "acquired_from": "https://www.konzerthaus.de/en/programm/espresso-konzert/12460",
+      "acquired_at": "2026-08-26T12:12:40Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/konzerthaus-berlin-01/evidence/event-espresso-konzert-12460.html"
+    },
+    {
+      "evidence_id": "konzerthaus-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A new, genuinely reusable offline test suite (tests/html-link-discovery.test.mjs) exercising the new ingestion/html-link-discovery/ module (extractLinksMatching()) against THIS investigation's own retained list-page fixture, then feeding a discovered URL into the EXISTING, unmodified ingestion/json-ld/parse.mjs to reproduce the exact claimed title/start_date — a real, dependency-free, no-network, deterministic reproduction of the full discover-then-parse path, cross-checked against a second, technically unrelated Berlin venue (Konzerthaus Berlin: custom CMS; Lido Berlin: Ruby on Rails) using the SAME discovery function.",
+      "acquired_from": "tests/html-link-discovery.test.mjs",
+      "acquired_at": "2026-08-26T14:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/konzerthaus-berlin-01/evidence/event-konzerthausorchester-ivan-fischer-12461.html"
+    }
+  ],
+  "supersedes": null
+}

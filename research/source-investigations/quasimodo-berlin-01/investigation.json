@@ -1,0 +1,216 @@
+{
+  "investigation_id": "quasimodo-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:22:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official events list page (https://quasimodo.club/en/events) and one event detail page. Both are WordPress-rendered static HTML with clean, consistently-structured event markup (date/time/title/tags/ticket-link on the list; full date/start/door-time/price on the detail page). No JSON-LD Event data, EventON, Tribe Events, Fourvenues, or Sanity signal was present — only generic Yoast SEO WebPage/Organization schema. No structural/browser escalation was needed to answer the investigation question."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://quasimodo.club/en/events (200 OK, 119,311 bytes) returned 29 consistently-structured static HTML <li class=\"event-item\"> cards, each with a full date+time ('04.09.2026 - 22:00'), title, genre tags, and a permalink URL. A follow-up curl GET of one event detail page (https://quasimodo.club/en/events/blues-caravan-3-7229, 200 OK, 92,532 bytes) confirmed the same event's full date ('25. September 2026'), start time, door time, and a presale price ('ab 30€ plus fee'). This directly answers the investigation question at Level 1 — no escalation to Level 2/3 was needed.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    }
+  ],
+  "source_candidate_id": "quasimodo-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Quasimodo (jazz/live-music club, Charlottenburg, Berlin — Kantstraße 12A, in the basement of the former Delphi Filmpalast)",
+  "official_url": "https://quasimodo.club/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "The bare domain quasimodo.de is NOT the club's own programme site — it is retained (ev-identity) as a splash/landing page ('Willkommen im Quasimodo / Bitte wählen Sie') that itself links out to quasimodo.club ('Club'), quasimodo.bar ('Bar'), and an external event-location listing. quasimodo.club/en/ is confirmed as the venue's own official programme site directly from its own retained Yoast SEO WebPage schema name field: 'Quasimodo Club Berlin - Kantstraße 12A, 10623 Berlin' — matching the address independently reported by third-party discovery sources (visitBerlin.de, Berlin.de, Wikipedia) for the Quasimodo jazz club in Charlottenburg."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress 7.1 (Yoast SEO for generic page schema only). A custom 'events' post type renders clean, consistently-structured static HTML event cards on the events list page and a richer static HTML detail block (date/start/door-time/price/ticket-link) on each event's own detail page. No EventON, Tribe Events Calendar, Fourvenues widget, or Sanity signal is present anywhere in the retained HTML.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-list",
+      "ev-event-detail"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://quasimodo.club/en/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-events-list"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://quasimodo.club/en/events/blues-caravan-3-7229",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "e.g. 'Marcos Coll – Album Release Concert' (list page's own <h4 class=\"event-title\">; also the detail page's own <h1>)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated per event on both the list page and the detail page.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "e.g. '04.09.2026 - 22:00' (list page's own <div class=\"date\">, visible-xs variant); also '25. September 2026' + 'Start: 22:00' on the detail page",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The list page's own 'visible-xs' date div states the FULL date (day.month.year) plus time directly per event card — no month/year heading combination is needed, unlike some other sources this project has investigated. The detail page independently confirms the same full date in a different format ('25. September 2026') plus a separate 'Start:' time row. Timezone is not explicitly stated (assume Europe/Berlin local, floating).",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "e.g. 22:00 (list page's own <div class=\"time\">; detail page's own 'Start:' table row)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated per event; the detail page additionally distinguishes 'Start:' (22:00) from 'Einlass:' (door/entry time, e.g. 20:30) — a useful extra distinction not present on the list page.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date is present anywhere in the retained list-page or detail-page evidence.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present per-record on either the list page or the sampled detail page (no venue name/address is repeated on individual event cards or detail pages). This source resolves to exactly ONE physical venue via source_id (Quasimodo, Kantstraße 12A — confirmed separately in ev-identity), matching this project's existing Razzmatazz/Jamboree precedent for a single-venue source that does not restate its own venue name per event.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail",
+        "ev-identity"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "the event's own permalink slug under https://quasimodo.club/en/events/{slug}/ (e.g. 'blues-caravan-3-7229', where the trailing number appears to be the underlying WordPress post ID)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No bare numeric id is exposed as its own labelled field, but each event's own href/canonical URL is the site's own permanent permalink under /en/events/{slug}/ — the same documented judgement already established for Moog Barcelona, A-Trane, and LAV (a permalink URL slug the source itself uses as its own canonical path satisfies the stable identifier rule). The trailing numeric suffix visible in every slug (e.g. '-7229', '-7384', '-7387') is consistent with an underlying WordPress post ID, but its stability was not independently proven via repeated fetch in this investigation, so it is noted only as a secondary observation.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://quasimodo.club/en/events/blues-caravan-3-7229",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated as the list card's own <a href> and confirmed as the detail page's own <link rel=\"canonical\">.",
+      "evidence_refs": [
+        "ev-events-list",
+        "ev-event-detail"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "e.g. 'ab 30€ (plus fee)' (detail page's own 'Presale:' table row — an approximate/starting price, not a fixed single amount)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Present only on the detail page (not the list page), directly stated as-is including the source's own 'ab' ('from'/starting-price) qualifier and separate '(plus fee)' note — retained honestly as the source's own approximate text, not converted into a single fabricated numeric price.",
+      "evidence_refs": [
+        "ev-event-detail"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-list",
+      "ev-event-detail"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence, including an explicit check ruling out the bare .de domain as a mere splash page.",
+      "acquisition_class STATIC_HTML, a resolved supported class, retained at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the events list page (29 real upcoming events) and one representative event detail page.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — the list page states a full date+time per event card, no contextual combination needed.",
+      "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/A-Trane/LAV.",
+      "recommended_family STATIC_EVENT_LIST — an existing collector family this project already documents (list page enumerates events + links; a per-event detail fetch adds price/door-time). No fundamentally new acquisition pattern required.",
+      "No unresolved CRITICAL blocker.",
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step is explicitly out of scope for this investigation task and is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": [
+      "ev-events-list",
+      "ev-event-detail"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt combining two real curl GET responses: (1) quasimodo.club/en/'s own retained Yoast WebPage schema name field stating its own address ('Quasimodo Club Berlin - Kantstraße 12A, 10623 Berlin'); (2) quasimodo.de's real retained body content, which is a splash page linking out to quasimodo.club ('Club'), quasimodo.bar ('Bar'), and an external event-location listing — direct evidence for why quasimodo.club (not quasimodo.de) was chosen as this investigation's official_url.",
+      "acquired_from": "https://quasimodo.club/en/ and https://quasimodo.de/",
+      "acquired_at": "2026-08-26T13:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/quasimodo-berlin-01/evidence/identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own official events list page: <title>, generator meta tags, and the first 3 (of 29 total) real <li class=\"event-item\"> event cards verbatim — each with date, time, title, genre tags, and ticket link. The full raw response was 119,311 bytes; this excerpt is a genuine literal substring of it.",
+      "acquired_from": "https://quasimodo.club/en/events",
+      "acquired_at": "2026-08-26T13:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/quasimodo-berlin-01/evidence/events-list-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from one representative event detail page: <title>, canonical link, and the full date/start-time/door-time/presale-price/ticket-link block verbatim. The full raw response was 92,532 bytes; this excerpt is a genuine literal substring of it.",
+      "acquired_from": "https://quasimodo.club/en/events/blues-caravan-3-7229",
+      "acquired_at": "2026-08-26T13:21:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/quasimodo-berlin-01/evidence/event-detail-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

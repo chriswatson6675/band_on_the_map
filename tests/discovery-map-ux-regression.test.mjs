@@ -70,10 +70,72 @@ import { buildVenueFeatureCollection, sumGigCounts } from "../ingestion/map/clus
 // publish:map-data` reported 37/37 sources succeeded, 0 failed — CCB's
 // own endpoint recovered, so Portugal is back to its normal 13 (44 total
 // markers: 13 Portugal + 31 Spain; 1454 display listings; 1503
-// observations). The conditional CCB coordinate test below now exercises
-// its real assertion again rather than skipping.
+// observations).
+//
+// BEATMAPPED-BERLIN-PRE-INTEGRATION-REUSE-AND-PUBLICATION-AUDIT-01
+// (2026-08-26) — TEST-DESIGN FIX, read this before touching the numbers
+// below again:
+//
+// Every paragraph above followed one rule: "assert the exact counts of
+// whatever is currently committed, not a number independently guessed
+// at." That rule was reasonable for EVENT/LISTING volume (a live source's
+// own upcoming-events count genuinely fluctuates run to run — asserting
+// it exactly is not a defect-prevention mechanism, so this file still
+// does not try to). It was NOT reasonable for MAP MARKER (venue) counts:
+// a first Berlin population/reuse trial once updated this file's
+// marker-count assertions from "31 Spain markers" to "22 Spain markers"
+// purely because `l-auditori-barcelona` (a real, previously-onboarded
+// Barcelona source, wholly unrelated to Berlin) returned a single
+// transient `"fetch failed"` during that particular live run — silently
+// blessing real, live-network-caused data loss (9 genuine Barcelona
+// venues) as though it were the new correct baseline. An exact-equality
+// regression test cannot tell a genuine venue-coverage change apart from
+// a transient fetch failure; a "the number changed, so update the test to
+// match" workflow turns transient data loss into a passing test every
+// time, which is exactly backwards for a regression guard.
+//
+// The fix has two parts:
+//
+// 1. ingestion/map/source-retention.mjs's `mergeRetainedMarkers()` (the
+//    canonical, current-main resilience module — BEATMAPPED-SOURCE-
+//    FAILURE-GRACE-AND-RETRY-01) — a source that genuinely fails now has
+//    its previously-published listings retained (bounded to a 24-hour
+//    grace from that source's own last success) rather than silently
+//    dropped. BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-
+//    INTEGRATION-01 additionally tags every retained listing `stale:
+//    true` plus `retained_since` (that source's own `last_success_at` —
+//    never a second, independently-derived timestamp; see
+//    extractRetainableMarkersForSource()'s own doc comment) so retained
+//    data is never silently indistinguishable from freshly-acquired data,
+//    and rolls this up into the artifact's own `resilience` block (see
+//    the well-formedness test below).
+//
+// 2. THIS FILE — marker-count assertions below are FLOORS (`>=` against
+//    `KNOWN_GOOD_MARKER_FLOORS`, evidence-backed minimums from real,
+//    previously-verified publication states), not exact equality. A
+//    floor may only be RAISED, and only by a deliberate, evidenced
+//    population/onboarding task that adds real venues — never lowered,
+//    and never "corrected" merely because a live rerun happened to
+//    acquire fewer sources successfully. Display/listing counts remain
+//    informational (no hardcoded exact or floor value) — venue/source
+//    continuity is the invariant that matters here, not event-count
+//    stability.
 
 const PUBLICATION_PATH = new URL("../data/public/lisbon-porto-map.json", import.meta.url);
+
+// Evidence-backed minimum venue-marker coverage per country. Raise only
+// via a deliberate, evidenced population/onboarding commit; never lower,
+// and never to paper over a transient live-acquisition failure.
+//   Portugal: 12 — BEATMAPPED-BARCELONA-FRONTEND-INTEGRATION-01's own
+//     documented CCB-outage floor (13 is the normal/healthy count).
+//   Spain: 31 — verified at commit e0cfc4d (BEATMAPPED-BARCELONA-FRONTEND-INTEGRATION-01),
+//     the last state proven not to be degraded by a live-run transient
+//     failure; protected going forward by the canonical retention module.
+//   Germany: 20 — the BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01
+//     committed floor (Volksbühne's marker only ever existed in an
+//     uncommitted live-run-proof fixture, never in a committed publication
+//     artifact, so it is not part of this evidenced floor).
+const KNOWN_GOOD_MARKER_FLOORS = { Portugal: 12, Spain: 31, Germany: 20 };
 
 async function loadPublication() {
   return JSON.parse(await readFile(PUBLICATION_PATH, "utf8"));
@@ -85,21 +147,36 @@ test("the committed publication artifact is still valid per its own schema/cross
   assert.deepEqual(errors, []);
 });
 
-test("baseline preserved: 1454 total display listings (Portugal + Spain combined)", async () => {
+test("total display listings is a positive, internally-consistent count (event volume is not asserted exactly — real sources fluctuate run to run)", async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.display_listing_count, 1454);
+  assert.ok(artifact.counts.display_listing_count > 0);
 });
 
-test("baseline preserved: 44 total venue markers (13 Portugal + 31 Spain)", async () => {
+test(`venue-marker coverage never falls below the known-good floor per country (Portugal >= ${KNOWN_GOOD_MARKER_FLOORS.Portugal}, Spain >= ${KNOWN_GOOD_MARKER_FLOORS.Spain}, Germany >= ${KNOWN_GOOD_MARKER_FLOORS.Germany} — see header comment)`, async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.map_marker_count, 44);
   const portugalMarkers = artifact.countries.Portugal.markers;
-  assert.equal(portugalMarkers.length, 13);
   const spainMarkers = artifact.countries.Spain.markers;
-  assert.equal(spainMarkers.length, 31);
+  const germanyMarkers = artifact.countries.Germany.markers;
+  assert.ok(
+    portugalMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Portugal,
+    `Portugal markers dropped below the known-good floor: ${portugalMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.Portugal}`,
+  );
+  assert.ok(
+    spainMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Spain,
+    `Spain markers dropped below the known-good floor: ${spainMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.Spain}`,
+  );
+  assert.ok(
+    germanyMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Germany,
+    `Germany markers dropped below the known-good floor: ${germanyMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.Germany}`,
+  );
+  assert.equal(
+    artifact.counts.map_marker_count,
+    portugalMarkers.length + spainMarkers.length + germanyMarkers.length,
+    "map_marker_count must be the exact sum of the per-country marker arrays — no independently-drifting total",
+  );
 });
 
-test("all 13 underlying Portugal venue markers are recoverable/separable — the clustering UI never drops data, only visually combines it at wide zoom", async () => {
+test("all underlying Portugal venue markers are recoverable/separable — the clustering UI never drops data, only visually combines it at wide zoom", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   const fc = buildVenueFeatureCollection(portugalMarkers);
@@ -107,23 +184,23 @@ test("all 13 underlying Portugal venue markers are recoverable/separable — the
   // ADDRESS_ONLY + MANUAL_OPERATOR_ENTRY) coordinate, so every one of
   // them becomes exactly one clusterable/unclusterable GeoJSON point
   // feature — none silently dropped by the clustering layer.
-  assert.equal(fc.features.length, 13);
+  assert.equal(fc.features.length, portugalMarkers.length);
   const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
-  assert.equal(venueIds.size, 13);
+  assert.equal(venueIds.size, portugalMarkers.length);
+  assert.ok(portugalMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Portugal);
 });
 
 test("CCB's marker, when present, uses exactly the operator-supplied coordinate pair, not a rounded/geocoded substitute", async () => {
   // BEATMAPPED-BARCELONA-FRONTEND-INTEGRATION-01: made conditional on CCB
   // actually being in the currently-committed artifact — see this file's
-  // own header comment. CCB's own live endpoint (www.ccb.pt) returned a
-  // transport abort on four consecutive live `npm run publish:map-data`
-  // attempts during this package's verification window, so CCB is
-  // legitimately absent from THIS commit's data (source-isolation: one
-  // source's outage never blocks the others, and never invents a
-  // fallback value — see ingestion/lisbon-porto/run.mjs's acquireAll()).
-  // The coordinate assertion itself is unchanged and still enforced
-  // whenever CCB IS present — this is a skip on genuinely missing live
-  // data, not a weakened check.
+  // own header comment. CCB's own live endpoint (www.ccb.pt) can return a
+  // transport abort on a given live `npm run publish:map-data` attempt,
+  // so CCB is legitimately absent from some commits' data
+  // (source-isolation: one source's outage never blocks the others, and
+  // never invents a fallback value — see ingestion/lisbon-porto/run.mjs's
+  // acquireAll()). The coordinate assertion itself is unchanged and still
+  // enforced whenever CCB IS present — this is a skip on genuinely
+  // missing live data, not a weakened check.
   const artifact = await loadPublication();
   const ccb = artifact.countries.Portugal.markers.find((m) => m.venue_id === "venue-lisboa-centro-cultural-de-belem-ccb");
   if (!ccb) {
@@ -134,26 +211,62 @@ test("CCB's marker, when present, uses exactly the operator-supplied coordinate 
   assert.equal(ccb.longitude, -9.2073); // -9.20730 and -9.2073 are the identical IEEE754 value
 });
 
-test("cluster aggregate gig count across the full live dataset (Portugal + Spain) sums to the same GLOBAL total the publication artifact already reports", async () => {
+test("cluster aggregate gig count across the full live dataset (Portugal + Spain + Germany) sums to the same GLOBAL total the publication artifact already reports", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   const spainMarkers = artifact.countries.Spain.markers;
+  const germanyMarkers = artifact.countries.Germany.markers;
   // artifact.counts.display_listing_count is a GLOBAL total across every
   // published country (see buildPublicationArtifact()'s own doc comment)
-  // — never Portugal-only — so this cross-check must sum both.
-  assert.equal(sumGigCounts(portugalMarkers) + sumGigCounts(spainMarkers), artifact.counts.display_listing_count);
+  // — never Portugal-only — so this cross-check must sum all three.
+  assert.equal(
+    sumGigCounts(portugalMarkers) + sumGigCounts(spainMarkers) + sumGigCounts(germanyMarkers),
+    artifact.counts.display_listing_count,
+  );
 });
 
-test("all 31 underlying Spain venue markers are recoverable/separable — the clustering UI never drops Barcelona data either", async () => {
+test("all underlying Spain venue markers are recoverable/separable — the clustering UI never drops Barcelona data either", async () => {
   const artifact = await loadPublication();
   const spainMarkers = artifact.countries.Spain.markers;
   const fc = buildVenueFeatureCollection(spainMarkers);
-  assert.equal(fc.features.length, 31);
+  assert.equal(fc.features.length, spainMarkers.length);
   const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
-  assert.equal(venueIds.size, 31);
+  assert.equal(venueIds.size, spainMarkers.length);
+  assert.ok(spainMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Spain);
+});
+
+test("all underlying Germany venue markers are recoverable/separable — the clustering UI never drops Berlin data either", async () => {
+  const artifact = await loadPublication();
+  const germanyMarkers = artifact.countries.Germany.markers;
+  const fc = buildVenueFeatureCollection(germanyMarkers);
+  assert.equal(fc.features.length, germanyMarkers.length);
+  const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
+  assert.equal(venueIds.size, germanyMarkers.length);
+  assert.ok(germanyMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Germany);
 });
 
 test("Croatia country bucket is still an untouched empty marker list (this package never alters source acquisition or coverage)", async () => {
   const artifact = await loadPublication();
   assert.deepEqual(artifact.countries.Croatia.markers, []);
+});
+
+test("the artifact's resilience block is well-formed, and honestly reports any last-known-good retention that occurred this run", async () => {
+  const artifact = await loadPublication();
+  assert.ok(artifact.resilience && typeof artifact.resilience === "object");
+  assert.equal(typeof artifact.resilience.retained_stale_listing_count, "number");
+  assert.ok(artifact.resilience.retained_stale_listing_count >= 0);
+  assert.ok(Array.isArray(artifact.resilience.retained_stale_source_ids));
+  // Every listing tagged stale:true anywhere in the artifact must belong
+  // to a source_id this rollup actually names — no silently-untracked
+  // retention.
+  const staleSourceIds = new Set(artifact.resilience.retained_stale_source_ids);
+  for (const country of Object.values(artifact.countries)) {
+    for (const marker of country.markers ?? []) {
+      for (const listing of marker.display_listings ?? []) {
+        if (listing.stale !== true) continue;
+        const ids = listing.kind === "GROUP" ? (listing.sources ?? []).map((s) => s.source_id) : [listing.source_id];
+        for (const id of ids) assert.ok(staleSourceIds.has(id), `stale listing from ${id} is not reflected in resilience.retained_stale_source_ids`);
+      }
+    }
+  }
 });

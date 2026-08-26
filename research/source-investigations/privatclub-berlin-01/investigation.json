@@ -1,0 +1,197 @@
+{
+  "investigation_id": "privatclub-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a single plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's official homepage revealed 100 separate <script type=\"application/ld+json\"> schema.org MusicEvent blocks, one per upcoming event card, directly in the server-rendered HTML — no per-event crawling was needed at all."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the official homepage (a WordPress site) immediately exposed 100 separate, consistently-shaped schema.org MusicEvent JSON-LD blocks — one embedded per upcoming event card on the page itself — each with name, image, description, url, startDate, doorTime, a full venue address, and an offers array with a ticket URL. This directly and fully answers the investigation question at Level 1.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    }
+  ],
+  "source_candidate_id": "privatclub-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Privatclub (live-music club and event space, Skalitzer Straße 85-86, Kreuzberg, Berlin — in the basement of a former post office building)",
+  "official_url": "https://privatclub-berlin.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ldjson-sample"
+    ],
+    "notes": "Official identity confirmed directly from retained evidence: every sampled JSON-LD block's own 'location' names 'Privatclub Berlin' at 'Skalitzer Straße 85-86, 10997 Berlin', with 'sameAs': 'https://privatclub-berlin.de' (the site's own domain, self-referential) — consistent with independently-known venue facts."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress (wp-content, wp-json Link headers present); the homepage itself embeds one schema.org MusicEvent JSON-LD block per upcoming event card — not gated behind a calendar plugin REST API.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ldjson-sample"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://privatclub-berlin.de/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "BROTHER WALLACE",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each JSON-LD MusicEvent's own 'name' field, consistent across all 6 sampled blocks (e.g. 'BROTHER WALLACE', 'Gabriel Kelly - ABGESAGT / CANCELED', 'Anny Ogrezeanu').",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-01T20:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each block's own 'startDate' field — a local datetime string with NO timezone/UTC offset at all (e.g. '2026-09-01T20:00'), honestly FLOATING_LOCAL rather than a genuine UTC instant. A separate 'doorTime' field (e.g. '19:00') is also present. The event's own 'description' field independently restates the same date/time in German prose (e.g. 'Konzert am Dienstag, 1. September 2026 um 20:00 Uhr im Privatclub Berlin'), corroborating the structured startDate.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day portion of the same 'startDate' field; a separate 'doorTime' field independently gives the doors time (e.g. '19:00').",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No 'endDate' or equivalent field is present in any of the 6 sampled blocks.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Privatclub Berlin, Skalitzer Straße 85-86, 10997 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each block's own 'location.name'/'location.address' (full PostalAddress: streetAddress/addressLocality/addressRegion/postalCode/addressCountry), identical across all 6 sampled events.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No numeric or opaque id field is exposed. Each event's own 'url' field is a permanent-looking '/event/{slug}/' path (e.g. '/event/brother-wallace/') that this source itself uses as the record's own canonical address, matching the LAV/Moog precedent of treating a source's own URL slug as source_record_id. Left PARTIAL rather than PROVEN because this investigation did not independently re-observe the same slug across a repeated fetch to stress-test stability, consistent with how this same judgement call was made for Lido Berlin in this same trial.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://privatclub-berlin.de/event/brother-wallace/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each block's own 'url' field.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each block's own 'offers' array contains only a ticket URL (no 'price'/'priceCurrency' value), pointing to a variety of third-party ticket sellers that differ per event (observed: greyzone-tickets.de, eventim.de) — the venue's own page never states a price value itself, only where to buy.",
+      "evidence_refs": [
+        "ev-ldjson-sample"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ldjson-sample",
+      "privatclub-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained first-party evidence.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, confirmed across 100 total events on one page (6 sampled and retained).",
+      "A CONFIRMED public data path retained: one homepage fetch exposes every upcoming event's own JSON-LD block, the richest single-fetch yield of the six venues in this trial.",
+      "title, start_date, venue_location and event_url all PROVEN via DIRECT_SOURCE, cross-corroborated by each event's own German-language description text restating the same date/time.",
+      "source_record_id left honestly PARTIAL (URL-slug strategy plausible per existing project precedent, but not independently stress-tested within this investigation) and price left PARTIAL (only a ticket URL is present, never a stated value) — both are exactly the kind of detail an offline-proof/collector-build follow-up step should resolve.",
+      "recommended_family JSON_LD (an existing, already-implemented, reusable module — ingestion/json-ld/).",
+      "No unresolved CRITICAL blocker.",
+      "No collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this investigation-only task, so READY_FOR_ACTIVATION's gate 9 is not met — READY_FOR_OFFLINE_PROOF is the correct, honest status.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/json-ld-berlin-zero-code-cohort.test.mjs) — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-ldjson-sample",
+      "privatclub-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Complete HTTP response headers for the venue's official homepage.",
+      "acquired_from": "https://privatclub-berlin.de/",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/privatclub-berlin-01/evidence/privatclub-homepage-headers.txt"
+    },
+    {
+      "evidence_id": "ev-ldjson-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The first 6 (of 100 total) real, unmodified schema.org MusicEvent JSON-LD blocks embedded in the homepage's own server-rendered HTML, separated by explicit markers (full page is 943,166 bytes; bounded to 6 representative events, truncation explicitly noted in the file).",
+      "acquired_from": "https://privatclub-berlin.de/",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/privatclub-berlin-01/evidence/privatclub-ldjson-sample.html"
+    },
+    {
+      "evidence_id": "privatclub-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/json-ld-berlin-zero-code-cohort.test.mjs) re-parsing this investigation's own retained fixture via the EXISTING generic collector family and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/json-ld-berlin-zero-code-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/privatclub-berlin-01/evidence/privatclub-ldjson-sample.html"
+    }
+  ],
+  "supersedes": null
+}

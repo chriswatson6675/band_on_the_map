@@ -1,0 +1,167 @@
+{
+  "investigation_id": "watergate-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:18:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the domain formerly hosting Watergate's official site, its events page, and its one discoverable event-detail page. WebSearch (a discovery lead, not evidence) had already surfaced multiple independent third-party reports that the original club closed permanently at the end of 2024/2025 after 22 years; the retained page content itself independently corroborates this, in the source's own words."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://water-gate.de/ (the club's own former domain, WordPress-powered) returned a live, recently-modified (Last-Modified within the last 48 hours) page titled 'WATERGATE OPEN AIR SUMMER 26' — not a dead/parked domain. Its own /events/ page exposes exactly one event-detail slug, /anfisa_chez/, whose own retained text states the event is 'at SAGE BERLIN' (a different physical venue) and explicitly says 'Anfisa Letyago returns to Watergate Open Air – after closing one of our final club nights' — the source's own first-party text confirming the original Watergate club itself has closed and this is now a differently-located, brand-only, apparently sporadic open-air series rather than an operating venue with a recurring programme. This directly answers the investigation question at Level 1: there is no ongoing venue calendar to acquire, so no escalation is warranted or would change that conclusion.",
+      "evidence_refs": ["ev-homepage", "ev-events-page", "ev-anfisa-chez"]
+    }
+  ],
+  "source_candidate_id": "watergate-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Watergate (techno/house club, Kreuzberg, Berlin — the physical club at Falckensteinstraße 49 closed permanently at the end of 2024 after 22 years; 'Watergate' now also names a sporadic, differently-located open-air event brand)",
+  "official_url": "https://water-gate.de/",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-homepage", "ev-anfisa-chez"],
+    "notes": "water-gate.de is corroborated as the original Watergate club's own domain by independent third-party discovery sources (Electronic Groove, DJ Mag, Resident Advisor News, The Quietus, all reporting the 2024 closure), which is treated only as a discovery lead. The site's own retained content confirms this is genuinely first-party (its own past tense 'one of our final club nights' text, referring to itself), but the CANDIDATE this investigation was asked to identify — 'Watergate, Kreuzberg, techno/house club' as an operating venue at its own physical location — is honestly only PARTIAL: the entity behind this domain still exists and self-identifies as Watergate, but it no longer operates the Kreuzberg venue and the one live event found takes place at a different venue (Sage Berlin) under a differently-scoped brand ('Watergate Open Air'), not the club this task named."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (wp-json Link header present) with a heavy page-builder theme (image-based layout, most visible text embedded in inline styled <span> elements rather than a structured event-card template). No JSON-LD, ICS, Fourvenues, or Sanity signature found.",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-homepage", "ev-events-page", "ev-anfisa-chez"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_SINGLE_EVENT_PROMO_PAGE",
+      "url": "https://water-gate.de/anfisa_chez/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-anfisa-chez"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The one discoverable event page has a title ('Anfisa Letyago & Chez Damier'), but there is no venue programme/calendar to assess a general title-extraction pattern against — a single hand-built promo page is not evidence of a repeatable, acquirable field.",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Same reasoning as title — the one sampled page states '05.09.2026' as plain styled text, but there is no repeatable structural pattern (no event list, no card template, no permalink scheme observed across multiple events) to assess.",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No time-of-day was found anywhere on the sampled event page.",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present.",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "venue_location": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The one sampled event page states the location as 'at SAGE BERLIN' — a DIFFERENT physical venue from the Watergate club this task named. This is exactly the kind of venue-identity ambiguity the architecture's canonical Venue model exists to catch, not something a source investigation should paper over: the source's own domain/brand is Watergate, but the physical location of its own current event is not Watergate.",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Only one event page exists to sample (/anfisa_chez/), a hand-picked slug with no numeric or date-derived structure — insufficient to assess whether this is a stable, repeatable identifier scheme versus a one-off page.",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://water-gate.de/anfisa_chez/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The one confirmed live event page's own URL, directly retained (HTTP 200).",
+      "evidence_refs": ["ev-anfisa-chez"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price figure appears on the sampled page — only a 'GET TICKETS' button linking to a third-party outlet (de.ra.co/events/2391985).",
+      "evidence_refs": ["ev-anfisa-chez"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-events-page", "ev-anfisa-chez"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "There is no recurring venue programme/calendar to acquire: the physical Watergate club (Kreuzberg) this task named has permanently closed, confirmed in the source's own retained first-party text. The domain now hosts, at most, a single hand-built promotional page for one sporadic open-air event at a different physical venue (Sage Berlin) — not a repeatable data source with any stable structure (no event list template, no card markup, no permalink scheme, no JSON-LD/ICS/API) to build a collector against."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The physical venue this task named ('Watergate, Kreuzberg, techno/house club') has permanently closed — confirmed independently by multiple third-party reports and, more importantly, by the source's own retained first-party text on its current successor page ('after closing one of our final club nights').",
+      "The domain's current content is a single hand-built promotional page for one sporadic 'Watergate Open Air' event held at a DIFFERENT physical venue (Sage Berlin), not a recurring, structurally-acquirable event programme for the Watergate club itself.",
+      "No stable acquisition pattern exists to build even a bounded collector against — a single one-off page is not a source this framework should activate or even recommend a family for; forcing a result here would misrepresent a defunct venue as an active data source.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is the correct, complete, honest outcome — not a failure to be papered over by inventing structure that does not exist."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-events-page", "ev-anfisa-chez"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and title/head excerpt of the former Watergate club's own domain, now retitled 'WATERGATE OPEN AIR SUMMER 26' and recently modified (not a dead/parked domain).",
+      "acquired_from": "https://water-gate.de/",
+      "acquired_at": "2026-08-26T12:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/watergate-berlin-01/evidence/homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers, title, and the complete set of internal links found on the site's own /events/ page — exactly one event-detail slug is discoverable, confirming there is no ongoing multi-event programme.",
+      "acquired_from": "https://water-gate.de/events/",
+      "acquired_at": "2026-08-26T12:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/watergate-berlin-01/evidence/events-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-anfisa-chez",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and the single retained text block containing the sampled event's date ('05.09.2026'), a different physical venue ('at SAGE BERLIN'), lineup, the source's own closure-confirming text ('after closing one of our final club nights'), and a third-party ticket link.",
+      "acquired_from": "https://water-gate.de/anfisa_chez/",
+      "acquired_at": "2026-08-26T12:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/watergate-berlin-01/evidence/anfisa-chez-event-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

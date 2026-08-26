@@ -1,0 +1,282 @@
+{
+  "investigation_id": "volksbuehne-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC via curl (plain HTTP GET, -L to follow redirects, descriptive User-Agent, no authentication, no browser): retained the homepage (www.volksbuehne.berlin redirects to the canonical www.volksbuehne-berlin.de), the /en/konzerte/ (Concerts) listing page, the site's own public sitemap.xml, and 3 independent production/event detail pages -- including one explicitly at 'Roter Salon', this investigation's specific target sub-venue."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's own homepage already links directly to individual dated performance pages at a self-describing URL pattern (/en/productions/{slug}/{YYYYMMDD-HHMM}/). The site's own public sitemap.xml (179,761 bytes, plain static XML, no auth) confirms comprehensive static discovery: 92 of its URLs match the dated-performance pattern (.../produktionen/{slug}/{YYYYMMDD-HHMM}/) out of 263 total production-related URLs. Three independently sampled event detail pages (House of Hopes on the Main Stage, Heith und Tarawansawelas: Duori at Roter Salon, Space Afrika present: Quiet Storm at Vorbühne) each server-render one application/ld+json schema.org Event-family block (DanceEvent/MusicEvent) with a full UTC-offset-qualified startDate/endDate, a self-referencing canonical 'url', a named location (sometimes with a full PostalAddress, sometimes name-only), and an organizer. This fully answers the investigation at Level 1 -- no escalation needed.",
+      "evidence_refs": [
+        "ev-sitemap",
+        "ev-event-house-of-hopes",
+        "ev-event-heith",
+        "ev-event-space-afrika"
+      ]
+    }
+  ],
+  "source_candidate_id": "volksbuehne-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Volksbühne am Rosa-Luxemburg-Platz, including its attached concert halls Roter Salon and Grüner Salon (theatre + concert venue, Linienstraße 227, Mitte, Berlin)",
+  "official_url": "https://www.volksbuehne-berlin.de/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-house-of-hopes"
+    ],
+    "notes": "www.volksbuehne.berlin (the domain initially discovered via search) HTTP-redirects (301, then a further internal redirect) to https://www.volksbuehne-berlin.de/en/, which is the domain actually served -- both are treated as the same official identity. Every retained event's own JSON-LD 'organizer' ('Volksbühne Berlin', url https://www.volksbuehne-berlin.de/) and 'location.address' (Linienstraße 227, 10178 Berlin, DE for the Main Stage sample) directly confirm official identity and match the venue's well-known Rosa-Luxemburg-Platz address. 'Roter Salon' itself appears as a JSON-LD location.name on a real sampled event, directly confirming it is this same organisation's own attached concert hall, not a separate entity."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Custom-built bilingual (DE/EN) site (no CMS generator meta found). Each individual production/performance page (both the German /produktionen/ and English /en/productions/ paths) server-renders one schema.org Event-family application/ld+json block. Ticketing is embedded via ticket.volksbuehne-berlin.de, an Eventim-powered webshop that is this venue's OWN first-party ticket shop (not a third-party listings aggregator) -- referenced as each JSON-LD 'offers[].url'.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-house-of-hopes",
+      "ev-event-heith",
+      "ev-event-space-afrika"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "SITEMAP_XML",
+      "url": "https://www.volksbuehne-berlin.de/sitemap.xml",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-sitemap"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.volksbuehne-berlin.de/en/productions/heith-und-tarawansawelas-duori/20261009-1800/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-heith",
+        "ev-event-house-of-hopes",
+        "ev-event-space-afrika"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Heith und Tarawansawelas: Duori",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'name' field. Value shown is from the Roter Salon sample (this investigation's specific target sub-venue).",
+      "evidence_refs": [
+        "ev-event-heith",
+        "ev-event-house-of-hopes",
+        "ev-event-space-afrika"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-09T20:00:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'startDate', a full ISO 8601 datetime with an explicit UTC offset (+02:00, CEST) -- confirmed consistent across all 3 sampled pages. Value shown is from the Roter Salon sample.",
+      "evidence_refs": [
+        "ev-event-heith",
+        "ev-event-house-of-hopes",
+        "ev-event-space-afrika"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day + offset portion of the same JSON-LD 'startDate'.",
+      "evidence_refs": [
+        "ev-event-heith"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-10-09T22:00:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'endDate', consistently a genuinely distinct value from startDate on all 3 sampled pages (a real 2-3 hour duration each time, unlike HKW's occasional startDate==endDate pattern seen in a separate investigation).",
+      "evidence_refs": [
+        "ev-event-heith",
+        "ev-event-house-of-hopes",
+        "ev-event-space-afrika"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Roter Salon",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'location.name'. A full PostalAddress is present for some records (e.g. the Main Stage sample: Linienstraße 227, 10178 Berlin, DE) but not others (Roter Salon and Vorbühne samples carry only location.name, no address) -- honest per-record variability, all still naming one of Volksbühne's own internal spaces within its single Rosa-Luxemburg-Platz building.",
+      "evidence_refs": [
+        "ev-event-heith",
+        "ev-event-house-of-hopes",
+        "ev-event-space-afrika"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "https://www.volksbuehne-berlin.de/en/productions/heith-und-tarawansawelas-duori/20261009-1800/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No separate 'identifier'/'@id' field exists in the JSON-LD, but each event page's own JSON-LD 'url' field is a self-referencing canonical URL (confirmed identical to the page actually fetched, and matching this venue's own sitemap.xml <loc> entry) -- one URL per specific performance date/time (the date+time is even encoded directly in the URL's own path segment, e.g. '20261009-1800'), so unlike Radialsystem's one-slug-many-dates situation, this source's own URL is already unique per occurrence.",
+      "evidence_refs": [
+        "ev-sitemap",
+        "ev-event-heith"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.volksbuehne-berlin.de/en/productions/heith-und-tarawansawelas-duori/20261009-1800/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'url' field, self-referencing and canonical.",
+      "evidence_refs": [
+        "ev-event-heith",
+        "ev-event-house-of-hopes",
+        "ev-event-space-afrika"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No literal numeric price value was found in any of the 3 sampled pages. One sample (House of Hopes) carries a JSON-LD 'offers' array with 'url'/'availability'/'priceCurrency' but no 'price' number (all 3 offers were SoldOut); the other two samples carry no 'offers' field at all.",
+      "evidence_refs": [
+        "ev-event-house-of-hopes",
+        "ev-event-heith",
+        "ev-event-space-afrika"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-sitemap",
+      "ev-event-heith",
+      "ev-event-house-of-hopes",
+      "ev-event-space-afrika",
+      "volksbuehne-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The sitemap.xml mixes non-performance production pages (season overview pages, 'pressematerial' press-kit pages) alongside genuine dated performance pages; a collector should filter to URLs matching the .../{slug}/{YYYYMMDD-HHMM}/ pattern (92 of 263 production-related URLs matched this in the retained sample) rather than fetching every production-related URL."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from the venue's own retained JSON-LD organizer/location data, with Roter Salon itself confirmed as this organisation's own location on a real sampled event.",
+      "acquisition_class JSON_LD_EVENT, a resolved, supported class, reached entirely at Level 1.",
+      "A CONFIRMED public data path retained for both the sitemap.xml discovery mechanism and the event detail page JSON-LD, with 3 independently real sampled events across 3 different rooms (Main Stage, Roter Salon, Vorbühne).",
+      "title, start_date, time, end, venue_location, source_record_id, and event_url all PROVEN with basis DIRECT_SOURCE.",
+      "price honestly NOT_PRESENT (no literal numeric value in any sample) -- no fields fabricated.",
+      "recommended_family JSON_LD, this project's own existing, already-proven generic family -- requires no new code family.",
+      "No unresolved CRITICAL blocker.",
+      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery-berlin-cohort.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-sitemap",
+      "ev-event-heith",
+      "ev-event-house-of-hopes",
+      "ev-event-space-afrika",
+      "volksbuehne-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, retained byte-faithfully (after following the www.volksbuehne.berlin -> www.volksbuehne-berlin.de redirect). Links directly to many individual dated performance pages and to the /en/konzerte/ concerts section.",
+      "acquired_from": "https://www.volksbuehne.berlin/en/",
+      "acquired_at": "2026-08-26T13:12:00Z",
+      "method": "curl (plain HTTP GET, -L to follow redirects, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-konzerte",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public /en/konzerte/ (Concerts) listing page, retained byte-faithfully. Links to the Roter Salon and Vorbühne event pages sampled below.",
+      "acquired_from": "https://www.volksbuehne-berlin.de/en/konzerte/",
+      "acquired_at": "2026-08-26T13:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/konzerte.html"
+    },
+    {
+      "evidence_id": "ev-sitemap",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own public sitemap.xml, retained byte-faithfully (179,761 bytes, 320 <loc> entries total). Confirms comprehensive static discovery: 92 URLs match the dated-performance pattern out of 263 total production-related URLs.",
+      "acquired_from": "https://www.volksbuehne-berlin.de/sitemap.xml",
+      "acquired_at": "2026-08-26T13:16:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/sitemap.xml"
+    },
+    {
+      "evidence_id": "ev-event-house-of-hopes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('House of Hopes', Main Stage), retained byte-faithfully. Demonstrates a schema.org DanceEvent JSON-LD block with a full PostalAddress location and an 'offers' array (3 SoldOut offers, no literal price number).",
+      "acquired_from": "https://www.volksbuehne-berlin.de/en/productions/house-of-hopes/20261001-1745/",
+      "acquired_at": "2026-08-26T13:17:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/event-house-of-hopes.html"
+    },
+    {
+      "evidence_id": "ev-event-heith",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('Heith und Tarawansawelas: Duori'), retained byte-faithfully. This investigation's specific target sub-venue: a schema.org MusicEvent JSON-LD block with location.name 'Roter Salon' (no address), no 'offers' field.",
+      "acquired_from": "https://www.volksbuehne-berlin.de/en/productions/heith-und-tarawansawelas-duori/20261009-1800/",
+      "acquired_at": "2026-08-26T13:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/event-heith.html"
+    },
+    {
+      "evidence_id": "ev-event-space-afrika",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A third, independent real event detail page ('Space Afrika present: Quiet Storm', Vorbühne), retained byte-faithfully -- confirms the MusicEvent JSON-LD schema is used consistently across a third room/sample.",
+      "acquired_from": "https://www.volksbuehne-berlin.de/en/productions/space-afrika-present-quiet-storm/20261022-1830/",
+      "acquired_at": "2026-08-26T13:19:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/event-space-afrika.html"
+    },
+    {
+      "evidence_id": "volksbuehne-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/html-link-discovery-berlin-cohort.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/html-link-discovery-berlin-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/volksbuehne-berlin-01/evidence/event-heith.html"
+    }
+  ],
+  "supersedes": null
+}

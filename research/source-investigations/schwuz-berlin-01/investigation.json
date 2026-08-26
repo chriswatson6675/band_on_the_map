@@ -1,0 +1,146 @@
+{
+  "investigation_id": "schwuz-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official domain homepage (the '/all-events/' path found via discovery search returned HTTP 404, so the homepage itself was fetched and inspected directly for embedded event data)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://www.schwuz.de/ returned a small (43,694-byte), entirely static, hand-authored single-page site with no <script src> at all (no JS-driven data fetching, no WordPress/Sanity/known-plugin fingerprint, no JSON-LD, no ICS link, no fourvenues widget, no wp-json). The page's own text explains the club has no current premises ('Wir bauen ein neues SCHWUZ' / 'We're building a new SCHWUZ') following a 2025 insolvency, and lists exactly ONE hand-authored event card (a one-off house party hosted at a different venue, 'SCHWUZ in der RENATE', dated 14-8-26, marked 'Ausverkauft'/sold out — already in the past relative to the investigation date of 2026-08-26). There is no calendar system, feed, or API to discover — this is a static holding page, not a client-rendered shell hiding data, so no Level 2 structural probe could meaningfully add anything (no JS bootstrap/bundle exists to inspect). Per policy 'DEFER does not require exhausting the ladder', escalating further would not change this honest conclusion.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  ],
+  "source_candidate_id": "schwuz-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "SchwuZ (queer club with a live music/DJ programme, historically in Neukölln, Berlin — closed its Rollbergstraße/Kindl-Brewery premises after a 2025 insolvency and is, as of this investigation, operating without a permanent venue while rebuilding as an association)",
+  "official_url": "https://www.schwuz.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "schwuz.de is the venue association's own first-party domain — the retained homepage's own impressum/mailto link (vorstand@schwuz.de) and self-description ('SchwuZ e.V. Berlin seit 1977') match the venue's well-documented public identity, independently corroborated by third-party reference sources found during discovery (Wikipedia-style background, visitBerlin.de) as SchwuZ's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom static single-page site (a 'design-system' asset bundle referenced in-page, no CMS/plugin fingerprint) — not WordPress, not a headless CMS, no JS-driven rendering at all.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_HOMEPAGE_INLINE_EVENT_CARD",
+      "url": "https://www.schwuz.de/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-homepage"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The one hardcoded event card's own heading text ('SCHWUZ in der RENATE') is directly readable, but this is a single hand-authored marketing card on a one-page site, not a repeatable structured field from an ongoing calendar system — PARTIAL rather than a fully-proven, reusable extraction pattern.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The card states '14–8–26' directly as plain text (an unusual day-month-year-shorthand format, not a machine-standard date format, and not present anywhere as machine-readable markup/JSON-LD/microdata). This single event is already in the past relative to the 2026-08-26 investigation date and is marked sold out, so it is not an upcoming event in any case.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The card states '18h00' directly as plain text alongside the date, same one-off/non-repeatable caveat as start_date.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time/date present anywhere on the page.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "venue_location": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The one listed event is explicitly hosted 'SCHWUZ in der RENATE' — i.e. at a third-party venue (RENATE), not at any premises SchwuZ itself controls, since SchwuZ currently has none. Recording SchwuZ as the physical venue_location for an event genuinely held at RENATE would misattribute the location; this cannot be honestly resolved as SchwuZ's own venue_location.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No id, slug, or permalink is exposed for this event card — it is not wrapped in a link to any dedicated event page at all.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The event card's image/text is not wrapped in an <a href> to any event-specific page — no event_url is exposed.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price is shown; only a 'Ausverkauft' (sold out) status badge.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-homepage"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No ongoing, structured, repeatable event data path exists on this source at present. The site is a static holding page for an association currently without permanent premises, listing a single already-past, sold-out, third-party-hosted event with no id/url. There is nothing here a collector family could reliably poll."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "SchwuZ e.V. currently has no permanent venue (insolvency in 2025; the association is rebuilding as of this investigation) and its official site is a minimal static holding page, not an events system.",
+      "The only event present is already in the past and marked sold out, hosted at a different venue (RENATE) rather than at SchwuZ's own premises — has_upcoming_events is honestly 'no' as observed.",
+      "No JSON-LD, ICS, WordPress/Tribe Events API, Fourvenues widget, Sanity config, or any other structured/JS-driven data path was found; the page has no <script src> at all, so a Level 2 structural probe would have nothing to inspect.",
+      "Per policy, DEFER does not require exhausting the escalation ladder — reliable, honest automated acquisition genuinely cannot be established from this source as it exists today.",
+      "This is a legitimate, successful investigation outcome, not a failure: SchwuZ remains a genuine queer/live-music venue by reputation, but this specific official web presence currently offers no acquirable structured event data. Re-investigate once the association re-establishes a permanent venue and/or a real programme/booking system."
+    ],
+    "evidence_refs": ["ev-homepage"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue association's own official homepage in full — a static, single-page holding site with no JS-driven data fetching, listing exactly one hand-authored, already-past, sold-out event card with no id/url.",
+      "acquired_from": "https://www.schwuz.de/",
+      "acquired_at": "2026-08-26T12:14:20Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/schwuz-berlin-01/evidence/homepage.html"
+    }
+  ],
+  "supersedes": null
+}

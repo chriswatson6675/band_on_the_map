@@ -1,0 +1,167 @@
+{
+  "investigation_id": "wabe-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage and its own monthly programme page (a real, dedicated per-month URL pattern discovered from the homepage's own navigation, /sep-2026/). No JSON-LD, ICS, or JSON API was found — the site is a Jimdo (WYSIWYG website builder) page — but the September programme page's own retained HTML exposes a genuine, structurally repeatable per-event grid (date/time/genre cell, image cell, title/artist/price cell, all siblings inside one shared 'cc-matrix' row container per event) with real upcoming events."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.wabe-berlin.info/ returned a Jimdo-built static site (meta name=\"generator\" content=\"Jimdo Creator\") whose own navigation links to dedicated monthly programme pages (/aug-2026/, /sep-2026/, /okt-2026/, /nov-2026/). Fetching /sep-2026/ directly (no login, no JS execution) returned real, static HTML containing a repeatable per-event structural pattern (weekday/day/month/time/genre in one grid cell, artwork in a second, title/performer/price in a third — all three siblings inside one shared 'cc-matrix' container per event) for 9 real upcoming September 2026 events, plus a page-level 'SEPTEMBER 2026' heading retained once near the top of the event grid. This directly answers the investigation question at Level 1 — no JSON-LD/ICS/API exists, but a genuine, structurally-provable static event list does, so no Level 2/3 escalation was needed.",
+      "evidence_refs": ["ev-home", "ev-sep-programme"]
+    }
+  ],
+  "source_candidate_id": "wabe-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "WABE (municipal cultural/music venue, Prenzlauer Berg, Berlin, near Volkspark Friedrichshain — as of this investigation temporarily displaced to an interim venue at Schönfließer Straße 7 while its usual Danziger Straße 101 site is renovated, with some open-air events remaining at the adjoining Kulturinsel site)",
+  "official_url": "https://www.wabe-berlin.info/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-sep-programme"],
+    "notes": "wabe-berlin.info (also served/branded as www.wabe-berlin.de per the page's own <title> tags) is WABE's own first-party site, not a ticketing aggregator — corroborated during discovery by the district's own berlin.de cultural-institution page (berlin.de/kunst-und-kultur-pankow/einrichtungen/wabe/) linking the same domain as WABE's official presence."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Jimdo (hosted WYSIWYG website builder) — no JSON-LD, ICS, WordPress, or headless-CMS API of any kind; each month is one hand-built static page using Jimdo's own 'cc-matrix' grid-layout modules, not a semantic calendar markup.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-sep-programme"]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_HTML_MONTHLY_EVENT_LIST_PAGE",
+      "url": "https://www.wabe-berlin.info/sep-2026/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-sep-programme"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "DEFA Songbook",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own title/performer text cell (e.g. 'DEFA Songbook / PASCAL VON WROBLEWSKY UND DAS LORA KOSTINA TRIO'), structurally a sibling column inside the same 'cc-matrix' grid row as that event's date/time cell — genuine DOM containment, not visual proximity.",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-24",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "derivation": {
+        "rule": "The page's own single retained 'SEPTEMBER 2026' heading (appearing once near the top of the event grid, before any event rows) states the month and year that governs every event row on this page; each event's own date cell states only the weekday and day number (e.g. 'Donnerstag' / '24') plus a redundant restatement of the month name with no year. Concatenating the heading's year+month with the event cell's own day number yields exactly one unambiguous date per event.",
+        "inputs": ["SEPTEMBER 2026", "24"]
+      },
+      "notes": "Sampled event: 'Donnerstag 24 September, 20:00, DEFA Songbook'. No year appears anywhere within the individual event cell itself — only via the page-level heading, which this project's v1.2 deterministic-context provision explicitly covers (directly analogous to the policy's own 'heading states September 2026, card states 17' worked example).",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own date/time cell states a plain 24-hour local time (e.g. '20:00') directly alongside its weekday/day/month — no combination needed. No UTC offset/timezone is stated anywhere on the page — honestly FLOATING_LOCAL.",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time is stated for any sampled event.",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Schönfließer Straße 7 (Saal)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own text block directly states its specific location (most September 2026 events: 'Schönfließer Straße 7 (Saal)', the interim venue during renovation; a minority of open-air events instead directly state 'Kulturinsel Danziger Str. 101'). This is genuinely stated per event, not inherited from a single global page footer — but it is honestly volatile right now: WABE's usual/canonical address (Danziger Straße 101/105) differs from the interim address most events are actually held at during the renovation period, which matters for correctly resolving this source's events against Band on the Map's own canonical Venue record for WABE.",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No stable id, slug, or permalink is exposed per event. Each event is one row within a single shared month-page; the only per-element ids visible are Jimdo's own internal CMS module ids (e.g. 'cc-m-10716706185'), which are implementation-internal editor handles, not documented or evidenced as stable public identifiers — treating one as a stable source_record_id would violate the stable-identifier rule.",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event has its own dedicated page/URL on this source. Some co-produced events link out to 'Infos auf der Website des TuD' (Theater unterm Dach's own separate site), which is a different organisation's page, not WABE's own event_url.",
+      "evidence_refs": ["ev-sep-programme"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "20 € / 15 € (Abendkasse); 18 € zzgl. Gebühren (Online-Vorverkauf)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own price cell is directly stated, structurally a sibling of its title cell inside the same grid row. Prices are unstructured free text with multiple tiers (door price vs. reduced vs. online-presale) rather than one canonical number — genuinely present, but would need further text parsing by any real collector. A minority of events instead directly state 'Eintritt frei' (free entry).",
+      "evidence_refs": ["ev-sep-programme"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-sep-programme"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The site is a hand-built Jimdo WYSIWYG page, not semantic calendar markup — extraction would rely on the page's own repeated 'cc-matrix' grid-row DOM pattern rather than any documented API/schema, making the parser more fragile to a future editorial re-layout than a JSON-LD/ICS/API-based source would be."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The venue is currently displaced to an interim address during renovation (a minority of events remain at the original Kulturinsel address) — any collector/observation-adapter would need to resolve which physical Venue record each event's stated location actually corresponds to, rather than assuming a single fixed WABE address for every event on the page."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN on the venue's own first-party domain, corroborated by the district's own berlin.de institution page.",
+      "acquisition_class STATIC_HTML, a resolved supported class, genuinely confirmed via a real monthly programme page with 9 real September 2026 events.",
+      "A CONFIRMED public data path retained (the September 2026 monthly programme page).",
+      "title PROVEN (DIRECT_SOURCE) and start_date PROVEN (DETERMINISTIC_CONTEXT, citing the page's own retained month/year heading plus each event's own day number, per the v1.2 deterministic-context provision).",
+      "source_record_id and event_url are honestly NOT_PRESENT — this source exposes no stable per-event id or dedicated event page at all, which any future collector/activation step would need to address with an explicit alternative identity strategy (e.g. a derived hash of venue+date+title), not fabricate.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented family; no new collector family required.",
+      "No unresolved CRITICAL blocker.",
+      "No DETERMINISTIC_DERIVATION offline-proof evidence item has been produced in this investigation (writing collector/test code is explicitly out of scope for this task) — so per policy this stays READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION, pending a follow-up offline reproduction of both the static-list parse and the DETERMINISTIC_CONTEXT date derivation against the retained fixture."
+    ],
+    "evidence_refs": ["ev-home", "ev-sep-programme"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official homepage, confirming Jimdo platform, first-party identity, and the monthly-programme-page navigation pattern (/aug-2026/, /sep-2026/, /okt-2026/, /nov-2026/).",
+      "acquired_from": "https://www.wabe-berlin.info/",
+      "acquired_at": "2026-08-26T12:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-sep-programme",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official September 2026 monthly programme page in full — 9 real upcoming events with dates, times, titles, performers, venue locations, and prices, plus the page's own single 'SEPTEMBER 2026' heading used for the start_date DETERMINISTIC_CONTEXT derivation above.",
+      "acquired_from": "https://www.wabe-berlin.info/sep-2026/",
+      "acquired_at": "2026-08-26T12:24:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/programme-sep-2026.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,227 @@
+{
+  "investigation_id": "zig-zag-jazz-club-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:34:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official site. The venue's own top navigation links to a page titled 'Program' at /program-mai, but that specific page renders only a client-side calendar widget with no server-rendered event items; a second page, titled 'PROGRAMM' at /menu-marquee, IS the real Squarespace Summary Block event listing (164 summary-item occurrences) and links to genuine per-event detail pages under /program-mai/{slug}, each carrying a real schema.org Event JSON-LD block plus a rich, consistent free-text 'Beginn / Einlass / Eintrittspreise / Location' block. Cross-checking four independently-fetched event detail pages found real, varying start/end/price data (not fixed sentinels), AND one honest caveat: one sampled event ('Kennedy Administration') carries an explicit free-text override stating it takes place at a DIFFERENT venue than Zig Zag's own room. No structural/browser escalation was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.zigzag-jazzclub.berlin/menu-marquee (200 OK, 201,760 bytes) exposed a Squarespace Summary Block listing 164 event-item occurrences (thumbnail, month/day date, permalink). Four independently-fetched event detail pages under /program-mai/{slug} each returned a real schema.org Event JSON-LD block (name/startDate/endDate) plus a consistent free-text block stating the real show-start time ('Beginn:'), door time ('Einlass ab'), and ticket prices ('Eintrittspreise:'). This directly answers the investigation question at Level 1 — no escalation to Level 2/3 was needed.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  ],
+  "source_candidate_id": "zig-zag-jazz-club-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Zig Zag Jazz Club (jazz club, Berlin — Hauptstraße 89, 12159 Berlin)",
+  "official_url": "https://www.zigzag-jazzclub.berlin/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the site's own schema.org Organization/LocalBusiness JSON-LD blocks state 'legalName':'Zig Zag Jazz Club' and address '89 Hauptstraße, Berlin, 12159, Germany' — matching the address independently reported by third-party discovery sources (visitBerlin.de, Berlin.de) for the Zig Zag Jazz Club. Domain zigzag-jazzclub.berlin is a plausible first-party domain, not a ticketing aggregator. (Note: the venue's own address is Hauptstr. 89, in what postal/district sources variously describe as Friedenau/Schöneberg — the task brief's 'Wilmersdorf' framing was not independently confirmed by any retained evidence and is not asserted here.)"
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Squarespace, using a genuine 'Events' collection surfaced through a Summary Block on the /menu-marquee page (titled 'PROGRAMM'). Each individual event's own detail page (/program-mai/{slug}) carries a real schema.org Event JSON-LD block, PLUS a separate, consistently-formatted free-text block ('Beginn:'/'Einlass ab'/'Eintrittspreise:'/'Location:') that is richer and in places more reliable than the JSON-LD alone (see field_assessment.time). No WordPress, EventON, Tribe Events, Fourvenues, or Sanity signal is present.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-program-excerpt",
+      "ev-eventdetail-excerpt"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.zigzag-jazzclub.berlin/menu-marquee",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-program-excerpt"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.zigzag-jazzclub.berlin/program-mai/duky-4tbm9",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "e.g. 'Duke's Place: An Ellington Celebration — Zig Zag Jazz Club Berlin' (each event detail page's own JSON-LD 'name' field; also the Summary Block's own title text)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated on both the programme-page Summary Block and each event's own JSON-LD 'name' field.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "the calendar DATE portion of each event detail page's own JSON-LD 'startDate' (e.g. '2026-08-27'), cross-confirmed against the Summary Block's own month/day date box",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated and varies correctly per event across all 4 sampled events (27 Aug, 13 Sep, 31 Oct, 27 Sep). See 'time' for an honest caveat about the time-of-day portion of this same field.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt",
+        "ev-program-excerpt"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "the free-text 'Beginn:' value on each event detail page (e.g. '20:00 Uhr'), NOT the JSON-LD startDate's own time-of-day",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "HONEST CAVEAT, retained directly from evidence: the JSON-LD 'startDate' time-of-day is consistently '19:00:00' across all 4 sampled events, but a separate, directly-stated free-text block on the same pages reveals this is actually the DOOR/ENTRY time ('Einlass ab 19:00 Uhr'), while the real performance start ('Beginn:') is '20:00 Uhr' on 3 of 3 events where this block was checked in full. Both values are directly stated (DIRECT_SOURCE), but a future collector must deliberately prefer the free-text 'Beginn:' value for the real show start time rather than naively trusting JSON-LD startDate's clock time. Unlike the b-flat-berlin-01 investigation's finding, this is NOT a meaningless platform sentinel — 'Einlass ab 19:00' is itself a real, consistent fact (matching this venue's independently-reported published opening hours, 7:00 PM–12:00 AM) — it is simply a different real fact (door time) than 'show start time'.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "each event detail page's own JSON-LD 'endDate' (e.g. '2026-08-27T23:59:00+0200'; one sampled event genuinely differs at '22:00:00+0100')",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated per event. Unlike b-flat-berlin-01's finding, this value genuinely VARIES between sampled events (23:59 for 3 of 4 events, 22:00 for the 'Kennedy Administration' event) rather than being an identical fixed sentinel — evidence that this is real per-event data, not a platform default, though 23:59 is plausibly this venue's own standard 'until midnight' closing default for events that don't override it.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "venue_location": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each sampled event's own JSON-LD 'location' object is empty, but a separate free-text block reliably states 'Location: Zig Zag Jazz Club / Hauptstr. 89, 12159 Berlin' for events at the venue's own room (confirmed on 2 of 4 sampled events in full). HOWEVER, one sampled event ('Kennedy Administration', /program-mai/kennedy-pzxmg) carries an explicit free-text override block ('IMPORTANT VENUE INFORMATION / Dear guests, please note that this concert takes place at the following location:') pointing to a DIFFERENT venue — the specific alternate venue name/address was not fully captured within this investigation's bounded evidence retention. This directly contradicts any assumption that venue_location is constant across this source (the same caution docs/SOURCE_INVESTIGATION_POLICY.md gives against over-generalising inheritance from visual/positional proximity), so this is recorded honestly as AMBIGUOUS rather than PROVEN or defaulted to the single known venue.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt",
+        "ev-identity"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "the event's own permalink slug under https://www.zigzag-jazzclub.berlin/program-mai/{slug} (e.g. 'duky-4tbm9')",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No bare numeric id is exposed as its own labelled field, but each event's own href is the site's own permanent Squarespace item slug under /program-mai/{slug} — the same documented judgement already established for Moog Barcelona, A-Trane, Quasimodo, b-flat, and LAV (a permalink URL slug the source itself uses as its own canonical path satisfies the stable identifier rule).",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.zigzag-jazzclub.berlin/program-mai/duky-4tbm9",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated as the Summary Block's own <a href>, and independently confirmed by fetching each of the 4 sampled URLs (all returned 200 OK with matching content).",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "the free-text 'Eintrittspreise:' block on each event detail page (e.g. 'Eintritt: 25€ / Mitglieder: 12,50€', genuinely varying to 'Eintritt: 30€ / Mitglieder: 15€' on another sampled event)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated, consistently-formatted free text found on all 3 of 3 event detail pages where this block was checked in full, with genuinely varying amounts confirming this is real per-event data (a full member/non-member price tier), not a placeholder.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-program-excerpt",
+      "ev-eventdetail-excerpt",
+      "zig-zag-jazz-club-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence (site's own Organization/LocalBusiness JSON-LD matching independently reported venue address).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, retained at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the Summary Block programme page (164 event-item occurrences) and representative event detail pages carrying real Event JSON-LD plus a rich free-text data block.",
+      "title PROVEN with basis DIRECT_SOURCE; start_date (date portion) PROVEN with basis DIRECT_SOURCE, cross-confirmed across 4 independently-fetched events.",
+      "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/A-Trane/Quasimodo/b-flat/LAV.",
+      "recommended_family JSON_LD — this project's existing generic JSON-LD collector family covers title/date/url discovery, but confidence is MEDIUM (not HIGH) because a genuinely complete collector must ALSO parse the site-specific free-text 'Beginn/Einlass/Eintrittspreise/Location' block for the real show-start time, price, and (crucially) a per-event venue-override check — none of which the generic JSON-LD family alone would extract correctly, and the venue-override finding specifically needs human attention before activation.",
+      "No unresolved CRITICAL blocker — the time/venue_location nuances are recorded as informational in field_assessment (time PROVEN via a different, correctly-identified field; venue_location honestly AMBIGUOUS), not as blockers, since the fields activation gates actually require (title/start_date/source_record_id/event_url) are all soundly PROVEN.",
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step (which should explicitly encode the Beginn-vs-Einlass and venue-override findings) is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery-berlin-cohort.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-program-excerpt",
+      "ev-eventdetail-excerpt",
+      "zig-zag-jazz-club-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of two real schema.org Organization/LocalBusiness JSON-LD blocks retained from the venue's own /menu-marquee page, stating its own legal name and address.",
+      "acquired_from": "https://www.zigzag-jazzclub.berlin/menu-marquee",
+      "acquired_at": "2026-08-26T13:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/zig-zag-jazz-club-berlin-01/evidence/identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-program-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own real programme listing page (titled 'PROGRAMM', at /menu-marquee — the venue's top-nav 'Program' link at /program-mai itself renders only a client-side calendar widget with no server-rendered items): <title> and one full representative Squarespace summary-item block verbatim. The full raw response was 201,760 bytes with 164 total summary-item occurrences; this excerpt is a genuine literal substring of it.",
+      "acquired_from": "https://www.zigzag-jazzclub.berlin/menu-marquee",
+      "acquired_at": "2026-08-26T13:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/zig-zag-jazz-club-berlin-01/evidence/program-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-eventdetail-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpts (Event JSON-LD block + free-text Beginn/Einlass/Eintrittspreise/Location block) from four separate, independently-fetched event detail pages, retained verbatim to demonstrate the genuine JSON-LD shape, the real varying start/end/price data, and the venue-override honesty finding for the 'Kennedy Administration' event.",
+      "acquired_from": "https://www.zigzag-jazzclub.berlin/program-mai/duky-4tbm9, https://www.zigzag-jazzclub.berlin/program-mai/juh2-7m9a7, https://www.zigzag-jazzclub.berlin/program-mai/kennedy-pzxmg, https://www.zigzag-jazzclub.berlin/program-mai/ninatribute-2e4c6",
+      "acquired_at": "2026-08-26T13:34:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/zig-zag-jazz-club-berlin-01/evidence/event-detail-excerpt.html"
+    },
+    {
+      "evidence_id": "zig-zag-jazz-club-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/html-link-discovery-berlin-cohort.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/html-link-discovery-berlin-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/zig-zag-jazz-club-berlin-01/evidence/event-detail-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

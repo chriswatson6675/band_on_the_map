@@ -1,0 +1,167 @@
+{
+  "investigation_id": "junction-bar-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:23:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage, its 'Musikprogramm' navigation page, and the current month's own hand-authored programme page (a distinct static HTML file per month, e.g. /program/08_2026/08_26.html). No CMS, JS framework, or events plugin of any kind is present — this is entirely hand-authored, table-layout-era static HTML."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's own 'Musikprogramm' page links to one static HTML file per month (e.g. 'program/08_2026/08_26.html' for August 2026). That page's own heading states 'August 2026 music program' once, and each of 8 sampled date rows beneath it states only 'D.M.' (day.month, no year) plus the day-of-week name and the band/act name(s) — the month and year are established once by the page itself, not repeated per row. This directly answers the investigation question without needing to escalate: no JSON-LD, ICS feed, WordPress/plugin fingerprint, Fourvenues widget, or Sanity CMS was found — nor was any needed, since titles and dates are already present in the static markup.",
+      "evidence_refs": ["ev-home", "ev-musikprogramm", "ev-august-program"]
+    }
+  ],
+  "source_candidate_id": "junction-bar-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Junction Bar (live-music bar/club, Gneisenaustraße 18, Berlin-Kreuzberg, founded 1993)",
+  "official_url": "https://junction-bar.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-musikprogramm"],
+    "notes": "Official identity confirmed directly from the retained evidence: the venue's own domain (junction-bar.de), its own <title> ('JUNCTION BAR - The place for live music'), and its own retained address text ('Gneisenaustr.18 10961 Berlin'), repeated identically across the homepage and the Musikprogramm page. Discovered via WebSearch (not treated as authority itself) and independently confirmed by fetching the domain directly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "No CMS or framework of any kind — entirely hand-authored static HTML (table-layout-era markup, 'boilerplate.css'/'rasterlayout.css' boilerplate, jQuery 1.7.2 only for a mobile-menu toggle). One physical .html file exists per calendar month under /program/{MM}_{YYYY}/.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-musikprogramm", "ev-august-program"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://junction-bar.de/program/08_2026/08_26.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-august-program"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Zora y las Vampiras",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each act's own <p class=\"Stil1222\">{name}</p> heading states its name directly. Sampled representative value from the 5.8. Wednesday row (a double bill: 'Zora y las Vampiras' + 'Lemon Eye'); the same per-act heading structure repeats across all 8 sampled date rows, though the surrounding markup is deeply malformed hand-authored HTML (unclosed/mismatched <strong> tags) that a real parser would need to tolerate, not assume is well-formed.",
+      "evidence_refs": ["ev-august-program"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-05",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The page's own heading states 'August 2026 music program' exactly once (<div id=\"LayoutDiv2\"> <strong>August 2026 music program</strong> </div>), governing every date row on this one physical month-page. Each date row itself states only day.month ('5.8.' on the sampled row) plus a day-of-week name, never a year. Combining the page heading's month/year with the row's own day.month via a fixed rule yields exactly one result; this page-scoped heading-governs-every-row pattern is the same shape as this project's own canonical v1.2 worked example (example-deterministic-context-ready-01).",
+      "evidence_refs": ["ev-august-program"],
+      "derivation": {
+        "rule": "The page's own single heading states '<Month> <Year> music program' and governs every dated event row on this one physical per-month HTML page. Each row's own '<D>.<M>.' (day.month, no year) is combined with the heading's year to yield <Year>-<MM>-<DD>. Exactly one heading exists per page (one physical file per calendar month), so the combination is unambiguous.",
+        "inputs": ["August 2026 music program (page heading)", "5.8. WEDNESDAY (row's own day.month + weekday name)"]
+      }
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The page states a general 'SHOWTIMES: SUN-THU 21:00 / FRI & SAT 22:00' block once near the top, and SOME (not all) individual date rows additionally embed an explicit time inline in their own malformed markup (e.g. the sampled 14.8. FRIDAY row literally contains '---- 21:00 ----' inline). Because this is inconsistent across rows, floating local (no timezone), and the general SHOWTIMES block's applicability to any single row is not a clean 1:1 structural containment the way the date heading is, time is retained honestly as PARTIAL rather than promoted to a precise PROVEN value for every record.",
+      "evidence_refs": ["ev-august-program"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is stated anywhere on this page.",
+      "evidence_refs": ["ev-august-program"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per event row as a discrete field. This source represents exactly one physical venue (Junction Bar, Gneisenaustr. 18) — consistent with this project's existing single-venue-per-source precedent (e.g. razzmatazz-barcelona-01), venue identity is intended to resolve via source_id at activation time, not by parsing a per-record field the source does not actually expose.",
+      "evidence_refs": ["ev-august-program"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Unlike every other venue investigated in this Berlin trial, Junction Bar exposes NO per-event permalink/slug/id of any kind — events are just rows within one shared static month-page, with no individual detail URL. Honestly left UNKNOWN rather than invented. An alternative identity strategy IS available and documented here for a future collector build: a composite key of (source page URL + row date + act title(s)) would be stable within one month-page, since the page itself is a stable, dated, hand-published artifact per month — but this was not independently verified by re-fetching the same page on a later date to confirm rows never get silently edited/reordered, so it is not claimed as PROVEN.",
+      "evidence_refs": ["ev-august-program"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No per-event detail page exists on this venue's own domain. Some (not all) rows carry a link out to the venue's own ticket-shop subdomain (https://junction-bar-shop.de/...) for that specific date's ticket purchase — this is the venue's OWN embedded ticketing (matching the legitimate 'first-party embedded ticketing' carve-out), but it is a ticket-purchase link, not a stable canonical event detail URL, and is not present for every sampled row.",
+      "evidence_refs": ["ev-august-program"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price text appears directly on the programme page itself; price would presumably be shown on the venue's own ticket-shop subdomain (junction-bar-shop.de) when a ticket link is present, which is out of scope for this bounded static-HTML sample and genuinely not collected here.",
+      "evidence_refs": ["ev-august-program"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-august-program"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The underlying HTML is deeply malformed hand-authored markup (unclosed/mismatched <strong> tags, inconsistent inline time placement) that a real parser implementation would need to tolerate defensively; this does not block investigation but should inform collector design effort/confidence, and is why collector_assessment.confidence is MEDIUM rather than HIGH despite the data path itself being CONFIRMED."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence.",
+      "acquisition_class STATIC_HTML, a resolved supported class, with a CONFIRMED public data path (8 real, current dated rows sampled from the live current-month page).",
+      "title PROVEN with basis DIRECT_SOURCE; start_date PROVEN with basis DETERMINISTIC_CONTEXT, a clean example of this project's own canonical heading-governs-every-row pattern (one heading per physical month-page, day.month per row).",
+      "source_record_id and event_url are honestly NOT_PRESENT/UNKNOWN rather than invented — this source genuinely does not expose a per-event permalink; an alternative composite-key identity strategy is documented in source_record_id.notes for future collector-build follow-up, satisfying the activation-gate's 'documented alternative' allowance even though this investigation does not itself reach activation.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary — flagged MEDIUM confidence given the markup quality (a MINOR blocker, not CRITICAL).",
+      "No unresolved CRITICAL blocker.",
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 (and, for the DETERMINISTIC_CONTEXT start_date field specifically, the v1.2 field-specific refinement of gate 9) requires. Building and offline-proving a defensive STATIC_EVENT_LIST parser — tolerant of this site's malformed markup — against the retained evidence/august-program.html fixture is separate, explicitly follow-up work."
+    ],
+    "evidence_refs": ["ev-august-program"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public homepage, byte-retained in full, confirming identity (domain, title, address) and the 'Musikprogramm' navigation link.",
+      "acquired_from": "https://junction-bar.de/",
+      "acquired_at": "2026-08-26T12:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/junction-bar-berlin-01/evidence/home-page.html"
+    },
+    {
+      "evidence_id": "ev-musikprogramm",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own 'Musikprogramm' (live music programme) navigation page, byte-retained in full, showing the per-month programme page links (August 2026, September 2026).",
+      "acquired_from": "https://junction-bar.de/music_html/music.html",
+      "acquired_at": "2026-08-26T12:22:30Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/junction-bar-berlin-01/evidence/musikprogramm-page.html"
+    },
+    {
+      "evidence_id": "ev-august-program",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own August 2026 programme page, byte-retained in full: 8 real, current dated rows, each with act title(s)/genre/description and, for some rows, an inline time and/or the venue's own ticket-shop link. The page's own single 'August 2026 music program' heading is the DETERMINISTIC_CONTEXT month/year source for every row's date.",
+      "acquired_from": "https://junction-bar.de/program/08_2026/08_26.html",
+      "acquired_at": "2026-08-26T12:23:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/junction-bar-berlin-01/evidence/august-program.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,228 @@
+{
+  "investigation_id": "ausland-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:41:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage, programme page (/program, which 307-redirects to /program/all), and two individual event detail pages. The site is TYPO3 CMS using its 'news' extension (news_pi1) to render a clean, static, server-rendered event list with per-event full date text, short date, title, artist list, image, and permalink. Individual event detail pages sometimes (not always) carry an additional free-text 'doors HH:MM | concerts HH:MM | Ticket €X' line. No JSON-LD, ICS, WordPress, Squarespace, Fourvenues, or Sanity signal is present. No structural/browser escalation was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://ausland.berlin/program/all (200 OK, 29,888 bytes) returned a clean, server-rendered static event list with full date text, short date, title, artist list, image, and permalink per event (confirmed for 3+ events). Two independently-fetched event detail pages confirmed the same date/title/artist shape, plus an honest finding: only one of the two carried a free-text doors/concert-time/price line, and where present its concert-start time did not necessarily match the structured date field's own time-of-day. This directly answers the investigation question at Level 1 — no escalation to Level 2/3 was needed.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  ],
+  "source_candidate_id": "ausland-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Ausland (independent venue for experimental/improvised music, film, literature, and performance, Prenzlauer Berg, Berlin — Lychener Straße 60, 10437 Berlin)",
+  "official_url": "https://ausland.berlin/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the site's own footer text states its own address 'Lychener Str. 60 / 10437 Berlin' — matching the address independently reported by third-party discovery sources (Wikipedia, Berlin Bühnen, pankow-weissensee-prenzlauerberg.berlin) for Ausland in Prenzlauer Berg. Domain ausland.berlin is a plausible first-party domain, not a ticketing aggregator."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "TYPO3 CMS with its 'news' extension (news_pi1), rendering a static, server-side event list ('event grid-item listitem' sections) directly in the page HTML. Some itemprop attributes ('url', 'image') are present on list items but without an enclosing itemscope/itemtype — this is NOT valid schema.org microdata, just incidental markup, so it is classified as STATIC_HTML rather than a structured-data class. No WordPress, Squarespace, EventON, Tribe Events, Fourvenues, or Sanity signal is present.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-program-excerpt",
+      "ev-eventdetail-excerpt"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://ausland.berlin/program/all",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-program-excerpt"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://ausland.berlin/event/eric-mingus-catherine-sikora-8y7",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "e.g. 'Eric Mingus and Catherine Sikora // 8Y7' (list page's own <h2>; matches the detail page's own <h2>)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated per event on both the list page and the detail page.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "the list/detail page's own <p class=\"date\"> text, e.g. 'Saturday, 05 September, 2026 - 20:00', with a machine-friendly short form also present on the list page (<span class=\"datum\">05/09/26</span>)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The FULL date (day, month, year) is directly and unambiguously stated as a single field, both in a human-readable long form and a short DD/MM/YY form — no combination of separate context pieces is needed. Confirmed varying correctly across 3+ sampled events.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The structured <p class=\"date\">/<span class=\"uhrzeit\"> field's own time-of-day (e.g. '20:00') is directly stated, but a cross-check against one sampled event's own free text ('doors 8:00 pm | concerts 8:30 pm | Ticket (only at door) € 10,--') shows the real concert start (20:30) does not exactly match the structured field's time (20:00) — the structured time appears closer to a 'doors'/rounded-hour convention than the precise show start. This free-text line is not present on every event (a second sampled event had none at all, and no time-of-day discrepancy could be checked for it). Recorded honestly as PARTIAL rather than PROVEN: the structured time is directly stated and usable as an approximate value, but should not be presented as the exact, precise show-start time without further verification across more samples.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date is present anywhere in the retained list-page or detail-page evidence.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present per-record on either the list page or the sampled detail pages. This source resolves to exactly ONE physical venue (Ausland, Lychener Straße 60 — confirmed separately in ev-identity), matching this project's existing Razzmatazz/Jamboree/Quasimodo/b-flat/Zig Zag/Schlot precedent for a single-venue source that does not restate its own venue name per event.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt",
+        "ev-identity"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "the event's own permalink slug under https://ausland.berlin/event/{slug} (e.g. 'eric-mingus-catherine-sikora-8y7')",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No bare numeric id is exposed as its own labelled per-event field, but each event's own href is the site's own permanent TYPO3 URL under /event/{slug} — the same documented judgement already established for Moog Barcelona, A-Trane, Quasimodo, b-flat, Zig Zag, Schlot, and LAV (a permalink URL slug the source itself uses as its own canonical path satisfies the stable identifier rule). A separate, invisible comma-separated list of numeric values ('4645,4998,4933,...', visible in ev-program-excerpt) is also present on the list page and looks like it may be the underlying TYPO3 'news' extension's own internal record UIDs, in list order — but its correlation to specific slugs and its stability were not independently proven in this bounded investigation, so it is noted only as a secondary observation, not relied upon.",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://ausland.berlin/event/eric-mingus-catherine-sikora-8y7",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated as the list item's own <a href> (also carrying an itemprop=\"url\" attribute), independently confirmed by fetching both sampled URLs (200 OK, matching content).",
+      "evidence_refs": [
+        "ev-program-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Present as free text on one of two sampled event detail pages ('Ticket (only at door) € 10,--'), but genuinely absent from the other sampled event detail page (no price/ticket text found anywhere on that page — plausibly a free/donation event, or simply not entered). Recorded honestly as PARTIAL rather than a uniform PROVEN/NOT_PRESENT, since price availability appears to genuinely vary per event rather than following one consistent rule.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-program-excerpt",
+      "ev-eventdetail-excerpt",
+      "ausland-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence (site's own footer address text matching independently reported venue address).",
+      "acquisition_class STATIC_HTML, a resolved supported class, retained at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the /program/all list page (with 15+ real upcoming event entries observed) and representative event detail pages.",
+      "title PROVEN with basis DIRECT_SOURCE; start_date PROVEN with basis DIRECT_SOURCE — the list AND detail pages both state the full date directly, in both a human-readable and a short machine-friendly form, requiring no context combination.",
+      "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/A-Trane/Quasimodo/b-flat/Zig Zag/Schlot/LAV.",
+      "recommended_family STATIC_EVENT_LIST — an existing collector family this project already documents (the list page alone already carries full date/title/artist/url per event; a per-event detail fetch adds price/door-time where present). No fundamentally new acquisition pattern required.",
+      "No unresolved CRITICAL blocker — the time/price honesty caveats (PARTIAL) are recorded informationally, not as blockers, since the fields activation gates actually require (title/start_date/source_record_id/event_url) are all soundly PROVEN.",
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step is explicitly out of scope for this investigation task and is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/ausland.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-program-excerpt",
+      "ev-eventdetail-excerpt",
+      "ausland-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own homepage footer: its own retained address text.",
+      "acquired_from": "https://ausland.berlin/",
+      "acquired_at": "2026-08-26T13:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ausland-berlin-01/evidence/identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-program-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own official programme list page: <title>, generator meta tag, the invisible internal TYPO3 news-record-UID list, and the first 2 full event-list entries (full/short date, title, artist list, permalink) verbatim. The full raw response was 29,888 bytes; this excerpt is a genuine literal substring of it.",
+      "acquired_from": "https://ausland.berlin/program/all",
+      "acquired_at": "2026-08-26T13:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ausland-berlin-01/evidence/program-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-eventdetail-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpts of the date/title/artist block from two separate, independently-fetched event detail pages, retained verbatim to demonstrate both the genuine per-event data shape and the honest finding that the free-text doors/concert-time/price line is present on only one of the two.",
+      "acquired_from": "https://ausland.berlin/event/eric-mingus-catherine-sikora-8y7, https://ausland.berlin/event/emilie-skrijelj-liz-allbee-max-arsava-tom-malmendier",
+      "acquired_at": "2026-08-26T13:41:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ausland-berlin-01/evidence/event-detail-excerpt.html"
+    },
+    {
+      "evidence_id": "ausland-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/ausland.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/ausland.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ausland-berlin-01/evidence/program-page-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

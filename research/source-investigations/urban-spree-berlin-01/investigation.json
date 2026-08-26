@@ -1,0 +1,205 @@
+{
+  "investigation_id": "urban-spree-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:14:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official concerts programme page and one individual event detail page. The programme page is server-rendered static HTML (MODX CMS with pdoTools pagination, not WordPress). Each of 9 sampled event cards states its own title, a full machine-readable local datetime in a `data-dateStart` attribute, a matching human-readable date/time, a price in EUR, and a link to the event's own detail page."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The public concerts programme page (https://www.urbanspree.com/program/concerts/) is plain server-rendered HTML exposing event cards, each with its own title, a full 'YYYY-MM-DD HH:MM:SS' local datetime in a data-dateStart attribute (repeated as human-readable text), an explicit EUR price, and a link to its own detail page. This directly answers the investigation question without needing to escalate. No JSON-LD, ICS feed, WordPress plugin, Fourvenues widget, or Sanity CMS was found (this is a MODX/pdoTools-powered site, not WordPress).",
+      "evidence_refs": [
+        "ev-program-page",
+        "ev-event-detail"
+      ]
+    }
+  ],
+  "source_candidate_id": "urban-spree-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Urban Spree (1700 sqm artistic space and concert venue, Revaler Str. 99, RAW-Gelände, Berlin-Friedrichshain)",
+  "official_url": "https://www.urbanspree.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-program-page",
+      "ev-event-detail"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the venue's own domain (urbanspree.com), its own page <title> ('... Urban Spree - Berlin / Concerts / Program'), and its own navbar logo/branding. Discovered via WebSearch (not treated as authority itself) and independently confirmed by fetching the domain directly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "MODX CMS with the pdoTools extra (pdoPage pagination component visible in loaded assets/scripts) rendering static event cards server-side — not WordPress, no queryable events REST API found.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-program-page"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.urbanspree.com/program/concerts/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.urbanspree.com/program/concerts/pure-obsessions-and-red-nights-nico-amara-urban-spree-berlin.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-event-detail"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Pure Obsessions & Red Nights + Nico Amara…",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <p class=\"card-text mb-0 title\"> states the full title directly. Sampled representative value from the first card on the retained page; the same structure repeats identically across all 9 sampled cards.",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2027-04-23",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own machine-readable data-dateStart attribute states a full 'YYYY-MM-DD HH:MM:SS' local datetime directly (e.g. data-dateStart=\"2027-04-23 20:00:00\"), independently corroborated by the card's own human-readable 'Apr 23, 2027' text in the same card — no combination with page-level or heading context needed; every card carries its own complete date.",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each card's own data-dateStart attribute and human-readable text also state a time ('20:00:00' / '20:00') directly, but with no UTC offset or explicit timezone anywhere on the page — a floating local time only, not a confirmed instant. Consistent with this project's v1.2 worked example (example-deterministic-context-ready-01), a floating local time is retained honestly as PARTIAL rather than promoted to a precise PROVEN value.",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is stated anywhere on the event card or the sampled event detail page.",
+      "evidence_refs": [
+        "ev-program-page",
+        "ev-event-detail"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-event-card as a discrete field. This source represents exactly one physical venue (Urban Spree, Revaler Str. 99) — consistent with this project's existing single-venue-per-source precedent (e.g. razzmatazz-barcelona-01), venue identity is intended to resolve via source_id at activation time, not by parsing a per-record field the source does not actually expose.",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "pure-obsessions-and-red-nights-nico-amara-urban-spree-berlin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric or explicit id field is exposed on the card. Each event's own detail-page URL ('program/concerts/{slug}.html') uses a stable, source-authored filename/slug as this source's own canonical permalink — the same documented judgement already established for LAV (ingestion/lav/discovery.mjs) and moog-barcelona-01/badehaus-berlin-01. The slug is directly read from the source's own link markup, not inferred.",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.urbanspree.com/program/concerts/pure-obsessions-and-red-nights-nico-amara-urban-spree-berlin.html",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <a href=\"program/concerts/{slug}.html\"> states the relative path directly; the page's own <base href=\"https://www.urbanspree.com/\"/> resolves it to an absolute URL deterministically (a fixed, standard HTML resolution rule, not model judgement) — recorded here as the resolved absolute form actually fetched and confirmed to return the matching event detail page (evidence/event-detail.html).",
+      "evidence_refs": [
+        "ev-program-page",
+        "ev-event-detail"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "17.00€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <li class=\"list-group-item price ...\"> states a EUR price directly (e.g. '17.00€' on the sampled card) — no combination or inference needed.",
+      "evidence_refs": [
+        "ev-program-page"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-program-page",
+      "ev-event-detail",
+      "urban-spree-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence.",
+      "acquisition_class STATIC_HTML, a resolved supported class, with a CONFIRMED public data path (9 real, current event cards sampled from the live page).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, each stated directly and completely (including a machine-readable data-dateStart attribute) on every sampled event card — no context combination needed.",
+      "price also PROVEN with basis DIRECT_SOURCE, an unusually complete static-HTML source for this project.",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching this project's existing LAV/moog-barcelona-01/badehaus-berlin-01 precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary.",
+      "No unresolved CRITICAL blocker.",
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 of the activation gates requires. Building and offline-proving the STATIC_EVENT_LIST parser against the retained evidence/program-page.html fixture is separate, explicitly follow-up work.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/urban-spree.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-program-page",
+      "ev-event-detail",
+      "urban-spree-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-program-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public concerts programme page, byte-retained in full: 9 real event cards, each with title/machine-and-human-readable date-time/price/detail-url.",
+      "acquired_from": "https://www.urbanspree.com/program/concerts/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/urban-spree-berlin-01/evidence/program-page.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One individual event detail page ('Pure Obsessions & Red Nights + Nico Amara…'), byte-retained in full, confirming the resolved event_url returned by the source genuinely resolves to the matching event's own detail page.",
+      "acquired_from": "https://www.urbanspree.com/program/concerts/pure-obsessions-and-red-nights-nico-amara-urban-spree-berlin.html",
+      "acquired_at": "2026-08-26T12:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/urban-spree-berlin-01/evidence/event-detail.html"
+    },
+    {
+      "evidence_id": "urban-spree-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/urban-spree.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/urban-spree.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/urban-spree-berlin-01/evidence/program-page.html"
+    }
+  ],
+  "supersedes": null
+}

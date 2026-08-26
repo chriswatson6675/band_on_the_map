@@ -56,10 +56,36 @@ import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { acquireBarcelona } from "../barcelona/run.mjs";
+import { acquireBerlin } from "../berlin/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildSpainMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
+import { loadValidatedArtifact } from "../publication-server/run.mjs";
+import {
+  DEFAULT_RETENTION_GRACE_MS,
+  annotateSourceProvenance,
+  extractRetainableMarkersForSource,
+  combineRetainedVenueMaps,
+  mergeRetainedMarkers,
+} from "../map/source-retention.mjs";
+
+// BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+// this manual/operator entry point now routes through the SAME canonical
+// source-retention module ingestion/unattended-runner/run.mjs already
+// uses — the exact same pure functions, never a second, independently
+// -drifting retention decision path. Only the orchestration (which
+// acquisition functions to call, which venue registries to read) is
+// necessarily duplicated between the two entry points, matching this
+// file's pre-existing convention of each entry point wiring the same
+// shared building blocks (buildPortugalMarkers/buildSpainMarkers/
+// buildGermanyMarkers/buildPublicationArtifact) independently. No new
+// retry policy is added here — this script remains a single-attempt,
+// on-demand run, exactly as before; only last-known-good retention (for a
+// source that fails outright) is now available to it, closing the gap
+// that let a single transient failure here silently drop real venues
+// (see BEATMAPPED-BERLIN-PRE-INTEGRATION-REUSE-AND-PUBLICATION-AUDIT-01's
+// own finding for the Barcelona incident this was written to fix).
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -81,11 +107,28 @@ async function main() {
   console.log(`BOTM-PUBLIC-MAP-LIVE-DATA-01 publication run starting (${generatedAt})`);
   if (args.from || args.to) console.log(`  date bounds: from=${args.from ?? "(none)"} to=${args.to ?? "(none)"}`);
 
+  // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+  // read (never write) the previously published artifact BEFORE this run
+  // acquires/builds anything new — see ingestion/unattended-runner/run.mjs's
+  // identical read for why this ordering matters and why this is the ONLY
+  // source of last-known-good data this run may carry forward. Re-validated
+  // with the SAME canonical validator; a missing/unreadable/invalid
+  // previous artifact simply makes retention unavailable this run, never a
+  // fatal error.
+  const previousArtifactResult = await loadValidatedArtifact({ artifactPath: resolvePublicationArtifactPath() });
+  const previousArtifact = previousArtifactResult.ok ? previousArtifactResult.artifact : null;
+  if (!previousArtifactResult.ok) {
+    console.log(`  no usable previous publication artifact for source-failure retention this run (${previousArtifactResult.error}) — proceeding with fresh data only`);
+  }
+
   const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
   const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
   // BARCELONA-30-VENUE-POPULATION-01: read-only, same convention as the
   // Lisbon/Porto registries above.
   const barcelonaVenues = JSON.parse(await readFile(resolve(ROOT, "venues/barcelona.json"), "utf8"));
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: read-only,
+  // same convention as the Lisbon/Porto/Barcelona registries above.
+  const berlinVenues = JSON.parse(await readFile(resolve(ROOT, "venues/berlin.json"), "utf8"));
 
   // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
   // venue registries above — this script never writes artists/*.json.
@@ -114,10 +157,38 @@ async function main() {
   // acquired Observation is passed through unbounded.
   const { barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireBarcelona();
 
-  const sourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
-  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length;
-  const successCount = sourceResults.filter((result) => result.success).length;
-  const failureCount = sourceResults.length - successCount;
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: Berlin's own
+  // acquisition, reusing acquireBerlin() (ingestion/berlin/run.mjs)
+  // exactly as proven by `npm run ingest:berlin` — never a second,
+  // independently-drifting acquisition path.
+  const { berlinRegistry, berlinResults, berlinObservations } = await acquireBerlin();
+
+  const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults];
+  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length;
+  const successCount = rawSourceResults.filter((result) => result.success).length;
+  const failureCount = rawSourceResults.length - successCount;
+
+  // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+  // annotate every source result with durable last_success_at/
+  // retained_eligible provenance — see ingestion/map/source-retention.mjs's
+  // own doc comment. This is the ONE place `sourceResults` gains this
+  // annotation; everything downstream (published source_report, the
+  // retention merge below) uses this SAME annotated array, never the raw
+  // one. This script performs no retry of its own (unlike `npm run
+  // unattended`) — a source either succeeds or fails on its single
+  // attempt, exactly as before; only what happens to a FAILED source's
+  // previously-published data changes here.
+  const sourceResults = annotateSourceProvenance({
+    sourceResults: rawSourceResults,
+    previousSourceReportSources: previousArtifact?.source_report?.sources ?? [],
+    // BEATMAPPED-RETENTION-COLD-START-BOOTSTRAP-AND-BERLIN-INTEGRATION-01:
+    // the SAME already-validated previousArtifact (loaded above via
+    // loadValidatedArtifact()) — only consulted as a cold-start fallback
+    // when a source has no explicit last_success_at yet.
+    previousArtifact,
+    generatedAt,
+    graceMs: DEFAULT_RETENTION_GRACE_MS,
+  });
 
   const portugalMarkers = buildPortugalMarkers({
     lisbonObservations,
@@ -141,27 +212,68 @@ async function main() {
     artistLinks: artistLinks.links,
   });
 
+  const germanyMarkers = buildGermanyMarkers({
+    berlinObservations,
+    berlinVenues: berlinVenues.venues,
+    berlinSourceRegistry: berlinRegistry.entries,
+    manualCoordinatesByVenueId,
+    artistRegistry: artistRegistry.artists,
+    artistLinks: artistLinks.links,
+  });
+
+  // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+  // fill in eligible last-known-good venues for every source that FAILED
+  // this run but is still within its 24-hour grace — see
+  // ingestion/unattended-runner/run.mjs's identical wiring for the full
+  // rationale; this reuses the exact same source-retention.mjs functions,
+  // never a second implementation.
+  const retainedEligibleSourceIds = sourceResults.filter((result) => result.retained_eligible).map((result) => result.source_id);
+  const todayDateString = generatedAt.slice(0, 10);
+  const lastSuccessAtBySourceId = new Map(sourceResults.map((result) => [result.source_id, result.last_success_at ?? null]));
+  const combinedRetainedVenues = previousArtifact
+    ? combineRetainedVenueMaps(
+        retainedEligibleSourceIds.map((sourceId) =>
+          extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString, retainedSince: lastSuccessAtBySourceId.get(sourceId) ?? null }),
+        ),
+      )
+    : new Map();
+
+  if (combinedRetainedVenues.size > 0) {
+    console.log(
+      `  retaining ${combinedRetainedVenues.size} venue(s) worth of last-known-good data across ${retainedEligibleSourceIds.length} failed-but-in-grace source(s): ${retainedEligibleSourceIds.join(", ")}`,
+    );
+  }
+
+  const retainedPortugalVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Portugal"));
+  const retainedSpainVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Spain"));
+  const retainedGermanyVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Germany"));
+  const mergedPortugalMarkers = mergeRetainedMarkers(portugalMarkers, retainedPortugalVenues);
+  const mergedSpainMarkers = mergeRetainedMarkers(spainMarkers, retainedSpainVenues);
+  const mergedGermanyMarkers = mergeRetainedMarkers(germanyMarkers, retainedGermanyVenues);
+
   console.log(`\n=== Acquisition summary ===`);
   for (const result of sourceResults) {
-    const status = result.success ? "OK" : "FAILED";
+    const status = result.success ? "OK" : result.retained_eligible ? "FAILED (retained)" : "FAILED";
     console.log(
       `  [${status}] ${result.source_id}: raw=${result.raw_record_count} observations=${result.observation_count}${result.error ? ` error="${result.error}"` : ""}`,
     );
   }
   console.log(`  Sources: ${successCount}/${sourceResults.length} succeeded, ${failureCount} failed`);
   console.log(`  Observations (in window): ${observationCount}`);
-  console.log(`  Portugal map markers: ${portugalMarkers.length}`);
-  console.log(`  Spain map markers: ${spainMarkers.length}`);
+  console.log(`  Portugal map markers: ${mergedPortugalMarkers.length}`);
+  console.log(`  Spain map markers: ${mergedSpainMarkers.length}`);
+  console.log(`  Germany map markers: ${mergedGermanyMarkers.length}`);
 
   if (
     isCatastrophicPublicationRun({
       sourceSuccessCount: successCount,
-      portugalMarkerCount: portugalMarkers.length,
-      spainMarkerCount: spainMarkers.length,
+      portugalMarkerCount: mergedPortugalMarkers.length,
+      spainMarkerCount: mergedSpainMarkers.length,
+      germanyMarkerCount: mergedGermanyMarkers.length,
     })
   ) {
     console.error(
-      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${portugalMarkers.length} Portugal + ${spainMarkers.length} Spain map markers produced. ` +
+      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain + ${mergedGermanyMarkers.length} Germany map markers produced. ` +
         `Refusing to replace the last known good publication artifact at ${resolvePublicationArtifactPath()}.`,
     );
     process.exitCode = 1;
@@ -172,8 +284,9 @@ async function main() {
     generatedAt,
     from: args.from,
     to: args.to,
-    portugalMarkers,
-    spainMarkers,
+    portugalMarkers: mergedPortugalMarkers,
+    spainMarkers: mergedSpainMarkers,
+    germanyMarkers: mergedGermanyMarkers,
     sourceResults,
     observationCount,
     artistRegistry: artistRegistry.artists,

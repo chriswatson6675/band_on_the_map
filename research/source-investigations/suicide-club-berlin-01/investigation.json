@@ -1,0 +1,159 @@
+{
+  "investigation_id": "suicide-club-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC via curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser): retained the homepage and its own linked /contact path (which server-redirects back to the homepage). Level 2 STRUCTURAL: decoded and inspected the page's own inline bootstrap JSON (a Readymag 'data-content' project-configuration blob) for any discoverable event data or API reference."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The homepage (https://lokschuppen-berlin.com/) served <!-- Designed with Readymag --> markup: a client-rendered visual-canvas microsite (generator meta 'Readymag', <meta name=\"robots\" content=\"noindex,nofollow\">, page title 'LOKSHUPPEN NEW WEB'). The raw HTML body is only a mount point (<div id=\"root\">) plus a single <script type=\"module\" src=\"...viewer.js\">; there is no server-rendered text content, no application/ld+json, no wp-json, no ICS link, no Fourvenues script, no Sanity config. The linked /contact path 301-redirects back to the same homepage shell, confirming no distinct server-rendered content pages exist on this domain at all.",
+      "evidence_refs": ["ev-homepage", "ev-headers", "ev-contact-redirect"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Decoded the homepage's own inline data-content JSON blob (Readymag's project bootstrap config, embedded server-side in the initial HTML so no JS execution was needed to read it). It contains only visual-canvas metadata for the Readymag page-builder product itself (project id, CDN asset paths, text/style definitions, font/colour settings) -- a design/branding microsite tool, not an events-calendar platform or CMS. No API endpoint, feed URL, or event-shaped data of any kind is referenced anywhere in the retained bootstrap JSON. Readymag is a visual publishing tool (magazine/portfolio-style canvases); there is no known or discoverable public content API pattern for it that would expose structured event records, so guessing one would not be a genuine, evidenced probe.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  ],
+  "source_candidate_id": "suicide-club-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Suicide Club Berlin / Suicide Circus, now rebranded Lokschuppen Berlin (techno club, RAW-Gelände, Revaler Straße 99, Friedrichshain, Berlin)",
+  "official_url": "https://lokschuppen-berlin.com/",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "lokschuppen-berlin.com is corroborated as the successor domain to Suicide Circus/Suicide Club via third-party discovery (Berlin.de's own club listing 'Lokschuppen -- formerly Suicide Circus', Wikipedia's 'Lokschuppen Berlin' article, and a search-indexed page title 'CONTACT - SUICIDE BERLIN' previously served from this same domain/path) and via the club's own known lost@suicide-berlin.com contact address referenced in third-party listings. However, the CURRENTLY retained live homepage itself carries no venue-identifying text at all (a Readymag visual placeholder titled 'LOKSHUPPEN NEW WEB', explicitly noindex/nofollow) -- so official identity is corroborated through third-party discovery leads, not directly self-stated on the retained first-party page itself at time of investigation. Kept PARTIAL rather than PROVEN because the first-party evidence alone does not state the venue's identity in text."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Readymag (visual page-builder/publishing tool) -- the entire retained page is a client-side-rendered canvas shell with no server-rendered content, no CMS/events plugin, no public content API discovered.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-headers"]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event content of any kind was retained; the domain currently serves a placeholder microsite.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event content of any kind was retained.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event content of any kind was retained.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event content of any kind was retained.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event content of any kind was retained; the address (Revaler Str. 99, Berlin) is known only from third-party listings, not from this domain's own retained content.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No records of any kind exist on this source to assign an id strategy to.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No event content of any kind was retained.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-homepage"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The venue's official domain (following its 2024 rebrand from Suicide Circus/Suicide Club to Lokschuppen Berlin) currently serves only a client-rendered, noindex/nofollow Readymag placeholder page with no server-rendered content and no discoverable public API. Neither the homepage nor its own linked /contact path exposes any event, programme, or even static venue-description text at all."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The official domain is genuinely a placeholder/in-transition microsite at time of investigation (client-rendered Readymag canvas, noindex/nofollow, no server-rendered text, no distinct content pages -- /contact redirects straight back to the homepage shell).",
+      "Level 1 (homepage + /contact) found zero usable structured data: no JSON-LD, no ICS, no WordPress/Tribe signature, no Fourvenues script, no Sanity config.",
+      "Level 2 (decoding the page's own inline Readymag bootstrap configuration) found only visual-canvas/design tool metadata -- no event data, no API reference of any kind to escalate toward.",
+      "No headless browser tool is available in this environment; even if one were used, there is no first-party evidence here suggesting the client-side rendering conceals actual event content rather than an intentionally minimal rebrand placeholder.",
+      "Official identity itself is only PARTIAL (corroborated via third-party discovery, not self-stated on the retained page), so activation-grade identity confidence is not yet reached either.",
+      "The correct honest outcome is to defer and revisit once the club's post-rebrand site is genuinely live with real programme content, rather than fabricate event fields from a page that currently has none."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-headers", "ev-contact-redirect"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, retained byte-faithfully. A Readymag-generated client-rendered canvas shell (generator meta, noindex/nofollow, title 'LOKSHUPPEN NEW WEB'), including its own inline bootstrap 'data-content' JSON (decoded and inspected -- pure visual-canvas/design-tool project configuration, no event data, no API reference).",
+      "acquired_from": "https://lokschuppen-berlin.com/",
+      "acquired_at": "2026-08-26T12:16:58Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/suicide-club-berlin-01/evidence/homepage-lokschuppen.html"
+    },
+    {
+      "evidence_id": "ev-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw HTTP response headers for the homepage request, retained byte-faithfully -- confirms the Readymag platform via 'Set-Cookie: use-readymag-next-auth-server' and general infrastructure (Caddy/nginx).",
+      "acquired_from": "https://lokschuppen-berlin.com/",
+      "acquired_at": "2026-08-26T12:16:58Z",
+      "method": "curl (plain HTTP GET, -D header dump, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/suicide-club-berlin-01/evidence/headers-lokschuppen.txt"
+    },
+    {
+      "evidence_id": "ev-contact-redirect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own linked /contact path, retained byte-faithfully after following its redirect -- resolves to the identical homepage shell (no distinct content page exists server-side).",
+      "acquired_from": "https://lokschuppen-berlin.com/contact",
+      "acquired_at": "2026-08-26T12:18:00Z",
+      "method": "curl (plain HTTP GET, -L to follow redirect, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/suicide-club-berlin-01/evidence/contact-page.html"
+    }
+  ],
+  "supersedes": null
+}

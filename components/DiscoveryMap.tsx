@@ -30,7 +30,7 @@ setWorkerUrl(
   "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
 );
 
-export type SearchCountry = "Portugal" | "Croatia" | "Spain";
+export type SearchCountry = "Portugal" | "Croatia" | "Spain" | "Germany";
 
 type CountryMapView = {
   bounds: LngLatBoundsLike;
@@ -73,6 +73,21 @@ export const COUNTRY_MAP_VIEWS: Record<SearchCountry, CountryMapView> = {
     ],
     center: [2.159, 41.396],
     zoom: 12,
+  },
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 — Germany's own
+  // bucket, following the exact same "scope the box to where the real
+  // markers actually are" precedent as Spain above: every current Germany
+  // venue is in Berlin (see ingestion/map/publication.mjs's
+  // buildGermanyMarkers() doc comment), so this box comfortably fits the
+  // real Berlin venue coordinates rather than a whole-country box that
+  // would leave the markers a tiny cluster in one corner.
+  Germany: {
+    bounds: [
+      [13.1, 52.38],
+      [13.65, 52.62],
+    ],
+    center: [13.38, 52.5],
+    zoom: 10.5,
   },
 };
 

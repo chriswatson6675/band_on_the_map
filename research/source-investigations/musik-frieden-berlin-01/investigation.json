@@ -1,0 +1,148 @@
+{
+  "investigation_id": "musik-frieden-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:22:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the candidate's historically-known domain. The very first fetch resolved the CANDIDATE_IDENTITY question directly and conclusively (the domain now serves a different, unrelated venue), so no further escalation was performed or warranted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain, unauthenticated GET of https://www.musikundfrieden.de/ (the venue's historically-known domain, per third-party discovery leads used only as leads, never as fact authority) returns HTTP 301 and redirects to https://hole-berlin.de/. That target's own retained homepage content (title 'Hole⁴⁴ - Berlin', meta description 'Club in Berlin Neukölln. Konzerte, Partys und Events. Hermannstraße 146, D-12051 Berlin', and its own schema.org Organization/WebSite JSON-LD naming 'Hole Berlin' at 'Hermannstraße 146, 12051 Berlin') directly and unambiguously identifies a different venue, under a different name, at a different address and district (Neukölln, not Kreuzberg) than Musik & Frieden (previously at Falckensteinstraße 47/48, Kreuzberg, near Schlesisches Tor). This single retained fetch fully answers the CANDIDATE_IDENTITY question: no current official first-party presence exists for Musik & Frieden at its own historically-known domain to investigate further. Independent third-party discovery leads (used only as leads per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section, never as fact authority) corroborate this: multiple sources (berliner-zeitung.de journalism, theclubmap.com's own 'CLOSED' listing) independently report Musik & Frieden closed in 2020 (building slated for demolition; door marked 'Geschlossen wegen Covid-19'), with the same operators going on to run Hole44/Hole Berlin in Neukölln as an unofficial successor brand — a genuinely different venue, not a rename or relaunch of Musik & Frieden itself.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    }
+  ],
+  "source_candidate_id": "musik-frieden-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Musik & Frieden (former concert venue, Falckensteinstraße 47/48, Kreuzberg, Berlin, near Schlesisches Tor — opened mid-2015 as successor to the Magnet Club; independently corroborated by multiple third-party discovery leads as closed since 2020)",
+  "official_url": null,
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-redirect", "ev-hole-content"],
+    "notes": "Historical identity (this domain/address once belonged to Musik & Frieden) is well corroborated by third-party discovery leads, but no CURRENT official first-party presence exists to confirm — the candidate's own former domain now directly, unambiguously serves a different venue (Hole Berlin / Hole44, Neukölln). official_url is left null rather than pointing at musikundfrieden.de, because that domain no longer identifies this candidate at all; pointing official_url at it would misrepresent a different venue's site as this one's."
+  },
+  "site_classification": {
+    "acquisition_class": "UNSUPPORTED",
+    "platform": null,
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-redirect", "ev-hole-content"]
+  },
+  "data_paths": [
+    {
+      "kind": "DOMAIN_REDIRECT_TO_UNRELATED_VENUE",
+      "url": "https://www.musikundfrieden.de/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    },
+    "start_date": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current official source exists for this closed candidate.",
+      "evidence_refs": ["ev-redirect", "ev-hole-content"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-redirect", "ev-hole-content"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "This candidate (Musik & Frieden, Falckensteinstraße, Kreuzberg) is not a going concern — independently corroborated third-party discovery leads report it closed in 2020, and its own former domain now directly, unambiguously redirects to and serves a different, unrelated venue (Hole Berlin / Hole44, Neukölln, different address, different operator brand). There is no current official first-party presence to acquire event data from; this is not an acquisition-method gap, it is the absence of a going candidate."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The candidate's own historically-known official domain now directly, unambiguously identifies a different venue (Hole Berlin / Hole44) at a different address and district — not a redesign, rename, or relaunch of Musik & Frieden itself.",
+      "Independent third-party discovery leads (journalism, an existing closed-clubs directory) corroborate that Musik & Frieden closed in 2020, consistent with the domain's current content.",
+      "No current official first-party presence exists for this candidate to investigate further; per docs/SOURCE_INVESTIGATION_POLICY.md this is correctly REJECTed rather than DEFERred, since DEFER implies a live candidate whose acquisition method could not be safely established, whereas this candidate is not a going concern at all.",
+      "If Musik & Frieden reopens under a verifiable official presence in the future, a new investigation (citing supersedes: \"musik-frieden-berlin-01\") would be required — this record is never silently rewritten."
+    ],
+    "evidence_refs": ["ev-redirect", "ev-hole-content"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-redirect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Complete, byte-faithful HTTP response (headers + full 271-byte body) for a plain GET of the candidate's historically-known domain, showing a permanent 301 redirect to https://hole-berlin.de/.",
+      "acquired_from": "https://www.musikundfrieden.de/",
+      "acquired_at": "2026-08-26T12:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser, redirect NOT followed for this capture)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/musik-frieden-berlin-01/evidence/musikundfrieden-de-redirect.txt"
+    },
+    {
+      "evidence_id": "ev-hole-content",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and the <head> block (title, meta description, schema.org Organization/WebSite JSON-LD) of the redirect target, directly naming a different venue ('Hole Berlin', Hermannstraße 146, Neukölln) than the candidate (Musik & Frieden, Falckensteinstraße, Kreuzberg).",
+      "acquired_from": "https://hole-berlin.de/",
+      "acquired_at": "2026-08-26T12:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/musik-frieden-berlin-01/evidence/hole-berlin-homepage-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

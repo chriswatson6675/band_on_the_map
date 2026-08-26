@@ -1,0 +1,179 @@
+{
+  "investigation_id": "tempodrom-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official 'Programm & Tickets' page. A single retained <script type=application/ld+json> block on that one page contains a JSON array of 150 full schema.org Event objects (name, startDate, doorTime, endDate, location with full postal address, performer, and an AggregateOffer with price/currency) — no per-event crawling needed at all, matching the same bulk-array JSON-LD pattern already proven for moog-barcelona-01."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official programme page (https://www.tempodrom.de/programm-und-tickets/) immediately exposed a single JSON-LD array of 150 Event objects covering essentially the venue's full upcoming schedule at once, each with startDate/doorTime/endDate/location/performer/offers. No further escalation was needed; Level 1 fully answered the investigation question.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    }
+  ],
+  "source_candidate_id": "tempodrom-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Tempodrom (concert/circus-tent-shaped multi-purpose venue, Möckernstraße, Kreuzberg, Berlin)",
+  "official_url": "https://www.tempodrom.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm"
+    ],
+    "notes": "The retained page's own <title> reads 'Tempodrom | Tempodrom - Programm & Tickets' at the venue's own domain tempodrom.de. Every sampled JSON-LD event's own 'location' object directly states name 'Tempodrom Berlin' and a full postal address ('Möckernstr. 10, 10963 Berlin, DE') matching the venue's known Kreuzberg address, and every image asset URL is self-hosted under www.tempodrom.de/site/assets/ — a self-consistent, first-party retained artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Custom CMS (no WordPress/wp-content/wp-json signal detected). The programme page embeds a single schema.org Event JSON-LD array covering essentially the venue's entire upcoming schedule in one request, matching the same pattern already proven for moog-barcelona-01.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://www.tempodrom.de/programm-und-tickets/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Baby Keem",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD Event's own 'name' field, stated directly.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-01",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD Event's own 'startDate' date portion (e.g. '2026-09-01T20:30:00'), stated directly.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:30 (Europe/Berlin, floating local — no explicit UTC offset suffix on 'startDate')",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD Event's own 'startDate' time-of-day portion, stated directly (e.g. '2026-09-01T20:30:00'). No timezone offset is appended to this value anywhere in the sampled data — recorded honestly as FLOATING_LOCAL, not upgraded to a UTC instant. A separate 'doorTime' field (e.g. '2026-09-01T18:30:00') is also directly present and distinct from the performance start time.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "A JSON-LD 'endDate' field is present, but was found — by comparing a single-day event (Baby Keem: startDate '2026-09-01T20:30:00', endDate '2026-09-01', identical calendar day, no time-of-day component) against a genuine multi-day event (Berlin Salsacongress 2026: startDate '2026-08-27', endDate '2026-08-30', a 4-day span) — to represent the last calendar day of a (possibly multi-day) event run, not a performance end-time. Treating it as a proven performance 'end' fact would be a misreading of what this field actually encodes, so it is honestly recorded NOT_PRESENT rather than promoted.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Tempodrom Berlin, Möckernstr. 10, 10963 Berlin, DE",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD Event's own 'location.name'/'location.address' fields, stated directly and identically across sampled records.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "baby_keem_2026-09-01_20",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric id is exposed on the Event object itself; each event's own 'url' field is this source's own permanent '/event/{slug}/' page, so the slug is used as source_record_id — the same documented judgement already established for moog-barcelona-01/LAV (ingestion/lav/discovery.mjs).",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.tempodrom.de/event/baby_keem_2026-09-01_20/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD Event's own 'url' field, stated directly.",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "65.00-70.75 EUR (AggregateOffer lowPrice/highPrice)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD Event's own 'offers' object (an AggregateOffer for this sampled record) directly states 'price'/'lowPrice'/'highPrice'/'priceCurrency'/'availability' — a genuinely complete price field, unlike most other Berlin venues already investigated in this trial (which only expose a 'starting from' text string or no price at all).",
+      "evidence_refs": [
+        "ev-programm"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm",
+      "tempodrom-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, JSON-LD's own location/address, self-hosted asset URLs).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: a single request exposing 150 full Event records at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following the documented moog-barcelona-01/LAV precedent.",
+      "venue_location and price both additionally PROVEN with basis DIRECT_SOURCE — this source exposes a genuinely complete price range, unlike most other Berlin venues already investigated in this trial.",
+      "recommended_family JSON_LD, this project's own existing, fully generic, already-proven collector family (ingestion/json-ld/parse.mjs) — literally zero new code required.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/json-ld-berlin-zero-code-cohort.test.mjs) — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION.",
+      "NOTE (post-investigation, BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 build phase): this source's own real page emits an unquoted script type attribute (<script type=application/ld+json>), which the EXISTING ingestion/json-ld/parse.mjs regex did not originally match at all. Fixed as a small, backward-compatible widening of that existing regex (quotes now optional) rather than a new module — see ingestion/json-ld/parse.mjs's own doc comment and tests/json-ld-berlin-zero-code-cohort.test.mjs. Reported honestly in the Berlin trial report as CONFIGURATION_ONLY, not pure zero-code, because existing collector implementation code did change to support this source."
+    ],
+    "evidence_refs": [
+      "ev-programm",
+      "tempodrom-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programm",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official 'Programm & Tickets' page — the full raw response was originally 709,889 bytes, dominated by navigation/CSS/image markup carrying no event data; this file retains the page's <title> plus the FULL, UNTRUNCATED <script type=application/ld+json> block verbatim (all 150 Event records, not edited or re-serialized), a bounded, disclosed excerpt per the policy's evidence-boundedness requirement. Because the JSON-LD block itself was copied byte-for-byte (not re-parsed/re-serialized), it remains byte_faithful for that portion; the overall file is marked non-byte-faithful since the surrounding page bytes were dropped.",
+      "acquired_from": "https://www.tempodrom.de/programm-und-tickets/",
+      "acquired_at": "2026-08-26T13:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title+JSON-LD only, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/tempodrom-berlin-01/evidence/programm-raw.html"
+    },
+    {
+      "evidence_id": "tempodrom-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/json-ld-berlin-zero-code-cohort.test.mjs) re-parsing this investigation's own retained fixture via the EXISTING generic collector family and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/json-ld-berlin-zero-code-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/tempodrom-berlin-01/evidence/programm-raw.html"
+    }
+  ],
+  "supersedes": null
+}

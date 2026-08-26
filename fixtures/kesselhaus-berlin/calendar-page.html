@@ -1,0 +1,119 @@
+=== 1. EventVenue JSON-LD block (raw HTML, calendar page) ===
+<script class="structured-data-head" type="application/ld+json">{"@context":"https://schema.org","@type":"EventVenue","description":"Events | Kesselhaus","location":{"@type":"Place","name":"Kesselhaus","address":{"@type":"PostalAddress","streetAddress":"Knaackstraße 97","addressLocality":"Berlin","postalCode":"10435","addressRegion":"Berlin","addressCountry":"DE"}},"name":"Program | Kesselhaus"}</script>
+
+=== 2. Angular Universal transfer-state: raw <script id="serverApp-state"> excerpt for the events-by-month query key (custom '&q;' = '"' escaping used by this platform; ~2000 raw chars shown) ===
+DECODED (after mechanically replacing every '&q;' with '"' and json.loads) — first 6 of the real query results for the 2026-08 to 2026-09 window, each giving a Firebase-style event id, its own 'start' as a genuine UTC ISO instant (Z suffix), and topic tags:
+{
+  "store.a209581147520s.doc:/events/content$query/partly|asc|{\"filter\":{\"start\":{\"from\":\"2026-08\",\"to\":\"2026-09\"}},\"limit\":500}": {
+    "nextCursor": [
+      "2026-08-30T13:00:00.000Z"
+    ],
+    "_saved_": "2026-07-07T08:47:37.186Z",
+    "stamp": "-",
+    "sortings": {},
+    "results": [
+      {
+        "id": "-Ot8ou0vgZ_E7m_7PiYF",
+        "doc": {
+          "stamp": "2026-07-07T08:47:34.778Z",
+          "active": true,
+          "start": "2026-08-01T20:00:00.000Z",
+          "topics": [
+            "/categories//event-topics//subs//party",
+            "/categories//event-topics//subs//dance",
+            "/categories//event-topics//subs//highlights"
+          ]
+        },
+        "urlid": "/events//-Ot8ou0vgZ_E7m_7PiYF",
+        "stamp": "current",
+        "prove": "2026-07-07T08:47:34.778Z"
+      },
+      {
+        "id": "-OxQ2CcmOsKlUFRkWPkb",
+        "doc": {
+          "stamp": "2026-07-13T10:37:47.862Z",
+          "active": true,
+          "start": "2026-08-04T16:00:00.000Z",
+          "topics": [
+            "/categories//event-topics//subs//concerts",
+            "/categories//event-topics//subs//blues",
+            "/categories//event-topics//subs//open-airs",
+            "/categories//event-topics//subs//festivals"
+          ]
+        },
+        "urlid": "/events//-OxQ2CcmOsKlUFRkWPkb",
+        "stamp": "current",
+        "prove": "2026-07-13T10:37:47.862Z"
+      },
+      {
+        "id": "-OxQ2ZN6pbxuXrWbNBv_",
+        "doc": {
+          "stamp": "2026-07-28T08:52:49.066Z",
+          "active": true,
+          "start": "2026-08-05T16:00:00.000Z",
+          "topics": [
+            "/categories//event-topics//subs//concerts",
+            "/categories//event-topics//subs//blues",
+            "/categories//event-topics//subs//open-airs",
+            "/categories//event-topics//subs//festivals"
+          ]
+        },
+        "urlid": "/events//-OxQ2ZN6pbxuXrWbNBv_",
+        "stamp": "current",
+        "prove": "2026-07-28T08:52:49.066Z"
+      },
+      {
+        "id": "-OoyesG1vJBoBNvJzUAt",
+        "doc": {
+          "stamp": "2026-07-31T22:14:16.845Z",
+          "active": true,
+          "start": "2026-08-08T12:00:00.000Z",
+          "topics": [
+            "/categories//event-topics//subs//concerts",
+            "/categories//event-topics//subs//highlights",
+            "/categories//event-topics//subs//german",
+            "/categories//event-topics//subs//-NJ4n5nEElV0g-V4FEPd"
+          ]
+        },
+        "urlid": "/events//-OoyesG1vJBoBNvJzUAt",
+        "stamp": "current",
+        "prove": "2026-07-31T22:14:16.845Z"
+      },
+      {
+        "id": "-OxB3oh44_8hcE4RxpTC",
+        "doc": {
+          "stamp": "2026-07-31T22:13:47.842Z",
+          "active": true,
+          "start": "2026-08-08T18:00:00.000Z",
+          "topics": [
+            "/categories//event-topics//subs//international",
+            "/categories//event-topics//subs//world"
+          ]
+        },
+        "urlid": "/events//-OxB3oh44_8hcE4RxpTC",
+        "stamp": "current",
+        "prove": "2026-07-31T22:13:47.842Z"
+      },
+      {
+        "id": "-OxQ32lS5ieShp4ieh1G",
+        "doc": {
+          "stamp": "2026-07-28T08:53:16.435Z",
+          "active": true,
+          "start": "2026-08-11T16:00:00.000Z",
+          "topics": [
+            "/categories//event-topics//subs//concerts",
+            "/categories//event-topics//subs//blues",
+            "/categories//event-topics//subs//open-airs",
+            "/categories//event-topics//subs//festivals"
+          ]
+        },
+        "urlid": "/events//-OxQ32lS5ieShp4ieh1G",
+        "stamp": "current",
+        "prove": "2026-07-28T08:53:16.435Z"
+      }
+    ]
+  }
+}
+
+=== 3. Server-rendered DOM excerpt for the same event (data-id matches the query result's id), showing title/subtitle/date-parts/location/category rendered directly in HTML ===
+ _ngcontent-sc42="" class="item ng-star-inserted" data-id="-Ot8ou0vgZ_E7m_7PiYF" data-use="default" data-index="55" data-part="2026-08" data-part-index="1" data-part-item-index="0" style="width:100%;height:104px;font-size:10.399999999999999px;"><div _ngcontent-sc42="" cdkdrag="" class="cdk-drag item-child cdk-drag-disabled"><!----><!----><!----><!----><!----><a _ngcontent-sc42="" aria-label="Open Page" class="item-link mat-focus-indicator mat-button mat-button-base _mat-animation-noopable ng-star-inserted" mat-button="" href="/en/calendar/-Ot8ou0vgZ_E7m_7PiYF" tabindex="0" aria-disabled="false"><span class="mat-button-wrapper"><!----><!----><!----><!----><div _ngcontent-sc24="" class="grid color-foreground response-width ng-star-inserted" style="opacity:1;"><div _ngcontent-sc24="" class="bg dark" style="background-color:#7e3e7e;"></div><div _ngcontent-sc24="" class="bg light" style="background-color:#ec93ec;"></div><div _ngcontent-sc24="" class="section-date"><div _ngcontent-sc24="" class="day-wrapper"><div _ngcontent-sc24="" class="day-text en">Sat</div><div _ngcontent-sc24="" class="day-number en">01</div></div><div _ngcontent-sc24="" class="day-month en">August</div><div _ngcontent-sc24="" class="day-time en">10:00 PM</div></div><div _ngcontent-sc24="" class="section-text"><!----><!----><span _ngcontent-sc24="" class="pretitle ng-star-inserted"></span><span _ngcontent-sc24="" class="title    " classname="title    ">Move iT! - the 90s party</span><span _ngcontent-sc24="" class="subtitle only-subtitle ng-star-inserted" classname="subtitle only-subtitle">The most popular 90s party in Berlin!</span><div _ngcontent-sc24="" class="venue-and-category"><!----><!----><span _ngcontent-sc24="" class="location ng-star-inserted">Kesselhaus &amp; Maschinenhaus</span><!----><!----><!----><span _ngcontent-sc24="" class="category ng
