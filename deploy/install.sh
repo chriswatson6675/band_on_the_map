@@ -135,20 +135,91 @@ echo "Installing production dependencies (npm ci --omit=dev)..."
 ( cd "$APP_DIR" && npm ci --omit=dev )
 
 # --- 5. systemd units ----------------------------------------------------
+# BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01: botm-publication.service
+# (deploy/systemd/botm-publication.service, docs/RUNTIME_PUBLICATION_BRIDGE.md)
+# is installed/reloaded here exactly like the two botm-unattended units
+# above -- it has been a repo-controlled, reviewed unit file since the
+# runtime-publication-bridge package; this script simply keeps its
+# installed copy in sync with the checkout on every deploy, same as it
+# already does for the other two units.
 echo "Installing systemd unit files..."
 install -m 0644 "$APP_DIR/deploy/systemd/botm-unattended.service" /etc/systemd/system/botm-unattended.service
 install -m 0644 "$APP_DIR/deploy/systemd/botm-unattended.timer" /etc/systemd/system/botm-unattended.timer
+install -m 0644 "$APP_DIR/deploy/systemd/botm-publication.service" /etc/systemd/system/botm-publication.service
 systemctl daemon-reload
 
 # --- 6. ownership --------------------------------------------------------
 echo "Setting ownership of $APP_DIR to $SERVICE_USER:$SERVICE_USER ..."
 chown -R "$SERVICE_USER:$SERVICE_USER" "$APP_DIR"
 
+# --- 7. restart the long-running publication service --------------------
+# BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01
+#
+# botm-unattended.service/.timer (above) are deliberately left
+# un-enabled/un-started by this script -- they run to completion once per
+# invocation and re-spawn fresh from whatever code is on disk every time,
+# so a stopped/never-started state is always safe and the "prove one run
+# first" gate in deploy/README.md's "Live deployment" section is a
+# meaningful, deliberate checkpoint for THAT unit.
+#
+# botm-publication.service is different in kind: it is a small,
+# long-running `node:http` process (ingestion/publication-server/run.mjs)
+# that stays resident in memory for as long as it runs, and Node.js does
+# NOT hot-reload ES modules -- so once code on disk changes underneath it
+# (exactly what steps 3/4 above just did), the running process keeps
+# serving requests using whatever validator/route logic was loaded at its
+# own last start, silently drifting from the code actually checked out.
+# This has a genuine live-traffic consequence: it is the ONE process that
+# answers https://data.beatmapped.com/{health,map-data} for real visitors,
+# so leaving it un-restarted after a deploy means visitors keep being
+# served by stale in-memory logic indefinitely, with nothing about the
+# deploy itself indicating that.
+#
+# `systemctl enable` here is idempotent (a no-op if already enabled) and
+# ensures this unit survives a host reboot going forward, same as
+# botm-unattended.timer already does. `systemctl restart` (not `start`) is
+# unconditional and idempotent either way: if the service was not already
+# running, this starts it fresh (identical effect to `start`); if it WAS
+# already running, this is the one thing that actually forces it to pick
+# up the code just installed -- `start` alone would silently do nothing in
+# that case. The explicit `is-active` check after it, with a short retry
+# window for systemd to settle, ensures a service that fails to come back
+# up (crash-looping on bad new code, a port conflict, etc.) fails this
+# script LOUDLY and visibly, rather than leaving a broken/absent publication
+# process undetected behind a "successful" deploy.
+echo "Restarting botm-publication.service so it serves the code just installed..."
+systemctl enable botm-publication.service
+systemctl restart botm-publication.service
+
+RESTART_CHECK_ATTEMPTS=10
+RESTART_CHECK_OK=0
+for _ in $(seq 1 "$RESTART_CHECK_ATTEMPTS"); do
+  if systemctl is-active --quiet botm-publication.service; then
+    RESTART_CHECK_OK=1
+    break
+  fi
+  sleep 1
+done
+
+if [ "$RESTART_CHECK_OK" -ne 1 ]; then
+  echo "ERROR: botm-publication.service did not report active after restart." >&2
+  echo "This deployment updated code on disk but the live publication endpoint" >&2
+  echo "may now be down or still running stale code. Investigate with:" >&2
+  echo "  systemctl status botm-publication.service" >&2
+  echo "  journalctl -u botm-publication.service -n 100 --no-pager" >&2
+  exit 1
+fi
+echo "botm-publication.service is active."
+
 cat <<EOF
 
 == Install/update complete ==
 Deployed commit: $ACTUAL_SHA
-Systemd units installed and reloaded, but NOT yet enabled/started.
+botm-unattended.{service,timer} installed and reloaded, but NOT enabled/started
+by this script (see deploy/README.md "Live deployment" for that deliberate,
+manual first-run gate).
+botm-publication.service installed, enabled, and restarted -- it is now
+serving the code just deployed.
 
 Next steps (see deploy/README.md "Live deployment" for the full sequence):
   1. Prove one manual run:   sudo systemctl start botm-unattended.service
