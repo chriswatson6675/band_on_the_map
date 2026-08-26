@@ -1,0 +1,156 @@
+{
+  "investigation_id": "sala-upload-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T05:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC, escalated once to Level 2 STRUCTURAL. A plain curl GET of the venue's own official site's HTML listing/agenda page exposed no per-event JSON-LD or structured cards; inspecting the site's own WordPress REST API surface (/wp-json/wp/v2/types) revealed a custom 'eventos' post type, confirmed public via a plain curl GET (Level 2) — but that REST list's own 'date'/'date_gmt' is only the CMS post-publish timestamp, not the real event date. A plain curl GET of one individual event page then directly exposed the real date/time as visible page text under a 'FECHA'/'HORARIO' heading (a JetEngine dynamic-field widget) — still Level 1/2 static HTML, no JS execution or browser needed to read it."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of the venue's own agenda/listing pages exposed no JSON-LD Event/MusicEvent blocks and no server-rendered event-card list with a usable per-event date.",
+      "evidence_refs": ["ev-eventos-page-1"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspecting the site's own public WordPress REST API (/wp-json/wp/v2/types) revealed a custom 'eventos' post type; a plain curl GET of /wp-json/wp/v2/eventos returned real, structured records for link discovery and music-relevance filtering (class_list carries 'tipo-de-evento-concierto' on every sampled record). A plain curl GET of one individual event page's own static HTML then directly exposed the real event date/time as visible text — no browser/headless observation was needed at any point.",
+      "evidence_refs": ["ev-eventos-page-1", "ev-event-atrexial", "sala-upload-barcelona-01-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "sala-upload-barcelona-01-candidate",
+  "source_id": "sala-upload-barcelona",
+  "venue_reference": "Sala Upload (Poble Espanyol, Barcelona)",
+  "official_url": "https://sala-upload.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-eventos-page-1", "ev-event-atrexial"],
+    "notes": "Official identity confirmed directly from the retained evidence at https://sala-upload.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "WordPress core REST API (custom 'eventos' post type) for link discovery, combined with a JetEngine/Elementor 'dynamic field' template rendering the real event date/time as static page text.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-eventos-page-1", "ev-event-atrexial"]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST_PLUS_PER_EVENT_HTML_FIELD",
+      "url": "https://sala-upload.com/wp-json/wp/v2/eventos",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-eventos-page-1", "ev-event-atrexial", "sala-upload-barcelona-01-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each REST record's own 'title.rendered' field.",
+      "evidence_refs": ["ev-eventos-page-1"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API's own 'date'/'date_gmt' is genuinely only the CMS post-publish timestamp (the same documented limitation already found for Marula Café, docs/BARCELONA_VENUE_POPULATION.md) — NOT used as the event date. The real date is this event page's own visible text under a 'FECHA' heading, a full 'D mes YYYY' Spanish string (e.g. '26 septiembre 2026') mechanically parsed via a fixed month-name table (never a guess).",
+      "evidence_refs": ["ev-event-atrexial", "sala-upload-barcelona-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The same event page's own visible text under a 'HORARIO' heading, a plain local 'HH:MM' string with no offset — FLOATING_LOCAL, never upgraded to UTC.",
+      "evidence_refs": ["ev-event-atrexial", "sala-upload-barcelona-01-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": ["ev-event-atrexial"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present per-record (this source resolves to ONE physical venue via source_id).",
+      "evidence_refs": ["ev-eventos-page-1"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each REST record's own numeric 'id' (the WordPress post ID) — a stable, source-native identifier.",
+      "evidence_refs": ["ev-eventos-page-1"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each REST record's own 'link' field.",
+      "evidence_refs": ["ev-eventos-page-1"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source's own REST records or the sampled event page.",
+      "evidence_refs": ["ev-event-atrexial"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-eventos-page-1", "ev-event-atrexial", "sala-upload-barcelona-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class EMBEDDED_JSON, a resolved supported class.",
+      "A CONFIRMED public data path retained (114 real 'eventos' records observed live at proof time via /wp-json/wp/v2/eventos, all tagged tipo-de-evento-concierto).",
+      "title PROVEN directly from the source; start_date PROVEN via a genuinely direct, single-field statement ('26 septiembre 2026') mechanically parsed, not context-combined across two separate page elements.",
+      "source_record_id PROVEN via the source's own numeric WordPress post ID.",
+      "recommended_family NEW_FAMILY_REQUIRED — a bespoke, venue-specific implementation, matching this project's existing bespoke-collector precedent (the REST API + JetEngine dynamic-field combination is not yet observed elsewhere).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-eventos-page-1", "ev-event-atrexial", "sala-upload-barcelona-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-eventos-page-1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, live first page of this source's own WordPress REST API 'eventos' list — 5 real records.",
+      "acquired_from": "https://sala-upload.com/wp-json/wp/v2/eventos?per_page=5&page=1",
+      "acquired_at": "2026-08-26T05:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sala-upload-barcelona-01/evidence/eventos-page-1.json"
+    },
+    {
+      "evidence_id": "ev-event-atrexial",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real, live event detail page (Atrexial, September 2026), whose own visible page text under 'FECHA'/'HORARIO' headings states the real event date/time.",
+      "acquired_from": "https://sala-upload.com/conciertos/atrexial-sala-upload-barcelona-2026/",
+      "acquired_at": "2026-08-26T05:42:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sala-upload-barcelona-01/evidence/event-atrexial.html"
+    },
+    {
+      "evidence_id": "sala-upload-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/sala-upload.test.mjs) re-parses the retained evidence above with the actual collector code (ingestion/sala-upload/discovery.mjs, ingestion/sala-upload/observation-adapter.mjs) and asserts the exact fields recorded above, including the Spanish-month-name date parse.",
+      "acquired_from": "https://sala-upload.com/wp-json/wp/v2/eventos",
+      "acquired_at": "2026-08-26T05:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sala-upload-barcelona-01/evidence/event-atrexial.html"
+    }
+  ],
+  "supersedes": null
+}
