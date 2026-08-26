@@ -93,6 +93,43 @@ failures only (`ingestion/unattended-runner/retry.mjs`):
   single-attempt behaviour, byte-for-byte unchanged.
 - Per-source `attempts` is recorded in every acquisition result and
   surfaced in the health report.
+- BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: Barcelona's own
+  `acquireAll()`/`acquireBarcelona()` (`ingestion/barcelona/run.mjs`) now
+  accepts the exact same `retryPolicy`, forwarded from the unattended
+  runner identically to Portugal's — closing a previously documented,
+  pre-existing gap where Barcelona had no retry at all.
+
+## Source-failure grace (last-known-good retention)
+
+A single source failing (even after retries) does not mean its venues
+genuinely have no events — it means that source's **current state is
+unknown**. `ingestion/map/source-retention.mjs` (pure, independently
+tested — see `tests/source-retention.test.mjs`) implements the Founder
+rule this package adds:
+
+- A source that FAILS this run may have its most recently PUBLISHED data
+  carried forward — attributed strictly via each display listing's own
+  `source_id`, from the previous, re-validated publication artifact
+  (never a second datastore) — for a bounded maximum of **24 hours from
+  that source's own last real success**. The clock is anchored to last
+  SUCCESS, never reset by another failure.
+- A source that succeeds this run — **including succeeding with zero
+  current/future observations** — is authoritative and is never retained.
+  Zero is a real, accepted answer.
+- The moment a previously-failed source succeeds again, its fresh data
+  immediately replaces any retained representation — no manual reset.
+- A run publishing any retained data is truthfully `DEGRADED` (the
+  retained source's own result still carries `success: false`); the
+  publication itself can still be perfectly valid and served.
+- Provenance (`last_success_at`, `retained: true`) is surfaced in
+  `source_report.sources[]` (the published artifact) and in the health
+  report's own `sources[]` — both fields are fully optional/additive, so
+  every artifact/caller that predates this package is unaffected.
+- GROUP-kind display listings (the Lisbon Hot Clube↔Capitólio association
+  pair) are deliberately never retained this way — a GROUP listing only
+  ever forms when both its sources are present in the same run, so there
+  is no safe way to attribute half of an already-merged listing to one
+  failed source without guessing.
 
 ## Overlap protection
 

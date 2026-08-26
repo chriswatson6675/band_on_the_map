@@ -247,12 +247,31 @@ export function buildPublicationArtifact({
     source_report: {
       success_count: successCount,
       failure_count: failureCount,
+      // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: `last_success_at`
+      // and `retained` are both OPTIONAL, additive provenance — included
+      // only when the caller actually supplies them (via
+      // ingestion/map/source-retention.mjs's annotateSourceProvenance()),
+      // so every existing caller/test that builds an artifact from plain
+      // acquireAll()-shaped results (no provenance annotation) keeps
+      // today's exact source_report.sources[] shape, byte-for-byte
+      // unchanged. `last_success_at` is this source's last known-genuine
+      // success (ISO timestamp, or null if never observed to succeed) —
+      // the durable anchor the 24-hour retention grace is computed from,
+      // carried forward run-over-run entirely within this artifact, no
+      // second datastore. `retained: true` means this run's published
+      // data for this source's venues is last-known-good carry-forward
+      // (the source itself FAILED this run) rather than freshly acquired
+      // — never present for a source that succeeded, including a
+      // legitimate zero-observation success (see isCatastrophicPublicationRun's
+      // own doc comment: zero is authoritative, never retained).
       sources: (sourceResults ?? []).map((result) => ({
         source_id: result.source_id,
         success: result.success,
         raw_record_count: result.raw_record_count,
         observation_count: result.observation_count,
         ...(result.error !== undefined ? { error: result.error } : {}),
+        ...(result.last_success_at !== undefined ? { last_success_at: result.last_success_at } : {}),
+        ...(result.retained_eligible === true ? { retained: true } : {}),
       })),
     },
     counts: {
@@ -319,6 +338,20 @@ export function validatePublicationArtifact(artifact) {
     for (const source of sources) {
       if (!source || typeof source.source_id !== "string" || typeof source.success !== "boolean") {
         errors.push(`source_report entry is malformed: ${JSON.stringify(source)}`);
+        continue;
+      }
+      // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: both fields are
+      // fully optional (an artifact predating this package, or one built
+      // by a caller that never annotated provenance, legitimately has
+      // neither) — only validated when present.
+      if (source.last_success_at !== undefined && source.last_success_at !== null && (typeof source.last_success_at !== "string" || Number.isNaN(Date.parse(source.last_success_at)))) {
+        errors.push(`${source.source_id}: last_success_at must be a valid ISO 8601 timestamp string or null`);
+      }
+      if (source.retained !== undefined && source.retained !== true) {
+        errors.push(`${source.source_id}: retained, when present, must be exactly true (omit the field entirely otherwise)`);
+      }
+      if (source.retained === true && source.success !== false) {
+        errors.push(`${source.source_id}: retained can only be true for a FAILED source (success: false) — a successful source is always authoritative, never retained`);
       }
     }
     const derivedSuccessCount = sources.filter((s) => s?.success).length;

@@ -453,3 +453,78 @@ test("toPublicationMarker drops the raw ungrouped listings array and keeps only 
   const minimal = toPublicationMarker(fullMarker);
   assert.deepEqual(Object.keys(minimal).sort(), ["address", "canonical_name", "display_listings", "latitude", "longitude", "venue_id"].sort());
 });
+
+// --- BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: last_success_at/retained provenance ---
+
+test("buildPublicationArtifact: source_report.sources[] gains no new fields for a plain, unannotated sourceResults entry — byte-identical to before this package", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  const portugalMarkers = [...proof.lisbon_subset.markers, ...proof.porto.markers];
+  const artifact = buildPublicationArtifact({
+    generatedAt: "2026-08-24T00:00:00.000Z",
+    portugalMarkers,
+    sourceResults: fakeSourceResults(),
+    observationCount: 123,
+  });
+  for (const source of artifact.source_report.sources) {
+    assert.ok(!("last_success_at" in source), `${source.source_id}: last_success_at must be absent when not supplied`);
+    assert.ok(!("retained" in source), `${source.source_id}: retained must be absent when not supplied`);
+  }
+});
+
+test("buildPublicationArtifact: surfaces last_success_at (even null) and retained:true only when the caller actually supplies them", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  const portugalMarkers = [...proof.lisbon_subset.markers, ...proof.porto.markers];
+  const artifact = buildPublicationArtifact({
+    generatedAt: "2026-08-24T00:00:00.000Z",
+    portugalMarkers,
+    sourceResults: [
+      { source_id: "agendalx", success: true, raw_record_count: 10, observation_count: 8, last_success_at: "2026-08-24T00:00:00.000Z" },
+      { source_id: "hot-clube-de-portugal", success: false, raw_record_count: 0, observation_count: 0, error: "fetch failed", last_success_at: "2026-08-23T00:00:00.000Z", retained_eligible: true },
+      { source_id: "teatro-variedades-capitolio", success: false, raw_record_count: 0, observation_count: 0, error: "HTTP 500 response", last_success_at: null, retained_eligible: false },
+    ],
+    observationCount: 123,
+  });
+
+  const bySourceId = Object.fromEntries(artifact.source_report.sources.map((s) => [s.source_id, s]));
+  assert.equal(bySourceId["agendalx"].last_success_at, "2026-08-24T00:00:00.000Z");
+  assert.equal("retained" in bySourceId["agendalx"], false);
+
+  assert.equal(bySourceId["hot-clube-de-portugal"].last_success_at, "2026-08-23T00:00:00.000Z");
+  assert.equal(bySourceId["hot-clube-de-portugal"].retained, true);
+
+  assert.equal(bySourceId["teatro-variedades-capitolio"].last_success_at, null);
+  assert.equal("retained" in bySourceId["teatro-variedades-capitolio"], false);
+});
+
+test("validatePublicationArtifact: accepts a valid last_success_at (string or null) and a true retained flag on a FAILED source", async () => {
+  const proof = await buildLisbonPortoOvernightCoverageProof();
+  const portugalMarkers = [...proof.lisbon_subset.markers, ...proof.porto.markers];
+  const artifact = buildPublicationArtifact({
+    generatedAt: "2026-08-24T00:00:00.000Z",
+    portugalMarkers,
+    sourceResults: [
+      { source_id: "agendalx", success: true, raw_record_count: 10, observation_count: 8, last_success_at: "2026-08-24T00:00:00.000Z" },
+      { source_id: "hot-clube-de-portugal", success: false, raw_record_count: 0, observation_count: 0, error: "fetch failed", last_success_at: "2026-08-23T00:00:00.000Z", retained_eligible: true },
+    ],
+    observationCount: 123,
+  });
+  assert.deepEqual(validatePublicationArtifact(artifact), []);
+});
+
+test("validatePublicationArtifact: rejects a malformed last_success_at (not a valid ISO timestamp or null)", () => {
+  const artifact = { generated_at: "2026-08-24T00:00:00.000Z", window: { from: null, to: null }, source_report: { success_count: 0, failure_count: 1, sources: [{ source_id: "x", success: false, last_success_at: "not-a-date" }] }, countries: { Portugal: { markers: [] }, Croatia: { markers: [] } } };
+  const errors = validatePublicationArtifact(artifact);
+  assert.ok(errors.some((e) => e.includes("last_success_at")));
+});
+
+test("validatePublicationArtifact: rejects retained:true on a source that succeeded — a successful source is never retained", () => {
+  const artifact = { generated_at: "2026-08-24T00:00:00.000Z", window: { from: null, to: null }, source_report: { success_count: 1, failure_count: 0, sources: [{ source_id: "x", success: true, retained: true }] }, countries: { Portugal: { markers: [] }, Croatia: { markers: [] } } };
+  const errors = validatePublicationArtifact(artifact);
+  assert.ok(errors.some((e) => e.includes("retained can only be true for a FAILED source")));
+});
+
+test("validatePublicationArtifact: rejects retained: false (must be omitted entirely, never explicitly false)", () => {
+  const artifact = { generated_at: "2026-08-24T00:00:00.000Z", window: { from: null, to: null }, source_report: { success_count: 0, failure_count: 1, sources: [{ source_id: "x", success: false, retained: false }] }, countries: { Portugal: { markers: [] }, Croatia: { markers: [] } } };
+  const errors = validatePublicationArtifact(artifact);
+  assert.ok(errors.some((e) => e.includes("must be exactly true")));
+});
