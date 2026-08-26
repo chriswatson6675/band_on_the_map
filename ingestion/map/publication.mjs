@@ -88,6 +88,37 @@ export function buildPortugalMarkers({
 }
 
 /**
+ * BARCELONA-30-VENUE-POPULATION-01: the Spain/Barcelona sibling of
+ * buildPortugalMarkers() above — same projectObservationsToDisplayMarkers()
+ * machinery, same manual-coordinate composition, same artist-genre
+ * attachment, so Barcelona is never a second, independently-drifting
+ * projection path. `associations` defaults to `[]` (no hand-authored
+ * cross-source association pairs exist for Barcelona yet — see
+ * ingestion/association/hot-clube-capitolio.mjs's own doc comment on why
+ * that concern is source-pair-specific, never generic); a future
+ * Barcelona duplicate-listing case would need its own explicit,
+ * evidence-backed association module, following that exact precedent.
+ */
+export function buildSpainMarkers({
+  barcelonaObservations,
+  barcelonaVenues,
+  barcelonaSourceRegistry,
+  associations = [],
+  manualCoordinatesByVenueId,
+  artistRegistry = [],
+  artistLinks = [],
+}) {
+  const markers = projectObservationsToDisplayMarkers(barcelonaObservations ?? [], {
+    venues: barcelonaVenues ?? [],
+    sourceRegistry: barcelonaSourceRegistry ?? [],
+    associations,
+    manualCoordinatesByVenueId,
+  });
+
+  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
+}
+
+/**
  * Trim one full display marker (as produced by
  * projectObservationsToDisplayMarkers, which also carries the raw,
  * ungrouped `listings` array used only for internal proof/debug
@@ -180,18 +211,33 @@ export function buildArtistIndex(publicationMarkers, artistRegistry, asOfDate) {
  * otherwise unchanged (display_listings' own `artists` field, if
  * present from buildPortugalMarkers, is passed through unaffected either
  * way).
+ *
+ * `spainMarkers` (BARCELONA-30-VENUE-POPULATION-01, optional, defaults to
+ * `[]`): Barcelona's own display markers (buildSpainMarkers() above),
+ * published as a new `countries.Spain` bucket alongside the existing
+ * Portugal/Croatia ones — the SAME artifact, the SAME publication
+ * function, never a second/parallel publication path. Every count below
+ * (`display_listing_count`, `map_marker_count`) is the TOTAL across every
+ * published country (Portugal + Spain; Croatia is always empty) — not a
+ * Portugal-only figure — so a caller that never supplies `spainMarkers`
+ * gets back exactly the counts it always has (adding zero markers changes
+ * nothing), and a caller that does gets an honest combined total rather
+ * than a silently Portugal-only one.
  */
 export function buildPublicationArtifact({
   generatedAt,
   from,
   to,
   portugalMarkers,
+  spainMarkers = [],
   sourceResults,
   observationCount,
   artistRegistry = [],
 }) {
-  const publicationMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
-  const displayListingCount = publicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+  const publicationPortugalMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
+  const publicationSpainMarkers = (spainMarkers ?? []).map(toPublicationMarker);
+  const allPublicationMarkers = [...publicationPortugalMarkers, ...publicationSpainMarkers];
+  const displayListingCount = allPublicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
   const successCount = (sourceResults ?? []).filter((result) => result.success).length;
   const failureCount = (sourceResults ?? []).length - successCount;
 
@@ -212,13 +258,14 @@ export function buildPublicationArtifact({
     counts: {
       observation_count: observationCount,
       display_listing_count: displayListingCount,
-      map_marker_count: publicationMarkers.length,
+      map_marker_count: allPublicationMarkers.length,
     },
     countries: {
-      Portugal: { markers: publicationMarkers },
+      Portugal: { markers: publicationPortugalMarkers },
       Croatia: { markers: [] },
+      Spain: { markers: publicationSpainMarkers },
     },
-    artists: buildArtistIndex(publicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
+    artists: buildArtistIndex(allPublicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
   };
 }
 
@@ -295,11 +342,33 @@ export function validatePublicationArtifact(artifact) {
     }
   }
 
-  const portugalMarkers = artifact.countries.Portugal?.markers;
-  if (Array.isArray(portugalMarkers)) {
+  // BARCELONA-30-VENUE-POPULATION-01: "Spain" joins "Portugal"/"Croatia"
+  // as a recognised country bucket, but — unlike them — is OPTIONAL at
+  // the schema level: every artifact built before Barcelona existed (and
+  // every hand-authored minimal test fixture predating it, e.g.
+  // tests/runtime-publication.test.mjs's validArtifact()) legitimately
+  // has no `countries.Spain` key at all, and must remain valid without
+  // being rewritten. When present, it is validated with the exact same
+  // rules as Portugal, and its markers join the SAME global cross-checks
+  // below — counts.map_marker_count/display_listing_count are the TOTAL
+  // across every published country (never a Portugal-only figure — see
+  // buildPublicationArtifact()'s own doc comment), and venue_id
+  // uniqueness is checked GLOBALLY (a Barcelona venue_id must never
+  // collide with a Lisbon/Porto one either).
+  if (artifact.countries.Spain !== undefined) {
+    if (!artifact.countries.Spain || !Array.isArray(artifact.countries.Spain.markers)) {
+      errors.push("countries.Spain.markers must be an array when present");
+    }
+  }
+
+  const portugalMarkers = Array.isArray(artifact.countries.Portugal?.markers) ? artifact.countries.Portugal.markers : null;
+  const spainMarkers = Array.isArray(artifact.countries.Spain?.markers) ? artifact.countries.Spain.markers : [];
+  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers] : null;
+
+  if (allCountryMarkers) {
     let listingSum = 0;
     const seenVenueIds = new Set();
-    for (const marker of portugalMarkers) {
+    for (const marker of allCountryMarkers) {
       if (!marker || typeof marker.venue_id !== "string" || marker.venue_id.trim() === "") {
         errors.push(`marker is missing a valid venue_id: ${JSON.stringify(marker)}`);
         continue;
@@ -330,14 +399,14 @@ export function validatePublicationArtifact(artifact) {
     if (!artifact.counts || typeof artifact.counts !== "object") {
       errors.push("counts must be an object");
     } else {
-      if (artifact.counts.map_marker_count !== portugalMarkers.length) {
+      if (artifact.counts.map_marker_count !== allCountryMarkers.length) {
         errors.push(
-          `counts.map_marker_count (${artifact.counts.map_marker_count}) does not match countries.Portugal.markers.length (${portugalMarkers.length}) — no independently-computed drifting totals allowed`,
+          `counts.map_marker_count (${artifact.counts.map_marker_count}) does not match the total marker count across countries.Portugal + countries.Spain (${allCountryMarkers.length}) — no independently-computed drifting totals allowed`,
         );
       }
       if (artifact.counts.display_listing_count !== listingSum) {
         errors.push(
-          `counts.display_listing_count (${artifact.counts.display_listing_count}) does not match the sum of markers[].display_listings.length (${listingSum}) — no independently-computed drifting totals allowed`,
+          `counts.display_listing_count (${artifact.counts.display_listing_count}) does not match the sum of markers[].display_listings.length across all countries (${listingSum}) — no independently-computed drifting totals allowed`,
         );
       }
       if (typeof artifact.counts.observation_count !== "number" || artifact.counts.observation_count < 0) {
@@ -397,7 +466,16 @@ export function validatePublicationArtifact(artifact) {
  * acquireAll(): one source's failure never blocks the others) — no
  * additional availability threshold (e.g. "at least N/13 sources must
  * succeed") is invented here, per this task's own instruction not to.
+ *
+ * BARCELONA-30-VENUE-POPULATION-01: `spainMarkerCount` is a new,
+ * optional parameter (defaults to `0`) so rule (b) becomes "the TOTAL
+ * (Portugal + Spain) map marker count is zero" — a run that produces
+ * real Barcelona markers is never treated as catastrophic merely because
+ * Portugal's own count happens to be zero, and vice versa. Every existing
+ * caller that omits `spainMarkerCount` (ingestion/unattended-runner/run.mjs)
+ * keeps EXACTLY today's behaviour: `spainMarkerCount` defaults to `0`, so
+ * rule (b) reduces to the original `portugalMarkerCount === 0` check.
  */
-export function isCatastrophicPublicationRun({ sourceSuccessCount, portugalMarkerCount }) {
-  return sourceSuccessCount === 0 || portugalMarkerCount === 0;
+export function isCatastrophicPublicationRun({ sourceSuccessCount, portugalMarkerCount, spainMarkerCount = 0 }) {
+  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount === 0;
 }

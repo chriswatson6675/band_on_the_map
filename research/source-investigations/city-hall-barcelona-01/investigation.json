@@ -1,0 +1,180 @@
+{
+  "investigation_id": "city-hall-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the public /event-list page returned a large HTML document with a deeply-nested Wix runtime-state blob containing the real events array. This package's collector (ingestion/city-hall-barcelona/discovery.mjs) extracts just that array value with a small, deterministic bracket-depth scanner (correctly skipping bracket characters inside JSON string values) rather than attempting to parse the entire multi-hundred-KB blob as one document."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the public /event-list page returned a large HTML document with a deeply-nested Wix runtime-state blob containing the real events array. This package's collector (ingestion/city-hall-barcelona/discovery.mjs) extracts just that array value with a small, deterministic bracket-depth scanner (correctly skipping bracket characters inside JSON string values) rather than attempting to parse the entire multi-hundred-KB blob as one document.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "city-hall-barcelona-01-candidate",
+  "source_id": "city-hall-barcelona",
+  "venue_reference": "City Hall Barcelona (techno/house club, Eixample, Barcelona)",
+  "official_url": "https://www.cityhallbarcelona.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-list",
+      "city-hall-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://www.cityhallbarcelona.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Wix Events booking widget — the venue's own site embeds a full events JSON array directly in server-rendered page HTML (Wix SSR 'warmup' state).",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-list",
+      "city-hall-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_EMBEDDED_JSON",
+      "url": "https://www.cityhallbarcelona.com/event-list",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each embedded event object's own 'title' field.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event's own 'scheduling.config.startDate', an explicit UTC 'Z'-suffixed instant (Wix's own server-side computed value) — a confirmed UTC instant, not inference.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of the same 'startDate'.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event's own 'scheduling.config.endDate', same confirmed-UTC shape.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event's own 'location' object carries a first-party geocoded coordinate (latitude 41.387778, longitude 2.168208) and formatted address, supplied directly by the venue's own booking platform — not a third-party geocode.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event's own 'id' field, a platform-generated UUID, unique per record.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Constructed from each event's own stable 'slug' field, per this platform's own documented URL pattern (/event-details/{slug}).",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-event-list",
+        "city-hall-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-list",
+      "city-hall-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN (the event's own first-party geocode independently corroborates the venue's official address).",
+      "acquisition_class EMBEDDED_JSON.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN (start_date already a confirmed UTC instant from the platform itself).",
+      "source_record_id PROVEN (a platform-generated UUID).",
+      "recommended_family STATIC_EVENT_LIST (the array is embedded directly in server-rendered HTML, no separate API call).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": [
+      "ev-event-list",
+      "city-hall-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-event-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public /event-list page, embedding a real 18-event Wix Events JSON array.",
+      "acquired_from": "https://www.cityhallbarcelona.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/city-hall-barcelona-01/evidence/event-list-page.html"
+    },
+    {
+      "evidence_id": "city-hall-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://www.cityhallbarcelona.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/city-hall-barcelona-01/evidence/event-list-page.html"
+    }
+  ],
+  "supersedes": null
+}

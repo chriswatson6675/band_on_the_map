@@ -1,0 +1,180 @@
+{
+  "investigation_id": "antilla-bcn-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the public homepage immediately exposed one <script type=\"application/ld+json\"> ItemList block containing 2 Event items — this package's json-ld/parse.mjs unwraps ItemList->ListItem->item generically."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the public homepage immediately exposed one <script type=\"application/ld+json\"> ItemList block containing 2 Event items — this package's json-ld/parse.mjs unwraps ItemList->ListItem->item generically.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "antilla-bcn-barcelona-01-candidate",
+  "source_id": "antilla-bcn-barcelona",
+  "venue_reference": "Antilla BCN Latin Club (salsa/timba/bachata club, Eixample, Barcelona)",
+  "official_url": "https://antillasalsa.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "antilla-bcn-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://antillasalsa.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "The homepage embeds an ItemList of Event JSON-LD ('Upcoming Events' block).",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "antilla-bcn-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://antillasalsa.com/en/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each ItemList->ListItem->item Event's own 'name' field.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event's own 'startDate', an explicit UTC-offset ISO 8601 string (e.g. '2026-08-28T22:00:00+02:00').",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of the same 'startDate'.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event's own 'endDate'.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event's own 'location.name' — the literal string 'Antilla Salsa Barcelona' on both sampled records, with a plain address string.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "No numeric id, url slug, or other stable identifier is exposed at all (this source's own 'url' field is a shared third-party organizer page, identical across every item) — a deterministic slug of name+startDate is used instead, the best available stable-enough identity this source offers; documented honestly as an alternative identity strategy, not a PROVEN stable id.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event's own 'url' field (a shared third-party Entradium organizer page, not a per-event permalink — retained as-is, never fabricated into a fake per-event URL).",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-home",
+        "antilla-bcn-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "antilla-bcn-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class JSON_LD_EVENT.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN.",
+      "source_record_id honestly PARTIAL — its notes document the alternative name+date identity strategy actually used, per activation gate 6's explicit allowance for a documented alternative when PROVEN cannot be established.",
+      "recommended_family JSON_LD (already-implemented, extended with ItemList support).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": [
+      "ev-home",
+      "antilla-bcn-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, embedding an ItemList of 2 schema.org Event items.",
+      "acquired_from": "https://antillasalsa.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/antilla-bcn-barcelona-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "antilla-bcn-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://antillasalsa.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/antilla-bcn-barcelona-01/evidence/homepage.html"
+    }
+  ],
+  "supersedes": null
+}

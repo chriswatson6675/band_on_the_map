@@ -42,17 +42,23 @@
 // data/public/lisbon-porto-map.json is left completely untouched.
 //
 // This script never edits venues/manual-coordinates.json (only reads it,
-// via loadManualCoordinateStore()) and never touches any of the 13 source
-// collectors themselves.
+// via loadManualCoordinateStore()) and never touches any of the source
+// collectors themselves (Lisbon/Porto's 13, or — as of
+// BARCELONA-30-VENUE-POPULATION-01 — Barcelona's own 15, acquired via
+// acquireBarcelona() from ingestion/barcelona/run.mjs exactly as proven
+// by `npm run ingest:barcelona`, published as a new `countries.Spain`
+// bucket alongside the existing Portugal/Croatia ones — see
+// ingestion/map/publication.mjs's buildSpainMarkers()).
 
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
+import { acquireBarcelona } from "../barcelona/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -77,6 +83,9 @@ async function main() {
 
   const lisbonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/lisbon.json"), "utf8"));
   const portoVenues = JSON.parse(await readFile(resolve(ROOT, "venues/porto.json"), "utf8"));
+  // BARCELONA-30-VENUE-POPULATION-01: read-only, same convention as the
+  // Lisbon/Porto registries above.
+  const barcelonaVenues = JSON.parse(await readFile(resolve(ROOT, "venues/barcelona.json"), "utf8"));
 
   // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
   // venue registries above — this script never writes artists/*.json.
@@ -97,8 +106,16 @@ async function main() {
     lisbonAssociations,
   } = await acquireLisbonPorto(args);
 
-  const sourceResults = [...lisbonResults, ...portoResults];
-  const observationCount = lisbonObservations.length + portoObservations.length;
+  // BARCELONA-30-VENUE-POPULATION-01: Barcelona's own acquisition,
+  // reusing acquireBarcelona() (ingestion/barcelona/run.mjs) exactly as
+  // proven by `npm run ingest:barcelona` — never a second, independently
+  // -drifting acquisition path. Barcelona's own collectors do not yet
+  // support the --from/--to date-bounding Lisbon/Porto have; every
+  // acquired Observation is passed through unbounded.
+  const { barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireBarcelona();
+
+  const sourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
+  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length;
   const successCount = sourceResults.filter((result) => result.success).length;
   const failureCount = sourceResults.length - successCount;
 
@@ -115,6 +132,15 @@ async function main() {
     artistLinks: artistLinks.links,
   });
 
+  const spainMarkers = buildSpainMarkers({
+    barcelonaObservations,
+    barcelonaVenues: barcelonaVenues.venues,
+    barcelonaSourceRegistry: barcelonaRegistry.entries,
+    manualCoordinatesByVenueId,
+    artistRegistry: artistRegistry.artists,
+    artistLinks: artistLinks.links,
+  });
+
   console.log(`\n=== Acquisition summary ===`);
   for (const result of sourceResults) {
     const status = result.success ? "OK" : "FAILED";
@@ -125,10 +151,17 @@ async function main() {
   console.log(`  Sources: ${successCount}/${sourceResults.length} succeeded, ${failureCount} failed`);
   console.log(`  Observations (in window): ${observationCount}`);
   console.log(`  Portugal map markers: ${portugalMarkers.length}`);
+  console.log(`  Spain map markers: ${spainMarkers.length}`);
 
-  if (isCatastrophicPublicationRun({ sourceSuccessCount: successCount, portugalMarkerCount: portugalMarkers.length })) {
+  if (
+    isCatastrophicPublicationRun({
+      sourceSuccessCount: successCount,
+      portugalMarkerCount: portugalMarkers.length,
+      spainMarkerCount: spainMarkers.length,
+    })
+  ) {
     console.error(
-      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${portugalMarkers.length} Portugal map markers produced. ` +
+      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${portugalMarkers.length} Portugal + ${spainMarkers.length} Spain map markers produced. ` +
         `Refusing to replace the last known good publication artifact at ${resolvePublicationArtifactPath()}.`,
     );
     process.exitCode = 1;
@@ -140,6 +173,7 @@ async function main() {
     from: args.from,
     to: args.to,
     portugalMarkers,
+    spainMarkers,
     sourceResults,
     observationCount,
     artistRegistry: artistRegistry.artists,

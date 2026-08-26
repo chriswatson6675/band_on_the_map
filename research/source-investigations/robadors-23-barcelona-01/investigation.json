@@ -1,0 +1,181 @@
+{
+  "investigation_id": "robadors-23-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET immediately exposed the standard Tribe Events REST API. Sampled records carry no populated 'venue' object on this particular install — resolved by source_id instead, matching this project's existing fixed-single-venue precedent."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET immediately exposed the standard Tribe Events REST API. Sampled records carry no populated 'venue' object on this particular install — resolved by source_id instead, matching this project's existing fixed-single-venue precedent.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "robadors-23-barcelona-01-candidate",
+  "source_id": "robadors-23-barcelona",
+  "venue_reference": "Robadors 23 (flamenco/jazz bar, El Raval, Barcelona)",
+  "official_url": "https://23robadors.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api-p1",
+      "robadors-23-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://23robadors.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress + The Events Calendar (Tribe) plugin.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api-p1",
+      "robadors-23-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://23robadors.com/wp-json/tribe/events/v1/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API's own 'title' field.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API gives local 'start_date' plus 'utc_start_date' and IANA 'timezone' ('Europe/Madrid').",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of start_date/utc_start_date.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API 'end_date'/'utc_end_date'.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API's numeric 'id' (WordPress post ID), the plugin's own stable per-record identifier.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API's own 'url' field.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "robadors-23-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api-p1",
+      "robadors-23-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class PUBLIC_JSON_API.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN.",
+      "source_record_id PROVEN.",
+      "recommended_family JSON_API (already-implemented, no new code).",
+      "venue_location honestly NOT_PRESENT on this source — resolved by source_id via the data-driven mapping table instead, not a blocker.",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": [
+      "ev-api-p1",
+      "robadors-23-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-api-p1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "First page of the public Tribe Events REST API, 5 events, total=50, total_pages=10.",
+      "acquired_from": "https://23robadors.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/robadors-23-barcelona-01/evidence/api-events-p1.json"
+    },
+    {
+      "evidence_id": "robadors-23-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://23robadors.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/robadors-23-barcelona-01/evidence/api-events-p1.json"
+    }
+  ],
+  "supersedes": null
+}

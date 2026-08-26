@@ -1,0 +1,504 @@
+{
+  "region": "Barcelona",
+  "cohort_note": "BARCELONA-30-VENUE-POPULATION-01 — first Barcelona (Spain) venue cohort, established by direct evidence (official venue pages, confirmed live API/JSON-LD responses, and Nominatim geocoding of each venue's own evidenced address) rather than third-party aggregator claims. Timezone Europe/Madrid.",
+  "venues": [
+    {
+      "venue_id": "venue-barcelona-jamboree",
+      "canonical_name": "Jamboree",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Plaça Reial, 17, 08002 Barcelona",
+      "latitude": 41.3797222,
+      "longitude": 2.1752424,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://jamboreejazz.com/wp-json/tribe/events/v1/events",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The Events Calendar (Tribe) REST API's own venue object for this source states the address 'Plaça Reial, 17', city 'Barcelona', zip '08002' — see research/source-investigations/jamboree-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Jamboree%2C+Pla%C3%A7a+Reial%2C+17%2C+08002+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "BARCELONA-30-VENUE-POPULATION-01: Nominatim returned exactly one candidate ('Jamboree Jazz & Dance Club', amenity=bar) at this exact address, country/city/postcode/house-number all matching; the automated nameCompatible check alone did not accept the exact string 'Jamboree' against the candidate's fuller registered name 'Jamboree Jazz & Dance Club' — manually reviewed and accepted as the same real venue (same address, same building, same real-world identity), analogous to this project's existing VENUE_NAME_ALIASES precedent. See fixtures/geocoding/nominatim/venue-barcelona-jamboree.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Plaça Reial, 17, 08002 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "5271977223",
+        "result_display_name": "Jamboree Jazz & Dance Club, 17, Plaça Reial, el Palau, el Gòtic, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08002, España",
+        "matched_postcode": "08002",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:36:00.198Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-robadors-23",
+      "canonical_name": "Robadors 23",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer d'en Robador, 23, 08001 Barcelona",
+      "latitude": 41.3796029,
+      "longitude": 2.1708903,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://23robadors.com/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official homepage states the address 'C/ d'en Robador, 23, 08001 Barcelona' — see research/source-investigations/robadors-23-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Carrer+Robador+23+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim returned two OSM nodes at this exact address a few metres apart: a bare address point and a named POI ('23 Robadors', amenity=pub). Manually selected the named POI node as the venue's own coordinate (the same real building; the automated matcher's ambiguity rule treats the two OSM nodes as distinct places, which is correct OSM data hygiene but not a genuine identity ambiguity here). See fixtures/geocoding/nominatim/venue-barcelona-robadors-23.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer d'en Robador, 23, 08001 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "manually-selected-named-poi-see-evidence",
+        "result_display_name": "23 Robadors, 23, Carrer d'en Robador, el Raval, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08001, España",
+        "matched_postcode": "08001",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:40:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-almo2bar",
+      "canonical_name": "Almo2bar",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer de Bruniquer, 59-61, 08024 Barcelona",
+      "latitude": 41.4056064,
+      "longitude": 2.1621059,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://grupalmodobar.com/wp-json/tribe/events/v1/events",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The Events Calendar REST API's own venue object states 'Calle Bruniquer 59-61 (Pl. Joanic)', Barcelona, 08024 — see research/source-investigations/almo2bar-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Carrer+Bruniquer+59+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim returned exactly one candidate, amenity=nightclub, at the queried single house number ('59', within the venue's own '59-61' range). Accepted as the same real building/venue. See fixtures/geocoding/nominatim/venue-barcelona-almo2bar.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer de Bruniquer, 59-61, 08024 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "3158729112",
+        "result_display_name": "amenity=nightclub at Carrer de Bruniquer 59, Barcelona, 08024",
+        "matched_postcode": "08024",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:41:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-espai-salvadiscos",
+      "canonical_name": "Espai Salvadiscos",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Plaça Santa Madrona, 4, 08004 Barcelona",
+      "latitude": 41.3734375,
+      "longitude": 2.1562024,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.salvadiscos.com/wp-json/tribe/events/v1/events",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The Events Calendar REST API's own venue object states 'Plaça Santa Madrona, 4', Barcelona, 08004 — see research/source-investigations/salvadiscos-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Placa+de+Santa+Madrona+4+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim returned a single named POI ('Salvadiscos') at this exact address. See fixtures/geocoding/nominatim/venue-barcelona-salvadiscos.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Plaça Santa Madrona, 4, 08004 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "11934470350",
+        "result_display_name": "Salvadiscos, 4, Plaça de Santa Madrona, França Xica, el Poble-sec, Sants-Montjuïc, Barcelona, Barcelonès, Barcelona, Catalunya, 08004, España",
+        "matched_postcode": "08004",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:45:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-byron",
+      "canonical_name": "Byron",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer de Casanova, 32, 08011 Barcelona",
+      "latitude": 41.3834606,
+      "longitude": 2.1615926,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.llibreriabyron.com/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official bookshop/live-music space ('Byron') on Carrer de Casanova, Eixample — see research/source-investigations/byron-barcelona-01/. Exact house number confirmed via the Nominatim match below (independent geocoding evidence), not asserted directly by the venue's own site within this task's bounded search."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Llibreria+Byron+Carrer+de+Casanova+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's own shop=books POI named 'Byron llibreria & espais' at 'Carrer de Casanova, 32, 08011 Barcelona' — this is the source of the house number/postcode recorded above. See fixtures/geocoding/nominatim/venue-barcelona-byron.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Llibreria Byron Carrer de Casanova Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "8148427318",
+        "result_display_name": "Byron llibreria & espais, 32, Carrer de Casanova, Sant Antoni, l'Eixample, Barcelona, Barcelonès, Barcelona, Catalunya, 08011, España",
+        "matched_postcode": "08011",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:46:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-moog",
+      "canonical_name": "Moog Barcelona",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer de l'Arc del Teatre, 3, 08001 Barcelona",
+      "latitude": 41.3780728,
+      "longitude": 2.1750758,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://moogbarcelona.com/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The agenda page's own embedded JSON-LD Organization/Place data states postalCode 08002 and streetAddress 'Carrer Arc del Teatre 3' — see research/source-investigations/moog-barcelona-01/. The Nominatim match below independently resolves this to postcode 08001 for the exact node; both refer to the same real, single building on this short street spanning the 08001/08002 boundary."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Carrer+de+l%27Arc+del+Teatre+3+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim returned a single named POI ('Moog', amenity=bar) at this exact address. See fixtures/geocoding/nominatim/venue-barcelona-moog.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer de l'Arc del Teatre 3 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "4321668169",
+        "result_display_name": "Moog, 3, Carrer de l'Arc del Teatre, el Raval, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08001, España",
+        "matched_postcode": "08001",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:44:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-harlem-jazz-club",
+      "canonical_name": "Harlem Jazz Club",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer de la Comtessa de Sobradiel, 8, 08002 Barcelona",
+      "latitude": 41.3811234,
+      "longitude": 2.1784298,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.harlemjazzclub.es/en/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official homepage states the address 'Carrer de la Comtessa de Sobradiel, 8, 08002 Barcelona' — see research/source-investigations/harlem-jazz-club-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Harlem+Jazz+Club%2C+Carrer+de+la+Comtessa+de+Sobradiel%2C+8%2C+08002+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's own 'Harlem Jazz Club' (amenity=nightclub) POI at this exact address, name and address both matching directly. See fixtures/geocoding/nominatim/venue-barcelona-harlem-jazz-club.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer de la Comtessa de Sobradiel, 8, 08002 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "2457874856",
+        "result_display_name": "Harlem Jazz Club, 8, Carrer de la Comtessa de Sobradiel, el Palau, el Gòtic, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08002, España",
+        "matched_postcode": "08002",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:36:30.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-antilla-bcn",
+      "canonical_name": "Antilla BCN Latin Club",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer d'Alcolea, 100, 08014 Barcelona",
+      "latitude": 41.3797977,
+      "longitude": 2.1352267,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://antillasalsa.com/en/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official homepage's own schema.org NightClub JSON-LD block states streetAddress \"Carrer d'Alcolea, 100\", postalCode 08014 — see research/source-investigations/antilla-bcn-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Carrer+Alcolea+100+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's only candidate at this exact address is a building/apartments-tagged way (no separate business POI node exists in OSM for this venue) — accepted as an honest building-level (not first-party-confirmed point-of-interest) coordinate for the venue's own evidenced address. See fixtures/geocoding/nominatim/venue-barcelona-antilla-bcn.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer d'Alcolea, 100, 08014 Barcelona",
+        "result_osm_type": "way",
+        "result_osm_id": "1309101279",
+        "result_display_name": "building/apartments at Carrer d'Alcolea 100, Barcelona, 08014",
+        "matched_postcode": "08014",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:42:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-opium",
+      "canonical_name": "Opium Barcelona",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Passeig Marítim de la Barceloneta, 34, 08003 Barcelona",
+      "latitude": 41.3852778,
+      "longitude": 2.1967099,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://opiumbarcelona.com/en/contact/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official contact page states 'Passeig Marítim de la Barceloneta, 34, 08003 Barcelona' — see research/source-investigations/opium-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Passeig+Mar%C3%ADtim+de+la+Barceloneta%2C+34%2C+08003+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's own 'Opium' (amenity=bar) POI at this exact address. See fixtures/geocoding/nominatim/venue-barcelona-opium.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Passeig Marítim de la Barceloneta, 34, 08003 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "2910255827",
+        "result_display_name": "Opium, 34, Passeig Marítim de la Barceloneta, la Barceloneta, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08003, España",
+        "matched_postcode": "08003",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:38:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-ku",
+      "canonical_name": "KU Barcelona",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Passeig de la Barceloneta, 38, 08003 Barcelona",
+      "latitude": null,
+      "longitude": null,
+      "location_status": "ADDRESS_ONLY",
+      "evidence": [
+        {
+          "url": "https://www.kubarcelona.com/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official homepage states 'Passeig de la Barceloneta 38, 08003' — see research/source-investigations/ku-barcelona-01/. Formerly branded Pacha Barcelona at the same real address (rebranded 2025); this is the venue's current, real name. Nominatim returned only the street way itself (no address-level POI) for this query — see fixtures/geocoding/nominatim/venue-barcelona-ku.json (not accepted; left ADDRESS_ONLY per this project's no-guessing rule)."
+        }
+      ],
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-sala-apolo",
+      "canonical_name": "Sala Apolo",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer Nou de la Rambla, 107, 08004 Barcelona",
+      "latitude": 41.3746512,
+      "longitude": 2.1698481,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.sala-apolo.com/en/contact",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official contact page states 'Nou de la Rambla, 107' — see research/source-investigations/sala-apolo-barcelona-01/. This entry also covers Apolo's own club-night sub-brands programmed at the same physical building (Nitsa, La [2] de Apolo) — see docs/BARCELONA_VENUE_POPULATION.md's 'room is not a separate venue' note, matching this project's existing Casa da Música precedent."
+        },
+        {
+          "url": "https://www.sala-apolo.com/en/event/bresh-club-20260826-7490",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "HONEST DISCREPANCY, recorded rather than silently resolved: the venue's own live event JSON-LD (both a plain Apolo-branded event and a Nitsa-branded event at the same building) states the street address as 'Carrer Nou de la Rambla, 113', not '107' as the /en/contact page states. Geocoding '113' returned only street-segment ways, no address-level or named-POI match, so it could not be independently corroborated; '107' (below) did resolve to a specific address point. The canonical coordinate below uses '107' as the better-evidenced value, not because '113' was disproven."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Carrer+Nou+de+la+Rambla%2C+107%2C+08004+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's only candidate at this exact house number is an unnamed address point (place=house) — accepted as an honest address-level (not named-POI) coordinate. See fixtures/geocoding/nominatim/venue-barcelona-sala-apolo.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer Nou de la Rambla, 107, 08004 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "11966098620",
+        "result_display_name": "107, Carrer Nou de la Rambla, les Hortes de Sant Bertran, el Poble-sec, Sants-Montjuïc, Barcelona, Barcelonès, Barcelona, Catalunya, 08001, España",
+        "matched_postcode": "08001",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:43:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-paral-lel-62",
+      "canonical_name": "Paral·lel 62",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Avinguda del Paral·lel, 62, 08001 Barcelona",
+      "latitude": 41.3751714,
+      "longitude": 2.1695843,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://paral-lel62.cat/en/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Formerly branded BARTS Barcelona (same real building, Av. del Paral·lel 62); rebranded Paral·lel 62 in 2022. See research/source-investigations/paral-lel-62-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Avinguda+del+Paral-lel+62+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim returned two OSM nodes at this exact address a few metres apart: a bare address point and a named POI ('Paral·lel 62', leisure=dance). Manually selected the named POI node. See fixtures/geocoding/nominatim/venue-barcelona-paral-lel-62.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Avinguda del Paral·lel, 62, Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "manually-selected-named-poi-see-evidence",
+        "result_display_name": "Paral·lel 62, 62, Avinguda del Paral·lel, el Raval, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08001, España",
+        "matched_postcode": "08001",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:47:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-city-hall",
+      "canonical_name": "City Hall Barcelona",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Rambla de Catalunya, 2-4, 08007 Barcelona",
+      "latitude": 41.387778,
+      "longitude": 2.168208,
+      "location_status": "CONFIRMED",
+      "evidence": [
+        {
+          "url": "https://www.cityhallbarcelona.com/event-list",
+          "kind": "FIRST_PARTY_LINKED_MAP",
+          "note": "The venue's own booking-platform (Wix Events) page embeds each event's `location.fullAddress.geocode` object directly — first-party coordinate data supplied by the venue's own site, not a third-party geocoder: latitude 41.387778, longitude 2.168208, formattedAddress 'Rambla de Catalunya, 2-4, Eixample, 08007 Barcelona, España'. See research/source-investigations/city-hall-barcelona-01/."
+        }
+      ],
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-la-paloma",
+      "canonical_name": "La Paloma",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Carrer del Tigre, 27, 08001 Barcelona",
+      "latitude": 41.382371,
+      "longitude": 2.1642234,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://lapaloma.com/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Official homepage's own footer states 'CARRER DEL TIGRE, 27 — 08001 BARCELONA' — see research/source-investigations/la-paloma-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=La+Paloma%2C+Carrer+del+Tigre%2C+27%2C+08001+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's own 'La Paloma' (amenity=nightclub) POI at this exact address, name and address both matching directly. See fixtures/geocoding/nominatim/venue-barcelona-la-paloma.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Carrer del Tigre, 27, 08001 Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "12246183831",
+        "result_display_name": "La Paloma, 27, Carrer del Tigre, el Raval, Ciutat Vella, Barcelona, Barcelonès, Barcelona, Catalunya, 08001, España",
+        "matched_postcode": "08001",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T01:39:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-barcelona-sant-jordi-club",
+      "canonical_name": "Sant Jordi Club",
+      "country_code": "ES",
+      "city": "Barcelona",
+      "municipality": "Barcelona",
+      "address": "Passeig Olímpic, 5-7, 08038 Barcelona",
+      "latitude": 41.3634668,
+      "longitude": 2.1525682,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://palausantjordi.barcelona/en/sant-jordi-club",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "Sant Jordi Club is the smaller indoor hall within the Anella Olímpica complex (Palau Sant Jordi), Montjuïc — official venue page confirms the sub-hall name and shared complex address. No distinct street address/coordinate for the sub-hall itself (as opposed to the complex it sits inside) was found within this task's bounded search — see research/source-investigations/sant-jordi-club-barcelona-01/."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Palau+Sant+Jordi+Barcelona&format=jsonv2&addressdetails=1&limit=5&countrycodes=es",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's own 'Palau Sant Jordi' (leisure=stadium) POI — the shared Anella Olímpica arena complex Sant Jordi Club sits inside, per the venue's own official page. This is a building-complex-level coordinate, not a coordinate specific to the smaller hall within it; recorded honestly as such rather than as a first-party CONFIRMED point for the sub-hall itself. See fixtures/geocoding/nominatim/venue-barcelona-sant-jordi-club.json."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Palau Sant Jordi Barcelona",
+        "result_osm_type": "node",
+        "result_osm_id": "see fixtures/geocoding/nominatim/venue-barcelona-sant-jordi-club.json",
+        "result_display_name": "Palau Sant Jordi, Plaça de Nemesi Ponsati, Montjuïc, Sants-Montjuïc, Barcelona, Barcelonès, Barcelona, Catalunya, 08004, España",
+        "matched_postcode": "08004",
+        "matched_city": "Barcelona",
+        "retrieved_at": "2026-08-26T03:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    }
+  ]
+}

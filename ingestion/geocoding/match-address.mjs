@@ -164,11 +164,22 @@ function cityMatches(candidate, expectedCityOrMunicipality) {
  * `{ passed, checks }` where `checks` names each individual deterministic
  * rule and whether it passed — used both to decide acceptance and to
  * report exactly which rule rejected a candidate.
+ *
+ * BARCELONA-30-VENUE-POPULATION-01: `countryCode` is a new, optional
+ * option (defaults to `"pt"` — every existing caller's behaviour is
+ * completely unchanged) so this module works for Spain (`"es"`) too,
+ * without hardcoding a second country inline. `extractPostcode()`/
+ * `extractHouseNumber()` below remain Portugal-format-specific
+ * (`NNNN-NNN`) and simply extract nothing for a Spanish address (5 plain
+ * digits) — their checks trivially pass rather than falsely reject
+ * (see each check's own "nothing to compare is not itself a rejection"
+ * comment); country/city/specificEnough/featureCompatible/nameCompatible
+ * remain fully load-bearing for Spain.
  */
-export function evaluateCandidate(candidate, venue) {
+export function evaluateCandidate(candidate, venue, { countryCode = "pt" } = {}) {
   const checks = {};
 
-  checks.country = normaliseText(candidate?.address?.country_code) === "pt";
+  checks.country = normaliseText(candidate?.address?.country_code) === normaliseText(countryCode);
   checks.city = cityMatches(candidate, venue?.municipality ?? venue?.city);
 
   const canonicalPostcode = extractPostcode(venue?.address);
@@ -201,12 +212,12 @@ export function evaluateCandidate(candidate, venue) {
  *     (never auto-picked, per this package's "no manual override" rule)
  *   - exactly one distinct passing location -> ACCEPTED, with that candidate
  */
-export function selectGeocodeMatch(candidates, venue) {
+export function selectGeocodeMatch(candidates, venue, options = {}) {
   if (!Array.isArray(candidates) || candidates.length === 0) {
     return { status: "REJECTED", reason: "NO_CANDIDATES_RETURNED", evaluated: [] };
   }
 
-  const evaluated = candidates.map((candidate) => ({ candidate, ...evaluateCandidate(candidate, venue) }));
+  const evaluated = candidates.map((candidate) => ({ candidate, ...evaluateCandidate(candidate, venue, options) }));
   const passing = evaluated.filter((entry) => entry.passed);
 
   if (passing.length === 0) {
@@ -450,7 +461,7 @@ export function isVenueNameCompatible(canonicalName, candidate, { aliases = VENU
 export function evaluateNamePlusAddressCandidate(candidate, venue, options = {}) {
   const checks = {};
 
-  checks.country = normaliseText(candidate?.address?.country_code) === "pt";
+  checks.country = normaliseText(candidate?.address?.country_code) === normaliseText(options.countryCode ?? "pt");
   checks.city = cityMatches(candidate, venue?.municipality ?? venue?.city);
 
   const canonicalPostcode = extractPostcode(venue?.address);

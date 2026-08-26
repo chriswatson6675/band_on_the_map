@@ -1,0 +1,205 @@
+{
+  "investigation_id": "sant-jordi-club-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the shared complex events-listing page's static HTML contained real, directly-crawlable /en/{slug} links for every hall. A plain curl GET of one such detail page (Airbag) contained a literal 'address = \"Sant Jordi Club\"' assignment plus a literal 'startDate' assignment in otherwise-static HTML — no JS execution needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the shared complex events-listing page's static HTML contained real, directly-crawlable /en/{slug} links for every hall. A plain curl GET of one such detail page (Airbag) contained a literal 'address = \"Sant Jordi Club\"' assignment plus a literal 'startDate' assignment in otherwise-static HTML — no JS execution needed.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "sant-jordi-club-barcelona-01-candidate",
+  "source_id": "sant-jordi-club-barcelona",
+  "venue_reference": "Sant Jordi Club (indoor hall within the Anella Olímpica complex / Palau Sant Jordi, Montjuïc, Barcelona)",
+  "official_url": "https://palausantjordi.barcelona/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-listing",
+      "ev-airbag",
+      "sant-jordi-club-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://palausantjordi.barcelona/."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Drupal 10 (BSM/Ajuntament de Barcelona); no public JSON:API module is enabled, but individual event pages carry their own facts as literal JavaScript variable assignments in otherwise-static server-rendered HTML.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-listing",
+      "ev-airbag",
+      "sant-jordi-club-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_LINKED_DETAIL_PAGES",
+      "url": "https://palausantjordi.barcelona/en/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own <title> tag, e.g. 'Airbag | Palau Sant Jordi'.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own literal 'let startDate = \"YYYY-MM-DDTHH:MM:SS\";' JavaScript assignment — present verbatim in the static server-rendered HTML (a client framework later reads this value to populate real JSON-LD at runtime, but the value itself needs no JS execution to read).",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of the same startDate value.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own literal 'endDate' assignment, when present.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own literal 'address' assignment discriminates which of the complex's three halls (Palau Sant Jordi arena, Estadi Olímpic, or Sant Jordi Club) the event belongs to — this package's collector retains ONLY records whose address is the exact string 'Sant Jordi Club', discarding the others.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The event detail page's own URL slug (from the shared listing page), used as source_record_id.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The event detail page's own URL.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-listing",
+        "ev-airbag",
+        "sant-jordi-club-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-listing",
+      "ev-airbag",
+      "sant-jordi-club-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class STATIC_HTML.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN.",
+      "source_record_id PROVEN via a documented URL-slug strategy.",
+      "recommended_family STATIC_EVENT_LIST (a small, venue-specific implementation with a hall-discrimination filter).",
+      "No unresolved CRITICAL blocker. This source shares its feed with two other halls in the same complex — documented and handled by pre-filtering, not a blocker."
+    ],
+    "evidence_refs": [
+      "ev-listing",
+      "ev-airbag",
+      "sant-jordi-club-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The shared Anella Olímpica complex events-listing page, containing real static /en/{slug} links for every hall in the complex.",
+      "acquired_from": "https://palausantjordi.barcelona/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sant-jordi-club-barcelona-01/evidence/events-listing.html"
+    },
+    {
+      "evidence_id": "ev-airbag",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real event detail page (Airbag, 2026-09-18), confirming the exact 'address'/'startDate' JavaScript variable shape and a Sant-Jordi-Club-specific address value.",
+      "acquired_from": "https://palausantjordi.barcelona/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sant-jordi-club-barcelona-01/evidence/event-detail-airbag.html"
+    },
+    {
+      "evidence_id": "sant-jordi-club-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://palausantjordi.barcelona/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sant-jordi-club-barcelona-01/evidence/events-listing.html"
+    }
+  ],
+  "supersedes": null
+}

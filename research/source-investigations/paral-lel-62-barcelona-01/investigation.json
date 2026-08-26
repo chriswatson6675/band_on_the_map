@@ -1,0 +1,180 @@
+{
+  "investigation_id": "paral-lel-62-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the venue's own official site established its exact address; the site's own bundled JS ('event-management' asset) references a custom REST route which, on a plain curl GET, returned 200 OK with a flat JSON array of every upcoming event — no authentication, no pagination needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's own official site established its exact address; the site's own bundled JS ('event-management' asset) references a custom REST route which, on a plain curl GET, returned 200 OK with a flat JSON array of every upcoming event — no authentication, no pagination needed.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "paral-lel-62-barcelona-01-candidate",
+  "source_id": "paral-lel-62-barcelona",
+  "venue_reference": "Paral·lel 62 (formerly BARTS Barcelona, concert venue, Poble-sec, Barcelona)",
+  "official_url": "https://paral-lel62.cat/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api",
+      "paral-lel-62-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://paral-lel62.cat/."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "WordPress, but a bespoke first-party custom REST route (not the standard Tribe Events plugin) directly linked from the venue's own JS bundle.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api",
+      "paral-lel-62-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://paral-lel62.cat/wp-json/v1/calendar-events-futurs",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'title' field.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'date' field, a DD-MM-YYYY string; this package's collector (ingestion/paral-lel-62/discovery.mjs) parses it into YYYY-MM-DD via a fixed, deterministic regex — never guessed.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own separate 'time' field (HH:MM local, no timezone/offset at all — honestly FLOATING_LOCAL, never upgraded to UTC).",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "No numeric/opaque id is exposed at all; each event's own 'url' field is this source's own permanent permalink, used as source_record_id — the same documented judgement already established for LAV/cm-gaia-eventos.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'url' field.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-api",
+        "paral-lel-62-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api",
+      "paral-lel-62-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class EMBEDDED_JSON, a resolved supported class.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN (start_date via a documented, mechanical DD-MM-YYYY parse).",
+      "source_record_id PROVEN via a documented URL-permalink strategy.",
+      "recommended_family JSON_API (a small, venue-specific implementation, per this package's own 'bespoke collector' scope for a non-generalisable platform).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": [
+      "ev-api",
+      "paral-lel-62-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-api",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, live response of this source's own bespoke custom REST route — 65 real upcoming records in one request, no pagination.",
+      "acquired_from": "https://paral-lel62.cat/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/paral-lel-62-barcelona-01/evidence/calendar-events-futurs.json"
+    },
+    {
+      "evidence_id": "paral-lel-62-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://paral-lel62.cat/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/paral-lel-62-barcelona-01/evidence/calendar-events-futurs.json"
+    }
+  ],
+  "supersedes": null
+}

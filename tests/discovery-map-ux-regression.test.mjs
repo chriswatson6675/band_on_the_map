@@ -30,6 +30,18 @@ import { buildVenueFeatureCollection, sumGigCounts } from "../ingestion/map/clus
 // real, currently-live events across the same 14 sources at the moment
 // that proof ran); the marker count stayed exactly 13 (no venue gained or
 // lost map eligibility).
+//
+// BARCELONA-30-VENUE-POPULATION-01's `npm run publish:map-data` legitimately
+// regenerated the committed artifact again: it now ALSO acquires Barcelona
+// (`acquireBarcelona()`, 15 new sources) and publishes a new
+// `countries.Spain` bucket alongside the unchanged Portugal/Croatia ones —
+// see `ingestion/map/publication.mjs`'s `buildSpainMarkers()`. Portugal's
+// own live counts moved independently too (361 -> 433 display listings,
+// the same "real sources fluctuate run to run" behaviour documented above,
+// unrelated to Barcelona) — the marker count stayed 13 (no Portugal venue
+// gained/lost eligibility). `artifact.counts.*` are now GLOBAL totals
+// across every published country (never Portugal-only), by design — see
+// that function's own doc comment.
 
 const PUBLICATION_PATH = new URL("../data/public/lisbon-porto-map.json", import.meta.url);
 
@@ -43,16 +55,18 @@ test("the committed publication artifact is still valid per its own schema/cross
   assert.deepEqual(errors, []);
 });
 
-test("baseline preserved: 361 display listings (was 266 before CCB's manual coordinate made it map-eligible; 315 before the unattended runner's live proof re-acquired current data)", async () => {
+test("baseline preserved: 959 total display listings (Portugal + Spain combined; was 361 Portugal-only before Barcelona's own 15 sources were added)", async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.display_listing_count, 361);
+  assert.equal(artifact.counts.display_listing_count, 959);
 });
 
-test("baseline preserved: 13 venue markers (was 12 before CCB's manual coordinate made it map-eligible)", async () => {
+test("baseline preserved: 27 total venue markers (13 Portugal + 14 Spain)", async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.map_marker_count, 13);
+  assert.equal(artifact.counts.map_marker_count, 27);
   const portugalMarkers = artifact.countries.Portugal.markers;
   assert.equal(portugalMarkers.length, 13);
+  const spainMarkers = artifact.countries.Spain.markers;
+  assert.equal(spainMarkers.length, 14);
 });
 
 test("all 13 underlying venue markers are recoverable/separable — the clustering UI never drops data, only visually combines it at wide zoom", async () => {
@@ -76,10 +90,23 @@ test("CCB's marker uses exactly the operator-supplied coordinate pair, not a rou
   assert.equal(ccb.longitude, -9.2073); // -9.20730 and -9.2073 are the identical IEEE754 value
 });
 
-test("cluster aggregate gig count across the full live dataset sums to the same total the venue panel/publication artifact already reports", async () => {
+test("cluster aggregate gig count across the full live dataset (Portugal + Spain) sums to the same GLOBAL total the publication artifact already reports", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
-  assert.equal(sumGigCounts(portugalMarkers), artifact.counts.display_listing_count);
+  const spainMarkers = artifact.countries.Spain.markers;
+  // artifact.counts.display_listing_count is a GLOBAL total across every
+  // published country (see buildPublicationArtifact()'s own doc comment)
+  // — never Portugal-only — so this cross-check must sum both.
+  assert.equal(sumGigCounts(portugalMarkers) + sumGigCounts(spainMarkers), artifact.counts.display_listing_count);
+});
+
+test("all 14 underlying Spain venue markers are recoverable/separable — the clustering UI never drops Barcelona data either", async () => {
+  const artifact = await loadPublication();
+  const spainMarkers = artifact.countries.Spain.markers;
+  const fc = buildVenueFeatureCollection(spainMarkers);
+  assert.equal(fc.features.length, 14);
+  const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
+  assert.equal(venueIds.size, 14);
 });
 
 test("Croatia country bucket is still an untouched empty marker list (this package never alters source acquisition or coverage)", async () => {

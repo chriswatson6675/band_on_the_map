@@ -159,15 +159,26 @@ export function projectObservationsToMapMarkers(observations, { venues, sourceRe
 }
 
 /**
- * Country-scoped marker selection for the map UI. This project's only
- * retained proof data is for Lisbon (Portugal); Croatia deliberately has
- * none — this function is the single place that decides that, so the UI
- * component and its tests exercise the exact same logic rather than two
- * independently-maintained copies of it.
+ * Country-scoped marker selection for the map UI. This project's
+ * retained proof data originally covered only Lisbon/Porto (Portugal);
+ * Croatia deliberately has none — this function is the single place that
+ * decides that, so the UI component and its tests exercise the exact
+ * same logic rather than two independently-maintained copies of it.
+ *
+ * BARCELONA-30-VENUE-POPULATION-01: `spainMarkers` is a new, optional
+ * third parameter (defaults to `[]`) carrying Barcelona's own display
+ * markers (ingestion/map/publication.mjs's buildSpainMarkers()) — added
+ * additively so every existing 2-argument call site (app/page.tsx, every
+ * existing test) keeps its EXACT prior behaviour unchanged, including
+ * `getMarkersForCountry("Spain", portugalMarkers)` still legitimately
+ * returning `[]` when no third argument is supplied.
  */
-export function getMarkersForCountry(country, portugalMarkers) {
+export function getMarkersForCountry(country, portugalMarkers, spainMarkers = []) {
   if (country === "Portugal") {
     return portugalMarkers ?? [];
+  }
+  if (country === "Spain") {
+    return spainMarkers ?? [];
   }
   return [];
 }
