@@ -251,9 +251,16 @@ h1 em { color: var(--coral); font-style: italic; }
   box-shadow: 0 6px 16px rgba(18, 60, 61, .2);
 }
 
-/* Venue overlay panel */
+/* Venue overlay panel — desktop default is a floating top-right card; the
+   @media (max-width: 700px) block below turns this same element into a
+   bottom sheet (BEATMAPPED-MOBILE-VENUE-BOTTOM-SHEET-01) rather than a
+   separate component, so every listing/content rule below stays shared
+   between both layouts. */
 .venue-panel { position: absolute; right: 16px; top: 16px; z-index: 5; display: flex; flex-direction: column; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100% - 32px); border-radius: 14px; box-shadow: 0 12px 36px rgba(18, 60, 61, .2); overflow: hidden; background: var(--paper); font-family: Arial, Helvetica, sans-serif; animation: venue-panel-in .22s ease-out; }
 @keyframes venue-panel-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+/* Drag-handle affordance — visual only (no swipe/drag is wired up).
+   Hidden by default; only the mobile bottom-sheet layout below shows it. */
+.venue-panel-handle { display: none; flex: 0 0 auto; width: 36px; height: 4px; margin: 8px auto 2px; border-radius: 2px; background: rgba(18, 60, 61, .18); }
 .venue-panel-close { position: absolute; right: 8px; top: 8px; z-index: 3; width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; transition: color .2s ease, background .2s ease; }
 .venue-panel-close:hover, .venue-panel-close:focus-visible { color: var(--ink); background: rgba(18, 60, 61, .06); }
 .venue-panel-header { padding: 16px 18px 12px; background: var(--paper); border-bottom: 1px solid var(--line); padding-right: 44px; }
@@ -316,8 +323,35 @@ h1 em { color: var(--coral); font-style: italic; }
   .map-status { left: 12px; top: 12px; max-width: calc(100% - 24px); padding: 12px 14px 13px; }
   .map-status p:last-child { font-size: 12px; }
   .site-footer { display: grid; gap: 8px; padding-bottom: 30px; }
-  .venue-panel { width: 260px; max-width: calc(100vw - 24px); right: 12px; top: 12px; }
+  /* BEATMAPPED-MOBILE-VENUE-BOTTOM-SHEET-01 — bottom sheet, not a resized
+     top-right card: anchored to the bottom of the map, nearly full width,
+     rounded top corners only. `height` (not just `max-height`) is set so
+     the sheet's footprint stays the same whether the venue has 2 listings
+     or 30 — the corrected Bolt-draft bug; `.venue-panel-listings` (shared
+     with desktop, see above) already scrolls its own content within
+     whatever fixed height it's given. */
+  .venue-panel {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 42%;
+    max-height: 42%;
+    border-radius: 16px 16px 0 0;
+  }
   .venue-panel h3 { font-size: 15px; }
+  .venue-panel-handle { display: block; }
+
+  /* MapLibre's own attribution control lives bottom-right inside the map
+     container by default. The sheet above only covers that corner while a
+     venue is actually selected, so nudge it up just then — never hidden,
+     per the task's explicit requirement. */
+  .discovery-map:has(.venue-panel) .maplibregl-ctrl-bottom-right,
+  .discovery-map:has(.venue-panel) .maplibregl-ctrl-bottom-left {
+    bottom: calc(42% + 8px);
+  }
 }
 
 @media (max-width: 390px) {

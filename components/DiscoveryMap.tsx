@@ -168,6 +168,23 @@ type DiscoveryMapProps = {
 // live reachability check performed before committing to this URL.
 const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 
+// BEATMAPPED-MOBILE-VENUE-BOTTOM-SHEET-01 — mirrors the `@media
+// (max-width: 700px)` breakpoint in app/globals.css that turns the venue
+// panel into a bottom sheet. Kept as one shared constant so the JS
+// pin-visibility offset below and the CSS layout switch can never drift
+// apart.
+const MOBILE_BREAKPOINT_PX = 700;
+
+// The Bolt prototype's own starting point for how far to shift a selected
+// pin upward (in map-container-height units) so it lands above the mobile
+// bottom sheet rather than underneath it. Verified against a 42%-tall
+// sheet (see .venue-panel's mobile height in app/globals.css): with the
+// sheet covering the bottom 42% of the map, the remaining visible strip
+// above it runs from 0% to 58% of the container height, and this factor
+// centers the selected pin in that strip (0.5 - (1 - 0.42) / 2 = 0.21) —
+// verified visually at 375/390/430px widths, not just carried over blindly.
+const MOBILE_SELECTED_PIN_Y_OFFSET_FACTOR = 0.21;
+
 function formatDateLabel(dt: ListingDateTime | null | undefined): string | null {
   if (!dt) return null;
   if (dt.iso) {
@@ -376,6 +393,12 @@ function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => voi
   const displayListings = toDisplayListings(marker);
   return (
     <div className="venue-panel" role="dialog" aria-label={marker.canonical_name}>
+      {/* BEATMAPPED-MOBILE-VENUE-BOTTOM-SHEET-01 — purely visual affordance
+          that this panel is a bottom sheet on mobile (see
+          .venue-panel-handle in app/globals.css, hidden on desktop). No
+          drag/swipe gesture is wired to it — closing stays via the button
+          below, exactly as before. */}
+      <span className="venue-panel-handle" aria-hidden="true" />
       <button className="venue-panel-close" onClick={onClose} aria-label="Close" type="button">×</button>
       <div className="venue-panel-header">
         <h3>{marker.canonical_name}</h3>
@@ -513,9 +536,24 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
           document.querySelectorAll(".botm-marker").forEach((m) => m.classList.remove("is-active"));
           el.classList.add("is-active");
           setActiveVenue(marker);
+
+          // BEATMAPPED-MOBILE-VENUE-BOTTOM-SHEET-01 — on mobile the venue
+          // panel becomes a bottom sheet covering the lower portion of the
+          // map (see app/globals.css), so centering the pin on the whole
+          // container would land it underneath the sheet. `offset` shifts
+          // where the target center appears on screen relative to the
+          // container's true center; a negative Y value moves it upward,
+          // into the visible strip above the sheet. Desktop keeps the
+          // existing plain-centered behaviour (no offset).
+          const isMobile = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches;
+          const offset: [number, number] = isMobile
+            ? [0, -map.getContainer().clientHeight * MOBILE_SELECTED_PIN_Y_OFFSET_FACTOR]
+            : [0, 0];
+
           map.easeTo({
             center: [marker.longitude, marker.latitude],
             zoom: Math.max(map.getZoom(), 15),
+            offset,
             duration: 800,
           });
         });
