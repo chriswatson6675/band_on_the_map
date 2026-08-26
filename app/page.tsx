@@ -184,9 +184,21 @@ export default function Home() {
     () => (publicationArtifact.countries.Portugal.markers as MapMarker[]) ?? [],
     [publicationArtifact],
   );
+  // BEATMAPPED-BARCELONA-FRONTEND-INTEGRATION-01 — Spain's own bucket,
+  // read the same way as Portugal's above. Optional-chained: an artifact
+  // published before Barcelona existed (e.g. an older cached runtime
+  // response, or a hand-authored test fixture predating
+  // BARCELONA-30-VENUE-POPULATION-01) legitimately has no `countries.Spain`
+  // key at all — see ingestion/map/publication.mjs's own
+  // validatePublicationArtifact() doc comment — and must still render
+  // Portugal/Croatia exactly as before rather than throwing.
+  const spainMarkers = useMemo(
+    () => (publicationArtifact.countries.Spain?.markers as MapMarker[] | undefined) ?? [],
+    [publicationArtifact],
+  );
   const visibleMarkers = useMemo(
-    () => getMarkersForCountry(country, portugalMarkers) as MapMarker[],
-    [country, portugalMarkers],
+    () => getMarkersForCountry(country, portugalMarkers, spainMarkers) as MapMarker[],
+    [country, portugalMarkers, spainMarkers],
   );
 
   // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
@@ -282,6 +294,7 @@ export default function Home() {
           <div className="hero-note" aria-hidden="true">
             <span>Portugal</span>
             <span>Croatia</span>
+            <span>Spain</span>
           </div>
         </section>
 
@@ -315,6 +328,7 @@ export default function Home() {
                 >
                   <option>Portugal</option>
                   <option>Croatia</option>
+                  <option>Spain</option>
                 </select>
               </span>
             </label>
