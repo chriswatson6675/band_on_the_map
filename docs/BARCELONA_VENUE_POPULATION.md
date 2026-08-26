@@ -161,3 +161,104 @@ Every new source needs: a `research/source-investigations/<id>/` record
 a `venues/barcelona.json` entry (or reuse an existing one), and a
 `venues/source-venue-mappings.json` resolver entry — never a new hardcoded
 branch in `ingestion/venue/resolver.mjs`.
+
+## Phase 2 (`BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02`)
+
+Continues directly from the 15-venue package above — every one of its
+sources, venues, and collectors is preserved byte-for-byte unless noted.
+Adds 8 more registry sources (23 total), resolving to 16 more canonical
+venues (31 total; L'Auditori's own feed cross-lists 7 further real,
+independently canonical venues from a single source, matching the
+existing Jamboree→Paral·lel 62 precedent).
+
+**New reusable families:**
+
+- `ingestion/sanity/` — a generic client for Sanity.io's own public GROQ
+  query CDN API, using GROQ's `->` dereference operator to resolve
+  reference fields server-side in one request. This resolves the -01
+  package's Razzmatazz deferral cleanly — no client-side GROQ
+  -dereferencing work was needed after all.
+- `ingestion/anella-olimpica/` — a new, hall-agnostic sibling of
+  `ingestion/sant-jordi-club/` (left completely unchanged), reused by two
+  further sources sharing the same Anella Olímpica complex listing (Palau
+  Sant Jordi, Estadi Olímpic Lluís Companys).
+
+**New bespoke sources:**
+
+- `ingestion/razzmatazz/` — Razzmatazz's public Sanity API (`live`
+  document type only — a separate `clubEvent` type for recurring branded
+  club nights was deliberately not collected, matching the Otto
+  Zutz/Wolf Barcelona exclusion precedent).
+- `ingestion/auditori-barcelona/` — L'Auditori's own bespoke first-party
+  WP-plugin AJAX endpoint, following its real `from_date`-cursor
+  pagination. Music-programme category filtering
+  (Symphonic/Chamber/Jazz & Pop/New Music/Early Music, plus the Robert
+  Gerhard Biennial cicle) rejects Social/Educational/museum-tour records.
+  Cross-lists 7 further real venues by hall name (Palau de la Música
+  Catalana, Església de Sant Felip Neri, Monestir de Sant Pau del Camp,
+  Basílica de Santa Maria del Pi, Sant Andreu Teatre, Reial Monestir de
+  Pedralbes, Casino de l'Aliança del Poblenou, ESMUC) — each independently
+  onboarded, never merged into L'Auditori itself. A handful of bare
+  public squares/parks used for one-off outdoor "Festa Major" community
+  band concerts (e.g. "Plaça del Congrés Eucarístic") were deliberately
+  excluded — not a stable, ongoing venue identity, only a location.
+- `ingestion/jazzsi/` — a tiny link-discovery module over JazzSí's own
+  RSS feed; the actual event facts are read entirely by
+  `ingestion/rss/` + `ingestion/json-ld/`, both reused unchanged
+  (matching the Sala Apolo crawl-then-JSON-LD pattern).
+- `ingestion/sala-upload/` — Sala Upload's own WordPress REST API (a
+  custom `eventos` post type, whose own `date`/`date_gmt` is only the CMS
+  post-publish timestamp — the same limitation already documented below
+  for Marula Café) for link discovery, combined with each event page's
+  own JetEngine "dynamic field" HTML text (a `FECHA`/`HORARIO` heading
+  pair) for the real date/time, mechanically parsed via a fixed Spanish
+  month-name table.
+- Sinestesia and Deskomunal need **no new ingestion code at all** —
+  both venues' own homepages embed real schema.org Event JSON-LD blocks,
+  filtered by the existing, unchanged `filterMusicEventNodes()`
+  (`ingestion/json-ld/parse.mjs`) to separate genuine named-act music
+  nights from each venue's own mixed programming (weekly placeholder
+  posts, an exhibition, unnamed karaoke/open-mic nights, a community
+  assembly meeting).
+
+**Previously-deferred sources reassessed, still deferred (nothing
+silently re-tried and quietly failed):** Marula Café, Freedonia, Luz de
+Gas, Bikini Barcelona, Sala Vol, Wolf Barcelona, Los Tarantos, Palau
+Dalmases, El Paraigua, Otto Zutz, Heliogàbal (re-checked live: its own
+official calendar feed, `WP_FullCalendar`, genuinely returns zero future
+events at proof time — confirms, rather than assumes, the original
+deferral), Sidecar (ownership/rebrand status too uncertain to treat as a
+stable identity), Palau de la Música Catalana's own primary ticketing
+site (`entrades.palaumusica.cat`, a Secutix platform requiring a
+JS-driven session cookie this package's bounded static/structural probing
+could not establish — its own programme is instead partially represented
+via L'Auditori's cross-listed feed above, honestly thinner than a
+dedicated collector would give).
+
+**Fixed:** `venues/source-venue-mappings.json` gained two previously
+-missing Jamboree cross-listing entries (`121310` "Jamboree Sala 2" → the
+same canonical Jamboree venue; `126093` "Razzmatazz 2" → the newly
+-onboarded Razzmatazz venue), resolving the 3 Observations the -01
+package's live proof left unresolved. KU Barcelona (`ADDRESS_ONLY`) now
+has an operator-entered coordinate in `venues/manual-coordinates.json`
+(the existing `VENUE-MANUAL-COORDINATES-DASHBOARD-01` mechanism), and
+`ingestion/barcelona/run.mjs` now loads and forwards that store into
+`buildSpainMarkers()` — the -01 package built the mechanism's plumbing
+into `ingestion/map/publication.mjs` but never actually wired
+`ingestion/barcelona/run.mjs` to load it. Sala Apolo's own 107-vs-113
+address discrepancy was re-verified live and is unchanged (still genuinely
+present on the source's own pages) — the existing documented resolution
+(107, the geocodable value) stands.
+
+**Publication architecture:** `data/public/lisbon-porto-map.json`'s own
+internal schema was already country-neutral BEFORE this package
+(`countries.<Name>`, extended additively for Spain by the -01 package) —
+only the on-disk filename itself is a historical, Portugal-era label. A
+rename was considered and rejected: the exact filename string is
+referenced directly in a Next.js build-time static import
+(`app/page.tsx`), an atomic-write path resolver
+(`ingestion/map/publish-artifact-io.mjs`), the unattended runner's lock
+references, and multiple docs — a genuinely broad, deployment-risking
+change for a cosmetic gain. Recommendation for a future, separate package:
+introduce a country-neutral alias/re-export at build time rather than
+touching the canonical path directly.

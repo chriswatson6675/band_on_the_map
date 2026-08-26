@@ -1,0 +1,149 @@
+{
+  "investigation_id": "palau-sant-jordi-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T04:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the Anella Olímpica complex's own events-listing page (already proven live for the smaller Sant Jordi Club hall, see research/source-investigations/sant-jordi-club-barcelona-01/) yields real, directly-crawlable /en/{slug} links shared across every hall in the complex. A plain curl GET of an individual event detail page's static HTML directly contains its own hall as a literal JS variable ('address'). No browser/headless step was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the shared listing page and a sampled event detail page directly exposed real, dated, named concert data (Aitana, Ca7riel & Paco Amoroso, Vetusta Morla, Hombres G, Trueno — 5 real records at proof time, all with address literally stating 'Palau Sant Jordi'). No structural/browser escalation was needed.",
+      "evidence_refs": ["ev-listing", "ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "palau-sant-jordi-barcelona-01-candidate",
+  "source_id": "palau-sant-jordi-barcelona",
+  "venue_reference": "Palau Sant Jordi (the main indoor arena of the Anella Olímpica complex, Montjuïc, Barcelona)",
+  "official_url": "https://palausantjordi.barcelona/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-listing", "ev-event-aitana"],
+    "notes": "Official identity confirmed directly from the retained evidence — the complex's own official site, and each event page's own literal 'address = \"Palau Sant Jordi\"' JS variable."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Same platform already classified for venue-barcelona-sant-jordi-club (see research/source-investigations/sant-jordi-club-barcelona-01/): static HTML with literal JS variable assignments carrying event facts (not a rendered JSON-LD block).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-listing", "ev-event-aitana"]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_LISTING_PLUS_PER_EVENT_PAGE",
+      "url": "https://palausantjordi.barcelona/en/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-listing", "ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event page's own <title> tag, up to its first '|' separator.",
+      "evidence_refs": ["ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event page's own literal 'startDate' JS variable, a plain local 'YYYY-MM-DDTHH:MM:SS' string with no offset — FLOATING_LOCAL, never upgraded to UTC.",
+      "evidence_refs": ["ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Embedded in the same 'startDate' value (see start_date).",
+      "evidence_refs": ["ev-event-aitana"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "An 'endDate' JS variable is present on some but not all pages sampled for this complex.",
+      "evidence_refs": ["ev-event-aitana"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event page's own literal 'address' JS variable, discriminating this hall ('Palau Sant Jordi') from the other halls sharing the same listing (Sant Jordi Club, Estadi Olímpic Lluís Companys) — only records whose address exactly equals 'Palau Sant Jordi' are retained by this source's own collector config.",
+      "evidence_refs": ["ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The event's own permalink slug (the last path segment of its detail-page URL) — a stable, source-native identifier, the same judgement already made for venue-barcelona-sant-jordi-club.",
+      "evidence_refs": ["ev-listing"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The event detail page's own URL, directly crawled from the listing page.",
+      "evidence_refs": ["ev-listing"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": ["ev-event-aitana"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STABLE_EVENT_PAGE",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-listing", "ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class EMBEDDED_JSON, a resolved supported class.",
+      "A CONFIRMED public data path retained (11 candidate links crawled, 5 discriminated to this hall at proof time).",
+      "title and start_date both PROVEN, directly stated by the source.",
+      "source_record_id PROVEN via the event's own stable permalink slug.",
+      "recommended_family STABLE_EVENT_PAGE — a new, generic module (ingestion/anella-olimpica/) reused by this source AND estadi-olimpic-lluis-companys-barcelona, deliberately not a fork of ingestion/sant-jordi-club/ (left byte-for-byte unchanged).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-listing", "ev-event-aitana", "palau-sant-jordi-barcelona-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The Anella Olímpica complex's own real, live events-listing page HTML.",
+      "acquired_from": "https://palausantjordi.barcelona/en/events",
+      "acquired_at": "2026-08-26T04:12:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/palau-sant-jordi-barcelona-01/evidence/listing.html"
+    },
+    {
+      "evidence_id": "ev-event-aitana",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real, live event detail page for an actual, currently-scheduled Palau Sant Jordi concert (Aitana, September 2026).",
+      "acquired_from": "https://palausantjordi.barcelona/en/aitana-september-4th-5th-7th-8th",
+      "acquired_at": "2026-08-26T04:13:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/palau-sant-jordi-barcelona-01/evidence/event-aitana.html"
+    },
+    {
+      "evidence_id": "palau-sant-jordi-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/anella-olimpica.test.mjs) re-parses the retained evidence above with the actual collector code (ingestion/anella-olimpica/discovery.mjs, ingestion/anella-olimpica/observation-adapter.mjs) and asserts the exact fields recorded above.",
+      "acquired_from": "https://palausantjordi.barcelona/en/events",
+      "acquired_at": "2026-08-26T04:15:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/palau-sant-jordi-barcelona-01/evidence/event-aitana.html"
+    }
+  ],
+  "supersedes": null
+}

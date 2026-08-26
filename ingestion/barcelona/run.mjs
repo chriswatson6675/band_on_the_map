@@ -1,29 +1,34 @@
 #!/usr/bin/env node
-// BARCELONA-30-VENUE-POPULATION-01 — the one manual entry point this
-// package adds: `npm run ingest:barcelona`.
+// BARCELONA-30-VENUE-POPULATION-01, extended by
+// BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02 — the one manual
+// entry point this package adds: `npm run ingest:barcelona`.
 //
-// Orchestrates Barcelona's own bounded, 15-source pipeline, mirroring
+// Orchestrates Barcelona's own bounded, 23-source pipeline (15 from the
+// original package + 8 added by -02), mirroring
 // ingestion/lisbon-subset/run.mjs's exact pattern (never touching it,
 // or ingestion/lisbon-porto/run.mjs, or the unattended runner — Barcelona
 // is a wholly separate, parallel entry point):
 //
 //   selected sources/barcelona.json registry entries
-//     -> acquire first-party source records (live HTTP, these 15
-//        sources only — 3 reusable collector families
+//     -> acquire first-party source records (live HTTP, these 23
+//        sources only — reusable collector families
 //        [ingestion/events-calendar-api/, ingestion/json-ld/,
-//        ingestion/fourvenues/] plus 5 small bespoke collectors)
+//        ingestion/fourvenues/, ingestion/sanity/, ingestion/rss/]
+//        plus a handful of small bespoke/venue-specific collectors)
 //     -> adapt each into the existing Observation model
 //     -> resolve venues (ingestion/venue/resolver.mjs, unchanged;
 //        every Barcelona source resolves via the DATA-DRIVEN table,
 //        venues/source-venue-mappings.json — no new hardcoded resolver
 //        function was added)
 //     -> project resolved listings into map markers
-//        (ingestion/map/publication.mjs's buildSpainMarkers())
+//        (ingestion/map/publication.mjs's buildSpainMarkers(), including
+//        the operator manual-coordinate override layer for an
+//        ADDRESS_ONLY venue — see venues/manual-coordinates.json)
 //     -> regenerate a Barcelona live-run proof output
 //     -> emit a human-readable per-source run summary
 //
 // This is a live-network, manually-triggered script — real HTTP
-// requests to the 15 registry sources below, and only those sources.
+// requests to the 23 registry sources below, and only those sources.
 // Every acquisition failure is caught per-source and reported; the run
 // continues for every other source. No fallback/synthetic data is ever
 // substituted for a failed source (matching ingestion/lisbon-porto/
@@ -39,7 +44,7 @@ import { fetchAllEvents } from "../events-calendar-api/fetch-all.mjs";
 import { toObservations as eventsCalendarToObservations } from "../events-calendar-api/observation-adapter.mjs";
 import { filterByronMusicRecords } from "../byron/filter.mjs";
 
-import { extractEventNodes, normaliseJsonLdEvent } from "../json-ld/parse.mjs";
+import { extractEventNodes, normaliseJsonLdEvent, filterMusicEventNodes } from "../json-ld/parse.mjs";
 import { toObservations as jsonLdToObservations, toObservation as jsonLdToObservation } from "../json-ld/observation-adapter.mjs";
 
 import { fetchFourvenuesEvents } from "../fourvenues/fetch.mjs";
@@ -60,8 +65,23 @@ import { parseSalaApoloScheduleLinks } from "../sala-apolo/discovery.mjs";
 import { parseSantJordiListingLinks, parseSantJordiEventPage } from "../sant-jordi-club/discovery.mjs";
 import { toObservations as santJordiToObservations } from "../sant-jordi-club/observation-adapter.mjs";
 
+import { parseAnellaOlimpicaListingLinks, parseAnellaOlimpicaEventPage } from "../anella-olimpica/discovery.mjs";
+import { toObservations as anellaOlimpicaToObservations } from "../anella-olimpica/observation-adapter.mjs";
+
+import { buildRazzmatazzQueryUrl, parseRazzmatazzLiveEvents } from "../razzmatazz/discovery.mjs";
+import { toObservations as razzmatazzToObservations } from "../razzmatazz/observation-adapter.mjs";
+
+import { fetchAuditoriEvents, filterAuditoriMusicEvents, normaliseAuditoriRecord } from "../auditori-barcelona/discovery.mjs";
+import { toObservations as auditoriToObservations } from "../auditori-barcelona/observation-adapter.mjs";
+
+import { parseJazzsiConcertLinks } from "../jazzsi/discovery.mjs";
+
+import { fetchSalaUploadEventLinks, parseSalaUploadEventPage } from "../sala-upload/discovery.mjs";
+import { toObservation as salaUploadToObservation } from "../sala-upload/observation-adapter.mjs";
+
 import { resolveObservation } from "../venue/resolver.mjs";
 import { buildSpainMarkers } from "../map/publication.mjs";
+import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUTPUT_PATH = resolve(ROOT, "fixtures/map/barcelona-30-venue-population-01-live-run-proof.json");
@@ -82,6 +102,15 @@ export const BARCELONA_SOURCE_IDS = [
   "la-paloma-barcelona",
   "sala-apolo-barcelona",
   "sant-jordi-club-barcelona",
+  // BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02 additions:
+  "razzmatazz-barcelona",
+  "palau-sant-jordi-barcelona",
+  "estadi-olimpic-lluis-companys-barcelona",
+  "l-auditori-barcelona",
+  "jazzsi-barcelona",
+  "sala-upload-barcelona",
+  "sinestesia-barcelona",
+  "deskomunal-barcelona",
 ];
 
 async function loadRegistryEntry(entries, sourceId) {
@@ -328,6 +357,162 @@ async function collectSantJordiClub() {
   return { rawRecordCount: candidates.length, observations, notes };
 }
 
+// BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02 — new collectors below.
+
+// ---------------------------------------------------------------------
+// Tier 5 — ingestion/sanity/, a new reusable generic family for
+// Sanity.io-backed sources (Razzmatazz).
+// ---------------------------------------------------------------------
+
+async function collectRazzmatazz() {
+  const fromDate = new Date().toISOString().slice(0, 10);
+  const url = buildRazzmatazzQueryUrl(fromDate);
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseRazzmatazzLiveEvents(res.text);
+  const observations = razzmatazzToObservations(records, { retrievedAt: res.retrievedAt, sourceUrl: url });
+  return { rawRecordCount: records.length, observations, notes: [] };
+}
+
+// ---------------------------------------------------------------------
+// Tier 6 — ingestion/anella-olimpica/, a new generic, hall-agnostic
+// sibling of ingestion/sant-jordi-club/ (left byte-for-byte unchanged),
+// reused by TWO further sources sharing the same Anella Olímpica listing.
+// ---------------------------------------------------------------------
+
+async function collectAnellaOlimpicaHall(sourceId, expectedHall) {
+  const listingUrl = "https://palausantjordi.barcelona/en/events";
+  const listingRes = await fetchText(listingUrl, {});
+  if (!listingRes.ok) throw new Error(`HTTP ${listingRes.status} from ${listingUrl}`);
+  const candidates = parseAnellaOlimpicaListingLinks(listingRes.text);
+
+  const records = [];
+  const notes = [];
+  for (const { slug, url } of candidates) {
+    const pageRes = await fetchText(url, {});
+    if (!pageRes.ok) {
+      notes.push(`${url}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    const record = parseAnellaOlimpicaEventPage(pageRes.text, { slug, url });
+    if (record && record.hall === expectedHall) records.push(record);
+  }
+  notes.push(`${candidates.length} candidate link(s) crawled from the shared Anella Olímpica listing; ${records.length} discriminated to ${expectedHall} specifically`);
+
+  const observations = anellaOlimpicaToObservations(records, { source_id: sourceId }, { retrievedAt: listingRes.retrievedAt, sourceUrl: listingUrl });
+  return { rawRecordCount: candidates.length, observations, notes };
+}
+
+async function collectPalauSantJordi() {
+  return collectAnellaOlimpicaHall("palau-sant-jordi-barcelona", "Palau Sant Jordi");
+}
+
+async function collectEstadiOlimpic() {
+  return collectAnellaOlimpicaHall("estadi-olimpic-lluis-companys-barcelona", "Estadi Olímpic");
+}
+
+// ---------------------------------------------------------------------
+// Tier 7 — L'Auditori: a bespoke first-party AJAX API, cross-listing
+// several OTHER real, independently canonical Barcelona venues.
+// ---------------------------------------------------------------------
+
+async function collectLAuditori() {
+  const { records, retrievedAt, sourceUrl } = await fetchAuditoriEvents();
+  const { musicRecords, rejectedRecords } = filterAuditoriMusicEvents(records);
+  const normalised = musicRecords.map(normaliseAuditoriRecord);
+  const observations = auditoriToObservations(normalised, { retrievedAt, sourceUrl });
+  const notes = [`${records.length} raw records paginated live; ${musicRecords.length} music-programme-filtered, ${rejectedRecords.length} rejected (Social/Educational/museum-tour)`];
+  return { rawRecordCount: records.length, observations, notes };
+}
+
+// ---------------------------------------------------------------------
+// Tier 8 — JazzSí: reuses ingestion/rss/ (link discovery) +
+// ingestion/json-ld/ (event facts) unchanged, matching the Sala Apolo
+// crawl-then-JSON-LD pattern.
+// ---------------------------------------------------------------------
+
+async function collectJazzsi() {
+  const feedUrl = "https://www.jazzsi.com/concerts/feed/";
+  const feedRes = await fetchText(feedUrl, {});
+  if (!feedRes.ok) throw new Error(`HTTP ${feedRes.status} from ${feedUrl}`);
+  const eventUrls = parseJazzsiConcertLinks(feedRes.text);
+
+  const observations = [];
+  const notes = [];
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    const nodes = extractEventNodes(pageRes.text);
+    if (nodes.length === 0) {
+      notes.push(`${eventUrl}: no Event/MusicEvent JSON-LD found`);
+      continue;
+    }
+    const record = normaliseJsonLdEvent(nodes[0], { deriveId: () => lastPathSegment(eventUrl) });
+    observations.push(jsonLdToObservation(record, { source_id: "jazzsi-barcelona" }, { retrievedAt: pageRes.retrievedAt, sourceUrl: eventUrl }));
+  }
+  notes.push(`RSS feed shows a bounded near-term window (${eventUrls.length} links) — see research/source-investigations/jazzsi-barcelona-01/ for this documented limitation`);
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+// ---------------------------------------------------------------------
+// Tier 9 — Sala Upload: a bespoke WP-REST-plus-per-event-HTML-field
+// collector.
+// ---------------------------------------------------------------------
+
+async function collectSalaUpload() {
+  const { records: listRecords } = await fetchSalaUploadEventLinks();
+
+  const observations = [];
+  const notes = [];
+  for (const listRecord of listRecords) {
+    if (!listRecord.event_url) {
+      notes.push(`${listRecord.source_record_id}: no event_url`);
+      continue;
+    }
+    const pageRes = await fetchText(listRecord.event_url, {});
+    if (!pageRes.ok) {
+      notes.push(`${listRecord.event_url}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    const pageRecord = parseSalaUploadEventPage(pageRes.text);
+    observations.push(salaUploadToObservation(listRecord, pageRecord, { retrievedAt: pageRes.retrievedAt, sourceUrl: listRecord.event_url }));
+  }
+  return { rawRecordCount: listRecords.length, observations, notes };
+}
+
+// ---------------------------------------------------------------------
+// Tier 10 — Sinestesia / Deskomunal: completely reuse ingestion/json-ld/
+// unchanged (extractEventNodes + filterMusicEventNodes + normaliseJsonLdEvent),
+// matching the moog-barcelona/harlem-jazz-club-barcelona pattern, with an
+// explicit music-relevance filter for these two genuinely mixed-programme
+// venues.
+// ---------------------------------------------------------------------
+
+async function collectSinestesia() {
+  const url = "https://sinestesia.barcelona/reload/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const nodes = extractEventNodes(res.text);
+  const { musicNodes, rejectedNodes } = filterMusicEventNodes(nodes);
+  const records = musicNodes.map((node) => normaliseJsonLdEvent(node, { deriveId: (n) => n.url }));
+  const observations = jsonLdToObservations(records, { source_id: "sinestesia-barcelona" }, { retrievedAt: res.retrievedAt, sourceUrl: url });
+  return { rawRecordCount: nodes.length, observations, notes: [`${musicNodes.length} music-relevant, ${rejectedNodes.length} rejected (exhibitions/placeholders/unnamed nights)`] };
+}
+
+async function collectDeskomunal() {
+  const url = "https://ladeskomunal.coop/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const nodes = extractEventNodes(res.text);
+  const { musicNodes, rejectedNodes } = filterMusicEventNodes(nodes);
+  const records = musicNodes.map((node) => normaliseJsonLdEvent(node, { deriveId: (n) => n.url }));
+  const observations = jsonLdToObservations(records, { source_id: "deskomunal-barcelona" }, { retrievedAt: res.retrievedAt, sourceUrl: url });
+  return { rawRecordCount: nodes.length, observations, notes: [`${musicNodes.length} music-relevant, ${rejectedNodes.length} rejected (non-music)`] };
+}
+
 const COLLECTORS = {
   "jamboree-barcelona": collectJamboree,
   "robadors-23-barcelona": collectRobadors23,
@@ -344,6 +529,14 @@ const COLLECTORS = {
   "la-paloma-barcelona": collectLaPaloma,
   "sala-apolo-barcelona": collectSalaApolo,
   "sant-jordi-club-barcelona": collectSantJordiClub,
+  "razzmatazz-barcelona": collectRazzmatazz,
+  "palau-sant-jordi-barcelona": collectPalauSantJordi,
+  "estadi-olimpic-lluis-companys-barcelona": collectEstadiOlimpic,
+  "l-auditori-barcelona": collectLAuditori,
+  "jazzsi-barcelona": collectJazzsi,
+  "sala-upload-barcelona": collectSalaUpload,
+  "sinestesia-barcelona": collectSinestesia,
+  "deskomunal-barcelona": collectDeskomunal,
 };
 
 async function acquireAll(sourceIds, registryEntries) {
@@ -378,7 +571,7 @@ export async function acquireBarcelona() {
   return { barcelonaRegistry, barcelonaResults, barcelonaObservations };
 }
 
-export function summariseBarcelona({ sourceResults, observations, venues, sourceRegistry }) {
+export function summariseBarcelona({ sourceResults, observations, venues, sourceRegistry, manualCoordinatesByVenueId }) {
   const resolutions = observations.map((observation) => ({ observation, resolution: resolveObservation(observation) }));
   const resolvedCount = resolutions.filter((r) => r.resolution.resolution_status === "RESOLVED").length;
   const unresolvedCount = resolutions.length - resolvedCount;
@@ -386,7 +579,7 @@ export function summariseBarcelona({ sourceResults, observations, venues, source
     .filter((r) => r.resolution.resolution_status !== "RESOLVED")
     .map((r) => ({ source_id: r.observation.source_id, source_record_id: r.observation.source_record_id, title: r.observation.title, venue_name: r.observation.venue_name }));
 
-  const markers = buildSpainMarkers({ barcelonaObservations: observations, barcelonaVenues: venues, barcelonaSourceRegistry: sourceRegistry });
+  const markers = buildSpainMarkers({ barcelonaObservations: observations, barcelonaVenues: venues, barcelonaSourceRegistry: sourceRegistry, manualCoordinatesByVenueId });
   const displayListingCount = markers.reduce((sum, m) => sum + m.display_listings.length, 0);
 
   return {
@@ -405,6 +598,14 @@ export function summariseBarcelona({ sourceResults, observations, venues, source
 
 async function main() {
   const barcelonaVenues = JSON.parse(await readFile(resolve(ROOT, "venues/barcelona.json"), "utf8"));
+  // BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02: load the canonical
+  // manual-coordinate override store, matching
+  // ingestion/lisbon-porto/run.mjs's own convention exactly — needed so
+  // an ADDRESS_ONLY Barcelona venue with an operator-entered coordinate
+  // (KU Barcelona) becomes map-eligible via the same governed mechanism.
+  const manualStore = await loadManualCoordinateStore();
+  const manualCoordinatesByVenueId = new Map(manualStore.entries.map((entry) => [entry.venue_id, entry]));
+
   const { barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireBarcelona();
 
   const summary = summariseBarcelona({
@@ -412,11 +613,12 @@ async function main() {
     observations: barcelonaObservations,
     venues: barcelonaVenues.venues,
     sourceRegistry: barcelonaRegistry.entries,
+    manualCoordinatesByVenueId,
   });
 
   const proof = {
-    label: "BARCELONA-30-VENUE-POPULATION-01 live run proof — a point-in-time snapshot, NOT deterministic fixture data",
-    note: "Generated by ingestion/barcelona/run.mjs from real, live HTTP acquisition against the 15 bounded Barcelona sources. Re-running this command later will legitimately produce different counts as each source's own real-world listings change.",
+    label: "BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02 live run proof — a point-in-time snapshot, NOT deterministic fixture data",
+    note: "Generated by ingestion/barcelona/run.mjs from real, live HTTP acquisition against the 23 bounded Barcelona sources. Re-running this command later will legitimately produce different counts as each source's own real-world listings change.",
     run_at: new Date().toISOString(),
     barcelona: summary,
   };
