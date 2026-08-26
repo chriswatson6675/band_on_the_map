@@ -4,7 +4,7 @@
   "investigated_at": "2026-08-26T12:23:00Z",
   "investigator": {
     "type": "AI",
-    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage, its 'Musikprogramm' navigation page, and the current month's own hand-authored programme page (a distinct static HTML file per month, e.g. /program/08_2026/08_26.html). No CMS, JS framework, or events plugin of any kind is present — this is entirely hand-authored, table-layout-era static HTML."
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage, its 'Musikprogramm' navigation page, and the current month's own hand-authored programme page (a distinct static HTML file per month, e.g. /program/08_2026/08_26.html). No CMS, JS framework, or events plugin of any kind is present — this is entirely hand-authored, table-layout-era static HTML. Re-verified live on the same day (2026-08-26): the homepage and 'Musikprogramm' page were re-fetched with a plain curl GET and found byte-identical to the originally retained evidence; the 'Musikprogramm' page still links to exactly two real month-pages (August 2026, September 2026), and a direct probe of the next month's URL shape (program/10_2026/10_26.html) returned a genuine HTTP 404 — this site publishes a rolling ~2-month window, not further ahead. The September 2026 page was newly retained and both retained month-pages were used to build and offline-prove a real STATIC_EVENT_LIST parser (ingestion/junction-bar/observation-adapter.mjs, proved by tests/junction-bar.test.mjs), harvesting 19 real, current event observations."
   },
   "probe_history": [
     {
@@ -39,6 +39,14 @@
       "status": "CONFIRMED",
       "confidence": "MEDIUM",
       "evidence_refs": ["ev-august-program"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://junction-bar.de/program/09_2026/09_26.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-september-program"]
     }
   ],
   "field_assessment": {
@@ -46,26 +54,26 @@
       "state": "PROVEN",
       "value": "Zora y las Vampiras",
       "basis": "DIRECT_SOURCE",
-      "notes": "Each act's own <p class=\"Stil1222\">{name}</p> heading states its name directly. Sampled representative value from the 5.8. Wednesday row (a double bill: 'Zora y las Vampiras' + 'Lemon Eye'); the same per-act heading structure repeats across all 8 sampled date rows, though the surrounding markup is deeply malformed hand-authored HTML (unclosed/mismatched <strong> tags) that a real parser would need to tolerate, not assume is well-formed.",
-      "evidence_refs": ["ev-august-program"]
+      "notes": "Each act's own <p class=\"Stil1222\">{name}</p> (or the sibling style-class family Stil12221/Stil122211/Stil12222, all confirmed by grepping both retained month-pages) heading states its name directly. Sampled representative value from the 5.8. Wednesday row (a double bill: 'Zora y las Vampiras' + 'Lemon Eye'); the same per-act heading structure repeats across all sampled date rows, though the surrounding markup is deeply malformed hand-authored HTML (unclosed/mismatched <strong> tags) that a real parser must tolerate, not assume is well-formed. A tolerant, defensive extractor (ingestion/junction-bar/observation-adapter.mjs) was written and offline-proved (ev-offline-proof / tests/junction-bar.test.mjs) against both retained month-pages, correctly extracting 19 real titles (including one row, 'ABSCHLUSSKONZERT', whose title is not wrapped in the Stil122x class family but is stated as a quoted &quot;Title&quot; inside a <strong> — handled as an explicit, narrow fallback, not guessed).",
+      "evidence_refs": ["ev-august-program", "ev-september-program", "ev-offline-proof"]
     },
     "start_date": {
       "state": "PROVEN",
       "value": "2026-08-05",
       "basis": "DETERMINISTIC_CONTEXT",
-      "notes": "The page's own heading states 'August 2026 music program' exactly once (<div id=\"LayoutDiv2\"> <strong>August 2026 music program</strong> </div>), governing every date row on this one physical month-page. Each date row itself states only day.month ('5.8.' on the sampled row) plus a day-of-week name, never a year. Combining the page heading's month/year with the row's own day.month via a fixed rule yields exactly one result; this page-scoped heading-governs-every-row pattern is the same shape as this project's own canonical v1.2 worked example (example-deterministic-context-ready-01).",
-      "evidence_refs": ["ev-august-program"],
+      "notes": "The page's own heading states 'August 2026 music program' exactly once (<div id=\"LayoutDiv2\"> <strong>August 2026 music program</strong> </div>). Each date row itself states its own day AND month directly ('5.8.' = day 5, month 8, on the sampled row) plus a day-of-week name, but never a year — only the year is taken from the page heading. Combining the row's own day+month with the heading's year via a fixed rule yields exactly one result; this is the same shape as this project's own canonical v1.2 worked example (example-deterministic-context-ready-01). Re-verified and refined during the 2026-08-26 second-pass follow-up: the newly retained September 2026 page (ev-september-program) contains two real rows ('2.10.' / '3.10.') whose own month digit is October even though this physical page's own heading says 'September 2026' — i.e. the page heading does NOT reliably govern every row's month, only its year. The derivation rule below was written, and is offline-proved (ev-offline-proof / tests/junction-bar.test.mjs), to rely only on the row's own day+month digits for exactly this reason — never on the heading's month. One honest residual limitation, not yet exercised by any retained evidence: a row whose own month is earlier than the page's nominal month (e.g. a '3.1.' row appearing on a December page, implying the following January) would need the FOLLOWING year, not the heading's own year — this year-rollover case has not been observed in either retained month-page and is not handled; it is flagged here rather than guessed at.",
+      "evidence_refs": ["ev-august-program", "ev-september-program", "ev-offline-proof"],
       "derivation": {
-        "rule": "The page's own single heading states '<Month> <Year> music program' and governs every dated event row on this one physical per-month HTML page. Each row's own '<D>.<M>.' (day.month, no year) is combined with the heading's year to yield <Year>-<MM>-<DD>. Exactly one heading exists per page (one physical file per calendar month), so the combination is unambiguous.",
-        "inputs": ["August 2026 music program (page heading)", "5.8. WEDNESDAY (row's own day.month + weekday name)"]
+        "rule": "The page's own single heading states '<Month> <Year> music program' once per physical per-month HTML page and supplies ONLY the year context. Each row's own '<D>.<M>.' states its own day and month directly (never a year); the row's own day and month are combined with the heading's own year to yield <Year>-<MM>-<DD>. The heading's own month text is never used for this combination, precisely because a row's own month can genuinely differ from the page's nominal month (see notes) — only the heading's year is treated as governing.",
+        "inputs": ["August 2026 music program (page heading, year only)", "5.8. WEDNESDAY (row's own day+month digits + weekday name)"]
       }
     },
     "time": {
       "state": "PARTIAL",
       "value": null,
       "basis": null,
-      "notes": "The page states a general 'SHOWTIMES: SUN-THU 21:00 / FRI & SAT 22:00' block once near the top, and SOME (not all) individual date rows additionally embed an explicit time inline in their own malformed markup (e.g. the sampled 14.8. FRIDAY row literally contains '---- 21:00 ----' inline). Because this is inconsistent across rows, floating local (no timezone), and the general SHOWTIMES block's applicability to any single row is not a clean 1:1 structural containment the way the date heading is, time is retained honestly as PARTIAL rather than promoted to a precise PROVEN value for every record.",
-      "evidence_refs": ["ev-august-program"]
+      "notes": "The page states a general 'SHOWTIMES: SUN-THU 21:00 / FRI & SAT 22:00' block once near the top, and SOME (not all) individual date rows additionally embed an explicit time inline in their own malformed markup — the digits are frequently split from the surrounding '----' markers by nested empty <strong> tags (e.g. the sampled 14.8. FRIDAY row's own header cell contains '----', then several empty nested <strong class=\"datum\"> tags, then '21:00 ----'; a parser must tag-strip before matching it). Because this is inconsistent across rows, floating local (no timezone), and the general SHOWTIMES block's applicability to any single row is not a clean 1:1 structural containment the way the date heading is — worse, at least one sampled row (14.8., a Friday) states an explicit inline time (21:00) that directly CONTRADICTS the general FRI/SAT rule (22:00), proving the general block cannot be mechanically trusted as context — time is retained honestly as PARTIAL rather than promoted to a precise PROVEN value for every record. The adapter (ev-offline-proof) only ever uses an explicit per-row inline time (FLOATING_LOCAL certainty); when absent it leaves the observation at DATE_ONLY certainty rather than falling back to the general SHOWTIMES text.",
+      "evidence_refs": ["ev-august-program", "ev-offline-proof"]
     },
     "end": {
       "state": "NOT_PRESENT",
@@ -86,8 +94,8 @@
       "value": null,
       "basis": null,
       "derivation": null,
-      "notes": "Unlike every other venue investigated in this Berlin trial, Junction Bar exposes NO per-event permalink/slug/id of any kind — events are just rows within one shared static month-page, with no individual detail URL. Honestly left UNKNOWN rather than invented. An alternative identity strategy IS available and documented here for a future collector build: a composite key of (source page URL + row date + act title(s)) would be stable within one month-page, since the page itself is a stable, dated, hand-published artifact per month — but this was not independently verified by re-fetching the same page on a later date to confirm rows never get silently edited/reordered, so it is not claimed as PROVEN.",
-      "evidence_refs": ["ev-august-program"]
+      "notes": "Unlike every other venue investigated in this Berlin trial, Junction Bar exposes NO per-event permalink/slug/id of any kind — events are just rows within one shared static month-page, with no individual detail URL. Honestly left UNKNOWN rather than invented. An alternative identity strategy is now genuinely IMPLEMENTED (not merely proposed) and offline-proved (ev-offline-proof / tests/junction-bar.test.mjs): ingestion/junction-bar/observation-adapter.mjs derives source_record_id as a composite key of (ISO date + a slugified version of the act's own title text), e.g. '2026-08-14__replicat'. This was verified reproducible and collision-free across all 19 real cards harvested from both retained month-pages, including same-night double-bills (two distinct acts on 2026-08-05 correctly yield two distinct ids). This strategy is still NOT claimed PROVEN/stable per this policy's stable-identifier rule: it has not been empirically verified by re-fetching the same page on a later date to confirm rows are never silently re-ordered or re-titled, and the source itself never documents any identifier as stable. state remains UNKNOWN by design, satisfying the activation gate via its documented (and now implemented + offline-proved) alternative rather than via a false PROVEN claim.",
+      "evidence_refs": ["ev-august-program", "ev-september-program", "ev-offline-proof"]
     },
     "event_url": {
       "state": "NOT_PRESENT",
@@ -107,16 +115,20 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "MEDIUM",
-    "evidence_refs": ["ev-august-program"],
+    "evidence_refs": ["ev-august-program", "ev-september-program", "ev-offline-proof"],
     "blockers": [
       {
         "severity": "MINOR",
-        "description": "The underlying HTML is deeply malformed hand-authored markup (unclosed/mismatched <strong> tags, inconsistent inline time placement) that a real parser implementation would need to tolerate defensively; this does not block investigation but should inform collector design effort/confidence, and is why collector_assessment.confidence is MEDIUM rather than HIGH despite the data path itself being CONFIRMED."
+        "description": "The underlying HTML is deeply malformed hand-authored markup (unclosed/mismatched <strong> tags, inconsistent inline time placement) that a real parser implementation would need to tolerate defensively; this does not block investigation but should inform collector design effort/confidence, and is why collector_assessment.confidence is MEDIUM rather than HIGH despite the data path itself being CONFIRMED. A real, offline-proved defensive parser (ingestion/junction-bar/observation-adapter.mjs) now exists and correctly tolerates this markup across both retained months (19/19 real cards extracted, 0 fabricated fields)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "start_date's DETERMINISTIC_CONTEXT derivation takes ONLY the year from a physical month-page's own heading and the day+month from each row's own digits (see field_assessment.start_date.notes) — this correctly handles the observed cross-month spillover (October rows on the September page) but has an unexercised, unhandled year-rollover edge case (a row whose own month is earlier than the page's nominal month, e.g. a January row on a December page) that has never been observed in retained evidence and is not silently guessed at. Flagged for future collector-build attention, not a current CRITICAL blocker."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN directly from retained evidence.",
       "acquisition_class STATIC_HTML, a resolved supported class, with a CONFIRMED public data path (8 real, current dated rows sampled from the live current-month page).",
@@ -124,9 +136,10 @@
       "source_record_id and event_url are honestly NOT_PRESENT/UNKNOWN rather than invented — this source genuinely does not expose a per-event permalink; an alternative composite-key identity strategy is documented in source_record_id.notes for future collector-build follow-up, satisfying the activation-gate's 'documented alternative' allowance even though this investigation does not itself reach activation.",
       "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary — flagged MEDIUM confidence given the markup quality (a MINOR blocker, not CRITICAL).",
       "No unresolved CRITICAL blocker.",
-      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 (and, for the DETERMINISTIC_CONTEXT start_date field specifically, the v1.2 field-specific refinement of gate 9) requires. Building and offline-proving a defensive STATIC_EVENT_LIST parser — tolerant of this site's malformed markup — against the retained evidence/august-program.html fixture is separate, explicitly follow-up work."
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 (and, for the DETERMINISTIC_CONTEXT start_date field specifically, the v1.2 field-specific refinement of gate 9) requires. Building and offline-proving a defensive STATIC_EVENT_LIST parser — tolerant of this site's malformed markup — against the retained evidence/august-program.html fixture is separate, explicitly follow-up work.",
+      "2026-08-26 second-pass follow-up: the live source was re-verified unchanged (homepage and Musikprogramm page byte-identical to originally retained evidence); the real URL pattern for the current rolling publication window was re-derived and confirmed live (August + September 2026 both CONFIRMED; October 2026 confirmed genuinely not yet published, a real HTTP 404, not a broken/changed site). The real STATIC_EVENT_LIST parser (ingestion/junction-bar/observation-adapter.mjs) was built and offline-proved (tests/junction-bar.test.mjs, 8/8 passing) against both retained month-pages, deterministically reproducing 19 real event observations with zero fabricated fields — including correctly handling a genuine cross-month edge case (two real rows on the September page belong to October, because each row's own day+month digits govern, not the page's nominal month; the DETERMINISTIC_CONTEXT derivation rule was refined and re-documented in field_assessment.start_date to make this explicit) and correctly excluding non-music 'PRIVAT PARTY' rows rather than inventing a title for them. The source_record_id composite-key strategy (ISO date + slugified title) is now genuinely implemented and offline-proved collision-free across all 19 cards, though its state remains honestly UNKNOWN (not PROVEN) per the stable-identifier rule, satisfying activation gate 6 via its documented alternative. DETERMINISTIC_DERIVATION offline-proof evidence now retained (ev-offline-proof) — gate 9, and its v1.2 field-specific refinement for start_date, are both satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-august-program"]
+    "evidence_refs": ["ev-august-program", "ev-september-program", "ev-offline-proof"]
   },
   "evidence": [
     {
@@ -160,6 +173,28 @@
       "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
       "content_type": "text/html",
       "byte_faithful": true,
+      "path": "research/source-investigations/junction-bar-berlin-01/evidence/august-program.html"
+    },
+    {
+      "evidence_id": "ev-september-program",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own September 2026 programme page, byte-retained in full (re-verified via the same real URL pattern derived from ev-musikprogramm): 9 real, current dated music-event rows (plus 3 non-music 'PRIVAT PARTY' rows, correctly excluded from extraction), including two rows ('2.10.', '3.10.') whose own day+month digits place them in October even though this physical page's own single heading states only 'September 2026 music program' — direct evidence that a page's heading governs only the YEAR context for its rows, not the month.",
+      "acquired_from": "https://junction-bar.de/program/09_2026/09_26.html",
+      "acquired_at": "2026-08-26T20:35:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/junction-bar-berlin-01/evidence/september-program.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/junction-bar.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/junction-bar-berlin/august-program.html, fixtures/junction-bar-berlin/september-program.html — byte-identical copies of ev-august-program/ev-september-program) via ingestion/junction-bar/observation-adapter.mjs and reproducing the exact claimed field values deterministically: 19 real event cards across both months, correct DETERMINISTIC_CONTEXT date derivation including the October-spillover edge case, correct exclusion of non-music 'PRIVAT PARTY' rows, correct FLOATING_LOCAL/DATE_ONLY certainty selection, and a collision-free composite source_record_id across all 19 cards.",
+      "acquired_from": "tests/junction-bar.test.mjs",
+      "acquired_at": "2026-08-26T20:36:48Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
       "path": "research/source-investigations/junction-bar-berlin-01/evidence/august-program.html"
     }
   ],

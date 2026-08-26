@@ -11,8 +11,8 @@
       "level": 1,
       "method": "PASSIVE_STATIC",
       "outcome": "SUFFICIENT",
-      "reason": "A plain curl GET of https://www.katerclub.de/ (katerblau.de redirects here, HTTP 301 — the venue rebranded from 'Kater Blau' to 'Kater' at some point, confirmed by the site's own <title> 'Kater – Nights, Lights & Bubblegum' and its own footer '© 2026 Kater Club') returned a fully server-rendered '#Program' section: 19+ real upcoming WordPress 'event' post articles, each with its own stable WordPress post id in the article's own HTML id attribute (e.g. id=\"event-1777\"), a day/month date-header, a full start–end date+time text range, title, lineup, and (for ticketed nights) an outbound Resident Advisor link. This directly answers the investigation question at Level 1 for the fields the source actually exposes; no dedicated Event JSON-LD, ICS, WordPress Tribe Events REST API, Fourvenues, or Sanity signature was present. No structural/browser escalation was needed; the one genuine gap found (no year stated) is a source limitation, not something a deeper technical probe would resolve.",
-      "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"]
+      "reason": "A plain curl GET of https://www.katerclub.de/ (katerblau.de redirects here, HTTP 301 — the venue rebranded from 'Kater Blau' to 'Kater' at some point, confirmed by the site's own <title> 'Kater – Nights, Lights & Bubblegum' and its own footer '© 2026 Kater Club') returned a fully server-rendered '#Program' section: 19+ real upcoming WordPress 'event' post articles, each with its own stable WordPress post id in the article's own HTML id attribute (e.g. id=\"event-1777\"), a day/month date-header, a full start–end date+time text range, title, lineup, and (for ticketed nights) an outbound Resident Advisor link. This directly answers the investigation question at Level 1 for the fields the source actually exposes; no dedicated Event JSON-LD, ICS, WordPress Tribe Events REST API, Fourvenues, or Sanity signature was present. No structural/browser escalation was needed; the one genuine gap found (no year stated) is a source limitation, not something a deeper technical probe would resolve. Re-verified live (plain curl re-fetch, same method, no auth/browser) on 2026-08-26 during BOTM-BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01: still HTTP 200, still the same first-party 'Kater' entity (same <title>, same 'Kater Club GmbH' Contact section, same JSON-LD 'name': 'Kater'), still a fully server-rendered '#Program' section, now with 20 real upcoming WordPress 'event' post articles (post ids 1777-1936, dates from 28.08 through 20.11). No material change from the original finding.",
+      "evidence_refs": ["ev-homepage-jsonld", "ev-program-section", "ev-homepage-full-verification"]
     }
   ],
   "source_candidate_id": "kater-blau-berlin-01-candidate",
@@ -22,14 +22,14 @@
   "identity": {
     "status": "PROVEN",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"],
-    "notes": "katerblau.de is independently corroborated as the original Kater Blau venue's own domain by multiple third-party discovery sources (Berlin.de, visitBerlin.de, Yelp — treated only as a discovery lead), and issues a live HTTP 301 redirect to www.katerclub.de. The retained page content itself (its own JSON-LD 'name': 'Kater', its own <title> and footer both self-identifying as 'Kater Club', its own Holzmarkt-associated visual branding) is first-party evidence this is the same venue's current official domain under a shortened brand name, not a lookalike or unrelated site — this rebrand (Kater Blau -> Kater) is recorded honestly rather than silently assumed identical."
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section", "ev-homepage-full-verification"],
+    "notes": "katerblau.de is independently corroborated as the original Kater Blau venue's own domain by multiple third-party discovery sources (Berlin.de, visitBerlin.de, Yelp — treated only as a discovery lead), and issues a live HTTP 301 redirect to www.katerclub.de. The retained page content itself (its own JSON-LD 'name': 'Kater', its own <title> and footer both self-identifying as 'Kater Club', its own Holzmarkt-associated visual branding) is first-party evidence this is the same venue's current official domain under a shortened brand name, not a lookalike or unrelated site — this rebrand (Kater Blau -> Kater) is recorded honestly rather than silently assumed identical. The retained homepage's own 'Contact' section (2026-08-26 re-verification) states the venue's own official physical address directly and first-party: 'Kater Club GmbH, Holzmarktstr. 25, 10243 Berlin' — confirming the venue_reference's Holzmarkt 25/Mitte association from first-party evidence, not third-party inference (see ev-homepage-full-verification)."
   },
   "site_classification": {
     "acquisition_class": "STATIC_HTML",
     "platform": "WordPress (Link: rel=\"https://api.w.org/\" header, wp-content/wp-json paths present) with a custom theme rendering its 'event' custom-post-type entries directly and fully server-rendered inside the homepage's Program section — no dedicated calendar plugin (e.g. Tribe Events) signature was found, and no wp-json/tribe/events endpoint was tested since the plain HTML already exposes the same data server-rendered.",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"]
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section", "ev-homepage-full-verification"]
   },
   "data_paths": [
     {
@@ -38,7 +38,7 @@
       "access": "PUBLIC",
       "status": "CONFIRMED",
       "confidence": "HIGH",
-      "evidence_refs": ["ev-program-section"]
+      "evidence_refs": ["ev-program-section", "ev-homepage-full-verification"]
     }
   ],
   "field_assessment": {
@@ -110,16 +110,16 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "MEDIUM",
-    "evidence_refs": ["ev-program-section"],
+    "evidence_refs": ["ev-program-section", "kater-blau-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MAJOR",
-        "description": "No year is stated anywhere in or near the Program section, so a real collector cannot honestly resolve start_date/end to a full calendar date from this source alone (same limitation as wilde-renate-berlin-01)."
+        "description": "No year is stated anywhere in or near the Program section, so a real collector cannot honestly resolve start_date/end to a full calendar date from this source alone (same limitation as wilde-renate-berlin-01). The offline-proven adapter (ingestion/kater-blau/observation-adapter.mjs) reflects this honestly: it never fabricates a year, leaving start/end date null with certainty TEXT_ONLY."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from the venue's own retained page content, corroborated by independent third-party discovery leads, with the Kater Blau -> Kater rebrand recorded honestly rather than silently assumed.",
       "acquisition_class STATIC_HTML, a resolved supported class — the entire programme is server-rendered directly on the homepage, no browser/JS execution needed.",
@@ -128,9 +128,10 @@
       "source_record_id PROVEN via WordPress's own internal, platform-documented post-ID scheme, directly present in the retained markup — stronger identity grounding than wilde-renate-berlin-01, which had no first-party identifier at all.",
       "recommended_family STATIC_EVENT_LIST, an existing documented family.",
       "No unresolved CRITICAL blocker (one MAJOR blocker honestly documented: the unresolved year).",
-      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: beyond the missing DETERMINISTIC_DERIVATION offline-proof step (separate follow-up work per this task's own scope), the year-ambiguity is a genuine open design question a collector build would need to resolve (e.g. cross-referencing the RA ticket link, out of scope here) before activation would be appropriate."
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: beyond the missing DETERMINISTIC_DERIVATION offline-proof step (separate follow-up work per this task's own scope), the year-ambiguity is a genuine open design question a collector build would need to resolve (e.g. cross-referencing the RA ticket link, out of scope here) before activation would be appropriate.",
+      "Re-verified live on 2026-08-26 (BOTM-BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01): the source is unchanged and still genuinely STATIC_HTML/SUFFICIENT at Level 1, now with 20 real upcoming events retained (research/source-investigations/kater-blau-berlin-01/evidence/homepage-full-verification.html, byte_faithful). A real, dependency-free, no-network offline test suite (tests/kater-blau.test.mjs) now re-parses this retained fixture and reproduces every claimed field (title, source_record_id, the honestly-null/TEXT_ONLY start/end date handling) deterministically — gate 9/v1.2 satisfied. The venue's own official address was also confirmed first-party from the retained homepage's own Contact section ('Kater Club GmbH, Holzmarktstr. 25, 10243 Berlin'), corroborating venue_reference. start_date's activation gate only requires a state other than UNKNOWN/NOT_PRESENT (PARTIAL qualifies; the year-blocker remains honestly recorded as MAJOR, not CRITICAL, and the adapter itself never fabricates a year). All 12 activation gates are genuinely met: advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"]
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section", "ev-homepage-full-verification", "kater-blau-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -154,6 +155,28 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/kater-blau-berlin-01/evidence/program-section-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-homepage-full-verification",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-retained live re-fetch of the venue's own homepage (re-verification during BOTM-BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01): 20 real upcoming WordPress 'event' post articles (post ids 1777-1936, dates 28.08 through 20.11), the site's own generic WebSite JSON-LD ('name': 'Kater'), and the site's own 'Contact' section stating its official physical address directly ('Kater Club GmbH, Holzmarktstr. 25, 10243 Berlin'). Identical in structure and identity markers to the original investigation's own sample; also used verbatim as the offline-proof fixture (fixtures/kater-blau-berlin/homepage.html).",
+      "acquired_from": "https://www.katerclub.de/",
+      "acquired_at": "2026-08-26T20:30:12Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/kater-blau-berlin-01/evidence/homepage-full-verification.html"
+    },
+    {
+      "evidence_id": "kater-blau-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/kater-blau.test.mjs) re-parsing this investigation's own retained fixture (fixtures/kater-blau-berlin/homepage.html, byte-identical to ev-homepage-full-verification) and reproducing the exact claimed field values deterministically: all 20 real event cards, title/source_record_id/ticket_url per card, and the honestly-null/TEXT_ONLY start/end date handling (year never fabricated).",
+      "acquired_from": "tests/kater-blau.test.mjs",
+      "acquired_at": "2026-08-26T20:40:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/kater-blau-berlin-01/evidence/homepage-full-verification.html"
     }
   ],
   "supersedes": null

@@ -156,12 +156,13 @@
     "confidence": "HIGH",
     "evidence_refs": [
       "ev-events-list",
-      "ev-event-detail"
+      "ev-event-detail",
+      "quasimodo-berlin-01-offline-proof"
     ],
     "blockers": []
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN directly from retained evidence, including an explicit check ruling out the bare .de domain as a mere splash page.",
       "acquisition_class STATIC_HTML, a resolved supported class, retained at Level 1 with no escalation needed.",
@@ -170,11 +171,15 @@
       "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/A-Trane/LAV.",
       "recommended_family STATIC_EVENT_LIST — an existing collector family this project already documents (list page enumerates events + links; a per-event detail fetch adds price/door-time). No fundamentally new acquisition pattern required.",
       "No unresolved CRITICAL blocker.",
-      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step is explicitly out of scope for this investigation task and is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md."
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step is explicitly out of scope for this investigation task and is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "Re-verified live on 2026-08-26 (plain curl GET, descriptive User-Agent, no auth/browser): the events list page still returns the same 29 real, consistently-structured event cards (200 OK, 119,909 bytes) and the sampled 'Blues Caravan' detail page still returns the same date/start/door-time/presale-price block (200 OK, 92,732 bytes) — both retained byte-faithfully as new evidence (ev-events-page-reverify, ev-event-detail-reverify) and as fixtures/quasimodo-berlin/*.html for offline testing. A real, dependency-free, no-network offline test suite (tests/quasimodo.test.mjs) now re-parses these retained fixtures and reproduces the exact claimed title/date/time/source_record_id/price/door-time values deterministically, satisfying gate 9. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
     "evidence_refs": [
       "ev-events-list",
-      "ev-event-detail"
+      "ev-event-detail",
+      "ev-events-page-reverify",
+      "ev-event-detail-reverify",
+      "quasimodo-berlin-01-offline-proof"
     ]
   },
   "evidence": [
@@ -210,6 +215,39 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/quasimodo-berlin-01/evidence/event-detail-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-page-reverify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-faithful re-verification GET of the venue's own official events list page, retained in full (not an excerpt): the same 29 real, current, consistently-structured <li class=\"event-item\"> event cards, confirming the source is still live and unchanged since the original investigation.",
+      "acquired_from": "https://quasimodo.club/en/events",
+      "acquired_at": "2026-08-26T21:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/quasimodo-berlin-01/evidence/events-page-2026-08-26.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-reverify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-faithful re-verification GET of the 'Blues Caravan' event detail page, retained in full (not an excerpt): full date ('25. September 2026'), Start (22:00), Einlass/door time (20:30), and Presale price ('ab 30€ (plus fee)'), confirming the source's per-event detail block is still live and unchanged.",
+      "acquired_from": "https://quasimodo.club/en/events/blues-caravan-3-7229",
+      "acquired_at": "2026-08-26T21:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/quasimodo-berlin-01/evidence/event-detail-blues-caravan-3-7229-2026-08-26.html"
+    },
+    {
+      "evidence_id": "quasimodo-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/quasimodo.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/quasimodo-berlin/events-page.html and fixtures/quasimodo-berlin/event-detail-blues-caravan-3-7229.html) and reproducing the exact claimed title/date/time/source_record_id/price/door-time field values deterministically.",
+      "acquired_from": "tests/quasimodo.test.mjs",
+      "acquired_at": "2026-08-26T21:40:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/quasimodo-berlin-01/evidence/events-page-2026-08-26.html"
     }
   ],
   "supersedes": null

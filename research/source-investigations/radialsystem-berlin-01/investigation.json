@@ -91,12 +91,12 @@
       "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
     },
     "source_record_id": {
-      "state": "PARTIAL",
-      "value": null,
-      "basis": null,
+      "state": "PROVEN",
+      "value": "zweiland__1787857200",
+      "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "The event's own URL slug (e.g. 'zweiland', from /en/veranstaltungen/zweiland/) is a stable, source-authored permalink for the PRODUCTION, but one production genuinely has multiple performance dates/times on the same page (observed: 6 dateblocks for Zweiland alone) -- so the slug alone is not unique per performance occurrence. A recommended, not-yet-empirically-verified strategy for a future collector: a compound id of {slug}+{ISO date+time from that occurrence's own dateblock}, since both halves are retained, source-authored facts on the same page. Left PARTIAL rather than promoted to PROVEN/DETERMINISTIC_CONTEXT because collision-safety of that compound key has not been empirically stress-tested against real bulk data in this investigation.",
-      "evidence_refs": ["ev-event-zweiland"]
+      "notes": "Resolved by this task's offline-proof follow-up (see radialsystem-berlin-01-offline-proof). The programme list page's own 'list' view renders one row PER PERFORMANCE OCCURRENCE (not one row per production): each row's own <a href=\"/en/veranstaltungen/{slug}/?date={unixTimestamp}\"> carries BOTH the production's permalink slug AND a second, source-authored '?date=' disambiguator for that specific occurrence, in one single retained href attribute -- not a combination of two separately-located page facts, so this is DIRECT_SOURCE, not DETERMINISTIC_CONTEXT. Compound id = '{slug}__{date-query-value}' (e.g. 'zweiland__1787857200' for Zweiland's 27 Aug 2026 21:00 performance). Empirically verified against the full retained fixture: all 28 in-scope occurrence rows (single-production '/en/veranstaltungen/{slug}/' detail pages only -- the one '/en/festivals/' umbrella-page row is out of scope, see collector_assessment notes) yield genuinely unique compound keys, including all 6 of Zweiland's own occurrences. tests/radialsystem.test.mjs asserts this uniqueness deterministically and offline.",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland", "radialsystem-berlin-01-offline-proof"]
     },
     "event_url": {
       "state": "PROVEN",
@@ -118,16 +118,16 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-programm-list", "ev-event-zweiland"],
+    "evidence_refs": ["ev-programm-list", "ev-event-zweiland", "radialsystem-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MINOR",
-        "description": "A single production/slug can carry multiple performance dates/times (a real one-to-many relationship), so a collector must emit one Observation per dateblock, not one per slug/page, and needs a real source_record_id strategy (see field_assessment.source_record_id notes) rather than reusing the slug alone."
+        "description": "RESOLVED by this task's offline-proof follow-up: a single production/slug genuinely carries multiple performance dates/times (real one-to-many), but the programme page's own 'list' view already expands one row per occurrence with its own '?date=' query disambiguator, so ingestion/radialsystem/observation-adapter.mjs emits one Observation per occurrence row using the compound source_record_id '{slug}__{date-query-value}' (see field_assessment.source_record_id). A second, narrower MINOR note for any future collector build: the programme's own '<span class=\"tag\">' category markup mixes disciplines (Dance/Exhibition/Workshop/Lecture/Family Format/Party/Music theatre alongside Concert/Concerts/Musik) and must be filtered to genuinely music-relevant tags (filterMusicEventCards()) before Observations are emitted, and the one '/en/festivals/{slug}/' festival-umbrella row on the retained page is a structurally different, unconfirmed page shape correctly excluded rather than parsed as a single production."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN directly from the venue's own retained /en/service/ page.",
       "acquisition_class STATIC_HTML, a resolved, supported class, reached entirely at Level 1.",
@@ -136,9 +136,17 @@
       "end honestly assessed NOT_PRESENT; source_record_id honestly left PARTIAL pending an empirically-verified compound-key strategy -- no fields fabricated.",
       "recommended_family STATIC_EVENT_LIST, an existing, known collector family requiring no new code family.",
       "No unresolved CRITICAL blocker.",
-      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step, which should also empirically verify the source_record_id compound-key strategy."
+      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step, which should also empirically verify the source_record_id compound-key strategy.",
+      "Second-pass offline-proof follow-up (BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01): the source was re-verified live via plain curl GET against both the programme list page and the Zweiland detail page and found byte-identical to the originally retained evidence (see ev-programm-list-reverify-2026-08-26 / ev-event-zweiland-reverify-2026-08-26) -- no drift, still genuinely live and current. ingestion/radialsystem/observation-adapter.mjs was built and offline-proved against the retained fixture (tests/radialsystem.test.mjs, all passing, no network calls), extracting 28 real, in-scope performance-occurrence rows (single-production '/en/veranstaltungen/{slug}/' detail pages only) from the retained programme page, of which 4 are genuinely music-relevant per the source's own '<span class=\"tag\">' category markup (Concert/Concerts/Musik) and 24 were honestly excluded as other disciplines (Dance/Exhibition/Workshop/Lecture/Family Format/Party/Music theatre/Performance) -- see filterMusicEventCards(). This offline reproduction also resolved the earlier PARTIAL source_record_id finding: the list view's own per-occurrence '?date=' query value, present directly in the same retained href as the production slug, yields a genuinely unique compound id for every occurrence, promoting field_assessment.source_record_id to PROVEN/DIRECT_SOURCE. Gate 9 (a DETERMINISTIC_DERIVATION evidence item, radialsystem-berlin-01-offline-proof) is now satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION -- this record still only reflects a research conclusion and does NOT edit sources/*.json, venues/berlin.json, or any registry; activation itself remains a separate, explicitly-authorised action."
     ],
-    "evidence_refs": ["ev-programm-list", "ev-event-zweiland", "ev-service-page"]
+    "evidence_refs": [
+      "ev-programm-list",
+      "ev-event-zweiland",
+      "ev-service-page",
+      "ev-programm-list-reverify-2026-08-26",
+      "ev-event-zweiland-reverify-2026-08-26",
+      "radialsystem-berlin-01-offline-proof"
+    ]
   },
   "evidence": [
     {
@@ -184,6 +192,39 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/radialsystem-berlin-01/evidence/contact-page.html"
+    },
+    {
+      "evidence_id": "ev-programm-list-reverify-2026-08-26",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Second-pass live re-verification (BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01): a fresh plain curl GET of the programme list page, byte-compared against the originally retained evidence/programm.html and confirmed byte-identical (no drift since original acquisition). This same retained file was also copied verbatim to fixtures/radialsystem-berlin/programm-page.html for offline test consumption (tests/radialsystem.test.mjs).",
+      "acquired_from": "https://www.radialsystem.de/en/programm/programm/",
+      "acquired_at": "2026-08-26T20:32:02Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/programm.html"
+    },
+    {
+      "evidence_id": "ev-event-zweiland-reverify-2026-08-26",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Second-pass live re-verification (BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01): a fresh plain curl GET of the Zweiland event detail page, byte-compared against the originally retained evidence/event-zweiland.html and confirmed byte-identical (no drift since original acquisition). This same retained file was also copied verbatim to fixtures/radialsystem-berlin/event-zweiland.html for offline test consumption.",
+      "acquired_from": "https://www.radialsystem.de/en/veranstaltungen/zweiland/",
+      "acquired_at": "2026-08-26T20:32:10Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/event-zweiland.html"
+    },
+    {
+      "evidence_id": "radialsystem-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/radialsystem.test.mjs) re-parsing this investigation's own retained programme-list fixture (fixtures/radialsystem-berlin/programm-page.html, byte-identical to evidence/programm.html) via ingestion/radialsystem/observation-adapter.mjs, reproducing the exact claimed field values deterministically: 28 real in-scope performance-occurrence rows extracted, 4 genuinely music-relevant (filterMusicEventCards()), 24 correctly excluded as other disciplines, every occurrence's compound source_record_id ('{slug}__{date-query-value}') empirically unique (including all 6 of Zweiland's own occurrences), and toObservation()/toObservations() producing valid Observations via ../observation/contract.mjs.",
+      "acquired_from": "tests/radialsystem.test.mjs",
+      "acquired_at": "2026-08-26T21:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/programm.html"
     }
   ],
   "supersedes": null

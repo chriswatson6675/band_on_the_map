@@ -39,6 +39,30 @@
       "status": "CONFIRMED",
       "confidence": "MEDIUM",
       "evidence_refs": ["ev-sep-programme"]
+    },
+    {
+      "kind": "STATIC_HTML_MONTHLY_EVENT_LIST_PAGE",
+      "url": "https://www.wabe-berlin.info/aug-2026/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-aug-programme"]
+    },
+    {
+      "kind": "STATIC_HTML_MONTHLY_EVENT_LIST_PAGE",
+      "url": "https://www.wabe-berlin.info/okt-2026/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-okt-programme"]
+    },
+    {
+      "kind": "STATIC_HTML_MONTHLY_EVENT_LIST_PAGE",
+      "url": "https://www.wabe-berlin.info/nov-2026/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-nov-programme"]
     }
   ],
   "field_assessment": {
@@ -58,8 +82,8 @@
         "rule": "The page's own single retained 'SEPTEMBER 2026' heading (appearing once near the top of the event grid, before any event rows) states the month and year that governs every event row on this page; each event's own date cell states only the weekday and day number (e.g. 'Donnerstag' / '24') plus a redundant restatement of the month name with no year. Concatenating the heading's year+month with the event cell's own day number yields exactly one unambiguous date per event.",
         "inputs": ["SEPTEMBER 2026", "24"]
       },
-      "notes": "Sampled event: 'Donnerstag 24 September, 20:00, DEFA Songbook'. No year appears anywhere within the individual event cell itself — only via the page-level heading, which this project's v1.2 deterministic-context provision explicitly covers (directly analogous to the policy's own 'heading states September 2026, card states 17' worked example).",
-      "evidence_refs": ["ev-sep-programme"]
+      "notes": "Sampled event: 'Donnerstag 24 September, 20:00, DEFA Songbook'. No year appears anywhere within the individual event cell itself — only via the page-level heading, which this project's v1.2 deterministic-context provision explicitly covers (directly analogous to the policy's own 'heading states September 2026, card states 17' worked example). Each event row does separately restate its own month name (e.g. 'September') directly, redundant with (and cross-checkable against) the heading's month — but never the year, so the heading remains load-bearing for the year component of the derivation. Re-verified 2026-08-26T21:00Z: a fresh live fetch of /sep-2026/ returned byte-identical HTML to the originally retained ev-sep-programme fixture, and the same derivation now also has a genuine offline reproduction (see ev evidence item wabe-berlin-01-offline-proof / tests/wabe.test.mjs), which mechanically re-parses the retained fixture and reproduces 2026-09-24 deterministically from the same two inputs on every run.",
+      "evidence_refs": ["ev-sep-programme", "wabe-berlin-01-offline-proof"]
     },
     "time": {
       "state": "PROVEN",
@@ -82,16 +106,16 @@
       "value": "Schönfließer Straße 7 (Saal)",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Each event's own text block directly states its specific location (most September 2026 events: 'Schönfließer Straße 7 (Saal)', the interim venue during renovation; a minority of open-air events instead directly state 'Kulturinsel Danziger Str. 101'). This is genuinely stated per event, not inherited from a single global page footer — but it is honestly volatile right now: WABE's usual/canonical address (Danziger Straße 101/105) differs from the interim address most events are actually held at during the renovation period, which matters for correctly resolving this source's events against Band on the Map's own canonical Venue record for WABE.",
-      "evidence_refs": ["ev-sep-programme"]
+      "notes": "Each event's own text block directly states its specific location (most September 2026 events: 'Schönfließer Straße 7 (Saal)', the interim venue during renovation; a minority of open-air events instead directly state 'Kulturinsel Danziger Str. 101'). This is genuinely stated per event, not inherited from a single global page footer — but it is honestly volatile right now: WABE's usual/canonical address (Danziger Straße 101/105) differs from the interim address most events are actually held at during the renovation period, which matters for correctly resolving this source's events against Band on the Map's own canonical Venue record for WABE. RE-VERIFIED 2026-08-26T21:00Z (still the current situation, not changed): the homepage and every retained monthly programme page's own footer both directly and explicitly state, under the heading 'NEUE SPIELSTÄTTE' ('new venue/performance space'), the full current interim address 'Schönfließer Straße 7, 10439 Berlin' — this is this investigation's most explicit, unambiguous statement of WABE's CURRENT operating address. The homepage also directly states, in its own text, 'Die WABE ist seit dem 1. Februar 2026 wegen Sanierungsarbeiten geschlossen' ('WABE has been closed since 1 February 2026 for renovation work') and 'Wir sind nun in der Schönfließer Straße 7 für sie da!' ('We are now at Schönfließer Straße 7 for you!'), directly confirming the displacement is still current and ongoing, not resolved. The original/canonical Danziger Straße 101 address remains in occasional use only for specific open-air Kulturinsel events, exactly as originally found — nothing about this situation has changed since the original investigation.",
+      "evidence_refs": ["ev-sep-programme", "ev-home-reverify", "ev-aug-programme", "ev-okt-programme", "ev-nov-programme"]
     },
     "source_record_id": {
       "state": "NOT_PRESENT",
       "value": null,
       "basis": null,
       "derivation": null,
-      "notes": "No stable id, slug, or permalink is exposed per event. Each event is one row within a single shared month-page; the only per-element ids visible are Jimdo's own internal CMS module ids (e.g. 'cc-m-10716706185'), which are implementation-internal editor handles, not documented or evidenced as stable public identifiers — treating one as a stable source_record_id would violate the stable-identifier rule.",
-      "evidence_refs": ["ev-sep-programme"]
+      "notes": "No stable id, slug, or permalink is exposed per event. Each event is one row within a single shared month-page; the only per-element ids visible are Jimdo's own internal CMS module ids (e.g. 'cc-m-10716706185'), which are implementation-internal editor handles, not documented or evidenced as stable public identifiers — treating one as a stable source_record_id would violate the stable-identifier rule. RE-VERIFIED 2026-08-26T21:00Z: a majority (but not all) event rows carry an 'Infos'/'Infos auf der Website des TuD' call-to-action link — some resolve to a same-site path of the shape /sep-2026/{day}/, others to a bespoke slug (e.g. /sommerfest/, /open-mic/), others to a different organisation's own separate site (theateruntermdach-berlin.de) for co-produced events, and some rows carry no link at all. This is a genuine, retained, DIRECT_EVIDENCE observation (the hrefs are present verbatim in the retained monthly-page fixtures) — but it is deliberately NOT used as this field's source_record_id, and state stays honestly NOT_PRESENT rather than PROVEN, because: (1) it is not present on every row, so no uniform strategy can be built from it alone; (2) its stability across independent fetches over time was not empirically tested/retained in this investigation (only a single snapshot exists); (3) the day-based slug shape (/sep-2026/{day}/) is not proven collision-free if two events on this page ever share the same day and both happen to carry such a link (not observed in the retained samples, but not ruled out either). ALTERNATIVE IDENTITY STRATEGY (documented per policy's stable-identifier rule and this project's gate 6): the observation-adapter (ingestion/wabe/observation-adapter.mjs) instead derives source_record_id deterministically from this source's own already-PROVEN date + time + title fields (e.g. '2026-09-24-2000-defa-songbook') — reproducible and unique across every sampled fixture (verified offline, see wabe-berlin-01-offline-proof), but explicitly NOT a source-native stable identifier, and never claimed as PROVEN at the investigation level.",
+      "evidence_refs": ["ev-sep-programme", "ev-aug-programme", "ev-okt-programme", "ev-nov-programme", "wabe-berlin-01-offline-proof"]
     },
     "event_url": {
       "state": "NOT_PRESENT",
@@ -112,8 +136,8 @@
   },
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
-    "confidence": "MEDIUM",
-    "evidence_refs": ["ev-sep-programme"],
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-sep-programme", "ev-aug-programme", "ev-okt-programme", "ev-nov-programme", "wabe-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MINOR",
@@ -126,7 +150,7 @@
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN on the venue's own first-party domain, corroborated by the district's own berlin.de institution page.",
       "acquisition_class STATIC_HTML, a resolved supported class, genuinely confirmed via a real monthly programme page with 9 real September 2026 events.",
@@ -135,9 +159,14 @@
       "source_record_id and event_url are honestly NOT_PRESENT — this source exposes no stable per-event id or dedicated event page at all, which any future collector/activation step would need to address with an explicit alternative identity strategy (e.g. a derived hash of venue+date+title), not fabricate.",
       "recommended_family STATIC_EVENT_LIST, an existing documented family; no new collector family required.",
       "No unresolved CRITICAL blocker.",
-      "No DETERMINISTIC_DERIVATION offline-proof evidence item has been produced in this investigation (writing collector/test code is explicitly out of scope for this task) — so per policy this stays READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION, pending a follow-up offline reproduction of both the static-list parse and the DETERMINISTIC_CONTEXT date derivation against the retained fixture."
+      "No DETERMINISTIC_DERIVATION offline-proof evidence item has been produced in this investigation (writing collector/test code is explicitly out of scope for this task) — so per policy this stays READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION, pending a follow-up offline reproduction of both the static-list parse and the DETERMINISTIC_CONTEXT date derivation against the retained fixture.",
+      "RE-VERIFICATION (2026-08-26T21:00Z, follow-up task): a fresh plain curl GET of the live source confirmed the September 2026 page is byte-identical to the originally retained ev-sep-programme fixture, and confirmed the interim-venue/renovation situation is unchanged and still current (WABE closed since 1 Feb 2026 for renovation, operating from the interim 'NEUE SPIELSTÄTTE' at Schönfließer Straße 7, 10439 Berlin, per the homepage's own and every monthly page's own footer text) — nothing material has changed since the original investigation.",
+      "Two further genuinely-populated future month pages (October and November 2026) were newly retained and harvested alongside the original September page and the current (August 2026) page, for 19 real event rows total across all 4 currently-discoverable, currently-populated monthly programme pages (no December 2026 page is linked from the site's own navigation yet, so it is not a currently-discoverable data path).",
+      "A real, dependency-free, no-network offline observation-adapter (ingestion/wabe/observation-adapter.mjs) and test suite (tests/wabe.test.mjs) were built and run against all 4 retained fixtures, reproducing every claimed field (including the start_date DETERMINISTIC_CONTEXT derivation) deterministically and offline — see evidence item wabe-berlin-01-offline-proof. This satisfies gate 9 and its v1.2 refinement for the start_date field's DETERMINISTIC_CONTEXT basis.",
+      "field_assessment.source_record_id.notes now explicitly documents this source's alternative identity strategy (a deterministic slug derived from this source's own already-PROVEN date + time + title fields, never claimed as a source-native stable id) — satisfying gate 6, which accepts either a PROVEN id or a documented alternative strategy.",
+      "All 12 READY_FOR_ACTIVATION gates are now honestly met. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION. This remains a research conclusion only — per docs/SOURCE_INVESTIGATION_POLICY.md's 'Investigation and activation are separate', it does not itself edit sources/*.json, venues/berlin.json, or any registry; turning this into an enabled source is a separate, explicitly-authorised action outside this investigation's scope."
     ],
-    "evidence_refs": ["ev-home", "ev-sep-programme"]
+    "evidence_refs": ["ev-home", "ev-sep-programme", "ev-home-reverify", "ev-aug-programme", "ev-okt-programme", "ev-nov-programme", "wabe-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -160,6 +189,61 @@
       "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
       "content_type": "text/html",
       "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/programme-sep-2026.html"
+    },
+    {
+      "evidence_id": "ev-home-reverify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Follow-up re-verification fetch of the venue's own official homepage (2026-08-26T21:00Z), confirming the interim-venue/renovation situation is unchanged and still current: 'Die WABE ist seit dem 1. Februar 2026 wegen Sanierungsarbeiten geschlossen' and 'Wir sind nun in der Schönfließer Straße 7 für sie da!', plus the page's own explicit 'NEUE SPIELSTÄTTE' / 'Schönfließer Straße 7' / '10439 Berlin' address block. Differs from the original ev-home only in a build cache-key and a per-request Cloudflare email-obfuscation hash — no material content changed.",
+      "acquired_from": "https://www.wabe-berlin.info/",
+      "acquired_at": "2026-08-26T20:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/homepage-reverify.html"
+    },
+    {
+      "evidence_id": "ev-aug-programme",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official August 2026 monthly programme page in full (the current month at the time of this re-verification) — 2 real event rows (25 and 26 August; 25 August is already in the past relative to the 2026-08-26 re-verification date), confirming the same 'j-hgrid' structural pattern and the same current interim address.",
+      "acquired_from": "https://www.wabe-berlin.info/aug-2026/",
+      "acquired_at": "2026-08-26T20:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/programme-aug-2026.html"
+    },
+    {
+      "evidence_id": "ev-okt-programme",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official October 2026 monthly programme page in full — 5 real upcoming events, confirming the same structural pattern as the September page.",
+      "acquired_from": "https://www.wabe-berlin.info/okt-2026/",
+      "acquired_at": "2026-08-26T20:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/programme-okt-2026.html"
+    },
+    {
+      "evidence_id": "ev-nov-programme",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official November 2026 monthly programme page in full — 2 real upcoming events, confirming this is the last currently-populated/discoverable month (no December 2026 page is linked from the site's own navigation, and a direct probe of a guessed /dez-2026/ URL returned 404).",
+      "acquired_from": "https://www.wabe-berlin.info/nov-2026/",
+      "acquired_at": "2026-08-26T20:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wabe-berlin-01/evidence/programme-nov-2026.html"
+    },
+    {
+      "evidence_id": "wabe-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/wabe.test.mjs) re-parsing this investigation's own retained fixtures (all 4 monthly programme pages) and reproducing the exact claimed field values deterministically, including the start_date DETERMINISTIC_CONTEXT derivation (page heading month/year + event row's own day number).",
+      "acquired_from": "tests/wabe.test.mjs",
+      "acquired_at": "2026-08-26T21:15:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
       "path": "research/source-investigations/wabe-berlin-01/evidence/programme-sep-2026.html"
     }
   ],

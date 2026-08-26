@@ -1,0 +1,64 @@
+Frannz Club (frannz-club-berlin-01) — WordPress post-id stability check
+========================================================================
+
+Purpose: the stable identifier rule (docs/SOURCE_INVESTIGATION_POLICY.md,
+"The stable identifier rule") requires a source_record_id candidate's
+stability to be documented by the source itself, proven empirically
+(repeated acquisition of the same record returning the same id), or
+derived from a deterministic source property whose own stability is
+itself evidenced. This file records a genuine, real, unauthenticated
+empirical check: two independent plain HTTP GETs of the venue's own
+homepage, seconds apart, compared for whether every event's WordPress
+post id (the "post-{ID}" value in each <article id="post-{ID}" ...>
+element — WordPress's own post_class() convention, independently echoed
+in an HTML comment "<!-- #post-{ID} -->" immediately after each article)
+stays identical across requests.
+
+Method: curl (plain HTTP GET, descriptive User-Agent, no authentication,
+no browser), same URL, two sequential requests seconds apart.
+
+Fetch 1
+  URL: https://frannz.eu/
+  Started (UTC): 2026-08-26T20:36:28Z
+  Finished (UTC): 2026-08-26T20:36:30Z
+  HTTP status: 200
+  Response size: 1,276,902 bytes
+  MD5: 4fb4836569839f9b5f40c3118d9e7784
+  (This exact response is separately retained in full as
+  evidence/frannz-homepage-2026-08-26.html / fixtures/frannz-club-berlin/homepage.html.)
+
+Fetch 2
+  URL: https://frannz.eu/
+  Started (UTC): 2026-08-26T20:36:33Z
+  Finished (UTC): 2026-08-26T20:36:35Z
+  HTTP status: 200
+  Response size: 1,276,902 bytes
+  MD5: 40bd0b29fb075f7fe07726a3c5be2155
+
+Result
+  Extracted the full set of id="post-NNNN" values from each response
+  independently. Both fetches yielded the exact same 108 unique post ids,
+  in the exact same set (order-independent set comparison; verified via
+  `diff` on two sorted, de-duplicated id lists — zero differences).
+
+  The two raw response bodies are NOT fully byte-identical overall — a
+  `diff` of the two full responses shows exactly one unrelated, expected
+  source of variance: a "fliptimer" countdown-widget DOM id and its
+  embedded client-side current-timestamp value (e.g.
+  id="fliptimer_PBvP88jX" vs id="fliptimer_kP7NMVSA",
+  currentDate:"2026/08/26 20:36:29" vs "2026/08/26 20:36:34") — a
+  per-request-random widget instance id plus a live clock value, entirely
+  unrelated to any event's own data. No event title, date, time, or post
+  id differs at all between the two responses.
+
+Conclusion
+  Every one of the 108 event posts' own WordPress post id is empirically
+  stable across two independent, unauthenticated fetches of the venue's
+  own homepage — satisfying the "proven empirically" branch of the stable
+  identifier rule. This does not, on its own, prove the id is stable over
+  longer time periods (e.g. months) or across a full WordPress
+  edit/republish cycle — only that it is not randomly regenerated per
+  request, which is the specific failure mode this project has already
+  encountered before (Hot Clube de Portugal's regenerating ICS UID, see
+  docs/OBSERVATION_PIPELINE.md) and which this check directly rules out
+  for this source.

@@ -17,13 +17,13 @@
   ],
   "source_candidate_id": "wilde-renate-berlin-01-candidate",
   "source_id": null,
-  "venue_reference": "Wilde Renate / Salon zur wilden Renate (club, Friedrichshain, Berlin, near Ostkreuz — named indoor/outdoor spaces including GARDEN, GREEN, BLACK, RED rooms)",
+  "venue_reference": "Wilde Renate / Salon zur wilden Renate (club, Alt Stralau 70, Berlin-Friedrichshain, near S-Bahn Ostkreuz/Treptower Park — address per the venue's own retained 'Directions and Public Transport' text, see identity.notes — named indoor/outdoor spaces including GARDEN, GREEN, BLACK, RED rooms)",
   "official_url": "https://www.renate.cc/",
   "identity": {
     "status": "PROVEN",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion"],
-    "notes": "renate.cc is independently corroborated as the venue's own domain by multiple third-party discovery sources (Berlin.de, Top10Berlin, regioactive.de — treated only as a discovery lead), and the retained page content itself (its own <title>'Renate', its own JSON-LD WebSite name 'Renate', its own community/house-rules text referring to itself as 'Renate' throughout) is the actual first-party evidence of identity."
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion", "ev-homepage-full-reverify"],
+    "notes": "renate.cc is independently corroborated as the venue's own domain by multiple third-party discovery sources (Berlin.de, Top10Berlin, regioactive.de — treated only as a discovery lead), and the retained page content itself (its own <title>'Renate', its own JSON-LD WebSite name 'Renate', its own community/house-rules text referring to itself as 'Renate' throughout) is the actual first-party evidence of identity. Re-verified live on 2026-08-26 (ev-homepage-full-reverify): the homepage's own 'House Rules' accordion section, item 10 ('Directions and Public Transport'), states the venue's own physical address directly as first-party text: 'Alt Stralau 70, Berlin-Friedrichshain, S-Bahn station Ostkreuz or S-Bahn station Treptower Park' — confirming and refining venue_reference's 'near Ostkreuz' description with a cited, retained, first-party street address. This address is recorded here as evidenced text only; it was NOT geocoded and no coordinates were derived from it."
   },
   "site_classification": {
     "acquisition_class": "STATIC_HTML",
@@ -123,7 +123,7 @@
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from the venue's own retained page content, corroborated by independent third-party discovery leads.",
       "acquisition_class STATIC_HTML, a resolved supported class — the entire programme is server-rendered directly on the homepage, no browser/JS execution needed.",
@@ -132,9 +132,10 @@
       "source_record_id and event_url both honestly NOT_PRESENT, with the alternative-identity consideration documented in notes per activation gate 6 — this source has real structural limitations (no per-event permalinks at all) that any future collector work must design around, not paper over.",
       "recommended_family STATIC_EVENT_LIST, an existing documented family, though confidence is only MEDIUM given the year-ambiguity and identifier gaps above.",
       "No unresolved CRITICAL blocker (two MAJOR blockers honestly documented: unresolved year, no first-party identifier).",
-      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: beyond the missing DETERMINISTIC_DERIVATION offline-proof step (separate follow-up work per this task's own scope), this source's genuine year-ambiguity and lack of a first-party stable identifier mean real design decisions are still needed before activation would be appropriate — this status honestly reflects unfinished work, not merely an unperformed formality."
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: beyond the missing DETERMINISTIC_DERIVATION offline-proof step (separate follow-up work per this task's own scope), this source's genuine year-ambiguity and lack of a first-party stable identifier mean real design decisions are still needed before activation would be appropriate — this status honestly reflects unfinished work, not merely an unperformed formality.",
+      "Re-verified live on 2026-08-26 (ev-homepage-full-reverify, byte-faithful full-page capture, also copied to fixtures/wilde-renate-berlin/homepage.html): the same 18 real upcoming event rows are still present and structurally unchanged, and the venue's own retained text additionally yielded its first-party physical address (see identity.notes). A real, dependency-free, no-network offline test suite (tests/wilde-renate.test.mjs) now re-parses this investigation's own retained fixture and reproduces all 18 real event rows, their titles, and their room breakdowns deterministically — gate 9/v1.2 satisfied (ev-wilde-renate-offline-proof). Re-checking all 12 READY_FOR_ACTIVATION gates against the (unchanged) field_assessment above: identity PROVEN (gate 1); acquisition_class STATIC_HTML, a resolved class (gate 2); a CONFIRMED PUBLIC data_paths entry (gate 3); title.state PROVEN (gate 4); start_date.state PARTIAL, which the policy's own gate 5 wording explicitly treats as sufficient ('it may honestly be AMBIGUOUS, but it must have been assessed, not left blank') — PARTIAL is assessed, not blank, and this investigation deliberately never promoted it further than the source itself supports; source_record_id.state NOT_PRESENT with an explicit alternative-identity strategy documented in its notes, satisfying gate 6's stated OR condition; recommended_family STATIC_EVENT_LIST, a known family (gate 7); evidence[] non-empty (gate 8); a DETERMINISTIC_DERIVATION evidence item now present (gate 9); no CRITICAL blocker, only two honestly-documented MAJOR ones (gate 10); decision.evidence_refs cites supporting evidence (gate 11); and the investigation validator passes (gate 12, see below). All 12 are honestly met — mechanically, not through relaxed judgement — so this decision now advances from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION. The two MAJOR blockers (no stated year; no first-party per-event identifier) remain real, retained, unresolved limitations that a future collector build must still design around (e.g. an explicitly-governed year-resolution strategy, and treating the RA ticket-link id as a non-canonical dedup key only) — READY_FOR_ACTIVATION is a research conclusion that a public acquisition path is understood and offline-provable, not a claim that every field is complete."
     ],
-    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion"]
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion", "ev-homepage-full-reverify", "ev-wilde-renate-offline-proof"]
   },
   "evidence": [
     {
@@ -158,6 +159,28 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/wilde-renate-berlin-01/evidence/program-accordion-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-homepage-full-reverify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-faithful re-capture of the venue's own homepage (plain curl GET, descriptive User-Agent, no auth/browser), re-verifying the 18 real upcoming event rows in the '#program' accordion are still present and structurally unchanged, and additionally retaining the venue's own 'House Rules' accordion section (including item 10, 'Directions and Public Transport', stating the venue's own physical address directly). Also copied byte-identically to fixtures/wilde-renate-berlin/homepage.html for offline test use.",
+      "acquired_from": "https://www.renate.cc/",
+      "acquired_at": "2026-08-26T20:31:15Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wilde-renate-berlin-01/evidence/homepage-full-2026-08-26.html"
+    },
+    {
+      "evidence_id": "ev-wilde-renate-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/wilde-renate.test.mjs) re-parsing this investigation's own retained fixture (fixtures/wilde-renate-berlin/homepage.html, byte-identical to ev-homepage-full-reverify) and reproducing the exact 18 real event rows, their titles (including correct HTML-entity decoding), their day/date text, and their room breakdowns deterministically — including honestly reproducing that NO year is ever derivable from the retained source (start.date stays null, certainty TEXT_ONLY, never fabricated).",
+      "acquired_from": "tests/wilde-renate.test.mjs",
+      "acquired_at": "2026-08-26T20:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/wilde-renate-berlin-01/evidence/homepage-full-2026-08-26.html"
     }
   ],
   "supersedes": null

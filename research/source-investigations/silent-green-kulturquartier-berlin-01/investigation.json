@@ -38,7 +38,13 @@
       "access": "PUBLIC",
       "status": "CONFIRMED",
       "confidence": "HIGH",
-      "evidence_refs": ["ev-programme-list"]
+      "evidence_refs": [
+        "ev-programme-list",
+        "ev-programme-2026-08",
+        "ev-programme-2026-09",
+        "ev-programme-2026-10",
+        "ev-programme-2026-11"
+      ]
     },
     {
       "kind": "HTML_EVENT_DETAIL_PAGE",
@@ -46,7 +52,14 @@
       "access": "PUBLIC",
       "status": "CONFIRMED",
       "confidence": "HIGH",
-      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+      "evidence_refs": [
+        "ev-event-htrk",
+        "ev-event-hanno-leichtmann",
+        "ev-event-open-lab",
+        "ev-event-goat-jp",
+        "ev-event-hub-doorman",
+        "ev-event-island-of-time"
+      ]
     }
   ],
   "field_assessment": {
@@ -127,7 +140,7 @@
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN directly from the venue's own retained pages.",
       "acquisition_class STATIC_HTML, a resolved, supported class, reached entirely at Level 1.",
@@ -136,9 +149,23 @@
       "end honestly assessed PARTIAL (present only for multi-day records) and price honestly NOT_PRESENT -- no fields fabricated.",
       "recommended_family STATIC_EVENT_LIST, an existing, known collector family requiring no new code family.",
       "No unresolved CRITICAL blocker.",
-      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step."
+      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step.",
+      "BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01 (2026-08-26): re-verified the source live via plain curl (descriptive User-Agent, no auth/browser) -- the programme calendar list page (/en/programme/2026/8, /9, /10, /11), all HTTP 200, structurally unchanged from the original Level 1 probe, plus 3 additional real event detail pages (goat-jp, hub-pres-doorman-franco-franco, island-of-time-exhibition-and-concerts-feat-pole-jakojako-ruben-nsue-sunroof-nicolas-bougaeiff), all retained byte-faithfully as new evidence. Built ingestion/silent-green-kulturquartier/discovery.mjs (calendar-grid card extraction + a genuine, bounded, keyword/category music-relevance filter, filterMusicEventCards) and ingestion/silent-green-kulturquartier/observation-adapter.mjs (per-event detail-page parse + createObservation construction), following this repository's existing two-step discover-then-fetch-detail convention (matching ingestion/hot-clube and ingestion/per-event-ics) -- the exact pattern this investigation's own collector_assessment.blockers entry already anticipated, since the calendar-grid page alone never carries time-of-day. Across the 4 retained, genuinely-populated future month pages (Aug-Nov 2026; Dec 2026 checked live and found to carry a single, non-music 'Winterfest' card correctly filtered out; Jan/Feb 2027 checked live and confirmed genuinely empty, so the harvest correctly stops at Nov), the adapter discovered 58 real event cards, correctly filtered to 39 genuinely music-relevant cards (19 non-music rejected -- exhibitions, film screenings, artist talks, lectures, panels, conferences, book launches, readings, historical tours, a live podcast, and two general venue-wide open-house/festival cards with no music evidence), and built 39 valid Observations with zero parse failures and zero duplicate source_record_id values, all against real, live-fetched detail pages. tests/silent-green-kulturquartier.test.mjs (8 tests, all passing) reproduces this deterministically and offline against the retained fixtures -- gate 9 (a DETERMINISTIC_DERIVATION evidence item) is now satisfied. All 12 activation gates are genuinely met; advancing from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION. Per docs/SOURCE_INVESTIGATION_POLICY.md's 'Investigation and activation are separate', this changes nothing in sources/*.json or any venue registry -- that remains a distinct, explicitly-authorised follow-up action."
     ],
-    "evidence_refs": ["ev-programme-list", "ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    "evidence_refs": [
+      "ev-programme-list",
+      "ev-event-htrk",
+      "ev-event-hanno-leichtmann",
+      "ev-event-open-lab",
+      "ev-programme-2026-08",
+      "ev-programme-2026-09",
+      "ev-programme-2026-10",
+      "ev-programme-2026-11",
+      "ev-event-goat-jp",
+      "ev-event-hub-doorman",
+      "ev-event-island-of-time",
+      "silent-green-kulturquartier-berlin-01-offline-proof"
+    ]
   },
   "evidence": [
     {
@@ -195,6 +222,94 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-open-lab.html"
+    },
+    {
+      "evidence_id": "ev-programme-2026-08",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public programme calendar list page for August 2026, re-verified live and retained byte-faithfully (BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01). 19 distinct real event cards, structurally identical to the original ev-programme-list sample.",
+      "acquired_from": "https://www.silent-green.net/en/programme/2026/8",
+      "acquired_at": "2026-08-26T13:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/programme-2026-08.html"
+    },
+    {
+      "evidence_id": "ev-programme-2026-09",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public programme calendar list page for September 2026, retained byte-faithfully. 20 distinct real event cards.",
+      "acquired_from": "https://www.silent-green.net/en/programme/2026/9",
+      "acquired_at": "2026-08-26T13:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/programme-2026-09.html"
+    },
+    {
+      "evidence_id": "ev-programme-2026-10",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public programme calendar list page for October 2026, retained byte-faithfully. 12 distinct real event cards.",
+      "acquired_from": "https://www.silent-green.net/en/programme/2026/10",
+      "acquired_at": "2026-08-26T13:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/programme-2026-10.html"
+    },
+    {
+      "evidence_id": "ev-programme-2026-11",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public programme calendar list page for November 2026, retained byte-faithfully. 7 distinct real event cards, all Concert-category.",
+      "acquired_from": "https://www.silent-green.net/en/programme/2026/11",
+      "acquired_at": "2026-08-26T13:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/programme-2026-11.html"
+    },
+    {
+      "evidence_id": "ev-event-goat-jp",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('goat (jp) + Camila Nebbia'), retained byte-faithfully. A fourth independent sample confirming the Doors/Start time markup and Betonhalle room.",
+      "acquired_from": "https://www.silent-green.net/en/programme/detail/goat-jp",
+      "acquired_at": "2026-08-26T13:06:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-goat-jp.html"
+    },
+    {
+      "evidence_id": "ev-event-hub-doorman",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('hub pres. Doorman + Franco Franco'), retained byte-faithfully. A fifth independent sample.",
+      "acquired_from": "https://www.silent-green.net/en/programme/detail/hub-pres-doorman-franco-franco",
+      "acquired_at": "2026-08-26T13:06:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-hub-pres-doorman-franco-franco.html"
+    },
+    {
+      "evidence_id": "ev-event-island-of-time",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('Exhibition: Islands of Time ... Opening feat. Live Sets by Pole, JakoJako & Ruben Nsue, Sunroof, Nicolas Bougaieff'), retained byte-faithfully. Demonstrates a record carrying multiple categories at once ('Concert, Exhibition') and a room list ('Kuppelhalle, Ateliers 2+3').",
+      "acquired_from": "https://www.silent-green.net/en/programme/detail/island-of-time-exhibition-and-concerts-feat-pole-jakojako-ruben-nsue-sunroof-nicolas-bougaeiff",
+      "acquired_at": "2026-08-26T13:06:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-island-of-time-exhibition-and-concerts-feat-pole-jakojako-ruben-nsue-sunroof-nicolas-bougaeiff.html"
+    },
+    {
+      "evidence_id": "silent-green-kulturquartier-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/silent-green-kulturquartier.test.mjs, 8 tests) re-parsing this investigation's own retained fixtures (fixtures/silent-green-kulturquartier-berlin/) via ingestion/silent-green-kulturquartier/discovery.mjs and ingestion/silent-green-kulturquartier/observation-adapter.mjs, and reproducing the exact claimed field values (title, start date, start time, doors time, room/location, canonical event URL, source_record_id) deterministically every run.",
+      "acquired_from": "tests/silent-green-kulturquartier.test.mjs",
+      "acquired_at": "2026-08-26T13:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-htrk.html"
     }
   ],
   "supersedes": null

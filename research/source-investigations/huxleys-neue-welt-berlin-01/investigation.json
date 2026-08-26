@@ -118,16 +118,16 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"],
+    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba", "huxleys-neue-welt-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MINOR",
-        "description": "The 'end' field's value is only directly retrievable from the detail page's og:description meta tag text (a loosely-structured 'HH:MM - HH:MM' substring), not from a dedicated machine-readable field — a future collector would need a small, deterministic text-extraction rule for this specific meta tag, not a generic schema parse."
+        "description": "The 'end' field's value is only directly retrievable from the detail page's og:description meta tag text (a loosely-structured 'HH:MM - HH:MM' substring), not from a dedicated machine-readable field — a future collector would need a small, deterministic text-extraction rule for this specific meta tag, not a generic schema parse. This exact rule is now implemented and offline-proven (ingestion/huxleys-neue-welt/observation-adapter.mjs's extractEndFromDetailPage()/enrichEndFromDetailPage(), tests/huxleys-neue-welt.test.mjs) — retained as context, not CRITICAL, and does not block activation."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from two independently retained artifacts (listing page title, and the detail page's own footer address).",
       "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
@@ -137,9 +137,16 @@
       "source_record_id PROVEN via the site's own slug+date permalink path, following the documented moog-barcelona-01/LAV precedent.",
       "recommended_family STATIC_EVENT_LIST, an existing documented collector family — no new family required.",
       "No unresolved CRITICAL blocker (only one MINOR blocker noting the og:description text-extraction rule needed for 'end').",
-      "Not advanced to READY_FOR_ACTIVATION: no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for this investigation (gate 9/v1.2 offline-proof requirement) — that offline reproduction is separate follow-up work, not performed as part of this investigation task."
+      "Not advanced to READY_FOR_ACTIVATION: no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for this investigation (gate 9/v1.2 offline-proof requirement) — that offline reproduction is separate follow-up work, not performed as part of this investigation task.",
+      "Source re-verified live on 2026-08-26 (second-pass re-verification): a fresh, plain unauthenticated curl GET of the same events listing page and the same YEBBA detail page returned HTTP 200 with the same 111 grouped upcoming event entries and the same og:description end-time shape as the original sample — nothing materially changed since the original investigation; both fresh captures retained byte-faithfully as ev-events-listing-reverify-2026-08-26 and ev-event-detail-yebba-reverify-2026-08-26. A genuine, dependency-free, no-network offline test suite (tests/huxleys-neue-welt.test.mjs, 10 tests, all passing) now re-parses these retained fixtures and reproduces every claimed field (title incl. HTML-entity decoding, full date via this source's own detail-page URL slug, start/doors time, sold-out/cancelled status, and the og:description end-time extraction with a mismatched-date safety check) deterministically and offline, across the full retained 111-event listing plus the retained detail-page sample — gate 9/v1.2 offline-proof requirement now satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"]
+    "evidence_refs": [
+      "ev-events-listing",
+      "ev-event-detail-yebba",
+      "ev-events-listing-reverify-2026-08-26",
+      "ev-event-detail-yebba-reverify-2026-08-26",
+      "huxleys-neue-welt-berlin-01-offline-proof"
+    ]
   },
   "evidence": [
     {
@@ -185,6 +192,39 @@
       "content_type": "application/json",
       "byte_faithful": true,
       "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/events-manager-sample.json"
+    },
+    {
+      "evidence_id": "ev-events-listing-reverify-2026-08-26",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Second-pass re-verification: a fresh plain curl GET of the same venue events listing page, retained in full (byte-faithful raw HTTP response body) — confirmed still 111 distinct upcoming event entries as static server-rendered HTML, grouped by month/year heading, with the same 'Events Manager' plugin card markup (including the same mixed German/English Start-Doors vs. Beginn/Einlass label quirk on the first card) as the original sample.",
+      "acquired_from": "https://huxleysneuewelt.de/en/events",
+      "acquired_at": "2026-08-26T21:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/events-listing-reverify-2026-08-26.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-yebba-reverify-2026-08-26",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Second-pass re-verification: a fresh plain curl GET of the same YEBBA event detail page, retained in full (byte-faithful raw HTTP response body) — confirmed the same directly-stated date/start/doors time, the same og:description meta tag stating the end time ('Wed 02.09.2026 @ 20:00 - 22:30 - ...'), and the same venue footer address ('Huxleys Neue Welt / Hasenheide 107 – 113 / D-10967 Berlin') as the original sample.",
+      "acquired_from": "https://huxleysneuewelt.de/en/event/2026-09-02-yebba",
+      "acquired_at": "2026-08-26T21:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/event-detail-yebba-reverify-2026-08-26.html"
+    },
+    {
+      "evidence_id": "huxleys-neue-welt-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/huxleys-neue-welt.test.mjs, 10 tests) re-parsing this investigation's own retained fixtures (fixtures/huxleys-neue-welt-berlin/events-page.html and event-detail-yebba.html, copied from the re-verified evidence above) and reproducing the exact claimed field values deterministically: all 111 real event cards with unique source_record_id slugs, the YEBBA card's title/date/start/doors/support fields, HTML-entity decoding (e.g. 'Kurt Vile & The Violators'), sold-out/cancelled status handling, the detail page's og:description end-time extraction (20:00-22:30), and a mismatched-date safety check that refuses to attach one event's end time to another event's Observation.",
+      "acquired_from": "tests/huxleys-neue-welt.test.mjs",
+      "acquired_at": "2026-08-26T21:40:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/events-listing-reverify-2026-08-26.html"
     }
   ],
   "supersedes": null
