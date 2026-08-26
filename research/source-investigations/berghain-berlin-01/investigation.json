@@ -1,0 +1,182 @@
+{
+  "investigation_id": "berghain-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser, no JS execution) of the venue's own official program page, one event-detail page, and the Kantine am Berghain sub-page. The initial program page already contains fully server-rendered event cards (date, start time, room, title, lineup, permalink) as plain HTML text nodes; no JSON-LD or client-side rendering was needed to read them. The event-detail page additionally exposes machine-readable ISO 8601 datetimes with UTC offset in `data-set-item-start`/`data-set-item-end`/`<time datetime=...>` attributes for every set in the running order, plus a price/ticket section."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.berghain.berlin/en/program/ returned a fully server-rendered list of upcoming event cards (no client-rendered shell) with date, start time, room and title/lineup as plain HTML text, each linking to a stable-looking numeric permalink (/en/event/{id}/). A follow-up curl GET of one such event-detail page (/en/event/80841/) exposed the same facts plus a full running order with ISO 8601 datetimes (with +02:00 offset) per set and a price/ticket section. A third curl GET of the Kantine am Berghain room's own program sub-page confirmed the identical server-rendered structure is used for that room too. This directly answers the investigation question at Level 1 — no JSON-LD, ICS, WordPress REST API, Fourvenues, or Sanity signature was present or needed; no structural/browser escalation was required.",
+      "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page"]
+    }
+  ],
+  "source_candidate_id": "berghain-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Berghain / Kantine am Berghain (world-famous techno club, Friedrichshain, Berlin — rooms: Berghain, Panorama Bar, Säule, Halle, and the separately-programmed Kantine am Berghain)",
+  "official_url": "https://www.berghain.berlin/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-program-page", "ev-event-detail"],
+    "notes": "berghain.berlin is independently corroborated as Berghain's own official domain by multiple third-party discovery sources (Berlin.de's official venue listing, the club's own Facebook page bio) which is treated only as a discovery lead, not as authority for facts — the retained page content itself (its own room names Berghain/Panorama Bar/Säule/Halle/Kantine am Berghain in the page title, and its own first-party ticketing subdomain ticketingv2.berghain.de linked directly from the event-detail page's ticket section) is the actual evidence of first-party identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom server-rendered site (no WordPress/Sanity/Nuxt/Next fingerprint found — static asset paths under /static/, no wp-json, no application/ld+json, no window.__NUXT__/__NEXT_DATA__). Event listing and detail pages are plain server-rendered HTML with structured HTML5 data attributes (data-set-item-start/end) and <time datetime=...> elements carrying full ISO 8601 timestamps.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.berghain.berlin/en/program/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-program-page"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.berghain.berlin/en/event/80841/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.berghain.berlin/en/program/kantine-am-berghain/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-kantine-page"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "KEYI Magazine",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event card's own <h2> text on the program list page (confirmed identical on the event-detail page's own <h1>). Example sampled directly: 'KEYI Magazine' for /en/event/80841/.",
+      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27T22:00:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The list page states the date ('27.08.2026') and door/start time ('start 22:00') as plain text on every card; the event-detail page's first running-order set item states the identical instant directly as a full ISO 8601 string with UTC offset in its own data-set-item-start attribute ('2026-08-27T22:00:00+02:00') and matching <time datetime> element — a single retained field already carries the exact value, so this is DIRECT_SOURCE, not a combination of separate context.",
+      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "22:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day portion of the same directly-stated start datetime.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No overall event closing time is stated anywhere on the list or detail page. The running order gives each individual DJ set's own start/end (e.g. the first set runs 22:00-23:30), but the final set of the night carries only a start time, never a closing time for the event as a whole — Berghain's own program does not publish when a Klubnacht ends. Recording NOT_PRESENT rather than guessing from the last known set start.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Säule (sampled event 80841); room name stated per event, one of Berghain / Panorama Bar / Säule / Halle / Kantine am Berghain",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Every event card's own <h3> states its room directly (sampled event 80841's room is 'Säule'; the site's own shared page title names the full room set Berghain / Panorama Bar / Säule / Halle / Kantine am Berghain). No street address was retained as evidence in this bounded investigation — third-party discovery sources (Berlin.de, Wikipedia) state an address, but per policy that is a discovery lead, not first-party evidence, so no address is claimed here. All named rooms are treated as one physical venue rather than separate venues, matching this project's existing 'room is not a separate venue' precedent (Casa da Música/Jamboree); Kantine am Berghain is included in this investigation because it is programmed on the identical platform/template and named as one of the site's own rooms in the shared page title.",
+      "evidence_refs": ["ev-program-page", "ev-kantine-page"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "80841",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own canonical permalink path /en/event/{numeric_id}/ (e.g. 80841) is the site's own stable addressing scheme for that event — the same URL is used consistently as the card's own link href and as the detail page's own canonical location. No repeated-fetch stability test was performed in this bounded investigation (a genuine limitation, noted honestly), but the identifier is a permalink-derived numeric ID the source itself uses as its own canonical path, matching the policy's 'derived from a deterministic source property whose own stability is itself evidenced' rule, not an invented hash.",
+      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.berghain.berlin/en/event/80841/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event card's own href, directly retained and confirmed to resolve (HTTP 200, fetched as ev-event-detail).",
+      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Present on the sampled event-detail page but not on the list page: '14.00€ from Berghain' (linking to the venue's own first-party ticketing subdomain ticketingv2.berghain.de) and '16.00€ at the door'. Not verified across a broader sample within this bounded investigation, and Berghain is well known for irregular/no-ticket-sales nights (door-only, cash-only), so this cannot be claimed PROVEN as a general pattern across all events — recorded PARTIAL rather than generalised from one sample.",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from the venue's own retained page content (room names, first-party ticketing subdomain), corroborated by independent third-party discovery leads.",
+      "acquisition_class STATIC_HTML, a resolved supported class — fully server-rendered event list and detail pages, no browser/JS execution needed.",
+      "Three CONFIRMED public data paths retained (program list, one event detail, and the separately-templated Kantine am Berghain room list).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE (start_date carries a full ISO 8601 UTC-offset instant directly in a data attribute — no context combination needed).",
+      "source_record_id PROVEN via the site's own stable numeric permalink path.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented family — no new collector family required.",
+      "No unresolved CRITICAL blocker.",
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION, because no DETERMINISTIC_DERIVATION evidence item (an offline, no-network re-parse of the retained fixtures reproducing these exact fields) was produced in this investigation — that offline-proof/collector-build step is separate follow-up work per the task's own instructions, not performed here."
+    ],
+    "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-program-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (HTTP response headers + head/meta block + nav and first two server-rendered event cards) of the venue's official program page.",
+      "acquired_from": "https://www.berghain.berlin/en/program/",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/program-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (HTTP response headers + event header, full running order with ISO 8601 datetimes, price/ticket section) of one real upcoming event's detail page.",
+      "acquired_from": "https://www.berghain.berlin/en/event/80841/",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/event-detail-80841-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-kantine-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (HTTP response headers + server-rendered event cards) of the Kantine am Berghain room's own program sub-page, confirming the same platform/structure covers this room too.",
+      "acquired_from": "https://www.berghain.berlin/en/program/kantine-am-berghain/",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/kantine-program-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

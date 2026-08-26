@@ -1,0 +1,179 @@
+{
+  "investigation_id": "admiralspalast-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage, its event-overview page, and one real event's own detail page. No JSON-LD Event/MusicEvent block, ICS link, WordPress wp-json signal, Fourvenues script, or Sanity config was present anywhere; instead the site (Contao Open Source CMS) exposes a clean, static, semantically-classed server-rendered event list and per-event detail pages, sufficient at Level 1 without escalation."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "curl GETs of https://www.admiralspalast.theater/ (identity/address), https://www.admiralspalast.theater/veranstaltungsuebersicht.html (event list) and https://www.admiralspalast.theater/veranstaltung/cem-adrian.html (one real event detail page) were all plain 200 HTML responses. The only <script type=\"application/ld+json\"> blocks present are generic Contao CMS WebPage/ImageObject/Page metadata, not Event/MusicEvent data (retained in ev-events-overview). The event list page is a static grid of <a href=\"/veranstaltung/{slug}.html\"> cards with a title <p> and an 'ab DD.MM.YY' run-start date (retained in ev-events-overview). The event detail page additionally contains a clean, semantically-classed 'Termine & Tickets' block with distinct evDay/evMJ/evWdT spans giving the exact day, month+year, and weekday+time for that one event, plus the venue's own address block, both retained in ev-event-detail. This static HTML already exposes everything the investigation needs (title, date, time, venue, event URL) with no client-side rendering gap — no escalation to Level 2/3 was needed or attempted.",
+      "evidence_refs": ["ev-home-identity", "ev-events-overview", "ev-event-detail"]
+    }
+  ],
+  "source_candidate_id": "admiralspalast-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Admiralspalast (historic theatre / concert hall, Mitte, Berlin — Friedrichstraße 101, 10117 Berlin)",
+  "official_url": "https://www.admiralspalast.theater/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-identity", "ev-event-detail"],
+    "notes": "admiralspalast.de (the venue's naive domain) 301-redirects to atgentertainment.de, the operator group's corporate site, not this venue's own presence — that redirect target was rejected as the official_url for exactly that reason. admiralspalast.theater is the venue's own dedicated first-party domain: its retained <title> is 'Admiralspalast, Berlin', its homepage meta description names the venue directly ('Im Admiralspalast Berlin erwartet das Publikum ein vielfältiges Live-Programm...'), and every sampled event detail page repeats the identical retained address block 'Admiralspalast Berlin / Friedrichstr. 101 / 10117 Berlin' — consistent with the venue's well-known real-world address in Mitte, Berlin."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Contao Open Source CMS (retained <meta name=\"generator\" content=\"Contao Open Source CMS\"> on every sampled page). No JSON-LD Event data, no ICS/iCal link, no WordPress signals (no wp-content/wp-json), no Fourvenues script, no Sanity config — event data is exposed only as static, semantically-classed server-rendered HTML (event list cards + per-event 'Termine & Tickets' blocks with dedicated evDay/evMJ/evWdT spans).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.admiralspalast.theater/veranstaltungsuebersicht.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-overview"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.admiralspalast.theater/veranstaltung/{slug}.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Cem Adrian",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Both the event-list card's own <p> text (e.g. 'Aladin – Das Musical') and the event detail page's own <span class=\"value eventname\"><h2>Cem Adrian</h2></span> state the title directly, verbatim, in one retained element each.",
+      "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-11-01",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event detail page's 'Termine & Tickets' item row does not state one single combined date string. It states the day-of-month and the month+year in two separate sibling spans within the SAME event row (not inherited from a distant page-level heading shared across unrelated events): <span class=\"value eventdate evDay\">01</span> and <span class=\"value eventdate evMJ\">Nov 2026</span>. Concatenating them mechanically yields 2026-11-01 with no other possible reading, since both spans are scoped to this one event's own row.",
+      "evidence_refs": ["ev-event-detail"],
+      "derivation": {
+        "rule": "Within one '.item' event row on an event's own detail page, the 'evDay' span (day-of-month) and 'evMJ' span (3-letter month abbreviation + 4-digit year) are sibling elements describing that single event only. Map the 3-letter month abbreviation to its numeric month (standard German/English abbreviation, e.g. 'Nov' -> 11) and concatenate as <evMJ year>-<evMJ month, zero-padded>-<evDay, zero-padded>. Exactly one row's worth of spans is being combined, never a page-wide heading shared across multiple different events.",
+        "inputs": ["01", "Nov 2026"]
+      }
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same event row's own <span class=\"value eventdate evWdT\">So, 20:00</span> states the local time-of-day directly as a literal substring ('20:00') of one retained element — no combination with a separate element needed. No UTC offset or IANA timezone is stated anywhere on the page, so this is honestly a floating local time, not upgraded to a UTC instant.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is exposed anywhere on the retained event-list or event-detail pages for the sampled event.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Admiralspalast Berlin, Friedrichstr. 101, 10117 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This is a single-venue site (unlike e.g. Razzmatazz's multiple numbered rooms) — every sampled event detail page carries the identical retained 'Adresse Theater' address block naming the venue and its full postal address directly, on the same page as the event's own date/time data. No cross-page or cross-section combination is needed.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "cem-adrian",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric id is exposed on the venue's own pages. Each event's own detail-page URL slug ('/veranstaltung/{slug}.html') is this source's own permanent, source-authored path for that event, directly stated as the href on every list card and reused as the canonical URL of the detail page itself — the same documented URL-slug-as-source_record_id strategy already established for moog-barcelona-01 and LAV (ingestion/lav/discovery.mjs).",
+      "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.admiralspalast.theater/veranstaltung/cem-adrian.html",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own href, directly stated, and independently confirmed by fetching it (HTTP 200, ev-event-detail).",
+      "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is stated on the venue's own event list or detail pages for the sampled event. The detail page's own 'Tickets' button links out to a third-party ticketing site (eventim.de) where price presumably appears — that is Eventim's own page, not this source's own first-party data, and was not treated as this source's price per the policy's third-party-authority rule.",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-events-overview", "ev-event-detail"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Only one real event (Cem Adrian) was sampled at detail-page granularity. A full month-abbreviation mapping table (Jan/Feb/Mär/Apr/Mai/Jun/Jul/Aug/Sep/Okt/Nov/Dez) would need to be built and exercised against a handful more sampled events before an offline parser could be trusted across the whole event-list page — not yet proven for months other than 'Nov'."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No explicit UTC offset or IANA timezone is stated on any retained page; 'time' is honestly a floating local (presumed Europe/Berlin) time, not a proven UTC instant."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from the venue's own dedicated first-party domain (admiralspalast.theater), not the operator-group redirect target.",
+      "acquisition_class STATIC_HTML — a resolved, supported class — established directly from retained evidence (no JSON-LD/ICS/WordPress/Fourvenues/Sanity signal present; a clean, semantically-classed static event list and per-event detail page instead).",
+      "A CONFIRMED public data path retained for both the event-list page and one real event-detail page.",
+      "title PROVEN (DIRECT_SOURCE) and start_date PROVEN (DETERMINISTIC_CONTEXT, combining two sibling spans within one event's own row, no page-wide heading inheritance).",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching the moog-barcelona-01/LAV precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented reusable family — no new collector family required.",
+      "No unresolved CRITICAL blocker.",
+      "Not advanced to READY_FOR_ACTIVATION: no DETERMINISTIC_DERIVATION evidence item has been produced in this investigation (no offline parser/test was written), which the v1.2 activation gates require for the start_date field's DETERMINISTIC_CONTEXT basis — that offline-proof/collector-wiring step is deliberately left as separate follow-up work, per this task's own instructions."
+    ],
+    "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the venue's official homepage: the <head>/<title>/meta-description region (chars 0-2500) plus the retained address-block region (chars ~17500-19100) of the full 79KB retained response. Full response was fetched and inspected; only the identity-relevant regions were retained verbatim as bounded evidence.",
+      "acquired_from": "https://www.admiralspalast.theater/",
+      "acquired_at": "2026-08-26T12:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/admiralspalast-berlin-01/evidence/homepage-identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-overview",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the event-overview page: both full <script type=\"application/ld+json\"> blocks (proving only generic Contao WebPage/Page metadata is present, no Event/MusicEvent data), plus a representative excerpt of the static event-card HTML (first 3 cards) showing the title <p> and 'ab DD.MM.YY' pattern and the /veranstaltung/{slug}.html href pattern. Full response (203KB, ~190 event cards) was fetched and scanned for JSON-LD/ICS/wp-json/Fourvenues/Sanity signals; none beyond this excerpt were found.",
+      "acquired_from": "https://www.admiralspalast.theater/veranstaltungsuebersicht.html",
+      "acquired_at": "2026-08-26T12:56:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/admiralspalast-berlin-01/evidence/events-overview-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of one real event's own detail page (Cem Adrian): the <head> region, the venue's own address block, the full 'Termine & Tickets' item row showing the evDay/evMJ/evWdT spans and the eventname span, and the outbound Eventim ticket-link excerpt. Full response (68KB) was fetched; this excerpt retains every region material to the field assessment above.",
+      "acquired_from": "https://www.admiralspalast.theater/veranstaltung/cem-adrian.html",
+      "acquired_at": "2026-08-26T12:58:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/admiralspalast-berlin-01/evidence/event-detail-cem-adrian-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,227 @@
+{
+  "investigation_id": "kunstfabrik-schlot-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:38:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage, programme page (/programm/), and two individual event detail pages. The site is WordPress (WPBakery Page Builder) using the 'Offbeat' theme's own built-in event-list widget ('offbeat-event-list-holder') — NOT EventON, Tribe Events Calendar, Fourvenues, or Sanity (confirmed absent by checking the wp-json REST root: only tribe/tickets/v1, wp/v2, and unrelated plugin namespaces are registered — no tribe/events/v1 or any tribe_events post type route exists). The programme list page's own cards show only day+month (no year); each event's own detail page directly states the FULL date ('Datum: August 26, 2026'), time ('Zeit: 20:00 Uhr'), and price ('Eintritt: recommended fee 12€ - 25€') as plain, consistently-labelled static HTML. No structural/browser escalation was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://kunstfabrik-schlot.de/programm/ (200 OK, 135,665 bytes) returned a static, theme-native event-list widget with day/month/title/permalink per event. A follow-up curl GET of two independently-selected event detail pages (200 OK) each directly stated the full date, time, and price in a consistently-labelled 'EINZELHEITEN' (Details) block. A check of the site's wp-json REST root (200 OK, 330,506 bytes) confirmed no Events Calendar / Tribe Events REST namespace is registered, ruling out that acquisition path. This directly answers the investigation question at Level 1 — no escalation to Level 2/3 was needed.",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  ],
+  "source_candidate_id": "kunstfabrik-schlot-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Kunstfabrik Schlot (jazz club, Berlin-Mitte — Invalidenstraße 117, in den Edison Höfen, 10115 Berlin)",
+  "official_url": "https://kunstfabrik-schlot.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the site's own footer text states 'Kunstfabrik Schlot, in den Edison Höfen – Invalidenstraße 117 (Zugang auch über Schlegelstraße 26) – 10115 Berlin' — matching the address independently reported by third-party discovery sources (jazz-fun.de, visitBerlin.de, Berlin.de, German Wikipedia) for Kunstfabrik Schlot in Mitte. Domain kunstfabrik-schlot.de is a plausible first-party domain, not a ticketing aggregator."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress 6.2 with WPBakery Page Builder and the 'Offbeat' theme (offbeat-event-list-holder / offbeat-event-info-item markup). This is the theme's own built-in event-list feature, not a calendar plugin — confirmed by inspecting the wp-json REST root, which registers only tribe/tickets/v1 (Event Tickets, for ticket sales), wp/v2, and unrelated plugin namespaces; no tribe/events/v1 or tribe_events post type exists. No EventON, Fourvenues, or Sanity signal is present either.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "ev-eventdetail-excerpt"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://kunstfabrik-schlot.de/programm/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://kunstfabrik-schlot.de/event/jazzkollektiv-berlin-kollektiv-nights/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "e.g. 'KOLLEKTIV NIGHTS – DER MOMENT & TAIKO SAITO // CHRIS PITSIOKOS SOLO // VTÍPIL / HANOUSEK / ANDERS / DUBOC' (list page's own <h4 class=\"edgtf-el-item-title\">; matches the detail page's own page title)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated per event on both the list page and the detail page.",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "each event detail page's own 'Datum:' field, e.g. 'August 26, 2026'",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The FULL date (day, month, AND year) is directly and unambiguously stated as a single field on the event's own detail page ('Datum: August 26, 2026') — no combination of separate context pieces is needed, so this is DIRECT_SOURCE, not DETERMINISTIC_CONTEXT. (The programme LIST page's own cards show only day+month with no year — by itself that would only support PARTIAL/AMBIGUOUS — but the detail page linked from every card directly resolves this.) Confirmed varying correctly across 2 independently-fetched events (August 26, 2026 and August 28, 2026).",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "each event detail page's own 'Zeit:' field, e.g. '20:00 Uhr'",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated per event. A separate fixed rule is also stated ('Einlass ist eine Stunde vor Programmbeginn' — doors open one hour before the programme start), which is genuinely a general site-wide rule rather than a per-event fact.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date is present anywhere in the retained list-page or detail-page evidence.",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present per-record on either the list page or the sampled detail pages (the 'EINZELHEITEN' block lists only Eintritt/Datum/Zeit, never a venue name/address). This source resolves to exactly ONE physical venue (Kunstfabrik Schlot, Invalidenstraße 117 — confirmed separately in ev-identity), matching this project's existing Razzmatazz/Jamboree/Quasimodo/b-flat/Zig Zag precedent for a single-venue source that does not restate its own venue name per event.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt",
+        "ev-identity"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "the event's own permalink slug under https://kunstfabrik-schlot.de/event/{slug}/ (e.g. 'jazzkollektiv-berlin-kollektiv-nights', with '-2'/'-3' suffixes disambiguating repeated nights of the same festival series)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No bare numeric id is exposed as its own labelled field, but each event's own href is the site's own permanent WordPress permalink under /event/{slug}/ — the same documented judgement already established for Moog Barcelona, A-Trane, Quasimodo, b-flat, Zig Zag, and LAV (a permalink URL slug the source itself uses as its own canonical path satisfies the stable identifier rule).",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://kunstfabrik-schlot.de/event/jazzkollektiv-berlin-kollektiv-nights/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated as the list card's own <a href>, independently confirmed by fetching both sampled URLs (200 OK, matching content).",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-excerpt"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "each event detail page's own 'Eintritt:' field, e.g. 'recommended fee 12€ - 25€'",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated, an honest 'recommended fee' range rather than a single fixed ticket price — retained as the source's own text, not converted into a fabricated single number. Identical range on both sampled events (both nights of the same festival series), consistent with genuine shared festival pricing rather than a placeholder.",
+      "evidence_refs": [
+        "ev-eventdetail-excerpt"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "ev-eventdetail-excerpt",
+      "kunstfabrik-schlot-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence (site's own footer address text matching independently reported venue address).",
+      "acquisition_class STATIC_HTML, a resolved supported class, retained at Level 1 with no escalation needed (including a direct check ruling out an Events-Calendar/Tribe REST API path).",
+      "Two CONFIRMED public data paths retained: the programme list page and representative event detail pages.",
+      "title PROVEN with basis DIRECT_SOURCE; start_date PROVEN with basis DIRECT_SOURCE — the event detail page states the FULL date (including year) directly in one field, so no DETERMINISTIC_CONTEXT combination was even needed.",
+      "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/A-Trane/Quasimodo/b-flat/Zig Zag/LAV.",
+      "recommended_family STATIC_EVENT_LIST — an existing collector family this project already documents (list page enumerates events + links; a per-event detail fetch resolves the full date/time/price). No fundamentally new acquisition pattern required.",
+      "No unresolved CRITICAL blocker.",
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step is explicitly out of scope for this investigation task and is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/kunstfabrik-schlot.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "ev-eventdetail-excerpt",
+      "kunstfabrik-schlot-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own homepage footer: its own retained address text.",
+      "acquired_from": "https://kunstfabrik-schlot.de/",
+      "acquired_at": "2026-08-26T13:36:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/kunstfabrik-schlot-berlin-01/evidence/identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-programm-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own official programme page: <title>, all 3 generator meta tags, and the first 3 real event-list entries (day/month/weekday/title/permalink) verbatim from the Offbeat theme's own built-in event-list widget.",
+      "acquired_from": "https://kunstfabrik-schlot.de/programm/",
+      "acquired_at": "2026-08-26T13:37:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/kunstfabrik-schlot-berlin-01/evidence/programm-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-eventdetail-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpts of the theme's own 'EINZELHEITEN' (Details) block — Eintritt/Datum/Zeit — from two separate, independently-fetched event detail pages, verbatim, demonstrating the full date (including year) is directly stated per event.",
+      "acquired_from": "https://kunstfabrik-schlot.de/event/jazzkollektiv-berlin-kollektiv-nights/, https://kunstfabrik-schlot.de/event/jazzkollektiv-berlin-kollektiv-nights-3/",
+      "acquired_at": "2026-08-26T13:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/kunstfabrik-schlot-berlin-01/evidence/event-detail-excerpt.html"
+    },
+    {
+      "evidence_id": "kunstfabrik-schlot-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/kunstfabrik-schlot.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/kunstfabrik-schlot.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/kunstfabrik-schlot-berlin-01/evidence/event-detail-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

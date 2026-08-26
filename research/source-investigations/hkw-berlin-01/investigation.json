@@ -1,0 +1,266 @@
+{
+  "investigation_id": "hkw-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC via curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser): retained the homepage, the /en/programme aggregate listing page, two independent event detail pages, and the site's own public /sitemap.xml. The aggregate listing page turned out to be client-rendered (a JS-driven filter UI with an empty server-rendered placeholder), but the site's own public sitemap.xml provides a genuine, comprehensive, static discovery path (4,153 /en/programme/... URLs with lastmod dates), and each individual event detail page server-renders a full schema.org Event-family JSON-LD block -- together these fully answer the investigation question at Level 1."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The homepage confirmed a Magnolia CMS-backed Nuxt frontend (window.__NUXT__.config exposing mgnl* REST API base paths). The aggregate /en/programme listing page itself renders only a <div class=\"page-loading-placeholder\"> server-side (no event data present without JS), so it cannot be used directly for discovery. However, the site's own public /sitemap.xml (plain static XML, no auth) lists 4,153 real /en/programme/... URLs each with its own <lastmod> date -- a genuine, comprehensive, static discovery path. Two independently sampled event detail pages (sound-base-berlin/praed, a MusicEvent; events/lange-nacht-der-museen-2026, an EducationEvent) each server-render one application/ld+json schema.org Event-family block with startDate/endDate as full UTC ISO instants, name, description, and a fully qualified location (name + PostalAddress). This combination (sitemap for discovery + per-page JSON-LD for facts) fully answers the investigation at Level 1 -- no escalation needed for field extraction. (Two brief, unsuccessful attempts to resolve the Magnolia REST Delivery API paths referenced in the NUXT config directly, e.g. /.rest/delivery/hkw-de/pages/v1/en/programme and /.rest/delivery/hkw-de/pageslist/v1, both returned this site's own 404 page -- irrelevant now that sitemap.xml + per-page JSON-LD already solve both discovery and extraction, so this was not pursued further as a separate Level 2 STRUCTURAL entry.)",
+      "evidence_refs": [
+        "ev-sitemap",
+        "ev-event-praed",
+        "ev-event-lange-nacht"
+      ]
+    }
+  ],
+  "source_candidate_id": "hkw-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Haus der Kulturen der Welt / HKW (cultural venue with a substantial music programme, John-Foster-Dulles-Allee 10, Tiergarten, Berlin)",
+  "official_url": "https://www.hkw.de/en",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage",
+      "ev-event-praed"
+    ],
+    "notes": "The homepage's own title ('HKW | Haus der Kulturen der Welt') and every retained event's own JSON-LD location.address.streetAddress ('John-Foster-Dulles-Allee 10, 10557 Berlin') directly confirm official identity and match the venue's well-known Tiergarten address."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Magnolia CMS (headless, Java-based; window.__NUXT__.config exposes its own mgnl* REST Delivery API base paths, though direct guesses at those paths were not resolvable) with a Nuxt.js frontend. The aggregate programme listing is client-rendered, but individual event pages are server-rendered with a full schema.org Event-family (MusicEvent/EducationEvent/etc.) application/ld+json block, and the site's own public sitemap.xml provides comprehensive static discovery of every programme page URL.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-sitemap",
+      "ev-event-praed",
+      "ev-event-lange-nacht"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "SITEMAP_XML",
+      "url": "https://www.hkw.de/sitemap.xml",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-sitemap"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.hkw.de/en/programme/sound-base-berlin/praed",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-praed",
+        "ev-event-lange-nacht"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Praed",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'name' field.",
+      "evidence_refs": [
+        "ev-event-praed",
+        "ev-event-lange-nacht"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-03T17:30:00.000Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'startDate', a full, unambiguous UTC ISO 8601 instant (with trailing 'Z') -- confirmed on both independently sampled pages.",
+      "evidence_refs": [
+        "ev-event-praed",
+        "ev-event-lange-nacht"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "17:30:00Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day portion of the same JSON-LD 'startDate' -- a real UTC instant, not merely a floating local time.",
+      "evidence_refs": [
+        "ev-event-praed"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-03T17:30:00.000Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'endDate' field IS always present, but its meaning varies genuinely by record: for the lange-nacht-der-museen-2026 sample it states a real, distinct multi-hour end ('2026-08-30T00:00:00.000Z' vs a 16:00Z start the prior day); for the praed sample it is IDENTICAL to startDate (both '2026-09-03T17:30:00.000Z'), which reads as the source not actually tracking a distinct end for that record rather than a genuine zero-duration event. A future collector should treat endDate == startDate as effectively 'no real end known', not a proven zero-length event.",
+      "evidence_refs": [
+        "ev-event-praed",
+        "ev-event-lange-nacht"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Haus der Kulturen der Welt, Angie Stardust Foyer",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event page's own JSON-LD 'location.name' plus 'location.address.streetAddress' ('John-Foster-Dulles-Allee 10, 10557 Berlin') -- room-level naming (e.g. 'Angie Stardust Foyer') within HKW's single building, consistent with this project's existing room-is-not-a-separate-venue precedent.",
+      "evidence_refs": [
+        "ev-event-praed",
+        "ev-event-lange-nacht"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "https://www.hkw.de/en/programme/sound-base-berlin/praed",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The JSON-LD payload itself carries no 'identifier'/'@id' field. Each event's own URL path, as directly and first-party stated in the site's own /sitemap.xml <loc> entry (matching the exact URL fetched and retained for this event), is used as source_record_id -- the same documented URL-slug-as-id judgement already established for Moog Barcelona/LAV in this repository, here additionally corroborated by the source's own sitemap rather than merely inferred from a page's own outbound link.",
+      "evidence_refs": [
+        "ev-sitemap",
+        "ev-event-praed"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.hkw.de/en/programme/sound-base-berlin/praed",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Neither event page carries a canonical link or og:url meta tag; the event_url is the exact URL retained (matching its own sitemap.xml <loc> entry).",
+      "evidence_refs": [
+        "ev-sitemap",
+        "ev-event-praed"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No 'offers'/price field exists in the JSON-LD on either sampled page. The praed page's own body prose separately states 'Free entry' as unstructured text (not a structured field), which is not promoted to a claimed price value here.",
+      "evidence_refs": [
+        "ev-event-praed"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-sitemap",
+      "ev-event-praed",
+      "ev-event-lange-nacht",
+      "hkw-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "sitemap.xml is large (4.6MB, 4,153 /en/programme/... URLs spanning many past years) and mixes DE/EN duplicates and non-event page types (series landing pages, publications, calls for submissions) alongside genuine dated events. A collector must fetch each candidate page's own JSON-LD to determine its real @type/startDate and filter to upcoming events, using <lastmod> to prioritise rather than fetching all 4,153 pages unconditionally."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The aggregate /en/programme listing page is client-rendered and cannot be used for discovery; sitemap.xml must be used instead. This was confirmed by inspecting the raw server-rendered HTML (a loading placeholder, no event cards), not assumed."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from the venue's own retained pages.",
+      "acquisition_class JSON_LD_EVENT, a resolved, supported class, reached entirely at Level 1.",
+      "A CONFIRMED public data path retained for both the sitemap.xml discovery mechanism and the event detail page JSON-LD, with 2 independently real sampled events (different schema.org @types, one with a genuine multi-hour end and one without).",
+      "title, start_date, time, venue_location, source_record_id, and event_url all PROVEN with basis DIRECT_SOURCE.",
+      "end honestly assessed PROVEN but flagged with a caveat when equal to startDate; price honestly NOT_PRESENT -- no fields fabricated.",
+      "recommended_family JSON_LD, this project's own existing, already-proven-elsewhere generic family (matching the Moog Barcelona precedent) -- requires no new code family.",
+      "No unresolved CRITICAL blocker (2 MINOR blockers documented for a future collector to handle: sitemap filtering, and the client-rendered aggregate list page being unsuitable for discovery).",
+      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery-berlin-cohort.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-sitemap",
+      "ev-event-praed",
+      "ev-event-lange-nacht",
+      "ev-homepage",
+      "hkw-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, retained byte-faithfully. Confirms Magnolia CMS + Nuxt (window.__NUXT__.config with mgnl* REST API base paths) and links to several curated event teaser pages.",
+      "acquired_from": "https://www.hkw.de/en",
+      "acquired_at": "2026-08-26T12:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hkw-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-programme-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The aggregate /en/programme listing page, retained byte-faithfully. Confirms this page is client-rendered (a <div class=\"page-loading-placeholder\"> only; no event cards present in the server-rendered HTML), so it cannot be used for discovery.",
+      "acquired_from": "https://www.hkw.de/en/programme",
+      "acquired_at": "2026-08-26T12:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hkw-berlin-01/evidence/programme-list.html"
+    },
+    {
+      "evidence_id": "ev-sitemap",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded excerpt of the site's own public sitemap.xml. The live response is 4,655,091 bytes with 8,670 <loc> entries total, of which 4,153 match https://www.hkw.de/en/programme/... -- this retained excerpt keeps the first 60 of those /en/programme/ <url> blocks verbatim (byte-identical to the live response for the retained blocks themselves), plus an explanatory header comment stating the full counts and the truncation, per this policy's 'bounded evidence, not an uncontrolled full-site dump' guidance. Not marked byte_faithful because the file as a whole is a curated excerpt, not the complete original response.",
+      "acquired_from": "https://www.hkw.de/sitemap.xml",
+      "acquired_at": "2026-08-26T12:58:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser), then bounded to the first 60 matching <url> blocks",
+      "content_type": "application/xml",
+      "byte_faithful": false,
+      "path": "research/source-investigations/hkw-berlin-01/evidence/sitemap-excerpt.xml"
+    },
+    {
+      "evidence_id": "ev-event-praed",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('Praed', Sound Base Berlin series), retained byte-faithfully. Contains one schema.org MusicEvent JSON-LD block with startDate/endDate (both equal), location (name + PostalAddress), and superEvent series info.",
+      "acquired_from": "https://www.hkw.de/en/programme/sound-base-berlin/praed",
+      "acquired_at": "2026-08-26T12:59:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hkw-berlin-01/evidence/event-praed.html"
+    },
+    {
+      "evidence_id": "ev-event-lange-nacht",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, independent real event detail page ('Long Night of Museums 2026'), retained byte-faithfully. Contains one schema.org EducationEvent JSON-LD block with a genuinely distinct multi-hour startDate/endDate pair, confirming the schema is used consistently across different event categories.",
+      "acquired_from": "https://www.hkw.de/en/programme/events/lange-nacht-der-museen-2026",
+      "acquired_at": "2026-08-26T13:00:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/hkw-berlin-01/evidence/event-lange-nacht.html"
+    },
+    {
+      "evidence_id": "hkw-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/html-link-discovery-berlin-cohort.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/html-link-discovery-berlin-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/hkw-berlin-01/evidence/event-praed.html"
+    }
+  ],
+  "supersedes": null
+}

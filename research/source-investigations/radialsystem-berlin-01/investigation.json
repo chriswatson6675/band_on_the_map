@@ -1,0 +1,190 @@
+{
+  "investigation_id": "radialsystem-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC via curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser): retained the homepage, the /en/programm/programm/ calendar list page, one individual event detail page (/en/veranstaltungen/zweiland/), and the /en/service/ page (for identity/address confirmation)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's own official calendar (https://www.radialsystem.de/en/programm/programm/) is fully server-rendered: every event card in the raw HTML carries a stable detail link (/en/veranstaltungen/{slug}/), a title (<h1><a>...), one or more dateblocks (<span class=\"wday\">/<span class=\"mday\">/<span class=\"month\">/<span class=\"year\">/<span class=\"special\">time</span>), a room (<p class=\"location\">), and a category tag. Alpine.js directives (x-show, @click) are present for interactive show/hide filtering only -- the underlying data is already in the raw HTML, no JS execution is needed to read it. The individual event detail page sampled (zweiland) repeats the identical dateblock markup per performance date plus its own embedded pretix.eu ticket link and free-text ticket-price tiers. No JSON-LD, wp-json, ICS, Fourvenues, or Sanity signature exists anywhere, but the plain server-rendered HTML directly answers every required field, so this genuinely terminates the escalation ladder at Level 1.",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+    }
+  ],
+  "source_candidate_id": "radialsystem-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Radialsystem (cultural venue with a substantial dance/music programme, Holzmarktstraße 33, Friedrichshain, Berlin)",
+  "official_url": "https://www.radialsystem.de/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-service-page"],
+    "notes": "The site's own /en/service/ page states the operating entity directly: 'Radialsystem V GmbH, Holzmarktstr. 33, 10243 Berlin' -- matching the venue's well-known Friedrichshain/Spree-riverside location, and its own domain www.radialsystem.de."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom-built site (no CMS generator meta tag found) using Alpine.js for client-side UI interactivity (date/filter selection) only -- the calendar list and event detail pages are both fully server-rendered with no client-side data fetch required. Ticketing is embedded via pretix.eu (the venue's own first-party ticket shop integration, not a third-party listings aggregator).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_PROGRAMME_CALENDAR_LIST",
+      "url": "https://www.radialsystem.de/en/programm/programm/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programm-list"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.radialsystem.de/en/veranstaltungen/zweiland/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-zweiland"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Zweiland",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The list page's own <h1><a href=\"/en/veranstaltungen/zweiland/\">Zweiland</a></h1> event-card heading, matching the detail page's own <title>Radialsystem - Zweiland</title>.",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each dateblock (<span class=\"wday\">Th</span><span class=\"mday\">27</span><span class=\"month\">08</span><span class=\"year\">2026</span>) states a complete, self-contained date including year -- present identically on both the list card and the detail page. A single production (e.g. Zweiland) has MULTIPLE dateblocks, one per performance date/time -- this is a genuine one-to-many production-to-performance relationship the source itself expresses structurally, not an ambiguity. Value shown is the first sampled performance date.",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "21:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each dateblock's own <span class=\"special\">21:00</span><span class=\"special-2\">h</span>, paired 1:1 with its own date. No UTC offset/timezone is stated -- FLOATING_LOCAL, not upgraded to UTC. Value shown is the first sampled performance's time.",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end date/time field was found on either the list card or the sampled detail page for any performance.",
+      "evidence_refs": ["ev-event-zweiland"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Saal",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event card's/detail page's own <p class=\"location\">, e.g. 'Saal' or 'Halle' -- one of Radialsystem's own named internal spaces within its single Holzmarktstraße 33 building (consistent with this project's existing room-is-not-a-separate-venue precedent).",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The event's own URL slug (e.g. 'zweiland', from /en/veranstaltungen/zweiland/) is a stable, source-authored permalink for the PRODUCTION, but one production genuinely has multiple performance dates/times on the same page (observed: 6 dateblocks for Zweiland alone) -- so the slug alone is not unique per performance occurrence. A recommended, not-yet-empirically-verified strategy for a future collector: a compound id of {slug}+{ISO date+time from that occurrence's own dateblock}, since both halves are retained, source-authored facts on the same page. Left PARTIAL rather than promoted to PROVEN/DETERMINISTIC_CONTEXT because collision-safety of that compound key has not been empirically stress-tested against real bulk data in this investigation.",
+      "evidence_refs": ["ev-event-zweiland"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.radialsystem.de/en/veranstaltungen/zweiland/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event card's own <h1><a href=\"...\"> link, resolving directly to the detail page fetched and retained in this investigation.",
+      "evidence_refs": ["ev-programm-list", "ev-event-zweiland"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "42 Euro (reduced 30 Euro) / 36 Euro (reduced 26 Euro) / 28 Euro (reduced 20 Euro) / 16 Euro",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The detail page's own 'Ticket Prices' block, directly stated as free-text multi-tier pricing (not a single normalized amount) per performance date; the sampled dates all showed the same tiered text. Booking itself happens via the venue's own embedded pretix.eu shop link, present per-date on the same page.",
+      "evidence_refs": ["ev-event-zweiland"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programm-list", "ev-event-zweiland"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "A single production/slug can carry multiple performance dates/times (a real one-to-many relationship), so a collector must emit one Observation per dateblock, not one per slug/page, and needs a real source_record_id strategy (see field_assessment.source_record_id notes) rather than reusing the slug alone."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN directly from the venue's own retained /en/service/ page.",
+      "acquisition_class STATIC_HTML, a resolved, supported class, reached entirely at Level 1.",
+      "A CONFIRMED public data path retained for both the calendar list page and a real event detail page.",
+      "title, start_date, time, venue_location, event_url, and price all PROVEN with basis DIRECT_SOURCE.",
+      "end honestly assessed NOT_PRESENT; source_record_id honestly left PARTIAL pending an empirically-verified compound-key strategy -- no fields fabricated.",
+      "recommended_family STATIC_EVENT_LIST, an existing, known collector family requiring no new code family.",
+      "No unresolved CRITICAL blocker.",
+      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step, which should also empirically verify the source_record_id compound-key strategy."
+    ],
+    "evidence_refs": ["ev-programm-list", "ev-event-zweiland", "ev-service-page"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, retained byte-faithfully. No JSON-LD, no CMS generator meta; links to the /en/programm/programm/ calendar.",
+      "acquired_from": "https://www.radialsystem.de/en/",
+      "acquired_at": "2026-08-26T12:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-programm-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public calendar list page, retained byte-faithfully. Multiple real, fully server-rendered event cards with title, one-or-more dateblocks (wday/mday/month/year/time), room location, and category tag, each linking to its own /en/veranstaltungen/{slug}/ detail page.",
+      "acquired_from": "https://www.radialsystem.de/en/programm/programm/",
+      "acquired_at": "2026-08-26T12:39:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/programm.html"
+    },
+    {
+      "evidence_id": "ev-event-zweiland",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('Zweiland' by Sasha Waltz & Guests), retained byte-faithfully. Demonstrates the full per-performance markup: 6 separate dateblocks (one per show), room, an embedded pretix.eu ticket link per date, and free-text tiered ticket prices per date.",
+      "acquired_from": "https://www.radialsystem.de/en/veranstaltungen/zweiland/",
+      "acquired_at": "2026-08-26T12:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/event-zweiland.html"
+    },
+    {
+      "evidence_id": "ev-service-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own /en/service/ page, retained byte-faithfully. States the operating entity and address directly: 'Radialsystem V GmbH, Holzmarktstr. 33, 10243 Berlin' -- used to prove official identity.",
+      "acquired_from": "https://www.radialsystem.de/en/service/",
+      "acquired_at": "2026-08-26T12:42:00Z",
+      "method": "curl (plain HTTP GET, -L to follow redirect, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/radialsystem-berlin-01/evidence/contact-page.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,158 @@
+{
+  "investigation_id": "cassiopeia-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official club events page and one individual event detail page. The site is Webflow, with its event list server-side-rendered (SSR) directly into the initial HTML as a Webflow CMS Collection List (Finsweet cmsfilter/cmsload attributes only add client-side filter/sort UI on top of already-rendered items — the events themselves are present without any JS execution)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The public club events page (https://cassiopeia-berlin.de/club) is a Webflow site whose event list is server-side-rendered directly into the initial HTML: 8 sampled event cards, each with its own title, day/month digits plus a full 'Month YYYY' text within the same per-event date block, a start ('Beginn') time, a category/genre tag, and a link to the event's own detail page. This directly answers the investigation question without needing to escalate. No JSON-LD Event/MusicEvent schema, ICS feed, WordPress plugin, Fourvenues widget, or Sanity CMS was found.",
+      "evidence_refs": ["ev-club-page", "ev-event-detail"]
+    }
+  ],
+  "source_candidate_id": "cassiopeia-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Cassiopeia (club and concert venue, Revaler Str. 99, RAW-Gelände, Berlin-Friedrichshain, operating since 2005)",
+  "official_url": "https://cassiopeia-berlin.de/club",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-club-page", "ev-event-detail"],
+    "notes": "Official identity confirmed directly from the retained evidence: the venue's own domain (cassiopeia-berlin.de), its own <title> ('Cassiopeia Berlin – Club'), its own meta description stating 'Seit 2005 pulsiert das Cassiopeia als Club und Konzertlocation auf dem R.A.W. Gelände in Berlin Friedrichshain', and the Webflow data-wf-domain attribute matching the same domain. Discovered via WebSearch (not treated as authority itself) and independently confirmed by fetching the domain directly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Webflow (data-wf-domain/data-wf-site attributes; cdn.prod.website-files.com assets), with a Webflow CMS Collection List for events server-side-rendered into the page; Finsweet cmsfilter/cmsload/cmsselect attributes add client-side month/search filtering on top of the already-rendered list, not a separate API.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-club-page"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://cassiopeia-berlin.de/club",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-club-page"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://cassiopeia-berlin.de/event/szene-save-raw-111685127",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "SZENE // SAVE RAW",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <h2 fs-cmsfilter-field=\"title\" class=\"subheading event\"> states the full title directly. Sampled representative value from the first card on the retained page; the same structure repeats identically across all 8 sampled cards.",
+      "evidence_refs": ["ev-club-page"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Each event's own date block (event-date-wrapper) states the day and numeric month as adjacent digit nodes ('28', '.', '08', '.') AND, within that SAME per-event block (not a distant page-level heading shared across many unrelated events), a sibling hidden filter node states the full 'Month YYYY' in words (fs-cmsfilter-field=\"date\" class=\"event-date faker\">August 2026</h2>). Both pieces belong to this one event's own markup; combining them mechanically (day + numeric month, cross-checked against the month name in the faker text, + the year from the faker text) yields exactly one result, 2026-08-28. This is recorded as DETERMINISTIC_CONTEXT rather than DIRECT_SOURCE because the exact combined date string is not present as a single token anywhere — it genuinely requires combining >=2 retained sibling nodes, even though both belong to the same event record.",
+      "evidence_refs": ["ev-club-page"],
+      "derivation": {
+        "rule": "Within one event's own <div class=\"event-date-wrapper\">, concatenate the digit nodes ('28' + '08') as <DD>.<MM>, then take the year from the sibling <h2 fs-cmsfilter-field=\"date\" class=\"event-date faker\"> node's 'Month YYYY' text (cross-checking that its month name matches the numeric month already read) to yield <Year>-<MM>-<DD>. Exactly one result per event; no page-level heading or cross-event inheritance is involved.",
+        "inputs": ["28.08 (day/month digit nodes, event-date-wrapper)", "August 2026 (sibling faker node's month-name + year text, same event-date-wrapper)"]
+      }
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each card's own event-detail block states a 'Beginn' (start) time directly (e.g. '19:15' on the sampled card, alongside a separate 'Einlass'/doors time '18:30'), but with no UTC offset or explicit timezone anywhere on the page — a floating local time only, not a confirmed instant. Consistent with this project's v1.2 worked example (example-deterministic-context-ready-01), a floating local time is retained honestly as PARTIAL rather than promoted to a precise PROVEN value.",
+      "evidence_refs": ["ev-club-page"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is stated anywhere on the event card or the sampled event detail page.",
+      "evidence_refs": ["ev-club-page", "ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-event-card as a discrete field. This source represents exactly one physical venue (Cassiopeia, Revaler Str. 99) — consistent with this project's existing single-venue-per-source precedent (e.g. razzmatazz-barcelona-01), venue identity is intended to resolve via source_id at activation time, not by parsing a per-record field the source does not actually expose.",
+      "evidence_refs": ["ev-club-page"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "szene-save-raw-111685127",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own detail-page link ('/event/{slug}') carries a Webflow CMS-style slug ending in a distinct numeric suffix (e.g. '-111685127') that reads as this platform's own auto-generated per-item identifier appended to the human title-slug — used here as the stable identifier, matching this project's existing LAV/moog-barcelona-01/badehaus-berlin-01/urban-spree-berlin-01 URL-slug precedent. Stability of the numeric suffix specifically (as opposed to just the whole slug) was not independently re-fetched to confirm it never changes; the WHOLE slug (title-text + numeric suffix) is what is actually proposed as source_record_id, and that whole string is directly read from the source's own link markup, not inferred.",
+      "evidence_refs": ["ev-club-page"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://cassiopeia-berlin.de/event/szene-save-raw-111685127",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <a href=\"/event/{slug}\"> states the relative path directly; resolved against the page's own domain and confirmed to return the matching event's own detail page (evidence/event-detail.html).",
+      "evidence_refs": ["ev-club-page", "ev-event-detail"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price text appears on any sampled event card or on the sampled event detail page (checked directly, including common German price markers 'VVK'/'AK' and euro-amount patterns — none found).",
+      "evidence_refs": ["ev-club-page", "ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-club-page", "ev-event-detail"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence.",
+      "acquisition_class STATIC_HTML, a resolved supported class, with a CONFIRMED public data path (8 real, current event cards SSR'd on the live page).",
+      "title PROVEN with basis DIRECT_SOURCE; start_date PROVEN with basis DETERMINISTIC_CONTEXT, mechanically combining two sibling nodes within the SAME per-event record (not cross-event inheritance) — a genuine, reproducible combination, not a guess.",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching this project's existing precedent from other investigated Berlin/Barcelona sources.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary.",
+      "No unresolved CRITICAL blocker.",
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 (and, for the DETERMINISTIC_CONTEXT start_date field specifically, the v1.2 field-specific refinement of gate 9) requires. Building and offline-proving the STATIC_EVENT_LIST parser — including the date-combination rule above — against the retained evidence/club-page.html fixture is separate, explicitly follow-up work."
+    ],
+    "evidence_refs": ["ev-club-page", "ev-event-detail"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-club-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public club events page, byte-retained in full: 8 real, current event cards, server-side-rendered directly into the HTML, each with title/date(day+month+year)/start-time/category/detail-url.",
+      "acquired_from": "https://cassiopeia-berlin.de/club",
+      "acquired_at": "2026-08-26T12:19:30Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One individual event detail page ('SZENE // SAVE RAW'), byte-retained in full, confirming the resolved event_url genuinely resolves and that no additional structured price/venue data or JSON-LD Event schema exists beyond what the listing card already shows.",
+      "acquired_from": "https://cassiopeia-berlin.de/event/szene-save-raw-111685127",
+      "acquired_at": "2026-08-26T12:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/event-detail.html"
+    }
+  ],
+  "supersedes": null
+}

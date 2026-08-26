@@ -1,0 +1,198 @@
+{
+  "investigation_id": "tresor-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:14:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser, no JS execution) of the venue's own WordPress-powered events grid page and two real event-detail pages (a standard Klubnacht and a special-format event). The site is WordPress (confirmed via the Link: rel=\"https://api.w.org/\" response header and wp-content asset paths); its own REST API returned 401 rest_disabled, so no Tribe Events REST endpoint was used. All facts below come from fully server-rendered plain HTML on the events grid and event-detail pages, plus each event's own permalink slug."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://tresorberlin.com/club/events/ returned a fully server-rendered grid of 17 upcoming event-item articles (date, title, per-floor lineup summary), each linking to a stable permalink of the form /event/{YYYYMMDD}-{slug}/ — the full date is embedded directly in the URL itself. Two event-detail pages were fetched: a standard 'Tresor Klubnacht' (clean canonical room names 'Tresor'/'Globus', 23:00 start, open-ended close) and a special co-branded event ('Büro Siebzig • Tresor New Faces', non-canonical floor-name text embedding extra programming detail) to honestly characterise both the clean and the messier real-world cases. The site's own wp-json REST API returned 401 rest_disabled (confirmed, not assumed), so no WordPress REST endpoint was usable — but the plain server-rendered HTML already answers the investigation question. This directly answers the investigation question at Level 1; no JSON-LD, ICS, Fourvenues, or Sanity signature was present or needed; no structural/browser escalation was required.",
+      "evidence_refs": ["ev-events-page", "ev-event-buro-siebzig", "ev-event-klubnacht"]
+    }
+  ],
+  "source_candidate_id": "tresor-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Tresor (techno club, Mitte, Berlin — rooms: Tresor (basement vault), Globus, Aurora Bar)",
+  "official_url": "https://tresorberlin.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page", "ev-event-buro-siebzig", "ev-event-klubnacht"],
+    "notes": "tresorberlin.com is independently corroborated as Tresor's own official domain by multiple third-party discovery sources (Berlin.de's official venue listing, Wikipedia's 'Tresor (club)' article), which is treated only as a discovery lead, not as authority for facts — the retained page content itself (the site's own <title> 'Tresor Berlin | Legendary techno label and nightclub from Berlin', its own event pages naming its own physical rooms 'Tresor'/'Globus'/'Aurora Bar', and its own WooCommerce merch shop under the same domain) is the actual evidence of first-party identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (confirmed via wp-json Link header and wp-content asset paths) with a custom event-grid theme and WooCommerce for merch (not for event ticket sales — event tickets are sold via a third-party, Resident Advisor, linked from each event page). The site's own wp-json/tribe/events/v1/events REST endpoint returned 401 rest_disabled, so this is not usable; the event list and detail pages are instead plain, fully server-rendered HTML.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page", "ev-event-buro-siebzig", "ev-event-klubnacht"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://tresorberlin.com/club/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-page"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://tresorberlin.com/event/20260829-tresor-klubnacht/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-klubnacht"]
+    },
+    {
+      "kind": "PRIVATE_REST_API_REJECTED",
+      "url": "https://tresorberlin.com/wp-json/tribe/events/v1/events",
+      "access": "PRIVATE",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-tribe-api-401"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Tresor Klubnacht",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event card's own <a class=\"event-title\"> text on the grid page, matching the detail page's own <h2> nav-dynamic heading. Example sampled directly: 'Tresor Klubnacht' for /event/20260829-tresor-klubnacht/.",
+      "evidence_refs": ["ev-events-page", "ev-event-klubnacht"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-29",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own permalink slug states the full date directly and unambiguously as a YYYYMMDD prefix (e.g. '20260829-tresor-klubnacht'); the grid card's own date text ('Sa 29.08') independently corroborates day/month. No timezone offset is stated anywhere on the site (unlike the ISO+offset seen at berghain-berlin-01) — this is a floating local Europe/Berlin date/time, recorded honestly as such rather than upgraded to UTC.",
+      "evidence_refs": ["ev-events-page", "ev-event-klubnacht"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "23:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The detail page's own first lineup-time entry for each floor states the door/start time directly as plain text (e.g. '23:00-02:00' for the first act on both the 'Tresor' and 'Globus' floors of the sampled Klubnacht) — floating local time, no UTC offset present in the source. NOTE: for the other sampled event (Büro Siebzig • Tresor New Faces), floor start times genuinely differ per floor (21:00 vs 22:00 door), so a single canonical event-level start time is not always uniform across floors — recorded PROVEN for the specific sampled Klubnacht record, not asserted as a universal single-time-per-event rule.",
+      "evidence_refs": ["ev-event-klubnacht", "ev-event-buro-siebzig"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The last lineup slot of the sampled Klubnacht is explicitly open-ended ('07:00 – End'), and no fixed closing time is stated anywhere on the page — the source itself declines to state an end time, not merely omits it.",
+      "evidence_refs": ["ev-event-klubnacht"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Tresor (floor 1) / Globus (floor 2) — sampled event 20260829-tresor-klubnacht",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event-detail page's own 'floor-name' div states the room directly. For the sampled standard Klubnacht these are clean canonical room names ('Tresor', 'Globus') matching the club's own two well-known physical rooms. IMPORTANT caveat retained honestly: the other sampled event (Büro Siebzig) instead used compound floor-name text embedding extra programming/host/time detail ('Globus Stage: Büro Siebzig / 21h', 'Aurora Bar') rather than a bare room name — so this field is not perfectly uniform across all Tresor events and a real collector would need a normalisation step for the non-standard case; recorded PROVEN only for the clean canonical case actually sampled.",
+      "evidence_refs": ["ev-event-klubnacht", "ev-event-buro-siebzig"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "20260829-tresor-klubnacht",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own canonical permalink slug (e.g. '20260829-tresor-klubnacht') is the site's own stable addressing scheme, used consistently as the grid card's own link href and as the detail page's own canonical URL. No repeated-fetch stability test was performed in this bounded investigation (a genuine limitation, noted honestly), but the identifier is a permalink slug the source itself uses as its own canonical path, matching the policy's 'derived from a deterministic source property whose own stability is itself evidenced' rule.",
+      "evidence_refs": ["ev-events-page", "ev-event-klubnacht"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://tresorberlin.com/event/20260829-tresor-klubnacht/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event card's own href, directly retained and confirmed to resolve (HTTP 200, fetched as ev-event-klubnacht).",
+      "evidence_refs": ["ev-events-page", "ev-event-klubnacht"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price figure appears anywhere on either sampled event-detail page. Both events' own 'Ticket Policy' section states only 'Tickets via RA' (a link to a Resident Advisor event page) — Tresor's own site never states a price itself; RA is explicitly a third-party ticketing outlet, not this source's own first-party price statement, and per policy is a discovery/purchase lead, not authority for a first-party fact this investigation would claim.",
+      "evidence_refs": ["ev-event-klubnacht", "ev-event-buro-siebzig"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page", "ev-event-klubnacht", "ev-event-buro-siebzig"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The 'floor-name' text used for venue_location is not perfectly uniform across all events — some events (like the sampled Büro Siebzig record) embed extra programming/host/time detail into the same field instead of a bare room name. A real collector would need a normalisation/fallback rule for this, and possibly treat non-canonical floor-names as PARTIAL rather than PROVEN room identity on a per-record basis."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from the venue's own retained page content, corroborated by independent third-party discovery leads.",
+      "acquisition_class STATIC_HTML, a resolved supported class — fully server-rendered event list and detail pages, no browser/JS execution needed.",
+      "Three data paths retained: two CONFIRMED public HTML pages, and one PRIVATE/REJECTED endpoint (the site's own wp-json Tribe Events REST API, confirmed 401 rest_disabled — an honest negative finding, not a guess).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE (the permalink slug states the full date directly; no context combination needed).",
+      "source_record_id PROVEN via the site's own stable permalink-slug scheme.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented family — no new collector family required.",
+      "No unresolved CRITICAL blocker (only one MINOR blocker, a room-name normalisation nuance, honestly documented).",
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION, because no DETERMINISTIC_DERIVATION evidence item (an offline, no-network re-parse of the retained fixtures reproducing these exact fields) was produced in this investigation — that offline-proof/collector-build step is separate follow-up work per the task's own instructions, not performed here."
+    ],
+    "evidence_refs": ["ev-events-page", "ev-event-klubnacht", "ev-event-buro-siebzig"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (HTTP response headers + event-grid section with three server-rendered event-item articles) of the venue's official events list page.",
+      "acquired_from": "https://tresorberlin.com/club/events/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/events-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event-buro-siebzig",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (HTTP response headers + event header, per-floor lineup with times, ticket-policy text) of a real, non-standard, co-branded event's detail page.",
+      "acquired_from": "https://tresorberlin.com/event/20260826-buro-siebzig-tresor-new-faces/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/event-detail-buro-siebzig-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event-klubnacht",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (HTTP response headers + per-floor lineup with clean canonical room names, times, open-ended close) of a real, standard 'Tresor Klubnacht' event's detail page.",
+      "acquired_from": "https://tresorberlin.com/event/20260829-tresor-klubnacht/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/event-detail-klubnacht-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-tribe-api-401",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw JSON response confirming the site's own wp-json Tribe Events REST endpoint is disabled (401 rest_disabled) — an honest negative finding, not an assumption.",
+      "acquired_from": "https://tresorberlin.com/wp-json/tribe/events/v1/events",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/tribe-api-401-response.json"
+    }
+  ],
+  "supersedes": null
+}

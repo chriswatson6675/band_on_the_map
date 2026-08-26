@@ -1,0 +1,243 @@
+{
+  "investigation_id": "lido-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:23:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's official homepage/programme page and three real, currently-listed individual event pages. Each individual event page directly embeds a single schema.org MusicEvent JSON-LD block — no per-page crawling logic beyond following the homepage's own listed event links was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's own homepage (which doubles as its 'Program' page per its own nav) is server-rendered and lists every upcoming event as a plain <a href=\"/events/{slug}\"> link (no JSON-LD on the listing page itself). Following three of those real, currently-listed links to their own individual event pages showed each one embeds a single, consistently-shaped schema.org MusicEvent JSON-LD block (name, startDate, url, location) directly in the server-rendered HTML — sufficient to answer the investigation question without any structural/browser escalation.",
+      "evidence_refs": [
+        "ev-homepage",
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    }
+  ],
+  "source_candidate_id": "lido-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Lido Berlin (concert venue and club, Cuvrystraße 7, Kreuzberg, Berlin — run by the Festsaal Kreuzberg team, alongside Bi Nuu and Astra Kulturhaus)",
+  "official_url": "https://www.lido-berlin.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://www.lido-berlin.de/ — its own footer states its own address (Cuvrystraße 7, 10997 Berlin), phone, and email (info@lido-berlin.de), and links to its own verified social accounts (facebook.com/lidoberlin, instagram.com/lidoberlin). The footer also links to binuu.de and astra-berlin.de as sibling venues under the same Festsaal Kreuzberg operator, consistent with independent third-party discovery leads."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "A Ruby on Rails application (X-Powered-By: Phusion Passenger, X-Runtime header observed). No CMS/plugin fingerprint beyond this; each individual event detail page (not the listing page) embeds its own schema.org MusicEvent JSON-LD.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage",
+      "ev-event1",
+      "ev-event2",
+      "ev-event3"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_LINKS_TO_JSONLD_DETAIL_PAGES",
+      "url": "https://www.lido-berlin.de/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-homepage",
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "SHAKEY GRAVES",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own JSON-LD 'name' field (e.g. 'SHAKEY GRAVES', 'JORJA SMITH', 'BUZZCOCKS'), confirmed identical across all 3 sampled events.",
+      "evidence_refs": [
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-26T20:00:00+00:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own JSON-LD 'startDate', a full ISO 8601 datetime with an explicit UTC offset (e.g. '2026-08-26T20:00:00+00:00'). IMPORTANT CAVEAT, honestly recorded rather than silently corrected: the stated '+00:00' offset does not match Berlin's actual summer offset (CEST, +02:00) for an August/September date, and the time-of-day component (e.g. 20:00) exactly matches the venue's own separately-rendered local start-time text on the same page (confirmed for event 1: JSON-LD says 20:00, the page's own visible 'Doors ... 20:00' text block also says 20:00) — this strongly suggests the site always hardcodes '+00:00' regardless of true local offset, i.e. the time-of-day digits are reliable local wall-clock time but the stated offset annotation itself should not be trusted as genuine UTC without further verification. A real collector should treat this as FLOATING_LOCAL time (Europe/Berlin) rather than a genuine UTC instant.",
+      "evidence_refs": [
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day portion of the same 'startDate' field; corroborated by the page's own separately-rendered 'Doors'/start-time text block for event 1 (both say 20:00). See start_date notes for the offset caveat.",
+      "evidence_refs": [
+        "ev-event1"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No 'endDate' or equivalent field is present in the JSON-LD block on any of the 3 sampled events.",
+      "evidence_refs": [
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Lido Berlin, Cuvrystraße 7, 10997 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own JSON-LD 'location.name'/'location.address' — the literal string 'Lido Berlin' with the address 'Cuvrystraße 7, 10997 Berlin', identical on all 3 sampled events.",
+      "evidence_refs": [
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No numeric or opaque id field is exposed anywhere in the JSON-LD. Each event's own 'url' field is a permanent-looking '/events/{date-slug}' path (e.g. '/events/2026-08-26-shakey-graves') that this source itself uses as the record's own canonical address, matching the LAV/Moog precedent (ingestion/lav/discovery.mjs, moog-barcelona-01) of treating a source's own URL slug as source_record_id. Left PARTIAL rather than PROVEN here because, unlike Moog's case, this was not independently stress-tested against a genuinely re-observed/re-fetched instance of the same event within this bounded investigation (no repeated observation over time was performed) — a future offline-proof step should verify slug stability before promoting this to PROVEN.",
+      "evidence_refs": [
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.lido-berlin.de/events/2026-08-26-shakey-graves",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own JSON-LD 'url' field.",
+      "evidence_refs": [
+        "ev-event1",
+        "ev-event2",
+        "ev-event3"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price/offers field is present in the JSON-LD on any of the 3 sampled events; ticket links observed elsewhere on the page point to eventim.de (third-party ticketing), not a first-party price field.",
+      "evidence_refs": [
+        "ev-event1"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event1",
+      "ev-event2",
+      "ev-event3",
+      "lido-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained first-party evidence.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, consistent across 3 independently sampled events.",
+      "A CONFIRMED public data path retained: the homepage's own event links, each leading to a JSON-LD-bearing detail page.",
+      "title, start_date, venue_location and event_url all PROVEN via basis DIRECT_SOURCE.",
+      "source_record_id left honestly PARTIAL (URL-slug strategy plausible per existing project precedent, but not independently stress-tested within this investigation) and start_date carries an explicitly documented offset caveat rather than a silently 'corrected' value — both are exactly the kind of detail an offline-proof/collector-build follow-up step should resolve before any activation decision, which this investigation deliberately does not attempt (no collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this task).",
+      "recommended_family JSON_LD (an existing, already-implemented, reusable module — ingestion/json-ld/).",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline, cross-checked against a second unrelated venue using the same generic discovery function — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-event1",
+      "ev-event2",
+      "ev-event3",
+      "lido-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Excerpt of the venue's official homepage: the complete <head> block plus the first 25 unique /events/{slug} hrefs found in its server-rendered programme listing (full page is 221,818 bytes; truncated for bounded retention, truncation explicitly noted in the file).",
+      "acquired_from": "https://www.lido-berlin.de/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/lido-berlin-01/evidence/lido-homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Excerpt of the 'SHAKEY GRAVES' event detail page: the full schema.org MusicEvent JSON-LD block plus a short amount of surrounding context and a separate Doors/time text excerpt corroborating the time-of-day (full page is 15,382 bytes; truncated for bounded retention, truncation explicitly noted in the file).",
+      "acquired_from": "https://www.lido-berlin.de/events/2026-08-26-shakey-graves",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/lido-berlin-01/evidence/lido-event1-jsonld-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Excerpt of the 'JORJA SMITH' event detail page: the full schema.org MusicEvent JSON-LD block plus a short amount of surrounding context (truncated for bounded retention, truncation explicitly noted in the file).",
+      "acquired_from": "https://www.lido-berlin.de/events/2026-09-03-jorja-smith",
+      "acquired_at": "2026-08-26T12:23:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/lido-berlin-01/evidence/lido-event2-jsonld-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event3",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Excerpt of the 'BUZZCOCKS' event detail page: the full schema.org MusicEvent JSON-LD block plus a short amount of surrounding context (truncated for bounded retention, truncation explicitly noted in the file).",
+      "acquired_from": "https://www.lido-berlin.de/events/2026-09-05-buzzcocks",
+      "acquired_at": "2026-08-26T12:23:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/lido-berlin-01/evidence/lido-event3-jsonld-excerpt.html"
+    },
+    {
+      "evidence_id": "lido-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A new, genuinely reusable offline test suite (tests/html-link-discovery.test.mjs) exercising the new ingestion/html-link-discovery/ module (extractLinksMatching()) against THIS investigation's own retained list-page fixture, then feeding a discovered URL into the EXISTING, unmodified ingestion/json-ld/parse.mjs to reproduce the exact claimed title/start_date — a real, dependency-free, no-network, deterministic reproduction of the full discover-then-parse path, cross-checked against a second, technically unrelated Berlin venue (Konzerthaus Berlin: custom CMS; Lido Berlin: Ruby on Rails) using the SAME discovery function.",
+      "acquired_from": "tests/html-link-discovery.test.mjs",
+      "acquired_at": "2026-08-26T14:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/lido-berlin-01/evidence/lido-event1-jsonld-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

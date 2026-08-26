@@ -1,0 +1,201 @@
+{
+  "investigation_id": "silent-green-kulturquartier-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC via curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser): retained the homepage, the /en/programme calendar list page, and 3 individual event detail pages linked directly from that list. The homepage and programme page each carry exactly one application/ld+json block (BreadcrumbList only -- no Event/MusicEvent schema); event detail pages carry only itemtype=\"http://schema.org/Article\" microdata (itemprop=\"headline\" on the title only). No ICS/RSS/Atom link, no wp-json, no Fourvenues script, no Sanity config were present anywhere. The actual event facts (date/time/location/category) are exposed as plain, consistently-classed server-rendered HTML on each event's own detail page (e.g. <span class=\"event-detail-date-begin\">), which is sufficient to answer the investigation question at Level 1 -- no escalation was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's own official programme calendar (https://www.silent-green.net/en/programme, TYPO3 CMS with the 'news' extension per meta generator + tx_news_pi1 query params) links to per-event detail pages at a stable URL pattern (/en/programme/detail/{slug}). Three sampled detail pages (htrk, hanno-leichtmann-oscillazioni, silent-green-open-lab-9-jkzq-franna) each server-render the full event facts in consistently-named CSS-classed spans: event-detail-date-begin/-end, event-detail-time-begin/-end, event-detail-location, event-detail-category, plus <h1 itemprop=\"headline\"> for the title and a rel=\"canonical\" link for the stable event URL. No JSON-LD Event/MusicEvent schema, ICS link, RSS/Atom feed, WordPress/Tribe signature, Fourvenues script, or Sanity config exists on this domain -- but the plain server-rendered HTML itself directly and unambiguously answers every required field, so this genuinely terminates the escalation ladder at Level 1.",
+      "evidence_refs": ["ev-programme-list", "ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    }
+  ],
+  "source_candidate_id": "silent-green-kulturquartier-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "silent green Kulturquartier (cultural venue with a substantial experimental/electronic music programme, former crematorium, Gerichtstraße 35, Wedding, Berlin)",
+  "official_url": "https://www.silent-green.net/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-htrk"],
+    "notes": "The homepage's own title ('silent green Kulturquartier') and every retained event detail page's own footer contact block ('Contact silent green / Gerichtstraße 35 13347 Berlin / T: +49 (0)30 1208221-0 / info(at)silent-green.net') directly confirm official identity and match the venue's well-known Wedding address (the former crematorium building)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "TYPO3 CMS (meta generator: 'TYPO3 CMS') with the 'news' extension (tx_news) powering /en/programme -- a server-rendered calendar-grid list page (by month, e.g. /en/programme/2026/8) linking to per-event detail pages at /en/programme/detail/{slug}. No public JSON/REST API, RSS/ICS feed, or JSON-LD Event schema was found; all event facts are exposed as plain, consistently-classed HTML.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programme-list", "ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_PROGRAMME_CALENDAR_LIST",
+      "url": "https://www.silent-green.net/en/programme",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programme-list"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.silent-green.net/en/programme/detail/htrk",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "HTRK + Loraine James – sold out",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own <h1 itemprop=\"headline\">; value shown is from the primary sampled record (htrk). Confirmed consistent in structure across all 3 sampled pages.",
+      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-02",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own <span class=\"event-detail-date-begin\"> states a complete, self-contained date including weekday, month, day and year, e.g. 'Sun 08/02/2026', independently corroborated on the same page by the spelled-out 'Sunday, August 2' in the body text -- confirmed consistent across all 3 sampled pages, no combination with other page context needed. Value shown (2026-08-02, ISO) is from the primary sampled record (htrk).",
+      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "Doors 07:00 pm / Start 07:45 pm",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own <span class=\"event-detail-time-begin\"> ('Start') and <span class=\"event-detail-time-entry\"> ('Doors'), a local 12-hour time with am/pm. No UTC offset/timezone is stated on the page (Berlin local time is implied, not proven) -- FLOATING_LOCAL, not upgraded to UTC. Value shown is from the primary sampled record (htrk).",
+      "evidence_refs": ["ev-event-htrk", "ev-event-open-lab"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Present only for some records: multi-day installations/exhibitions (e.g. hanno-leichtmann-oscillazioni) carry an explicit <span class=\"event-detail-date-end\">/<span class=\"event-detail-time-end\">; single-evening concerts (e.g. htrk) render neither span at all. This is honest per-record variability in what the source itself exposes, not a parsing gap -- a future collector must record NOT_PRESENT per-record when these spans are absent, never infer an end time.",
+      "evidence_refs": ["ev-event-hanno-leichtmann", "ev-event-htrk"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Kuppelhalle",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own <span class=\"event-detail-location\"> -- one of silent green's own named rooms within its single Gerichtstraße 35 building (consistent with this project's existing room-is-not-a-separate-venue precedent, e.g. Casa da Música/Jamboree). Value shown is from the primary sampled record (htrk); all 3 sampled records were also 'Kuppelhalle'.",
+      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "htrk",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No numeric id is exposed on the rendered page; each event's own canonical URL slug (e.g. 'htrk', 'hanno-leichtmann-oscillazioni') is the site's own stable, documented permalink (rel=\"canonical\" on the very same page) -- the same documented judgement already established for Moog Barcelona / LAV in this repository (URL-slug-as-source_record_id). Value shown is the primary sampled record's slug.",
+      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.silent-green.net/en/programme/detail/htrk",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event detail page's own <link rel=\"canonical\">. Value shown is from the primary sampled record (htrk).",
+      "evidence_refs": ["ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price is rendered on any sampled detail page. The 'Ticket' button, when present, links out to a third-party ticketing platform (e.g. https://ra.co/events/2478204 for htrk) without price shown on this domain; for the other 2 samples no ticket link is present at all (free-entry exhibitions/installations, not stated explicitly as such).",
+      "evidence_refs": ["ev-event-htrk"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programme-list", "ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The programme calendar list page only exposes day-of-month + title + category per event (full date/time/location require visiting each event's own detail page); a collector needs a two-step discover-then-fetch-detail pattern, matching this repository's existing discovery.mjs + observation-adapter.mjs convention (e.g. ingestion/hot-clube/)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN directly from the venue's own retained pages.",
+      "acquisition_class STATIC_HTML, a resolved, supported class, reached entirely at Level 1.",
+      "A CONFIRMED public data path retained for both the discovery list page and the event detail page template, with 3 real sampled events.",
+      "title, start_date, time, venue_location, source_record_id, and event_url all PROVEN with basis DIRECT_SOURCE.",
+      "end honestly assessed PARTIAL (present only for multi-day records) and price honestly NOT_PRESENT -- no fields fabricated.",
+      "recommended_family STATIC_EVENT_LIST, an existing, known collector family requiring no new code family.",
+      "No unresolved CRITICAL blocker.",
+      "No offline, dependency-free, no-network parser reproduction has been built or run against the retained fixtures in this investigation task -- per this task's own scope, only the investigation record was produced, not collector/test code -- so gate 9 (a DETERMINISTIC_DERIVATION evidence item) is not yet satisfied and READY_FOR_ACTIVATION is not claimed. This investigation is complete and ready for that separate offline-proof/collector-build follow-up step."
+    ],
+    "evidence_refs": ["ev-programme-list", "ev-event-htrk", "ev-event-hanno-leichtmann", "ev-event-open-lab"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, retained byte-faithfully. TYPO3 CMS generator meta tag; one BreadcrumbList-only JSON-LD block; links to the /en/programme calendar.",
+      "acquired_from": "https://www.silent-green.net/en/",
+      "acquired_at": "2026-08-26T12:24:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-programme-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public programme calendar list page (current month view), retained byte-faithfully. A month-grid with per-day tooltip popovers listing each event's title, category, and detail-page link -- used to discover event slugs; only a BreadcrumbList JSON-LD block, no Event schema.",
+      "acquired_from": "https://www.silent-green.net/en/programme",
+      "acquired_at": "2026-08-26T12:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/programme.html"
+    },
+    {
+      "evidence_id": "ev-event-htrk",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('HTRK + Loraine James'), retained byte-faithfully. Demonstrates the full field markup for a single-evening concert with a ticket link: title, date, start/doors time, location, category, external ticket URL.",
+      "acquired_from": "https://www.silent-green.net/en/programme/detail/htrk",
+      "acquired_at": "2026-08-26T12:26:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-htrk.html"
+    },
+    {
+      "evidence_id": "ev-event-hanno-leichtmann",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('Hanno Leichtmann: OSCILLAZIONI'), retained byte-faithfully. Demonstrates the multi-day installation/exhibition markup, including the event-detail-date-end and event-detail-time-end spans absent from the single-evening htrk sample.",
+      "acquired_from": "https://www.silent-green.net/en/programme/detail/hanno-leichtmann-oscillazioni",
+      "acquired_at": "2026-08-26T12:27:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-hanno-leichtmann.html"
+    },
+    {
+      "evidence_id": "ev-event-open-lab",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A real event detail page ('silent green Open Lab #9: JKZQ + franna'), retained byte-faithfully. A third, independent sample confirming the same field markup is consistent (date, start/doors time, location) with no ticket link present.",
+      "acquired_from": "https://www.silent-green.net/en/programme/detail/silent-green-open-lab-9-jkzq-franna",
+      "acquired_at": "2026-08-26T12:28:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/silent-green-kulturquartier-berlin-01/evidence/event-detail-open-lab.html"
+    }
+  ],
+  "supersedes": null
+}

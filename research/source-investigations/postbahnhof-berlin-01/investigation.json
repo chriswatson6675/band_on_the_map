@@ -1,0 +1,145 @@
+{
+  "investigation_id": "postbahnhof-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "CANDIDATE_IDENTITY stage only: three plausible domains for this candidate were checked with plain curl GETs/HEADs (descriptive User-Agent, no authentication, no browser) — none was genuinely this candidate's own first-party official presence. The investigation stopped at Level 1 PASSIVE_STATIC/identity because no genuine official site could be found to probe further; DEFER does not require exhausting the escalation ladder per docs/SOURCE_INVESTIGATION_POLICY.md."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "curl GET of https://postbahnhof.com/ (the domain most third-party listings/search engines cite as this venue's 'official website') returns 200, but its own retained content (nav: 'Das Café', 'Der Beutel', 'Flächen', 'Nachhaltigkeit'; <title>'Startseite - BNP Postbahnhof'; outbound links to patrizia.ag and realestate.bnpparibas.de) proves it is a commercial real-estate/office-space marketing site for the building, operated by BNP Paribas Real Estate / PATRIZIA AG — not a live-music-venue presence at all, and it exposes no event/programme content whatsoever. curl GET of https://www.fritzclub.com/ (the historic in-building club brand) returns 200 but is a generic WordPress site ('Exclusive Membership Club and Social Community') containing zero occurrences of the word 'Berlin' anywhere in its retained HTML — not this candidate's presence either. curl of https://postbahnhof-berlin.de/ redirects (303) to an ad-network domain-parking endpoint (p2-1.afp24.net) before hitting a Cloudflare bot-challenge page — a parked/expired domain, not a live site. No genuine first-party official website for this candidate could be identified after checking every plausible domain surfaced by search.",
+      "evidence_refs": ["ev-postbahnhof-com", "ev-fritzclub-com", "ev-postbahnhof-berlin-de-headers"]
+    }
+  ],
+  "source_candidate_id": "postbahnhof-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Postbahnhof (former multi-hall concert venue — FritzClub, Einpackkammer, Gleishalle — Straße der Pariser Kommune 8, 10243 Berlin, Friedrichshain, near Ostbahnhof)",
+  "official_url": null,
+  "identity": {
+    "status": "UNKNOWN",
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "notes": "No genuine first-party official website could be established for this candidate. postbahnhof.com (the domain most listings cite) is now a real-estate/office-leasing marketing site for the physical building, unrelated to live music programming. fritzclub.com is an unrelated generic site with no Berlin content. postbahnhof-berlin.de is a parked/expired domain. Independently, unretained third-party context (WebSearch results, not itself usable as source evidence per policy) is consistent with this: multiple secondary sources describe the Postbahnhof halls being sold and repurposed away from regular concert/club use since around 2019-2021, with only third-party ticket aggregators (Songkick, Resident Advisor, Eventim, etc.) still listing occasional bookings at the address — those are discovery leads, never first-party authority, per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section. identity.status is honestly UNKNOWN rather than NOT_PRESENT/PROVEN — it is not proven that this candidate currently has no official web presence at all (a genuinely different, not-yet-found domain may exist), only that this investigation's own retained checks could not find one."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": []
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess.",
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess.",
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess.",
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess (the venue's street address, Straße der Pariser Kommune 8, 10243 Berlin, is independently well documented by secondary sources, but that is not this investigation's retained first-party evidence).",
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess.",
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party source was found to assess.",
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Official first-party identity could not be established for this candidate — every plausible domain checked (postbahnhof.com, fritzclub.com, postbahnhof-berlin.de) is either unrelated, repurposed away from live-music use, or a parked domain. No acquisition path can be assessed without a genuine first-party source."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "CANDIDATE_IDENTITY could not be resolved: no genuine first-party official website was found for this candidate after checking every plausible domain surfaced by search.",
+      "postbahnhof.com is now a commercial real-estate/office-leasing site for the physical building (BNP Paribas Real Estate / PATRIZIA AG), not a live-music-venue presence.",
+      "fritzclub.com is an unrelated site with zero retained mention of Berlin.",
+      "postbahnhof-berlin.de is a parked/expired domain redirecting to an ad network behind a Cloudflare challenge.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a valid, complete investigation outcome and does not require exhausting the escalation ladder when the blocking issue (no first-party identity) cannot be resolved by further static/structural probing of a site that does not exist.",
+      "Should a genuine current first-party presence for this venue later be identified (e.g. a booking-agency-operated page that explicitly identifies itself as the venue's own), this investigation should be superseded by a new investigation_id, not rewritten in place."
+    ],
+    "evidence_refs": ["ev-postbahnhof-com", "ev-fritzclub-com", "ev-postbahnhof-berlin-de-headers"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-postbahnhof-com",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (first 3500 chars) of the retained response from postbahnhof.com's homepage — proving its content is a commercial real-estate/office-leasing marketing site for the building (nav: 'Das Café', 'Der Beutel', 'Flächen', 'Nachhaltigkeit'; outbound links to patrizia.ag and realestate.bnpparibas.de), not a live-music-venue presence.",
+      "acquired_from": "https://postbahnhof.com/",
+      "acquired_at": "2026-08-26T13:16:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/postbahnhof-berlin-01/evidence/postbahnhof-com-home-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-fritzclub-com",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt (first 3500 chars) of the retained response from fritzclub.com's homepage — a generic WordPress site ('Exclusive Membership Club and Social Community') with zero occurrences of 'Berlin' in the retained content, showing it is not this candidate's presence.",
+      "acquired_from": "https://www.fritzclub.com/",
+      "acquired_at": "2026-08-26T13:16:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/postbahnhof-berlin-01/evidence/fritzclub-com-home-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-postbahnhof-berlin-de-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained raw HTTP response headers for postbahnhof-berlin.de: a 303 redirect to an ad-network domain-parking endpoint (p2-1.afp24.net), followed by a 403 Cloudflare bot-challenge response — proving this is a parked/expired domain, not a live site.",
+      "acquired_from": "https://postbahnhof-berlin.de/",
+      "acquired_at": "2026-08-26T13:17:00Z",
+      "method": "curl -IL (plain HTTP HEAD, following redirects, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/postbahnhof-berlin-01/evidence/postbahnhof-berlin-de-headers.txt"
+    }
+  ],
+  "supersedes": null
+}

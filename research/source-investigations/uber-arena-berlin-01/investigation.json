@@ -1,0 +1,246 @@
+{
+  "investigation_id": "uber-arena-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official homepage, its full events listing page, one event detail page, and that event's per-event ICS ('Add to Calendar') file. Same AEG-operated venue CMS platform already investigated for verti-music-hall-berlin-01 (same URL/markup pattern), independently confirmed here rather than assumed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official events listing page (https://www.uber-arena.de/events/all) immediately exposed 134 distinct upcoming event entries as fully server-rendered static HTML: each event card carries a structured date, category, title, 'starting from' price, and a stable detail-page URL encoding the event slug and start datetime. One sampled event detail page confirmed the same fields plus a discoverable per-event ICS link, whose retained content additionally states an explicit GEO coordinate and street-address LOCATION for the event — richer than the sibling investigation verti-music-hall-berlin-01, and directly usable for venue_location. No JSON-LD, WordPress, Fourvenues, or Sanity signal was present, and none was needed.",
+      "evidence_refs": [
+        "ev-homepage",
+        "ev-events-all",
+        "ev-event-detail-bryan-adams",
+        "ev-ical-bryan-adams"
+      ]
+    }
+  ],
+  "source_candidate_id": "uber-arena-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Uber Arena (formerly Mercedes-Benz Arena Berlin, renamed 2024; large multipurpose arena, Uber-Platz, Friedrichshain, Berlin)",
+  "official_url": "https://www.uber-arena.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage"
+    ],
+    "notes": "The retained homepage's own <title> reads 'Uber Arena' and the page repeatedly self-identifies via AEG/Anschutz operator markers, at the venue's own domain uber-arena.de. The retained event ICS also independently states 'in die Uber Arena nach Berlin' in its own description text and a LOCATION of '12 Mühlenstraße Berlin Berlin 10243', matching the arena's known Friedrichshain address — a second, independent confirmation of identity from a distinct retained artifact (not merely the homepage)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom AEG Presents Europe venue CMS (the same platform family as verti-music-hall-berlin-01/uber-eats-music-hall.de) — server-rendered event listing and detail pages. No WordPress, JSON-LD, Fourvenues, or Sanity signal detected on any fetched page. Each event detail page links a per-event ICS ('Add to Calendar') file, generated server-side and readable without JS; unlike the Music Hall sibling site, this venue's ICS output additionally carries GEO/LOCATION fields.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage",
+      "ev-events-all"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.uber-arena.de/events/all",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-events-all"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.uber-arena.de/events/detail/bryan-adams-berlin/2026-10-02-2000",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail-bryan-adams"
+      ]
+    },
+    {
+      "kind": "ICS_PER_EVENT",
+      "url": "https://www.uber-arena.de/events/ical/bryan-adams-berlin/3772/1",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ical-bryan-adams"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Bryan Adams",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing card's own <h3 class=\"event-title\"><a>...</a></h3> and the detail page's <h1 class=\"summary\">Bryan Adams in der Uber Arena</h1> both state the title directly; the shorter 'Bryan Adams' listing-page form is used as the sampled value, matching the source's own primary event-name field (the detail-page h1 additionally appends the venue name, an source-authored variant of the same fact).",
+      "evidence_refs": [
+        "ev-events-all",
+        "ev-event-detail-bryan-adams"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-02",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own structured date markup states weekday, day, month, and year together in one place per event ('Freitag, 02.10.2026'), corroborated by the per-event ICS DTSTART (20261002T180000Z). No cross-record combination needed.",
+      "evidence_refs": [
+        "ev-events-all",
+        "ev-event-detail-bryan-adams",
+        "ev-ical-bryan-adams"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "2026-10-02T18:00:00Z",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The HTML states a floating local time text ('20:00 Uhr', Europe/Berlin) directly on the same event card/detail page as the title. The per-event ICS DTSTART independently and directly states the same instant as a full UTC timestamp (20261002T180000Z = 20:00 CEST). Recorded value is the ICS's own explicit UTC instant.",
+      "evidence_refs": [
+        "ev-event-detail-bryan-adams",
+        "ev-ical-bryan-adams"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The HTML never states an end time (only a start time and, separately, a doors/'Einlass' time). The per-event ICS carries a DTEND, but it is exactly DTSTART+2h (20:00Z) — the same fixed-default-duration pattern already observed for verti-music-hall-berlin-01's two sampled events, not a genuine venue-stated end time. Not promoted to a proven fact.",
+      "evidence_refs": [
+        "ev-event-detail-bryan-adams",
+        "ev-ical-bryan-adams"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Uber Arena, 12 Mühlenstraße, 10243 Berlin (52.5063462, 13.4436582)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unlike verti-music-hall-berlin-01, this source's per-event ICS directly states its own LOCATION ('12 Mühlenstraße  Berlin Berlin 10243') and GEO ('52.5063462;13.4436582') fields on every VEVENT — a genuinely per-record, directly-stated fact, not inherited from page context. The HTML event cards themselves do not restate the venue name, but the ICS (fetched per event, same Level-1 static acquisition) does.",
+      "evidence_refs": [
+        "ev-ical-bryan-adams"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "bryan-adams-berlin/2026-10-02-2000",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own detail-page URL path (slug + start-datetime suffix) is the site's own canonical, directly-stated permalink for that specific occurrence — the same documented URL-slug stable-identifier strategy already used for moog-barcelona-01/LAV and for the sibling investigation verti-music-hall-berlin-01. A secondary numeric CMS id is also directly observable in the event's own ICS link path ('/events/ical/bryan-adams-berlin/3772/1'), corroborating a stable platform-internal id.",
+      "evidence_refs": [
+        "ev-events-all",
+        "ev-event-detail-bryan-adams",
+        "ev-ical-bryan-adams"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.uber-arena.de/events/detail/bryan-adams-berlin/2026-10-02-2000",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own detail-page link, stated directly.",
+      "evidence_refs": [
+        "ev-events-all"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each listing card shows only an 'ab' (starting-from) price string per event (e.g. 'ab 60,00 €') — a real, directly-stated value, but a lower-bound indicator rather than a complete price/tier breakdown, so not promoted to a single proven price value.",
+      "evidence_refs": [
+        "ev-events-all"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-all",
+      "ev-event-detail-bryan-adams",
+      "ev-ical-bryan-adams",
+      "uber-arena-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from two independently retained artifacts (homepage title/operator markers, and the ICS's own description/LOCATION text).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the full 134-event listing page plus a sampled event detail page and its per-event ICS file.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "venue_location additionally PROVEN with basis DIRECT_SOURCE via the ICS's own LOCATION/GEO fields — stronger than the sibling investigation.",
+      "source_record_id PROVEN via the site's own slug+datetime permalink path, following the documented moog-barcelona-01/LAV precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented collector family — no new family required.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/per-event-ics.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-events-all",
+      "ev-event-detail-bryan-adams",
+      "ev-ical-bryan-adams",
+      "uber-arena-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, retained in full (byte-faithful raw HTTP response body).",
+      "acquired_from": "https://www.uber-arena.de/",
+      "acquired_at": "2026-08-26T12:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/uber-arena-berlin-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-events-all",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's full public events listing page, retained in full (byte-faithful raw HTTP response body) — 134 distinct upcoming event entries as static server-rendered HTML.",
+      "acquired_from": "https://www.uber-arena.de/events/all",
+      "acquired_at": "2026-08-26T12:17:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/uber-arena-berlin-01/evidence/events-all-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-bryan-adams",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page, retained in full (byte-faithful raw HTTP response body).",
+      "acquired_from": "https://www.uber-arena.de/events/detail/bryan-adams-berlin/2026-10-02-2000",
+      "acquired_at": "2026-08-26T12:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/uber-arena-berlin-01/evidence/event-detail-bryan-adams-raw.html"
+    },
+    {
+      "evidence_id": "ev-ical-bryan-adams",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The per-event 'Add to Calendar' ICS file for the sampled Bryan Adams event, retained in full (byte-faithful raw HTTP response body, text/calendar), including its own GEO/LOCATION fields.",
+      "acquired_from": "https://www.uber-arena.de/events/ical/bryan-adams-berlin/3772/1",
+      "acquired_at": "2026-08-26T12:19:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/uber-arena-berlin-01/evidence/event-bryan-adams.ics"
+    },
+    {
+      "evidence_id": "uber-arena-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A new, genuinely reusable offline test suite (tests/per-event-ics.test.mjs) exercising the new ingestion/per-event-ics/ collector family (discovery.mjs + observation-adapter.mjs) against THIS investigation's own retained fixtures (fixtures/uber-arena-berlin/) — a real, dependency-free, no-network, deterministic reproduction of card discovery, music-category filtering, ical-link extraction, stable-id derivation, and Observation shaping, proving the same module also independently reproduces the sibling venue's own real evidence (cross-venue reuse, not a single-source fixture match).",
+      "acquired_from": "tests/per-event-ics.test.mjs",
+      "acquired_at": "2026-08-26T13:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/uber-arena-berlin-01/evidence/event-bryan-adams.ics"
+    }
+  ],
+  "supersedes": null
+}

@@ -125,16 +125,30 @@ export function annotateSourceProvenance({ sourceResults, previousSourceReportSo
  * — reusing ingestion/map/date-filter.mjs's own listingWithinDateRange(),
  * never a second, parallel date rule. A listing whose date is genuinely
  * unknown is, as everywhere else in this project, never dropped.
+ *
+ * BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+ * every returned listing is stamped `stale: true` plus `retained_since`
+ * (this SAME source's own `last_success_at`, as already computed by
+ * annotateSourceProvenance() and passed in by the caller as
+ * `retainedSince` — never a second, independently-derived timestamp).
+ * `last_success_at` is already, by construction, "the last time this
+ * source was genuinely fresh, never reset merely because another failed
+ * run occurs" — exactly the semantic a `retained_since` field needs, so
+ * this reuses that existing value rather than inventing a duplicate one.
+ * A listing that was already retained in a prior run and is being
+ * retained again here simply gets the SAME `retainedSince` value again
+ * (it is anchored to the source's last success, not to "now"), so it
+ * never appears to have just become fresh.
  */
-export function extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString }) {
+export function extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString, retainedSince = null }) {
   const retainedByVenueId = new Map();
 
-  for (const country of ["Portugal", "Spain"]) {
+  for (const country of ["Portugal", "Spain", "Germany"]) {
     const markers = previousArtifact?.countries?.[country]?.markers ?? [];
     for (const marker of markers) {
-      const retainedListings = (marker.display_listings ?? []).filter(
-        (listing) => listing?.kind === "SINGLE" && listing.source_id === sourceId && listingWithinDateRange(listing, todayDateString, null),
-      );
+      const retainedListings = (marker.display_listings ?? [])
+        .filter((listing) => listing?.kind === "SINGLE" && listing.source_id === sourceId && listingWithinDateRange(listing, todayDateString, null))
+        .map((listing) => ({ ...listing, stale: true, retained_since: retainedSince ?? null }));
       if (retainedListings.length === 0) continue;
 
       retainedByVenueId.set(marker.venue_id, {

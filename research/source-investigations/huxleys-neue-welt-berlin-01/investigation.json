@@ -1,0 +1,191 @@
+{
+  "investigation_id": "huxleys-neue-welt-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official events listing page (WordPress + 'Events Manager' plugin) and one event detail page. Also attempted the plugin's own public REST API root and its events endpoint directly (still an unauthenticated Level 1 GET) — the WordPress REST root (/wp-json/) is publicly readable and lists the plugin's namespace, but the events endpoint itself (/wp-json/events-manager/v1/events) returned HTTP 401 (rest_forbidden). No authentication bypass was attempted; the static HTML listing/detail pages, which are genuinely public, were used instead and were fully sufficient."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official events listing page (https://huxleysneuewelt.de/en/events) immediately exposed 111 distinct upcoming event entries as fully server-rendered static HTML (WordPress 'Events Manager' plugin's grouped-list widget), grouped under month/year headings. One sampled event detail page directly stated a full date, start/doors time, and (via the page's own server-generated og:description meta tag) an explicit end time, plus ticketing via an external first-party-embedded Eventim link. The plugin's own REST API events endpoint was also tried directly and found to require authentication (401) — a legitimate access-control boundary, not bypassed. No JSON-LD MusicEvent, ICS, Fourvenues, or Sanity signal was present on the sampled pages (the site's JSON-LD is generic Yoast SEO WebPage/Organization graph only, no per-event schema); none was needed, since the static HTML itself fully answered the investigation question.",
+      "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba", "ev-wp-json-root", "ev-events-manager-401"]
+    }
+  ],
+  "source_candidate_id": "huxleys-neue-welt-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Huxleys Neue Welt (mid-size concert hall, Hasenheide, Neukölln, Berlin)",
+  "official_url": "https://huxleysneuewelt.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"],
+    "notes": "The retained listing page's own <title> reads 'Events - Huxleys Neue Welt'. Independently, the retained event detail page's own footer states 'Huxleys Neue Welt / Hasenheide 107 – 113 / D-10967 Berlin' with a Google Maps link — matching the venue's known Neukölln/Hasenheide-park address — a second, distinct retained artifact confirming identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress with the 'Events Manager' plugin (confirmed via the public /wp-json/ REST root listing an 'events-manager/v1' namespace with an /events route) and Yoast SEO. The events listing page server-renders a grouped list of upcoming events as static HTML; each event's own detail page states a full date/start/doors time in visible text and an explicit end time only in its server-generated og:description meta tag. The plugin's own REST events endpoint requires authentication and was not used. No JSON-LD MusicEvent, ICS, Fourvenues, or Sanity signal was present.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba", "ev-wp-json-root"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://huxleysneuewelt.de/en/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-listing"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://huxleysneuewelt.de/en/event/2026-09-02-yebba",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-yebba"]
+    },
+    {
+      "kind": "WP_REST_API_EVENTS_ENDPOINT",
+      "url": "https://huxleysneuewelt.de/wp-json/events-manager/v1/events",
+      "access": "PRIVATE",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-manager-401"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "YEBBA",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing row's own <span class=\"eventname\">YEBBA</span> and the detail page's own <title>/og:title ('YEBBA - Huxleys Neue Welt') both state the title directly.",
+      "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-02",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail page directly states the full date in one place: 'Date: Wed 02.09.2026' — no combination with surrounding context needed for this field, even though the listing page's own grouped rows (day+month only, year from a month/year heading) would require a DETERMINISTIC_CONTEXT combination if the listing page alone were used.",
+      "evidence_refs": ["ev-event-detail-yebba"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00 (Europe/Berlin, floating local — no explicit UTC offset stated anywhere on this source)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page directly states 'Start: 20:00' (and separately 'Doors: 19:00'); the same page's own server-generated og:description meta tag independently states 'Wed 02.09.2026 @ 20:00 - 22:30', corroborating the same start clock time. Unlike the AEG-operated Berlin venues and Columbiahalle already investigated in this trial, no ICS or other UTC-offset-qualified field exists anywhere on this source — recorded honestly as FLOATING_LOCAL, not upgraded to a UTC instant.",
+      "evidence_refs": ["ev-event-detail-yebba"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "22:30 (Europe/Berlin, floating local — same no-offset caveat as time)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own server-generated og:description meta tag directly states 'Wed 02.09.2026 @ 20:00 - 22:30' — the '22:30' is this source's own stated end time (not visible in the human-readable page body, which only shows Start/Doors, but genuinely present in the page's own retained markup, generated by the same plugin from its own internal event end-time field). Recorded as floating local, same as time.",
+      "evidence_refs": ["ev-event-detail-yebba"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Individual event listing rows/detail pages do not restate the venue name or address per event — this is the venue's own single-venue official site (every /event/ page is inherently this one venue), matching the same NOT_PRESENT-per-record treatment already used for razzmatazz-barcelona-01 and verti-music-hall-berlin-01 (resolved via source_id, not a per-record field).",
+      "evidence_refs": ["ev-events-listing"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "2026-09-02-yebba",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail-page URL path segment (date + slug, e.g. '/en/event/2026-09-02-yebba') is the site's own canonical, directly-stated permalink for that specific occurrence — the same documented URL-slug stable-identifier strategy already used for moog-barcelona-01/LAV and for the AEG-operated Berlin venues already investigated in this trial.",
+      "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://huxleysneuewelt.de/en/event/2026-09-02-yebba",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing row's own detail-page link, and the detail page's own canonical <link rel=\"canonical\"> tag, both state this directly.",
+      "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party price is shown on either the listing page or the sampled event detail page — only an outbound ticket-purchase link to Eventim (the venue's own embedded ticketing partner, not a first-party price field on this source itself).",
+      "evidence_refs": ["ev-event-detail-yebba"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The 'end' field's value is only directly retrievable from the detail page's og:description meta tag text (a loosely-structured 'HH:MM - HH:MM' substring), not from a dedicated machine-readable field — a future collector would need a small, deterministic text-extraction rule for this specific meta tag, not a generic schema parse."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from two independently retained artifacts (listing page title, and the detail page's own footer address).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the full 111-event listing page plus a sampled event detail page; the plugin's own REST events endpoint was correctly identified as PRIVATE/REJECTED (401) and not used.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — the detail page states the full date directly, avoiding the need for the listing page's own month/year-heading combination.",
+      "end additionally PROVEN via the detail page's own server-generated og:description meta tag, a genuinely retained first-party field.",
+      "source_record_id PROVEN via the site's own slug+date permalink path, following the documented moog-barcelona-01/LAV precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented collector family — no new family required.",
+      "No unresolved CRITICAL blocker (only one MINOR blocker noting the og:description text-extraction rule needed for 'end').",
+      "Not advanced to READY_FOR_ACTIVATION: no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for this investigation (gate 9/v1.2 offline-proof requirement) — that offline reproduction is separate follow-up work, not performed as part of this investigation task."
+    ],
+    "evidence_refs": ["ev-events-listing", "ev-event-detail-yebba"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-events-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's full public events listing page, retained in full (byte-faithful raw HTTP response body) — 111 distinct upcoming event entries as static server-rendered HTML, grouped by month/year heading.",
+      "acquired_from": "https://huxleysneuewelt.de/en/events",
+      "acquired_at": "2026-08-26T12:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/events-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-yebba",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page, retained in full (byte-faithful raw HTTP response body) — includes a directly-stated date/start/doors time, a server-generated og:description meta tag stating the end time, an outbound Eventim ticket link, and the venue's own footer address.",
+      "acquired_from": "https://huxleysneuewelt.de/en/event/2026-09-02-yebba",
+      "acquired_at": "2026-08-26T12:56:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/event-detail-yebba-raw.html"
+    },
+    {
+      "evidence_id": "ev-wp-json-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's public WordPress REST API root (/wp-json/), retained in full (byte-faithful raw HTTP response body) — lists registered plugin namespaces, confirming the 'Events Manager' plugin (events-manager/v1) and its /events route.",
+      "acquired_from": "https://huxleysneuewelt.de/wp-json/",
+      "acquired_at": "2026-08-26T12:57:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/wp-json-root.json"
+    },
+    {
+      "evidence_id": "ev-events-manager-401",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The plugin's own REST events endpoint, retained in full (byte-faithful raw HTTP response body) — a plain unauthenticated GET returned HTTP 401 (rest_forbidden), confirming this specific path is not publicly accessible; not bypassed.",
+      "acquired_from": "https://huxleysneuewelt.de/wp-json/events-manager/v1/events?per_page=5",
+      "acquired_at": "2026-08-26T12:58:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/huxleys-neue-welt-berlin-01/evidence/events-manager-sample.json"
+    }
+  ],
+  "supersedes": null
+}

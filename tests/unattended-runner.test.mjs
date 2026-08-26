@@ -17,6 +17,13 @@
 // deterministic default Barcelona mock (`fakeAcquireBarcelonaEmpty`) so the
 // REAL acquireBarcelona() (live network) is never reached. New tests below
 // prove the actual multi-country wiring itself.
+//
+// BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01
+// extends this suite the SAME way again: Berlin/Germany acquisition is
+// injected via the new `acquireBerlin` option, and every existing test
+// below supplies the small, deterministic `fakeAcquireBerlinEmpty` default
+// so the REAL acquireBerlin() (live network against 24 real Berlin
+// sources) is never reached.
 
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
@@ -136,6 +143,16 @@ async function makeTempRoot({ seedGoodArtifact = false } = {}) {
       ],
     }),
   );
+  // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
+  // venues/berlin.json now must exist under every isolated test root too —
+  // runUnattendedCycle() reads it unconditionally, the same way it already
+  // reads venues/lisbon.json/porto.json/barcelona.json. No venue is
+  // referenced by VENUE_ID_A/VENUE_ID_C/VENUE_ID_ES-style constants because
+  // no existing test asserts on a specific Germany venue — this is a
+  // structurally valid, empty registry, matching every existing test's
+  // "Germany simply publishes zero markers" expectation.
+  await writeFile(join(root, "venues", "berlin.json"), JSON.stringify({ region: "Berlin", venues: [] }));
+
   // No venues/manual-coordinates.json — loadManualCoordinateStore() falls
   // back to an empty store for a missing file, exactly as it already does
   // for a genuinely fresh install.
@@ -202,6 +219,16 @@ function fakeAcquireBarcelonaHealthy() {
   });
 }
 
+// BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01
+// — the safe, fast, fully-offline default every EXISTING (Portugal/Spain
+// -focused) test below passes as `acquireBerlin`, so none of them ever
+// reach the real acquireBerlin() (live network against 24 real Berlin
+// sources). Zero sources, zero observations: a legitimate, honestly-empty
+// Germany acquisition, not a failure.
+async function fakeAcquireBerlinEmpty() {
+  return { berlinRegistry: { entries: [] }, berlinResults: [], berlinObservations: [] };
+}
+
 // The same real, existing MEO Arena / Casa da Música pair every other
 // HEALTHY-style test in this file already uses.
 function fakeAcquirePortugalHealthy() {
@@ -233,7 +260,7 @@ test("DEGRADED: A succeeds, B fails, C succeeds — safe publication completes, 
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-degraded", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "test-degraded", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
 
   assert.equal(report.overall_status, "DEGRADED");
   assert.equal(report.publication_status, "PUBLISHED");
@@ -272,7 +299,7 @@ test("FAILED (all sources fail): the previous known-good public artifact is pres
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-failed", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "test-failed", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
 
   assert.equal(report.overall_status, "FAILED");
   assert.equal(report.publication_status, "PRESERVED_PREVIOUS");
@@ -297,7 +324,7 @@ test("HEALTHY: every source succeeds and publication succeeds", async (t) => {
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-healthy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "test-healthy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
   assert.equal(report.overall_status, "HEALTHY");
   assert.equal(report.failed_source_count, 0);
   assert.equal(report.publication_status, "PUBLISHED");
@@ -318,7 +345,7 @@ test("overlapping run: a second invocation while a lock is already held is refus
     throw new Error("must never be called — the run should be refused before any acquisition happens");
   };
 
-  const outcome = await runUnattendedCycle({ root, runId: "test-overlap", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const outcome = await runUnattendedCycle({ root, runId: "test-overlap", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
 
   assert.equal(outcome.refused, true);
   assert.equal(outcome.reason, "ANOTHER_RUN_IN_PROGRESS");
@@ -345,8 +372,8 @@ test("the lock is released after a normal (HEALTHY) completion, allowing a subse
     lisbonAssociations: [],
   });
 
-  await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
-  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
+  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
   assert.equal(second.refused, undefined, "the lock must be released after a normal completion");
   assert.equal(second.report.overall_status, "HEALTHY");
 });
@@ -374,10 +401,10 @@ test("the lock is released after a handled FAILED run (catastrophic), allowing a
     lisbonAssociations: [],
   });
 
-  const first = await runUnattendedCycle({ root, runId: "run-fail", acquireLisbonPorto: failingAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const first = await runUnattendedCycle({ root, runId: "run-fail", acquireLisbonPorto: failingAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
   assert.equal(first.report.overall_status, "FAILED");
 
-  const second = await runUnattendedCycle({ root, runId: "run-recover", acquireLisbonPorto: healthyAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const second = await runUnattendedCycle({ root, runId: "run-recover", acquireLisbonPorto: healthyAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
   assert.equal(second.refused, undefined, "the lock must be released even after a handled FAILED run");
   assert.equal(second.report.overall_status, "HEALTHY");
 });
@@ -396,7 +423,7 @@ test("health report is written with UTC timestamps and can be read back byte-ide
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "run-ts", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "run-ts", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty });
   assert.ok(report.started_at.endsWith("Z"), "started_at must be a UTC (Z-suffixed) ISO timestamp");
   assert.ok(report.completed_at.endsWith("Z"), "completed_at must be a UTC (Z-suffixed) ISO timestamp");
   assert.ok(typeof report.duration_ms === "number" && report.duration_ms >= 0);
@@ -426,7 +453,7 @@ test("uses this project's bounded retry policy defaults when maxAttempts/retryDe
     };
   };
 
-  await runUnattendedCycle({ root, runId: "run-policy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, delayFn: instantDelay() });
+  await runUnattendedCycle({ root, runId: "run-policy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, delayFn: instantDelay() });
   assert.equal(seenRetryPolicy.maxAttempts, 3);
   assert.equal(seenRetryPolicy.retryDelayMs, 500);
 });
@@ -443,7 +470,7 @@ test("the unattended runner invokes Barcelona/Spain acquisition every cycle, not
     return fakeAcquireBarcelonaEmpty();
   };
 
-  await runUnattendedCycle({ root, runId: "run-spain-invoked", acquireLisbonPorto: fakeAcquirePortugalHealthy(), acquireBarcelona: spyAcquireBarcelona });
+  await runUnattendedCycle({ root, runId: "run-spain-invoked", acquireLisbonPorto: fakeAcquirePortugalHealthy(), acquireBarcelona: spyAcquireBarcelona, acquireBerlin: fakeAcquireBerlinEmpty });
   assert.equal(barcelonaAcquisitionCalled, true, "acquireBarcelona() must be called on every unattended cycle, not left Portugal-only");
 });
 
@@ -456,6 +483,7 @@ test("Portugal AND Spain markers both reach the SAME combined publication artifa
     runId: "run-both-countries",
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: fakeAcquireBarcelonaHealthy(),
+    acquireBerlin: fakeAcquireBerlinEmpty,
   });
 
   assert.equal(report.overall_status, "HEALTHY");
@@ -498,6 +526,7 @@ test("a Portugal-side source failure does not zero Spain — Spain still publish
     runId: "run-portugal-partial-fail",
     acquireLisbonPorto: degradedPortugal,
     acquireBarcelona: fakeAcquireBarcelonaHealthy(),
+    acquireBerlin: fakeAcquireBerlinEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "one failed Portugal source degrades the run but must not fail it outright");
@@ -534,6 +563,7 @@ test("a Spain-side source failure does not zero Portugal — Portugal still publ
     runId: "run-spain-partial-fail",
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: degradedBarcelona,
+    acquireBerlin: fakeAcquireBerlinEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "one failed Barcelona source degrades the run but must not fail it outright");
@@ -562,6 +592,7 @@ test("a TOTAL Barcelona acquisition failure (the whole call throws) does not abo
     runId: "run-spain-total-fail",
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: throwingAcquireBarcelona,
+    acquireBerlin: fakeAcquireBerlinEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "a total Barcelona acquisition failure must degrade, never crash, the whole cycle");
@@ -613,6 +644,7 @@ test("failed_source_count/successful_source_count/active_source_count are truthf
     runId: "run-combined-counts",
     acquireLisbonPorto: degradedPortugal,
     acquireBarcelona: degradedBarcelona,
+    acquireBerlin: fakeAcquireBerlinEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED");

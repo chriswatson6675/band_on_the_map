@@ -1,0 +1,230 @@
+{
+  "investigation_id": "badehaus-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official English-language events listing page and one individual event detail page. The events page is server-rendered static HTML: each of 93 sampled event cards states its own title, a full DD.MM.YYYY date, and an HH:MM local time directly in a `<p class=\"eventinfo\">` block, with a link to the event's own detail page. wp-json/wp/v2/types and a direct probe of the WordPress 'The Events Calendar' REST route were also checked (both still plain, unauthenticated GETs) to confirm no queryable structured-events API exists on this WordPress install — events are static HTML only."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The public events listing page (https://badehaus-berlin.com/en/events/) is plain server-rendered HTML exposing 93 event cards, each with its own title, a full DD.MM.YYYY date, an HH:MM local time, and a link to its own detail page. This directly answers the investigation question without needing to escalate: title/date/time/url are all directly present in the static markup. A JSON-LD block is present (Yoast SEO's own schema) but only describes WebPage/BreadcrumbList/WebSite, not Event/MusicEvent; a WordPress 'The Events Calendar' REST route (wp-json/tribe/events/v1/events) returned 404 and wp-json/wp/v2/types lists no custom 'event' post type, confirming events are not exposed via any WordPress events plugin API on this install.",
+      "evidence_refs": [
+        "ev-events-page",
+        "ev-event-detail",
+        "ev-tribe-404",
+        "ev-wp-types"
+      ]
+    }
+  ],
+  "source_candidate_id": "badehaus-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Badehaus Berlin (small live-music venue and 'music salon', Revaler Str. 99, RAW-Gelände, Berlin-Friedrichshain)",
+  "official_url": "https://badehaus-berlin.com/en/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-page",
+      "ev-event-detail"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the venue's own domain (badehaus-berlin.com), its own <title>/og:site_name 'Badehaus Berlin', and Yoast WebSite schema naming itself 'Badehaus Berlin' at https://badehaus-berlin.com/. Discovered via WebSearch (not treated as authority itself) and independently confirmed by fetching the domain directly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (wp-content/wp-json present; Yoast SEO plugin present) with a custom-built, non-plugin events listing template — no 'The Events Calendar' or other queryable events REST route exists on this install (confirmed 404).",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-page",
+      "ev-tribe-404",
+      "ev-wp-types"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://badehaus-berlin.com/en/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://badehaus-berlin.com/en/events/atlas/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-event-detail"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Atlas",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <h2><a>...</a></h2> anchor text, directly linking to the event's own detail page. Sampled representative value from the 'Atlas' card; the same structure repeats identically across all 93 sampled cards.",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-02",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <p class=\"eventinfo\"> states a full day-name + DD.MM.YYYY date directly (e.g. 'Wed 02.09.2026 | 19:00 UHR' on the sampled 'Atlas' card) — no combination with page-level or heading context needed; every card carries its own complete date.",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each card's own eventinfo line also states an HH:MM local time ('19:00 UHR' on the sampled card) directly, but with no UTC offset or explicit timezone anywhere on the page — a floating local time only, not a confirmed instant. Consistent with this project's v1.2 worked example (example-deterministic-context-ready-01), a floating local time is retained honestly as PARTIAL rather than promoted to a precise PROVEN value.",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is stated anywhere on the event card or the sampled event detail page.",
+      "evidence_refs": [
+        "ev-events-page",
+        "ev-event-detail"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-event-card or per-detail-page as a discrete field (no address/venue-name block on the sampled detail page beyond generic site branding). This source represents exactly one physical venue (Badehaus Berlin, Revaler Str. 99) — consistent with this project's existing single-venue-per-source precedent (e.g. razzmatazz-barcelona-01), venue identity is intended to resolve via source_id at activation time, not by parsing a per-record field that the source does not actually expose.",
+      "evidence_refs": [
+        "ev-events-page",
+        "ev-event-detail"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "atlas",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric or explicit id is exposed on the card or detail page. Each event's own detail-page URL ('https://badehaus-berlin.com/en/events/{slug}/') uses a WordPress post slug as this source's own stable, canonical path — the same documented judgement already established for LAV (ingestion/lav/discovery.mjs) and moog-barcelona-01. The slug is directly read from the source's own link markup, not inferred.",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://badehaus-berlin.com/en/events/atlas/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <h2><a href=...> and the following 'MORE' link both state the same detail-page URL directly.",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price text appears on any sampled event card or on the sampled detail page. Many (not all) cards carry a 'TICKETS' link out to a third-party ticketing provider (Eventim, Eventbrite, tixforgigs.com, vvk.link — different providers per event, not one consistent embedded ticketing widget), where price would presumably be shown, but that is out of scope for this bounded static-HTML sample and genuinely not collected here.",
+      "evidence_refs": [
+        "ev-events-page"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-page",
+      "ev-event-detail",
+      "badehaus-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence.",
+      "acquisition_class STATIC_HTML, a resolved supported class, with a CONFIRMED public data path (93 real, current event cards sampled from the live page).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, each stated directly and completely on every sampled event card — no context combination needed.",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching this project's existing LAV/moog-barcelona-01 precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary.",
+      "No unresolved CRITICAL blocker.",
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 of the activation gates requires. Building and offline-proving the STATIC_EVENT_LIST parser against the retained evidence/events-page.html fixture is separate, explicitly follow-up work.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/badehaus.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-events-page",
+      "ev-event-detail",
+      "badehaus-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public English events listing page, byte-retained in full: 93 real, current event cards, each with title/date/time/detail-url, plus the site's own Yoast SEO JSON-LD (WebPage/BreadcrumbList/WebSite only, no Event schema).",
+      "acquired_from": "https://badehaus-berlin.com/en/events/",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badehaus-berlin-01/evidence/events-page.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One individual event detail page ('Atlas'), byte-retained in full, confirming the detail page carries no separate Event/MusicEvent JSON-LD and no additional structured price/venue fields beyond what the listing card already shows.",
+      "acquired_from": "https://badehaus-berlin.com/en/events/atlas/",
+      "acquired_at": "2026-08-26T12:11:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badehaus-berlin-01/evidence/event-detail-atlas.html"
+    },
+    {
+      "evidence_id": "ev-tribe-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw response of a direct probe against the WordPress 'The Events Calendar' plugin's known REST route, confirming it is not installed/exposed on this site (404 rest_no_route).",
+      "acquired_from": "https://badehaus-berlin.com/wp-json/tribe/events/v1/events",
+      "acquired_at": "2026-08-26T12:12:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badehaus-berlin-01/evidence/tribe-events-api-404.json"
+    },
+    {
+      "evidence_id": "ev-wp-types",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw response of the standard WordPress REST 'post types' route, confirming only the default post/page/attachment types are registered — no custom 'event' post type is exposed for programmatic querying.",
+      "acquired_from": "https://badehaus-berlin.com/wp-json/wp/v2/types",
+      "acquired_at": "2026-08-26T12:12:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badehaus-berlin-01/evidence/wp-json-types.json"
+    },
+    {
+      "evidence_id": "badehaus-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/badehaus.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/badehaus.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/badehaus-berlin-01/evidence/events-page.html"
+    }
+  ],
+  "supersedes": null
+}

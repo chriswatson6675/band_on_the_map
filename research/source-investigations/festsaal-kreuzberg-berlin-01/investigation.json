@@ -1,0 +1,281 @@
+{
+  "investigation_id": "festsaal-kreuzberg-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:32:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official events page revealed a Nuxt SPA whose retained window.__NUXT__.config exposes its own public headless-CMS admin URL ('wagtailURL':'https://admin.festsaal-kreuzberg.de'). Wagtail's own standard, public, unauthenticated API v2 (no token) was then queried directly with plain curl GETs — first the page-tree root to confirm real registered page types, then filtered by type=home.EventPage, then individual event detail_urls — all read-only, no browser, no per-page HTML crawling of the Nuxt frontend needed at all."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's own official events page (https://festsaal-kreuzberg.de/en/events/) is a Nuxt SPA; its retained, server-sent window.__NUXT__.config block (no JS execution needed to read it) directly states its own headless CMS admin URL, 'https://admin.festsaal-kreuzberg.de'. A plain, unauthenticated GET against that admin host's own public Wagtail API v2 root (https://admin.festsaal-kreuzberg.de/api/v2/pages/) returned 200 with a real page tree (648 total pages) that itself named a 'home.EventPage' type; filtering by that type and fetching individual event detail_urls returned real, structured event records (title/date/doors/start/ticket/price/location) directly. This directly answers the investigation question at Level 1 — no structural/browser escalation was needed.",
+      "evidence_refs": [
+        "ev-nuxt-config",
+        "ev-eventpage-list",
+        "ev-event-detail-popkultur"
+      ]
+    }
+  ],
+  "source_candidate_id": "festsaal-kreuzberg-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Festsaal Kreuzberg (concert venue, Kreuzberg, Berlin — Am Flutgraben 2, 12435 Berlin)",
+  "official_url": "https://festsaal-kreuzberg.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-nuxt-config"
+    ],
+    "notes": "The venue's own dedicated first-party domain (festsaal-kreuzberg.de) self-identifies directly: its retained <title> is 'Festsaal Kreuzberg - Programm', and its own retained window.__NUXT__.config states 'site':{'title':'Festsaal Kreuzberg','description':'Erlebe die angesagtesten Konzerte und Veranstaltungen in Berlin Kreuzberg...'}. The headless CMS admin host it points to, admin.festsaal-kreuzberg.de, shares the identical domain and brand, and its own public page tree confirms a 'home.HomePage' whose html_url is the same festsaal-kreuzberg.de domain."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Wagtail CMS (Django-based headless CMS), queried via its own standard, public, unauthenticated API v2 (not the site's rendered Nuxt frontend) at admin.festsaal-kreuzberg.de/api/v2/. A real, confirmed page type 'home.EventPage' exists in this CMS's own page tree.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-eventpage-list",
+      "ev-event-detail-popkultur"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://admin.festsaal-kreuzberg.de/api/v2/pages/?type=home.EventPage",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-eventpage-list"
+      ]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_DETAIL",
+      "url": "https://admin.festsaal-kreuzberg.de/api/v2/pages/{id}/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail-popkultur",
+        "ev-event-detail-moka"
+      ]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_VENUE_LOCATION_LIST",
+      "url": "https://admin.festsaal-kreuzberg.de/api/v2/pages/?type=home.VenueLocationPage",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-venue-locations"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Popkultur Festival 2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event page's own 'title' field, stated directly.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event page's own 'date' field, an explicit 'YYYY-MM-DD' string stated directly — no combination/inference needed.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "16:00:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event page's own 'start' field, a local 'HH:MM:SS' string stated directly, with NO UTC offset/timezone anywhere on the record — honestly a floating local time (presumed Europe/Berlin), never upgraded to UTC. A separate 'doors' field (also floating-local) gives admission time, distinct from 'start'.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date field exists on any sampled event record.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur",
+        "ev-event-detail-moka"
+      ]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "IMPORTANT, deliberately NOT promoted to PROVEN: this API is NOT scoped to only Festsaal Kreuzberg itself. Each event page's own 'location' field is a nullable reference to a 'home.VenueLocationPage'; when populated (e.g. event 844 'Popkultur Festival 2026': location.title 'Festsaal'; event 779 'Oidorno': location.title 'Festsaal'; event 872: location.title 'Biergarten') it resolves to one of only 12 confirmed VenueLocationPage entries, all of which are genuinely internal sub-locations of the Festsaal Kreuzberg complex itself (Festsaal, Kaminzimmer, Ostflügel, Biergarten, Gewächshaus, Eventlocation, Gelände — retained in ev-venue-locations), analogous to Razzmatazz's numbered rooms. BUT at least one sampled record (event 702, 'Moka Efti Orchestra') has 'location': null AND its own 'ticket' field is a URL literally containing 'freilichtbuehne-weissensee-berlin' — direct, retained evidence that this specific event is genuinely hosted at a DIFFERENT venue entirely (Freilichtbühne Weißensee), not Festsaal Kreuzberg, even though it appears in this same site's own EventPage list. Defaulting every null-location record to 'Festsaal Kreuzberg' would therefore fabricate a wrong venue identity for at least this record — exactly what docs/SOURCE_INVESTIGATION_POLICY.md prohibits. venue_location is honestly PROVEN only per-record when 'location' is populated and resolves to a known Festsaal-complex sub-location; it must stay UNKNOWN per-record when 'location' is null, never defaulted.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur",
+        "ev-event-detail-moka",
+        "ev-venue-locations"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "844",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event page's own Wagtail 'id' field — Wagtail (Django) page primary keys are permanent, platform-native identifiers by the CMS's own well-documented design (auto-incrementing, never reassigned), the same class of platform-native stable-identifier reasoning already accepted for razzmatazz-barcelona-01's Sanity '_id', kesselhaus-kulturbrauerei-berlin-01's Firebase push id, and heimathafen-neukoelln-berlin-01's WordPress post id.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://festsaal-kreuzberg.de/de/programm/popkultur-festsaal26/",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Each event page's own 'url' field is only a site-relative path ('/de/programm/popkultur-festsaal26/'), not an absolute URL — this candidate's own confirmed official_url ('https://festsaal-kreuzberg.de') and that relative path are two retained pieces of context, mechanically concatenated. Live-verified to resolve (HTTP 200) for two sampled records (event 844 and event 779's English variant).",
+      "evidence_refs": [
+        "ev-event-detail-popkultur",
+        "ev-event-url-verify"
+      ],
+      "derivation": {
+        "rule": "Concatenate this candidate's own confirmed official_url root ('https://festsaal-kreuzberg.de', with no trailing slash) with the event page's own 'url' field (a site-relative path beginning with '/'), yielding the public front-end event URL. Live HTTP 200 was independently confirmed for the concatenated result on two sampled records.",
+        "inputs": [
+          "https://festsaal-kreuzberg.de (confirmed official_url root)",
+          "/de/programm/popkultur-festsaal26/ (event page's own 'url' field)"
+        ]
+      }
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Present as a raw German-decimal-comma numeric string on some records (event 702 'Moka Efti Orchestra': 'price':'51,80', no currency symbol/code in the field itself) but 'null' on others (event 844 'Popkultur Festival 2026', which instead states free admission only via its own separate 'sub_title' text field, 'Free Entry') — genuinely inconsistent per record, honestly not promoted to a single reliable value.",
+      "evidence_refs": [
+        "ev-event-detail-popkultur",
+        "ev-event-detail-moka"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-eventpage-list",
+      "ev-event-detail-popkultur",
+      "ev-event-detail-moka",
+      "festsaal-kreuzberg-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "This EventPage API is not scoped to Festsaal Kreuzberg alone — at least one sampled record ('Moka Efti Orchestra', id 702) is genuinely hosted at a different venue (Freilichtbühne Weißensee per its own ticket URL) with 'location': null. Any future collector for this source MUST NOT default an unresolved 'location' to 'Festsaal Kreuzberg' — it needs either an explicit allow-list of the 7 confirmed Festsaal-complex VenueLocationPage titles (Festsaal/Kaminzimmer/Ostflügel/Biergarten/Gewächshaus/Eventlocation/Gelände) with everything else excluded or routed to HUMAN_REVIEW, or a separate venue-resolution step this investigation does not attempt to solve."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Only 5 EventPage records and 12 VenueLocationPage records were sampled; the null-location/cross-venue pattern was demonstrated on one concrete example, not exhaustively characterised across the full 81-record EventPage set."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from the venue's own dedicated domain and its own retained Nuxt site config.",
+      "acquisition_class PUBLIC_JSON_API — a resolved, supported class — via Wagtail CMS's own standard, public, unauthenticated API v2, with a real confirmed 'home.EventPage' type.",
+      "CONFIRMED public data paths retained for the event list, event detail, and venue-location list endpoints.",
+      "title and start_date both PROVEN, directly stated by the source (DIRECT_SOURCE, no combination needed).",
+      "source_record_id PROVEN via Wagtail's own stable, platform-native page-id design.",
+      "recommended_family JSON_API — a known, existing collector family.",
+      "No unresolved CRITICAL blocker — the cross-venue location gap is recorded as MAJOR (a real, honestly-documented scoping problem a future collector must solve, not a reason this investigation itself cannot reach an honest offline-proof-ready conclusion).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/festsaal-kreuzberg.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-eventpage-list",
+      "ev-event-detail-popkultur",
+      "ev-event-detail-moka",
+      "festsaal-kreuzberg-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-nuxt-config",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official events page's server-sent window.__NUXT__.config block, stating its own public site title/description and its headless CMS admin URL ('wagtailURL':'https://admin.festsaal-kreuzberg.de').",
+      "acquired_from": "https://festsaal-kreuzberg.de/en/events/",
+      "acquired_at": "2026-08-26T13:28:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/nuxt-config-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-eventpage-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real, retained response of a bounded query against this source's own public Wagtail API v2 — 5 real EventPage records (id/title/slug/html_url), out of a confirmed 81 total, proving the endpoint and page type are real and public.",
+      "acquired_from": "https://admin.festsaal-kreuzberg.de/api/v2/pages/?type=home.EventPage&limit=5",
+      "acquired_at": "2026-08-26T13:29:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/wagtail-eventpage-list-sample.json"
+    },
+    {
+      "evidence_id": "ev-event-detail-popkultur",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real, retained JSON response for one real event's own detail endpoint (id 844, 'Popkultur Festival 2026'): title/sub_title/date/doors/start/ticket/price/age/location/genre, all directly stated fields.",
+      "acquired_from": "https://admin.festsaal-kreuzberg.de/api/v2/pages/844/",
+      "acquired_at": "2026-08-26T13:29:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/event-detail-popkultur-festival-844.json"
+    },
+    {
+      "evidence_id": "ev-event-detail-moka",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real, retained JSON response for a second real event's own detail endpoint (id 702, 'Moka Efti Orchestra'): 'location': null and 'ticket' containing 'freilichtbuehne-weissensee-berlin' — the direct, retained evidence that this API is not scoped to Festsaal Kreuzberg alone.",
+      "acquired_from": "https://admin.festsaal-kreuzberg.de/api/v2/pages/702/",
+      "acquired_at": "2026-08-26T13:30:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/event-detail-moka-efti-702.json"
+    },
+    {
+      "evidence_id": "ev-venue-locations",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real, retained response listing every 'home.VenueLocationPage' entry in this CMS (12 total): Festsaal, Kaminzimmer, Ostflügel, Biergarten, Gewächshaus, Eventlocation, Gelände (each appearing in both a German and English locale variant) — proving the complete, closed set of genuine Festsaal-complex sub-locations, none of which is 'Freilichtbühne Weißensee'.",
+      "acquired_from": "https://admin.festsaal-kreuzberg.de/api/v2/pages/?type=home.VenueLocationPage&limit=20",
+      "acquired_at": "2026-08-26T13:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/wagtail-venuelocationpage-list.json"
+    },
+    {
+      "evidence_id": "ev-event-url-verify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Live HTTP 200 verification that the derived event_url pattern (official_url root + the event page's own relative 'url' field) genuinely resolves to the real public event page, for two sampled records.",
+      "acquired_from": "https://festsaal-kreuzberg.de/de/programm/popkultur-festsaal26/ and https://festsaal-kreuzberg.de/en/programm/oidorno/",
+      "acquired_at": "2026-08-26T13:31:30Z",
+      "method": "curl (plain HTTP GET, following redirects)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/event-url-verify.txt"
+    },
+    {
+      "evidence_id": "festsaal-kreuzberg-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/festsaal-kreuzberg.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/festsaal-kreuzberg.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/festsaal-kreuzberg-berlin-01/evidence/event-detail-moka-efti-702.json"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,166 @@
+{
+  "investigation_id": "about-blank-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:19:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's official homepage and its own 'VORSCHAU' (preview/upcoming) programme page, plus its robots.txt. The site is a deliberately minimal, hand-written HTML4 page (no CMS, no JS framework, no client-rendered shell to potentially escalate against) whose entire 'programme' is a single static poster image, not machine-readable text — a genuine, honestly-observed dead end for automated acquisition, not an under-investigated one."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The venue's own former domain (aboutparty.net) redirects (HTTP 301) to its current official domain, aboutblank.li, whose homepage is a ~1.8KB hand-written, plain HTML4 page with a handful of links and no CMS/framework fingerprint (no wp-json, no application/ld+json, no window.__NUXT__/__NEXT_DATA__, no known calendar plugin). Its own 'VORSCHAU' (German: preview/upcoming) link at /next/ — the closest thing to a programme page this site offers — contains no event text at all: the entire visible 'programme' is one embedded static JPEG poster image (current.jpg, confirmed via a HEAD request: Content-Type: image/jpeg). There is no client-side JS bootstrap, page-data blob, or discoverable endpoint to inspect at all — this is not a client-rendered SPA hiding a JSON API, it is a genuinely static, deliberately minimal, image-only page. No dates, titles, lineups, or any other event field exists anywhere as text.",
+      "evidence_refs": ["ev-homepage", "ev-next-page"]
+    }
+  ],
+  "source_candidate_id": "about-blank-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "://about blank (club, Friedrichshain, Berlin, near Ostkreuz)",
+  "official_url": "https://aboutblank.li/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "aboutparty.net (independently corroborated as the venue's known domain by multiple third-party discovery sources — Berlin.de, visitBerlin.de, RA — treated only as a discovery lead) issues a live HTTP 301 redirect to aboutblank.li, whose own retained page content (og:title '://about blank', links to the venue's own Bandcamp 'aboutblankberlin' and SoundCloud 'about-blank-berlin' accounts) is first-party evidence this is genuinely the same venue's current official domain, not a lookalike or unrelated site."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "No CMS or framework detected — a deliberately minimal, hand-written plain HTML4 page (matches this club's well-documented anti-marketing, DIY culture). No JSON-LD, ICS, WordPress, Fourvenues, or Sanity signature found anywhere.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-next-page"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_IMAGE_ONLY_PROGRAMME_PAGE",
+      "url": "https://aboutblank.li/next/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-next-page"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The site's entire programme is one static poster image; no event title text exists anywhere in the retained HTML.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "start_date": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No date text exists anywhere in the retained HTML — a human would need to read the poster image itself, which this framework does not OCR or otherwise interpret as structured fact.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not stated per-event anywhere; the site never repeats its own address on the programme page.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No per-event identifier or permalink of any kind exists — the whole site has only a handful of static pages (/next/, /sektgarten, /feiern, /faq), none per-event.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "There is no per-event URL — /next/ is the one static page covering whatever is currently on the poster.",
+      "evidence_refs": ["ev-next-page"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present.",
+      "evidence_refs": ["ev-next-page"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-next-page"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The site's entire event 'programme' is a single static poster image with no accompanying machine-readable text anywhere — no JSON-LD, ICS, API, CMS, or even a plain-text event list. There is nothing here a text-based, non-OCR collector could parse, matching this club's well-documented anti-marketing culture."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Level 1 (PASSIVE_STATIC) genuinely exposed no machine-readable event data of any kind — confirmed by direct inspection, not assumed.",
+      "The site is a deliberately minimal, hand-written HTML4 page with no CMS/framework at all — there is no client-rendered shell, JS bootstrap, or bootstrap data blob to plausibly hide a discoverable endpoint behind, so a Level 2 STRUCTURAL escalation would not change this conclusion; escalating further would not be a genuine attempt to find something, only motion for its own sake.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER does not require exhausting the escalation ladder, and is the correct, honest outcome for a club that has deliberately chosen not to publish machine-readable event data — not a gap to be papered over by guessing at the poster image's contents."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-next-page"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers for both the venue's former domain (redirecting) and its current official domain, plus the complete (small) homepage body.",
+      "acquired_from": "https://aboutparty.net/ (redirects to https://aboutblank.li/)",
+      "acquired_at": "2026-08-26T12:19:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/about-blank-berlin-01/evidence/homepage-full.html"
+    },
+    {
+      "evidence_id": "ev-next-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and complete body of the site's own programme/'VORSCHAU' page, plus a HEAD response confirming the only programme content is a static JPEG image.",
+      "acquired_from": "https://aboutblank.li/next/",
+      "acquired_at": "2026-08-26T12:19:00Z",
+      "method": "curl (plain HTTP GET / HEAD, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/about-blank-berlin-01/evidence/next-programme-page-full.html"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's robots.txt — only the generic content-signals preamble, no explicit Disallow directives or signal declarations found.",
+      "acquired_from": "https://aboutblank.li/robots.txt",
+      "acquired_at": "2026-08-26T12:19:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/about-blank-berlin-01/evidence/robots-txt.txt"
+    }
+  ],
+  "supersedes": null
+}
