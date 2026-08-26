@@ -1,0 +1,205 @@
+{
+  "investigation_id": "sisyphos-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:15:18Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC via curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser): retained the homepage and its own linked 'TICKETS' page. Level 2 STRUCTURAL via curl against the site's own publicly-referenced Shopify REST endpoints (/products.json, /collections/<handle>.json, /collections/<handle>/products.json), discovered from the platform fingerprint (Shopify customer_authentication redirect, cdn.shopify.com asset paths) found at Level 1."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The homepage (https://www.sisyphos-berlin.net/) is titled 'Offizielle Website vom Sisyphos Club Berlin – Shopyphos' and carries two <script type=\"application/ld+json\"> blocks, but both are generic Organization/WebSite schema.org markup (no Event or MusicEvent type, no dates) auto-emitted by the Shopify theme. The site's own internal nav links only to a merch/checkout flow (/cart, /pages/tickets) with no 'Programm'/'Termine'/'Kalender' page. The linked TICKETS page (/pages/tickets) is itself a Shopify product listing (2 dated door-ticket products among an otherwise general merch catalogue), not a calendar. No ICS link, no wp-json, no Fourvenues script, no Sanity/window.__NUXT__ config were present. This confirms the platform (Shopify ecommerce) but not yet whether any structured event feed exists on it.",
+      "evidence_refs": ["ev-homepage", "ev-tickets-page"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Having identified Shopify as the platform at Level 1, queried Shopify's own publicly-documented REST endpoints directly: /products.json (returns the full public product catalogue) and, once /collections/tickets.json confirmed a 'TICKETS' collection (products_count: 7), /collections/tickets/products.json. The public products.json endpoint IS a genuine, stable, public JSON API — but it returns only 2 actual ticketed items ('generationS 03. SEPT 2026', 'generationS 10. OKT 2026'), a distinct, occasional day-party sub-series, each with its date only as an unstructured substring inside a free-text product title (no dedicated date/time/venue field on the Shopify product schema at all). This is not a representative feed of Sisyphos's actual regular programme (the club is known to run continuously Fri-Mon with door-only admission and no venue-published lineup calendar); it is a narrow ecommerce ticket listing. No further public JSON path on this domain exposes anything closer to a genuine events calendar.",
+      "evidence_refs": ["ev-products-json", "ev-collections-tickets-json", "ev-tickets-collection-products-json"]
+    }
+  ],
+  "source_candidate_id": "sisyphos-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Sisyphos (techno/house club, open-air + indoor, Alt-Stralau/Rummelsburg, Berlin)",
+  "official_url": "https://www.sisyphos-berlin.net/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-tickets-page"],
+    "notes": "The site's own retained Impressum (embedded in /pages/tickets) states the operating entity as 'Sisyphos Event GmbH, Hauptstr. 15, 10317 Berlin, Deutschland' (Amtsgericht Charlottenburg HRB 124004 B), matching the club's well-known Alt-Stralau/Rummelsburg location and its own domain (sisyphos-berlin.net, order@sisyphos-berlin.net). No competing/ambiguous domain was found during discovery."
+  },
+  "site_classification": {
+    "acquisition_class": "TICKETING_ONLY",
+    "platform": "Shopify ecommerce (theme auto-emits Organization/WebSite JSON-LD only). Public REST endpoints (/products.json, /collections/<handle>/products.json) exist and are queryable, but the domain functions as a merch + occasional door-ticket shop, not a venue events calendar.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-products-json", "ev-tickets-collection-products-json"]
+  },
+  "data_paths": [
+    {
+      "kind": "SHOPIFY_PRODUCTS_JSON",
+      "url": "https://www.sisyphos-berlin.net/products.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-products-json"]
+    },
+    {
+      "kind": "SHOPIFY_COLLECTION_PRODUCTS_JSON",
+      "url": "https://www.sisyphos-berlin.net/collections/tickets/products.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The 2 sparse 'TICKETS' collection products each have a Shopify 'title' field (e.g. 'generationS 03. SEPT 2026'), but this only names an occasional special day-party sub-series, not the club's actual regular programme, and mixes the event name with its date in one free-text string.",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No dedicated date field exists on the Shopify product schema; a date (e.g. '03. SEPT 2026') appears only as a substring within the free-text 'title', not as a structured, independently machine-parseable value with a documented format guarantee.",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No door/start time is exposed anywhere in the retained evidence (homepage, tickets page, or product JSON).",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No per-record venue/location field exists on the Shopify product schema (only the organisation's own Impressum address, which is identity evidence, not a per-event field).",
+      "evidence_refs": ["ev-tickets-page"]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Shopify's own numeric product 'id' (e.g. 11982459797768) is platform-stable by design, but only 2 records of this kind exist and they do not represent 'events' in the sense this project models — stability of the id is real, but its applicability as a source_record_id for a genuine event feed is not established.",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each product has a stable canonical page at /products/{handle} (Shopify's own permalink convention), but again only for the 2 sparse ticket products, not a general event listing.",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each ticket product does carry a real price field (e.g. EUR 25.00) but again only for the 2 sparse special-event products, not general admission (Sisyphos's regular nights are door/cash entry with no published price on this domain).",
+      "evidence_refs": ["ev-tickets-collection-products-json"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "LOW",
+    "evidence_refs": ["ev-products-json", "ev-tickets-collection-products-json"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The official domain does not expose a general public feed of Sisyphos's actual regular programme. The only structured, queryable data is a sparse Shopify 'TICKETS' collection (2 live products at time of investigation) for an occasional special day-party sub-series, with no dedicated date/time/venue fields — a date substring embedded in free-text product titles is the only signal. This is not a representative or comprehensive event source for the venue."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Official identity is PROVEN, but the official domain is a Shopify merch/ticket shop (TICKETING_ONLY), not a venue events calendar.",
+      "Level 1 (homepage + tickets page) found only generic Organization/WebSite JSON-LD, no Event/MusicEvent schema, no ICS, no WordPress/Tribe, no Fourvenues, no Sanity signature.",
+      "Level 2 (Shopify's own public products.json / collections/*/products.json REST endpoints) confirmed the platform's public API works, but the only content it returns is 2 sparse special-event door-ticket products, not a genuine, comprehensive programme feed — dates exist only as unstructured substrings in free-text titles, with no time/end/venue fields at all.",
+      "No headless browser tool is available in this environment to attempt a Level 3 BROWSER_OBSERVATION probe, and the retained Level 1/2 evidence gives no indication a richer client-side-only data path exists to justify one (no bootstrap/page-data blob referencing events, no discoverable API path beyond the Shopify REST surface already queried).",
+      "Deferring rather than fabricating a start_date/title PROVEN claim from an unstructured, non-representative product title, or recommending a collector family for a feed that would only ever surface 1-2 special-event records at a time."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-tickets-page", "ev-products-json", "ev-collections-tickets-json", "ev-tickets-collection-products-json"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, retained byte-faithfully. Contains 2 application/ld+json blocks (Organization, WebSite schema.org types only — no Event/MusicEvent), Shopify platform fingerprints (customer_authentication redirect path, cdn.shopify.com asset references), and internal nav links (only /pages/tickets, /cart — no programme/calendar page).",
+      "acquired_from": "https://www.sisyphos-berlin.net/",
+      "acquired_at": "2026-08-26T12:00:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sisyphos-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-tickets-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own linked TICKETS page (/pages/tickets), retained byte-faithfully. Shows 2 dated door-ticket products ('generationS 03. SEPT 2026', 'generationS 10. OKT 2026') at EUR 25.00 each, embedded in an otherwise general Shopify checkout flow, plus the operator's own Impressum (Sisyphos Event GmbH, Hauptstr. 15, 10317 Berlin, HRB 124004 B) used to prove official identity.",
+      "acquired_from": "https://www.sisyphos-berlin.net/pages/tickets",
+      "acquired_at": "2026-08-26T12:03:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sisyphos-berlin-01/evidence/tickets-page.html"
+    },
+    {
+      "evidence_id": "ev-products-json",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Shopify's own public /products.json endpoint (first 20 products by default ordering), retained byte-faithfully. Confirms this is a general merch catalogue (T-shirts, posters, patches) with only 2 'Ticket'-tagged, date-bearing products mixed in.",
+      "acquired_from": "https://www.sisyphos-berlin.net/products.json?limit=20",
+      "acquired_at": "2026-08-26T12:06:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sisyphos-berlin-01/evidence/products-json.json"
+    },
+    {
+      "evidence_id": "ev-collections-tickets-json",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Shopify's own public /collections/tickets.json endpoint, retained byte-faithfully. Confirms a 'TICKETS' collection exists (products_count: 7) but pagination of its own /products.json sub-endpoint surfaced only 2 live/published items.",
+      "acquired_from": "https://www.sisyphos-berlin.net/collections/tickets.json",
+      "acquired_at": "2026-08-26T12:08:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sisyphos-berlin-01/evidence/collections-tickets.json"
+    },
+    {
+      "evidence_id": "ev-tickets-collection-products-json",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Shopify's own public /collections/tickets/products.json endpoint, retained byte-faithfully. The 2 real ticket products, showing the full schema available: title, handle, id, published_at, tags, variant price/availability — no date/time/venue fields exist on the schema itself.",
+      "acquired_from": "https://www.sisyphos-berlin.net/collections/tickets/products.json?limit=20",
+      "acquired_at": "2026-08-26T12:09:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sisyphos-berlin-01/evidence/tickets-collection-products.json"
+    }
+  ],
+  "supersedes": null
+}

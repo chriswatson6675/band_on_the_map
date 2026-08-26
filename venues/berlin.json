@@ -1,0 +1,693 @@
+{
+  "region": "Berlin",
+  "cohort_note": "BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 — canonical Berlin venues, following the exact same venue/contract.mjs (createVenue/validateVenue) shape and evidence-first coordinate discipline already established in venues/lisbon.json, venues/porto.json, and venues/barcelona.json. Coordinates are either CONFIRMED (a first-party source's own directly-stated coordinate, e.g. an ICS GEO property) or GEOCODED (deterministically derived from this venue's own already-evidenced official address via ingestion/geocoding/nominatim.mjs — the SAME reused geocoding module, no new geocoding code). A venue whose address could not be evidenced precisely enough for a confident single-candidate match stays ADDRESS_ONLY or UNRESOLVED rather than guessing — see each entry's own evidence.",
+  "venues": [
+    {
+      "venue_id": "venue-berlin-uber-arena",
+      "canonical_name": "Uber Arena",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Mühlenstraße 12-30, 10243 Berlin",
+      "latitude": 52.5063462,
+      "longitude": 13.4436582,
+      "location_status": "CONFIRMED",
+      "evidence": [
+        {
+          "url": "https://www.uber-arena.de/events/ical/bryan-adams-berlin/3772/1",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own per-event ICS export directly states its own GEO (52.5063462;13.4436582) and LOCATION ('12 Mühlenstraße Berlin Berlin 10243') properties — first-party, directly evidenced coordinates, not geocoder-derived. See research/source-investigations/uber-arena-berlin-01/evidence/event-bryan-adams.ics."
+        }
+      ],
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-verti-music-hall",
+      "canonical_name": "Verti Music Hall",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Uber Platz, 10243 Berlin",
+      "latitude": 52.5055537,
+      "longitude": 13.4434752,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.uber-eats-music-hall.de/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own homepage text places it at 'Mercedes Platz' (Berlin's Mercedes-Benz/Uber entertainment district in Friedrichshain, the same complex as Uber Arena, ~90m away) — see research/source-investigations/verti-music-hall-berlin-01/evidence/homepage-raw.html. No street/house-number was retained in this investigation's evidence."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Mercedes+Platz%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim resolved this query to 'Uber Platz' (the plaza's current name, since Mercedes-Benz Arena/Mercedes Platz were renamed Uber Arena/Uber Platz) directly adjacent to Uber Arena's own CONFIRMED coordinates — manually reviewed and accepted as the correct real-world plaza, following this project's existing 'exact address match, related/renamed POI name' precedent (venues/barcelona.json's Jamboree entry)."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Mercedes Platz, Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-columbiahalle",
+      "canonical_name": "Columbiahalle",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Columbiadamm 13-21, 10965 Berlin",
+      "latitude": 52.4847383,
+      "longitude": 13.392546,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://columbiahalle.berlin/veranstaltung/elle.html",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own per-event ICS/detail page directly states its own address 'Columbiadamm 13-21, 10965 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Columbiadamm+13-21%2C+10965+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Columbiahalle' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Columbiadamm 13-21, 10965 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-tempodrom",
+      "canonical_name": "Tempodrom",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Möckernstraße 10, 10963 Berlin",
+      "latitude": 52.5016063,
+      "longitude": 13.3811909,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.tempodrom.de/programm-und-tickets/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own JSON-LD Event blocks each directly state streetAddress 'Möckernstr. 10', postalCode '10963', addressLocality 'Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=M%C3%B6ckernstr.+10%2C+10963+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Tempodrom' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Möckernstr. 10, 10963 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-waldbuehne",
+      "canonical_name": "Waldbühne",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Glockenturmstraße 1, 14053 Berlin",
+      "latitude": 52.5126903,
+      "longitude": 13.230013,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.waldbuehne-berlin.de/programm-und-tickets/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own JSON-LD Event blocks state address 'Glockenturmstraße 1, 14053 Berlin' (Olympiapark)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Glockenturmstra%C3%9Fe+1%2C+14053+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate at this exact address is 'Rudolf-Harbig-Halle' — a separately-named building within the same Olympiapark complex sharing this street/house-number address, not Waldbühne itself. Manually reviewed and accepted (same address block, same real-world complex), following this project's existing 'exact address match, differently-named adjacent POI' precedent (venues/barcelona.json's Jamboree entry)."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Glockenturmstraße 1, 14053 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-a-trane",
+      "canonical_name": "A-Trane",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Bleibtreustraße 1, 10623 Berlin",
+      "latitude": 52.5073394,
+      "longitude": 13.3200854,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://a-trane.de/programm/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own JSON-LD Event blocks state streetAddress 'Bleibtreustrasse 1 10623'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Bleibtreustra%C3%9Fe+1%2C+10623+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'A-Trane' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Bleibtreustraße 1, 10623 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-privatclub",
+      "canonical_name": "Privatclub",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Skalitzer Straße 85-86, 10997 Berlin",
+      "latitude": 52.5000715,
+      "longitude": 13.4348491,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://privatclub-berlin.de/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own site states its address 'Skalitzer Straße 85-86', Kreuzberg."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Skalitzer+Stra%C3%9Fe+85-86%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Privatclub' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Skalitzer Straße 85-86, Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-konzerthaus",
+      "canonical_name": "Konzerthaus Berlin",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Gendarmenmarkt, 10117 Berlin",
+      "latitude": 52.513639,
+      "longitude": 13.3927201,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.konzerthaus.de/en/programm/konzerthausorchester-berlin-ivan-fischer/12461",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own JSON-LD Event blocks directly state location.address 'Gendarmenmarkt , 10117 Berlin, Deutschland'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Gendarmenmarkt%2C+10117+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim resolved the square itself (no single house number is stated by the source); Konzerthaus Berlin is the dominant building on this square, and the coordinate places the marker correctly within the Gendarmenmarkt ensemble."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Gendarmenmarkt, 10117 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-lido",
+      "canonical_name": "Lido",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Cuvrystraße 7, 10997 Berlin",
+      "latitude": 52.4992172,
+      "longitude": 13.4450748,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.lido-berlin.de/events/2026-08-26-shakey-graves",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own JSON-LD MusicEvent blocks directly state location.address 'Cuvrystraße 7, 10997 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Cuvrystra%C3%9Fe+7%2C+10997+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's second candidate is amenity=nightclub named exactly 'Lido' at this exact address (the first candidate is a generic address-only node at the same coordinates)."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Cuvrystraße 7, 10997 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-b-flat",
+      "canonical_name": "b-flat",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Dircksenstraße 40, 10178 Berlin",
+      "latitude": 52.5235685,
+      "longitude": 13.4069401,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://b-flat-berlin.de/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own site states its address 'Dircksenstrasse 40', Mitte."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Dircksenstrasse+40%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim resolved a single confident candidate at this exact house number/street."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Dircksenstrasse 40, Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-so36",
+      "canonical_name": "SO36",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Oranienstraße 190, 10999 Berlin",
+      "latitude": 52.5003909,
+      "longitude": 13.4221612,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.so36.com/tickets",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own JSON-LD Product/Event data directly states address 'Oranienstraße 190, 10999 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Oranienstra%C3%9Fe+190%2C+10999+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'SO36' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Oranienstraße 190, 10999 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-yaam",
+      "canonical_name": "Yaam",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "An der Schillingbrücke 3, 10243 Berlin",
+      "latitude": 52.5091664,
+      "longitude": 13.4307181,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://yaam.de/wp-json/tribe/events/v1/events",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The Events Calendar (Tribe) REST API's own venue object for this source states the address 'An der Schillingbrücke 3, 10243 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=An+der+Schillingbr%C3%BCcke+3%2C+10243+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'yaam' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "An der Schillingbrücke 3, 10243 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-kesselhaus-kulturbrauerei",
+      "canonical_name": "Kesselhaus (Kulturbrauerei)",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Knaackstraße 97, 10435 Berlin",
+      "latitude": 52.5402922,
+      "longitude": 13.4140783,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.kesselhaus.net/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own per-event JSON-LD data states address 'Knaackstraße 97, 10435 Berlin' (the Kulturbrauerei complex)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Knaackstra%C3%9Fe+97%2C+10435+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate at this exact address is 'Museum in der Kulturbrauerei' — a separately-named building within the same Kulturbrauerei complex sharing this address, not Kesselhaus itself. Manually reviewed and accepted (same complex/building block), following this project's existing 'exact address match, differently-named co-located POI' precedent."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Knaackstraße 97, 10435 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-heimathafen-neukoelln",
+      "canonical_name": "Heimathafen Neukölln",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Karl-Marx-Straße 141, 12043 Berlin",
+      "latitude": 52.4770235,
+      "longitude": 13.4399161,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://heimathafen-neukoelln.de/wp-json/wp/v2/events",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own WordPress REST API response/site states address 'Karl-Marx-Straße 141, 12043 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Karl-Marx-Stra%C3%9Fe+141%2C+12043+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Heimathafen Neukölln' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Karl-Marx-Straße 141, 12043 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-festsaal-kreuzberg",
+      "canonical_name": "Festsaal Kreuzberg",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Am Flutgraben 2, 12435 Berlin",
+      "latitude": 52.4968232,
+      "longitude": 13.4515556,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://festsaal-kreuzberg.de/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own Wagtail public API/site states address 'Am Flutgraben 2, 12435 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Am+Flutgraben+2%2C+12435+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Festsaal Kreuzberg' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Am Flutgraben 2, 12435 Berlin",
+        "retrieved_at": "2026-08-26T14:20:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-bi-nuu",
+      "canonical_name": "Bi Nuu",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Skalitzer Straße 71-72, Berlin",
+      "latitude": null,
+      "longitude": null,
+      "location_status": "ADDRESS_ONLY",
+      "evidence": [
+        {
+          "url": "https://binuu.de/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own homepage states its address as 'Skalitzer Straße 71-72' (inside the Schlesisches Tor U-Bahn station building), Kreuzberg — see research/source-investigations/bi-nuu-berlin-01/."
+        }
+      ],
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-hkw",
+      "canonical_name": "Haus der Kulturen der Welt (HKW)",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "John-Foster-Dulles-Allee 10, 10557 Berlin",
+      "latitude": 52.5187884,
+      "longitude": 13.3648356,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.hkw.de/en/programme/sound-base-berlin/praed",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own per-event JSON-LD states location.address.streetAddress 'John-Foster-Dulles-Allee 10, 10557 Berlin'."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=John-Foster-Dulles-Allee+10%2C+10557+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Haus der Kulturen der Welt' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "John-Foster-Dulles-Allee 10, 10557 Berlin",
+        "retrieved_at": "2026-08-26T15:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-volksbuehne",
+      "canonical_name": "Volksbühne am Rosa-Luxemburg-Platz",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Linienstraße 227, 10178 Berlin",
+      "latitude": 52.527024,
+      "longitude": 13.4119171,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.volksbuehne-berlin.de/produktionen/heith-und-tarawansawelas-duori/20261009-1800/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own per-event JSON-LD states a full PostalAddress 'Linienstraße 227, 10178 Berlin, DE' on at least one sampled record; Roter Salon/Grüner Salon are named sub-rooms of the same building, not separate venues."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Linienstra%C3%9Fe+227%2C+10178+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Volksbühne am Rosa-Luxemburg-Platz' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Linienstraße 227, 10178 Berlin",
+        "retrieved_at": "2026-08-26T15:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-zig-zag-jazz-club",
+      "canonical_name": "Zig Zag Jazz Club",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Hauptstraße 89, 12159 Berlin",
+      "latitude": 52.4751394,
+      "longitude": 13.3401528,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.zigzag-jazzclub.berlin/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own site free-text states 'Location: Zig Zag Jazz Club / Hauptstr. 89, 12159 Berlin' for most sampled events."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Hauptstr.+89%2C+12159+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim resolved a single confident address-level candidate at this exact house number/street/postcode (no separately-named POI returned, but the address match is exact)."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Hauptstr. 89, 12159 Berlin",
+        "retrieved_at": "2026-08-26T15:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-badehaus",
+      "canonical_name": "Badehaus Berlin",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Revaler Straße 99, 10245 Berlin",
+      "latitude": 52.5076116,
+      "longitude": 13.451645,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://badehaus-berlin.com/en/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own investigation record states its address as Revaler Str. 99 (the RAW-Gelände complex, Friedrichshain)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Revaler+Stra%C3%9Fe+99%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate at this exact address is named 'Urban Spree' — a separately-named venue within the same large RAW-Gelände complex sharing this exact address block (Badehaus and Urban Spree are both real, distinct venues inside the same industrial complex). Manually reviewed and accepted (same address, same real-world complex), following this project's existing 'exact address match, differently-named co-located POI' precedent (Waldbühne/Rudolf-Harbig-Halle, Kesselhaus/Museum in der Kulturbrauerei)."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Revaler Straße 99, Berlin",
+        "retrieved_at": "2026-08-26T16:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-urban-spree",
+      "canonical_name": "Urban Spree",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Revaler Straße 99, 10245 Berlin",
+      "latitude": 52.5076116,
+      "longitude": 13.451645,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://www.urbanspree.com/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own investigation record states its address as Revaler Str. 99 (the RAW-Gelände complex, Friedrichshain)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Revaler+Stra%C3%9Fe+99%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate at this exact address is named exactly 'Urban Spree'."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Revaler Straße 99, Berlin",
+        "retrieved_at": "2026-08-26T16:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-ausland",
+      "canonical_name": "Ausland",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Lychener Straße 60, 10437 Berlin",
+      "latitude": 52.5448387,
+      "longitude": 13.4194785,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://ausland.berlin/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own site states its address as Lychener Straße 60, Prenzlauer Berg."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Lychener+Stra%C3%9Fe+60%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Ausland' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Lychener Straße 60, Berlin",
+        "retrieved_at": "2026-08-26T16:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-kunstfabrik-schlot",
+      "canonical_name": "Kunstfabrik Schlot",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": "Invalidenstraße 117, 10115 Berlin",
+      "latitude": 52.5302814,
+      "longitude": 13.385162,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://kunstfabrik-schlot.de/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "The venue's own site states its address as Invalidenstraße 117, Mitte."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Invalidenstra%C3%9Fe+117%2C+Berlin&format=jsonv2&addressdetails=1&limit=3&countrycodes=de",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "Nominatim's top candidate is named exactly 'Kunstfabrik Schlot' at this exact address."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_address": "Invalidenstraße 117, Berlin",
+        "retrieved_at": "2026-08-26T16:00:00.000Z"
+      },
+      "retrieved_at": "2026-08-26"
+    },
+    {
+      "venue_id": "venue-berlin-zenner",
+      "canonical_name": "Zenner",
+      "country_code": "DE",
+      "city": "Berlin",
+      "municipality": "Berlin",
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "location_status": "UNRESOLVED",
+      "evidence": [
+        {
+          "url": "https://zenner.berlin/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "This investigation retained only an area reference ('Treptower Park') from the venue's own site — no precise street/house-number was found within the bounded investigation. A geocoding attempt against 'Alt-Treptow / Treptower Park, Berlin' returned an unrelated business (a counselling service) at a different address, correctly rejected rather than accepted on a weak match. Left UNRESOLVED honestly per docs/VENUE_RESOLUTION.md rather than guessing."
+        }
+      ],
+      "retrieved_at": "2026-08-26"
+    }
+  ]
+}

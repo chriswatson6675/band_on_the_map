@@ -1,0 +1,160 @@
+{
+  "investigation_id": "kater-blau-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:25:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser, no JS execution) of the venue's official homepage, which embeds its entire programme as a server-rendered WordPress custom-post-type ('event') list directly in the HTML — no separate programme page or REST endpoint was needed. The page's own JSON-LD block is generic WebSite schema only, not Event schema, inspected and ruled out rather than assumed absent."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.katerclub.de/ (katerblau.de redirects here, HTTP 301 — the venue rebranded from 'Kater Blau' to 'Kater' at some point, confirmed by the site's own <title> 'Kater – Nights, Lights & Bubblegum' and its own footer '© 2026 Kater Club') returned a fully server-rendered '#Program' section: 19+ real upcoming WordPress 'event' post articles, each with its own stable WordPress post id in the article's own HTML id attribute (e.g. id=\"event-1777\"), a day/month date-header, a full start–end date+time text range, title, lineup, and (for ticketed nights) an outbound Resident Advisor link. This directly answers the investigation question at Level 1 for the fields the source actually exposes; no dedicated Event JSON-LD, ICS, WordPress Tribe Events REST API, Fourvenues, or Sanity signature was present. No structural/browser escalation was needed; the one genuine gap found (no year stated) is a source limitation, not something a deeper technical probe would resolve.",
+      "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"]
+    }
+  ],
+  "source_candidate_id": "kater-blau-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Kater Blau, now operating as 'Kater' (club, part of the Holzmarkt 25 artists' collective, Mitte, Berlin)",
+  "official_url": "https://www.katerclub.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"],
+    "notes": "katerblau.de is independently corroborated as the original Kater Blau venue's own domain by multiple third-party discovery sources (Berlin.de, visitBerlin.de, Yelp — treated only as a discovery lead), and issues a live HTTP 301 redirect to www.katerclub.de. The retained page content itself (its own JSON-LD 'name': 'Kater', its own <title> and footer both self-identifying as 'Kater Club', its own Holzmarkt-associated visual branding) is first-party evidence this is the same venue's current official domain under a shortened brand name, not a lookalike or unrelated site — this rebrand (Kater Blau -> Kater) is recorded honestly rather than silently assumed identical."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (Link: rel=\"https://api.w.org/\" header, wp-content/wp-json paths present) with a custom theme rendering its 'event' custom-post-type entries directly and fully server-rendered inside the homepage's Program section — no dedicated calendar plugin (e.g. Tribe Events) signature was found, and no wp-json/tribe/events endpoint was tested since the plain HTML already exposes the same data server-rendered.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EMBEDDED_EVENT_LIST",
+      "url": "https://www.katerclub.de/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-program-section"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FOREVER 25 curated by Franca & Mimi Love",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event article's own 'date-title' span text, sampled directly (event id 1777).",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each event article's own 'date-header' span states day and month directly (e.g. '11.09.'), and the entry-summary additionally states a full start-end range as text ('Fr. 11.09 22:00 — Mo. 14.09 01:00') — but NO year is stated anywhere in or near the Program section (only the page footer's unrelated copyright notice states a year). Per docs/SOURCE_INVESTIGATION_POLICY.md's explicit worked example (plausible-but-unstated year based on today's date is AI_INFERENCE, not a valid PROVEN basis), recorded PARTIAL: day/month/time genuinely proven, year genuinely unresolved from this source alone.",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "22:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event's own entry-summary text states a start time directly as part of its start-end range (e.g. '22:00' in 'Fr. 11.09 22:00 — Mo. 14.09 01:00'), floating local time, no UTC offset present in the source.",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "01:00 (Mo. 14.09)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The same entry-summary text directly states an explicit end date+time ('Mo. 14.09 01:00') for the sampled multi-day event — unusually, this source DOES state an explicit end unlike Berghain/Tresor/Renate. Year is unresolved for the same reason as start_date.",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No per-event room/location breakdown is stated on any sampled event article — all events are implicitly the one Kater venue with no sub-room distinction exposed in this source.",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "1777",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event article's own HTML id/class attributes directly state its underlying WordPress post ID (e.g. id=\"event-1777\" class=\"post-1777 event ...\") — WordPress's own internal, database-assigned post identifier, a platform-documented stable numeric ID scheme (not an invented hash), matching the policy's 'derived from a deterministic source property whose own stability is itself evidenced' rule. No repeated-fetch empirical stability test was performed in this bounded investigation (a genuine limitation, noted honestly), and there is no public permalink URL exposing this ID directly (see event_url below) — but the ID itself is directly, repeatedly present in the retained markup.",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No dedicated per-event detail page URL is exposed anywhere — events render inline inside the homepage's accordion only; the only outbound per-event link (where present) goes to a third-party ticketing platform (Resident Advisor), not to a first-party event page on this domain.",
+      "evidence_refs": ["ev-program-section"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price figure appears on any sampled event; ticketed nights only link out to Resident Advisor, free ones ('Katergarten') are explicitly described as free entry in their own text.",
+      "evidence_refs": ["ev-program-section"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-program-section"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No year is stated anywhere in or near the Program section, so a real collector cannot honestly resolve start_date/end to a full calendar date from this source alone (same limitation as wilde-renate-berlin-01)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from the venue's own retained page content, corroborated by independent third-party discovery leads, with the Kater Blau -> Kater rebrand recorded honestly rather than silently assumed.",
+      "acquisition_class STATIC_HTML, a resolved supported class — the entire programme is server-rendered directly on the homepage, no browser/JS execution needed.",
+      "A CONFIRMED public data path retained (19+ real upcoming WordPress 'event' post articles sampled from the live homepage).",
+      "title PROVEN with basis DIRECT_SOURCE; start_date honestly assessed as PARTIAL (day/month/time proven, year genuinely unresolved by the source, same limitation as wilde-renate-berlin-01) rather than left blank or guessed.",
+      "source_record_id PROVEN via WordPress's own internal, platform-documented post-ID scheme, directly present in the retained markup — stronger identity grounding than wilde-renate-berlin-01, which had no first-party identifier at all.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented family.",
+      "No unresolved CRITICAL blocker (one MAJOR blocker honestly documented: the unresolved year).",
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: beyond the missing DETERMINISTIC_DERIVATION offline-proof step (separate follow-up work per this task's own scope), the year-ambiguity is a genuine open design question a collector build would need to resolve (e.g. cross-referencing the RA ticket link, out of scope here) before activation would be appropriate."
+    ],
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-section"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage-jsonld",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers for both the former domain (redirecting) and the current official domain, plus the one JSON-LD block found on the homepage (generic WebSite schema — inspected and confirmed to NOT be Event schema).",
+      "acquired_from": "https://katerblau.de/ (redirects to https://www.katerclub.de/)",
+      "acquired_at": "2026-08-26T12:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/kater-blau-berlin-01/evidence/homepage-headers-and-jsonld.html"
+    },
+    {
+      "evidence_id": "ev-program-section",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the homepage's own server-rendered '#Program' section: multiple real upcoming WordPress 'event' post articles with stable post IDs, dates, times, titles, and lineups.",
+      "acquired_from": "https://www.katerclub.de/",
+      "acquired_at": "2026-08-26T12:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/kater-blau-berlin-01/evidence/program-section-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

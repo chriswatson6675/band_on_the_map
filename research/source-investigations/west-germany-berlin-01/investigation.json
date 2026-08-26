@@ -1,0 +1,91 @@
+{
+  "investigation_id": "west-germany-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:09:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (two different User-Agents: a descriptive research UA and a full browser UA) of the only candidate official domain found (westgermany.de, matching the venue's own publicly-listed contact email 'info@westgermany.de'). Every request, with either UA, over both HTTP and HTTPS, and against both the bare domain and www subdomain, returned the same openresty/nginx 403 Forbidden response with no page content — no aggregator/social page found via WebSearch listed any other website URL for this venue."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "BLOCKED",
+      "reason": "A plain curl GET of https://westgermany.de/ (the only candidate official domain found, matching the venue's own contact email domain per WebSearch discovery-lead context) returned HTTP 403 Forbidden from an openresty edge, with a response body containing the well-known 'padding to disable MSIE and Chrome friendly error page' comment pattern that indicates a deliberate anti-bot/edge block rather than a genuine application error. The same 403 was returned identically across http/https, bare-domain/www, and two different User-Agent strings (a plain descriptive research UA and a full desktop-browser UA) and across multiple paths (/, /robots.txt). This reads as an explicit access-control boundary, not a transient or content-specific failure — per docs/SOURCE_INVESTIGATION_POLICY.md this terminates escalation; the correct next step is DEFER, not attempting to defeat the block.",
+      "evidence_refs": ["ev-domain-403-researchua", "ev-domain-403-browserua"]
+    }
+  ],
+  "source_candidate_id": "west-germany-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "West Germany (club, above Bar Fahimi, Skalitzer Str. 133, Berlin — Kreuzberg/Friedrichshain border, near Kottbusser Tor)",
+  "official_url": "https://westgermany.de/",
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-domain-403-researchua"],
+    "notes": "westgermany.de is the only candidate official domain found (via WebSearch discovery-lead context naming the venue's contact email as 'info@westgermany.de', matching this domain), but this could not be independently corroborated against the venue's own rendered content — every request to this domain returned an edge-level HTTP 403 Forbidden with no page content at all, on both HTTP and HTTPS, both bare-domain and www, and two different User-Agent strings. identity.status is honestly recorded as AMBIGUOUS rather than PROVEN: a plausible domain-to-email match, but no genuinely rendered first-party page content was ever retrieved to confirm it directly. No other candidate domain was found via WebSearch across multiple queries (venue aggregators — Songkick, Dice.fm, Resident Advisor, clubguideberlin.de, bpigs.com — either list no website or only list ticketing/aggregator pages, never a first-party site)."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": []
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No page content was ever retrievable to assess.", "evidence_refs": [] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The only candidate official domain (westgermany.de) returns a consistent edge-level HTTP 403 Forbidden (openresty anti-bot pattern) on every path, protocol, subdomain, and User-Agent tried. No page content, event data, or platform fingerprint of any kind could be retrieved, and no alternative first-party domain was found via WebSearch. Per policy, this is an explicit access-control boundary that must not be worked around (no CAPTCHA-defeat, no header/fingerprint spoofing beyond a plain descriptive UA, no evasive technique)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The only candidate official domain returns a consistent, edge-level HTTP 403 Forbidden across every protocol/subdomain/User-Agent/path combination tried — a genuine access-control boundary (BLOCKED), not a transient error.",
+      "identity.status is honestly AMBIGUOUS: the domain-to-contact-email match is plausible but was never corroborated against actual rendered page content, because no content was ever retrievable.",
+      "No alternative first-party domain exists per multiple WebSearch queries — every other source found (Songkick, Dice.fm, Resident Advisor, clubguideberlin.de, bpigs.com, Instagram) is either a third-party aggregator/ticketing site or lists no website at all.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md 'The escalation ladder': BLOCKED terminates escalation and the correct next step is DEFER or HUMAN_REVIEW, never an attempt to bypass the block. DEFER does not require exhausting the ladder — a single BLOCKED Level 1 entry followed by DEFER is explicitly a valid, complete investigation outcome.",
+      "This investigation should be revisited later (a new investigation_id, superseding this one) if the block condition changes or a genuine alternative first-party domain/social channel with a public events feed is found."
+    ],
+    "evidence_refs": ["ev-domain-403-researchua", "ev-domain-403-browserua"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-domain-403-researchua",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP 403 Forbidden response (openresty edge block, 'padding to disable MSIE and Chrome friendly error page' anti-bot pattern) from the candidate domain, using a plain descriptive research User-Agent.",
+      "acquired_from": "https://westgermany.de/",
+      "acquired_at": "2026-08-26T12:09:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'Mozilla/5.0 (compatible; BOTM-research/1.0)', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/west-germany-berlin-01/evidence/domain-403-modua.html"
+    },
+    {
+      "evidence_id": "ev-domain-403-browserua",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP 403 Forbidden response from the same candidate domain, using a full desktop-browser User-Agent string instead, confirming the block is not specific to the plain research UA.",
+      "acquired_from": "https://westgermany.de/",
+      "acquired_at": "2026-08-26T12:09:30Z",
+      "method": "curl (plain HTTP GET, full desktop-browser User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/west-germany-berlin-01/evidence/domain-403-browserua.html"
+    }
+  ],
+  "supersedes": null
+}

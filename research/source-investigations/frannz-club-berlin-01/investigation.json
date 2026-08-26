@@ -1,0 +1,180 @@
+{
+  "investigation_id": "frannz-club-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:24:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC INSUFFICIENT (the homepage's own server-rendered event markup never states a year for any event), then Level 2 STRUCTURAL INSUFFICIENT: probed the site's WordPress REST API for a 'tribe/events' (The Events Calendar) route and a 'wp/v2/events' custom-post-type route; neither exists (both return 404 rest_no_route). No cleaner public JSON/API path was discoverable. No Level 3 (browser) escalation was performed (this investigation had no browser/headless tool available), and none was strictly necessary since the homepage's own markup already provides most fields honestly and completely — only the year is genuinely missing from every retained source."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain GET of https://frannz.eu/ (WordPress; wp-content/wp-json present) returns a large (1.28MB), fully server-rendered homepage where every upcoming show is its own custom-post-type 'events' post embedded directly in the HTML, with explicit day-of-week name, day number, month NAME (not number), and door/start times all present as real structured text (e.g. 'Donnerstag' / '15' / 'Oktober' / Einlass 19:00 / Beginn 20:00 for the sampled 'Marlene Kuntz' show) — but no year is stated anywhere in or near any event's own markup, page title, or meta description. No JSON-LD, ICS, or other machine-readable structured-data block is present anywhere on the page.",
+      "evidence_refs": ["ev-homepage-head", "ev-event-card"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "The site exposes a standard WordPress REST API root (wp-json/) but a plain GET of 'wp-json/tribe/events/v1/events' (The Events Calendar plugin's own REST route, used successfully elsewhere in this project) and 'wp-json/wp/v2/events?per_page=3' (a direct custom-post-type REST route, matching the 'type-events'/'events' CSS classes observed on each event post) both return HTTP 404 'rest_no_route' — neither route is registered/exposed. No other public JSON/API path referencing the 'events' post type or a calendar was discoverable from the retained homepage markup.",
+      "evidence_refs": ["ev-wpjson-probes"]
+    }
+  ],
+  "source_candidate_id": "frannz-club-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Frannz Club (restaurant, nightclub, bar and live-music venue inside the Kulturbrauerei complex, Schönhauser Allee 36, Prenzlauer Berg, Berlin)",
+  "official_url": "https://frannz.eu/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage-head"],
+    "notes": "Official identity confirmed directly from retained evidence at https://frannz.eu/: <title>Frannz Club – Restaurant, Nachtclub, Bar</title>, a standard WordPress wp-json Link header on the venue's own domain, consistent with independently-known venue facts (Kulturbrauerei, Prenzlauer Berg)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (wp-content, wp-json Link header present), custom theme with a bespoke 'events' custom post type rendered directly into the homepage — no known calendar plugin (The Events Calendar's own REST route is not registered) and no JSON-LD.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage-head", "ev-event-card", "ev-wpjson-probes"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://frannz.eu/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-event-card"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Marlene Kuntz",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event post's own '.event-title' element (e.g. 'Marlene Kuntz'), with a separate '.event-otitle' subtitle/category element (e.g. 'live!') also present on the same post.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each event post's own '.event-dayname' ('Donnerstag'), '.event-day' ('15') and '.event-month' ('Oktober', a full month NAME not a number) elements directly state day-of-week, day-of-month and month — but no year is stated anywhere in the retained evidence: not on the event post itself, not in the page <title>/meta, and not in a season/year heading anywhere on the page. Per docs/SOURCE_INVESTIGATION_POLICY.md's 'Field-value basis (v1.2)' section, inferring the year from today's date or from 'the nearest plausible occurrence' would be AI_INFERENCE and can never be PROVEN — so this stays honestly PARTIAL rather than a guessed full date. A future collector-build step could still recover the year properly by following the event's own third-party ticket link (e.g. dice.fm states '15th Oct' in its own URL slug alongside a full description) — but that would make the year dependent on a third-party site rather than Frannz Club's own first-party page, which this investigation does not treat as first-party authority for this venue's own facts.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00 Uhr (Beginn); 19:00 Uhr (Einlass)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event post's own '.event-entrance' (Einlass/doors, '19:00') and '.event-start' (Beginn/start, '20:00') elements, both duplicated in a desktop and a mobile-specific markup block on the same post.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end/close time field is present anywhere in the retained event post markup.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The event post's own sidebar states 'Ort: Club' — this is the literal retained text, but it reads as an internal room/area label (Frannz Club's own complex includes multiple named areas) rather than a full venue name or address; it is not the string 'Frannz Club' itself, nor an address. Left PARTIAL rather than PROVEN because the retained text does not unambiguously state the full venue identity/address the way, e.g., Lido or Privatclub's own JSON-LD does.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "source_record_id": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each event post carries a WordPress-internal numeric post ID visible only in a CSS class (e.g. class=\"post-9922\") — this is very likely WordPress's own stable internal post ID, but no permalink or other canonical URL exposing this ID was found anywhere in the retained evidence (all outbound ticket links point to third-party sellers, e.g. dice.fm, copilot.events, tickets.loft.de — never to a first-party frannz.eu permalink for the event itself), and this investigation did not empirically re-observe the same post ID across repeated fetches. Per the policy's stable-identifier rule, a value that merely looks like a stable ID is not automatically PROVEN; left AMBIGUOUS rather than guessed as an activation-ready identity strategy.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "There is no first-party per-event permalink on frannz.eu itself — every 'Tickets' link observed points to a third-party seller's own event page (dice.fm, copilot.events, tickets.loft.de, tickets.eskapaden.net, deinetickets.de, and others vary per event), never to a frannz.eu URL.",
+      "evidence_refs": ["ev-event-card"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price is stated on Frannz Club's own page for the sampled event; it only names the third-party seller ('Tickets im VVK gibt es bei dice.fm').",
+      "evidence_refs": ["ev-event-card"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-event-card"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No year is stated anywhere in the retained first-party evidence for any event's date — only day-of-week, day-of-month, and month name. A real collector cannot honestly resolve a full start_date from Frannz Club's own page alone; this needs an explicit human/product decision (e.g. accept an AMBIGUOUS year-less date, or define a documented, non-guessing policy such as 'always the next occurrence of that day+month after the page's own Last-Modified date' as a genuine DETERMINISTIC_CONTEXT rule with its own retained evidence) before a collector could reach PROVEN on start_date."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No first-party per-event permalink/source_record_id exists on frannz.eu; the WordPress-internal post ID visible in a CSS class is a plausible but unverified candidate."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN directly from retained first-party evidence.",
+      "acquisition_class STATIC_HTML, a resolved supported class; a CONFIRMED public data path retained (the homepage's own server-rendered event post markup).",
+      "title and time both PROVEN via DIRECT_SOURCE; start_date honestly PARTIAL (day/month known, year genuinely absent from every retained source — not guessed) rather than fabricated or silently upgraded.",
+      "recommended_family STATIC_EVENT_LIST (an existing family), with a documented MAJOR blocker (the missing year) that a human/product decision should resolve before any collector-build or activation step — this investigation deliberately does not guess a resolution.",
+      "No unresolved CRITICAL blocker.",
+      "No collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this investigation-only task, so READY_FOR_ACTIVATION's gate 9 is not met — READY_FOR_OFFLINE_PROOF is the correct, honest status."
+    ],
+    "evidence_refs": ["ev-event-card", "ev-wpjson-probes"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage-head",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and the complete <head> block of the venue's official homepage (full page is 1,276,902 bytes; head kept in full, body excerpted separately as ev-event-card).",
+      "acquired_from": "https://frannz.eu/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-homepage-head-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-event-card",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One complete, real, unmodified event-post block from the homepage's own server-rendered event listing (the 'Marlene Kuntz' show, WordPress post id 9922) — day-name, day-number, month-name, both door/start times, title, subtitle, sidebar 'Ort' text, and the third-party ticket link, exactly as served.",
+      "acquired_from": "https://frannz.eu/",
+      "acquired_at": "2026-08-26T12:24:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-event-card-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-wpjson-probes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Complete raw responses for two WordPress REST API probes: 'wp-json/tribe/events/v1/events' and 'wp-json/wp/v2/events?per_page=3', both returning HTTP 404 rest_no_route.",
+      "acquired_from": "https://frannz.eu/wp-json/tribe/events/v1/events and https://frannz.eu/wp-json/wp/v2/events?per_page=3",
+      "acquired_at": "2026-08-26T12:24:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-wpjson-probes.json"
+    }
+  ],
+  "supersedes": null
+}

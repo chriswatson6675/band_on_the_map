@@ -1,0 +1,90 @@
+{
+  "investigation_id": "bassy-club-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:35:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the two most plausible official domains discovered for this venue via web search (bassyclub.com and bassy-club.de). Both were retrieved and inspected directly; neither is the venue's genuine first-party presence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Two independently-suggested candidate domains were fetched directly. bassyclub.com returns a live site, but its own retained JSON-LD and <title> ('Virtual Reality im Glücksspiel – Die Zukunft hat begonnen', an online-gambling/VR content article, inLanguage 'en-au') prove it is unrelated third-party content, not Bassy Club Berlin — the domain is not held by the venue. bassy-club.de returns a domain-parking/for-sale template page ('This domain is for sale... Contact the Owner') with an obfuscated tracking/redirect script, not a venue site at all. Neither result is a genuine official first-party presence for the venue, so CANDIDATE_IDENTITY cannot be established from passive discovery of either natural domain guess. Third-party discovery sources (web search results) are themselves in direct conflict about whether the physical club is still operating (a 2018 Tagesspiegel closure report; a Foursquare 'permanently closed' listing; a Yelp listing 'updated July 2026' implying current hours) — none of these are first-party, and none resolve which (if any) domain the venue itself currently controls. Per policy, DEFER does not require exhausting the escalation ladder or fabricating a Level 2/3 probe against a site that has already been shown not to belong to the venue.",
+      "evidence_refs": ["ev-bassyclub-com", "ev-bassy-club-de"]
+    }
+  ],
+  "source_candidate_id": "bassy-club-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Bassy (Cowboy) Club — a rock'n'roll/rockabilly/vintage-music club historically at Schönhauser Allee 176a, Prenzlauer Berg, Berlin. Third-party sources conflict on current operating status (a 2018 closure was reported, contradicted by more recent third-party listings implying it may have reopened or continues operating); this investigation could not establish a genuine first-party official web presence for the venue at all.",
+  "official_url": null,
+  "identity": {
+    "status": "NOT_PRESENT",
+    "confidence": "NONE",
+    "evidence_refs": ["ev-bassyclub-com", "ev-bassy-club-de"],
+    "notes": "No genuine official first-party website could be established for this venue. The two natural domain guesses surfaced by web search were both directly checked and both positively confirmed NOT to be the venue's site (one now serves unrelated gambling/VR content, presumably an expired-domain takeover; one is a parked, for-sale placeholder page) — this is an evidenced rejection of both candidates, not merely an unchecked absence. Per policy, third-party listing/ticketing/directory pages (Songkick, Ticketmaster, Rausgegangen, Yelp, clubguideberlin.de, etc.) are discovery leads only and were deliberately NOT treated as first-party source authority for this venue's own facts."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-bassyclub-com", "ev-bassy-club-de"]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No first-party source was found to assess.", "evidence_refs": [] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-bassyclub-com", "ev-bassy-club-de"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No genuine official first-party website/domain could be located for this venue. Both plausible domains were directly checked and confirmed to belong to unrelated parties (unrelated content / domain-for-sale parking). Automated acquisition cannot begin without a verified first-party source, and this investigation must not guess a domain."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "CANDIDATE_IDENTITY could not be established: the two natural domain guesses were both directly fetched and both proven NOT to be the venue's own site (unrelated third-party content on one; a parked for-sale page on the other).",
+      "Third-party discovery sources conflict on whether the physical venue is even still operating, and none constitutes first-party authority for its own facts under this policy.",
+      "No data path, platform, or field can be honestly assessed without a genuine first-party source to probe.",
+      "This is a legitimate, evidenced DEFER outcome, not a guess — re-investigate if/when a genuine official Bassy Club web presence (own domain, or a verifiably venue-controlled social/booking page) can be identified."
+    ],
+    "evidence_refs": ["ev-bassyclub-com", "ev-bassy-club-de"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-bassyclub-com",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full retrieved homepage of bassyclub.com — its own JSON-LD and <title> identify it as an unrelated online-gambling/VR content page, not Bassy Club Berlin. Retained as evidence that this domain was checked and rejected, not merely assumed.",
+      "acquired_from": "https://bassyclub.com/",
+      "acquired_at": "2026-08-26T12:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/bassy-club-berlin-01/evidence/bassyclub-com-homepage.html"
+    },
+    {
+      "evidence_id": "ev-bassy-club-de",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full retrieved homepage of bassy-club.de — a domain-parking/for-sale placeholder page with an obfuscated redirect/tracking script, not a venue site. Retained as evidence that this domain was checked and rejected, not merely assumed.",
+      "acquired_from": "https://www.bassy-club.de/",
+      "acquired_at": "2026-08-26T12:32:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/bassy-club-berlin-01/evidence/bassy-club-de-homepage.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,249 @@
+{
+  "investigation_id": "bi-nuu-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:14:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC INSUFFICIENT (the homepage is a client-rendered SvelteKit shell with no server-rendered event markup), then Level 2 STRUCTURAL SUFFICIENT: a plain curl GET of the SvelteKit-conventional '__data.json' sibling of the site's own /de/events route (and of one individual /de/events/{id} route) returned real, structured event data directly from the framework's own public data-loading endpoint — no browser/network-tab observation was needed to discover it, only knowledge of the SvelteKit routing convention plus a plain unauthenticated GET."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain GET of https://binuu.de/ (redirects to /de) returns a SvelteKit client-rendered shell (response header 'x-sveltekit-page: true'; body is almost entirely JS module preload links and an empty app mount point). No JSON-LD, ICS, WordPress/plugin fingerprint, or server-rendered event markup is present anywhere in the initial HTML response. The <head> block does confirm venue identity (title 'Bi Nuu', meta description 'Berlin Kreuzberg - U Schlesisches Tor'), but no event data.",
+      "evidence_refs": [
+        "ev-homepage"
+      ]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "The homepage links to './de/events' and './de/events/{id}' (e.g. '/de/events/fko44tarc3g5wlv'). SvelteKit's own well-documented routing convention exposes each page's server-loaded data at '{route}/__data.json'. A plain, unauthenticated GET of 'https://binuu.de/de/events/__data.json' returned HTTP 200 with a real, structured (devalue-encoded) listing of 46 upcoming events; a plain GET of the equivalent per-event path for one sampled event ('https://binuu.de/de/events/fko44tarc3g5wlv/__data.json') returned the same event's fuller detail record (doors time, description HTML, ticket-provider link, performer links). This directly and fully answers the investigation question: no browser/network-tab observation was needed.",
+      "evidence_refs": [
+        "ev-events-data",
+        "ev-event-detail-data"
+      ]
+    }
+  ],
+  "source_candidate_id": "bi-nuu-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Bi Nuu (concert venue and club inside the Schlesisches Tor U-Bahn station building, Skalitzer Straße 71-72, Kreuzberg, Berlin — run by the Festsaal Kreuzberg team, alongside Lido and Astra Kulturhaus)",
+  "official_url": "https://binuu.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage"
+    ],
+    "notes": "Official identity confirmed directly from retained evidence at https://binuu.de/: <title>Bi Nuu</title>, meta description 'Berlin Kreuzberg - U Schlesisches Tor', and body text naming 'Festsaal Kreuzberg' (the shared operator group) and 'Schlesisches Tor' — all consistent with independently-known venue facts (matches Lido's own footer, which separately links to binuu.de as a sibling venue under the same operator)."
+  },
+  "site_classification": {
+    "acquisition_class": "SPA_API_DISCOVERABLE",
+    "platform": "SvelteKit SPA (Cloudflare-fronted). Event data is served by the framework's own conventional '__data.json' data-loading endpoint per route, encoded with SvelteKit's 'devalue' flat-array serialization (not plain JSON objects — requires resolving index references, e.g. as done by this project's own resolver in the offline sample verification for this investigation).",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-data",
+      "ev-event-detail-data"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "SVELTEKIT_ROUTE_DATA_JSON",
+      "url": "https://binuu.de/de/events/__data.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-events-data"
+      ]
+    },
+    {
+      "kind": "SVELTEKIT_ROUTE_DATA_JSON_DETAIL",
+      "url": "https://binuu.de/de/events/{id}/__data.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail-data"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Oidorno",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each resolved event record's own 'title' field (e.g. 'Oidorno', 'Haze', 'ANTIGONI', 'Swar'), consistent across all 46 sampled records in the listing endpoint. Value shown is the first sampled record's own title.",
+      "evidence_refs": [
+        "ev-events-data"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28 18:00:00.000Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each record's own 'start' field, a full ISO-8601-shaped datetime with a literal 'Z' (UTC) suffix (e.g. '2026-08-28 18:00:00.000Z'). Internally cross-checked for plausibility on the detail record: 'doors' is exactly 1 hour before 'start' (17:00Z / 18:00Z), and 18:00Z converts to a normal 20:00 CEST evening concert start for a late-August Berlin date — consistent with a genuinely correct UTC timestamp (unlike a comparable field observed at Lido Berlin in this same trial, which appears to hardcode a wrong offset). Not independently verified beyond this internal consistency check.",
+      "evidence_refs": [
+        "ev-events-data",
+        "ev-event-detail-data"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "18:00:00.000Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day portion of the same 'start' field; the detail endpoint additionally exposes a separate 'doors' field (e.g. '2026-08-28 17:00:00.000Z').",
+      "evidence_refs": [
+        "ev-event-detail-data"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end/close time field is present in either the listing or the sampled detail record.",
+      "evidence_refs": [
+        "ev-events-data",
+        "ev-event-detail-data"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not restated per-record as 'Bi Nuu' text anywhere. This source resolves to ONE physical venue by default (Bi Nuu itself), matching this project's existing 'room/venue is not restated per-record' precedent (e.g. Razzmatazz) — except that an explicit per-record override pair ('locationArticle'/'locationNew') DOES exist and was observed populated on one sampled record (the 'Oidorno' show: locationArticle 'in den', locationNew 'Festsaal Kreuzberg' — i.e. that specific show was relocated to a different, related venue). A real collector must check for this override field on every record rather than assuming Bi Nuu unconditionally; left NOT_PRESENT (rather than PROVEN) here because no field in the retained evidence literally states 'Bi Nuu' as the default per-record venue text, and this investigation did not mechanically prove the override-absent case always means Bi Nuu (that would need a documented site statement or repeated verification, not assumption from absence).",
+      "evidence_refs": [
+        "ev-events-data"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "fko44tarc3g5wlv",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each record's own 'id' field (identical to its 'dbId' field) is an opaque per-event slug (e.g. 'fko44tarc3g5wlv') that IS this source's own canonical route path segment — the same slug appears as the '/de/events/{id}' URL used to link to the event from the homepage, and as the '__data.json' route parameter used to fetch its own detail record; observed consistent across both the listing and detail fetches for the same event within this investigation. Treated as stable per the policy's 'derived from a deterministic source property whose own stability is itself evidenced (a permalink URL slug the source uses as its own canonical path)' rule.",
+      "evidence_refs": [
+        "ev-events-data",
+        "ev-event-detail-data"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://binuu.de/de/events/fko44tarc3g5wlv",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "derivation": {
+        "rule": "concatenate the fixed base path 'https://binuu.de/de/events/' with the record's own 'id' field value to form the canonical event detail page URL",
+        "inputs": [
+          "the base path pattern './de/events/{id}' directly observed in real anchor hrefs on the source's own homepage (e.g. href=\"./de/events/fko44tarc3g5wlv\")",
+          "the record's own 'id' field value from the __data.json endpoint (e.g. 'fko44tarc3g5wlv')"
+        ]
+      },
+      "notes": "No 'url' field is present on the record itself; the detail page URL is mechanically reconstructed from the base path pattern observed on the homepage plus the record's own id, and verified to be the exact same id used to successfully fetch the detail __data.json for the sampled event.",
+      "evidence_refs": [
+        "ev-homepage",
+        "ev-events-data",
+        "ev-event-detail-data"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price value is present; the detail record exposes only a ticket-provider label/URL pair (e.g. {\"title\":\"TixforGigs\",\"url\":\"https://tixforgigs.com/Event/72048\"}), a third-party ticket link rather than a first-party price field.",
+      "evidence_refs": [
+        "ev-event-detail-data"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-events-data",
+      "ev-event-detail-data",
+      "bi-nuu-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The listing/detail data is SvelteKit 'devalue'-encoded (a flat array of index references, not plain JSON objects) — a real collector needs a small, generic devalue-style resolver (not present in this project yet) before it can treat the response as ordinary structured JSON. This investigation manually verified the resolution logic works against the retained fixtures but did not implement it as project code (out of scope for an investigation-only task)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "venue_location relies on the absence of an override field to imply the default venue (Bi Nuu itself), which was NOT promoted past NOT_PRESENT in field_assessment above because that inference was not mechanically proven from a first-party statement — a real collector must handle the observed 'locationArticle'/'locationNew' override explicitly rather than assuming Bi Nuu unconditionally."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained first-party evidence.",
+      "A genuine, real, public JSON data path was discovered and confirmed at Level 2 (SvelteKit's own '__data.json' route-data convention) after Level 1 was honestly insufficient.",
+      "title, time, and source_record_id all PROVEN via DIRECT_SOURCE; event_url PROVEN via a documented DETERMINISTIC_CONTEXT combination (base path + record id); start_date PROVEN via DIRECT_SOURCE with an honest internal-consistency note.",
+      "recommended_family NEW_FAMILY_REQUIRED because the devalue encoding is a genuinely distinct wire format this project has no existing parser for — not a fit for the existing generic JSON_API family without a small amount of new, but still generic and reusable, decoding logic.",
+      "No unresolved CRITICAL blocker; both recorded blockers are MINOR and describe follow-up work for a later collector-build step, not reasons to defer this candidate.",
+      "No collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this investigation-only task, so READY_FOR_ACTIVATION's gate 9 is not met — READY_FOR_OFFLINE_PROOF is the correct, honest status.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/bi-nuu.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-events-data",
+      "ev-event-detail-data",
+      "bi-nuu-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and the complete <head> block of the venue's official homepage, confirming identity but no event data (a client-rendered SvelteKit shell).",
+      "acquired_from": "https://binuu.de/",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/bi-nuu-berlin-01/evidence/binuu-homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-data",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Complete, byte-faithful raw response of the site's own SvelteKit '__data.json' route-data endpoint for its /de/events listing page — 46 real upcoming event records, devalue-encoded.",
+      "acquired_from": "https://binuu.de/de/events/__data.json",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/bi-nuu-berlin-01/evidence/binuu-events-listing-data.json"
+    },
+    {
+      "evidence_id": "ev-event-detail-data",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Complete, byte-faithful raw response of the same SvelteKit '__data.json' convention for one individual sampled event's detail route, exposing doors time, description HTML, ticket-provider link, and performer links not present in the listing endpoint.",
+      "acquired_from": "https://binuu.de/de/events/fko44tarc3g5wlv/__data.json",
+      "acquired_at": "2026-08-26T12:14:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/bi-nuu-berlin-01/evidence/binuu-event-detail-data.json"
+    },
+    {
+      "evidence_id": "bi-nuu-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/bi-nuu.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/bi-nuu.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/bi-nuu-berlin-01/evidence/binuu-events-listing-data.json"
+    }
+  ],
+  "supersedes": null
+}

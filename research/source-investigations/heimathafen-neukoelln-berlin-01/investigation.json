@@ -1,0 +1,205 @@
+{
+  "investigation_id": "heimathafen-neukoelln-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:26:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own homepage. wp-content/wp-json signals confirmed WordPress; the standard, publicly-exposed wp/v2 REST API root (/wp-json/) was fetched to enumerate real registered namespaces/post types (no guessed private endpoint), which listed a custom post type literally named 'events' — this project's documented WordPress 'The Events Calendar' Tribe endpoint (/wp-json/tribe/events/v1/events) was tried first per this task's own instructions and returned 404 (not that plugin), so the site's own actual custom 'events' type (/wp-json/wp/v2/events) was used instead, all via plain unauthenticated GETs."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://heimathafen-neukoelln.de/wp-json/wp/v2/events?per_page=5 (a standard, publicly-documented WordPress REST API endpoint for a custom post type the site's own /wp-json/ root and /wp-json/wp/v2/types both confirm exist) returned 200 with 5 real event records, each with title/content/link/id plus a rich ACF field set (event_performances[].performance_date_time/performance_ticket, event_prices[]). This directly answers the investigation question at Level 1 — no structural/browser escalation was needed. (The Tribe 'The Events Calendar' endpoint this project usually tries first, /wp-json/tribe/events/v1/events, was also tried and correctly returned 404 — this site uses its own custom 'events' post type instead, not that plugin.)",
+      "evidence_refs": [
+        "ev-wp-events-api",
+        "ev-home-identity"
+      ]
+    }
+  ],
+  "source_candidate_id": "heimathafen-neukoelln-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Heimathafen Neukölln (theatre / concert / cultural venue, Neukölln, Berlin — Karl-Marx-Straße 141, 12043 Berlin)",
+  "official_url": "https://heimathafen-neukoelln.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home-identity"
+    ],
+    "notes": "The venue's own homepage <title> ('Heimathafen Neukölln – Theater in Berlin Neukölln'), meta description, and retained body text ('Karl-Marx-Straße 141, 12043 Berlin') all self-identify directly and match the venue's well-known real-world address in Neukölln, Berlin."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress (wp-content/wp-json signals confirmed), with a custom 'events' post type (not the Tribe 'The Events Calendar' plugin — that endpoint 404s) exposed via the standard wp/v2 REST API and enriched with Advanced Custom Fields (ACF) data (the site's own /wp-json/ root lists an active 'acf/v3' namespace).",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-wp-events-api"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://heimathafen-neukoelln.de/wp-json/wp/v2/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "LENA & LINUS",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event record's own 'title.rendered' field, stated directly (HTML entities like '&#038;' decode mechanically to '&').",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2027-03-05",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Each event's own 'acf.event_performances[].performance_date_time' field is a free-text string (e.g. 'LENA & LINUS': '03/05/2027 8:00 p.m.') with slash-separated numbers whose month/day order is not self-evident from that one string alone. However, the SAME retained field, across the SAME sampled response, contains multiple other values whose first number exceeds 12 and therefore cannot be a month index: 'STREIT & ZUVERSICHT': '09/29/2026' (29 cannot be a month), 'EB DAVIS & THE SUPERBAND...': '11/27/2026' (27 cannot be a month), 'BAC': '02/19/2027' (19 cannot be a month). These three retained values mechanically prove this field's own consistent numeric convention is <month>/<day>/<year> across this sample — not a plausibility judgement, a structural constraint of the numbers themselves. Applying that proven convention to 'LENA & LINUS'’s own '03/05/2027' yields exactly one result: month 03 (March), day 05, year 2027.",
+      "evidence_refs": [
+        "ev-wp-events-api",
+        "heimathafen-neukoelln-berlin-01-offline-proof"
+      ],
+      "derivation": {
+        "rule": "Within the retained wp/v2/events API sample, every 'acf.event_performances[].performance_date_time' value shares one slash-separated <A>/<B>/<year> format. At least three sampled values have A > 12 (09/29/2026, 11/27/2026, 02/19/2027), which is structurally impossible for a month component, mechanically proving A is the month and B is the day for every value sharing this same field/format in this sample, including values where both A and B are individually <= 12. Parse the target value's A as month and B as day, both zero-padded, concatenated with the year as <year>-<A>-<B>.",
+        "inputs": [
+          "03/05/2027 (LENA & LINUS, target)",
+          "09/29/2026 (STREIT & ZUVERSICHT, disambiguating: 29 cannot be a month)",
+          "11/27/2026 (EB DAVIS & THE SUPERBAND, disambiguating: 27 cannot be a month)",
+          "02/19/2027 (BAC, disambiguating: 19 cannot be a month)"
+        ]
+      }
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The time-of-day portion of the same 'performance_date_time' string ('8:00 p.m.') is stated directly and unambiguously (12-hour clock with an explicit am/pm marker, no month/day-style ambiguity). No UTC offset or IANA timezone is stated anywhere, so this is honestly a floating local time (presumed Europe/Berlin), never upgraded to a UTC instant. A separate free-text 'performance_description' field on the same record ('Einlass ab 19:00 Uhr (Saal)') gives a door/admission time, not the performance start time, and was not conflated with it.",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date field is exposed anywhere in the sampled ACF event data.",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Heimathafen Neukölln, Karl-Marx-Straße 141, 12043 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This is a single-venue site with no per-record venue/location ACF field on the events API response. The venue's own homepage states its full name and address directly in one retained block ('Karl-Marx-Straße 141, 12043 Berlin').",
+      "evidence_refs": [
+        "ev-home-identity"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "31060",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own WordPress post 'id' field, directly stated. WordPress post IDs are permanent, auto-incrementing, platform-native identifiers by WordPress's own well-documented design (they are never reassigned or regenerated for an existing post) — the same class of platform-native stable-identifier reasoning already accepted for razzmatazz-barcelona-01's Sanity '_id' and kesselhaus-kulturbrauerei-berlin-01's Firebase push id.",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://heimathafen-neukoelln.de/events/lena-und-linus/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own 'link' field, stated directly.",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "35,90 €",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own 'acf.event_prices[].event_prices_price' field, stated directly as a German-formatted price string (comma decimal separator, Euro sign) — retained as-is, not parsed into a numeric+currency pair by this investigation. A companion 'event_prices_label' field ('Tickets') is also present. At least one sampled record's own 'acf.event_text_fields' explicitly states 'Kein Kartenverkauf über den Heimathafen Neukölln' (no ticket sales through the venue itself for that record) — a genuine per-record exception, not fabricated.",
+      "evidence_refs": [
+        "ev-wp-events-api"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-wp-events-api",
+      "heimathafen-neukoelln-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The date-format disambiguation for 'performance_date_time' (proving MM/DD/YYYY from within-sample examples with day > 12) was demonstrated on this one 5-record sample. A production parser should keep re-validating that assumption defensively (e.g. reject/flag any record where BOTH numbers are <= 12 AND the ambiguity cannot be independently cross-checked) rather than hard-coding it as permanently guaranteed."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from the venue's own homepage.",
+      "acquisition_class PUBLIC_JSON_API — a resolved, supported class — via WordPress's own standard wp/v2 REST API for a real, confirmed custom post type ('events').",
+      "A CONFIRMED public data path retained (5 real event records sampled in one request).",
+      "title PROVEN (DIRECT_SOURCE) and start_date PROVEN (DETERMINISTIC_CONTEXT, with the date-format ambiguity mechanically resolved from three disambiguating same-field values in the same retained sample, not from plausibility/prediction).",
+      "source_record_id PROVEN via WordPress's own stable, platform-native post-id design.",
+      "recommended_family JSON_API — a known, existing collector family.",
+      "price additionally PROVEN (DIRECT_SOURCE) — genuinely present as a structured ACF field, unlike most other sampled sources in this trial.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/heimathafen-neukoelln.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-wp-events-api",
+      "heimathafen-neukoelln-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the venue's official homepage: the <head>/<title>/meta-description region (first 2000 chars) plus the retained address-block region, from the full 79.8KB retained response.",
+      "acquired_from": "https://heimathafen-neukoelln.de/",
+      "acquired_at": "2026-08-26T13:23:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/heimathafen-neukoelln-berlin-01/evidence/homepage-identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-wp-events-api",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real, retained JSON response of a bounded query against this source's own public WordPress wp/v2 'events' REST API endpoint (per_page=5) — 5 real event records (one, 'BERLIN BURLESQUE FESTIVAL', with 2 performance dates) with title/content/link/id and rich ACF fields (event_performances[].performance_date_time/performance_ticket/performance_description, event_prices[]). This is the entire response actually returned for the bounded 5-record request, not a truncated excerpt of a larger single response.",
+      "acquired_from": "https://heimathafen-neukoelln.de/wp-json/wp/v2/events?per_page=5",
+      "acquired_at": "2026-08-26T13:24:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/heimathafen-neukoelln-berlin-01/evidence/wp-events-api-sample.json"
+    },
+    {
+      "evidence_id": "heimathafen-neukoelln-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/heimathafen-neukoelln.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/heimathafen-neukoelln.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/heimathafen-neukoelln-berlin-01/evidence/wp-events-api-sample.json"
+    }
+  ],
+  "supersedes": null
+}

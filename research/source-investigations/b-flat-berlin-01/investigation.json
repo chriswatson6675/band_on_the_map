@@ -1,0 +1,227 @@
+{
+  "investigation_id": "b-flat-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:29:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own official programme page (https://b-flat-berlin.de/programm), its underlying /events collection, and three individual event detail pages. The site is Squarespace (a genuine Squarespace 'Events' collection, confirmed via 'collection-type-events-stacked' markup). The programme page renders a Squarespace Summary Block with 316 event-item occurrences, each with a month/day date box and a permalink; each individual event's own detail page carries a real schema.org Event JSON-LD block (name/startDate/endDate/location). Cross-checking three different events' JSON-LD directly revealed an honest data-quality caveat: startDate's time-of-day (09:00:00+0200) and endDate (23:55:00+0200) are IDENTICAL fixed platform defaults across all three, not real per-event show times — the real door/concert times exist only as free text (e.g. 'Doors open: 20:00 – Concert: 21:00'). No structural/browser escalation was needed to answer the investigation question."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://b-flat-berlin.de/programm (200 OK, 536,986 bytes) exposed a Squarespace Summary Block listing 316 event-item occurrences (thumbnail, month/day date, permalink, free-text door/concert-time tag). Following one such permalink to its event detail page (https://b-flat-berlin.de/events/lswg3btcxjmsnlt-...-h64ej, 200 OK, 220,902 bytes) exposed a real schema.org Event JSON-LD block. Cross-checking two further detail pages confirmed the same JSON-LD shape and also confirmed the startDate/endDate time-of-day caveat described above. This directly answers the investigation question at Level 1 — no escalation to Level 2/3 was needed.",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-jsonld"
+      ]
+    }
+  ],
+  "source_candidate_id": "b-flat-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "b-flat (acoustic music & jazz club, Mitte, Berlin — Dircksenstrasse 40)",
+  "official_url": "https://b-flat-berlin.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the site's own homepage text states its own address 'DIRCKSENSTRASSE 40 / 10178 BERLIN' — matching the address independently reported by third-party discovery sources (visitBerlin.de, Wikipedia) for b-flat in Mitte. Domain b-flat-berlin.de is a plausible first-party domain, not a ticketing aggregator."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Squarespace, using a genuine 'Events' collection (confirmed via 'collection-type-events-stacked' markup) surfaced through a Summary Block on the /programm page. Each individual event's own detail page (/events/{slug}) carries a real schema.org Event JSON-LD block. No WordPress, EventON, Tribe Events, Fourvenues, or Sanity signal is present.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "ev-eventdetail-jsonld"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://b-flat-berlin.de/programm",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://b-flat-berlin.de/events/6tbd2awweywly72",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-eventdetail-jsonld"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "e.g. 'Marcos Coll Band feat. Emiliano Juarez — b-flat berlin' (each event detail page's own JSON-LD 'name' field; also the Summary Block's own data-title/summary-title-link text)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated on both the programme-page Summary Block and each event's own JSON-LD 'name' field (JSON-LD name appends ' — b-flat berlin', which a collector would strip).",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-jsonld"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "the DATE portion only of each event detail page's own JSON-LD 'startDate' (e.g. '2026-08-15'), cross-confirmed against the Summary Block's own month/day date box (e.g. 'Aug.'/'15')",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "IMPORTANT HONEST CAVEAT, retained directly from evidence (ev-eventdetail-jsonld): the calendar DATE portion of 'startDate' is directly stated and varies correctly per event (confirmed against 3 different events), but the TIME-OF-DAY portion ('09:00:00+0200') is an IDENTICAL fixed value across all 3 sampled events — a platform default/sentinel, not a real per-event show time. Only the date (year-month-day) is treated as PROVEN here; see 'time' below for the real show time, which lives elsewhere.",
+      "evidence_refs": [
+        "ev-eventdetail-jsonld",
+        "ev-programm-excerpt"
+      ]
+    },
+    "time": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The JSON-LD startDate's time-of-day is a proven-fixed sentinel ('09:00:00+0200' identically across 3 different sampled events — see ev-eventdetail-jsonld) and must NOT be treated as the real show time. The genuine door/concert time instead appears only as free text in a 'tag' shown on the Summary Block and echoed in the detail page's own og:description meta (e.g. 'Doors open: 20:00 – Concert: 21:00' for the Robins Nest Jamsession event) — directly stated text, but not present in a consistent, dedicated structured field on every event (some events may omit this tag, or phrase it differently), so this is recorded honestly as AMBIGUOUS rather than promoted to PROVEN across the whole source.",
+      "evidence_refs": [
+        "ev-eventdetail-jsonld"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The JSON-LD 'endDate' field exists but is an IDENTICAL fixed value ('23:55:00+0200' on the same calendar day, across all 3 sampled events — see ev-eventdetail-jsonld) — a platform default/sentinel, not a real per-event end time. No other end-time signal was found anywhere in the retained evidence. Recorded honestly as NOT_PRESENT rather than promoted to PROVEN from a field that looks structured but does not reflect a real fact — the same caution this project's policy already establishes for values that merely 'look' stable (docs/SOURCE_INVESTIGATION_POLICY.md's stable identifier rule, applied here to a time field).",
+      "evidence_refs": [
+        "ev-eventdetail-jsonld"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each sampled event's own JSON-LD 'location' object is present but genuinely empty ('{\"name\":\"\",\"address\":\"\"}') — the venue simply did not populate this field in Squarespace. This source resolves to exactly ONE physical venue (b-flat, Dircksenstrasse 40 — confirmed separately in ev-identity), matching this project's existing Razzmatazz/Jamboree/Quasimodo precedent for a single-venue source that does not restate its own venue name per event.",
+      "evidence_refs": [
+        "ev-eventdetail-jsonld",
+        "ev-identity"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "the event's own permalink slug under https://b-flat-berlin.de/events/{slug} (e.g. '6tbd2awweywly72' or the longer recurrence-chain slug 'lswg3btcxjmsnlt-...-h64ej')",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No bare numeric id is exposed as its own labelled field, but each event's own href/JSON-LD-adjacent canonical URL is the site's own permanent Squarespace item slug under /events/{slug} — the same documented judgement already established for Moog Barcelona, A-Trane, Quasimodo, and LAV (a permalink URL slug the source itself uses as its own canonical path satisfies the stable identifier rule). Some slugs are long concatenated chains (Squarespace's own encoding for a recurring-event occurrence lineage); these are retained verbatim as the source's own real, distinct URLs, not simplified or invented.",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-jsonld"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://b-flat-berlin.de/events/6tbd2awweywly72",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Directly stated as the Summary Block's own <a href> and independently confirmed by fetching each of the 3 sampled URLs (all returned 200 OK with matching content).",
+      "evidence_refs": [
+        "ev-programm-excerpt",
+        "ev-eventdetail-jsonld"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price field is present in the JSON-LD Event blocks, the Summary Block markup, or the free-text og:description of any of the 3 sampled events (checked explicitly for 'EUR'/'€' in each — none referred to an actual ticket price, only generic Squarespace commerce-config strings unrelated to any specific event). Recorded honestly as NOT_PRESENT rather than assumed absent without checking.",
+      "evidence_refs": [
+        "ev-eventdetail-jsonld"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "ev-eventdetail-jsonld",
+      "b-flat-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence (site's own address text matching independently reported venue address).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, retained at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the programme/Summary Block page (316 event-item occurrences) and representative event detail pages carrying real Event JSON-LD.",
+      "title PROVEN with basis DIRECT_SOURCE; start_date (date-only) PROVEN with basis DIRECT_SOURCE, cross-confirmed across 3 independently-fetched events.",
+      "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/A-Trane/Quasimodo/LAV.",
+      "recommended_family JSON_LD — this project's existing generic, reusable collector family (ingestion/json-ld/parse.mjs) fits the per-event detail page shape, though confidence is only MEDIUM (not HIGH) because a real collector must be built to deliberately IGNORE this source's own startDate/endDate time-of-day (proven to be a fixed platform sentinel, not real data) and instead treat time honestly as AMBIGUOUS/best-effort-from-free-text — a genuine, source-specific nuance worth a human's attention before activation, not a fully mechanical drop-in.",
+      "No unresolved CRITICAL blocker — the time/end honesty caveat is recorded as informational in field_assessment, not as a blocker, since title/start_date/source_record_id/event_url (the fields activation gates actually require) are all soundly PROVEN.",
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixtures — that offline-proof/collector-wiring step (which should explicitly encode the startDate-time-is-a-sentinel finding) is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery-berlin-cohort.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "ev-eventdetail-jsonld",
+      "b-flat-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own homepage: its own retained address text 'DIRCKSENSTRASSE 40 / 10178 BERLIN'.",
+      "acquired_from": "https://b-flat-berlin.de/",
+      "acquired_at": "2026-08-26T13:26:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/b-flat-berlin-01/evidence/identity-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-programm-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own official programme page: <title> and one full representative Squarespace summary-item block (thumbnail, month/day date box, data-upcoming-event-end epoch-ms timestamp, Doors-open/Concert-time tag, title, permalink href) verbatim. The full raw response was 536,986 bytes with 316 total summary-item occurrences; this excerpt is a genuine literal substring of it.",
+      "acquired_from": "https://b-flat-berlin.de/programm",
+      "acquired_at": "2026-08-26T13:27:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/b-flat-berlin-01/evidence/programm-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-eventdetail-jsonld",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpts (og:description meta tag + full Event JSON-LD block) from three separate, independently-fetched event detail pages, retained verbatim to demonstrate both (a) the genuine per-event Event JSON-LD shape, and (b) the honest finding that startDate time-of-day and endDate are identical fixed sentinel values across all three different events, while the real door/concert times appear only as free text.",
+      "acquired_from": "https://b-flat-berlin.de/events/lswg3btcxjmsnlt-...-h64ej, https://b-flat-berlin.de/events/6tbd2awweywly72, https://b-flat-berlin.de/events/5xxaa8thhyalb2r",
+      "acquired_at": "2026-08-26T13:28:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/b-flat-berlin-01/evidence/event-detail-jsonld-excerpt.html"
+    },
+    {
+      "evidence_id": "b-flat-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/html-link-discovery-berlin-cohort.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/html-link-discovery-berlin-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/b-flat-berlin-01/evidence/event-detail-jsonld-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,187 @@
+{
+  "investigation_id": "columbiahalle-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official events listing page (Contao CMS, 'Veranstaltungen'), plus two events' own 'Kalender-Eintrag' links, which turned out to actually be per-event ICS files (Content-Type: text/calendar) served under a '.html'-suffixed URL. One of the two was re-fetched a second time to empirically check UID stability."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official 'Veranstaltungen' listing page (https://columbiahalle.berlin/veranstaltungen.html) immediately exposed 87 distinct upcoming event entries as fully server-rendered static HTML, grouped under month/year headings ('August 2026'), each event row itself stating only weekday+day-of-month (not month/year). Each event's own 'Kalender-Eintrag' link resolved directly to a per-event ICS file (Content-Type: text/calendar) with a full UTC DTSTART/DTEND, LOCATION, GEO, and a UID matching the listing page's own event_<id> HTML anchor. Re-fetching the same ICS a second time confirmed the UID is stable, not regenerated per request. No JSON-LD, WordPress, Fourvenues, or Sanity signal was present, and none was needed.",
+      "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle", "ev-ics-elle-refetch", "ev-ics-badmomzjay"]
+    }
+  ],
+  "source_candidate_id": "columbiahalle-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Columbiahalle (mid-large concert hall, Tempelhof/Kreuzberg border, Columbiadamm, Berlin)",
+  "official_url": "https://columbiahalle.berlin/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle"],
+    "notes": "The retained listing page's own <title> reads 'Columbiahalle - Veranstaltungen - deutsch' at the venue's own domain columbiahalle.berlin. Independently, the retained per-event ICS states its own LOCATION as 'Columbiahalle, Columbiadamm 13-21, 10965 Berlin' with a matching GEO coordinate (52.4845171, 13.3905217) and a UID suffix '@Columbiahalle' — a second, distinct retained artifact confirming the same identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Contao CMS (identifiable by 'ce_text block' content-element markup) with a calendar/event extension. The full upcoming-events listing is server-rendered on one static page, grouped by month/year heading with day-only event rows. Each event additionally exposes its own per-event ICS export at a '.html'-suffixed URL (Content-Type: text/calendar), a routing quirk of this Contao calendar module rather than a real HTML detail page.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://columbiahalle.berlin/veranstaltungen.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-veranstaltungen"]
+    },
+    {
+      "kind": "ICS_PER_EVENT",
+      "url": "https://columbiahalle.berlin/veranstaltung/elle.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-ics-elle", "ev-ics-elle-refetch", "ev-ics-badmomzjay"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Elle & L's Festival",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing row's own <h2>Elle & L's Festival</h2> and the ICS's own SUMMARY both state the title directly.",
+      "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-29",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event's own listing row states only weekday+day-of-month ('Samstag, 29') — the month/year is established once by the nearest preceding <div class='event layout_full block eventlist_monat'><h1>August 2026</h1></div> heading, which governs every row beneath it until the next such heading. Combining 'August 2026' + '29' via the fixed rule '<Month> <Year>' + '<Day>' -> '<Year>-<MM>-<DD>' yields exactly one result. Independently corroborated by the per-event ICS's own directly-stated DTSTART (20260829T130000Z = 15:00 CEST on 2026-08-29), which alone would already be DIRECT_SOURCE for this specific record — the DETERMINISTIC_CONTEXT basis is recorded here because it is the listing page's own general per-row pattern this collector family would need to rely on across all 87 events, most of which were not individually ICS-sampled.",
+      "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle"],
+      "derivation": {
+        "rule": "The nearest preceding month/year heading ('<h1>Month Year</h1>' inside an 'eventlist_monat' block) governs every event row that follows it until the next such heading; the row's own weekday+day-of-month text supplies the day. Concatenate as <Year>-<MM>-<DD>.",
+        "inputs": ["August 2026", "29"]
+      }
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "2026-08-29T13:00:00Z",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing row directly states local 'Beginn: 15:00 Uhr' (Europe/Berlin). The per-event ICS independently and directly states the same instant as a full UTC timestamp (DTSTART 20260829T130000Z = 15:00 CEST). Recorded value is the ICS's own explicit UTC instant.",
+      "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-29T22:00:00Z",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The per-event ICS directly states its own DTEND (20260829T220000Z). Unlike the AEG-operated Berlin venues already investigated (verti-music-hall-berlin-01, uber-arena-berlin-01), where DTEND was a suspicious fixed DTSTART+2h on every sampled event, this source's two sampled events show a genuinely variable DTSTART-to-DTEND gap (Elle & L's Festival: 9h; badmómzjay: 4h) — consistent with a real, source-maintained end time rather than a synthesized default.",
+      "evidence_refs": ["ev-ics-elle", "ev-ics-badmomzjay"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Columbiahalle, Columbiadamm 13-21, 10965 Berlin (52.4845171, 13.3905217)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The per-event ICS directly states its own LOCATION and GEO fields on every VEVENT — a genuinely per-record, directly-stated fact.",
+      "evidence_refs": ["ev-ics-elle"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "9702@Columbiahalle",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The per-event ICS's own UID field ('9702@Columbiahalle'), matching the listing page's own 'id=\"event_9702\"' HTML anchor for the same record — a source-authored identifier, not merely something that looks numeric/stable. Empirically re-fetched the same event's ICS a second time (evidence ev-ics-elle-refetch) and confirmed the UID is identical across both fetches (only DTSTAMP, a generation timestamp, differed) — satisfying the policy's stable-identifier rule by empirical proof, not assumption. This differs from the known Hot Clube de Portugal ICS UID-regeneration failure mode documented in docs/OBSERVATION_PIPELINE.md.",
+      "evidence_refs": ["ev-ics-elle", "ev-ics-elle-refetch"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "http://columbiahalle.berlin/de#event_9702",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The per-event ICS's own URL field states this record's own canonical anchor link back to the listing page.",
+      "evidence_refs": ["ev-ics-elle"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The listing row shows only a 'VVK: ab 35,00 €' (advance-sale, starting-from) price string per event — a real, directly-stated value, but a lower-bound indicator rather than a complete price/tier breakdown, and this field is not present at all in the ICS export. Not promoted to a single proven price value.",
+      "evidence_refs": ["ev-veranstaltungen"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "ICS_CALENDAR",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-ics-elle", "ev-ics-badmomzjay", "ev-veranstaltungen"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Per-event ICS URLs were only discovered via the listing page's own 'Kalender-Eintrag' link per event (a two-step crawl: list page -> per-event ICS), not a single bulk feed covering all 87 events at once. A future collector would need to enumerate all 'veranstaltung/*.html' links from the listing page first, then fetch each one's ICS — still entirely Level 1 static, just not a single-request bulk export."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from two independently retained artifacts (listing page title, and the ICS's own LOCATION/GEO/UID-domain text).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the full 87-event listing page plus two sampled per-event ICS files (one re-fetched to prove UID stability).",
+      "title and start_date both PROVEN — title via DIRECT_SOURCE, start_date via DETERMINISTIC_CONTEXT with a stated mechanical rule and >=2 cited inputs.",
+      "source_record_id PROVEN via the ICS's own stable UID, empirically confirmed stable across two independent fetches.",
+      "end and venue_location additionally PROVEN with basis DIRECT_SOURCE via the ICS's own DTEND/LOCATION/GEO fields — stronger than either AEG-operated sibling investigation.",
+      "recommended_family ICS_CALENDAR, an existing documented collector family — no new family required.",
+      "No unresolved CRITICAL blocker (only one MINOR blocker noting the two-step crawl needed to enumerate per-event ICS URLs).",
+      "Not advanced to READY_FOR_ACTIVATION: (1) no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for the DETERMINISTIC_CONTEXT start_date field (gate 9/v1.2 offline-proof requirement), and (2) only 2 of 87 listed events were individually ICS-sampled — that broader reproduction and offline proof are separate follow-up work, not performed as part of this investigation task."
+    ],
+    "evidence_refs": ["ev-veranstaltungen", "ev-ics-elle", "ev-ics-badmomzjay"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-veranstaltungen",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's full public 'Veranstaltungen' events listing page, retained in full (byte-faithful raw HTTP response body) — 87 distinct upcoming event entries as static server-rendered HTML, grouped by month/year heading.",
+      "acquired_from": "https://columbiahalle.berlin/veranstaltungen.html",
+      "acquired_at": "2026-08-26T12:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/columbiahalle-berlin-01/evidence/veranstaltungen-raw.html"
+    },
+    {
+      "evidence_id": "ev-ics-elle",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The per-event ICS export for the sampled 'Elle & L's Festival' event, retained in full (byte-faithful raw HTTP response body, text/calendar) — includes UID, DTSTART, DTEND, SUMMARY, DESCRIPTION, LOCATION, GEO, and URL.",
+      "acquired_from": "https://columbiahalle.berlin/veranstaltung/elle.html",
+      "acquired_at": "2026-08-26T12:26:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/columbiahalle-berlin-01/evidence/event-detail-elle-raw.html"
+    },
+    {
+      "evidence_id": "ev-ics-elle-refetch",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, independent fetch of the same 'Elle & L's Festival' event's ICS, minutes after the first, retained to empirically prove UID stability (matches ev-ics-elle's UID exactly; only DTSTAMP differs).",
+      "acquired_from": "https://columbiahalle.berlin/veranstaltung/elle.html",
+      "acquired_at": "2026-08-26T12:28:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/columbiahalle-berlin-01/evidence/event-elle-refetch-check.ics"
+    },
+    {
+      "evidence_id": "ev-ics-badmomzjay",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, distinct sampled event's ICS (badmómzjay), retained to cross-check DTEND variability against the first sampled event (4h gap here vs. 9h for Elle & L's Festival), supporting the 'end' field's DIRECT_SOURCE classification.",
+      "acquired_from": "https://columbiahalle.berlin/veranstaltung/badmomzjay.html",
+      "acquired_at": "2026-08-26T12:27:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/columbiahalle-berlin-01/evidence/event-detail-badmomzjay-raw.html"
+    }
+  ],
+  "supersedes": null
+}

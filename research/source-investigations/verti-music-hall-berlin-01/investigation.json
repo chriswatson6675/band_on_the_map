@@ -1,0 +1,270 @@
+{
+  "investigation_id": "verti-music-hall-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official homepage, its full events listing page, and two individual event detail pages. The events listing page is server-rendered with a fully structured static HTML event list (date spans, title, 'starting from' price, detail link) requiring no JSON-LD/API discovery. Each event detail page additionally links its own per-event 'Add to Calendar' ICS file, which was also fetched directly and retained."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official events listing page (https://www.uber-eats-music-hall.de/events/all) immediately exposed 71 distinct upcoming event entries as fully server-rendered static HTML: each event card/row carries a structured date (weekday/day/month/year/hour markup), a title heading, a 'starting from' ticket price, and a stable detail-page URL encoding the event slug and start datetime. Two sampled event detail pages confirmed the same fields plus a discoverable per-event ICS ('Add to Calendar') link exposing a UTC-normalized DTSTART. No JSON-LD, WordPress, Fourvenues, or Sanity signal was present, and none was needed — Level 1 fully answered the investigation question.",
+      "evidence_refs": [
+        "ev-homepage",
+        "ev-events-all",
+        "ev-event-detail-amelie",
+        "ev-event-detail-beartooth",
+        "ev-ical-amelie",
+        "ev-ical-beartooth"
+      ]
+    }
+  ],
+  "source_candidate_id": "verti-music-hall-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Verti Music Hall (now renamed Uber Eats Music Hall as of 22 March 2024 — the venue formerly called Verti Music Hall; large concert hall, Uber-Platz/Mercedes-Platz, Friedrichshain, Berlin)",
+  "official_url": "https://www.uber-eats-music-hall.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage"
+    ],
+    "notes": "The retained homepage's own <title> reads 'Uber Eats Music Hall | Uber Eats Music Hall' and the page repeatedly self-identifies as operated by AEG/Anschutz (e.g. an 'Anschutz hilft e.V.' partner link and an 'Uber Platz' venue-district link), at the venue's own domain uber-eats-music-hall.de. This is the venue's own current official web presence — the venue known to the public (and named in this investigation's brief) as 'Verti Music Hall' was renamed 'Uber Eats Music Hall' in March 2024 following a naming-rights change; verti-music-hall.de now redirects to/aliases the same operator. This is a genuine renamed-venue identity, not a different candidate."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom AEG Presents Europe venue CMS (image/asset host 'production.carbonhouse.com', shared markup/behaviour pattern also seen on the AEG-operated Uber Arena site) — server-rendered event listing and detail pages. No WordPress, JSON-LD, Fourvenues, or Sanity signal detected on any fetched page. Each event detail page links a per-event ICS ('Add to Calendar') file, generated server-side and readable without JS.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-homepage",
+      "ev-events-all"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.uber-eats-music-hall.de/events/all",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-events-all"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.uber-eats-music-hall.de/events/detail/amelie-lens/2026-10-02-2000",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail-amelie"
+      ]
+    },
+    {
+      "kind": "ICS_PER_EVENT",
+      "url": "https://www.uber-eats-music-hall.de/events/ical/amelie-lens/4002/2",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-ical-amelie",
+        "ev-ical-beartooth"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Amelie Lens",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card/row's own <h3><a>...</a></h3> (listing page) and <h1 class=\"summary\"> (detail page) state the title directly. Sampled from https://www.uber-eats-music-hall.de/events/detail/amelie-lens/2026-10-02-2000.",
+      "evidence_refs": [
+        "ev-events-all",
+        "ev-event-detail-amelie"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-02",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own structured date markup states weekday, day, month, and year together in one place per event ('Freitag, 02. Okt. 2026'), and the per-event ICS DTSTART (20261002T180000Z, a full UTC instant) independently corroborates the same calendar date in Europe/Berlin local time. No cross-record combination needed.",
+      "evidence_refs": [
+        "ev-events-all",
+        "ev-event-detail-amelie",
+        "ev-ical-amelie"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "2026-10-02T18:00:00Z",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The HTML states a floating local time text ('20:00 Uhr', Europe/Berlin) directly on the same event card/detail page as the title. The per-event ICS DTSTART independently and directly states the same instant as a full UTC timestamp (20261002T180000Z = 20:00 CEST). Recorded value is the ICS's own explicit UTC instant, the more precise of the two directly-stated forms.",
+      "evidence_refs": [
+        "ev-event-detail-amelie",
+        "ev-ical-amelie"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The HTML never states an end time (only a start time and, separately, doors/'Einlass' time). The per-event ICS does carry a DTEND, but comparing two independently sampled events (Amelie Lens: DTSTART 18:00Z / DTEND 20:00Z; Beartooth: DTSTART 18:00Z / DTEND 20:00Z) shows DTEND is exactly DTSTART+2h in both cases — a fixed default duration the calendar generator appears to synthesize, not a genuine venue-stated end time. Not promoted to a proven fact per the policy's anti-guessing rule.",
+      "evidence_refs": [
+        "ev-event-detail-amelie",
+        "ev-ical-amelie",
+        "ev-event-detail-beartooth",
+        "ev-ical-beartooth"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Individual event cards/detail pages do not restate the venue name or address per event — this is the venue's own single-venue official site (every /events/detail/ page is inherently this one venue), matching the same NOT_PRESENT-per-record treatment already used for razzmatazz-barcelona-01 (resolved via source_id, not a per-record field, since only one physical venue is in scope).",
+      "evidence_refs": [
+        "ev-homepage"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "amelie-lens/2026-10-02-2000",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own detail-page URL path (slug + start-datetime suffix, e.g. '/events/detail/amelie-lens/2026-10-02-2000') is the site's own canonical, directly-stated permalink for that specific occurrence — the same documented URL-slug stable-identifier strategy already used for moog-barcelona-01/LAV (ingestion/lav/discovery.mjs). The slug alone is NOT unique (e.g. 'freya-skye' appears twice, on 2026-11-19 and 2026-11-20), so the full slug+datetime path is the smallest directly-stated unique key. A secondary numeric CMS id is also directly observable in each event's own ICS link path (e.g. '/events/ical/amelie-lens/4002/2'), corroborating that the platform maintains its own stable internal ids, though the slug+datetime permalink is used here as it is the field genuinely surfaced on every event record without a second fetch.",
+      "evidence_refs": [
+        "ev-events-all",
+        "ev-event-detail-amelie",
+        "ev-ical-amelie"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.uber-eats-music-hall.de/events/detail/amelie-lens/2026-10-02-2000",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own detail-page link, stated directly.",
+      "evidence_refs": [
+        "ev-events-all"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each listing card shows only an 'ab' (starting-from) price string per event (e.g. 'ab 47,50 €') — a real, directly-stated value, but a lower-bound indicator rather than a complete price/tier breakdown, so not promoted to a single proven price value.",
+      "evidence_refs": [
+        "ev-events-all"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-events-all",
+      "ev-event-detail-amelie",
+      "verti-music-hall-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from retained evidence (venue's own domain, AEG/Anschutz operator markers).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the full 71-event listing page plus two sampled event detail pages and their per-event ICS files.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own slug+datetime permalink path, following the documented moog-barcelona-01/LAV precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented collector family — no new family required.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/per-event-ics.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-events-all",
+      "ev-event-detail-amelie",
+      "verti-music-hall-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, retained in full (byte-faithful raw HTTP response body).",
+      "acquired_from": "https://www.uber-eats-music-hall.de/",
+      "acquired_at": "2026-08-26T12:08:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-events-all",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's full public events listing page, retained in full (byte-faithful raw HTTP response body) — 71 distinct upcoming event entries as static server-rendered HTML.",
+      "acquired_from": "https://www.uber-eats-music-hall.de/events/all",
+      "acquired_at": "2026-08-26T12:09:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/events-all-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-amelie",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page, retained in full (byte-faithful raw HTTP response body).",
+      "acquired_from": "https://www.uber-eats-music-hall.de/events/detail/amelie-lens/2026-10-02-2000",
+      "acquired_at": "2026-08-26T12:09:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/event-detail-amelie-lens-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-beartooth",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second sampled event detail page (different event, used to cross-check the ICS DTEND-offset pattern), retained in full (byte-faithful raw HTTP response body).",
+      "acquired_from": "https://www.uber-eats-music-hall.de/events/detail/beartooth/2026-09-25-2000",
+      "acquired_at": "2026-08-26T12:11:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/event-detail-beartooth-raw.html"
+    },
+    {
+      "evidence_id": "ev-ical-amelie",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The per-event 'Add to Calendar' ICS file for the sampled Amelie Lens event, retained in full (byte-faithful raw HTTP response body, text/calendar).",
+      "acquired_from": "https://www.uber-eats-music-hall.de/events/ical/amelie-lens/4002/2",
+      "acquired_at": "2026-08-26T12:09:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/event-amelie-lens.ics"
+    },
+    {
+      "evidence_id": "ev-ical-beartooth",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The per-event 'Add to Calendar' ICS file for the second sampled event, used to cross-check the DTEND-offset pattern, retained in full (byte-faithful raw HTTP response body, text/calendar).",
+      "acquired_from": "https://www.uber-eats-music-hall.de/events/ical/beartooth/3890/2",
+      "acquired_at": "2026-08-26T12:11:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/event-beartooth.ics"
+    },
+    {
+      "evidence_id": "verti-music-hall-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A new, genuinely reusable offline test suite (tests/per-event-ics.test.mjs) exercising the new ingestion/per-event-ics/ collector family (discovery.mjs + observation-adapter.mjs) against THIS investigation's own retained fixtures (fixtures/verti-music-hall-berlin/) — a real, dependency-free, no-network, deterministic reproduction of card discovery, music-category filtering, ical-link extraction, stable-id derivation, and Observation shaping, proving the same module also independently reproduces the sibling venue's own real evidence (cross-venue reuse, not a single-source fixture match).",
+      "acquired_from": "tests/per-event-ics.test.mjs",
+      "acquired_at": "2026-08-26T13:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/verti-music-hall-berlin-01/evidence/event-amelie-lens.ics"
+    }
+  ],
+  "supersedes": null
+}

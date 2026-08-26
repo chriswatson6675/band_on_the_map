@@ -1,0 +1,211 @@
+{
+  "investigation_id": "zenner-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official homepage (a Gatsby-built React SPA, gatsby-source-sanity-backed) exposed static references to Gatsby's own build-time page-data JSON convention (/page-data/{path}/page-data.json) directly in the initially-served HTML/JS text — no JS execution was required to find this URL pattern. A plain curl GET of the dedicated /programm/ page's own page-data.json then returned the site's full, real event dataset (115 nodes, Sanity-backed) directly."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://zenner.berlin/ returned a Gatsby React SPA (data-react-helmet, gatsby webpack chunk names, a cdn.sanity.io reference) whose own initially-served HTML/JS text statically names a 'PROGRAMM' page and Gatsby's well-known build convention '/page-data/{path}/page-data.json' for every page component, including 'component---src-pages-programm-js'. Fetching https://zenner.berlin/page-data/programm/page-data.json directly (no login, no JS execution, no guessed private endpoint) returned real, structured JSON: 115 event nodes (typeOfEvent, place, id, eventDate as a full UTC ISO instant, linkEvent, image, portable-text description, title), including 5 genuinely upcoming events (24 Sep - 5 Nov 2026) with real artist/event titles ('180 min w/ Barker (live)', 'Trinity presents: Nathan Fake', etc.). This directly answers the investigation question at Level 1 — no structural/browser escalation was needed.",
+      "evidence_refs": [
+        "ev-home",
+        "ev-programm-data"
+      ]
+    }
+  ],
+  "source_candidate_id": "zenner-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Zenner (Ina & Robert Zenner am Treptower Park) — historic beer-garden/wine-garden/club/event-space venue on the Spree in Alt-Treptow, Berlin. This investigation specifically checked whether it has a genuine, regular music programme rather than assuming so.",
+  "official_url": "https://zenner.berlin/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home"
+    ],
+    "notes": "zenner.berlin is the venue's own first-party domain — its own retained page description states directly 'Berliner Kulturort im Treptower Park mit großem Biergarten, Weingarten, Club & Eventspace' ('Berlin cultural venue in Treptower Park with a large beer garden, wine garden, club & event space'), matching the venue's well-documented public identity and independently corroborated during discovery by third-party reference sources (Berlin Convention Office, berlin.de) as Zenner's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "SPA_API_DISCOVERABLE",
+    "platform": "Gatsby (static-site-generator React SPA) sourced from a headless Sanity.io CMS (cdn.sanity.io image references; project id '2le2eemj', dataset 'production', directly visible in retained image URLs). Not WordPress, not a live queryable API — event data is served as Gatsby's own build-time-generated page-data JSON snapshot at a fixed, discoverable, public URL per page.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "ev-programm-data"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "GATSBY_PAGE_DATA_JSON",
+      "url": "https://zenner.berlin/page-data/programm/page-data.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "180 min w/ Barker (live)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event node's own 'title' field, directly stated (e.g. '180 min w/ Barker (live)', 'Trinity presents: Nathan Fake', 'LITTLEBIG'). A minority of older/historical (already-past) nodes in the same dataset carry a placeholder value ('XXXXX') instead of a real title, so any future collector must handle that honestly rather than assume every node has a usable title — but every genuinely upcoming (future-dated) node sampled had a real title.",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-24T17:00:00.000Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event node's own 'eventDate' field, a full ISO 8601 UTC instant (explicit 'Z' offset, e.g. '2026-09-24T17:00:00.000Z') — the highest-quality date/time representation found across this trial's venues (a genuine UTC instant, not a floating local datetime).",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "17:00:00.000Z",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day (UTC) portion of the same 'eventDate' field.",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end-date/end-time field exists on the event node shape.",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Saal",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event node's own 'place' field (e.g. 'Saal'), one of several named sub-areas of the single Zenner complex (the homepage's own nav also lists 'Wintergarten', 'Turmhaus', 'Klub', 'Körnervilla', 'Eisdiele', 'Weingarten', 'Saal') — a room/area within the venue, not a separate venue, matching this project's existing room-within-venue precedent.",
+      "evidence_refs": [
+        "ev-home",
+        "ev-programm-data"
+      ]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each node carries an 'id' field (e.g. '-3de1d1a3-591c-50c9-86c9-69f8bd55a4e8'), which is Gatsby's own GraphQL node id for a Sanity-sourced document — gatsby-source-sanity conventionally derives this deterministically from the underlying Sanity document _id, but this investigation did not independently query Sanity's own raw API to empirically confirm that mapping's stability (unlike razzmatazz-barcelona-01, where the Sanity _id was read directly from Sanity's own API response). Per the stable-identifier rule, an unverified 'looks stable' id must not be promoted to PROVEN — stays PARTIAL pending that direct cross-check.",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://ra.co/events/2378121",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each event node's own 'linkEvent' field, directly stated by the first-party source itself. Note this points to third-party ticketing platforms (Resident Advisor, DICE, Ticketmaster) rather than a Zenner-owned event detail page — the source itself controls and states this pointer, so it is honestly DIRECT_SOURCE, but any collector/observation-adapter should record the destination platform, not treat it as Zenner's own canonical event page.",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price field exists on the event node shape — pricing lives on the third-party ticketing platform linked via 'linkEvent', not on this source.",
+      "evidence_refs": [
+        "ev-programm-data"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-programm-data",
+      "zenner-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This is a static, build-time-generated JSON snapshot (Gatsby's page-data.json), not a live queryable API — its freshness is tied to the site's last deploy, not to request time. A collector should treat it as 'best available public snapshot' and expect occasional staleness versus a true live query (e.g. a direct Sanity GROQ query against the same project id, as this project already implements for Razzmatazz, would likely be fresher but was not independently confirmed public/queryable for this project id in this investigation)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "source_record_id stability (Gatsby node id vs. underlying Sanity document _id) was not independently empirically verified in this investigation — see field_assessment.source_record_id.notes."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN on the venue's own first-party domain, directly stated in its own retained page description.",
+      "Honest finding on genre relevance: Zenner DOES have a genuine, regular live-music programme — the retained sample includes real upcoming 'Konzert'/'Concert' events with named touring artists, not just occasional/incidental music. This is NOT a NOT_ACTUALLY_MUSIC_VENUE or NO_UPCOMING_EVENTS case.",
+      "acquisition_class SPA_API_DISCOVERABLE, a resolved supported class, genuinely confirmed with a real 115-event dataset including 5 genuinely upcoming events.",
+      "A CONFIRMED public data path retained (the /programm/ page's own page-data.json).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — start_date is a full UTC instant, the highest-precision date representation found in this trial.",
+      "source_record_id is honestly PARTIAL (a plausible but not independently empirically verified stable id) rather than fabricated as PROVEN.",
+      "recommended_family NEW_FAMILY_REQUIRED — the Gatsby page-data.json convention is a genuinely new, but likely reusable, acquisition pattern distinct from Razzmatazz's live-GROQ Sanity pattern.",
+      "No unresolved CRITICAL blocker.",
+      "No DETERMINISTIC_DERIVATION offline-proof evidence item has been produced in this investigation (writing collector/test code is explicitly out of scope for this task) — so per policy this stays READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION, pending a follow-up offline reproduction against the retained fixture and, ideally, an empirical check of source_record_id stability.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/zenner.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-home",
+      "ev-programm-data",
+      "zenner-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official homepage in full — confirms first-party identity, Gatsby/Sanity platform, and the '/programm' page-data.json path convention.",
+      "acquired_from": "https://zenner.berlin/",
+      "acquired_at": "2026-08-26T12:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/zenner-berlin-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-programm-data",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real JSON response of the venue's own '/programm/' page-data.json — 115 real event nodes (including 5 genuinely upcoming, future-dated events as of the investigation date) with typeOfEvent/place/id/eventDate/linkEvent/title/description/image fields. Retained in full (including embedded base64 image thumbnails) as the genuine, single, bounded response of one public URL — not a multi-page site dump.",
+      "acquired_from": "https://zenner.berlin/page-data/programm/page-data.json",
+      "acquired_at": "2026-08-26T12:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/zenner-berlin-01/evidence/programm-page-data.json"
+    },
+    {
+      "evidence_id": "zenner-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/zenner.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/zenner.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/zenner-berlin-01/evidence/programm-page-data.json"
+    }
+  ],
+  "supersedes": null
+}

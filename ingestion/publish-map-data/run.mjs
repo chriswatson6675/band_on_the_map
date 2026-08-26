@@ -56,9 +56,10 @@ import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { acquireBarcelona } from "../barcelona/run.mjs";
+import { acquireBerlin } from "../berlin/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildSpainMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -86,6 +87,9 @@ async function main() {
   // BARCELONA-30-VENUE-POPULATION-01: read-only, same convention as the
   // Lisbon/Porto registries above.
   const barcelonaVenues = JSON.parse(await readFile(resolve(ROOT, "venues/barcelona.json"), "utf8"));
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: read-only,
+  // same convention as the Lisbon/Porto/Barcelona registries above.
+  const berlinVenues = JSON.parse(await readFile(resolve(ROOT, "venues/berlin.json"), "utf8"));
 
   // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
   // venue registries above — this script never writes artists/*.json.
@@ -114,8 +118,14 @@ async function main() {
   // acquired Observation is passed through unbounded.
   const { barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireBarcelona();
 
-  const sourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
-  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length;
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: Berlin's own
+  // acquisition, reusing acquireBerlin() (ingestion/berlin/run.mjs)
+  // exactly as proven by `npm run ingest:berlin` — never a second,
+  // independently-drifting acquisition path.
+  const { berlinRegistry, berlinResults, berlinObservations } = await acquireBerlin();
+
+  const sourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults];
+  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length;
   const successCount = sourceResults.filter((result) => result.success).length;
   const failureCount = sourceResults.length - successCount;
 
@@ -141,6 +151,15 @@ async function main() {
     artistLinks: artistLinks.links,
   });
 
+  const germanyMarkers = buildGermanyMarkers({
+    berlinObservations,
+    berlinVenues: berlinVenues.venues,
+    berlinSourceRegistry: berlinRegistry.entries,
+    manualCoordinatesByVenueId,
+    artistRegistry: artistRegistry.artists,
+    artistLinks: artistLinks.links,
+  });
+
   console.log(`\n=== Acquisition summary ===`);
   for (const result of sourceResults) {
     const status = result.success ? "OK" : "FAILED";
@@ -152,16 +171,18 @@ async function main() {
   console.log(`  Observations (in window): ${observationCount}`);
   console.log(`  Portugal map markers: ${portugalMarkers.length}`);
   console.log(`  Spain map markers: ${spainMarkers.length}`);
+  console.log(`  Germany map markers: ${germanyMarkers.length}`);
 
   if (
     isCatastrophicPublicationRun({
       sourceSuccessCount: successCount,
       portugalMarkerCount: portugalMarkers.length,
       spainMarkerCount: spainMarkers.length,
+      germanyMarkerCount: germanyMarkers.length,
     })
   ) {
     console.error(
-      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${portugalMarkers.length} Portugal + ${spainMarkers.length} Spain map markers produced. ` +
+      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${portugalMarkers.length} Portugal + ${spainMarkers.length} Spain + ${germanyMarkers.length} Germany map markers produced. ` +
         `Refusing to replace the last known good publication artifact at ${resolvePublicationArtifactPath()}.`,
     );
     process.exitCode = 1;
@@ -174,6 +195,7 @@ async function main() {
     to: args.to,
     portugalMarkers,
     spainMarkers,
+    germanyMarkers,
     sourceResults,
     observationCount,
     artistRegistry: artistRegistry.artists,

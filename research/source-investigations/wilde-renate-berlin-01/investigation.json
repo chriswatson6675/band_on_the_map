@@ -1,0 +1,164 @@
+{
+  "investigation_id": "wilde-renate-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:22:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser, no JS execution) of the venue's official homepage, which embeds its own full programme as a server-rendered accordion listing 18 real upcoming event rows directly in the HTML — no separate programme page exists to fetch. The page's own JSON-LD block (Yoast SEO plugin) is WebSite/WebPage/BreadcrumbList schema only, not Event schema, and was inspected and ruled out rather than assumed absent."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.renate.cc/ (the venue's own domain — renate.cc redirects to it, HTTP 301) returned a fully server-rendered '#program' accordion embedded directly on the homepage: 18 real upcoming event rows, each with day, date (DD.MM., no year), title, category, and often a room-level text breakdown (GARDEN/GREEN/BLACK/RED — this venue's own known named spaces). This directly answers the investigation question at Level 1 for the fields the source actually exposes; no JSON-LD Event schema, ICS, WordPress REST calendar API, Fourvenues, or Sanity signature was present (the one JSON-LD block found is generic Yoast SEO WebSite/WebPage schema, not Event data — confirmed by inspection, not assumed). No structural/browser escalation was needed to reach this conclusion; what remains missing (a stated year, a per-event permalink) is a genuine source limitation, not something a deeper technical probe would resolve.",
+      "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion"]
+    }
+  ],
+  "source_candidate_id": "wilde-renate-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Wilde Renate / Salon zur wilden Renate (club, Friedrichshain, Berlin, near Ostkreuz — named indoor/outdoor spaces including GARDEN, GREEN, BLACK, RED rooms)",
+  "official_url": "https://www.renate.cc/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion"],
+    "notes": "renate.cc is independently corroborated as the venue's own domain by multiple third-party discovery sources (Berlin.de, Top10Berlin, regioactive.de — treated only as a discovery lead), and the retained page content itself (its own <title>'Renate', its own JSON-LD WebSite name 'Renate', its own community/house-rules text referring to itself as 'Renate' throughout) is the actual first-party evidence of identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (X-Redirect-By: WordPress response header on the www redirect, PHP/7.4.33, Yoast SEO plugin present) with a custom theme rendering the entire programme as a static accordion directly on the homepage — no wp-content/wp-json paths were found in the retained HTML itself, and no dedicated calendar plugin signature was present.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EMBEDDED_EVENT_LIST",
+      "url": "https://www.renate.cc/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-program-accordion"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "13 YRS Rebellion der Träumer*",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each programme row's own 'prog-title' div text, sampled directly (event dated 16.10.).",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each row's own 'prog-date' div states day and month directly (e.g. '16.10.') — but NO year is stated anywhere in or near the programme section, and no month/year heading governs the list (unlike the policy's worked DETERMINISTIC_CONTEXT example of a 'September 2026' heading over day-only cards). The 18 sampled rows run chronologically from 15.08. to 29.10. with no wraparound, which would make 2026 a very plausible year given today's date — but per docs/SOURCE_INVESTIGATION_POLICY.md's explicit worked example ('Today is August 2026; card says \"17 September\"; no page/section/year context' -> AI_INFERENCE, stays AMBIGUOUS/UNKNOWN), that plausibility is exactly the forbidden basis. Recorded PARTIAL (day/month genuinely proven, year genuinely unresolved) rather than guessed.",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not stated for most rows. One sampled row (the recurring Renate Garden listing) states room-level open times directly as text ('GARDEN (from 14:00)', 'GREEN (from 22:00)') but most club-night rows state no time at all.",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end/closing time is stated for any sampled row.",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not uniform across rows: some events (e.g. the recurring Renate Garden listing) break location down by the venue's own named spaces (GARDEN/GREEN/BLACK/RED) as plain text; most other sampled rows state no location breakdown at all beyond the page's own overall venue context. Recorded PARTIAL rather than generalised into a uniform per-event pattern.",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Renate's own site exposes no per-event permalink, slug, or numeric ID at all — events exist only as rows within one shared accordion on the homepage, not as separate pages. The only per-event identifier anywhere is embedded in each row's outbound 'Tickets' link, which points to a third-party platform (Resident Advisor, e.g. 'https://de.ra.co/events/2355667') and carries RA's own event ID, not Renate's. Documenting this honestly as the alternative-identity option per docs/SOURCE_INVESTIGATION_POLICY.md's activation gate 6: a future collector could use the RA numeric ID purely as a de-duplication key (never as a first-party fact source for date/price), but that decision is out of scope for this investigation and is NOT claimed PROVEN here.",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No per-event detail page exists on renate.cc itself — only the shared homepage accordion and an outbound third-party ticket link (Resident Advisor) per row.",
+      "evidence_refs": ["ev-program-accordion"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price figure is stated on any sampled row — only 'Tickets are available on Resident Advisor and at the door', with a note that the venue is fully cashless (card only) at the door.",
+      "evidence_refs": ["ev-program-accordion"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-program-accordion"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No year is stated anywhere in or near the programme section, so a real collector cannot honestly resolve start_date to a full calendar date from this source alone — it would need an external, independently-evidenced year-assignment strategy (e.g. cross-referencing the linked Resident Advisor event page, which is out of scope for this investigation) rather than assuming the current year."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "No first-party per-event identifier or permalink exists on this domain at all — every candidate identifier available (the RA ticket-link ID) originates from a third party, not from Renate's own site."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from the venue's own retained page content, corroborated by independent third-party discovery leads.",
+      "acquisition_class STATIC_HTML, a resolved supported class — the entire programme is server-rendered directly on the homepage, no browser/JS execution needed.",
+      "A CONFIRMED public data path retained (18 real upcoming event rows sampled from the live homepage).",
+      "title PROVEN with basis DIRECT_SOURCE; start_date honestly assessed as PARTIAL (day/month proven, year genuinely unresolved by the source) rather than left blank or guessed — this satisfies the policy's honesty requirement, though it is a genuine, documented limitation of this source.",
+      "source_record_id and event_url both honestly NOT_PRESENT, with the alternative-identity consideration documented in notes per activation gate 6 — this source has real structural limitations (no per-event permalinks at all) that any future collector work must design around, not paper over.",
+      "recommended_family STATIC_EVENT_LIST, an existing documented family, though confidence is only MEDIUM given the year-ambiguity and identifier gaps above.",
+      "No unresolved CRITICAL blocker (two MAJOR blockers honestly documented: unresolved year, no first-party identifier).",
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: beyond the missing DETERMINISTIC_DERIVATION offline-proof step (separate follow-up work per this task's own scope), this source's genuine year-ambiguity and lack of a first-party stable identifier mean real design decisions are still needed before activation would be appropriate — this status honestly reflects unfinished work, not merely an unperformed formality."
+    ],
+    "evidence_refs": ["ev-homepage-jsonld", "ev-program-accordion"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage-jsonld",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers for both the bare domain (redirecting) and the canonical www domain, plus the one JSON-LD block found on the homepage (Yoast SEO WebSite/WebPage/BreadcrumbList schema — inspected and confirmed to NOT be Event schema).",
+      "acquired_from": "https://renate.cc/ (redirects to https://www.renate.cc/)",
+      "acquired_at": "2026-08-26T12:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/wilde-renate-berlin-01/evidence/homepage-headers-and-jsonld.html"
+    },
+    {
+      "evidence_id": "ev-program-accordion",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the homepage's own server-rendered '#program' accordion section: 18 real upcoming event rows (day, date, title, category, ticket link, and room-breakdown text where present).",
+      "acquired_from": "https://www.renate.cc/",
+      "acquired_at": "2026-08-26T12:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wilde-renate-berlin-01/evidence/program-accordion-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

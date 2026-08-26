@@ -1,0 +1,196 @@
+{
+  "investigation_id": "a-trane-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:17:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official homepage (https://a-trane.de/) and programme page (https://a-trane.de/programm/) directly exposed WordPress + EventON (meta generator tags: 'WordPress 7.1', 'EventON 4.4') and, more importantly, 55 <script type=\"application/ld+json\"> schema.org Event blocks embedded directly in the programme page's raw HTML response, each carrying name/startDate/endDate/url/location/image for a real upcoming concert. No structural/browser escalation was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://a-trane.de/ and https://a-trane.de/programm/ returned real HTML (200 OK, 1,252,683 and 1,455,777 bytes respectively) that already embeds 49 and 55 schema.org Event JSON-LD blocks respectively, each with name/startDate/endDate/url/location.name/location.address. This directly answers the investigation question at Level 1 — no escalation to Level 2/3 was needed.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    }
+  ],
+  "source_candidate_id": "a-trane-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "A-Trane (international jazz club, Charlottenburg, Berlin — Bleibtreustrasse 1)",
+  "official_url": "https://a-trane.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm-excerpt"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence: the site's own JSON-LD 'location' objects state '\"name\":\"A-Trane Berlin\",\"address\":{...,\"streetAddress\":\"Bleibtreustrasse 1 10623 \"}' — matching the address independently reported by third-party discovery sources (visitBerlin.de, Wikipedia) for A-Trane in Charlottenburg. Domain a-trane.de is a plausible first-party domain for a venue named A-Trane, not a ticketing aggregator or third-party listing site."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress 7.1 with the EventON 4.4 calendar plugin; EventON renders one schema.org Event JSON-LD block per upcoming event directly into the page HTML (both the homepage and the /programm/ page). An EventON REST namespace (wp-json/eventon/v1/data) is also referenced in the page's oEmbed/RSD wp-json links, but was not needed — the embedded JSON-LD alone already exposes full per-event data with no additional request.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm-excerpt"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://a-trane.de/programm/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://a-trane.de/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "e.g. 'A-TRANE PRÄSENTIERT TWO CONCERTS ONE NIGHT DAY2: Pepe Berns ...' (each event's own JSON-LD 'name' field)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each JSON-LD Event's own 'name' field, directly stated (includes embedded '<br>' HTML entities that a collector would need to strip/normalise, but the raw text itself is directly present, not inferred).",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "e.g. '2026-8-26T20:30+2:00' (each event's own JSON-LD 'startDate' field, verbatim)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each JSON-LD Event's own 'startDate' field is directly stated. NOTE (honest caveat, not a basis issue): the source's own serialisation is non-zero-padded ('2026-8-26T20:30+2:00', not '2026-08-26T20:30:00+02:00') — still a directly-stated single value, not a combination of two context pieces, so DIRECT_SOURCE is correct; a future collector must simply tolerate this non-standard-but-unambiguous ISO-like format rather than assuming strict RFC 3339.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "time-of-day portion of 'startDate' (e.g. 20:30 local)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day is the time component of the same directly-stated 'startDate' field.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "e.g. '2026-8-26T23:50+2:00' (each event's own JSON-LD 'endDate' field, verbatim)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each JSON-LD Event's own 'endDate' field, directly stated, same non-standard-but-unambiguous format caveat as start_date.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "A-Trane Berlin, Bleibtreustrasse 1 10623 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each sampled JSON-LD Event's own 'location' array: [{\"@type\":\"Place\",\"name\":\"A-Trane Berlin\",\"address\":{\"@type\":\"PostalAddress\",\"streetAddress\":\"Bleibtreustrasse 1 10623 \"}}] — directly stated per event, not inherited from page context.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "a-trane-praesentiert-artist-in-residency-day1desney-baileythree-4-soula-band-of-soul-with-a-twistfeat-carly-quiroz-jean-ghazal-or-rozenfeld-jan-trojanowski",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No bare numeric id is exposed as its own field, but each event's JSON-LD 'url' is the site's own permanent canonical permalink under /Events-Directory/{slug}/ — the same documented judgement already established for Moog Barcelona and LAV (a permalink URL slug the source itself uses as its own canonical path satisfies the stable identifier rule in docs/SOURCE_INVESTIGATION_POLICY.md). A separate '@id' field (e.g. 'event_94423_0') also appears on each block and looks like it may encode the underlying WordPress post ID, but its stability was not independently proven (no repeated-fetch comparison was performed in this investigation), so it is noted here only as a secondary observation, not relied upon.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://a-trane.de/Events-Directory/a-trane-praesentiert-artist-in-residency-day1desney-baileythree-4-soula-band-of-soul-with-a-twistfeat-carly-quiroz-jean-ghazal-or-rozenfeld-jan-trojanowski/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each JSON-LD Event's own 'url' field, directly stated.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No 'price'/'offers' field is present anywhere in the retained JSON-LD Event blocks (checked programmatically across all 55 blocks on the programme page). Ticket prices ARE visible as plain rendered text elsewhere on the page (e.g. '€25 (adult), €20 (student)'), but that text was not retained as structured evidence in this bounded investigation and is not part of the JSON-LD data path this investigation recommends — recorded honestly as NOT_PRESENT for the recommended data path rather than fabricating a price field.",
+      "evidence_refs": [
+        "ev-programm-excerpt"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "a-trane-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained evidence (site's own JSON-LD location/address matching independently reported venue address).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, retained at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained (https://a-trane.de/programm/, 55 real upcoming Event JSON-LD blocks).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the documented URL-slug strategy already established for Moog Barcelona/LAV.",
+      "recommended_family JSON_LD — this project's existing generic, reusable collector family (ingestion/json-ld/parse.mjs); zero new code required.",
+      "No unresolved CRITICAL blocker.",
+      "Held at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because this investigation deliberately did not write or run an offline DETERMINISTIC_DERIVATION parser/test against the retained fixture — that offline-proof/collector-wiring step is explicitly out of scope for this investigation task and is left as separate follow-up work, per gate 9 in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/json-ld-berlin-zero-code-cohort.test.mjs) — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-programm-excerpt",
+      "a-trane-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programm-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, byte-faithful excerpt of the real curl GET response from the venue's own official programme page: <title>, all 3 <meta name=\"generator\"> tags (WordPress 7.1 / WooCommerce 10.9.4 / EventON 4.4), 5 representative wp-json-referencing lines, and the first 5 (of 55 total) schema.org Event JSON-LD blocks verbatim, unmodified. The full raw response was 1,455,777 bytes with 55 total JSON-LD Event blocks; this excerpt is a genuine literal substring of that response, not a summary or re-serialization.",
+      "acquired_from": "https://a-trane.de/programm/ (cross-checked against https://a-trane.de/, which returned 49 equivalent JSON-LD Event blocks in the same format)",
+      "acquired_at": "2026-08-26T13:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/a-trane-berlin-01/evidence/programm-page-excerpt.html"
+    },
+    {
+      "evidence_id": "a-trane-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/json-ld-berlin-zero-code-cohort.test.mjs) re-parsing this investigation's own retained fixture via the EXISTING generic collector family and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/json-ld-berlin-zero-code-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/a-trane-berlin-01/evidence/programm-page-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

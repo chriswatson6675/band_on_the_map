@@ -1,0 +1,215 @@
+{
+  "investigation_id": "kesselhaus-kulturbrauerei-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T13:22:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (descriptive User-Agent, no authentication, no browser) of the venue's own calendar page and one real event's own detail page. The calendar page is Angular Universal server-side-rendered: its retained response already contains (a) a <script id=\"serverApp-state\" type=\"application/json\"> transfer-state blob whose events-by-month query results give each event's own Firebase-style id and a genuine UTC 'start' ISO timestamp, and (b) fully server-rendered DOM spans (title/subtitle/location/category/local date parts) for the same events, matched by a shared data-id/id key — all read directly from the raw HTTP response text, no JS execution needed. This platform's custom '&q;' in-script escaping (used in place of '\"') was mechanically reversed with a plain string replace before JSON-parsing; the resulting JSON parsed cleanly. The event's own detail page additionally carries a clean, standard schema.org JSON-LD 'Event' block with the same UTC startDate plus location/name."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.kesselhaus.net/en/calendar already exposed, in one retained HTTP response, both a server-rendered DOM (title/date/location/category per event card) and an embedded Angular Universal transfer-state JSON blob giving each event's own id and a genuine UTC startDate, joinable by a shared key. A second plain curl GET of one real event's own detail page additionally confirmed a clean, standard schema.org JSON-LD Event block for that same event. No client-side JS execution or browser was needed at any point — this directly answers the investigation question at Level 1.",
+      "evidence_refs": [
+        "ev-calendar-state",
+        "ev-event-detail-jsonld"
+      ]
+    }
+  ],
+  "source_candidate_id": "kesselhaus-kulturbrauerei-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "Kesselhaus / Kulturbrauerei (concert venue within the Kulturbrauerei complex, Prenzlauer Berg, Berlin — Knaackstraße 97, 10435 Berlin)",
+  "official_url": "https://www.kesselhaus.net/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-calendar-state",
+      "ev-event-detail-jsonld"
+    ],
+    "notes": "The venue's own dedicated first-party domain, kesselhaus.net, self-identifies directly: its retained homepage <title> is 'Kesselhaus | Festivals, Konzerte, Theater, Lesungen, Tanz, Partys und Clubreihen in Berlin', and its own retained 'EventVenue' JSON-LD block on the calendar page states 'name':'Kesselhaus' with a full PostalAddress ('Knaackstraße 97', 10435 Berlin) — the well-known real-world address of the Kulturbrauerei complex, Prenzlauer Berg. The sampled event card's own retained 'location' text is 'Kesselhaus & Maschinenhaus', and the event detail page's own JSON-LD independently restates the identical name/address."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "A custom Angular Universal (server-side-rendered) application, backed by Firebase (Firebase Storage/Realtime-Database-style push IDs are directly visible in retained asset URLs, e.g. 'kessel-europe.appspot.com'). No WordPress, ICS, Fourvenues, or Sanity signal. The calendar list page's own embedded transfer-state JSON blob is the mechanism for discovering the set of upcoming event ids/URLs; each event's own detail page additionally exposes a clean, standard schema.org JSON-LD 'Event' block once that URL is known.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-calendar-state",
+      "ev-event-detail-jsonld"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "EMBEDDED_JSON_EVENT_INDEX",
+      "url": "https://www.kesselhaus.net/en/calendar",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-calendar-state"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.kesselhaus.net/en/calendar/{firebase-push-id}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail-jsonld"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Move iT! - the 90s party",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The sampled event's own detail-page JSON-LD 'name' field states this directly (also independently corroborated by the calendar page's own server-rendered DOM <span class=\"title\">). Using the JSON-LD 'name' field as the primary claim keeps this a single-piece-of-evidence DIRECT_SOURCE claim.",
+      "evidence_refs": [
+        "ev-event-detail-jsonld"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-01",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail-page JSON-LD 'startDate' field states a full UTC instant directly: '2026-08-01T20:00:00.000Z' (note the literal 'Z' UTC-offset suffix — an unusually precise, genuinely UTC value for this project, not merely a floating local time). The calendar page's own embedded transfer-state query result for this same event independently states the identical 'start':'2026-08-01T20:00:00.000Z', cross-confirming the value from a second, structurally distinct retained location on the same request/response set.",
+      "evidence_refs": [
+        "ev-event-detail-jsonld",
+        "ev-calendar-state"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "22:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The time-of-day portion of the same JSON-LD 'startDate' ('20:00:00.000Z' UTC = 22:00 local Europe/Berlin summer time, CEST/UTC+2) — a genuine UTC instant, not a floating local guess. The calendar page's own rendered local-time DOM span for the same event independently reads '10:00 PM', consistent with this UTC-to-CEST conversion.",
+      "evidence_refs": [
+        "ev-event-detail-jsonld"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is exposed anywhere in the retained JSON-LD or transfer-state data for the sampled event.",
+      "evidence_refs": [
+        "ev-event-detail-jsonld"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Kesselhaus, Knaackstraße 97, 10435 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail-page JSON-LD 'location.name'/'location.address' fields state this directly, identical to the calendar page's own venue-level 'EventVenue' JSON-LD block.",
+      "evidence_refs": [
+        "ev-event-detail-jsonld"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "-Ot8ou0vgZ_E7m_7PiYF",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event's own Firebase-style push id, directly stated as both the transfer-state query result's own 'id' field and the literal path segment of the event's own detail-page URL ('/en/calendar/{id}'). Firebase Realtime Database push IDs are permanent, monotonically-time-ordered keys by the platform's own well-documented design (they do not regenerate on repeated fetches) — the same class of platform-native stable-identifier reasoning already accepted for razzmatazz-barcelona-01's Sanity '_id', not an inferred or merely numeric-looking value.",
+      "evidence_refs": [
+        "ev-calendar-state",
+        "ev-event-detail-jsonld"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.kesselhaus.net/en/calendar/-Ot8ou0vgZ_E7m_7PiYF",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The calendar page's own rendered <a href=\"/en/calendar/{id}\"> for each event card, directly stated, and independently confirmed by fetching it (HTTP 200, ev-event-detail-jsonld).",
+      "evidence_refs": [
+        "ev-calendar-state",
+        "ev-event-detail-jsonld"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Not present in either the calendar list page or the detail page's own JSON-LD. It is present only as unstructured free text on the detail page's rendered 'Tickets' button ('VVK: 8 Euro plus Gebühren | AK: 12 Euro' — German 'Vorverkauf'/advance-sale vs. 'Abendkasse'/door price), which would need bespoke text parsing to become a structured value — genuinely not yet resolved to a precise PROVEN price.",
+      "evidence_refs": [
+        "ev-event-detail-jsonld"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-calendar-state",
+      "ev-event-detail-jsonld",
+      "kesselhaus-kulturbrauerei-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Unlike moog-barcelona-01/waldbuehne-berlin-01, this source's JSON-LD 'Event' block lives only on each event's own detail page, not as one array covering every upcoming event. Discovering the current set of event ids/URLs first requires parsing the calendar page's own embedded Angular Universal transfer-state blob (a distinct EMBEDDED_JSON step, including the mechanical '&q;'->'\"' unescape) before per-event JSON_LD extraction can run — a two-stage acquisition, not a one-page fetch. This project's existing generic ingestion/json-ld/parse.mjs still covers the per-event extraction step unmodified; only the list-discovery step is new."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Only one real event was sampled at detail-page granularity; the transfer-state's custom escaping and per-event JSON-LD presence were not yet verified across a broader sample of events/categories."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from the venue's own dedicated domain plus two independently retained, structurally distinct JSON-LD blocks (venue-level EventVenue and event-level Event) both naming the same address.",
+      "acquisition_class EMBEDDED_JSON — a resolved, supported class — established directly from retained evidence; per-event enrichment additionally confirmed via a clean, standard JSON-LD Event block.",
+      "CONFIRMED public data paths retained for both the calendar/index page and one real event-detail page.",
+      "title and start_date both PROVEN (DIRECT_SOURCE), independently cross-confirmed from two structurally distinct retained locations (the detail page's own JSON-LD and the calendar page's own transfer-state query result).",
+      "source_record_id PROVEN via the platform's own stable Firebase push-id design, the same class of reasoning already accepted for razzmatazz-barcelona-01's Sanity _id.",
+      "recommended_family JSON_LD — this project's existing, generic, reusable module (ingestion/json-ld/parse.mjs) covers the per-event field extraction unmodified; only the list-discovery step (parsing the embedded transfer-state) would be new, documented as a MINOR blocker rather than a CRITICAL one.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery-berlin-cohort.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-calendar-state",
+      "ev-event-detail-jsonld",
+      "kesselhaus-kulturbrauerei-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-calendar-state",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the venue's own calendar page: (1) the full retained venue-level 'EventVenue' JSON-LD block; (2) the first 6 of the real query results for the 2026-08 to 2026-09 window from the retained Angular Universal transfer-state blob, decoded by mechanically replacing every literal '&q;' with '\"' and JSON-parsing (each result gives a real event id and a genuine UTC 'start' ISO timestamp); (3) the server-rendered DOM excerpt for the same event (matched by its data-id), showing its title/subtitle/local-date-parts/location/category rendered directly in HTML. Full response (1.1MB, ~1065 transfer-state keys) was fetched and inspected; this excerpt retains every region material to the field assessment above.",
+      "acquired_from": "https://www.kesselhaus.net/en/calendar",
+      "acquired_at": "2026-08-26T13:19:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/kesselhaus-kulturbrauerei-berlin-01/evidence/calendar-page-embedded-state-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-jsonld",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The complete, real, retained <script type=\"application/ld+json\"> block from one real event's own detail page (a clean, standard schema.org 'Event' object with name/startDate/location/image), plus a bounded excerpt of the rendered 'Tickets' button showing the free-text VVK/AK price string. Full response (299KB) was fetched; this excerpt retains every region material to the field assessment above. Note: the JSON-LD's own free-text 'description' field mentions an unrelated date ('06.06.2026') that does not match 'startDate' ('2026-08-01') — an apparent stale/reused marketing-copy artefact on the source's own side, noted honestly but not relied upon for any claimed field value above (only the literal 'startDate'/'name'/'location' fields were used).",
+      "acquired_from": "https://www.kesselhaus.net/en/calendar/-Ot8ou0vgZ_E7m_7PiYF",
+      "acquired_at": "2026-08-26T13:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/kesselhaus-kulturbrauerei-berlin-01/evidence/event-detail-jsonld-and-price-excerpt.txt"
+    },
+    {
+      "evidence_id": "kesselhaus-kulturbrauerei-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/html-link-discovery-berlin-cohort.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/html-link-discovery-berlin-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/kesselhaus-kulturbrauerei-berlin-01/evidence/event-detail-jsonld-and-price-excerpt.txt"
+    }
+  ],
+  "supersedes": null
+}

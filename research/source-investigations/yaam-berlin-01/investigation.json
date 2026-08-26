@@ -1,0 +1,234 @@
+{
+  "investigation_id": "yaam-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:50:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official homepage directly exposed two references in its own static HTML: a WordPress 'The Events Calendar' (Modern Tribe) REST API route (wp-json/tribe/events/v1/) and an ICS export link (?ical=1). Both were then fetched directly with plain curl GETs (no authentication, no browser) and returned real, structured, matching event data."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://yaam.de/ returned a WordPress site (wp-content/wp-json present) whose own static HTML directly links to 'https://yaam.de/wp-json/tribe/events/v1/' and 'https://yaam.de/events/?ical=1'. Fetching the REST route directly (https://yaam.de/wp-json/tribe/events/v1/events) returned a real, structured JSON response (1 currently-published upcoming event, with id/title/start_date/utc_start_date/end_date/cost/url/venue fields). Fetching the ICS export directly returned a matching VCALENDAR/VEVENT for the same event. This directly answers the investigation question at Level 1 using this project's already-existing, reusable ingestion/events-calendar-api/ (WordPress Tribe Events) and ingestion/ics/ collector families — no new code, and no structural/browser escalation was needed.",
+      "evidence_refs": [
+        "ev-home-excerpt",
+        "ev-tribe-events",
+        "ev-ical"
+      ]
+    }
+  ],
+  "source_candidate_id": "yaam-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "YAAM (Young African Art Market) — open-air reggae/hip-hop/dancehall/urban-culture venue on the Spree at Schillingbrücke, Friedrichshain, Berlin",
+  "official_url": "https://yaam.de/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home-excerpt",
+      "ev-tribe-events"
+    ],
+    "notes": "yaam.de is the venue's own first-party domain — its own retained <title> ('YAAM|Young African Art Market') and the sampled event's own address text ('YAAM Berlin. At Schillingbrücke 3, 10243 Berlin') directly confirm identity, independently corroborated during discovery by third-party reference sources (berlin.de, visitBerlin.de) as YAAM's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "KNOWN_CALENDAR_PLUGIN",
+    "platform": "WordPress with 'The Events Calendar' (Modern Tribe) plugin installed and publicly exposed — both its REST API (wp-json/tribe/events/v1/events) and its ICS export (/events/?ical=1) are live, public, and return matching data for the same event.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-tribe-events",
+      "ev-ical"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://yaam.de/wp-json/tribe/events/v1/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-tribe-events"
+      ]
+    },
+    {
+      "kind": "ICS_CALENDAR_EXPORT",
+      "url": "https://yaam.de/events/?ical=1",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ical"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FAMILY BRUNCH & WELCOME APPETIZER FOR EVERY GUEST 29.08.2026",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'title' field (Tribe Events REST API), matching the ICS 'SUMMARY' field exactly (HTML-entity-decoded).",
+      "evidence_refs": [
+        "ev-tribe-events",
+        "ev-ical"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-29 10:00:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'utc_start_date' field, explicitly labelled UTC by the API's own field name (distinct from the source's separate local 'start_date': '2026-08-29 12:00:00' plus 'timezone': 'Europe/Berlin') — a genuine UTC instant, not inferred. Matches the ICS DTSTART;TZID=Europe/Berlin:20260829T120000 once the stated timezone is applied.",
+      "evidence_refs": [
+        "ev-tribe-events",
+        "ev-ical"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "12:00:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Local time-of-day portion of the event's own 'start_date' field, with an explicit 'timezone': 'Europe/Berlin' field also directly stated by the same source.",
+      "evidence_refs": [
+        "ev-tribe-events"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-29 20:00:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'utc_end_date' field, same UTC-labelled convention as start_date (local 'end_date' is '2026-08-29 22:00:00' Europe/Berlin, matching the ICS DTEND).",
+      "evidence_refs": [
+        "ev-tribe-events",
+        "ev-ical"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The event's own 'venue' field is an empty array on this sampled record — not populated with a Tribe venue object despite the plugin supporting one. This source represents exactly one physical venue (YAAM, Schillingbrücke, Friedrichshain), matching this project's existing single-venue-per-source precedent (e.g. razzmatazz-barcelona-01, badehaus-berlin-01): venue identity is intended to resolve via source_id at activation time, not by parsing a per-record field this particular event does not populate.",
+      "evidence_refs": [
+        "ev-tribe-events"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "2278",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own numeric WordPress post 'id' (2278), the platform's own permanent primary-key identifier for its REST resource (also embedded as the leading component of the ICS 'UID': '2278-1788004800-1788040800@yaam.de') — a documented, stable platform convention, meaningfully different from and more authoritative than a derived/regenerating ICS UID (this project's own known Hot Clube de Portugal caution). Not empirically re-verified by a second fetch in this investigation, but WordPress post IDs are a well-established stable platform identifier by design, not a value this investigation invented.",
+      "evidence_refs": [
+        "ev-tribe-events",
+        "ev-ical"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://yaam.de/event/family-brunch-welcome-appetizer-for-every-guest-29-08-2026/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'url' field, matching the ICS 'URL' field exactly.",
+      "evidence_refs": [
+        "ev-tribe-events",
+        "ev-ical"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The event's own 'cost' field is an empty string; 'cost_details' carries an odd data-entry quirk ('currency_symbol': '€5', 'values': []) suggesting a '5' EUR price was entered but is not cleanly exposed as a separate numeric value by this record — genuinely present in some form but not reliably machine-extractable from this sample, so honestly PARTIAL rather than a fabricated clean PROVEN number.",
+      "evidence_refs": [
+        "ev-tribe-events"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "WORDPRESS_CALENDAR",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-tribe-events",
+      "ev-ical",
+      "yaam-berlin-01-offline-proof"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Only 1 event is currently published via both the REST API and the ICS export at investigation time, despite YAAM's general reputation for a regular sound-system/reggae/hip-hop/dancehall programme — either the venue announces most parties via social media rather than this WordPress calendar, or the near-term calendar is simply thin at the time of this snapshot. This does not block acquisition (the data path and field shapes are proven either way) but limits how representative this one sampled record is of the full range of event types this source may carry."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN on the venue's own first-party domain, corroborated by the event's own stated address.",
+      "acquisition_class KNOWN_CALENDAR_PLUGIN, a resolved supported class, confirmed via two independent, matching public data paths (Tribe REST API and ICS export) for the same real event.",
+      "Two CONFIRMED public data paths retained.",
+      "title, start_date, end, event_url, and source_record_id all PROVEN with basis DIRECT_SOURCE.",
+      "recommended_family WORDPRESS_CALENDAR — this project's existing, reusable ingestion/events-calendar-api/ (and ingestion/ics/) collector families apply directly; no new collector code required.",
+      "No unresolved CRITICAL blocker.",
+      "No DETERMINISTIC_DERIVATION offline-proof evidence item has been produced in this investigation (writing collector/test code is explicitly out of scope for this task) — so per policy this stays READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION, pending a follow-up offline reproduction against the retained fixtures.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/json-ld-berlin-zero-code-cohort.test.mjs) — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-home-excerpt",
+      "ev-tribe-events",
+      "ev-ical",
+      "yaam-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded excerpt of the venue's own official homepage (first 8000 bytes of the 334,651-byte page, plus the two specific snippets that reveal the wp-json/tribe/events/v1/ REST route link and the ?ical=1 export link) — truncated deliberately rather than retaining the full page, per policy's bounded-evidence guidance.",
+      "acquired_from": "https://yaam.de/",
+      "acquired_at": "2026-08-26T12:46:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); truncated to a representative excerpt after retrieval",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/yaam-berlin-01/evidence/homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-tribe-events",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, live JSON response of the venue's own public WordPress 'The Events Calendar' REST API (per_page=25) — 1 real, currently-published upcoming event with the complete Tribe Events field shape.",
+      "acquired_from": "https://yaam.de/wp-json/tribe/events/v1/events?per_page=25",
+      "acquired_at": "2026-08-26T12:47:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/yaam-berlin-01/evidence/tribe-events-api-sample.json"
+    },
+    {
+      "evidence_id": "ev-ical",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, live ICS calendar export for the same event, retrieved independently of the REST API — used to cross-check the REST API's field values (title, start/end, url, a stable UID embedding the same WordPress post id).",
+      "acquired_from": "https://yaam.de/events/?ical=1",
+      "acquired_at": "2026-08-26T12:48:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/calendar",
+      "byte_faithful": true,
+      "path": "research/source-investigations/yaam-berlin-01/evidence/events-ical-export.ics"
+    },
+    {
+      "evidence_id": "yaam-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/json-ld-berlin-zero-code-cohort.test.mjs) re-parsing this investigation's own retained fixture via the EXISTING generic collector family and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/json-ld-berlin-zero-code-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/yaam-berlin-01/evidence/tribe-events-api-sample.json"
+    }
+  ],
+  "supersedes": null
+}

@@ -172,13 +172,23 @@ export function projectObservationsToMapMarkers(observations, { venues, sourceRe
  * existing test) keeps its EXACT prior behaviour unchanged, including
  * `getMarkersForCountry("Spain", portugalMarkers)` still legitimately
  * returning `[]` when no third argument is supplied.
+ *
+ * BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: `germanyMarkers`
+ * is a new, optional fourth parameter (defaults to `[]`) carrying Berlin's
+ * own display markers (ingestion/map/publication.mjs's
+ * buildGermanyMarkers()) — added the same additive way as `spainMarkers`,
+ * so every existing 2/3-argument call site keeps its exact prior
+ * behaviour unchanged.
  */
-export function getMarkersForCountry(country, portugalMarkers, spainMarkers = []) {
+export function getMarkersForCountry(country, portugalMarkers, spainMarkers = [], germanyMarkers = []) {
   if (country === "Portugal") {
     return portugalMarkers ?? [];
   }
   if (country === "Spain") {
     return spainMarkers ?? [];
+  }
+  if (country === "Germany") {
+    return germanyMarkers ?? [];
   }
   return [];
 }

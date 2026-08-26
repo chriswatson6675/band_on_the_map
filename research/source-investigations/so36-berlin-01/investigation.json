@@ -1,0 +1,201 @@
+{
+  "investigation_id": "so36-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T12:25:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's official ticket-shop homepage (which is a real, server-rendered event listing, not a client-rendered shell) and one real, currently-listed individual product/event page. The individual product page directly embeds a full schema.org Event JSON-LD block including price offers."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The venue's official domain (so36.com) redirects to /tickets, a server-rendered ticket-shop page built on the 'tickettoaster' platform (assets under /assets/toaster_frontend/, seller name 'tickettoaster GmbH' later confirmed in JSON-LD) — this is the venue's own first-party ticket shop on its own domain, not a third-party aggregator. The page's own hidden SEO fallback nav list ('Die nächsten 10 Termine') is real, server-rendered plain HTML listing each of the next several events as '<title> in Berlin am DD.MM.YYYY' with a link to its own '/produkte/{numeric-id}-tickets-...-am-DD-MM-YYYY' product page (title + date + a numeric per-product id, all directly present). Following one such link to its own individual product page showed it embeds a full, well-formed schema.org Event JSON-LD block (name, startDate WITH a correct +02:00 Berlin summer offset, endDate, location with full address, image, description, and multiple priced Offer entries) directly in server-rendered HTML — sufficient to answer the investigation question without any structural/browser escalation.",
+      "evidence_refs": [
+        "ev-tickets-listing",
+        "ev-product-ldjson"
+      ]
+    }
+  ],
+  "source_candidate_id": "so36-berlin-01-candidate",
+  "source_id": null,
+  "venue_reference": "SO36 (legendary punk/alternative music club, Oranienstraße 190, Kreuzberg, Berlin, near Heinrichplatz)",
+  "official_url": "https://www.so36.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-tickets-listing",
+      "ev-product-ldjson"
+    ],
+    "notes": "Official identity confirmed directly from retained evidence: the product page's own JSON-LD 'location' names 'SO36' at 'Oranienstraße 190, 10999 Berlin' — matching independently-known venue facts (Oranienstraße, Kreuzberg, near Heinrichplatz)."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "A Ruby application fronted by a shop platform called 'tickettoaster' (assets under /assets/toaster_frontend/; seller organization in JSON-LD offers is 'tickettoaster GmbH', https://www.tickettoaster.de) — this is the venue's own first-party white-label ticket shop on its own so36.com domain, not a third-party ticketing aggregator. Individual product/event pages embed schema.org Event JSON-LD directly.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-tickets-listing",
+      "ev-product-ldjson"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_LINKS_TO_JSONLD_DETAIL_PAGES",
+      "url": "https://www.so36.com/tickets",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-tickets-listing",
+        "ev-product-ldjson"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "BURNING BERLIN, SO36, 26.08.2026",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The sampled product page's own JSON-LD 'name' field. Note this source's own 'name' field bundles venue+date into the title text itself; the listing page's own separate title text ('BURNING BERLIN') is the cleaner event-only title and matches this.",
+      "evidence_refs": [
+        "ev-product-ldjson"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-26T19:30:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The sampled product page's own JSON-LD 'startDate', a full ISO 8601 datetime with a CORRECT Berlin summer UTC offset (+02:00, CEST) — unlike a comparable field observed at Lido Berlin in this same trial, which appears to hardcode a wrong offset.",
+      "evidence_refs": [
+        "ev-product-ldjson"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Time-of-day + offset portion of the same 'startDate' field.",
+      "evidence_refs": [
+        "ev-product-ldjson"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-27T06:00:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The sampled product page's own JSON-LD 'endDate' field.",
+      "evidence_refs": [
+        "ev-product-ldjson"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "SO36, Oranienstraße 190, 10999 Berlin",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The sampled product page's own JSON-LD 'location.name'/'location.address' (streetAddress/addressLocality/postalCode/addressCountry, all present).",
+      "evidence_refs": [
+        "ev-product-ldjson"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "98733",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The listing page's own fallback nav directly states each event's numeric product id as part of its own permalink ('/produkte/98733-tickets-burning-berlin-so36-berlin-am-26-08-2026') — this is the site's own first-party product identifier, used as its own canonical URL path segment, matching the policy's 'derived from a deterministic source property whose own stability is itself evidenced (a permalink URL slug the source uses as its own canonical path)' rule.",
+      "evidence_refs": [
+        "ev-tickets-listing"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.so36.com/produkte/98733-tickets-burning-berlin-so36-berlin-am-26-08-2026",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The listing page's own real anchor href for this event's product page; independently confirmed by successfully fetching that exact URL and finding the matching JSON-LD Event block.",
+      "evidence_refs": [
+        "ev-tickets-listing",
+        "ev-product-ldjson"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "44.8 EUR / 28.0 EUR / 16.8 EUR",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The sampled product page's own JSON-LD 'offers' array — 3 distinct priced ticket-variant Offers (all EUR), each with its own 'seller' (tickettoaster GmbH, the venue's own first-party shop platform) and 'availability' (SoldOut for this sampled, already-passed-by-observation-date event).",
+      "evidence_refs": [
+        "ev-product-ldjson"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-product-ldjson",
+      "so36-berlin-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN directly from retained first-party evidence.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class; a CONFIRMED public data path retained (the shop listing's own fallback nav, leading to a JSON-LD-bearing product page).",
+      "title, start_date, end, venue_location, source_record_id, event_url and price ALL PROVEN via DIRECT_SOURCE from a single retained product page — the richest, cleanest single-page sample of the six venues in this trial.",
+      "recommended_family JSON_LD (an existing, already-implemented, reusable module — ingestion/json-ld/).",
+      "No unresolved CRITICAL blocker.",
+      "No collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this investigation-only task, so READY_FOR_ACTIVATION's gate 9 is not met — READY_FOR_OFFLINE_PROOF is the correct, honest status.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/html-link-discovery-berlin-cohort.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline — gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": [
+      "ev-tickets-listing",
+      "ev-product-ldjson",
+      "so36-berlin-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-tickets-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "HTTP response headers and an excerpt of the ticket-shop homepage's own hidden SEO fallback nav list ('Die nächsten 10 Termine'), each event given as plain text 'TITLE in Berlin am DD.MM.YYYY' with a link to its own numeric-id product page (full page is 50,805 bytes; excerpt kept around this list, truncation explicitly noted).",
+      "acquired_from": "https://www.so36.com/ (redirects to https://www.so36.com/tickets)",
+      "acquired_at": "2026-08-26T12:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/so36-berlin-01/evidence/so36-tickets-listing-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-product-ldjson",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Complete schema.org Event JSON-LD block from one real, currently-listed product/event page ('BURNING BERLIN'), including startDate/endDate with correct Berlin offset, full venue address, and 3 priced ticket offers (full page is 56,238 bytes; excerpt kept around the complete JSON-LD script tag, truncation explicitly noted).",
+      "acquired_from": "https://www.so36.com/produkte/98733-tickets-burning-berlin-so36-berlin-am-26-08-2026",
+      "acquired_at": "2026-08-26T12:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/so36-berlin-01/evidence/so36-product-burning-berlin-ldjson-excerpt.html"
+    },
+    {
+      "evidence_id": "so36-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/html-link-discovery-berlin-cohort.test.mjs) re-parsing this investigation's own retained fixtures and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/html-link-discovery-berlin-cohort.test.mjs",
+      "acquired_at": "2026-08-26T15:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/so36-berlin-01/evidence/so36-product-burning-berlin-ldjson-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

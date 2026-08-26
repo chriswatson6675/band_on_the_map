@@ -119,6 +119,36 @@ export function buildSpainMarkers({
 }
 
 /**
+ * BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: the
+ * Germany/Berlin sibling of buildPortugalMarkers()/buildSpainMarkers()
+ * above — same projectObservationsToDisplayMarkers() machinery, same
+ * manual-coordinate composition, same artist-genre attachment, so Berlin
+ * is never a second, independently-drifting projection path. `associations`
+ * defaults to `[]` (no hand-authored cross-source association pairs exist
+ * for Berlin yet, matching Spain's own precedent) — a future Berlin
+ * duplicate-listing case would need its own explicit, evidence-backed
+ * association module, following the Hot Clube/Capitólio precedent exactly.
+ */
+export function buildGermanyMarkers({
+  berlinObservations,
+  berlinVenues,
+  berlinSourceRegistry,
+  associations = [],
+  manualCoordinatesByVenueId,
+  artistRegistry = [],
+  artistLinks = [],
+}) {
+  const markers = projectObservationsToDisplayMarkers(berlinObservations ?? [], {
+    venues: berlinVenues ?? [],
+    sourceRegistry: berlinSourceRegistry ?? [],
+    associations,
+    manualCoordinatesByVenueId,
+  });
+
+  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
+}
+
+/**
  * Trim one full display marker (as produced by
  * projectObservationsToDisplayMarkers, which also carries the raw,
  * ungrouped `listings` array used only for internal proof/debug
@@ -230,13 +260,15 @@ export function buildPublicationArtifact({
   to,
   portugalMarkers,
   spainMarkers = [],
+  germanyMarkers = [],
   sourceResults,
   observationCount,
   artistRegistry = [],
 }) {
   const publicationPortugalMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
   const publicationSpainMarkers = (spainMarkers ?? []).map(toPublicationMarker);
-  const allPublicationMarkers = [...publicationPortugalMarkers, ...publicationSpainMarkers];
+  const publicationGermanyMarkers = (germanyMarkers ?? []).map(toPublicationMarker);
+  const allPublicationMarkers = [...publicationPortugalMarkers, ...publicationSpainMarkers, ...publicationGermanyMarkers];
   const displayListingCount = allPublicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
   const successCount = (sourceResults ?? []).filter((result) => result.success).length;
   const failureCount = (sourceResults ?? []).length - successCount;
@@ -264,6 +296,7 @@ export function buildPublicationArtifact({
       Portugal: { markers: publicationPortugalMarkers },
       Croatia: { markers: [] },
       Spain: { markers: publicationSpainMarkers },
+      Germany: { markers: publicationGermanyMarkers },
     },
     artists: buildArtistIndex(allPublicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
   };
@@ -361,9 +394,23 @@ export function validatePublicationArtifact(artifact) {
     }
   }
 
+  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: "Germany"
+  // joins "Spain" as another OPTIONAL country bucket, for the exact same
+  // reason Spain was optional relative to Portugal/Croatia — every
+  // artifact built before Berlin existed legitimately has no
+  // `countries.Germany` key at all. Its markers join the SAME global
+  // cross-checks below (map_marker_count/display_listing_count/venue_id
+  // uniqueness are the TOTAL across every published country).
+  if (artifact.countries.Germany !== undefined) {
+    if (!artifact.countries.Germany || !Array.isArray(artifact.countries.Germany.markers)) {
+      errors.push("countries.Germany.markers must be an array when present");
+    }
+  }
+
   const portugalMarkers = Array.isArray(artifact.countries.Portugal?.markers) ? artifact.countries.Portugal.markers : null;
   const spainMarkers = Array.isArray(artifact.countries.Spain?.markers) ? artifact.countries.Spain.markers : [];
-  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers] : null;
+  const germanyMarkers = Array.isArray(artifact.countries.Germany?.markers) ? artifact.countries.Germany.markers : [];
+  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers, ...germanyMarkers] : null;
 
   if (allCountryMarkers) {
     let listingSum = 0;
@@ -476,6 +523,11 @@ export function validatePublicationArtifact(artifact) {
  * keeps EXACTLY today's behaviour: `spainMarkerCount` defaults to `0`, so
  * rule (b) reduces to the original `portugalMarkerCount === 0` check.
  */
-export function isCatastrophicPublicationRun({ sourceSuccessCount, portugalMarkerCount, spainMarkerCount = 0 }) {
-  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount === 0;
+export function isCatastrophicPublicationRun({
+  sourceSuccessCount,
+  portugalMarkerCount,
+  spainMarkerCount = 0,
+  germanyMarkerCount = 0,
+}) {
+  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount + germanyMarkerCount === 0;
 }
