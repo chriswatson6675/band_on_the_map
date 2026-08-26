@@ -14,7 +14,12 @@
 import { projectObservationsToMapMarkers } from "./projection.mjs";
 import { compareObservationFacts } from "../association/compare-facts.mjs";
 
-function listingIdentity(listing) {
+// BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: exported (previously
+// module-private) so ingestion/map/source-retention.mjs can reuse this
+// EXACT SINGLE-listing identity key when deduplicating a retained,
+// last-known-good listing against this run's fresh ones — never a second,
+// independently-drifting identity rule.
+export function listingIdentity(listing) {
   return `${listing.source_id}:${listing.source_record_id}`;
 }
 

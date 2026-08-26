@@ -99,6 +99,14 @@ export function buildHealthReport({ runId, startedAt, completedAt, sourceResults
       attempts: result.attempts ?? 1,
       records_acquired: result.observation_count ?? 0,
       ...(result.success ? {} : { error: result.error ?? null }),
+      // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: optional, additive
+      // provenance — see ingestion/map/publication.mjs's own
+      // source_report.sources[] doc comment for the exact same fields.
+      // Only present when the caller supplied annotated results (see
+      // ingestion/map/source-retention.mjs's annotateSourceProvenance());
+      // every existing caller/test keeps today's exact shape unchanged.
+      ...(result.last_success_at !== undefined ? { last_success_at: result.last_success_at } : {}),
+      ...(result.retained_eligible === true ? { retained: true } : {}),
     })),
   };
 }

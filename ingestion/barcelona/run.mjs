@@ -82,6 +82,7 @@ import { toObservation as salaUploadToObservation } from "../sala-upload/observa
 import { resolveObservation } from "../venue/resolver.mjs";
 import { buildSpainMarkers } from "../map/publication.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
+import { withRetries } from "../unattended-runner/retry.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUTPUT_PATH = resolve(ROOT, "fixtures/map/barcelona-30-venue-population-01-live-run-proof.json");
@@ -539,34 +540,91 @@ const COLLECTORS = {
   "deskomunal-barcelona": collectDeskomunal,
 };
 
-async function acquireAll(sourceIds, registryEntries) {
+// `retryPolicy` (BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01, optional —
+// every existing caller that omits it keeps today's exact single-attempt
+// behaviour, byte-for-byte unchanged): `{ maxAttempts, retryDelayMs,
+// isTransient, delayFn }`, forwarded straight to
+// ingestion/unattended-runner/retry.mjs's withRetries() — the EXACT same
+// bounded retry mechanism ingestion/lisbon-porto/run.mjs's own acquireAll()
+// already uses (see that module's own doc comment on this parameter),
+// never a second, Barcelona-specific retry implementation. This closes a
+// previously-documented, pre-existing gap: Barcelona's acquisition had no
+// retry at all before this package, so a genuinely one-off transient
+// blip (as opposed to a persistent upstream fault) cost a full source for
+// an entire unattended cycle where Portugal would have absorbed it.
+async function acquireAll(sourceIds, registryEntries, retryPolicy = null, collectors = COLLECTORS) {
   const results = [];
   for (const sourceId of sourceIds) {
     process.stdout.write(`  acquiring ${sourceId} ... `);
     try {
       await loadRegistryEntry(registryEntries, sourceId);
-      const { rawRecordCount, observations, notes } = await COLLECTORS[sourceId]();
+
+      if (retryPolicy) {
+        const outcome = await withRetries(() => collectors[sourceId](), {
+          ...retryPolicy,
+          onAttempt: ({ attempt, error, willRetry }) => {
+            if (!error) return;
+            process.stdout.write(`\n    attempt ${attempt} failed: ${error.message}${willRetry ? " (retrying)" : ""}`);
+          },
+        });
+        if (outcome.ok) {
+          const { rawRecordCount, observations, notes } = outcome.result;
+          console.log(`\n  -> ok (${rawRecordCount} raw record(s), ${observations.length} Observation(s), ${outcome.attempts} attempt(s))`);
+          results.push({
+            source_id: sourceId,
+            success: true,
+            raw_record_count: rawRecordCount,
+            observation_count: observations.length,
+            observations,
+            notes,
+            attempts: outcome.attempts,
+          });
+        } else {
+          console.log(`\n  -> FAILED after ${outcome.attempts} attempt(s): ${outcome.error.message}`);
+          results.push({
+            source_id: sourceId,
+            success: false,
+            error: outcome.error.message,
+            raw_record_count: 0,
+            observation_count: 0,
+            observations: [],
+            notes: [],
+            attempts: outcome.attempts,
+          });
+        }
+        continue;
+      }
+
+      const { rawRecordCount, observations, notes } = await collectors[sourceId]();
       console.log(`ok (${rawRecordCount} raw record(s), ${observations.length} Observation(s))`);
-      results.push({ source_id: sourceId, success: true, raw_record_count: rawRecordCount, observation_count: observations.length, observations, notes });
+      results.push({ source_id: sourceId, success: true, raw_record_count: rawRecordCount, observation_count: observations.length, observations, notes, attempts: 1 });
     } catch (error) {
       console.log(`FAILED: ${error.message}`);
-      results.push({ source_id: sourceId, success: false, error: error.message, raw_record_count: 0, observation_count: 0, observations: [], notes: [] });
+      results.push({ source_id: sourceId, success: false, error: error.message, raw_record_count: 0, observation_count: 0, observations: [], notes: [], attempts: 1 });
     }
   }
   return results;
 }
 
+export { acquireAll };
+
 /**
  * BARCELONA-30-VENUE-POPULATION-01: the live-acquisition half of main()
  * below, factored out (matching ingestion/lisbon-porto/run.mjs's own
  * acquireLisbonPorto() convention) so ingestion/publish-map-data/run.mjs
- * can reuse the exact same 15-source acquisition this package proved,
+ * can reuse the exact same 23-source acquisition this package proved,
  * rather than re-implementing any collector.
+ *
+ * `args.retryPolicy` (BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01,
+ * optional, defaults to no retry — every existing caller that omits it,
+ * including this file's own `main()` below, keeps today's exact
+ * single-attempt behaviour): forwarded to acquireAll() above, mirroring
+ * acquireLisbonPorto(args = {})'s own signature exactly.
  */
-export async function acquireBarcelona() {
+export async function acquireBarcelona(args = {}) {
   const barcelonaRegistry = JSON.parse(await readFile(resolve(ROOT, "sources/barcelona.json"), "utf8"));
   console.log(`\n-- Barcelona (${BARCELONA_SOURCE_IDS.length} sources) --`);
-  const barcelonaResults = await acquireAll(BARCELONA_SOURCE_IDS, barcelonaRegistry.entries);
+  const barcelonaResults = await acquireAll(BARCELONA_SOURCE_IDS, barcelonaRegistry.entries, args.retryPolicy ?? null);
   const barcelonaObservations = barcelonaResults.flatMap((r) => r.observations);
   return { barcelonaRegistry, barcelonaResults, barcelonaObservations };
 }

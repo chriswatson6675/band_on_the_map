@@ -23,12 +23,13 @@
 //                                    `npm run ingest:barcelona` and
 //                                    `npm run publish:map-data` already
 //                                    use (BEATMAPPED-UNATTENDED-MULTI-
-//                                    COUNTRY-PUBLICATION-01). It does not
-//                                    yet accept a retryPolicy — a known,
-//                                    pre-existing, documented limitation
-//                                    of ingestion/barcelona/run.mjs itself
-//                                    (see that module's own comment) — not
-//                                    something this narrow package adds.
+//                                    COUNTRY-PUBLICATION-01), now also with
+//                                    the same opt-in bounded retry policy
+//                                    Portugal already had (BEATMAPPED-
+//                                    SOURCE-FAILURE-GRACE-AND-RETRY-01 —
+//                                    see that module's own acquireAll()
+//                                    changes; every other caller that omits
+//                                    retryPolicy is byte-for-byte unchanged).
 //   buildPortugalMarkers()          ingestion/map/publication.mjs
 //   buildSpainMarkers()              ingestion/map/publication.mjs
 //   buildPublicationArtifact()      ingestion/map/publication.mjs
@@ -48,6 +49,35 @@
 // A country that fails this way publishes with zero markers THIS RUN ONLY
 // (never fabricated) and the failure is recorded as one synthetic FAILED
 // source entry in the health report, so it is visible, not silent.
+//
+// SOURCE-FAILURE GRACE AND RETRY (BEATMAPPED-SOURCE-FAILURE-GRACE-AND-
+// RETRY-01): a single FAILED source (as opposed to a country-level
+// acquisition-function throw, above) means this source's CURRENT state is
+// unknown, not that its venues genuinely have no events — before this
+// package those two cases were mechanically indistinguishable downstream,
+// so a source failing for any reason immediately zeroed out every venue
+// only it covered. Now:
+//   - Barcelona acquisition finally gets the SAME bounded per-source retry
+//     ingestion/lisbon-porto/run.mjs's acquireAll() already had (passed
+//     through identically, see the retryPolicy wiring below) — absorbing
+//     genuine one-off transient blips before a source is even classified
+//     FAILED.
+//   - A source that still ends up FAILED after retries may have its most
+//     recently PUBLISHED data (from the previous, already-validated
+//     publication artifact — never a second datastore) carried forward
+//     for up to 24 hours from that source's own last real success (see
+//     ingestion/map/source-retention.mjs — the entire mechanism lives
+//     there, pure and independently tested; this file only wires it in).
+//   - A source that succeeds with zero current/future observations is
+//     authoritative and is NEVER retained — only a genuine acquisition
+//     failure triggers this.
+//   - Retained data is always clearly marked in source_report/health
+//     (`retained: true`, `last_success_at`) — never silently
+//     indistinguishable from freshly-acquired data — and a run carrying
+//     any retained data is truthfully DEGRADED (a retained source's own
+//     sourceResults entry still has `success: false`, which
+//     determineOverallStatus() already treats as DEGRADED with no change
+//     needed there).
 //
 // What THIS package actually adds, all new and all in
 // ingestion/unattended-runner/:
@@ -79,7 +109,15 @@ import { acquireBarcelona } from "../barcelona/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
 import { buildPortugalMarkers, buildSpainMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
-import { writePublicationArtifactAtomic } from "../map/publish-artifact-io.mjs";
+import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
+import { loadValidatedArtifact } from "../publication-server/run.mjs";
+import {
+  DEFAULT_RETENTION_GRACE_MS,
+  annotateSourceProvenance,
+  extractRetainableMarkersForSource,
+  combineRetainedVenueMaps,
+  mergeRetainedMarkers,
+} from "../map/source-retention.mjs";
 import { acquireRunLock, releaseRunLock } from "./lock.mjs";
 import { buildHealthReport, writeHealthReport } from "./health-report.mjs";
 import { DEFAULT_MAX_ATTEMPTS, DEFAULT_RETRY_DELAY_MS } from "./retry.mjs";
@@ -129,8 +167,18 @@ export async function runUnattendedCycle(args = {}) {
   const root = args.root ?? ROOT;
   const runId = args.runId ?? randomUUID();
   const startedAt = new Date().toISOString();
+  // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: computed once, here, and
+  // reused for everything this run does — the published artifact's own
+  // `generated_at`, every source's `last_success_at` when this run
+  // succeeded, and the retention-grace "now" — rather than a second,
+  // slightly later timestamp computed just before writing (harmless
+  // previously, since nothing depended on the two ever differing; now
+  // load-bearing, since retention eligibility must be judged against the
+  // SAME instant the artifact itself claims to be generated at).
+  const generatedAt = startedAt;
   const acquire = args.acquireLisbonPorto ?? acquireLisbonPorto;
   const acquireSpain = args.acquireBarcelona ?? acquireBarcelona;
+  const retentionGraceMs = args.retentionGraceMs ?? DEFAULT_RETENTION_GRACE_MS;
 
   console.log(`[unattended] run ${runId} starting at ${startedAt}`);
 
@@ -148,6 +196,26 @@ export async function runUnattendedCycle(args = {}) {
       ...(args.isTransient ? { isTransient: args.isTransient } : {}),
     };
 
+    // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: read (never write) the
+    // previously published artifact BEFORE this run acquires/builds
+    // anything new — the ONLY source of last-known-good data this run may
+    // carry forward (see ingestion/map/source-retention.mjs's own doc
+    // comment: no second datastore). Re-validated with the SAME canonical
+    // validator the atomic writer itself enforces
+    // (ingestion/publication-server/run.mjs's loadValidatedArtifact(),
+    // reused unchanged) — a missing, unreadable, malformed, or
+    // schema-invalid previous artifact is never trusted; retention is
+    // simply unavailable this run (`previousArtifact` stays null), never a
+    // fatal error. This read happens strictly before
+    // writePublicationArtifactAtomic()'s own eventual atomic rename below,
+    // so it can never observe a partially-written file, and never risks
+    // this run corrupting the very data it might still need to read.
+    const previousArtifactResult = await loadValidatedArtifact({ artifactPath: resolvePublicationArtifactPath({ root }) });
+    const previousArtifact = previousArtifactResult.ok ? previousArtifactResult.artifact : null;
+    if (!previousArtifactResult.ok) {
+      console.log(`[unattended] no usable previous publication artifact for source-failure retention this run (${previousArtifactResult.error}) — proceeding with fresh data only`);
+    }
+
     const {
       lisbonRegistry,
       portoRegistry,
@@ -162,31 +230,52 @@ export async function runUnattendedCycle(args = {}) {
     // joins Portugal in the same recurring cycle, reusing acquireBarcelona()
     // exactly as `npm run publish:map-data` already does — never a second,
     // independently-drifting acquisition path. Wrapped in its own
-    // try/catch (see acquisitionFailureSource's own doc comment above):
-    // acquireBarcelona() does not accept a retryPolicy yet (a pre-existing
-    // limitation of ingestion/barcelona/run.mjs itself, not something this
-    // package changes), and if the call throws entirely, Barcelona simply
-    // publishes zero markers this run — Portugal's own already-acquired
-    // data is never lost because of it.
+    // try/catch (see acquisitionFailureSource's own doc comment above): if
+    // the call throws entirely (as opposed to one of its own per-source
+    // failures, already isolated one level down), Barcelona simply
+    // publishes zero FRESH markers this run — Portugal's own already-
+    // acquired data is never lost because of it (source-failure retention,
+    // below, can still fill in eligible Barcelona venues from the previous
+    // artifact even in this total-throw case, exactly as it would for any
+    // ordinary per-source failure).
+    //
+    // `retryPolicy` (BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01): the
+    // SAME bounded retry policy Portugal already receives above, now also
+    // given to Barcelona's own acquireAll() — closing a previously
+    // documented, pre-existing gap where Barcelona had no retry at all.
     let barcelonaRegistry = { entries: [] };
     let barcelonaResults;
     let barcelonaObservations;
     try {
-      ({ barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireSpain());
+      ({ barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireSpain({ retryPolicy }));
     } catch (error) {
       barcelonaResults = [acquisitionFailureSource("barcelona-acquisition", error)];
       barcelonaObservations = [];
       console.error(`[unattended] Barcelona acquisition failed entirely: ${error?.message ?? error} — publishing with zero Spain markers this run, Portugal unaffected`);
     }
 
-    const sourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
+    const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
     const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length;
-    const successCount = sourceResults.filter((result) => result.success).length;
+    const successCount = rawSourceResults.filter((result) => result.success).length;
+
+    // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: annotate every source
+    // result with durable last_success_at/retained_eligible provenance —
+    // see ingestion/map/source-retention.mjs's own doc comment. This is
+    // the ONE place `sourceResults` gains this annotation; everything
+    // downstream (health report, published source_report, the retention
+    // merge below) uses this SAME annotated array, never the raw one.
+    const sourceResults = annotateSourceProvenance({
+      sourceResults: rawSourceResults,
+      previousSourceReportSources: previousArtifact?.source_report?.sources ?? [],
+      generatedAt,
+      graceMs: retentionGraceMs,
+    });
 
     console.log(`[unattended] acquisition complete: ${successCount}/${sourceResults.length} sources succeeded, ${observationCount} observations`);
     for (const result of sourceResults) {
       if (!result.success) {
-        console.log(`[unattended]   FAILED ${result.source_id} after ${result.attempts ?? 1} attempt(s): ${result.error}`);
+        const graceNote = result.retained_eligible ? " — RETAINING last-known-good data (within 24h grace)" : result.last_success_at ? " — grace expired, no retention" : " — never observed to succeed, no retention";
+        console.log(`[unattended]   FAILED ${result.source_id} after ${result.attempts ?? 1} attempt(s): ${result.error}${graceNote}`);
       } else if (result.attempts > 1) {
         console.log(`[unattended]   ${result.source_id} succeeded after ${result.attempts} attempt(s) (retried)`);
       }
@@ -229,31 +318,64 @@ export async function runUnattendedCycle(args = {}) {
       artistRegistry: artistRegistry.artists,
       artistLinks: artistLinks.links,
     });
+
+    // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: fill in eligible
+    // last-known-good venues for every source that FAILED this run but is
+    // still within its 24-hour grace (retained_eligible, computed above) —
+    // reusing the previous artifact read at the very top of this function,
+    // never a second acquisition or a second datastore. A run with no
+    // usable previous artifact, or with no retained-eligible sources at
+    // all, leaves portugalMarkers/spainMarkers completely untouched here
+    // (mergeRetainedMarkers is a no-op for an empty/absent retained-venues
+    // map — see that function's own doc comment).
+    const retainedEligibleSourceIds = sourceResults.filter((result) => result.retained_eligible).map((result) => result.source_id);
+    const todayDateString = generatedAt.slice(0, 10);
+    const combinedRetainedVenues = previousArtifact
+      ? combineRetainedVenueMaps(
+          retainedEligibleSourceIds.map((sourceId) => extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString })),
+        )
+      : new Map();
+
+    if (combinedRetainedVenues.size > 0) {
+      console.log(
+        `[unattended] retaining ${combinedRetainedVenues.size} venue(s) worth of last-known-good data across ${retainedEligibleSourceIds.length} failed-but-in-grace source(s): ${retainedEligibleSourceIds.join(", ")}`,
+      );
+    }
+
+    const retainedPortugalVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Portugal"));
+    const retainedSpainVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Spain"));
+    const mergedPortugalMarkers = mergeRetainedMarkers(portugalMarkers, retainedPortugalVenues);
+    const mergedSpainMarkers = mergeRetainedMarkers(spainMarkers, retainedSpainVenues);
+
+    // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: every count/validation/
+    // publication step from here on uses the MERGED (fresh + eligible
+    // retained) marker lists — `portugalMarkers`/`spainMarkers` themselves
+    // are never referenced again below this point, only their merged
+    // counterparts.
     const displayListingCount =
-      portugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
-      spainMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
-    const mapMarkerCount = portugalMarkers.length + spainMarkers.length;
+      mergedPortugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
+      mergedSpainMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+    const mapMarkerCount = mergedPortugalMarkers.length + mergedSpainMarkers.length;
 
     const catastrophic = isCatastrophicPublicationRun({
       sourceSuccessCount: successCount,
-      portugalMarkerCount: portugalMarkers.length,
-      spainMarkerCount: spainMarkers.length,
+      portugalMarkerCount: mergedPortugalMarkers.length,
+      spainMarkerCount: mergedSpainMarkers.length,
     });
 
     let publicationStatus;
     if (catastrophic) {
       publicationStatus = { succeeded: false, reason: "CATASTROPHIC_RUN" };
       console.error(
-        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${portugalMarkers.length} Portugal + ${spainMarkers.length} Spain map marker(s)) — preserving the previous public artifact untouched`,
+        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain map marker(s)) — preserving the previous public artifact untouched`,
       );
     } else {
-      const generatedAt = new Date().toISOString();
       const artifact = buildPublicationArtifact({
         generatedAt,
         from: args.from ?? null,
         to: args.to ?? null,
-        portugalMarkers,
-        spainMarkers,
+        portugalMarkers: mergedPortugalMarkers,
+        spainMarkers: mergedSpainMarkers,
         sourceResults,
         observationCount,
         artistRegistry: artistRegistry.artists,
