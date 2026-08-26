@@ -18,6 +18,7 @@ which this package deliberately does not close).
 | `check-deploy-tree.sh` | explicit pre-checkout working-tree reconciliation — see "Runtime artifact vs pinned deployment" below |
 | `systemd/botm-unattended.service` | `oneshot` unit running one `npm run unattended` cycle |
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
+| `systemd/botm-publication.service` | long-running `npm run serve:map-data` unit — installed, enabled, and restarted by `install.sh` on every deploy (see "Publication service lifecycle" below) |
 
 ## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
 
@@ -148,7 +149,50 @@ reinstalls dependencies deterministically (`npm ci --omit=dev` — the
 collector needs none of this repo's devDependencies, which exist only for
 `npm test`/`npm run lint`/`npm run build`, none of which this script or
 the timer ever run on the server), reinstalls the systemd unit files, and
-reloads systemd. It does **not** touch the timer's enabled/running state.
+reloads systemd. It does **not** touch `botm-unattended.timer`/`.service`'s
+enabled/running state (see "Live deployment sequence" below for that
+deliberate manual gate) — but it **does** unconditionally enable and
+restart `botm-publication.service` on every run; see "Publication service
+lifecycle" below for why that unit is handled differently.
+
+## Publication service lifecycle (`BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01`)
+
+`botm-publication.service` (`ingestion/publication-server/run.mjs`, `npm
+run serve:map-data`) is a small, long-running Node process — the one thing
+that actually answers `https://data.beatmapped.com/{health,map-data}` for
+real visitors. Unlike `botm-unattended.service` (a bounded `oneshot` that
+re-spawns fresh from whatever is on disk every time it runs), a
+long-running process stays resident in memory for as long as it runs, and
+**Node.js does not hot-reload ES modules** — so once `install.sh` checks
+out new code underneath it, the already-running process keeps serving
+requests with whatever logic (including schema-validation logic) was
+loaded at its own last start, silently drifting from the code actually on
+disk. This was a real, observed production incident: a schema change that
+made Spain-aware publication artifacts valid was deployed, but the
+still-running old process kept rejecting them with its old, single-country
+validation rule, returning `502` to every visitor.
+
+`install.sh` now closes this gap as one of its own ordinary steps, after
+code and dependencies are in place and ownership is fixed:
+
+1. `systemctl enable botm-publication.service` — idempotent; ensures this
+   unit survives a host reboot (unlike the unattended timer, there is no
+   "prove one run first" reason to leave this one un-enabled — it is
+   stateless and safe to be always-on).
+2. `systemctl restart botm-publication.service` — **not** `start`:
+   `restart` is what actually forces an already-running process to reload
+   the code just deployed; `start` alone would silently do nothing if the
+   service was already active. Safe and idempotent either way — if the
+   service was not already running, this starts it fresh.
+3. A short, bounded `systemctl is-active` retry loop confirms the service
+   actually came back up. If it did not (crash-looping on the new code, a
+   port conflict, etc.), `install.sh` exits non-zero and prints the
+   `systemctl status`/`journalctl` commands to investigate — a failed
+   restart is never silently swallowed.
+
+This does not change the timer's cadence, does not add a second
+publication service, and does not touch `botm-unattended.service`/`.timer`'s
+own deliberately-manual enable step described below.
 
 ## Live deployment sequence (do this in order)
 

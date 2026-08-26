@@ -120,18 +120,120 @@ test("install.sh: requires root/sudo before mutating system state", async () => 
   assert.match(script, /id -u.*-ne 0/);
 });
 
-test("install.sh: does NOT enable or start the timer itself — that is a separate, deliberate manual step", async () => {
+test("install.sh: does NOT enable or start the unattended timer/service itself — that is a separate, deliberate manual step", async () => {
   const script = await readDeployFile("install.sh");
   // The script prints instructions (inside a `cat <<EOF ... EOF` heredoc)
   // that MENTION the enable command as the operator's next manual step —
   // that mention is fine. What must never exist is an actually-executed
-  // `systemctl enable --now ...` line, i.e. one appearing in the script
-  // BEFORE the heredoc marker that only prints text.
+  // `systemctl enable ... botm-unattended...` line, i.e. one appearing in
+  // the script BEFORE the heredoc marker that only prints text.
+  //
+  // BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01: this is
+  // deliberately scoped to botm-unattended specifically now, not to
+  // "systemctl enable" as a whole — install.sh now DOES enable
+  // botm-publication.service unconditionally (a distinct, long-running
+  // unit; see the dedicated tests below for why that divergence is
+  // intentional and safe), while continuing to leave
+  // botm-unattended.service/.timer exactly as before: installed/reloaded,
+  // never enabled/started by this script.
   const heredocStart = script.indexOf("cat <<EOF");
   assert.ok(heredocStart > -1, "expected the script to print next-step instructions via a heredoc");
   const executableBody = script.slice(0, heredocStart);
-  assert.doesNotMatch(executableBody, /systemctl enable/, "install.sh must never itself enable the timer — only print it as the operator's next manual step");
-  assert.match(script, /does NOT enable or start the timer/);
+  assert.doesNotMatch(
+    executableBody,
+    /systemctl enable[^\n]*botm-unattended/,
+    "install.sh must never itself enable the unattended timer/service — only print it as the operator's next manual step",
+  );
+  assert.doesNotMatch(
+    executableBody,
+    /systemctl (start|restart)[^\n]*botm-unattended\.timer/,
+    "install.sh must never itself start/restart the unattended timer",
+  );
+  assert.match(script, /NOT enabled\/started/);
+});
+
+// --- BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01: publication service restart ---
+
+test("install.sh: installs the repo-controlled botm-publication.service unit alongside the other two", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.match(
+    script,
+    /install -m 0644 "\$APP_DIR\/deploy\/systemd\/botm-publication\.service" \/etc\/systemd\/system\/botm-publication\.service/,
+  );
+});
+
+test("install.sh: installs all three unit files, then daemon-reloads, before restarting anything", async () => {
+  const script = await readDeployFile("install.sh");
+  // Use the EXECUTED lines only — the script's own header doc-comment
+  // (lines ~41-42) mentions "systemd unit files ... systemctl daemon-reload"
+  // in prose describing what the script does, which would otherwise be
+  // found first by a naive indexOf and make this ordering check meaningless.
+  const executableLines = script
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
+  const unattendedServiceIdx = executableLines.indexOf('install -m 0644 "$APP_DIR/deploy/systemd/botm-unattended.service"');
+  const unattendedTimerIdx = executableLines.indexOf('install -m 0644 "$APP_DIR/deploy/systemd/botm-unattended.timer"');
+  const publicationIdx = executableLines.indexOf('install -m 0644 "$APP_DIR/deploy/systemd/botm-publication.service"');
+  const daemonReloadIdx = executableLines.indexOf("systemctl daemon-reload");
+  const restartIdx = executableLines.indexOf("systemctl restart botm-publication.service");
+
+  for (const idx of [unattendedServiceIdx, unattendedTimerIdx, publicationIdx, daemonReloadIdx, restartIdx]) {
+    assert.ok(idx > -1, "expected to find every install/reload/restart step in install.sh");
+  }
+  assert.ok(unattendedServiceIdx < daemonReloadIdx, "unit install must precede daemon-reload");
+  assert.ok(unattendedTimerIdx < daemonReloadIdx, "unit install must precede daemon-reload");
+  assert.ok(publicationIdx < daemonReloadIdx, "publication unit install must precede daemon-reload");
+  assert.ok(daemonReloadIdx < restartIdx, "daemon-reload must happen before the publication service is restarted");
+});
+
+test("install.sh: restarts botm-publication.service unconditionally (systemctl restart, not merely start) after code/deps are in place", async () => {
+  const script = await readDeployFile("install.sh");
+  const npmCiIdx = script.indexOf("npm ci --omit=dev");
+  const chownIdx = script.indexOf("chown -R");
+  const restartIdx = script.indexOf("systemctl restart botm-publication.service");
+  assert.ok(restartIdx > -1, "expected an unconditional `systemctl restart botm-publication.service`");
+  assert.ok(restartIdx > npmCiIdx, "the publication service must be restarted AFTER new dependencies are installed");
+  assert.ok(restartIdx > chownIdx, "the publication service must be restarted AFTER ownership is fixed to the botm user");
+  // `restart` (not `start`) is required: `start` would silently do nothing
+  // if the service was already running old code, defeating the entire
+  // point of this fix (Node.js never hot-reloads ES modules).
+  assert.doesNotMatch(script, /systemctl start botm-publication\.service/);
+});
+
+test("install.sh: enables botm-publication.service so it survives a reboot, unlike the unattended timer's deliberate manual gate", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.match(script, /systemctl enable botm-publication\.service/);
+});
+
+test("install.sh: verifies the publication service actually came back active, and fails the deployment loudly if it did not", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.match(script, /systemctl is-active --quiet botm-publication\.service/);
+  // The check must be a real gate that can abort the script — i.e. an
+  // `exit 1` reachable from a failed check — never merely logged/ignored.
+  const checkIdx = script.indexOf("systemctl is-active --quiet botm-publication.service");
+  const nextExit1Idx = script.indexOf("exit 1", checkIdx);
+  assert.ok(nextExit1Idx > -1 && nextExit1Idx - checkIdx < 1000, "expected a nearby `exit 1` gating on the active-check result");
+  // Must not be swallowed by an `|| true`-style suppression.
+  assert.doesNotMatch(script, /systemctl is-active --quiet botm-publication\.service\s*\|\|\s*true/);
+});
+
+test("install.sh: does not add a second publication service or a new timer/scheduler", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.doesNotMatch(script, /botm-publication-2|botm-publication-v2|new.{0,20}timer/i);
+  const publicationMentions = (script.match(/botm-publication\.service/g) ?? []).length;
+  assert.ok(publicationMentions >= 3, "expected botm-publication.service referenced by install, restart, and verify steps only");
+});
+
+test("install.sh: no Berlin-specific deployment behaviour is introduced", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.doesNotMatch(script, /berlin/i);
+});
+
+test("install.sh: explicit --ref SHA-pinning behaviour is unchanged by the publication-service fix", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.match(script, /ERROR: --ref=<git-sha-or-tag> is required/);
+  assert.match(script, /git .*checkout --detach "?\$REF"?/);
 });
 
 // --- no embedded credentials/hosts anywhere in the deployment assets ---

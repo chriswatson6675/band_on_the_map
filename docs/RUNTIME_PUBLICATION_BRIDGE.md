@@ -119,14 +119,25 @@ Configuring a live deployment in future requires **only** supplying
 `NEXT_PUBLIC_BOTM_MAP_DATA_URL` in Netlify's environment settings and
 rebuilding once -- no further code change.
 
-## Systemd preparation (not installed)
+## Systemd lifecycle (`BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01`)
 
 `deploy/systemd/botm-publication.service` is a repo-controlled,
 long-running unit (unlike the `oneshot` collector,
 `deploy/systemd/botm-unattended.service`) for the publication service --
 same restricted `botm` service user, same `WorkingDirectory=/opt/
 band-on-the-map`, `Restart=on-failure`, no root, logs via `journalctl`.
-It is **not** installed, enabled, or started by this package.
+
+It was not installed/enabled/started by the original runtime-publication-
+bridge package that authored this file. It **is** now installed, enabled,
+and restarted by `deploy/install.sh` on every deployment -- see
+`deploy/README.md`'s "Publication service lifecycle" section for the full
+rationale, which exists specifically because Node.js does not hot-reload
+ES modules: a long-running process left un-restarted after a code deploy
+keeps serving stale in-memory logic indefinitely, which is exactly what
+happened in production before this fix (a validator that pre-dated
+Spain-aware publication artifacts kept rejecting genuinely valid combined
+Portugal+Spain artifacts with `502`, even though the correct code was
+already on disk).
 
 ## HTTPS boundary
 
