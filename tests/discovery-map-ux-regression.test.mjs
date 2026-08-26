@@ -63,6 +63,15 @@ import { buildVenueFeatureCollection, sumGigCounts } from "../ingestion/map/clus
 // site answers a live run — exactly the same "assert whatever is
 // currently committed, not a number independently guessed at" rule this
 // file has followed since BOTM-CCB-MANUAL-COORDINATE-01.
+//
+// BEATMAPPED-BARCELONA-PR-REVIEW-AND-INTEGRATE-01 regenerated the
+// artifact once more (2026-08-26T12:26:28.325Z), immediately before PR
+// review/merge, specifically to recheck CCB: this run's `npm run
+// publish:map-data` reported 37/37 sources succeeded, 0 failed — CCB's
+// own endpoint recovered, so Portugal is back to its normal 13 (44 total
+// markers: 13 Portugal + 31 Spain; 1454 display listings; 1503
+// observations). The conditional CCB coordinate test below now exercises
+// its real assertion again rather than skipping.
 
 const PUBLICATION_PATH = new URL("../data/public/lisbon-porto-map.json", import.meta.url);
 
@@ -76,21 +85,21 @@ test("the committed publication artifact is still valid per its own schema/cross
   assert.deepEqual(errors, []);
 });
 
-test("baseline preserved: 1444 total display listings (Portugal + Spain combined — see this file's own header comment for the CCB-outage caveat on Portugal's count this run)", async () => {
+test("baseline preserved: 1454 total display listings (Portugal + Spain combined)", async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.display_listing_count, 1444);
+  assert.equal(artifact.counts.display_listing_count, 1454);
 });
 
-test("baseline preserved: 43 total venue markers (12 Portugal + 31 Spain — see header comment: Portugal is 12 not 13 only because CCB's own site was unreachable during this verification run)", async () => {
+test("baseline preserved: 44 total venue markers (13 Portugal + 31 Spain)", async () => {
   const artifact = await loadPublication();
-  assert.equal(artifact.counts.map_marker_count, 43);
+  assert.equal(artifact.counts.map_marker_count, 44);
   const portugalMarkers = artifact.countries.Portugal.markers;
-  assert.equal(portugalMarkers.length, 12);
+  assert.equal(portugalMarkers.length, 13);
   const spainMarkers = artifact.countries.Spain.markers;
   assert.equal(spainMarkers.length, 31);
 });
 
-test("all 12 underlying Portugal venue markers are recoverable/separable — the clustering UI never drops data, only visually combines it at wide zoom", async () => {
+test("all 13 underlying Portugal venue markers are recoverable/separable — the clustering UI never drops data, only visually combines it at wide zoom", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   const fc = buildVenueFeatureCollection(portugalMarkers);
@@ -98,9 +107,9 @@ test("all 12 underlying Portugal venue markers are recoverable/separable — the
   // ADDRESS_ONLY + MANUAL_OPERATOR_ENTRY) coordinate, so every one of
   // them becomes exactly one clusterable/unclusterable GeoJSON point
   // feature — none silently dropped by the clustering layer.
-  assert.equal(fc.features.length, 12);
+  assert.equal(fc.features.length, 13);
   const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
-  assert.equal(venueIds.size, 12);
+  assert.equal(venueIds.size, 13);
 });
 
 test("CCB's marker, when present, uses exactly the operator-supplied coordinate pair, not a rounded/geocoded substitute", async () => {
