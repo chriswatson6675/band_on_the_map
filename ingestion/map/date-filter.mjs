@@ -59,3 +59,39 @@ export function filterMarkersByDateRange(markers, from, to) {
   if (!from && !to) return markers ?? [];
   return filterMarkersByListingPredicate(markers, (listing) => listingWithinDateRange(listing, from, to));
 }
+
+// BAND-ON-THE-MAP-BARCELONA-PRE-INTEGRATION-DATE-AUDIT-01 — the default
+// lower bound app/page.tsx applies to the "From" field ITSELF (never to
+// this module's own filterMarkersByDateRange/listingWithinDateRange,
+// whose "empty bound == unbounded" contract above stays exactly as
+// documented and tested).
+//
+// Before this package, `fromDate` started as "" and nothing ever
+// changed it unless the visitor touched a Quick dates button or the From
+// input directly — so a real visitor's FIRST view of the map (before any
+// interaction) applied no lower bound at all, and a venue with clearly
+// expired listings (e.g. a source that still lists last week's gig)
+// rendered them identically to a genuinely upcoming one, both in the pin
+// count and the venue panel. That is the exact "expired event
+// accidentally entering the current public-facing map dataset" defect
+// this task's audit was asked to check for — confirmed present for
+// Portugal (already-live) and would have been inherited unchanged by
+// Spain the moment it is wired into this page's country selector.
+//
+// The fix is at THIS layer, not in the artifact or in Observations: the
+// publication artifact and every Observation genuinely SHOULD keep
+// carrying full history (proof/evidence, "Quick dates"/From letting a
+// visitor deliberately look backward, a future analytics surface, etc.)
+// — see docs/BARCELONA_PRE_INTEGRATION_DATE_AUDIT_01.md. Only the
+// visitor's DEFAULT view needed narrowing.
+//
+// `currentFromDate` is returned completely unchanged whenever it is
+// already non-empty — an explicit value (typed by the visitor, or set by
+// a Quick dates preset) is always respected exactly as before; this
+// function only ever supplies a floor for the genuinely-untouched ""
+// starting state. A listing with a genuinely unknown start.date is,
+// exactly as always, never affected by any From/To bound at all (see
+// listingWithinDateRange's own doc comment above).
+export function resolveDefaultFromDate(currentFromDate, todayDateString) {
+  return currentFromDate || todayDateString;
+}
