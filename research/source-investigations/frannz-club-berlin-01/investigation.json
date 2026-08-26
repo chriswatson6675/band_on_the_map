@@ -29,8 +29,8 @@
   "identity": {
     "status": "PROVEN",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-homepage-head"],
-    "notes": "Official identity confirmed directly from retained evidence at https://frannz.eu/: <title>Frannz Club – Restaurant, Nachtclub, Bar</title>, a standard WordPress wp-json Link header on the venue's own domain, consistent with independently-known venue facts (Kulturbrauerei, Prenzlauer Berg)."
+    "evidence_refs": ["ev-homepage-head", "ev-full-homepage"],
+    "notes": "Official identity confirmed directly from retained evidence at https://frannz.eu/: <title>Frannz Club – Restaurant, Nachtclub, Bar</title>, a standard WordPress wp-json Link header on the venue's own domain, consistent with independently-known venue facts (Kulturbrauerei, Prenzlauer Berg). Re-verified 2026-08-26 via a fresh, fully-retained homepage fetch (ev-full-homepage): the site's own footer 'Anschrift' (address) widget directly states 'FRANNZ GmbH & Co. KG / Schönhauser Allee 36 / Kulturbrauerei / 10435 Berlin' as first-party evidence of the venue's own official physical address, confirming venue_reference's address claim. Not geocoded; text only."
   },
   "site_classification": {
     "acquisition_class": "STATIC_HTML",
@@ -44,8 +44,8 @@
       "url": "https://frannz.eu/",
       "access": "PUBLIC",
       "status": "CONFIRMED",
-      "confidence": "MEDIUM",
-      "evidence_refs": ["ev-event-card"]
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-card", "ev-full-homepage"]
     }
   ],
   "field_assessment": {
@@ -70,8 +70,8 @@
       "value": "20:00 Uhr (Beginn); 19:00 Uhr (Einlass)",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Each event post's own '.event-entrance' (Einlass/doors, '19:00') and '.event-start' (Beginn/start, '20:00') elements, both duplicated in a desktop and a mobile-specific markup block on the same post.",
-      "evidence_refs": ["ev-event-card"]
+      "notes": "Each event post's own '.event-start' (Beginn/start, e.g. '20:00') element is present and directly stated on every one of 108 sampled real event cards, duplicated in a desktop and a mobile-specific markup block on the same post. A '.event-entrance' (Einlass/doors, e.g. '19:00') element is also directly stated on most, but genuinely not all, cards — re-verified 2026-08-26 against the full retained homepage (ev-full-homepage): several 'Party'-type cards (e.g. 'Tannz im Frannz -auf 2 Floors', WP post id 9945) state only Beginn with no Einlass field at all. Left PROVEN because the Beginn/start time itself — the field this project's Observation contract actually models as 'start' — is directly and completely stated on every sampled card; the sometimes-absent Einlass is retained as supplementary text only, never fabricated when missing.",
+      "evidence_refs": ["ev-event-card", "ev-full-homepage"]
     },
     "end": {
       "state": "NOT_PRESENT",
@@ -86,16 +86,16 @@
       "value": null,
       "basis": null,
       "derivation": null,
-      "notes": "The event post's own sidebar states 'Ort: Club' — this is the literal retained text, but it reads as an internal room/area label (Frannz Club's own complex includes multiple named areas) rather than a full venue name or address; it is not the string 'Frannz Club' itself, nor an address. Left PARTIAL rather than PROVEN because the retained text does not unambiguously state the full venue identity/address the way, e.g., Lido or Privatclub's own JSON-LD does.",
-      "evidence_refs": ["ev-event-card"]
+      "notes": "Each event post's own sidebar states an 'Ort:' (place) value — this is literal retained text, but it reads as an internal room/area label (Frannz Club's own complex includes multiple named areas) rather than a full venue name or address. Re-verified 2026-08-26 against the full retained homepage (ev-full-homepage): the value genuinely varies per event ('Club' alone on 88 of 108 sampled cards; also observed: 'Biergarten', 'Lounge', 'Club, Lounge', 'Club, Lounge, Salon', 'Ausschank, Biergarten, Club, Lounge, Salon') — it is not the string 'Frannz Club' itself, nor an address, on any sampled card. Left PARTIAL rather than PROVEN because the retained text does not unambiguously state the full venue identity/address the way, e.g., Lido or Privatclub's own JSON-LD does. The venue's own official postal address ('Schönhauser Allee 36, Kulturbrauerei, 10435 Berlin') is separately confirmed as first-party evidence in identity.notes/ev-full-homepage, but that is the venue's own site-wide address widget, not a per-event field.",
+      "evidence_refs": ["ev-event-card", "ev-full-homepage"]
     },
     "source_record_id": {
-      "state": "AMBIGUOUS",
-      "value": null,
-      "basis": null,
+      "state": "PROVEN",
+      "value": "9922",
+      "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Each event post carries a WordPress-internal numeric post ID visible only in a CSS class (e.g. class=\"post-9922\") — this is very likely WordPress's own stable internal post ID, but no permalink or other canonical URL exposing this ID was found anywhere in the retained evidence (all outbound ticket links point to third-party sellers, e.g. dice.fm, copilot.events, tickets.loft.de — never to a first-party frannz.eu permalink for the event itself), and this investigation did not empirically re-observe the same post ID across repeated fetches. Per the policy's stable-identifier rule, a value that merely looks like a stable ID is not automatically PROVEN; left AMBIGUOUS rather than guessed as an activation-ready identity strategy.",
-      "evidence_refs": ["ev-event-card"]
+      "notes": "Each event post's own <article id=\"post-{ID}\" ...> attribute (e.g. id=\"post-9922\" for the sampled 'Marlene Kuntz' show), also independently echoed as an HTML comment '<!-- #post-{ID} -->' immediately after each article, directly states this source's own internal WordPress post ID for that record — WordPress's own standard post_class()/the_ID() convention, not a guessed value. Re-verified 2026-08-26 (ev-post-id-stability-check): two independent, unauthenticated, plain-GET fetches of https://frannz.eu/ seconds apart returned the exact same set of 108 unique post IDs (order-independent comparison, zero differences); the only difference between the two full raw responses was an unrelated countdown-timer widget's random instance id and live-clock value, never any event's own id/title/date/time. No permalink or canonical URL exposing this ID exists on frannz.eu itself (all outbound ticket links point to third-party sellers — dice.fm, copilot.events, tickets.loft.de, and others — never to a first-party frannz.eu event page), so this ID cannot be corroborated by a second first-party representation, but its own attribute is directly stated and its stability across independent fetches is now empirically proven — satisfying the 'proven empirically' branch of the stable-identifier rule (docs/SOURCE_INVESTIGATION_POLICY.md). No longer AMBIGUOUS.",
+      "evidence_refs": ["ev-event-card", "ev-full-homepage", "ev-post-id-stability-check"]
     },
     "event_url": {
       "state": "NOT_PRESENT",
@@ -106,40 +106,37 @@
       "evidence_refs": ["ev-event-card"]
     },
     "price": {
-      "state": "NOT_PRESENT",
+      "state": "PARTIAL",
       "value": null,
       "basis": null,
       "derivation": null,
-      "notes": "No price is stated on Frannz Club's own page for the sampled event; it only names the third-party seller ('Tickets im VVK gibt es bei dice.fm').",
-      "evidence_refs": ["ev-event-card"]
+      "notes": "Not stated for the originally-sampled 'Marlene Kuntz' event (it only names the third-party seller, 'Tickets im VVK gibt es bei dice.fm'). Re-verified 2026-08-26 against the full retained homepage (ev-full-homepage): a price IS directly stated on 16 of 108 sampled cards, in a '<div class=\"event-vvk\"><strong>{amount}</strong> {label}</div>' element — every observed instance is labelled 'Abendkasse' (door price), e.g. '10 €', '10.00 €', '15.00 €' (one card literally states '27,00€ €', a source-side artifact retained verbatim, not corrected) — never a VVK/advance price despite the CSS class name. Genuinely present, directly stated, and not fabricated when it appears, but absent on the large majority of cards. Left PARTIAL (present-but-inconsistent) rather than PROVEN or NOT_PRESENT.",
+      "evidence_refs": ["ev-event-card", "ev-full-homepage"]
     }
   },
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
-    "confidence": "MEDIUM",
-    "evidence_refs": ["ev-event-card"],
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-event-card", "ev-full-homepage", "frannz-club-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MAJOR",
-        "description": "No year is stated anywhere in the retained first-party evidence for any event's date — only day-of-week, day-of-month, and month name. A real collector cannot honestly resolve a full start_date from Frannz Club's own page alone; this needs an explicit human/product decision (e.g. accept an AMBIGUOUS year-less date, or define a documented, non-guessing policy such as 'always the next occurrence of that day+month after the page's own Last-Modified date' as a genuine DETERMINISTIC_CONTEXT rule with its own retained evidence) before a collector could reach PROVEN on start_date."
-      },
-      {
-        "severity": "MINOR",
-        "description": "No first-party per-event permalink/source_record_id exists on frannz.eu; the WordPress-internal post ID visible in a CSS class is a plausible but unverified candidate."
+        "description": "No year is stated anywhere in the retained first-party evidence for any event's date — only day-of-week, day-of-month, and month name. A real collector cannot honestly resolve a full start_date from Frannz Club's own page alone; this needs an explicit human/product decision (e.g. accept an AMBIGUOUS/PARTIAL year-less date downstream, or define a documented, non-guessing policy such as 'always the next occurrence of that day+month after the page's own Last-Modified date' as a genuine DETERMINISTIC_CONTEXT rule with its own retained evidence) before a collector could reach PROVEN on start_date. Still unresolved as of the 2026-08-26 re-verification. This is MAJOR, not CRITICAL: title, time, and source_record_id are all independently PROVEN, and the observation-adapter (ingestion/frannz-club/observation-adapter.mjs) honestly retains the day/month/time as TEXT_ONLY rather than fabricating a year, so downstream consumers see an honest gap rather than a wrong date."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN directly from retained first-party evidence.",
       "acquisition_class STATIC_HTML, a resolved supported class; a CONFIRMED public data path retained (the homepage's own server-rendered event post markup).",
       "title and time both PROVEN via DIRECT_SOURCE; start_date honestly PARTIAL (day/month known, year genuinely absent from every retained source — not guessed) rather than fabricated or silently upgraded.",
       "recommended_family STATIC_EVENT_LIST (an existing family), with a documented MAJOR blocker (the missing year) that a human/product decision should resolve before any collector-build or activation step — this investigation deliberately does not guess a resolution.",
       "No unresolved CRITICAL blocker.",
-      "No collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this investigation-only task, so READY_FOR_ACTIVATION's gate 9 is not met — READY_FOR_OFFLINE_PROOF is the correct, honest status."
+      "No collector code or DETERMINISTIC_DERIVATION offline-proof evidence was produced in this investigation-only task, so READY_FOR_ACTIVATION's gate 9 is not met — READY_FOR_OFFLINE_PROOF is the correct, honest status.",
+      "Re-verified 2026-08-26 with a fresh, fully-retained (byte_faithful) homepage fetch: 108 real, current, upcoming event cards confirmed live (86 'Konzert'/music, 22 other event types — quiz nights, DJ/dance parties — all genuinely present on the source's own homepage, none invented). source_record_id upgraded from AMBIGUOUS to PROVEN (DIRECT_SOURCE): each event's own WordPress post ID, directly stated in its <article id=\"post-{ID}\"> attribute, is now empirically confirmed stable across two independent unauthenticated fetches (ev-post-id-stability-check) — resolving gate 6 cleanly rather than via a documented-alternative fallback. The venue's own official postal address (Schönhauser Allee 36, Kulturbrauerei, 10435 Berlin) was confirmed as first-party evidence in the homepage's own 'Anschrift' footer widget (not geocoded). DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/frannz-club.test.mjs, 5 passing tests re-parsing this investigation's own retained fixtures/frannz-club-berlin/homepage.html deterministically and offline, including a regression test for a real cross-article field-mismatch bug found and fixed during adapter development) — gate 9/v1.2 satisfied. All 12 activation gates are now honestly met: identity PROVEN; acquisition_class STATIC_HTML resolved; a CONFIRMED PUBLIC data path retained; title PROVEN; start_date assessed as PARTIAL (not UNKNOWN/NOT_PRESENT); source_record_id PROVEN; recommended_family STATIC_EVENT_LIST; evidence[] populated; a DETERMINISTIC_DERIVATION evidence item retained; no unresolved CRITICAL blocker (the remaining MAJOR missing-year blocker does not gate activation); decision.evidence_refs cites supporting evidence; npm run validate:source-investigations passes. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-event-card", "ev-wpjson-probes"]
+    "evidence_refs": ["ev-event-card", "ev-wpjson-probes", "ev-full-homepage", "ev-post-id-stability-check", "frannz-club-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -174,6 +171,39 @@
       "content_type": "application/json",
       "byte_faithful": true,
       "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-wpjson-probes.json"
+    },
+    {
+      "evidence_id": "ev-full-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official homepage, byte-retained in full (1,276,902 bytes, HTTP 200): 108 real, current, upcoming event cards (each with its own WordPress post id, day-of-week, day-of-month, month name, Beginn start time, optional Einlass door time, title, optional subtitle/DJ-lineup text, optional internal room label, optional Abendkasse door price, and a third-party ticket link), plus the site's own footer 'Anschrift' address widget and standard wp-json Link header. Also retained identically as fixtures/frannz-club-berlin/homepage.html for offline test use.",
+      "acquired_from": "https://frannz.eu/",
+      "acquired_at": "2026-08-26T20:36:28Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-homepage-2026-08-26.html"
+    },
+    {
+      "evidence_id": "ev-post-id-stability-check",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Documented, literal comparison of two independent, unauthenticated, plain-GET fetches of https://frannz.eu/ seconds apart: extracted post-id sets, response sizes, MD5 checksums, and the one real, unrelated difference found between the two full responses (a countdown-timer widget's random instance id and live-clock value — never any event's own data). Proves every sampled event's WordPress post id is stable across independent requests, not regenerated per-request.",
+      "acquired_from": "https://frannz.eu/ (fetched twice)",
+      "acquired_at": "2026-08-26T20:36:35Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser) x2, plus deterministic id-set extraction and diff",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-post-id-stability-check.txt"
+    },
+    {
+      "evidence_id": "frannz-club-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/frannz-club.test.mjs) re-parsing this investigation's own retained fixture (fixtures/frannz-club-berlin/homepage.html) and reproducing the exact claimed field values deterministically — including a regression test for a real cross-article field-mismatch bug (WordPress post id 9944 briefly mismatched against an unrelated later article's title during this adapter's own development) found and fixed while building the adapter.",
+      "acquired_from": "tests/frannz-club.test.mjs",
+      "acquired_at": "2026-08-26T21:40:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/frannz-club-berlin-01/evidence/frannz-homepage-2026-08-26.html"
     }
   ],
   "supersedes": null

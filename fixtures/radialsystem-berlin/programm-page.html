@@ -1,0 +1,3885 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Radialsystem - Calendar</title>
+<meta name="description" content="Radialsystem - Calendar" />
+
+  <meta property="og:image" content="https://www.radialsystem.de/en/site/templates/img/logo.svg" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Radialsystem - Calendar" />
+
+<link rel='stylesheet' type='text/css' href='/site/modules/MarkupCookieConsent/MarkupCookieConsent.min.css' /><link rel="stylesheet" href="/site/assets/aiom/css_4387732a94ea11ffcd41b5fe768db8f6.css">
+
+
+
+<style>
+
+:root {
+  --black: #000000;
+  --disabled-date: #7F7F7F;
+  --disabled-date-alt: #cccccc;
+
+  --fallback: #ff0000;
+
+      --neongrun-q1-2022: #00ff00;
+      --hellblau-q1-2022: #00ffd2;
+      --gelb-q1-2022: #ffff00;
+      --pink-q1-2022: #ff00ff;
+      --rosa-q2-2022: #ff6699;
+      --gelb-q2-2022: #ffff00;
+      --violett-q2-2022: #dd00e3;
+      --ocker-q2-2022: #ad972e;
+      --gelb-2-q2-2022: #ffec00;
+      --magnet-q2-2022: #c4007a;
+      --hellgelb-q3-2022: #ffffcc;
+      --mint-q3-2022: #ccffcc;
+      --hellblau-q3-2022: #ccffff;
+      --violett-q4-2022: #9966ff;
+      --januar-q1-2023: #ff3333;
+      --februar-q1-2023: #cc6699;
+      --neongrun-marz-q1-2023: #00ff00;
+      --grun-april-q2-2023: #009999;
+      --blau-mai-q2-2023: #66ccff;
+      --rot-juni-q2-2023: #cc0000;
+      --violett-juli-q3-2023: #9900ff;
+      --august-orange-q3-2023: #ff6600;
+      --oktober_2023: #cccc33;
+      --november-q4-2023: #e94840;
+      --dezember-q4-2024: #00ff10;
+      --2024_q1_01_magenta: #ff33ff;
+      --2024_02_gelb: #ffcc00;
+      --2024_03_burnt_orange: #ff6600;
+      --2024_04_lila: #9900ff;
+      --2024_05_light_orange: #ff9900;
+      --2024_07_blau: #3300ff;
+      --2024_08_rot: #ff3333;
+      --06_2024_hellblau-00cccc: #00cccc;
+      --2024_09_blaumagenta: #6633cc;
+      --2024_10_cyanblau: #6699cc;
+      --11_2024_novermber: #00ff61;
+      --2024_12_dezember_magenta: #fa0075;
+      --januar-2025: #6633cc;
+      --februar-2025: #ecab63;
+      --violett: #a577fe;
+      --25_04_april_gelb: #fff300;
+      --25_04_april_gelb-3: #34c53f;
+      --25_04_april_gelb-4: #ffabff;
+      --25_04_april_gelb-2: #ee6b29;
+      --25_04_april_gelb-1: #baf3ec;
+      --25_04_april_gelb-5: #dcdc00;
+      --25_04_april_gelb-6: #f5e992;
+      --25_04_april_gelb-8: #0000ff;
+      --25_04_april_gelb-7: #ff0000;
+      --25_04_april_gelb-9: #7f00ff;
+      --25_04_april_gelb-10: #47ff00;
+      --25_04_april_gelb-11: #ed11cf;
+      --25_04_april_gelb-12: #009640;
+      --25_04_april_gelb-15: #8f8ff6;
+      --25_04_april_gelb-16: #c0b69a;
+      --25_04_april_gelb-13: #ff8c15;
+      --25_04_april_gelb-14: #e6e600;
+      --25_04_april_gelb-17: #ff6600;
+      --26-10-lila: #e05dff;
+      --25_04_april_gelb-18: #909000;
+  }
+
+.event-widget.bg-color-fallback,
+.event-list-entry.bg-color-fallback:hover,
+.event-list-entry.bg-color-fallback.triggered,
+.collapsible-content.bg-color-fallback,
+.content .inset.bottom-border.bg-color-fallback {
+  background-color: var(--fallback);
+}
+
+  .event-widget.bg-color-neongrun-q1-2022,
+  .event-list-entry.bg-color-neongrun-q1-2022:hover,
+  .event-list-entry.bg-color-neongrun-q1-2022.triggered,
+  .collapsible-content.bg-color-neongrun-q1-2022,
+  .content .inset.bottom-border.bg-color-neongrun-q1-2022 {
+    background-color: var(--neongrun-q1-2022);
+  }
+  .event-widget.bg-color-hellblau-q1-2022,
+  .event-list-entry.bg-color-hellblau-q1-2022:hover,
+  .event-list-entry.bg-color-hellblau-q1-2022.triggered,
+  .collapsible-content.bg-color-hellblau-q1-2022,
+  .content .inset.bottom-border.bg-color-hellblau-q1-2022 {
+    background-color: var(--hellblau-q1-2022);
+  }
+  .event-widget.bg-color-gelb-q1-2022,
+  .event-list-entry.bg-color-gelb-q1-2022:hover,
+  .event-list-entry.bg-color-gelb-q1-2022.triggered,
+  .collapsible-content.bg-color-gelb-q1-2022,
+  .content .inset.bottom-border.bg-color-gelb-q1-2022 {
+    background-color: var(--gelb-q1-2022);
+  }
+  .event-widget.bg-color-pink-q1-2022,
+  .event-list-entry.bg-color-pink-q1-2022:hover,
+  .event-list-entry.bg-color-pink-q1-2022.triggered,
+  .collapsible-content.bg-color-pink-q1-2022,
+  .content .inset.bottom-border.bg-color-pink-q1-2022 {
+    background-color: var(--pink-q1-2022);
+  }
+  .event-widget.bg-color-rosa-q2-2022,
+  .event-list-entry.bg-color-rosa-q2-2022:hover,
+  .event-list-entry.bg-color-rosa-q2-2022.triggered,
+  .collapsible-content.bg-color-rosa-q2-2022,
+  .content .inset.bottom-border.bg-color-rosa-q2-2022 {
+    background-color: var(--rosa-q2-2022);
+  }
+  .event-widget.bg-color-gelb-q2-2022,
+  .event-list-entry.bg-color-gelb-q2-2022:hover,
+  .event-list-entry.bg-color-gelb-q2-2022.triggered,
+  .collapsible-content.bg-color-gelb-q2-2022,
+  .content .inset.bottom-border.bg-color-gelb-q2-2022 {
+    background-color: var(--gelb-q2-2022);
+  }
+  .event-widget.bg-color-violett-q2-2022,
+  .event-list-entry.bg-color-violett-q2-2022:hover,
+  .event-list-entry.bg-color-violett-q2-2022.triggered,
+  .collapsible-content.bg-color-violett-q2-2022,
+  .content .inset.bottom-border.bg-color-violett-q2-2022 {
+    background-color: var(--violett-q2-2022);
+  }
+  .event-widget.bg-color-ocker-q2-2022,
+  .event-list-entry.bg-color-ocker-q2-2022:hover,
+  .event-list-entry.bg-color-ocker-q2-2022.triggered,
+  .collapsible-content.bg-color-ocker-q2-2022,
+  .content .inset.bottom-border.bg-color-ocker-q2-2022 {
+    background-color: var(--ocker-q2-2022);
+  }
+  .event-widget.bg-color-gelb-2-q2-2022,
+  .event-list-entry.bg-color-gelb-2-q2-2022:hover,
+  .event-list-entry.bg-color-gelb-2-q2-2022.triggered,
+  .collapsible-content.bg-color-gelb-2-q2-2022,
+  .content .inset.bottom-border.bg-color-gelb-2-q2-2022 {
+    background-color: var(--gelb-2-q2-2022);
+  }
+  .event-widget.bg-color-magnet-q2-2022,
+  .event-list-entry.bg-color-magnet-q2-2022:hover,
+  .event-list-entry.bg-color-magnet-q2-2022.triggered,
+  .collapsible-content.bg-color-magnet-q2-2022,
+  .content .inset.bottom-border.bg-color-magnet-q2-2022 {
+    background-color: var(--magnet-q2-2022);
+  }
+  .event-widget.bg-color-hellgelb-q3-2022,
+  .event-list-entry.bg-color-hellgelb-q3-2022:hover,
+  .event-list-entry.bg-color-hellgelb-q3-2022.triggered,
+  .collapsible-content.bg-color-hellgelb-q3-2022,
+  .content .inset.bottom-border.bg-color-hellgelb-q3-2022 {
+    background-color: var(--hellgelb-q3-2022);
+  }
+  .event-widget.bg-color-mint-q3-2022,
+  .event-list-entry.bg-color-mint-q3-2022:hover,
+  .event-list-entry.bg-color-mint-q3-2022.triggered,
+  .collapsible-content.bg-color-mint-q3-2022,
+  .content .inset.bottom-border.bg-color-mint-q3-2022 {
+    background-color: var(--mint-q3-2022);
+  }
+  .event-widget.bg-color-hellblau-q3-2022,
+  .event-list-entry.bg-color-hellblau-q3-2022:hover,
+  .event-list-entry.bg-color-hellblau-q3-2022.triggered,
+  .collapsible-content.bg-color-hellblau-q3-2022,
+  .content .inset.bottom-border.bg-color-hellblau-q3-2022 {
+    background-color: var(--hellblau-q3-2022);
+  }
+  .event-widget.bg-color-violett-q4-2022,
+  .event-list-entry.bg-color-violett-q4-2022:hover,
+  .event-list-entry.bg-color-violett-q4-2022.triggered,
+  .collapsible-content.bg-color-violett-q4-2022,
+  .content .inset.bottom-border.bg-color-violett-q4-2022 {
+    background-color: var(--violett-q4-2022);
+  }
+  .event-widget.bg-color-januar-q1-2023,
+  .event-list-entry.bg-color-januar-q1-2023:hover,
+  .event-list-entry.bg-color-januar-q1-2023.triggered,
+  .collapsible-content.bg-color-januar-q1-2023,
+  .content .inset.bottom-border.bg-color-januar-q1-2023 {
+    background-color: var(--januar-q1-2023);
+  }
+  .event-widget.bg-color-februar-q1-2023,
+  .event-list-entry.bg-color-februar-q1-2023:hover,
+  .event-list-entry.bg-color-februar-q1-2023.triggered,
+  .collapsible-content.bg-color-februar-q1-2023,
+  .content .inset.bottom-border.bg-color-februar-q1-2023 {
+    background-color: var(--februar-q1-2023);
+  }
+  .event-widget.bg-color-neongrun-marz-q1-2023,
+  .event-list-entry.bg-color-neongrun-marz-q1-2023:hover,
+  .event-list-entry.bg-color-neongrun-marz-q1-2023.triggered,
+  .collapsible-content.bg-color-neongrun-marz-q1-2023,
+  .content .inset.bottom-border.bg-color-neongrun-marz-q1-2023 {
+    background-color: var(--neongrun-marz-q1-2023);
+  }
+  .event-widget.bg-color-grun-april-q2-2023,
+  .event-list-entry.bg-color-grun-april-q2-2023:hover,
+  .event-list-entry.bg-color-grun-april-q2-2023.triggered,
+  .collapsible-content.bg-color-grun-april-q2-2023,
+  .content .inset.bottom-border.bg-color-grun-april-q2-2023 {
+    background-color: var(--grun-april-q2-2023);
+  }
+  .event-widget.bg-color-blau-mai-q2-2023,
+  .event-list-entry.bg-color-blau-mai-q2-2023:hover,
+  .event-list-entry.bg-color-blau-mai-q2-2023.triggered,
+  .collapsible-content.bg-color-blau-mai-q2-2023,
+  .content .inset.bottom-border.bg-color-blau-mai-q2-2023 {
+    background-color: var(--blau-mai-q2-2023);
+  }
+  .event-widget.bg-color-rot-juni-q2-2023,
+  .event-list-entry.bg-color-rot-juni-q2-2023:hover,
+  .event-list-entry.bg-color-rot-juni-q2-2023.triggered,
+  .collapsible-content.bg-color-rot-juni-q2-2023,
+  .content .inset.bottom-border.bg-color-rot-juni-q2-2023 {
+    background-color: var(--rot-juni-q2-2023);
+  }
+  .event-widget.bg-color-violett-juli-q3-2023,
+  .event-list-entry.bg-color-violett-juli-q3-2023:hover,
+  .event-list-entry.bg-color-violett-juli-q3-2023.triggered,
+  .collapsible-content.bg-color-violett-juli-q3-2023,
+  .content .inset.bottom-border.bg-color-violett-juli-q3-2023 {
+    background-color: var(--violett-juli-q3-2023);
+  }
+  .event-widget.bg-color-august-orange-q3-2023,
+  .event-list-entry.bg-color-august-orange-q3-2023:hover,
+  .event-list-entry.bg-color-august-orange-q3-2023.triggered,
+  .collapsible-content.bg-color-august-orange-q3-2023,
+  .content .inset.bottom-border.bg-color-august-orange-q3-2023 {
+    background-color: var(--august-orange-q3-2023);
+  }
+  .event-widget.bg-color-oktober_2023,
+  .event-list-entry.bg-color-oktober_2023:hover,
+  .event-list-entry.bg-color-oktober_2023.triggered,
+  .collapsible-content.bg-color-oktober_2023,
+  .content .inset.bottom-border.bg-color-oktober_2023 {
+    background-color: var(--oktober_2023);
+  }
+  .event-widget.bg-color-november-q4-2023,
+  .event-list-entry.bg-color-november-q4-2023:hover,
+  .event-list-entry.bg-color-november-q4-2023.triggered,
+  .collapsible-content.bg-color-november-q4-2023,
+  .content .inset.bottom-border.bg-color-november-q4-2023 {
+    background-color: var(--november-q4-2023);
+  }
+  .event-widget.bg-color-dezember-q4-2024,
+  .event-list-entry.bg-color-dezember-q4-2024:hover,
+  .event-list-entry.bg-color-dezember-q4-2024.triggered,
+  .collapsible-content.bg-color-dezember-q4-2024,
+  .content .inset.bottom-border.bg-color-dezember-q4-2024 {
+    background-color: var(--dezember-q4-2024);
+  }
+  .event-widget.bg-color-2024_q1_01_magenta,
+  .event-list-entry.bg-color-2024_q1_01_magenta:hover,
+  .event-list-entry.bg-color-2024_q1_01_magenta.triggered,
+  .collapsible-content.bg-color-2024_q1_01_magenta,
+  .content .inset.bottom-border.bg-color-2024_q1_01_magenta {
+    background-color: var(--2024_q1_01_magenta);
+  }
+  .event-widget.bg-color-2024_02_gelb,
+  .event-list-entry.bg-color-2024_02_gelb:hover,
+  .event-list-entry.bg-color-2024_02_gelb.triggered,
+  .collapsible-content.bg-color-2024_02_gelb,
+  .content .inset.bottom-border.bg-color-2024_02_gelb {
+    background-color: var(--2024_02_gelb);
+  }
+  .event-widget.bg-color-2024_03_burnt_orange,
+  .event-list-entry.bg-color-2024_03_burnt_orange:hover,
+  .event-list-entry.bg-color-2024_03_burnt_orange.triggered,
+  .collapsible-content.bg-color-2024_03_burnt_orange,
+  .content .inset.bottom-border.bg-color-2024_03_burnt_orange {
+    background-color: var(--2024_03_burnt_orange);
+  }
+  .event-widget.bg-color-2024_04_lila,
+  .event-list-entry.bg-color-2024_04_lila:hover,
+  .event-list-entry.bg-color-2024_04_lila.triggered,
+  .collapsible-content.bg-color-2024_04_lila,
+  .content .inset.bottom-border.bg-color-2024_04_lila {
+    background-color: var(--2024_04_lila);
+  }
+  .event-widget.bg-color-2024_05_light_orange,
+  .event-list-entry.bg-color-2024_05_light_orange:hover,
+  .event-list-entry.bg-color-2024_05_light_orange.triggered,
+  .collapsible-content.bg-color-2024_05_light_orange,
+  .content .inset.bottom-border.bg-color-2024_05_light_orange {
+    background-color: var(--2024_05_light_orange);
+  }
+  .event-widget.bg-color-2024_07_blau,
+  .event-list-entry.bg-color-2024_07_blau:hover,
+  .event-list-entry.bg-color-2024_07_blau.triggered,
+  .collapsible-content.bg-color-2024_07_blau,
+  .content .inset.bottom-border.bg-color-2024_07_blau {
+    background-color: var(--2024_07_blau);
+  }
+  .event-widget.bg-color-2024_08_rot,
+  .event-list-entry.bg-color-2024_08_rot:hover,
+  .event-list-entry.bg-color-2024_08_rot.triggered,
+  .collapsible-content.bg-color-2024_08_rot,
+  .content .inset.bottom-border.bg-color-2024_08_rot {
+    background-color: var(--2024_08_rot);
+  }
+  .event-widget.bg-color-06_2024_hellblau-00cccc,
+  .event-list-entry.bg-color-06_2024_hellblau-00cccc:hover,
+  .event-list-entry.bg-color-06_2024_hellblau-00cccc.triggered,
+  .collapsible-content.bg-color-06_2024_hellblau-00cccc,
+  .content .inset.bottom-border.bg-color-06_2024_hellblau-00cccc {
+    background-color: var(--06_2024_hellblau-00cccc);
+  }
+  .event-widget.bg-color-2024_09_blaumagenta,
+  .event-list-entry.bg-color-2024_09_blaumagenta:hover,
+  .event-list-entry.bg-color-2024_09_blaumagenta.triggered,
+  .collapsible-content.bg-color-2024_09_blaumagenta,
+  .content .inset.bottom-border.bg-color-2024_09_blaumagenta {
+    background-color: var(--2024_09_blaumagenta);
+  }
+  .event-widget.bg-color-2024_10_cyanblau,
+  .event-list-entry.bg-color-2024_10_cyanblau:hover,
+  .event-list-entry.bg-color-2024_10_cyanblau.triggered,
+  .collapsible-content.bg-color-2024_10_cyanblau,
+  .content .inset.bottom-border.bg-color-2024_10_cyanblau {
+    background-color: var(--2024_10_cyanblau);
+  }
+  .event-widget.bg-color-11_2024_novermber,
+  .event-list-entry.bg-color-11_2024_novermber:hover,
+  .event-list-entry.bg-color-11_2024_novermber.triggered,
+  .collapsible-content.bg-color-11_2024_novermber,
+  .content .inset.bottom-border.bg-color-11_2024_novermber {
+    background-color: var(--11_2024_novermber);
+  }
+  .event-widget.bg-color-2024_12_dezember_magenta,
+  .event-list-entry.bg-color-2024_12_dezember_magenta:hover,
+  .event-list-entry.bg-color-2024_12_dezember_magenta.triggered,
+  .collapsible-content.bg-color-2024_12_dezember_magenta,
+  .content .inset.bottom-border.bg-color-2024_12_dezember_magenta {
+    background-color: var(--2024_12_dezember_magenta);
+  }
+  .event-widget.bg-color-januar-2025,
+  .event-list-entry.bg-color-januar-2025:hover,
+  .event-list-entry.bg-color-januar-2025.triggered,
+  .collapsible-content.bg-color-januar-2025,
+  .content .inset.bottom-border.bg-color-januar-2025 {
+    background-color: var(--januar-2025);
+  }
+  .event-widget.bg-color-februar-2025,
+  .event-list-entry.bg-color-februar-2025:hover,
+  .event-list-entry.bg-color-februar-2025.triggered,
+  .collapsible-content.bg-color-februar-2025,
+  .content .inset.bottom-border.bg-color-februar-2025 {
+    background-color: var(--februar-2025);
+  }
+  .event-widget.bg-color-violett,
+  .event-list-entry.bg-color-violett:hover,
+  .event-list-entry.bg-color-violett.triggered,
+  .collapsible-content.bg-color-violett,
+  .content .inset.bottom-border.bg-color-violett {
+    background-color: var(--violett);
+  }
+  .event-widget.bg-color-25_04_april_gelb,
+  .event-list-entry.bg-color-25_04_april_gelb:hover,
+  .event-list-entry.bg-color-25_04_april_gelb.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb {
+    background-color: var(--25_04_april_gelb);
+  }
+  .event-widget.bg-color-25_04_april_gelb-3,
+  .event-list-entry.bg-color-25_04_april_gelb-3:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-3.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-3,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-3 {
+    background-color: var(--25_04_april_gelb-3);
+  }
+  .event-widget.bg-color-25_04_april_gelb-4,
+  .event-list-entry.bg-color-25_04_april_gelb-4:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-4.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-4,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-4 {
+    background-color: var(--25_04_april_gelb-4);
+  }
+  .event-widget.bg-color-25_04_april_gelb-2,
+  .event-list-entry.bg-color-25_04_april_gelb-2:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-2.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-2,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-2 {
+    background-color: var(--25_04_april_gelb-2);
+  }
+  .event-widget.bg-color-25_04_april_gelb-1,
+  .event-list-entry.bg-color-25_04_april_gelb-1:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-1.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-1,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-1 {
+    background-color: var(--25_04_april_gelb-1);
+  }
+  .event-widget.bg-color-25_04_april_gelb-5,
+  .event-list-entry.bg-color-25_04_april_gelb-5:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-5.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-5,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-5 {
+    background-color: var(--25_04_april_gelb-5);
+  }
+  .event-widget.bg-color-25_04_april_gelb-6,
+  .event-list-entry.bg-color-25_04_april_gelb-6:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-6.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-6,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-6 {
+    background-color: var(--25_04_april_gelb-6);
+  }
+  .event-widget.bg-color-25_04_april_gelb-8,
+  .event-list-entry.bg-color-25_04_april_gelb-8:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-8.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-8,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-8 {
+    background-color: var(--25_04_april_gelb-8);
+  }
+  .event-widget.bg-color-25_04_april_gelb-7,
+  .event-list-entry.bg-color-25_04_april_gelb-7:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-7.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-7,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-7 {
+    background-color: var(--25_04_april_gelb-7);
+  }
+  .event-widget.bg-color-25_04_april_gelb-9,
+  .event-list-entry.bg-color-25_04_april_gelb-9:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-9.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-9,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-9 {
+    background-color: var(--25_04_april_gelb-9);
+  }
+  .event-widget.bg-color-25_04_april_gelb-10,
+  .event-list-entry.bg-color-25_04_april_gelb-10:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-10.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-10,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-10 {
+    background-color: var(--25_04_april_gelb-10);
+  }
+  .event-widget.bg-color-25_04_april_gelb-11,
+  .event-list-entry.bg-color-25_04_april_gelb-11:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-11.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-11,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-11 {
+    background-color: var(--25_04_april_gelb-11);
+  }
+  .event-widget.bg-color-25_04_april_gelb-12,
+  .event-list-entry.bg-color-25_04_april_gelb-12:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-12.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-12,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-12 {
+    background-color: var(--25_04_april_gelb-12);
+  }
+  .event-widget.bg-color-25_04_april_gelb-15,
+  .event-list-entry.bg-color-25_04_april_gelb-15:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-15.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-15,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-15 {
+    background-color: var(--25_04_april_gelb-15);
+  }
+  .event-widget.bg-color-25_04_april_gelb-16,
+  .event-list-entry.bg-color-25_04_april_gelb-16:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-16.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-16,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-16 {
+    background-color: var(--25_04_april_gelb-16);
+  }
+  .event-widget.bg-color-25_04_april_gelb-13,
+  .event-list-entry.bg-color-25_04_april_gelb-13:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-13.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-13,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-13 {
+    background-color: var(--25_04_april_gelb-13);
+  }
+  .event-widget.bg-color-25_04_april_gelb-14,
+  .event-list-entry.bg-color-25_04_april_gelb-14:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-14.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-14,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-14 {
+    background-color: var(--25_04_april_gelb-14);
+  }
+  .event-widget.bg-color-25_04_april_gelb-17,
+  .event-list-entry.bg-color-25_04_april_gelb-17:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-17.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-17,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-17 {
+    background-color: var(--25_04_april_gelb-17);
+  }
+  .event-widget.bg-color-26-10-lila,
+  .event-list-entry.bg-color-26-10-lila:hover,
+  .event-list-entry.bg-color-26-10-lila.triggered,
+  .collapsible-content.bg-color-26-10-lila,
+  .content .inset.bottom-border.bg-color-26-10-lila {
+    background-color: var(--26-10-lila);
+  }
+  .event-widget.bg-color-25_04_april_gelb-18,
+  .event-list-entry.bg-color-25_04_april_gelb-18:hover,
+  .event-list-entry.bg-color-25_04_april_gelb-18.triggered,
+  .collapsible-content.bg-color-25_04_april_gelb-18,
+  .content .inset.bottom-border.bg-color-25_04_april_gelb-18 {
+    background-color: var(--25_04_april_gelb-18);
+  }
+
+a.dateselect, a.dateselect.disabled { color: var(--disabled-date); }
+
+  .bg-color-violett-q2-2022 a.dateselect, .bg-color-violett-q2-2022 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-violett-q4-2022 a.dateselect, .bg-color-violett-q4-2022 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-januar-q1-2023 a.dateselect, .bg-color-januar-q1-2023 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-februar-q1-2023 a.dateselect, .bg-color-februar-q1-2023 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-grun-april-q2-2023 a.dateselect, .bg-color-grun-april-q2-2023 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-rot-juni-q2-2023 a.dateselect, .bg-color-rot-juni-q2-2023 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-violett-juli-q3-2023 a.dateselect, .bg-color-violett-juli-q3-2023 a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-2024_q1_01_magenta a.dateselect, .bg-color-2024_q1_01_magenta a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-2024_03_burnt_orange a.dateselect, .bg-color-2024_03_burnt_orange a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+  .bg-color-2024_04_lila a.dateselect, .bg-color-2024_04_lila a.dateselect.disabled {
+    color: var(--disabled-date-alt);
+  }
+
+a.dateselect.selected {
+  color: var(--black);
+}
+
+</style>
+
+
+<script>
+    /*to prevent Firefox FOUC, this must be here*/
+  let FF_FOUC_FIX;
+</script>
+	</head>
+	<body>
+		
+<header id="header">
+      <nav class="mobile to-desktop">
+  <div class="mobile-bar">
+    <ul>
+      <li class="logo"><a href="/en/">radialsystem <img src="/site/templates/img/logo.svg" alt="logo"></a></li>
+              <li class="simple-lang"><a href="/en/service/leichte-sprache/"><img src="/site/templates/img/simplelang.svg" alt="Leichte Sprache"></a></li>
+                    <li class="accessibility"><a href="/en/service/barrierefreiheit/"><img src="/site/templates/img/accessibility.svg" alt="Barrierefreiheit"></a></li>
+            <li class="search"><a href="#" class="search-trigger"><img src="/site/templates/img/search.svg" alt="search"></a></li>
+      <li class="langswitch">
+        <a class="" href="/de/programm/programm/">de</a>
+        <a class="selected" href="/en/programm/programm/">en</a>
+  </li>
+      <li class="menu-opener" id="burger" role="button" tabindex="0"><a><img class="burger" src="/site/templates/img/burger.svg" alt="menu"><img class="cross" src="/site/templates/img/cross.svg" alt="menu"></a></li>
+    </ul>
+
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <ul>
+              <li class="">
+                                <a role="button" tabindex="0" class="collapsible-trigger" data-trig="cc-1025"><span>house</span><span class="icon"></span></a>
+            <ul class="submenu collapsible-content" id="cc-1025">
+                              <li><a href="/en/venue/uber-uns/">About us</a>
+                                                    </li>
+                              <li><a href="/en/venue/netzwerk/">Network</a>
+                                                    </li>
+                              <li><a href="/en/venue/history/">History</a>
+                                                    </li>
+                              <li><a href="/en/venue/sustainability/">Sustainability</a>
+                                                    </li>
+                              <li><a href="/en/venue/team/">Team</a>
+                                                    </li>
+                              <li><a href="/en/venue/vermietung-2/">Venue</a>
+                                                        <ul class="subsubmenu">
+                                              <li><a href="/en/venue/vermietung-2/360-1/">360-degree tour</a></li>
+                                              <li><a href="/en/venue/vermietung-2/halle-2/">Halle</a></li>
+                                              <li><a href="/en/venue/vermietung-2/saal/">Saal</a></li>
+                                              <li><a href="/en/venue/vermietung-2/foyer/">Foyer</a></li>
+                                              <li><a href="/en/venue/vermietung-2/spreeterasse-deck/">Spree Terrace / Deck</a></li>
+                                              <li><a href="/en/venue/vermietung-2/kubus/">Cube</a></li>
+                                              <li><a href="/en/venue/vermietung-2/studios-1-2-a/">Studios 1, 2, A</a></li>
+                                              <li><a href="/en/venue/vermietung-2/ateliers/">Ateliers</a></li>
+                                          </ul>
+                                  </li>
+                              <li><a href="/en/venue/vermietungen/">Services</a>
+                                                    </li>
+                          </ul>
+                  </li>
+              <li class="selected">
+                                <a role="button" tabindex="0" class="collapsible-trigger" data-trig="cc-1021"><span>programme</span><span class="icon"></span></a>
+            <ul class="submenu collapsible-content" id="cc-1021">
+                              <li><a href="/en/programm/programm/">Calendar</a>
+                                                    </li>
+                              <li><a href="/en/programm/barrierefreiheit/">Accessible offers</a>
+                                                    </li>
+                              <li><a href="/en/programm/publikationen/">Publications</a>
+                                                    </li>
+                              <li><a href="/en/programm/kunstler-innen-a-z/">Artists A–Z</a>
+                                                    </li>
+                              <li><a href="/en/programm/plattform/">Platforms</a>
+                                                        <ul class="subsubmenu">
+                                              <li><a href="/en/programm/plattform/encounters/">Encounters</a></li>
+                                          </ul>
+                                  </li>
+                              <li><a href="/en/programm/reihen/">Series</a>
+                                                        <ul class="subsubmenu">
+                                              <li><a href="/en/programm/reihen/wielding-fissures/">wielding fissures</a></li>
+                                              <li><a href="/en/programm/reihen/conjunctions-acts-of-being-in-relation/">Conjunctions</a></li>
+                                              <li><a href="/en/programm/reihen/encounters-embodied-practices/">Embodied Practices</a></li>
+                                              <li><a href="/en/programm/reihen/sense/">SENSE</a></li>
+                                              <li><a href="/en/programm/reihen/new-empathies-eine-programmreihe-zur-praxis-des-empathischen/">New Empathies</a></li>
+                                          </ul>
+                                  </li>
+                              <li><a href="/en/programm/residenzen/">Residencies</a>
+                                                        <ul class="subsubmenu">
+                                              <li><a href="/en/programm/residenzen/body-time-space/">Body Time Space</a></li>
+                                              <li><a href="/en/programm/residenzen/artist-in-residence/">Artist in Residence</a></li>
+                                          </ul>
+                                  </li>
+                          </ul>
+                  </li>
+              <li class="">
+                                <a href="/en/radar/">radar</a>
+                  </li>
+              <li class="">
+                                <a role="button" tabindex="0" class="collapsible-trigger" data-trig="cc-1026"><span>service</span><span class="icon"></span></a>
+            <ul class="submenu collapsible-content" id="cc-1026">
+                              <li><a href="/en/service/tickets/">Ticket information</a>
+                                                    </li>
+                              <li><a href="/en/service/kontakt/">Contact</a>
+                                                    </li>
+                              <li><a href="/en/service/anfahrt/">How to find us</a>
+                                                    </li>
+                              <li><a href="/en/service/leichte-sprache/">Easy Language</a>
+                                                    </li>
+                              <li><a href="/en/service/code-of-conduct/">Code of Conduct</a>
+                                                    </li>
+                              <li><a href="/en/service/newsletter/">Newsletter</a>
+                                                    </li>
+                              <li><a href="/en/service/jobs/">Jobs</a>
+                                                    </li>
+                              <li><a href="/en/service/presse/">Press</a>
+                                                    </li>
+                              <li><a href="/en/service/barrierefreiheit/">Accessibility</a>
+                                                    </li>
+                          </ul>
+                  </li>
+          </ul>
+  </div>
+</nav>
+  
+<nav class="desktop from-desktop">
+  <ul>
+                        <li role="button" tabindex="0" class="menu  subtrigger" data-target="hoversub-1025"><a tabindex="-1" href="/en/venue/">house</a>
+                        <div class="hoversubmenu" id="hoversub-1025">
+            <ul class="subblock">
+                              <li class="submenu"><a href="/en/venue/uber-uns/">About us</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/venue/netzwerk/">Network</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/venue/history/">History</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/venue/sustainability/">Sustainability</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/venue/team/">Team</a>
+                                                    </li>
+                                  </ul><ul class="subblock">
+                                              <li class="submenu"><a href="/en/venue/vermietung-2/">Venue</a>
+                                                        <ul>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/360-1/">360-degree tour</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/halle-2/">Halle</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/saal/">Saal</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/foyer/">Foyer</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/spreeterasse-deck/">Spree Terrace / Deck</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/kubus/">Cube</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/studios-1-2-a/">Studios 1, 2, A</a></li>
+                                              <li class="subsubmenu"><a href="/en/venue/vermietung-2/ateliers/">Ateliers</a></li>
+                                          </ul>
+                                  </li>
+                                              <li class="submenu"><a href="/en/venue/vermietungen/">Services</a>
+                                                    </li>
+                                          </ul>
+          </div>
+              </li>
+                        <li role="button" tabindex="0" class="menu selected subtrigger" data-target="hoversub-1021"><a tabindex="-1" href="/en/programm/">programme</a>
+                        <div class="hoversubmenu" id="hoversub-1021">
+            <ul class="subblock">
+                              <li class="submenu"><a href="/en/programm/programm/">Calendar</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/programm/barrierefreiheit/">Accessible offers</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/programm/publikationen/">Publications</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/programm/kunstler-innen-a-z/">Artists A–Z</a>
+                                                    </li>
+                                  </ul><ul class="subblock">
+                                              <li class="submenu"><a href="/en/programm/plattform/">Platforms</a>
+                                                        <ul>
+                                              <li class="subsubmenu"><a href="/en/programm/plattform/encounters/">Encounters</a></li>
+                                          </ul>
+                                  </li>
+                                              <li class="submenu"><a href="/en/programm/reihen/">Series</a>
+                                                        <ul>
+                                              <li class="subsubmenu"><a href="/en/programm/reihen/wielding-fissures/">wielding fissures</a></li>
+                                              <li class="subsubmenu"><a href="/en/programm/reihen/conjunctions-acts-of-being-in-relation/">Conjunctions</a></li>
+                                              <li class="subsubmenu"><a href="/en/programm/reihen/encounters-embodied-practices/">Embodied Practices</a></li>
+                                              <li class="subsubmenu"><a href="/en/programm/reihen/sense/">SENSE</a></li>
+                                              <li class="subsubmenu"><a href="/en/programm/reihen/new-empathies-eine-programmreihe-zur-praxis-des-empathischen/">New Empathies</a></li>
+                                          </ul>
+                                  </li>
+                                              <li class="submenu"><a href="/en/programm/residenzen/">Residencies</a>
+                                                        <ul>
+                                              <li class="subsubmenu"><a href="/en/programm/residenzen/body-time-space/">Body Time Space</a></li>
+                                              <li class="subsubmenu"><a href="/en/programm/residenzen/artist-in-residence/">Artist in Residence</a></li>
+                                          </ul>
+                                  </li>
+                                          </ul>
+          </div>
+              </li>
+                        <li class="menu  subtrigger" data-target="hoversub-1022"><a href="/en/radar/">radar</a>
+                    </li>
+                        <li role="button" tabindex="0" class="menu  subtrigger" data-target="hoversub-1026"><a tabindex="-1" href="/en/service/">service</a>
+                        <div class="hoversubmenu" id="hoversub-1026">
+            <ul class="subblock">
+                              <li class="submenu"><a href="/en/service/tickets/">Ticket information</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/kontakt/">Contact</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/anfahrt/">How to find us</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/leichte-sprache/">Easy Language</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/code-of-conduct/">Code of Conduct</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/newsletter/">Newsletter</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/jobs/">Jobs</a>
+                                                    </li>
+                                              <li class="submenu"><a href="/en/service/presse/">Press</a>
+                                                    </li>
+                                  </ul><ul class="subblock">
+                                              <li class="submenu"><a href="/en/service/barrierefreiheit/">Accessibility</a>
+                                                    </li>
+                                          </ul>
+          </div>
+              </li>
+        <li class="logo"><a href="/en/">radialsystem</a></li>
+          <li class="simple-lang"><a href="/en/service/leichte-sprache/"><img src="/site/templates/img/simplelang.svg" alt="Leichte Sprache"></a></li>
+              <li class="accessibility"><a href="/en/service/barrierefreiheit/"><img src="/site/templates/img/accessibility.svg" alt="Barrierefreiheit"></a></li>
+        <li class="search"><a href="#" class="search-trigger"><img src="/site/templates/img/search.svg" alt="search"></a></li>
+    <li class="langswitch">
+        <a class="" href="/de/programm/programm/">de</a>
+        <a class="selected" href="/en/programm/programm/">en</a>
+  </li>
+  </ul>
+</nav>
+</header>
+
+<div class="logo from-desktop">
+  <a title="go to Startpage" href="/en/"><img src="/site/templates/img/logo.svg" title="radialsystem" alt="logo"></a>
+</div>
+<div class="breadcrumb from-desktop">
+      <div class="inset">
+              <h4>Calendar</h4>
+          </div>
+  </div>
+
+  <div class="searchform" id="searchform">
+    <form action="/en/suchergebnis/" method="get">
+      <input type="text" name="searchterm" class="searchterm" id="searchterm" autocomplete="off" placeholder="Search" aria-label="Search" value="">
+    </form>
+  </div>
+		<main id="main">
+  <div class="contents">
+                            
+  <div class="content cb_events">
+    <div x-data="events" x-init="">
+      
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  let mSelect = NiceSelect.bind(document.getElementById("select-month"));
+  let ySelect = NiceSelect.bind(document.getElementById("select-year"));
+  let eventsAsList = document.getElementById("events-as-list");
+  let eventsAsGrid = document.getElementById("events-as-grid");
+  let eventsIsAnalog = document.getElementById("events-is-analog");
+  let eventsIsOnline = document.getElementById("events-is-online");
+  let eventsIsAccessible = document.getElementById("events-is-accessible");
+
+  function loadFilterUrl(yearValue, monthValue, triggerer) {
+    let newUrl = "/en/programm/programm/?";
+    // take live settings with us
+    // if (eventsAsList.classList.contains("selected")) { newUrl += "&list=1"; } // would be grid default
+    if (eventsAsGrid.classList.contains("selected")) { newUrl += "&grid=1"; }
+    if (eventsIsAnalog.classList.contains("selected")) { newUrl += "&analog=1"; }
+    if (eventsIsOnline.classList.contains("selected")) { newUrl += "&online=1"; }
+    if (eventsIsAccessible.classList.contains("selected")) { newUrl += "&accessible=1"; }
+
+    // makes no sense to select month wout year
+    if ((monthValue != "all") && (yearValue == "all")) {
+      if (triggerer == "month") { // if triggerer was year set year to current year
+        yearValue = new Date().getFullYear(); //
+      } else { // if triggerer was year set month to all
+        monthValue = "all";
+      }
+    }
+    if (yearValue != "all") {
+      newUrl += "&year="+yearValue;
+    }
+    if (monthValue != "all") {
+      newUrl += "&month="+monthValue;
+    }
+    window.location.href = newUrl;
+  }
+
+  document.getElementById("select-month").addEventListener("change", function () {
+    loadFilterUrl(document.getElementById("select-year").value, this.value, "month");
+  });
+
+  document.getElementById("select-year").addEventListener("change", function () {
+    loadFilterUrl(this.value, document.getElementById("select-month").value, "year");
+  });
+});
+</script>
+
+<div class="content events-filter">
+  <div class="row">
+    <div class="columns select-filter month-select">
+      <select class="full" name="month" id="select-month" style="height: 50px;">
+        <option value="all"
+          selected>
+          Month        </option>
+                            <option value="1"
+            >
+            January          </option>
+                            <option value="2"
+            >
+            February          </option>
+                            <option value="3"
+            >
+            March          </option>
+                            <option value="4"
+            >
+            April          </option>
+                            <option value="5"
+            >
+            May          </option>
+                            <option value="6"
+            >
+            June          </option>
+                            <option value="7"
+            >
+            July          </option>
+                            <option value="8"
+            >
+            August          </option>
+                            <option value="9"
+            >
+            September          </option>
+                            <option value="10"
+            >
+            October          </option>
+                            <option value="11"
+            >
+            November          </option>
+                            <option value="12"
+            >
+            December          </option>
+              </select>
+    </div>
+    <div class="columns select-filter year-select">
+      <select class="full three-borders" name="year" id="select-year" style="height: 50px;">
+        <option value="all"
+          selected>
+          Year        </option>
+                          <option value="2022"
+            >
+            2022          </option>
+                  <option value="2023"
+            >
+            2023          </option>
+                  <option value="2024"
+            >
+            2024          </option>
+                  <option value="2025"
+            >
+            2025          </option>
+                  <option value="2026"
+            >
+            2026          </option>
+              </select>
+    </div>
+    <div class="columns checkbox-filter">
+      <a id="events-is-analog" class="accesibility-checkbox checkbox-is-analog" :class="isAccessibiltySelected(1) ? 'selected' : ''" @click="toggleAccessibilty(1)">analogue</a>
+      <a id="events-is-online" class="accesibility-checkbox toggler-is-online" :class="isAccessibiltySelected(2) ? 'selected' : ''" @click="toggleAccessibilty(2)">online</a>
+      <a id="events-is-accessible" class="accesibility-checkbox toggler-is-accessible" :class="isAccessibiltySelected(3) ? 'selected' : ''" @click="toggleAccessibilty(3)">barrier-free</a>
+    </div>
+    <div class="columns toggle-filter grid-toggle">
+      <a id="events-as-grid" class="display-toggler toggler-is-grid" :class="isDisplaySelected('grid') ? 'selected' : ''" @click="setDisplay('grid')">Productions</a>
+    </div>
+    <div class="columns toggle-filter list-toggle">
+      <a id="events-as-list" class="display-toggler toggler-is-list" :class="isDisplaySelected('list') ? 'selected' : ''" @click="setDisplay('list')">Calendar</a>
+    </div>
+  </div>
+</div>
+
+      <div x-show="isDisplaySelected('grid')" x-transition>
+        <div class="events-widget-container">
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="0"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(0)">
+              <div class="event-widget bg-color-25_04_april_gelb-14">
+  <span onclick="window.location.href='/en/veranstaltungen/for-the-time-being-08-2026/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/for-the-time-being-08-2026/">for the time being</a></h1>
+            <h3>Sasha Waltz &amp; Guests</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">We</span>
+    <span class="mday" aria-label="26."><span aria-hidden="true">26</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">19:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Th</span>
+    <span class="mday" aria-label="27."><span aria-hidden="true">27</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">19:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="29."><span aria-hidden="true">29</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">19:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Su</span>
+    <span class="mday" aria-label="30."><span aria-hidden="true">30</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">19:00</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Saal</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Dance</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12443/for-the-time-being_sasha-waltz--guests_ensemble-carlos-collado.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="1"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(1)">
+              <div class="event-widget bg-color-25_04_april_gelb-14">
+  <span onclick="window.location.href='/en/veranstaltungen/zweiland/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/zweiland/">Zweiland</a></h1>
+            <h3>Sasha Waltz</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Th</span>
+    <span class="mday" aria-label="27."><span aria-hidden="true">27</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">21:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="28."><span aria-hidden="true">28</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">17:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="28."><span aria-hidden="true">28</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">21:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="29."><span aria-hidden="true">29</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">21:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Su</span>
+    <span class="mday" aria-label="30."><span aria-hidden="true">30</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">17:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Su</span>
+    <span class="mday" aria-label="30."><span aria-hidden="true">30</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <span class="special">21:00</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Halle</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Dance</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12611/04_zweiland_c_matthias_zolle_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="2"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(2)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/heiner-goebbels-walden/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/heiner-goebbels-walden/">20 Jahre Radialsystem: Heiner Goebbels‘ „Walden“ (1998/2008/2026)</a></h1>
+            <h3>Solistenensemble Kaleidoskop, Ensemble Klang &amp; Keir Neuringer</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">We</span>
+    <span class="mday" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>              <span class="extra">German premiere</span>
+      </p>
+                                                            <p class="location">Halle</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Concert</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12864/01_walden_kaleidoskop_c_tessa_veldhorst_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="15"
+      data-analog="true"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(true,false,false)"
+      :class="gridOddEvenClass(15)">
+                      <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/festivals/20-years-radialsystem-for-everyone/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/festivals/20-years-radialsystem-for-everyone/">20 Jahre</a></h1>
+            <h3>Radialsystem für Alle</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">We</span>
+    <span class="mday" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">from 13:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">from 11:00</span><span class="special-2">h</span>              <span class="extra">Open House</span>
+      </p>
+                                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Exhibition</span>
+                              <span class="tag">Performance</span>
+                              <span class="tag">Workshop</span>
+                              <span class="tag">Family Format</span>
+                              <span class="tag">Party</span>
+                              <span class="tag">Concerts</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12256/rs_20jahre_web_1500x938_2.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="3"
+      data-analog="false"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(false,false,false)"
+      :class="gridOddEvenClass(3)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/">20 Jahre Radialsystem: UNEXPECTED LESSONS 4 – Decolonizing the Body in Dance</a></h1>
+            <h3>Rajyashree Ramesh, Martha Hincapié Charry and Sage Ni‘Ja Whitson</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">from 13:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">from 14:00</span><span class="special-2">h</span>          </p>
+                                                        </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Lecture</span>
+                              <span class="tag">Performance</span>
+                              <span class="tag">Workshop</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12984/ul4_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="4"
+      data-analog="true"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(true,false,false)"
+      :class="gridOddEvenClass(4)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/unexpected-lesson-3-la-palabre-space/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/unexpected-lesson-3-la-palabre-space/">UNEXPECTED LESSONS 3: LA PALABRE Space</a></h1>
+            <h3>Tea, Reading &amp; Resting Room with jee chan, Cheng-jung Tsai</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">14:00</span>                  <span class="minus">&ndash;</span>
+        <span class="special">21:00</span><span class="special-2">h</span>
+                </p>
+                                                            <p class="location">Kubus</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Lecture</span>
+                              <span class="tag">Performance</span>
+                              <span class="tag">Workshop</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12717/02_la_palabre_unexpectedlessons_c_ibra_wane_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="5"
+      data-analog="true"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(true,false,false)"
+      :class="gridOddEvenClass(5)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/unexpected-lesson-3-rethinking-dance-in-academia/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/unexpected-lesson-3-rethinking-dance-in-academia/">20 Jahre Radialsystem: UNEXPECTED LESSONS 3 – Beyond Academia? How Dance Re-writes Research</a></h1>
+            <h3>Performative Talk with Mariama Diagne and Sandra Noeth</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">18:00</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Saal</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Lecture</span>
+                              <span class="tag">Performance</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12933/ul3_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="6"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(6)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/20-jahre-zukunft/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/20-jahre-zukunft/">20 Jahre Radialsystem: 20 Jahre Zukunft</a></h1>
+            <h3>Andromeda Mega Express Orchestra</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Halle</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Concert</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12776/01_andromeda_mega_express_orchestra_c_arnaud_ele_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="7"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(7)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/schrumpf-greyline-2026/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/schrumpf-greyline-2026/">20 Jahre Radialsystem: Schrumpf! Greyline</a></h1>
+            <h3>Performance for Children by Renae Shadler</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">11:00</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Lawn / Terrace</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Performance</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12895/01_greyline_renae_shadler_c_elmariza_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="8"
+      data-analog="false"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(false,false,false)"
+      :class="gridOddEvenClass(8)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/20-jahre-radialsystem-open-house/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/20-jahre-radialsystem-open-house/">20 Jahre: Open House</a></h1>
+            <h3>Radialsystem für Alle</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">from 11:00</span><span class="special-2">h</span>          </p>
+                                                        </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Concert</span>
+                              <span class="tag">Performance / Tanz</span>
+                              <span class="tag">Exhibition</span>
+                              <span class="tag">Workshop</span>
+                              <span class="tag">Musik</span>
+                              <span class="tag">Family Format</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12979/radialsystem_c_phil-dera_phd_1838_print.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="9"
+      data-analog="false"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(false,false,false)"
+      :class="gridOddEvenClass(9)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/whats-that-noise/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/whats-that-noise/">20 Jahre Radialsystem: What’s That Noise?</a></h1>
+            <h3>Intergenerational Listening Party by Sandhya Daemgen</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">13:30</span><span class="special-2">h</span>              <span class="extra">Open House</span>
+      </p>
+                                                            <p class="location">Saal</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Performance</span>
+                              <span class="tag">Musik</span>
+                              <span class="tag">Party</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12999/01_daemgen_whats_that_noise_c_descha_daemgen_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="10"
+      data-analog="true"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(true,false,false)"
+      :class="gridOddEvenClass(10)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/unexpected-lesson-4-la-palabre-space/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/unexpected-lesson-4-la-palabre-space/">UNEXPECTED LESSONS 4: LA PALABRE Space</a></h1>
+            <h3>Tea, Reading &amp; Resting Room the dance project Coole Kinder</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">14:00</span>                  <span class="minus">&ndash;</span>
+        <span class="special">21:00</span><span class="special-2">h</span>
+                </p>
+                                                            <p class="location">Kubus</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Lecture</span>
+                              <span class="tag">Performance</span>
+                              <span class="tag">Workshop</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12724/02_la_palabre_unexpectedlessons_c_ibra_wane_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="11"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(11)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/temporary-title-2026/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/temporary-title-2026/">20 Jahre Radialsystem: Temporary Title, 2026 – In the Middle, Somewhat Rehearsed</a></h1>
+            <h3>Exhibition by Xavier Le Roy</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">14:00</span>                  <span class="minus">&ndash;</span>
+        <span class="special">18:00</span><span class="special-2">h</span>
+                </p>
+                                                            <p class="location">Deck</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Exhibition</span>
+                              <span class="tag">Performance</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12844/02_temporary_title_c_giulia_bruno_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="12"
+      data-analog="true"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(true,false,false)"
+      :class="gridOddEvenClass(12)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/in-c-workshop/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/in-c-workshop/">20 Jahre Radialsystem: In C-Workshop</a></h1>
+            <h3>Sasha Waltz &amp; Guests</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">15:00</span>                  <span class="minus">&ndash;</span>
+        <span class="special">16:00</span><span class="special-2">h</span>
+                </p>
+                                                            <p class="location">Studio A</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Dance</span>
+                              <span class="tag">Workshop</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/13020/1_in_c-performance_c_yanina_isla_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="13"
+      data-analog="false"
+      data-online="false"
+      data-accessible="false"
+      x-show="isEventVisible(false,false,false)"
+      :class="gridOddEvenClass(13)">
+              <div class="event-widget bg-color-25_04_april_gelb-17">
+  <span onclick="window.location.href='/en/veranstaltungen/in-c-special-performance/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/in-c-special-performance/">20 Jahre Radialsystem: In C - special performance</a></h1>
+            <h3>Sasha Waltz &amp; Guests / Terry Riley</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <span class="special">21:30</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Halle</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Performance / Tanz</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12972/1_in_c-performance_c_yanina_isla_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item"
+      @mouseenter="toggleActive"
+      data-idx="14"
+      data-analog="true"
+      data-online="false"
+      data-accessible="true"
+      x-show="isEventVisible(true,false,true)"
+      :class="gridOddEvenClass(14)">
+              <div class="event-widget bg-color-25_04_april_gelb-18">
+  <span onclick="window.location.href='/en/veranstaltungen/architecture-of-trust/';" style="cursor: pointer;">
+    <div class="rel-container">
+      <div class="inset hover-even">
+        <div class="top-bottom-max">
+          <div>
+            <h1><a href="/en/veranstaltungen/architecture-of-trust/">Architecture of Trust</a></h1>
+            <h3>Music theatre by NICO AND THE NAVIGATORS about fragile certainties</h3>
+            <div class="dates-block">
+                                                                                              
+  <p class="dateblock ">
+    <span class="wday">Th</span>
+    <span class="mday" aria-label="3."><span aria-hidden="true">03</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>              <span class="extra">World Premiere</span>
+      </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Fr</span>
+    <span class="mday" aria-label="4."><span aria-hidden="true">04</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>              <span class="extra">Artist Talk Afterwards</span>
+      </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Sa</span>
+    <span class="mday" aria-label="5."><span aria-hidden="true">05</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <span class="special">20:00</span><span class="special-2">h</span>          </p>
+                                                                                                            
+  <p class="dateblock ">
+    <span class="wday">Su</span>
+    <span class="mday" aria-label="6."><span aria-hidden="true">06</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <span class="special">18:00</span><span class="special-2">h</span>          </p>
+                                                            <p class="location">Halle</p>
+                          </div>
+          </div>
+          <div>
+            <p class="tight">
+                              <span class="tag">Music theatre</span>
+                          </p>
+          </div>
+        </div>
+      </div>
+      <div class="hover-odd"
+                      style="background-image: url(/site/assets/files/12270/architecture_of_trust_c_nico_and_the_navigators_neu_presse.1000x0.jpg)"
+            ></div>
+    </div>
+  </span>
+</div>
+          </div>
+      <div class="events-widget-item-pseudo tablet-only"
+   x-show="isPseudoTabletGridEventVisible()"></div>
+
+  <div class="events-widget-item-pseudo from-desktop"
+    x-show="isPseudoDesktopGridEventVisible(1)"></div>
+  <div class="events-widget-item-pseudo from-desktop"
+    x-show="isPseudoDesktopGridEventVisible(2)"></div>
+
+</div>
+      </div>
+      <div x-show="isDisplaySelected('list')" x-transition>
+        
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1787763600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">We </span>
+    <span class="mday" aria-label="26."><span aria-hidden="true">26</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">19:00 h</span> <span class="location">Saal</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">26</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">We <span class="special">19:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Saal</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1787763600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1787763600">
+              <h1>for the time being</h1>
+              <h6>Sasha Waltz &amp; Guests</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12443"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/fttb3/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12443" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Sasha Waltz, together with a group of dancers and music by Diego Noguera, creates a collective practice of experiencing the moment – „for the time being“.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1787850000">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Th </span>
+    <span class="mday" aria-label="27."><span aria-hidden="true">27</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">19:00 h</span> <span class="location">Saal</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">27</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Th <span class="special">19:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Saal</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1787850000">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1787850000">
+              <h1>for the time being</h1>
+              <h6>Sasha Waltz &amp; Guests</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12445"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/fttb3/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12445" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Sasha Waltz, together with a group of dancers and music by Diego Noguera, creates a collective practice of experiencing the moment – „for the time being“.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/zweiland/?date=1787857200">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Th </span>
+    <span class="mday" aria-label="27."><span aria-hidden="true">27</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">21:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">27</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Th <span class="special">21:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/zweiland/?date=1787857200">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/zweiland/?date=1787857200">
+              <h1>Zweiland</h1>
+              <h6>Sasha Waltz</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12611"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/swgzw/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12611" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>For the first time in over 10 years, “Zweiland” is returning to the stage: the choreography by Sasha Waltz, which premiered in the Sophiensæle in 1997, unfolds a poetic approach towards the theme of “Pictures from Germany” against the backdrop of a symbolic wall: Rhythmic movement sequences interact with the pulsing life force of a Berlin street - Sasha Waltz tells the story of an era of social upheaval and departure in post-reunification Germany as if it were a fairytale.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/zweiland/?date=1787929200">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="28."><span aria-hidden="true">28</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">17:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">28</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">17:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/zweiland/?date=1787929200">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/zweiland/?date=1787929200">
+              <h1>Zweiland</h1>
+              <h6>Sasha Waltz</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-13067"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/swgzw/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-13067" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>For the first time in over 10 years, “Zweiland” is returning to the stage: the choreography by Sasha Waltz, which premiered in the Sophiensæle in 1997, unfolds a poetic approach towards the theme of “Pictures from Germany” against the backdrop of a symbolic wall: Rhythmic movement sequences interact with the pulsing life force of a Berlin street - Sasha Waltz tells the story of an era of social upheaval and departure in post-reunification Germany as if it were a fairytale.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/zweiland/?date=1787943600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="28."><span aria-hidden="true">28</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">21:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">28</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">21:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/zweiland/?date=1787943600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/zweiland/?date=1787943600">
+              <h1>Zweiland</h1>
+              <h6>Sasha Waltz</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12616"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/swgzw/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12616" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>For the first time in over 10 years, “Zweiland” is returning to the stage: the choreography by Sasha Waltz, which premiered in the Sophiensæle in 1997, unfolds a poetic approach towards the theme of “Pictures from Germany” against the backdrop of a symbolic wall: Rhythmic movement sequences interact with the pulsing life force of a Berlin street - Sasha Waltz tells the story of an era of social upheaval and departure in post-reunification Germany as if it were a fairytale.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1788022800">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="29."><span aria-hidden="true">29</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">19:00 h</span> <span class="location">Saal</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">29</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">19:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Saal</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1788022800">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1788022800">
+              <h1>for the time being</h1>
+              <h6>Sasha Waltz &amp; Guests</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12446"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/fttb3/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12446" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Sasha Waltz, together with a group of dancers and music by Diego Noguera, creates a collective practice of experiencing the moment – „for the time being“.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/zweiland/?date=1788030000">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="29."><span aria-hidden="true">29</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">21:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">29</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">21:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/zweiland/?date=1788030000">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/zweiland/?date=1788030000">
+              <h1>Zweiland</h1>
+              <h6>Sasha Waltz</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12617"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/swgzw/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12617" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>For the first time in over 10 years, “Zweiland” is returning to the stage: the choreography by Sasha Waltz, which premiered in the Sophiensæle in 1997, unfolds a poetic approach towards the theme of “Pictures from Germany” against the backdrop of a symbolic wall: Rhythmic movement sequences interact with the pulsing life force of a Berlin street - Sasha Waltz tells the story of an era of social upheaval and departure in post-reunification Germany as if it were a fairytale.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/zweiland/?date=1788102000">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Su </span>
+    <span class="mday" aria-label="30."><span aria-hidden="true">30</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">17:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">30</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Su <span class="special">17:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/zweiland/?date=1788102000">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/zweiland/?date=1788102000">
+              <h1>Zweiland</h1>
+              <h6>Sasha Waltz</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12618"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/swgzw/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12618" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>For the first time in over 10 years, “Zweiland” is returning to the stage: the choreography by Sasha Waltz, which premiered in the Sophiensæle in 1997, unfolds a poetic approach towards the theme of “Pictures from Germany” against the backdrop of a symbolic wall: Rhythmic movement sequences interact with the pulsing life force of a Berlin street - Sasha Waltz tells the story of an era of social upheaval and departure in post-reunification Germany as if it were a fairytale.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1788109200">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Su </span>
+    <span class="mday" aria-label="30."><span aria-hidden="true">30</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">19:00 h</span> <span class="location">Saal</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">30</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Su <span class="special">19:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Saal</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1788109200">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/for-the-time-being-08-2026/?date=1788109200">
+              <h1>for the time being</h1>
+              <h6>Sasha Waltz &amp; Guests</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12448"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/fttb3/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12448" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Sasha Waltz, together with a group of dancers and music by Diego Noguera, creates a collective practice of experiencing the moment – „for the time being“.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/zweiland/?date=1788116400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Su </span>
+    <span class="mday" aria-label="30."><span aria-hidden="true">30</span></span>
+    <span class="month" aria-label="8."><span aria-hidden="true">08</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">21:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">30</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Aug <span class="year">2026</span></p>
+        <p class="wday">Su <span class="special">21:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/zweiland/?date=1788116400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/zweiland/?date=1788116400">
+              <h1>Zweiland</h1>
+              <h6>Sasha Waltz</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-13068"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/swgzw/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-13068" class="collapsible-content bg-color-25_04_april_gelb-14">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>For the first time in over 10 years, “Zweiland” is returning to the stage: the choreography by Sasha Waltz, which premiered in the Sophiensæle in 1997, unfolds a poetic approach towards the theme of “Pictures from Germany” against the backdrop of a symbolic wall: Rhythmic movement sequences interact with the pulsing life force of a Berlin street - Sasha Waltz tells the story of an era of social upheaval and departure in post-reunification Germany as if it were a fairytale.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/heiner-goebbels-walden/?date=1788976800">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">We </span>
+    <span class="mday" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span> <span class="location">Halle</span>    <span class="extra">German premiere</span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">09</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">We <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/heiner-goebbels-walden/?date=1788976800">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Concert</span>
+                                  </p>
+                <p class="desktop-extra-text">German premiere</p>              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/heiner-goebbels-walden/?date=1788976800">
+              <h1>20 Jahre Radialsystem: Heiner Goebbels‘ „Walden“ (1998/2008/2026)</h1>
+              <h6>Solistenensemble Kaleidoskop, Ensemble Klang &amp; Keir Neuringer</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12864"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/wbc7d/" target="_blank">Remaining tickets might be available at the door</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12864" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Im Rahmen von „20 Jahre Radialsystem“ kehrt „Walden“ von Heiner Goebbels fast 20 Jahre nach der Uraufführung in einer eindrucksvollen Neuproduktion unter der Regie des Künstlers zurück, mit Keir Neuringer als Erzähler sowie dem Den Haager Ensemble Klang und dem Solistenensemble Kaleidoskop.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/festivals/20-years-radialsystem-for-everyone/?date=1788976800">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">We </span>
+    <span class="mday" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">09</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">We <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/festivals/20-years-radialsystem-for-everyone/?date=1788976800">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Exhibition</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                      <span class="tag">Family Format</span>
+                                      <span class="tag">Party</span>
+                                      <span class="tag">Concerts</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/festivals/20-years-radialsystem-for-everyone/?date=1788976800">
+              <h1>20 Jahre</h1>
+              <h6>Radialsystem für Alle</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12256"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12256" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>We will host a birthday weekend from 09 - 12 September, with concerts, performances, workshops, conversations, installations, communal meals, and lots of moments of togetherness.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(false,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/?date=1789124400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">from 13:00 h</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">11</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">from 13:00<span class="superbig-only"> h</span></span></p>
+      </div>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/?date=1789124400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Lecture</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/?date=1789124400">
+              <h1>20 Jahre Radialsystem: UNEXPECTED LESSONS 4 – Decolonizing the Body in Dance</h1>
+              <h6>Rajyashree Ramesh, Martha Hincapié Charry and Sage Ni‘Ja Whitson</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12984"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12984" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>In “Decolonizing the Body in Dance”, which we are presenting as part of “20 Years of Radialsystem”, movement becomes a practice of reconnection and an act of resistance and resilience.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/festivals/20-years-radialsystem-for-everyone/?date=1789124400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">from 13:00 h</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">11</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">from 13:00<span class="superbig-only"> h</span></span></p>
+      </div>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/festivals/20-years-radialsystem-for-everyone/?date=1789124400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Exhibition</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                      <span class="tag">Family Format</span>
+                                      <span class="tag">Party</span>
+                                      <span class="tag">Concerts</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/festivals/20-years-radialsystem-for-everyone/?date=1789124400">
+              <h1>20 Jahre</h1>
+              <h6>Radialsystem für Alle</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12265"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12265" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>We will host a birthday weekend from 09 - 12 September, with concerts, performances, workshops, conversations, installations, communal meals, and lots of moments of togetherness.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/unexpected-lesson-3-la-palabre-space/?date=1789128000">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">14:00 h</span> <span class="location">Kubus</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">11</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">14:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Kubus</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/unexpected-lesson-3-la-palabre-space/?date=1789128000">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Lecture</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/unexpected-lesson-3-la-palabre-space/?date=1789128000">
+              <h1>UNEXPECTED LESSONS 3: LA PALABRE Space</h1>
+              <h6>Tea, Reading &amp; Resting Room with jee chan, Cheng-jung Tsai</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12717"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Eintritt frei</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12717" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+                  </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/unexpected-lesson-3-rethinking-dance-in-academia/?date=1789142400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">18:00 h</span> <span class="location">Saal</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">11</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">18:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Saal</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/unexpected-lesson-3-rethinking-dance-in-academia/?date=1789142400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Lecture</span>
+                                      <span class="tag">Performance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/unexpected-lesson-3-rethinking-dance-in-academia/?date=1789142400">
+              <h1>20 Jahre Radialsystem: UNEXPECTED LESSONS 3 – Beyond Academia? How Dance Re-writes Research</h1>
+              <h6>Performative Talk with Mariama Diagne and Sandra Noeth</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12933"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12933" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Wie erforschen wir nicht nur den Tanz, sondern wie verändert Tanz das, was wir „Forschung“ nennen? Im Rahmen der Reihe „UNEXPECTED LESSONS – Knowledges of Body and Sound“ untersuchen Sandra Noeth und Mariama Diagne, beide Professorinnen im Bereich Tanz- und Performanceforschung an deutschen Hochschulen, wie der Tanz als Praxis, Kunstform und Diskursfeld im Laufe der Zeit ein akademisches Forschungsgebiet geprägt hat. „Rethinking Dance in Academia“ präsentieren wir als Teil von „20 Jahre Radialsystem“.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/20-jahre-zukunft/?date=1789149600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="11."><span aria-hidden="true">11</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">11</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/20-jahre-zukunft/?date=1789149600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Concert</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/20-jahre-zukunft/?date=1789149600">
+              <h1>20 Jahre Radialsystem: 20 Jahre Zukunft</h1>
+              <h6>Andromeda Mega Express Orchestra</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12776"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/r8rq7/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12776" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Auch das Andromeda Mega Express Orchestra feiert in diesem Jahr sein 20-jähriges Bestehen. Den Auftakt dazu macht das große Konzert am 11. September 2026 im Rahmen von „20 Jahre Radialsystem“. Das Ensemble spielt Werke aus unterschiedlichen Schaffensphasen der vergangenen Jahre sowie neue Arbeiten, deren künstlerische Schwerpunkte vor allem eins sein werden: überraschend.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/schrumpf-greyline-2026/?date=1789203600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">11:00 h</span> <span class="location">Lawn / Terrace</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">11:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Lawn / Terrace</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/schrumpf-greyline-2026/?date=1789203600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Performance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/schrumpf-greyline-2026/?date=1789203600">
+              <h1>20 Jahre Radialsystem: Schrumpf! Greyline</h1>
+              <h6>Performance for Children by Renae Shadler</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12895"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12895" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Renae Shadlers Performance „Greyline“ wurde 2024 im Gleisdreieck Park uraufgeführt und bespielt anlässlich des 20. Geburtstages in einer angepassten und „geschrumpften“ Version das Gelände des Radialsystems.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(false,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/20-jahre-radialsystem-open-house/?date=1789203600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">from 11:00 h</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">from 11:00<span class="superbig-only"> h</span></span></p>
+      </div>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/20-jahre-radialsystem-open-house/?date=1789203600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Concert</span>
+                                      <span class="tag">Performance / Tanz</span>
+                                      <span class="tag">Exhibition</span>
+                                      <span class="tag">Workshop</span>
+                                      <span class="tag">Musik</span>
+                                      <span class="tag">Family Format</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/20-jahre-radialsystem-open-house/?date=1789203600">
+              <h1>20 Jahre: Open House</h1>
+              <h6>Radialsystem für Alle</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12979"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12979" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p><small>Extended Open House: Set against the backdrop of the Spree, the terrace, the lawn, the hall and the studios, picnics, family activities, workshops, performances and musical interludes invite you to explore. From mid-morning onwards, the site transforms into an open space where visitors of all ages can come together.</small></p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/festivals/20-years-radialsystem-for-everyone/?date=1789203600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">from 11:00 h</span>    <span class="extra">Open House</span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">from 11:00<span class="superbig-only"> h</span></span></p>
+      </div>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/festivals/20-years-radialsystem-for-everyone/?date=1789203600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Exhibition</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                      <span class="tag">Family Format</span>
+                                      <span class="tag">Party</span>
+                                      <span class="tag">Concerts</span>
+                                  </p>
+                <p class="desktop-extra-text">Open House</p>              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/festivals/20-years-radialsystem-for-everyone/?date=1789203600">
+              <h1>20 Jahre</h1>
+              <h6>Radialsystem für Alle</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12266"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12266" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>We will host a birthday weekend from 09 - 12 September, with concerts, performances, workshops, conversations, installations, communal meals, and lots of moments of togetherness.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(false,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/whats-that-noise/?date=1789212600">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">13:30 h</span> <span class="location">Saal</span>    <span class="extra">Open House</span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">13:30<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Saal</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/whats-that-noise/?date=1789212600">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Musik</span>
+                                      <span class="tag">Party</span>
+                                  </p>
+                <p class="desktop-extra-text">Open House</p>              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/whats-that-noise/?date=1789212600">
+              <h1>20 Jahre Radialsystem: What’s That Noise?</h1>
+              <h6>Intergenerational Listening Party by Sandhya Daemgen</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12999"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12999" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>What happens when we listen together? As part of the ‘20 Years of Radialsystem’ celebrations, artist Sandhya Daemgen invites you to an atmospheric listening party for all ages with ‘What’s That Noise?’.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/unexpected-lesson-4-la-palabre-space/?date=1789214400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">14:00 h</span> <span class="location">Kubus</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">14:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Kubus</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/unexpected-lesson-4-la-palabre-space/?date=1789214400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Lecture</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/unexpected-lesson-4-la-palabre-space/?date=1789214400">
+              <h1>UNEXPECTED LESSONS 4: LA PALABRE Space</h1>
+              <h6>Tea, Reading &amp; Resting Room the dance project Coole Kinder</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12724"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12724" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+                  </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/temporary-title-2026/?date=1789214400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">14:00 h</span> <span class="location">Deck</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">14:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Deck</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/temporary-title-2026/?date=1789214400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Exhibition</span>
+                                      <span class="tag">Performance</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/temporary-title-2026/?date=1789214400">
+              <h1>20 Jahre Radialsystem: Temporary Title, 2026 – In the Middle, Somewhat Rehearsed</h1>
+              <h6>Exhibition by Xavier Le Roy</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12844"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Eintritt frei</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12844" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>“Temporary Title, 2026 – In the Middle, Somewhat Rehearsed” is a work by Xavier Le Roy, presented for the first time as a rehearsal process open to the public as part of “20 Years of Radialsystem,” before premiering at the Palais de Tokyo in Paris in November 2026.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(false,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/?date=1789214400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">from 14:00 h</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">from 14:00<span class="superbig-only"> h</span></span></p>
+      </div>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/?date=1789214400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Lecture</span>
+                                      <span class="tag">Performance</span>
+                                      <span class="tag">Workshop</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/20-jahre-unexpected-lesson-4-decolonizing-the-body-in-dance/?date=1789214400">
+              <h1>20 Jahre Radialsystem: UNEXPECTED LESSONS 4 – Decolonizing the Body in Dance</h1>
+              <h6>Rajyashree Ramesh, Martha Hincapié Charry and Sage Ni‘Ja Whitson</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-13010"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Free admission</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-13010" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>In “Decolonizing the Body in Dance”, which we are presenting as part of “20 Years of Radialsystem”, movement becomes a practice of reconnection and an act of resistance and resilience.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/in-c-workshop/?date=1789218000">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">15:00 h</span> <span class="location">Studio A</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">15:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Studio A</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/in-c-workshop/?date=1789218000">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Dance</span>
+                                      <span class="tag">Workshop</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/in-c-workshop/?date=1789218000">
+              <h1>20 Jahre Radialsystem: In C-Workshop</h1>
+              <h6>Sasha Waltz &amp; Guests</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-13020"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon">Ticket sale starts 2nd of July.</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-13020" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>Familien und alle Interessierten sind bei einem „In C-Workshop“ herzlich dazu eingeladen, das Bewegungsmaterial spielerisch kennenzulernen und das Konzept getanzter Demokratie auszuprobieren.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(false,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/in-c-special-performance/?date=1789236000">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/in-c-special-performance/?date=1789236000">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Performance / Tanz</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/in-c-special-performance/?date=1789236000">
+              <h1>20 Jahre Radialsystem: In C - special performance</h1>
+              <h6>Sasha Waltz &amp; Guests / Terry Riley</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12972"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/incsp/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12972" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>„In C“ von Sasha Waltz ist eine farbenfrohe Auseinandersetzung mit der Welt der Minimal Music, basierend auf Terry Rileys gleich-namiger, bahnbrechender Komposition von 1964. </p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(false,false,false)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/in-c-special-performance/?date=1789241400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="month" aria-label="9."><span aria-hidden="true">09</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">21:30 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">12</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Sep <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">21:30<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/in-c-special-performance/?date=1789241400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Performance / Tanz</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/in-c-special-performance/?date=1789241400">
+              <h1>20 Jahre Radialsystem: In C - special performance</h1>
+              <h6>Sasha Waltz &amp; Guests / Terry Riley</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-13069"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/incsp/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-13069" class="collapsible-content bg-color-25_04_april_gelb-17">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>„In C“ von Sasha Waltz ist eine farbenfrohe Auseinandersetzung mit der Welt der Minimal Music, basierend auf Terry Rileys gleich-namiger, bahnbrechender Komposition von 1964. </p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796324400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Th </span>
+    <span class="mday" aria-label="3."><span aria-hidden="true">03</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span> <span class="location">Halle</span>    <span class="extra">World Premiere</span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">03</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Dec <span class="year">2026</span></p>
+        <p class="wday">Th <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/architecture-of-trust/?date=1796324400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Music theatre</span>
+                                  </p>
+                <p class="desktop-extra-text">World Premiere</p>              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796324400">
+              <h1>Architecture of Trust</h1>
+              <h6>Music theatre by NICO AND THE NAVIGATORS about fragile certainties</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12270"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/navitr/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12270" class="collapsible-content bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>In their new production, NICO AND THE NAVIGATORS present an evening of music theatre about a fundamental part of modern society that has become fragile: trust.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796410800">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Fr </span>
+    <span class="mday" aria-label="4."><span aria-hidden="true">04</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span> <span class="location">Halle</span>    <span class="extra">Artist Talk Afterwards</span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">04</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Dec <span class="year">2026</span></p>
+        <p class="wday">Fr <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/architecture-of-trust/?date=1796410800">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Music theatre</span>
+                                  </p>
+                <p class="desktop-extra-text">Artist Talk Afterwards</p>              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796410800">
+              <h1>Architecture of Trust</h1>
+              <h6>Music theatre by NICO AND THE NAVIGATORS about fragile certainties</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12275"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/navitr/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12275" class="collapsible-content bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>In their new production, NICO AND THE NAVIGATORS present an evening of music theatre about a fundamental part of modern society that has become fragile: trust.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796497200">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Sa </span>
+    <span class="mday" aria-label="5."><span aria-hidden="true">05</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">20:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">05</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Dec <span class="year">2026</span></p>
+        <p class="wday">Sa <span class="special">20:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/architecture-of-trust/?date=1796497200">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Music theatre</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796497200">
+              <h1>Architecture of Trust</h1>
+              <h6>Music theatre by NICO AND THE NAVIGATORS about fragile certainties</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12276"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/navitr/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12276" class="collapsible-content bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>In their new production, NICO AND THE NAVIGATORS present an evening of music theatre about a fundamental part of modern society that has become fragile: trust.</p>        </div>
+      </div>
+    </div>
+  </div>
+    <div class="wrapper" x-show="isEventVisible(true,false,true)">
+    <div class="event-list-entry bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="row">
+          <div class="columns the-date">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796576400">
+                                                                                            <div class="to-desktop">
+                    <p class="dateblock">
+    <span class="wday">Su </span>
+    <span class="mday" aria-label="6."><span aria-hidden="true">06</span></span>
+    <span class="month" aria-label="12."><span aria-hidden="true">12</span></span>
+    <span class="year">2026</span>
+    <br>
+    <span class="special">18:00 h</span> <span class="location">Halle</span>    <span class="extra"></span>
+  </p>
+                </div>
+                <div class="from-desktop full-height">
+                  <div class="dateblock-flex">
+                      <div class="dateblock">
+    <div class="block-1">
+      <h1><span class="mday">06</span></h1>
+    </div>
+    <div class="block-2">
+      <div>
+        <p class="month">Dec <span class="year">2026</span></p>
+        <p class="wday">Su <span class="special">18:00<span class="superbig-only"> h</span></span></p>
+      </div>
+              <h6 class="location">Halle</h6>
+          </div>
+  </div>
+                  </div>
+                </div>
+                          </a>
+          </div>
+          <div class="columns the-format">
+            <a class="full-height" href="/en/veranstaltungen/architecture-of-trust/?date=1796576400">
+              <div class="between-flex full-height">
+                <p>
+                                      <span class="tag">Music theatre</span>
+                                  </p>
+                              </div>
+            </a>
+          </div>
+          <div class="columns the-name">
+            <a href="/en/veranstaltungen/architecture-of-trust/?date=1796576400">
+              <h1>Architecture of Trust</h1>
+              <h6>Music theatre by NICO AND THE NAVIGATORS about fragile certainties</h6>
+            </a>
+          </div>
+          <div class="columns the-icon"><a class="collapsible-trigger" data-trig="collapsible-content-12277"></a></div>
+          <div class="columns the-ticket">
+                          <h6><a class="icon" href="https://pretix.eu/radialsystem/navitr/" target="_blank">Tickets</a></h6>
+                      </div>
+        </div>
+      </div>
+    </div>
+    <div id="collapsible-content-12277" class="collapsible-content bg-color-25_04_april_gelb-18">
+      <div class="inset-text-only">
+        <div class="richtext smaller">
+          <p>In their new production, NICO AND THE NAVIGATORS present an evening of music theatre about a fundamental part of modern society that has become fragile: trust.</p>        </div>
+      </div>
+    </div>
+  </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+
+document.addEventListener('alpine:init', () => {
+
+  Alpine.data('events', () => ({
+    displayTypes: [
+      { name: "grid" },
+      { name: "list" },
+    ],
+
+    // check if set by input. if not get from local storage. if empty set list
+          curDisplayIdx: (localStorage.getItem("curDisplayIdx") === null) ? 1 : localStorage.getItem("curDisplayIdx"),
+    
+    accessibilities: [
+      { id: 1, name: "analog", selected: false },
+      { id: 2, name: "online", selected: false },
+      { id: 3, name: "accessible", selected: false },
+    ],
+
+    gridOddEvenInverse: (Math.random() < 0.5),
+
+    initDisplayIdx() {
+      return 1;
+    },
+
+    toggleActive(e) {
+      let others = document.getElementsByClassName("events-widget-item");
+      for (let i = 0; i < others.length; i++) { others[i].classList.remove("active"); }
+      e.target.classList.add("active");
+    },
+
+    isEventVisible(analog, online, accessible) {
+      if (this.noAccessibiltySelected()) { return true; }
+      if ((analog) && (this.accessibilities[0].selected)) { return true; }
+      if ((online) && (this.accessibilities[1].selected)) { return true; }
+      if ((accessible) && (this.accessibilities[2].selected)) { return true; }
+      return false;
+    },
+
+    isPseudoTabletGridEventVisible() {
+      let visibleWidgets = this.getVisibleWidgets();
+      return ((visibleWidgets.length % 2) === 1);
+    },
+
+    isPseudoDesktopGridEventVisible(idx) {
+      let visibleWidgets = this.getVisibleWidgets();
+      if (idx == 1) { // first desktop pseudo element visible
+        return ((visibleWidgets.length % 3) == 1);
+      } else if (idx == 2) { // second desktop pseudo element visible
+        return ((visibleWidgets.length % 3) >= 1);
+      }
+      return false;
+    },
+
+    gridOddEvenClass(idx) {
+      let visibleWidgets = this.getVisibleWidgets();
+      for (let i = 0; i < visibleWidgets.length; i++) {
+        if (visibleWidgets[i].dataset.idx == idx) {
+          if (i % 2 == 1) {
+            if (this.gridOddEvenInverse) {
+              visibleWidgets[i].classList.add("odd");
+              visibleWidgets[i].classList.remove("even");
+            } else {
+              visibleWidgets[i].classList.add("even");
+              visibleWidgets[i].classList.remove("odd");
+            }
+          } else {
+            if (this.gridOddEvenInverse) {
+              visibleWidgets[i].classList.add("even");
+              visibleWidgets[i].classList.remove("odd");
+            } else {
+              visibleWidgets[i].classList.add("odd");
+              visibleWidgets[i].classList.remove("even");
+            }
+          }
+        }
+      }
+    },
+
+    getVisibleWidgets() {
+      let allWidgets = document.getElementsByClassName("events-widget-item");
+      let visibleWidgets = [];
+      for (let i = 0; i < allWidgets.length; i++) {
+        if (this.isEventVisible((allWidgets[i].dataset.analog === "true"),
+                                (allWidgets[i].dataset.online === "true"),
+                                (allWidgets[i].dataset.accessible === "true"))) {
+          visibleWidgets.push(allWidgets[i]);
+        }
+      }
+      return visibleWidgets;
+    },
+
+    noAccessibiltySelected() {
+      for(let i = 0; i < this.accessibilities.length; i++) {
+        if (this.accessibilities[i].selected == true) { return false; }
+      }
+      return true;
+    },
+
+    isAccessibiltySelected(id) {
+      for(let i = 0; i < this.accessibilities.length; i++) {
+        if ((this.accessibilities[i].selected == true) && (this.accessibilities[i].id == id)) { return true; }
+      }
+      return false;
+    },
+
+    toggleAccessibilty(id) {
+      for(let i = 0; i < this.accessibilities.length; i++) {
+        if (this.accessibilities[i].id == id) {
+          this.accessibilities[i].selected = !this.accessibilities[i].selected;
+        }
+      }
+    },
+
+    isDisplaySelected(name) {
+      if (this.displayTypes[this.curDisplayIdx].name == name) { return true; }
+      else { return false; }
+    },
+
+    setDisplay(name) {
+      for(let i = 0; i < this.displayTypes.length; i++) {
+        if (this.displayTypes[i].name == name) {
+          this.curDisplayIdx = i;
+          // store in local storage
+          localStorage.setItem("curDisplayIdx", i);
+        }
+      }
+    },
+
+  }));
+});
+
+</script>
+                  
+  </div>
+</main>
+    
+<footer id="footer">
+  <div class="row">
+    <div class="columns">
+      <div class="inset">
+                  <h2><a href="/en/service/newsletter/">Newsletter</a></h2>
+                  <h2><a href="/en/service/kontakt/">Contact</a></h2>
+              </div>
+    </div>
+    <div class="columns">
+      <div class="inset">
+                  <h2><a href="https://www.instagram.com/radialsystem_berlin/" target="_blank">Instagram</a></h2>
+                  <h2><a href="https://www.facebook.com/Radialsystem/" target="_blank">Facebook</a></h2>
+              </div>
+    </div>
+    <div class="columns">
+      <div class="inset">
+                  <h2><a href="/en/impressum/">Imprint</a></h2>
+                  <h2><a href="/en/datenschutz/">Privacy</a></h2>
+                  <h2><a href="/en/erklarung-zur-barrierefreiheit/">Barrierefreiheitserklärung</a></h2>
+              </div>
+      </div>
+    </div>
+  </div>
+</footer>
+		<script src="/site/assets/aiom/js_ee34c1c5063ef7db260b9ff98e701116.js"></script>
+	<script src='/site/modules/MarkupCookieConsent/MarkupCookieConsent.min.js'></script><form id='mCCForm' class='mCCF mCCF--bottom mCCF--dark' action='./?accept=cookies' method='post'><button id='mCCButton' class='mCCF__accept' name='action' value='acceptCookies'>OK</button><p class='mCCF__message'><b>Use of Cookies</b><br>Radialsystem does not store any personal data of website visitors. Details in our<a class='mCCF__link' href='/en/datenschutz/' target='_self'>privacy policy.</a></p></form></body>
+</html>

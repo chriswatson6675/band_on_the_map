@@ -58,6 +58,29 @@ import { extractEventCards as extractUrbanSpreeCards, toObservations as urbanSpr
 import { extractEventCards as extractAuslandCards, toObservations as auslandToObservations } from "../ausland/observation-adapter.mjs";
 import { toObservation as kunstfabrikSchlotToObservation } from "../kunstfabrik-schlot/observation-adapter.mjs";
 
+// BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01 — the 14
+// previously-investigated (READY_FOR_OFFLINE_PROOF) Berlin backlog
+// candidates, each processed through the collector library that exists
+// as of this second pass. See each source's own investigation.json
+// (research/source-investigations/<id>/) and the accompanying
+// ingestion/<slug>/ adapter + tests/<slug>.test.mjs for the retained
+// evidence and offline proof this wiring is built on.
+import { extractEventCards as extractAdmiralspalastCards, toObservations as admiralspalastToObservations } from "../admiralspalast/observation-adapter.mjs";
+import { extractEventCards as extractAstraCards, toObservations as astraToObservations } from "../astra-kulturhaus/observation-adapter.mjs";
+import { extractEventCards as extractBerghainCards, extractDetailStartInstant as extractBerghainDetailStartInstant, toObservations as berghainToObservations } from "../berghain/observation-adapter.mjs";
+import { extractEventCards as extractCassiopeiaCards, toObservations as cassiopeiaToObservations } from "../cassiopeia/observation-adapter.mjs";
+import { extractEventCards as extractFrannzClubCards, toObservations as frannzClubToObservations } from "../frannz-club/observation-adapter.mjs";
+import { extractEventCards as extractHuxleysCards, toObservations as huxleysToObservations } from "../huxleys-neue-welt/observation-adapter.mjs";
+import { extractEventCards as extractJunctionBarCards, toObservations as junctionBarToObservations } from "../junction-bar/observation-adapter.mjs";
+import { extractEventCards as extractKaterBlauCards, toObservations as katerBlauToObservations } from "../kater-blau/observation-adapter.mjs";
+import { extractEventCards as extractQuasimodoCards, toObservations as quasimodoToObservations } from "../quasimodo/observation-adapter.mjs";
+import { extractEventCards as extractRadialsystemCards, filterMusicEventCards as filterRadialsystemMusicCards, toObservations as radialsystemToObservations } from "../radialsystem/observation-adapter.mjs";
+import { extractEventCards as extractSilentGreenCards, filterMusicEventCards as filterSilentGreenMusicCards } from "../silent-green-kulturquartier/discovery.mjs";
+import { toObservation as silentGreenToObservation } from "../silent-green-kulturquartier/observation-adapter.mjs";
+import { extractEventCards as extractTresorCards, toObservations as tresorToObservations } from "../tresor/observation-adapter.mjs";
+import { extractEventCards as extractWabeCards, toObservations as wabeToObservations } from "../wabe/observation-adapter.mjs";
+import { extractEventCards as extractWildeRenateCards, toObservations as wildeRenateToObservations } from "../wilde-renate/observation-adapter.mjs";
+
 import { resolveObservation } from "../venue/resolver.mjs";
 import { buildGermanyMarkers } from "../map/publication.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
@@ -94,6 +117,21 @@ export const BERLIN_SOURCE_IDS = [
   "urban-spree-berlin",
   "ausland-berlin",
   "kunstfabrik-schlot-berlin",
+  // E — BEATMAPPED-BERLIN-SECOND-PASS-30-40-VENUE-COMPLETION-01 backlog
+  "admiralspalast-berlin",
+  "astra-kulturhaus-berlin",
+  "berghain-berlin",
+  "cassiopeia-berlin",
+  "frannz-club-berlin",
+  "huxleys-neue-welt-berlin",
+  "junction-bar-berlin",
+  "kater-blau-berlin",
+  "quasimodo-berlin",
+  "radialsystem-berlin",
+  "silent-green-kulturquartier-berlin",
+  "tresor-berlin",
+  "wabe-berlin",
+  "wilde-renate-berlin",
 ];
 
 async function loadRegistryEntry(entries, sourceId) {
@@ -470,6 +508,248 @@ async function collectKunstfabrikSchlot() {
   return { rawRecordCount: links.length, observations, notes };
 }
 
+// ---------------------------------------------------------------------
+// Family E — second-pass backlog collectors (BEATMAPPED-BERLIN-SECOND-
+// PASS-30-40-VENUE-COMPLETION-01). Each is genuinely bespoke per its own
+// investigation (only Astra Kulturhaus reused the existing JSON_LD
+// family with a small, documented fix) — see each source's own
+// investigation.json for the full reasoning.
+// ---------------------------------------------------------------------
+
+async function collectAdmiralspalast() {
+  const url = "https://www.admiralspalast.theater/veranstaltungsuebersicht.html";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractAdmiralspalastCards(res.text);
+  const observations = admiralspalastToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectAstraKulturhaus() {
+  const url = "https://astra-berlin.de/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractAstraCards(res.text);
+  const observations = astraToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectBerghain() {
+  const notes = [];
+  const pageUrls = [
+    "https://www.berghain.berlin/en/program/",
+    "https://www.berghain.berlin/en/program/?page=2",
+    "https://www.berghain.berlin/en/program/kantine-am-berghain/",
+  ];
+  let cards = [];
+  for (const pageUrl of pageUrls) {
+    const res = await fetchText(pageUrl, {});
+    if (!res.ok) {
+      notes.push(`${pageUrl}: HTTP ${res.status}`);
+      continue;
+    }
+    cards = cards.concat(extractBerghainCards(res.text));
+  }
+  const rawRecordCount = cards.length;
+
+  const detailUrls = [...new Set(cards.map((c) => c.eventUrl).filter(Boolean))];
+  const boundedDetailUrls = detailUrls.length > MAX_DETAIL_FETCHES ? detailUrls.slice(0, MAX_DETAIL_FETCHES) : detailUrls;
+  if (detailUrls.length > MAX_DETAIL_FETCHES) notes.push(`bounded to the first ${MAX_DETAIL_FETCHES} of ${detailUrls.length} detail URLs for this run (MAX_DETAIL_FETCHES)`);
+
+  const detailStartInstantsById = {};
+  for (const detailUrl of boundedDetailUrls) {
+    const detailRes = await fetchText(detailUrl, {});
+    if (!detailRes.ok) {
+      notes.push(`${detailUrl}: HTTP ${detailRes.status}`);
+      continue;
+    }
+    const card = cards.find((c) => c.eventUrl === detailUrl);
+    if (!card) continue;
+    try {
+      detailStartInstantsById[card.permalinkId] = extractBerghainDetailStartInstant(detailRes.text);
+    } catch (error) {
+      notes.push(`${detailUrl}: ${error.message}`);
+    }
+  }
+
+  const observations = berghainToObservations(cards, detailStartInstantsById, { retrievedAt: new Date().toISOString() });
+  return { rawRecordCount, observations, notes };
+}
+
+async function collectCassiopeia() {
+  const notes = [];
+  const pageUrls = [
+    "https://cassiopeia-berlin.de/club",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=2",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=3",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=4",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=5",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=6",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=7",
+    "https://cassiopeia-berlin.de/club?f74de34a_page=8",
+  ];
+  let cards = [];
+  let retrievedAt = new Date().toISOString();
+  for (const pageUrl of pageUrls) {
+    const res = await fetchText(pageUrl, {});
+    if (!res.ok) {
+      notes.push(`${pageUrl}: HTTP ${res.status}`);
+      continue;
+    }
+    retrievedAt = res.retrievedAt ?? retrievedAt;
+    cards = cards.concat(extractCassiopeiaCards(res.text));
+  }
+  const observations = cassiopeiaToObservations(cards, { retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes };
+}
+
+async function collectFrannzClub() {
+  const url = "https://frannz.eu/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractFrannzClubCards(res.text);
+  const observations = frannzClubToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectHuxleysNeueWelt() {
+  const url = "https://huxleysneuewelt.de/en/events";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractHuxleysCards(res.text);
+  const observations = huxleysToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectJunctionBar() {
+  const notes = [];
+  const pageUrls = [
+    { url: "https://junction-bar.de/program/08_2026/08_26.html" },
+    { url: "https://junction-bar.de/program/09_2026/09_26.html" },
+  ];
+  let cards = [];
+  let retrievedAt = new Date().toISOString();
+  for (const { url } of pageUrls) {
+    const res = await fetchText(url, {});
+    if (!res.ok) {
+      notes.push(`${url}: HTTP ${res.status}`);
+      continue;
+    }
+    retrievedAt = res.retrievedAt ?? retrievedAt;
+    cards = cards.concat(extractJunctionBarCards(res.text, { sourceUrl: url }));
+  }
+  const observations = junctionBarToObservations(cards, { retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes };
+}
+
+async function collectKaterBlau() {
+  const url = "https://www.katerclub.de/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractKaterBlauCards(res.text);
+  const observations = katerBlauToObservations(cards, { retrievedAt: res.retrievedAt, sourceUrl: url });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectQuasimodo() {
+  const url = "https://quasimodo.club/en/events";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractQuasimodoCards(res.text);
+  const observations = quasimodoToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectRadialsystem() {
+  const url = "https://www.radialsystem.de/en/programm/programm/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const allCards = extractRadialsystemCards(res.text);
+  const { musicCards, rejectedCards } = filterRadialsystemMusicCards(allCards);
+  const observations = radialsystemToObservations(musicCards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: allCards.length, observations, notes: [`${musicCards.length} music-relevant, ${rejectedCards.length} rejected (non-music discipline)`] };
+}
+
+async function collectSilentGreenKulturquartier() {
+  const notes = [];
+  const monthUrls = [
+    "https://www.silent-green.net/en/programme/2026/8",
+    "https://www.silent-green.net/en/programme/2026/9",
+    "https://www.silent-green.net/en/programme/2026/10",
+    "https://www.silent-green.net/en/programme/2026/11",
+  ];
+  let allCards = [];
+  for (const monthUrl of monthUrls) {
+    const res = await fetchText(monthUrl, {});
+    if (!res.ok) {
+      notes.push(`${monthUrl}: HTTP ${res.status}`);
+      continue;
+    }
+    allCards = allCards.concat(extractSilentGreenCards(res.text));
+  }
+  const { musicCards, rejectedCards } = filterSilentGreenMusicCards(allCards);
+  notes.push(`${musicCards.length} music-relevant, ${rejectedCards.length} rejected (non-music discipline)`);
+
+  const boundedCards = musicCards.length > MAX_DETAIL_FETCHES ? musicCards.slice(0, MAX_DETAIL_FETCHES) : musicCards;
+  if (musicCards.length > MAX_DETAIL_FETCHES) notes.push(`bounded to the first ${MAX_DETAIL_FETCHES} of ${musicCards.length} music-relevant detail fetches for this run (MAX_DETAIL_FETCHES)`);
+
+  const observations = [];
+  for (const card of boundedCards) {
+    const detailRes = await fetchText(card.eventUrl, {});
+    if (!detailRes.ok) {
+      notes.push(`${card.eventUrl}: HTTP ${detailRes.status}`);
+      continue;
+    }
+    try {
+      observations.push(silentGreenToObservation({ card, detailHtml: detailRes.text, retrievedAt: detailRes.retrievedAt }));
+    } catch (error) {
+      notes.push(`${card.eventUrl}: ${error.message}`);
+    }
+  }
+  return { rawRecordCount: allCards.length, observations, notes };
+}
+
+async function collectTresor() {
+  const url = "https://tresorberlin.com/club/events/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractTresorCards(res.text);
+  const observations = tresorToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
+async function collectWabe() {
+  const notes = [];
+  const monthUrls = [
+    "https://www.wabe-berlin.info/aug-2026/",
+    "https://www.wabe-berlin.info/sep-2026/",
+    "https://www.wabe-berlin.info/okt-2026/",
+    "https://www.wabe-berlin.info/nov-2026/",
+  ];
+  let cards = [];
+  let retrievedAt = new Date().toISOString();
+  for (const monthUrl of monthUrls) {
+    const res = await fetchText(monthUrl, {});
+    if (!res.ok) {
+      notes.push(`${monthUrl}: HTTP ${res.status}`);
+      continue;
+    }
+    retrievedAt = res.retrievedAt ?? retrievedAt;
+    cards = cards.concat(extractWabeCards(res.text));
+  }
+  const observations = wabeToObservations(cards, { retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes };
+}
+
+async function collectWildeRenate() {
+  const url = "https://www.renate.cc/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractWildeRenateCards(res.text);
+  const observations = wildeRenateToObservations(cards, { retrievedAt: res.retrievedAt });
+  return { rawRecordCount: cards.length, observations, notes: [] };
+}
+
 const COLLECTORS = {
   "waldbuehne-berlin": collectWaldbuehne,
   "a-trane-berlin": collectATrane,
@@ -495,6 +775,20 @@ const COLLECTORS = {
   "urban-spree-berlin": collectUrbanSpree,
   "ausland-berlin": collectAusland,
   "kunstfabrik-schlot-berlin": collectKunstfabrikSchlot,
+  "admiralspalast-berlin": collectAdmiralspalast,
+  "astra-kulturhaus-berlin": collectAstraKulturhaus,
+  "berghain-berlin": collectBerghain,
+  "cassiopeia-berlin": collectCassiopeia,
+  "frannz-club-berlin": collectFrannzClub,
+  "huxleys-neue-welt-berlin": collectHuxleysNeueWelt,
+  "junction-bar-berlin": collectJunctionBar,
+  "kater-blau-berlin": collectKaterBlau,
+  "quasimodo-berlin": collectQuasimodo,
+  "radialsystem-berlin": collectRadialsystem,
+  "silent-green-kulturquartier-berlin": collectSilentGreenKulturquartier,
+  "tresor-berlin": collectTresor,
+  "wabe-berlin": collectWabe,
+  "wilde-renate-berlin": collectWildeRenate,
 };
 
 async function acquireAll(sourceIds, registryEntries) {

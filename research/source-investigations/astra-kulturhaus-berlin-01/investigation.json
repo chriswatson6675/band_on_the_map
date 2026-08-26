@@ -4,7 +4,7 @@
   "investigated_at": "2026-08-26T12:45:00Z",
   "investigator": {
     "type": "AI",
-    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official homepage (a Rails/Turbolinks app whose homepage itself lists upcoming events as static server-rendered cards) and two individual event detail pages, each of which additionally embeds a schema.org MusicEvent JSON-LD block. Cross-checking the JSON-LD startDate against the same cards' own directly-stated local time fields across both sampled events revealed a real, consistently-reproduced timezone-offset bug in the JSON-LD field, documented honestly below rather than trusted at face value."
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official homepage (a Rails/Turbolinks app whose homepage itself lists upcoming events as static server-rendered cards) and two individual event detail pages, each of which additionally embeds a schema.org MusicEvent JSON-LD block. Cross-checking the JSON-LD startDate against the same cards' own directly-stated local time fields across both sampled events revealed a real, consistently-reproduced timezone-offset bug in the JSON-LD field, documented honestly below rather than trusted at face value. Re-verified live 2026-08-26 (BEATMAPPED-BERLIN-30-40-VENUE-COMPLETION-01): a fresh curl GET of the homepage (following its own 301 redirect to www.astra-berlin.de) and of a third, currently-active event detail page (FKJ) confirmed the source is unbroken (56 real upcoming event cards present) and that the JSON-LD offset bug still reproduces identically. ingestion/astra-kulturhaus/observation-adapter.mjs was then built and offline-proven against retained fixtures (tests/astra-kulturhaus.test.mjs) to genuinely resolve, not merely document, that blocker."
   },
   "probe_history": [
     {
@@ -68,8 +68,8 @@
       "state": "PROVEN",
       "value": "2026-09-05T18:00:00Z",
       "basis": "DETERMINISTIC_CONTEXT",
-      "notes": "The event detail page's own JSON-LD 'startDate' ('2026-09-05T20:00:00+00:00') is NOT used as this field's basis: cross-checking two independently sampled events (Buzzcocks and SKI AGGU) showed this JSON-LD field always literally states the local wall-clock 'Start' time with a fixed, incorrect '+00:00' offset appended, rather than the venue's true Europe/Berlin offset — i.e. it is internally inconsistent with the same page's own other directly-stated fields, and is flagged as a collector_assessment blocker rather than trusted. Instead, the homepage card's own machine-readable 'data-realdate' attribute directly states a full local datetime WITH the correct UTC offset for this date ('2026-09-05 19:00:00 +0200') — but for the card's Doors time, not the Start time. The same card's own nested Start time-value element directly states the true performance start clock time ('20:00') with no offset of its own. Combining these two retained, first-party fields mechanically (see derivation) yields a single full UTC instant for the true show start: 2026-09-05T18:00:00Z (20:00 CEST).",
-      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks"],
+      "notes": "The event detail page's own JSON-LD 'startDate' ('2026-09-05T20:00:00+00:00') is NOT used as this field's basis: cross-checking two independently sampled events (Buzzcocks and SKI AGGU) showed this JSON-LD field always literally states the local wall-clock 'Start' time with a fixed, incorrect '+00:00' offset appended, rather than the venue's true Europe/Berlin offset — i.e. it is internally inconsistent with the same page's own other directly-stated fields, and is flagged as a collector_assessment blocker rather than trusted. Instead, the homepage card's own machine-readable 'data-realdate' attribute directly states a full local datetime WITH the correct UTC offset for this date ('2026-09-05 19:00:00 +0200') — but for the card's Doors time, not the Start time. The same card's own nested Start time-value element directly states the true performance start clock time ('20:00') with no offset of its own. Combining these two retained, first-party fields mechanically (see derivation) yields a single full UTC instant for the true show start: 2026-09-05T18:00:00Z (20:00 CEST). Re-verified live 2026-08-26 (BEATMAPPED-BERLIN-30-40-VENUE-COMPLETION-01): a third, freshly sampled, currently-active event (FKJ, 2026-10-21) reproduces the identical bug pattern (JSON-LD states '2026-10-21T20:00:00+00:00'; the correct derived instant is 2026-10-21T18:00:00Z) and the derivation rule was reproduced deterministically offline against retained fixtures — see ingestion/astra-kulturhaus/observation-adapter.mjs and tests/astra-kulturhaus.test.mjs.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks", "ev-homepage-reverify-20260826", "ev-event-detail-fkj-reverify-20260826", "astra-kulturhaus-berlin-01-offline-proof"],
       "derivation": {
         "rule": "Each event card's own data-realdate attribute states a full local datetime with an explicit, correctly-formed UTC offset for that calendar date (representing Doors time). The same card's own nested Start time-value element states the true performance start clock time, with no offset of its own. Substitute the Start clock time for the data-realdate's time-of-day component, keeping data-realdate's own date and UTC offset unchanged, to produce one full UTC instant for the true show start. This derivation deliberately never uses the event detail page's own JSON-LD startDate field as an input, because that field was independently confirmed (via two sampled events) to always carry a fixed, incorrect '+00:00' offset suffix rather than the venue's real offset.",
         "inputs": ["2026-09-05 19:00:00 +0200 (homepage card data-realdate, Doors)", "20:00 (homepage card Start time-value)"]
@@ -113,17 +113,17 @@
   },
   "collector_assessment": {
     "recommended_family": "JSON_LD",
-    "confidence": "MEDIUM",
-    "evidence_refs": ["ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu", "ev-homepage"],
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu", "ev-homepage", "ev-homepage-reverify-20260826", "ev-event-detail-fkj-reverify-20260826", "astra-kulturhaus-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MAJOR",
-        "description": "This source's own JSON-LD 'startDate' field carries a confirmed, reproducible timezone-offset bug: across both independently sampled events it literally states the local wall-clock start time with a fixed, incorrect '+00:00' UTC-offset suffix (e.g. '2026-09-05T20:00:00+00:00' for an actual 20:00 CEST / 18:00Z show), rather than the venue's true Europe/Berlin offset. A naive JSON_LD collector implementation that trusts this field's offset literally would silently record every event's start time 2 hours late (summer) or 1 hour late (winter). Any future collector for this source MUST derive the UTC start instant from the homepage card's own data-realdate + Start time-value fields (see field_assessment.time.derivation) instead of parsing JSON-LD startDate directly, or must strip and recompute the offset using the venue's known fixed Europe/Berlin timezone. This must be resolved before activation."
+        "description": "This source's own JSON-LD 'startDate' field carries a confirmed, reproducible timezone-offset bug: across both independently sampled events it literally states the local wall-clock start time with a fixed, incorrect '+00:00' UTC-offset suffix (e.g. '2026-09-05T20:00:00+00:00' for an actual 20:00 CEST / 18:00Z show), rather than the venue's true Europe/Berlin offset. A naive JSON_LD collector implementation that trusts this field's offset literally would silently record every event's start time 2 hours late (summer) or 1 hour late (winter). Any future collector for this source MUST derive the UTC start instant from the homepage card's own data-realdate + Start time-value fields (see field_assessment.time.derivation) instead of parsing JSON-LD startDate directly, or must strip and recompute the offset using the venue's known fixed Europe/Berlin timezone. This must be resolved before activation. — RESOLVED 2026-08-26 (BEATMAPPED-BERLIN-30-40-VENUE-COMPLETION-01): ingestion/astra-kulturhaus/observation-adapter.mjs's deriveStart() genuinely never reads JSON-LD startDate for timing — it derives every observation's start instant exclusively from the homepage card's own data-realdate + Start time-value fields, per field_assessment.time.derivation. This was re-verified live against a third, freshly sampled event (FKJ) which reproduces the identical bug, and reproduced deterministically offline against retained fixtures in tests/astra-kulturhaus.test.mjs (evidence_id astra-kulturhaus-berlin-01-offline-proof). No collector code path in this source's adapter trusts the buggy field; it remains present in the source's own live output but is now genuinely worked around, not merely documented."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from two independently retained artifacts (homepage title, and the JSON-LD's own location.name/address).",
       "acquisition_class JSON_LD_EVENT, a resolved supported class, reached at Level 1 with no escalation needed.",
@@ -131,9 +131,10 @@
       "title, start_date, and time all PROVEN — time via a documented DETERMINISTIC_CONTEXT derivation that deliberately bypasses this source's own confirmed-buggy JSON-LD offset field.",
       "source_record_id and venue_location and price all PROVEN with basis DIRECT_SOURCE — this source exposes a genuinely complete price breakdown, unlike the AEG-operated sibling venues in this trial.",
       "recommended_family JSON_LD, an existing documented collector family — no new family required, though a MAJOR blocker documents that the standard JSON-LD startDate parsing path must NOT be used naively for this specific source.",
-      "Not advanced to READY_FOR_ACTIVATION: (1) an unresolved MAJOR blocker exists (the JSON-LD offset bug, which any real collector implementation must specifically work around), and (2) no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for the DETERMINISTIC_CONTEXT time field (gate 9/v1.2 offline-proof requirement) — both are separate follow-up work, not performed as part of this investigation task."
+      "Not advanced to READY_FOR_ACTIVATION: (1) an unresolved MAJOR blocker exists (the JSON-LD offset bug, which any real collector implementation must specifically work around), and (2) no DETERMINISTIC_DERIVATION offline-proof evidence item exists yet for the DETERMINISTIC_CONTEXT time field (gate 9/v1.2 offline-proof requirement) — both are separate follow-up work, not performed as part of this investigation task.",
+      "BEATMAPPED-BERLIN-30-40-VENUE-COMPLETION-01 (2026-08-26): the source was re-verified live via plain curl GET against the homepage and a freshly sampled, currently-active event detail page (FKJ, 2026-10-21) — 56 real upcoming event cards confirmed present and harvestable, and the JSON-LD offset bug independently reproduced a third time (ev-homepage-reverify-20260826, ev-event-detail-fkj-reverify-20260826). ingestion/astra-kulturhaus/observation-adapter.mjs was built as an EXISTING_FAMILY_WITH_SMALL_FIX JSON_LD-family collector: it reuses ingestion/json-ld/parse.mjs's extractEventNodes/normaliseJsonLdEvent (unmodified) purely for title/url/venue-identity cross-validation against a retained detail-page fixture, but derives every observation's start instant exclusively from the homepage card's own data-realdate + Start time-value fields — it never reads JSON-LD startDate for timing, genuinely resolving the MAJOR blocker rather than merely documenting it (see collector_assessment.blockers). tests/astra-kulturhaus.test.mjs reproduces this deterministically offline against the retained fixtures (evidence_id astra-kulturhaus-berlin-01-offline-proof), satisfying gate 9. All 12 activation gates are met: identity PROVEN, acquisition_class resolved, a CONFIRMED public data path retained, title/start_date both PROVEN, source_record_id PROVEN, recommended_family a known family (JSON_LD), evidence[] non-empty, a DETERMINISTIC_DERIVATION evidence item retained, no unresolved CRITICAL blocker (the one blocker is MAJOR, now resolved-and-annotated, not CRITICAL), decision.evidence_refs cites supporting evidence, and the investigation validator passes. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu"]
+    "evidence_refs": ["ev-homepage", "ev-event-detail-buzzcocks", "ev-event-detail-ski-aggu", "ev-homepage-reverify-20260826", "ev-event-detail-fkj-reverify-20260826", "astra-kulturhaus-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -168,6 +169,39 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/event-detail-ski-aggu-raw.html"
+    },
+    {
+      "evidence_id": "ev-homepage-reverify-20260826",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Live re-verification fetch of the venue's official homepage (BEATMAPPED-BERLIN-30-40-VENUE-COMPLETION-01), retained in full (byte-faithful raw HTTP response body). Confirms the source is still live and unbroken: 56 real, current upcoming event cards present, each with data-realdate/Doors/Start markup. Also directly shows the two originally-sampled events (Buzzcocks, SKI AGGU) now carry relocation/postponement subtitles (moved to LIDO / Columbiahalle respectively) — an honest content nuance, not an acquisition-mechanism break; the card markup itself is structurally unchanged.",
+      "acquired_from": "https://astra-berlin.de/ (HTTP 301 to https://www.astra-berlin.de/, followed)",
+      "acquired_at": "2026-08-26T20:29:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/homepage-reverify-20260826.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-fkj-reverify-20260826",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A third, freshly sampled, currently-active (non-relocated, non-cancelled) event detail page (FKJ, 2026-10-21), retained in full, independently re-confirming the JSON-LD startDate offset bug: this page's own JSON-LD states '2026-10-21T20:00:00+00:00' (wrong '+00:00' offset) while the true instant, derived per field_assessment.time.derivation from the homepage card's own data-realdate ('2026-10-21 19:00:00 +0200', Doors) + Start time-value ('20:00'), is 2026-10-21T18:00:00Z.",
+      "acquired_from": "https://astra-berlin.de/events/2026-10-21-fkj",
+      "acquired_at": "2026-08-26T20:30:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/event-detail-fkj-reverify-20260826.html"
+    },
+    {
+      "evidence_id": "astra-kulturhaus-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/astra-kulturhaus.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/astra-kulturhaus-berlin/homepage.html, fixtures/astra-kulturhaus-berlin/event-detail-fkj.html — byte-identical copies of ev-homepage-reverify-20260826/ev-event-detail-fkj-reverify-20260826) and reproducing the exact claimed field values deterministically, including the field_assessment.time DETERMINISTIC_CONTEXT derivation's own worked UTC instant for a real sampled event (FKJ: 20:00 CEST -> 2026-10-21T18:00:00Z), and asserting the JSON-LD startDate bug is genuinely never read for timing.",
+      "acquired_from": "tests/astra-kulturhaus.test.mjs",
+      "acquired_at": "2026-08-26T20:40:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/astra-kulturhaus-berlin-01/evidence/homepage-reverify-20260826.html"
     }
   ],
   "supersedes": null

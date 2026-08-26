@@ -54,25 +54,22 @@
       "state": "PROVEN",
       "value": "Cem Adrian",
       "basis": "DIRECT_SOURCE",
-      "notes": "Both the event-list card's own <p> text (e.g. 'Aladin – Das Musical') and the event detail page's own <span class=\"value eventname\"><h2>Cem Adrian</h2></span> state the title directly, verbatim, in one retained element each.",
-      "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+      "notes": "Both the event-list card's own <p> text (e.g. 'Aladin – Das Musical') and the event detail page's own <span class=\"value eventname\"><h2>Cem Adrian</h2></span> state the title directly, verbatim, in one retained element each. Confirmed against the full 112-event retained events-overview page (ev-events-overview-full) and reproduced offline in tests/admiralspalast.test.mjs.",
+      "evidence_refs": ["ev-events-overview", "ev-events-overview-full", "ev-event-detail", "admiralspalast-berlin-01-offline-proof"]
     },
     "start_date": {
       "state": "PROVEN",
       "value": "2026-11-01",
-      "basis": "DETERMINISTIC_CONTEXT",
-      "notes": "The event detail page's 'Termine & Tickets' item row does not state one single combined date string. It states the day-of-month and the month+year in two separate sibling spans within the SAME event row (not inherited from a distant page-level heading shared across unrelated events): <span class=\"value eventdate evDay\">01</span> and <span class=\"value eventdate evMJ\">Nov 2026</span>. Concatenating them mechanically yields 2026-11-01 with no other possible reading, since both spans are scoped to this one event's own row.",
-      "evidence_refs": ["ev-event-detail"],
-      "derivation": {
-        "rule": "Within one '.item' event row on an event's own detail page, the 'evDay' span (day-of-month) and 'evMJ' span (3-letter month abbreviation + 4-digit year) are sibling elements describing that single event only. Map the 3-letter month abbreviation to its numeric month (standard German/English abbreviation, e.g. 'Nov' -> 11) and concatenate as <evMJ year>-<evMJ month, zero-padded>-<evDay, zero-padded>. Exactly one row's worth of spans is being combined, never a page-wide heading shared across multiple different events.",
-        "inputs": ["01", "Nov 2026"]
-      }
+      "basis": "DIRECT_SOURCE",
+      "notes": "Re-assessed against a full, freshly-retained byte-faithful copy of the events-overview page (ev-events-overview-full, 112 real event cards): each card's own <div id=\"eventzeitraum\"> states a single, complete run-start date directly as 'ab DD.MM.YY' (e.g. 'ab 01.11.26' for Cem Adrian) — day, month, and year are all directly present in one field, only the year abbreviated to two digits, exactly the same DD/MM/YY short-form pattern this project already classifies as DIRECT_SOURCE for ausland-berlin-01 (research/source-investigations/ausland-berlin-01/investigation.json), not a combination of two separate retained context pieces. Independently cross-validated against the event detail page's own 'Termine & Tickets' evDay ('01') + evMJ ('Nov 2026') spans (ev-event-detail, ev-event-detail-cem-adrian-full), which yield the identical 2026-11-01 for this same event. The committed collector (ingestion/admiralspalast/observation-adapter.mjs) uses the events-overview page's own 'ab DD.MM.YY' field as its data path, decoded via the fixed 20YY convention documented in code; this is proven offline and deterministically in tests/admiralspalast.test.mjs against the retained fixtures/admiralspalast-berlin/events-page.html.",
+      "evidence_refs": ["ev-events-overview", "ev-events-overview-full", "ev-event-detail", "ev-event-detail-cem-adrian-full", "admiralspalast-berlin-01-offline-proof"],
+      "derivation": null
     },
     "time": {
       "state": "PROVEN",
       "value": "20:00",
       "basis": "DIRECT_SOURCE",
-      "notes": "The same event row's own <span class=\"value eventdate evWdT\">So, 20:00</span> states the local time-of-day directly as a literal substring ('20:00') of one retained element — no combination with a separate element needed. No UTC offset or IANA timezone is stated anywhere on the page, so this is honestly a floating local time, not upgraded to a UTC instant.",
+      "notes": "The same event row's own <span class=\"value eventdate evWdT\">So, 20:00</span> states the local time-of-day directly as a literal substring ('20:00') of one retained element — no combination with a separate element needed. No UTC offset or IANA timezone is stated anywhere on the page, so this is honestly a floating local time, not upgraded to a UTC instant. The committed collector (ingestion/admiralspalast/observation-adapter.mjs) deliberately does not fetch every event's own detail page to harvest this per-event time-of-day at scale — it uses only the bounded events-overview page (title + run-start date for all 112 real events in one retained fixture), so its own Observations honestly carry DATE_ONLY certainty with no time field populated, even though time is separately PROVEN achievable from a sampled detail page as recorded here.",
       "evidence_refs": ["ev-event-detail"]
     },
     "end": {
@@ -93,15 +90,15 @@
       "state": "PROVEN",
       "value": "cem-adrian",
       "basis": "DIRECT_SOURCE",
-      "notes": "No numeric id is exposed on the venue's own pages. Each event's own detail-page URL slug ('/veranstaltung/{slug}.html') is this source's own permanent, source-authored path for that event, directly stated as the href on every list card and reused as the canonical URL of the detail page itself — the same documented URL-slug-as-source_record_id strategy already established for moog-barcelona-01 and LAV (ingestion/lav/discovery.mjs).",
-      "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+      "notes": "No numeric id is exposed on the venue's own pages. Each event's own detail-page URL slug ('/veranstaltung/{slug}.html') is this source's own permanent, source-authored path for that event, directly stated as the href on every list card and reused as the canonical URL of the detail page itself — the same documented URL-slug-as-source_record_id strategy already established for moog-barcelona-01 and LAV (ingestion/lav/discovery.mjs). Confirmed unique across all 112 real events on the retained events-overview page (ev-events-overview-full) and reproduced offline in tests/admiralspalast.test.mjs (every source_record_id in the batch is asserted unique).",
+      "evidence_refs": ["ev-events-overview", "ev-events-overview-full", "ev-event-detail", "admiralspalast-berlin-01-offline-proof"]
     },
     "event_url": {
       "state": "PROVEN",
       "value": "https://www.admiralspalast.theater/veranstaltung/cem-adrian.html",
       "basis": "DIRECT_SOURCE",
       "notes": "Each event card's own href, directly stated, and independently confirmed by fetching it (HTTP 200, ev-event-detail).",
-      "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+      "evidence_refs": ["ev-events-overview", "ev-events-overview-full", "ev-event-detail"]
     },
     "price": {
       "state": "NOT_PRESENT",
@@ -113,32 +110,28 @@
   },
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
-    "confidence": "MEDIUM",
-    "evidence_refs": ["ev-events-overview", "ev-event-detail"],
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-overview", "ev-events-overview-full", "ev-event-detail", "admiralspalast-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MINOR",
-        "description": "Only one real event (Cem Adrian) was sampled at detail-page granularity. A full month-abbreviation mapping table (Jan/Feb/Mär/Apr/Mai/Jun/Jul/Aug/Sep/Okt/Nov/Dez) would need to be built and exercised against a handful more sampled events before an offline parser could be trusted across the whole event-list page — not yet proven for months other than 'Nov'."
-      },
-      {
-        "severity": "MINOR",
-        "description": "No explicit UTC offset or IANA timezone is stated on any retained page; 'time' is honestly a floating local (presumed Europe/Berlin) time, not a proven UTC instant."
+        "description": "No explicit UTC offset or IANA timezone is stated on any retained page; 'time' is honestly a floating local (presumed Europe/Berlin) time, not a proven UTC instant. The committed collector does not currently harvest per-event time-of-day at all (see field_assessment.time notes) — Observations from this adapter carry DATE_ONLY certainty, never a fabricated time or timezone."
       }
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from the venue's own dedicated first-party domain (admiralspalast.theater), not the operator-group redirect target.",
       "acquisition_class STATIC_HTML — a resolved, supported class — established directly from retained evidence (no JSON-LD/ICS/WordPress/Fourvenues/Sanity signal present; a clean, semantically-classed static event list and per-event detail page instead).",
       "A CONFIRMED public data path retained for both the event-list page and one real event-detail page.",
-      "title PROVEN (DIRECT_SOURCE) and start_date PROVEN (DETERMINISTIC_CONTEXT, combining two sibling spans within one event's own row, no page-wide heading inheritance).",
-      "source_record_id PROVEN via a documented URL-slug strategy, matching the moog-barcelona-01/LAV precedent.",
+      "title PROVEN (DIRECT_SOURCE) and start_date PROVEN (DIRECT_SOURCE, re-assessed against a full retained copy of the events-overview page: each card's own 'ab DD.MM.YY' field directly states a complete day+month+year date, matching this project's existing ausland-berlin-01 precedent for the same DD/MM/YY short-form pattern — no longer relying on the detail-page evDay/evMJ combination alone, though that independently cross-validates the same value).",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching the moog-barcelona-01/LAV precedent, and confirmed unique across all 112 real harvested events.",
       "recommended_family STATIC_EVENT_LIST, an existing documented reusable family — no new collector family required.",
-      "No unresolved CRITICAL blocker.",
-      "Not advanced to READY_FOR_ACTIVATION: no DETERMINISTIC_DERIVATION evidence item has been produced in this investigation (no offline parser/test was written), which the v1.2 activation gates require for the start_date field's DETERMINISTIC_CONTEXT basis — that offline-proof/collector-wiring step is deliberately left as separate follow-up work, per this task's own instructions."
+      "No unresolved CRITICAL blocker; the one remaining MINOR blocker (no stated timezone) is honestly reflected in the committed collector's own DATE_ONLY-only Observations, never papered over with an invented time or offset.",
+      "Second-pass onboarding (BEATMAPPED-BERLIN-SECOND-PASS-30-40) built and offline-proved the STATIC_EVENT_LIST collector: ingestion/admiralspalast/observation-adapter.mjs, retained fixture fixtures/admiralspalast-berlin/events-page.html (full byte-faithful events-overview page, 112 real current events, freshly re-verified live on 2026-08-26), and tests/admiralspalast.test.mjs (3/3 passing, node --test) — a real, dependency-free, no-network DETERMINISTIC_DERIVATION offline proof now retained (admiralspalast-berlin-01-offline-proof), reproducing extraction/adaptation of all 112 real events deterministically and offline. Gate 9/v1.2 satisfied. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION. This investigation record change does not itself activate any source — sources/*.json and venues/*.json remain untouched, per 'Investigation and activation are separate'."
     ],
-    "evidence_refs": ["ev-events-overview", "ev-event-detail"]
+    "evidence_refs": ["ev-events-overview", "ev-events-overview-full", "ev-event-detail", "ev-event-detail-cem-adrian-full", "admiralspalast-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -155,7 +148,7 @@
     {
       "evidence_id": "ev-events-overview",
       "evidence_class": "DIRECT_EVIDENCE",
-      "description": "Bounded excerpt of the event-overview page: both full <script type=\"application/ld+json\"> blocks (proving only generic Contao WebPage/Page metadata is present, no Event/MusicEvent data), plus a representative excerpt of the static event-card HTML (first 3 cards) showing the title <p> and 'ab DD.MM.YY' pattern and the /veranstaltung/{slug}.html href pattern. Full response (203KB, ~190 event cards) was fetched and scanned for JSON-LD/ICS/wp-json/Fourvenues/Sanity signals; none beyond this excerpt were found.",
+      "description": "Bounded excerpt of the event-overview page: both full <script type=\"application/ld+json\"> blocks (proving only generic Contao WebPage/Page metadata is present, no Event/MusicEvent data), plus a representative excerpt of the static event-card HTML (first 3 cards) showing the title <p> and 'ab DD.MM.YY' pattern and the /veranstaltung/{slug}.html href pattern. Full response (203KB) was fetched and scanned for JSON-LD/ICS/wp-json/Fourvenues/Sanity signals; none beyond this excerpt were found. Superseded in event-card-count precision by ev-events-overview-full, whose full byte-faithful retention and offline-proved parser (tests/admiralspalast.test.mjs) confirm exactly 112 real, unique, current event cards — not the earlier approximate '~190' estimate in this description's original wording.",
       "acquired_from": "https://www.admiralspalast.theater/veranstaltungsuebersicht.html",
       "acquired_at": "2026-08-26T12:56:00Z",
       "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
@@ -173,6 +166,39 @@
       "content_type": "text/html",
       "byte_faithful": false,
       "path": "research/source-investigations/admiralspalast-berlin-01/evidence/event-detail-cem-adrian-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-events-overview-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-faithful retention of the venue's events-overview page (freshly re-fetched live during second-pass onboarding), containing all 112 real, current, upcoming event cards (title, /veranstaltung/{slug}.html link, 'ab DD.MM.YY' run-start date each) spanning 16 distinct calendar months (2026-08 through 2027-12). This is the fixture the committed collector (ingestion/admiralspalast/observation-adapter.mjs) and its tests (tests/admiralspalast.test.mjs) parse; also checked into fixtures/admiralspalast-berlin/events-page.html.",
+      "acquired_from": "https://www.admiralspalast.theater/veranstaltungsuebersicht.html",
+      "acquired_at": "2026-08-26T19:34:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/admiralspalast-berlin-01/evidence/events-overview-full.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-cem-adrian-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-faithful retention of one real event's own detail page (Cem Adrian, freshly re-fetched live during second-pass onboarding), confirming the page's title, address block, and 'Termine & Tickets' evDay/evMJ/evWdT item row (day '01', month/year 'Nov 2026', 'So, 20:00') are unchanged and still consistent with the events-overview page's own 'ab 01.11.26' run-start date for the same event.",
+      "acquired_from": "https://www.admiralspalast.theater/veranstaltung/cem-adrian.html",
+      "acquired_at": "2026-08-26T19:35:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/admiralspalast-berlin-01/evidence/event-detail-cem-adrian-full.html"
+    },
+    {
+      "evidence_id": "admiralspalast-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/admiralspalast.test.mjs) re-parsing this investigation's own retained fixture (fixtures/admiralspalast-berlin/events-page.html) and reproducing the exact claimed field values deterministically: 112 real event cards extracted, title/date/URL fields verified against the real 'Cem Adrian' event, every source_record_id confirmed unique across the full batch, and a malformed-input throw case.",
+      "acquired_from": "tests/admiralspalast.test.mjs",
+      "acquired_at": "2026-08-26T19:40:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/admiralspalast-berlin-01/evidence/events-overview-full.html"
     }
   ],
   "supersedes": null

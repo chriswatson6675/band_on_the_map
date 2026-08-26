@@ -4,7 +4,7 @@
   "investigated_at": "2026-08-26T12:20:00Z",
   "investigator": {
     "type": "AI",
-    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official club events page and one individual event detail page. The site is Webflow, with its event list server-side-rendered (SSR) directly into the initial HTML as a Webflow CMS Collection List (Finsweet cmsfilter/cmsload attributes only add client-side filter/sort UI on top of already-rendered items — the events themselves are present without any JS execution)."
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GET (descriptive User-Agent, no authentication, no browser) of the venue's own official club events page and one individual event detail page. The site is Webflow, with its event list server-side-rendered (SSR) directly into the initial HTML as a Webflow CMS Collection List (Finsweet cmsfilter/cmsload attributes only add client-side filter/sort UI on top of already-rendered items — the events themselves are present without any JS execution). Second-pass re-verification (same day) re-fetched the club page and one event detail page with plain curl and confirmed both byte-identical to the originally retained evidence; also discovered, still via plain query-string GETs (?f74de34a_page=2..8), that the Collection List paginates across 8 total server-rendered pages (61 real, distinct, future event cards in total, none requiring JS execution to appear), and fetched the venue's own /impressum page, confirming its own first-party physical address. No new probe_history entry was added for this second-pass work because Level 1 PASSIVE_STATIC already reached SUFFICIENT and every re-check remained entirely within Level 1 (plain GETs, no escalation)."
   },
   "probe_history": [
     {
@@ -22,8 +22,8 @@
   "identity": {
     "status": "PROVEN",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-club-page", "ev-event-detail"],
-    "notes": "Official identity confirmed directly from the retained evidence: the venue's own domain (cassiopeia-berlin.de), its own <title> ('Cassiopeia Berlin – Club'), its own meta description stating 'Seit 2005 pulsiert das Cassiopeia als Club und Konzertlocation auf dem R.A.W. Gelände in Berlin Friedrichshain', and the Webflow data-wf-domain attribute matching the same domain. Discovered via WebSearch (not treated as authority itself) and independently confirmed by fetching the domain directly."
+    "evidence_refs": ["ev-club-page", "ev-event-detail", "ev-impressum"],
+    "notes": "Official identity confirmed directly from the retained evidence: the venue's own domain (cassiopeia-berlin.de), its own <title> ('Cassiopeia Berlin – Club'), its own meta description stating 'Seit 2005 pulsiert das Cassiopeia als Club und Konzertlocation auf dem R.A.W. Gelände in Berlin Friedrichshain', and the Webflow data-wf-domain attribute matching the same domain. Discovered via WebSearch (not treated as authority itself) and independently confirmed by fetching the domain directly. Further corroborated by the venue's own /impressum page (retained ev-impressum), which states its legal notice directly as 'cassiopeia — Inhaberin: Iana Oswald, Revaler Str. 99, 10245 Berlin' under 'Angaben gemäß § 5 TMG' — first-party confirmation of both identity and physical address, not carried over from any description text."
   },
   "site_classification": {
     "acquisition_class": "STATIC_HTML",
@@ -47,6 +47,14 @@
       "status": "CONFIRMED",
       "confidence": "MEDIUM",
       "evidence_refs": ["ev-event-detail"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://cassiopeia-berlin.de/club?f74de34a_page=2",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-club-page-2", "ev-club-page-3", "ev-club-page-4", "ev-club-page-5", "ev-club-page-6", "ev-club-page-7", "ev-club-page-8"]
     }
   ],
   "field_assessment": {
@@ -61,8 +69,8 @@
       "state": "PROVEN",
       "value": "2026-08-28",
       "basis": "DETERMINISTIC_CONTEXT",
-      "notes": "Each event's own date block (event-date-wrapper) states the day and numeric month as adjacent digit nodes ('28', '.', '08', '.') AND, within that SAME per-event block (not a distant page-level heading shared across many unrelated events), a sibling hidden filter node states the full 'Month YYYY' in words (fs-cmsfilter-field=\"date\" class=\"event-date faker\">August 2026</h2>). Both pieces belong to this one event's own markup; combining them mechanically (day + numeric month, cross-checked against the month name in the faker text, + the year from the faker text) yields exactly one result, 2026-08-28. This is recorded as DETERMINISTIC_CONTEXT rather than DIRECT_SOURCE because the exact combined date string is not present as a single token anywhere — it genuinely requires combining >=2 retained sibling nodes, even though both belong to the same event record.",
-      "evidence_refs": ["ev-club-page"],
+      "notes": "Each event's own date block (event-date-wrapper) states the day and numeric month as adjacent digit nodes ('28', '.', '08', '.') AND, within that SAME per-event block (not a distant page-level heading shared across many unrelated events), a sibling hidden filter node states the full 'Month YYYY' in words (fs-cmsfilter-field=\"date\" class=\"event-date faker\">August 2026</h2>). Both pieces belong to this one event's own markup; combining them mechanically (day + numeric month, cross-checked against the month name in the faker text, + the year from the faker text) yields exactly one result, 2026-08-28. This is recorded as DETERMINISTIC_CONTEXT rather than DIRECT_SOURCE because the exact combined date string is not present as a single token anywhere — it genuinely requires combining >=2 retained sibling nodes, even though both belong to the same event record. Reproduced offline, deterministically, against all 8 retained paginated page fixtures (61 real events, not just the sampled one) by ingestion/cassiopeia/observation-adapter.mjs's extractEventCards(), proven by tests/cassiopeia.test.mjs (cited below).",
+      "evidence_refs": ["ev-club-page", "cassiopeia-berlin-01-offline-proof"],
       "derivation": {
         "rule": "Within one event's own <div class=\"event-date-wrapper\">, concatenate the digit nodes ('28' + '08') as <DD>.<MM>, then take the year from the sibling <h2 fs-cmsfilter-field=\"date\" class=\"event-date faker\"> node's 'Month YYYY' text (cross-checking that its month name matches the numeric month already read) to yield <Year>-<MM>-<DD>. Exactly one result per event; no page-level heading or cross-event inheritance is involved.",
         "inputs": ["28.08 (day/month digit nodes, event-date-wrapper)", "August 2026 (sibling faker node's month-name + year text, same event-date-wrapper)"]
@@ -114,11 +122,11 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-club-page", "ev-event-detail"],
+    "evidence_refs": ["ev-club-page", "ev-event-detail", "cassiopeia-berlin-01-offline-proof"],
     "blockers": []
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN directly from retained evidence.",
       "acquisition_class STATIC_HTML, a resolved supported class, with a CONFIRMED public data path (8 real, current event cards SSR'd on the live page).",
@@ -126,9 +134,10 @@
       "source_record_id PROVEN via a documented URL-slug strategy, matching this project's existing precedent from other investigated Berlin/Barcelona sources.",
       "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary.",
       "No unresolved CRITICAL blocker.",
-      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 (and, for the DETERMINISTIC_CONTEXT start_date field specifically, the v1.2 field-specific refinement of gate 9) requires. Building and offline-proving the STATIC_EVENT_LIST parser — including the date-combination rule above — against the retained evidence/club-page.html fixture is separate, explicitly follow-up work."
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION: this investigation retains no DETERMINISTIC_DERIVATION evidence item (no collector/parser code or offline fixture reproduction was written in this task), which gate 9 (and, for the DETERMINISTIC_CONTEXT start_date field specifically, the v1.2 field-specific refinement of gate 9) requires. Building and offline-proving the STATIC_EVENT_LIST parser — including the date-combination rule above — against the retained evidence/club-page.html fixture is separate, explicitly follow-up work.",
+      "Second-pass re-verification (same day, plain curl, no browser/JS): the live club page and the sampled event detail page were re-fetched and confirmed byte-identical to the originally retained evidence — the site remains genuinely server-side-rendered STATIC_HTML, not client-rendered. The Collection List's pagination (?f74de34a_page=2..8, plain query-string GETs, still Level 1 PASSIVE_STATIC) was followed to completion and all 8 pages were byte-retained, together exposing 61 real, distinct, future event cards (2026-08-28 through 2027-04-23) — the full currently-discoverable programme, not just the originally-sampled 8. The venue's own /impressum page was also retained, directly stating its own first-party physical address ('cassiopeia — Inhaberin: Iana Oswald, Revaler Str. 99, 10245 Berlin'), corroborating venue_reference from genuine first-party evidence rather than a carried-over description. ingestion/cassiopeia/observation-adapter.mjs was written (mirroring ingestion/badehaus/observation-adapter.mjs's pattern) and tests/cassiopeia.test.mjs proves, offline and deterministically against all 8 retained page fixtures, that extractEventCards()/toObservation()/toObservations() reproduce the claimed title/start_date/source_record_id/event_url fields exactly, including the DETERMINISTIC_CONTEXT date-combination rule, across all 61 harvested events (node --test tests/cassiopeia.test.mjs: 5/5 passing). This satisfies gate 9 and its v1.2 start_date-specific refinement (a DETERMINISTIC_DERIVATION evidence item, 'cassiopeia-berlin-01-offline-proof', is now cited directly from field_assessment.start_date.evidence_refs). All 12 activation gates in docs/SOURCE_INVESTIGATION_POLICY.md's 'Activation gates' section are met. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-club-page", "ev-event-detail"]
+    "evidence_refs": ["ev-club-page", "ev-event-detail", "cassiopeia-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -152,6 +161,116 @@
       "content_type": "text/html",
       "byte_faithful": true,
       "path": "research/source-investigations/cassiopeia-berlin-01/evidence/event-detail.html"
+    },
+    {
+      "evidence_id": "ev-club-page-reverify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Second-pass re-fetch of the venue's own public club events page (page 1), byte-retained in full; confirmed byte-identical to ev-club-page, re-establishing that the event list is genuinely server-side-rendered and unchanged.",
+      "acquired_from": "https://cassiopeia-berlin.de/club",
+      "acquired_at": "2026-08-26T20:29:10Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-2026-08-26-reverify.html"
+    },
+    {
+      "evidence_id": "ev-club-page-2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 2 of 8 (?f74de34a_page=2), byte-retained in full: 8 further real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET (still Level 1 PASSIVE_STATIC, no JS execution).",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=2",
+      "acquired_at": "2026-08-26T20:30:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-2.html"
+    },
+    {
+      "evidence_id": "ev-club-page-3",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 3 of 8 (?f74de34a_page=3), byte-retained in full: 8 further real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET.",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=3",
+      "acquired_at": "2026-08-26T20:30:05Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-3.html"
+    },
+    {
+      "evidence_id": "ev-club-page-4",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 4 of 8 (?f74de34a_page=4), byte-retained in full: 8 further real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET.",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=4",
+      "acquired_at": "2026-08-26T20:30:10Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-4.html"
+    },
+    {
+      "evidence_id": "ev-club-page-5",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 5 of 8 (?f74de34a_page=5), byte-retained in full: 8 further real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET.",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=5",
+      "acquired_at": "2026-08-26T20:30:15Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-5.html"
+    },
+    {
+      "evidence_id": "ev-club-page-6",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 6 of 8 (?f74de34a_page=6), byte-retained in full: 8 further real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET.",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=6",
+      "acquired_at": "2026-08-26T20:30:20Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-6.html"
+    },
+    {
+      "evidence_id": "ev-club-page-7",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 7 of 8 (?f74de34a_page=7), byte-retained in full: 8 further real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET.",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=7",
+      "acquired_at": "2026-08-26T20:30:25Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-7.html"
+    },
+    {
+      "evidence_id": "ev-club-page-8",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Collection List pagination page 8 of 8 (?f74de34a_page=8, the final page: 'Page 1 of 8' shown in the page-1 pagination widget), byte-retained in full: the final 5 real, distinct, future event cards, server-side-rendered directly into the HTML via a plain query-string GET.",
+      "acquired_from": "https://cassiopeia-berlin.de/club?f74de34a_page=8",
+      "acquired_at": "2026-08-26T20:30:30Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page-8.html"
+    },
+    {
+      "evidence_id": "ev-impressum",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public legal notice ('Impressum') page, byte-retained in full, directly stating its own first-party physical address under 'Angaben gemäß § 5 TMG': 'cassiopeia — Inhaberin: Iana Oswald, Revaler Str. 99, 10245 Berlin'.",
+      "acquired_from": "https://cassiopeia-berlin.de/impressum",
+      "acquired_at": "2026-08-26T20:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive browser User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/impressum.html"
+    },
+    {
+      "evidence_id": "cassiopeia-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/cassiopeia.test.mjs) re-parsing this investigation's own retained fixtures (all 8 paginated pages) and reproducing the exact claimed field values, including the DETERMINISTIC_CONTEXT start_date combination, deterministically across all 61 harvested real events.",
+      "acquired_from": "tests/cassiopeia.test.mjs",
+      "acquired_at": "2026-08-26T20:35:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/cassiopeia-berlin-01/evidence/club-page.html"
     }
   ],
   "supersedes": null

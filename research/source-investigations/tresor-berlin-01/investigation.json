@@ -126,7 +126,7 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-events-page", "ev-event-klubnacht", "ev-event-buro-siebzig"],
+    "evidence_refs": ["ev-events-page", "ev-event-klubnacht", "ev-event-buro-siebzig", "tresor-berlin-01-offline-proof"],
     "blockers": [
       {
         "severity": "MINOR",
@@ -135,7 +135,7 @@
     ]
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from the venue's own retained page content, corroborated by independent third-party discovery leads.",
       "acquisition_class STATIC_HTML, a resolved supported class — fully server-rendered event list and detail pages, no browser/JS execution needed.",
@@ -144,9 +144,10 @@
       "source_record_id PROVEN via the site's own stable permalink-slug scheme.",
       "recommended_family STATIC_EVENT_LIST, an existing documented family — no new collector family required.",
       "No unresolved CRITICAL blocker (only one MINOR blocker, a room-name normalisation nuance, honestly documented).",
-      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION, because no DETERMINISTIC_DERIVATION evidence item (an offline, no-network re-parse of the retained fixtures reproducing these exact fields) was produced in this investigation — that offline-proof/collector-build step is separate follow-up work per the task's own instructions, not performed here."
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION, because no DETERMINISTIC_DERIVATION evidence item (an offline, no-network re-parse of the retained fixtures reproducing these exact fields) was produced in this investigation — that offline-proof/collector-build step is separate follow-up work per the task's own instructions, not performed here.",
+      "Live re-verification (BOTM second-pass venue-completion follow-up): a fresh plain curl GET of https://tresorberlin.com/club/events/ (no auth/browser) re-confirmed 17 real, current, upcoming event cards in the identical <article class=\"event-item\"> markup, each with a stable /event/{YYYYMMDD}-{slug}/ permalink; the wp-json/tribe/events/v1/events REST route was re-probed and still returns 401 rest_disabled; the venue's own Contact/Impressum page (https://tresorberlin.com/info/contact/) was newly retained, directly stating the operating company's own registered address ('Tresor Records GmbH, Köpenicker Strasse 70, 10179 Berlin, Deutschland') as first-party evidence, not geocoded. Full byte-faithful copies of the list page and two detail pages were retained (byte_faithful: true), plus a matching set under fixtures/tresor-berlin/ for offline testing. A real, dependency-free, no-network offline test suite (tests/tresor.test.mjs) now re-parses the retained fixtures and reproduces all 17 real event cards' title/date/url/source_record_id fields deterministically via ingestion/tresor/observation-adapter.mjs — satisfying gate 9's DETERMINISTIC_DERIVATION offline-proof requirement. No CRITICAL blocker was found; the pre-existing MINOR room-name-normalisation blocker remains honestly noted and does not block activation. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-events-page", "ev-event-klubnacht", "ev-event-buro-siebzig"]
+    "evidence_refs": ["ev-events-page", "ev-event-klubnacht", "ev-event-buro-siebzig", "tresor-berlin-01-offline-proof"]
   },
   "evidence": [
     {
@@ -192,6 +193,72 @@
       "content_type": "application/json",
       "byte_faithful": true,
       "path": "research/source-investigations/tresor-berlin-01/evidence/tribe-api-401-response.json"
+    },
+    {
+      "evidence_id": "ev-events-page-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-retained copy of the venue's official events list page, re-fetched live for this second-pass follow-up: 17 real, current, upcoming <article class=\"event-item\"> event cards, each with title, day-name+DD.MM date bar, and a stable /event/{YYYYMMDD}-{slug}/ permalink.",
+      "acquired_from": "https://tresorberlin.com/club/events/",
+      "acquired_at": "2026-08-26T20:30:51Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/events-page-full.html"
+    },
+    {
+      "evidence_id": "ev-event-klubnacht-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-retained copy of the standard 'Tresor Klubnacht' event's detail page, re-fetched live, showing the full per-floor lineup with real lineup-time entries (e.g. '23:00-02:00') not present anywhere on the list page.",
+      "acquired_from": "https://tresorberlin.com/event/20260829-tresor-klubnacht/",
+      "acquired_at": "2026-08-26T20:31:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/event-detail-klubnacht-full.html"
+    },
+    {
+      "evidence_id": "ev-event-buro-siebzig-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-retained copy of the real, non-standard, co-branded 'Büro Siebzig • Tresor New Faces' event's detail page, re-fetched live.",
+      "acquired_from": "https://tresorberlin.com/event/20260826-buro-siebzig-tresor-new-faces/",
+      "acquired_at": "2026-08-26T20:33:40Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/event-detail-buro-siebzig-full.html"
+    },
+    {
+      "evidence_id": "ev-contact-impressum",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full byte-retained copy of the venue's own official Contact page, whose Impressum section directly states the operating company's own registered address ('Tresor Records GmbH, Köpenicker Strasse 70, 10179 Berlin, Deutschland') — first-party evidence of the venue's official address, cited verbatim and never geocoded.",
+      "acquired_from": "https://tresorberlin.com/info/contact/",
+      "acquired_at": "2026-08-26T20:35:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/contact-impressum-full.html"
+    },
+    {
+      "evidence_id": "ev-tribe-api-401-reverify",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Re-verification (second-pass follow-up) of the site's own wp-json Tribe Events REST endpoint, re-confirming 401 rest_disabled — still unusable, unchanged from the original finding.",
+      "acquired_from": "https://tresorberlin.com/wp-json/tribe/events/v1/events",
+      "acquired_at": "2026-08-26T20:33:04Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/tribe-api-401-response-reverify.json"
+    },
+    {
+      "evidence_id": "tresor-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/tresor.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/tresor-berlin/events-page.html) via ingestion/tresor/observation-adapter.mjs and reproducing all 17 real event cards' title/date/url/source_record_id fields deterministically, plus a full Observation-shape adaptation.",
+      "acquired_from": "tests/tresor.test.mjs",
+      "acquired_at": "2026-08-26T20:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/tresor-berlin-01/evidence/events-page-full.html"
     }
   ],
   "supersedes": null

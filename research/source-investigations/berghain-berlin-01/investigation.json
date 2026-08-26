@@ -38,7 +38,7 @@
       "access": "PUBLIC",
       "status": "CONFIRMED",
       "confidence": "HIGH",
-      "evidence_refs": ["ev-program-page"]
+      "evidence_refs": ["ev-program-page", "ev-program-page-full"]
     },
     {
       "kind": "HTML_EVENT_DETAIL_PAGE",
@@ -46,7 +46,7 @@
       "access": "PUBLIC",
       "status": "CONFIRMED",
       "confidence": "HIGH",
-      "evidence_refs": ["ev-event-detail"]
+      "evidence_refs": ["ev-event-detail", "ev-event-detail-80841-full"]
     },
     {
       "kind": "HTML_EVENT_LIST_PAGE",
@@ -54,7 +54,16 @@
       "access": "PUBLIC",
       "status": "CONFIRMED",
       "confidence": "HIGH",
-      "evidence_refs": ["ev-kantine-page"]
+      "evidence_refs": ["ev-kantine-page", "ev-kantine-page-full"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.berghain.berlin/en/program/?page=2",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-program-page-2-full"],
+      "notes": "The main program page's own client-side 'See more events' button (window.Berghain.initLoadMore in /static/js/berghain.js) fetches this identical query-string pagination path with a plain GET (an 'X-Requested-With: XMLHttpRequest' header was sent to match the site's own JS behaviour, but a plain curl GET without it returns the same server-rendered HTML fragment) — discovered from the page's own retained, publicly-referenced JS, not a private/undocumented API. Still Level 1 PASSIVE_STATIC: a static, unauthenticated GET of a publicly linked/discoverable URL, no browser/JS execution performed."
     }
   ],
   "field_assessment": {
@@ -63,24 +72,24 @@
       "value": "KEYI Magazine",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Each event card's own <h2> text on the program list page (confirmed identical on the event-detail page's own <h1>). Example sampled directly: 'KEYI Magazine' for /en/event/80841/.",
-      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+      "notes": "Each event card's own <h2> text on the program list page (confirmed identical on the event-detail page's own <h1>). Example sampled directly: 'KEYI Magazine' for /en/event/80841/. This investigation's second pass harvested all 76 real, current event cards across both program pages and the Kantine am Berghain sub-page (see decision.reasons) and confirmed every one directly states its own title text — no missing/empty titles observed, including one genuinely odd case (event 82435) whose own literal title text is 'error' (a real anomaly on the source's own site, not a parsing artifact — its detail page's <title>/<h1>/ticket-link text all independently say 'error' too), which is retained honestly as the source's own stated value rather than suppressed or corrected.",
+      "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-program-page-full"]
     },
     "start_date": {
       "state": "PROVEN",
-      "value": "2026-08-27T22:00:00+02:00",
+      "value": "2026-08-27",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "The list page states the date ('27.08.2026') and door/start time ('start 22:00') as plain text on every card; the event-detail page's first running-order set item states the identical instant directly as a full ISO 8601 string with UTC offset in its own data-set-item-start attribute ('2026-08-27T22:00:00+02:00') and matching <time datetime> element — a single retained field already carries the exact value, so this is DIRECT_SOURCE, not a combination of separate context.",
-      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+      "notes": "Every event card's own <p> states a full day-name + DD.MM.YYYY date directly (e.g. '27.08.2026' on the sampled 'KEYI Magazine' card) — confirmed structurally present, with no inference, across all 76 real event cards harvested in this investigation's second pass (both program pages, incl. the '?page=2' fragment, and the Kantine sub-page). Recorded here as the calendar date alone (not a full datetime): this investigation's original v1 note additionally claimed the full '2026-08-27T22:00:00+02:00' instant was DIRECT_SOURCE for start_date itself, based on the one sampled event (80841) whose detail page happened to expose a full UTC-offset instant — see field_assessment.time below for why that combined precision does NOT generalise across the programme and was honestly narrowed out of this field.",
+      "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-program-page-full", "ev-kantine-page-full", "ev-program-page-2-full"]
     },
     "time": {
-      "state": "PROVEN",
-      "value": "22:00",
-      "basis": "DIRECT_SOURCE",
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
       "derivation": null,
-      "notes": "Time-of-day portion of the same directly-stated start datetime.",
-      "evidence_refs": ["ev-event-detail"]
+      "notes": "Every one of the 76 real, current event cards harvested in this investigation's second pass (main program page + its own '?page=2' pagination, and the Kantine am Berghain sub-page) states its own local 'start HH:MM' text directly (e.g. 'start 22:00') — but with no timezone/offset stated at that location, a floating local time only, matching this project's existing FLOATING_LOCAL precedent (badehaus-berlin-01, ausland-berlin-01). This field was originally recorded PROVEN, based on a single sampled event (80841) whose own detail page ADDITIONALLY exposed a full ISO 8601 UTC-offset instant ('2026-08-27T22:00:00+02:00') in its first running-order set's data-set-item-start attribute, confirming that local time exactly. Fetching all 76 real detail pages live in this investigation's second pass found that attribute present on only 1 of 76 (the same originally-sampled event, which was imminent — the very next upcoming event relative to the retrieval time); the other 75 have a genuine running order (artist names, floor headings) but NO data-set-item-start/end anywhere and no <time datetime> element — this looks like a real-time 'running order' feature that only populates once an event becomes imminent, not a general per-record capability of this source. Honestly downgraded from PROVEN to PARTIAL as the field's general, source-wide characteristic — see ingestion/berghain/observation-adapter.mjs, which still uses the narrower DIRECT_SOURCE UTC-offset instant whenever a given event's own detail page states it, and never fabricates one otherwise.",
+      "evidence_refs": ["ev-event-detail", "ev-event-detail-80841-full", "ev-event-detail-80790-no-precise-time-full", "ev-program-page-full", "ev-kantine-page-full"]
     },
     "end": {
       "state": "NOT_PRESENT",
@@ -95,24 +104,24 @@
       "value": "Säule (sampled event 80841); room name stated per event, one of Berghain / Panorama Bar / Säule / Halle / Kantine am Berghain",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Every event card's own <h3> states its room directly (sampled event 80841's room is 'Säule'; the site's own shared page title names the full room set Berghain / Panorama Bar / Säule / Halle / Kantine am Berghain). No street address was retained as evidence in this bounded investigation — third-party discovery sources (Berlin.de, Wikipedia) state an address, but per policy that is a discovery lead, not first-party evidence, so no address is claimed here. All named rooms are treated as one physical venue rather than separate venues, matching this project's existing 'room is not a separate venue' precedent (Casa da Música/Jamboree); Kantine am Berghain is included in this investigation because it is programmed on the identical platform/template and named as one of the site's own rooms in the shared page title.",
-      "evidence_refs": ["ev-program-page", "ev-kantine-page"]
+      "notes": "Every event card's own <h3> states its room directly (sampled event 80841's room is 'Säule'; the site's own shared page title names the full room set Berghain / Panorama Bar / Säule / Halle / Kantine am Berghain). All named rooms are treated as one physical venue rather than separate venues, matching this project's existing 'room is not a separate venue' precedent (Casa da Música/Jamboree, Zenner's Saal/Wintergarten/Klub); Kantine am Berghain is included in this investigation because it is programmed on the identical platform/template and named as one of the site's own rooms in the shared page title. This investigation's second pass harvested all 76 real event cards and confirmed a directly-stated room on every one, across every named room: Säule (4), Panorama Bar (4), Berghain (9), Kantine am Berghain (59) — Halle appeared in site navigation but had no cards in this snapshot. A Klubnacht card can name more than one room (e.g. Berghain + Panorama Bar on the same night) — only the first room is captured per event by ingestion/berghain/observation-adapter.mjs, a genuine, disclosed limitation. Additionally, this second pass found and retained the venue's own official physical address, directly and consistently stated (not geocoded) in a 'Location' navigation block present on every page fetched (program list, event detail, and Kantine sub-page alike): 'Am Wriezener Bahnhof, 10243 Berlin, Germany' — see e.g. ev-program-page-full, ev-event-detail-80841-full. The original bounded excerpt evidence in this investigation's first pass did not happen to include that part of the page, so no address had been retained as evidence at that point; it is now retained via the full byte-faithful page fixtures added in this second pass. This citation does not change venue_location's own value (which remains the per-event room, not the venue street address).",
+      "evidence_refs": ["ev-program-page", "ev-kantine-page", "ev-program-page-full", "ev-event-detail-80841-full", "ev-kantine-page-full"]
     },
     "source_record_id": {
       "state": "PROVEN",
       "value": "80841",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Each event's own canonical permalink path /en/event/{numeric_id}/ (e.g. 80841) is the site's own stable addressing scheme for that event — the same URL is used consistently as the card's own link href and as the detail page's own canonical location. No repeated-fetch stability test was performed in this bounded investigation (a genuine limitation, noted honestly), but the identifier is a permalink-derived numeric ID the source itself uses as its own canonical path, matching the policy's 'derived from a deterministic source property whose own stability is itself evidenced' rule, not an invented hash.",
-      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+      "notes": "Each event's own canonical permalink path /en/event/{numeric_id}/ (e.g. 80841) is the site's own stable addressing scheme for that event — the same URL is used consistently as the card's own link href and as the detail page's own canonical location. No repeated-fetch stability test was performed in this bounded investigation (a genuine limitation, noted honestly), but the identifier is a permalink-derived numeric ID the source itself uses as its own canonical path, matching the policy's 'derived from a deterministic source property whose own stability is itself evidenced' rule, not an invented hash. This investigation's second pass harvested 76 real, current event cards across both program pages and the Kantine sub-page and found 76 unique permalink ids with zero collisions — empirical, corpus-wide confirmation of current uniqueness (still not a repeated-fetch-over-time stability test, which remains a genuine, disclosed limitation).",
+      "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-program-page-full", "ev-kantine-page-full"]
     },
     "event_url": {
       "state": "PROVEN",
       "value": "https://www.berghain.berlin/en/event/80841/",
       "basis": "DIRECT_SOURCE",
       "derivation": null,
-      "notes": "Each event card's own href, directly retained and confirmed to resolve (HTTP 200, fetched as ev-event-detail).",
-      "evidence_refs": ["ev-program-page", "ev-event-detail"]
+      "notes": "Each event card's own href, directly retained and confirmed to resolve (HTTP 200, fetched as ev-event-detail). Confirmed to resolve for all 76 real event cards harvested in this investigation's second pass (zero fetch failures across every /en/event/{id}/ URL discovered).",
+      "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-program-page-full"]
     },
     "price": {
       "state": "PARTIAL",
@@ -126,11 +135,11 @@
   "collector_assessment": {
     "recommended_family": "STATIC_EVENT_LIST",
     "confidence": "HIGH",
-    "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page"],
+    "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page", "berghain-berlin-01-offline-proof"],
     "blockers": []
   },
   "decision": {
-    "status": "READY_FOR_OFFLINE_PROOF",
+    "status": "READY_FOR_ACTIVATION",
     "reasons": [
       "Identity PROVEN from the venue's own retained page content (room names, first-party ticketing subdomain), corroborated by independent third-party discovery leads.",
       "acquisition_class STATIC_HTML, a resolved supported class — fully server-rendered event list and detail pages, no browser/JS execution needed.",
@@ -139,9 +148,24 @@
       "source_record_id PROVEN via the site's own stable numeric permalink path.",
       "recommended_family STATIC_EVENT_LIST, an existing documented family — no new collector family required.",
       "No unresolved CRITICAL blocker.",
-      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION, because no DETERMINISTIC_DERIVATION evidence item (an offline, no-network re-parse of the retained fixtures reproducing these exact fields) was produced in this investigation — that offline-proof/collector-build step is separate follow-up work per the task's own instructions, not performed here."
+      "Reaching only READY_FOR_OFFLINE_PROOF, not READY_FOR_ACTIVATION, because no DETERMINISTIC_DERIVATION evidence item (an offline, no-network re-parse of the retained fixtures reproducing these exact fields) was produced in this investigation — that offline-proof/collector-build step is separate follow-up work per the task's own instructions, not performed here.",
+      "Second pass: re-verified the source live (program page, one event detail page, the Kantine am Berghain sub-page, and the main program page's own '?page=2' pagination all still respond 200 with real, current server-rendered events) and built ingestion/berghain/observation-adapter.mjs, then ran it against the FULL discoverable live programme — 76 real event cards (17 across the main program page + its own pagination; 59 on the Kantine am Berghain sub-page), producing 76 real Observations with zero fetch errors and zero source_record_id collisions.",
+      "That full harvest also found the original v1 field_assessment.time claim (PROVEN, based on a single sampled event) does not generalise: fetching all 76 real detail pages found a confirmed UTC-offset data-set-item-start instant on only 1 of 76 (the one event imminent at retrieval time) — the other 75 have a real running order but no per-set times published yet. field_assessment.time honestly downgraded to PARTIAL; field_assessment.start_date narrowed to the calendar-date value alone (which DOES generalise, confirmed on all 76 cards). This does not block activation: start_date remains PROVEN via DIRECT_SOURCE (gate 5), and time is not itself a gated field — the adapter still uses the precise UTC instant whenever a given event's own detail page states it, and never fabricates one otherwise.",
+      "The venue's own official physical address ('Am Wriezener Bahnhof, 10243 Berlin, Germany') was found directly and consistently stated in retained first-party evidence (a 'Location' block present on every page fetched) — cited in field_assessment.venue_location.notes and evidence_refs; not geocoded, and not treated as a separate proven field claim beyond that citation, since venue_location's own value remains the per-event room.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/berghain.test.mjs, 10 passing tests covering extractEventCards, extractDetailStartInstant, toObservation and toObservations against this investigation's own retained fixtures — including the genuine no-precise-time case and the genuine 'error'-titled anomaly), reproducing the claimed fields deterministically and offline against real retained fixtures — gate 9/v1.2 satisfied. No unresolved CRITICAL blocker. Advanced from READY_FOR_OFFLINE_PROOF to READY_FOR_ACTIVATION."
     ],
-    "evidence_refs": ["ev-program-page", "ev-event-detail", "ev-kantine-page"]
+    "evidence_refs": [
+      "ev-program-page",
+      "ev-event-detail",
+      "ev-kantine-page",
+      "ev-program-page-full",
+      "ev-program-page-2-full",
+      "ev-kantine-page-full",
+      "ev-event-detail-80841-full",
+      "ev-event-detail-80790-no-precise-time-full",
+      "ev-event-detail-82435-error-full",
+      "berghain-berlin-01-offline-proof"
+    ]
   },
   "evidence": [
     {
@@ -176,6 +200,83 @@
       "content_type": "text/html",
       "byte_faithful": false,
       "path": "research/source-investigations/berghain-berlin-01/evidence/kantine-program-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-program-page-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official program list page, byte-retained in full: 14 real, current event cards (a further 3 reachable only via the page's own '?page=2' pagination — see ev-program-page-2-full), each with title/date/time/room/permalink, plus the site's own footer/nav 'Location' address block.",
+      "acquired_from": "https://www.berghain.berlin/en/program/",
+      "acquired_at": "2026-08-26T20:29:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/program-page-full.html"
+    },
+    {
+      "evidence_id": "ev-program-page-2-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained full HTML fragment of the main program page's own '?page=2' pagination path (the site's own client-side 'See more events' button target, reached here with a plain GET), exposing 3 further real event cards not present on the first page.",
+      "acquired_from": "https://www.berghain.berlin/en/program/?page=2",
+      "acquired_at": "2026-08-26T20:30:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/program-page-2-full.html"
+    },
+    {
+      "evidence_id": "ev-kantine-page-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The Kantine am Berghain room's own program sub-page, byte-retained in full: 59 real, current event cards (no further pagination present), confirming the identical platform/structure covers this room, plus the site's own footer/nav 'Location' address block.",
+      "acquired_from": "https://www.berghain.berlin/en/program/kantine-am-berghain/",
+      "acquired_at": "2026-08-26T20:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/kantine-program-page-full.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-80841-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real upcoming event's ('KEYI Magazine') detail page, byte-retained in full: the imminent event at retrieval time, whose running order states a full ISO 8601 UTC-offset instant per set via data-set-item-start/end and matching <time datetime> elements, plus price/ticket text and the site's own 'Location' address block.",
+      "acquired_from": "https://www.berghain.berlin/en/event/80841/",
+      "acquired_at": "2026-08-26T20:32:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/event-detail-80841-full.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-80790-no-precise-time-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, ordinary (non-anomalous) real event's ('Love On The Rocks', 2026-08-28, Panorama Bar) detail page, byte-retained in full: a genuine running order (real artist names, real floor heading) with NO data-set-item-start/end attributes and no <time datetime> element anywhere — direct, retained proof that the precise UTC-offset instant is not a general per-event capability of this source, only available once an event is imminent.",
+      "acquired_from": "https://www.berghain.berlin/en/event/80790/",
+      "acquired_at": "2026-08-26T20:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/event-detail-80790-no-precise-time-full.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-82435-error-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A genuinely anomalous real event (permalink 82435, Kantine am Berghain, 2027-02-28) whose own <title>/<h1>/ticket-link text is all literally 'error' and whose running order has zero sets at all (not even an untimed artist name) — retained as direct proof of a real, disclosed source data-quality edge case this adapter must not paper over: no data/attributes are fabricated for it, its literal 'error' title is preserved honestly, and it falls back to the card's own FLOATING_LOCAL date/time exactly like every other event lacking a detail-page instant.",
+      "acquired_from": "https://www.berghain.berlin/en/event/82435/",
+      "acquired_at": "2026-08-26T20:34:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/event-detail-82435-error-full.html"
+    },
+    {
+      "evidence_id": "berghain-berlin-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/berghain.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/berghain-berlin/) and reproducing the exact claimed field values deterministically — including extractEventCards() across both program-page shapes and the Kantine sub-page, extractDetailStartInstant() against a confirmed instant AND against two real no-instant cases, and toObservation()/toObservations() building real Observations with the correct UTC_INSTANT/FLOATING_LOCAL certainty in each case.",
+      "acquired_from": "tests/berghain.test.mjs",
+      "acquired_at": "2026-08-26T21:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/berghain-berlin-01/evidence/program-page-full.html"
     }
   ],
   "supersedes": null
