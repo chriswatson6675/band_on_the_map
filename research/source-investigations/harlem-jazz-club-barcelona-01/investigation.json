@@ -1,0 +1,180 @@
+{
+  "investigation_id": "harlem-jazz-club-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the public homepage immediately exposed 4 <script type=\"application/ld+json\"> Event blocks. One had a malformed JSON body (a real-world producer imperfection); this package's json-ld/parse.mjs skips a malformed block rather than aborting the others, and 3 valid records were retained."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the public homepage immediately exposed 4 <script type=\"application/ld+json\"> Event blocks. One had a malformed JSON body (a real-world producer imperfection); this package's json-ld/parse.mjs skips a malformed block rather than aborting the others, and 3 valid records were retained.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "harlem-jazz-club-barcelona-01-candidate",
+  "source_id": "harlem-jazz-club-barcelona",
+  "venue_reference": "Harlem Jazz Club (jazz/soul/blues club, Ciutat Vella, Barcelona)",
+  "official_url": "https://www.harlemjazzclub.es/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "harlem-jazz-club-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://www.harlemjazzclub.es/."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress; the homepage embeds one schema.org Event JSON-LD block per upcoming show.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "harlem-jazz-club-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://www.harlemjazzclub.es/en/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each JSON-LD Event's own 'name' field (this source embeds the show time and price directly in the name text, e.g. '10:30 PM | MR SHINGLES...').",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each JSON-LD Event's own 'startDate' — a non-standard but unambiguous shape ('2026-8-27T22:30+2:00': non-zero-padded month/hour/offset, no seconds); this package's collector (ingestion/json-ld/observation-adapter.mjs) reconstructs the equivalent strictly-padded ISO string mechanically before parsing, never guessing a value.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of the same 'startDate'.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each JSON-LD Event's own 'endDate', same non-standard-but-unambiguous shape.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "No numeric id or location field is exposed at all; each event's own 'url' field is this source's own permanent '/events/{slug}/...' page, so the slug is used as source_record_id.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each JSON-LD Event's own 'url' field.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-home",
+        "harlem-jazz-club-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-home",
+      "harlem-jazz-club-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class JSON_LD_EVENT.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN (start_date via a documented, mechanical, non-guessing offset-padding reconstruction).",
+      "source_record_id PROVEN via a documented URL-slug strategy.",
+      "recommended_family JSON_LD (already-implemented, extended to handle this source's own non-standard-but-unambiguous timestamp shape).",
+      "No unresolved CRITICAL blocker — the one malformed JSON-LD block is a MINOR data-quality note, not a blocker, since the parser already handles it by design."
+    ],
+    "evidence_refs": [
+      "ev-home",
+      "harlem-jazz-club-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public homepage, embedding 4 schema.org Event JSON-LD blocks (3 well-formed, 1 malformed).",
+      "acquired_from": "https://www.harlemjazzclub.es/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/harlem-jazz-club-barcelona-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "harlem-jazz-club-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://www.harlemjazzclub.es/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/harlem-jazz-club-barcelona-01/evidence/homepage.html"
+    }
+  ],
+  "supersedes": null
+}

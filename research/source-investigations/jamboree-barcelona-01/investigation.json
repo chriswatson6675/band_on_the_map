@@ -1,0 +1,180 @@
+{
+  "investigation_id": "jamboree-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the known candidate WordPress site immediately exposed the standard Tribe Events REST API at the documented default path, returning 200 OK with well-formed, paginated JSON. This already answers identity, platform classification, data-path discovery, and field assessment; escalation to Level 2+ was not attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the known candidate WordPress site immediately exposed the standard Tribe Events REST API at the documented default path, returning 200 OK with well-formed, paginated JSON. This already answers identity, platform classification, data-path discovery, and field assessment; escalation to Level 2+ was not attempted.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "jamboree-barcelona-01-candidate",
+  "source_id": "jamboree-barcelona",
+  "venue_reference": "Jamboree (jazz club, Plaça Reial, Barcelona)",
+  "official_url": "https://jamboreejazz.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api-p1",
+      "jamboree-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://jamboreejazz.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress + The Events Calendar (Tribe) plugin, the same generic REST API family already proven for CCB (research/source-investigations/ccb-lisbon-01/).",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api-p1",
+      "jamboree-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://jamboreejazz.com/wp-json/tribe/events/v1/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API's own 'title' field, directly extractable.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API gives local 'start_date' plus separately-computed 'utc_start_date' and an explicit IANA 'timezone' ('Europe/Madrid').",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of start_date/utc_start_date.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API 'end_date'/'utc_end_date'.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API's own 'venue' object gives name/address/city/zip for the sampled record (venue.id 121304, 'Jamboree Sala 1').",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The REST API's numeric 'id' (a WordPress post ID) is the plugin's own stable per-record identifier, matching the already-proven CCB precedent's identical stable-ID reasoning.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "REST API's own 'url' field, a well-formed canonical permalink.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-api-p1",
+        "jamboree-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-api-p1",
+      "jamboree-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class PUBLIC_JSON_API, a resolved supported class.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN.",
+      "source_record_id PROVEN (documented stable WordPress post id, matching the CCB precedent).",
+      "collector_assessment.recommended_family is JSON_API (the SAME already-implemented generic family as CCB — no new code required).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": [
+      "ev-api-p1",
+      "jamboree-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-api-p1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "First page of the public Tribe Events REST API, 10 events, total=203, total_pages=21.",
+      "acquired_from": "https://jamboreejazz.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/jamboree-barcelona-01/evidence/api-events-p1.json"
+    },
+    {
+      "evidence_id": "jamboree-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://jamboreejazz.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/jamboree-barcelona-01/evidence/api-events-p1.json"
+    }
+  ],
+  "supersedes": null
+}

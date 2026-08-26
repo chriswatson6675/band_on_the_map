@@ -30,7 +30,7 @@ setWorkerUrl(
   "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
 );
 
-export type SearchCountry = "Portugal" | "Croatia";
+export type SearchCountry = "Portugal" | "Croatia" | "Spain";
 
 type CountryMapView = {
   bounds: LngLatBoundsLike;
@@ -54,6 +54,25 @@ export const COUNTRY_MAP_VIEWS: Record<SearchCountry, CountryMapView> = {
     ],
     center: [16.35, 44.65],
     zoom: 5.4,
+  },
+  // BEATMAPPED-BARCELONA-FRONTEND-INTEGRATION-01 — unlike Portugal/
+  // Croatia's own whole-country boxes, every current Spain venue is in
+  // Barcelona (see ingestion/map/publication.mjs's buildSpainMarkers()
+  // doc comment — Spain is Barcelona-only at proof time, not "all of
+  // Spain" as a claim), so this bounding box is scoped to comfortably fit
+  // all 31 real Barcelona venue markers (observed lat 41.363–41.430, lon
+  // 2.112–2.203, see fixtures/map/barcelona-30-venue-population-01-live-run-proof.json)
+  // with room to pan, rather than a country-wide box that would leave the
+  // markers a tiny cluster in one corner. Widen this the same way Portugal's
+  // own box already implicitly covers future non-Lisbon/Porto cities, once
+  // a second Spanish city is populated.
+  Spain: {
+    bounds: [
+      [2.04, 41.3],
+      [2.27, 41.48],
+    ],
+    center: [2.159, 41.396],
+    zoom: 12,
   },
 };
 

@@ -1,0 +1,180 @@
+{
+  "investigation_id": "sala-apolo-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the public schedule page's static HTML contained real, directly-crawlable /en/event/{slug} links (confirmed via direct text search — no JS execution needed to discover them). A plain curl GET of one such detail page returned a real schema.org Event JSON-LD block. A second detail page (a Nitsa-branded event at the same building) was independently fetched and cross-checked, confirming the same venue-level location.name."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the public schedule page's static HTML contained real, directly-crawlable /en/event/{slug} links (confirmed via direct text search — no JS execution needed to discover them). A plain curl GET of one such detail page returned a real schema.org Event JSON-LD block. A second detail page (a Nitsa-branded event at the same building) was independently fetched and cross-checked, confirming the same venue-level location.name.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "sala-apolo-barcelona-01-candidate",
+  "source_id": "sala-apolo-barcelona",
+  "venue_reference": "Sala Apolo (concert venue/club, Poble-sec, Barcelona — including its own club-night sub-brands Nitsa and La [2] de Apolo at the same building)",
+  "official_url": "https://www.sala-apolo.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-schedule",
+      "sala-apolo-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://www.sala-apolo.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "A custom-built (non-WordPress) site; the public schedule page contains real, statically-crawlable event links, each leading to a page with its own schema.org Event JSON-LD block.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-schedule",
+      "sala-apolo-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_LINKED_JSONLD_DETAIL_PAGES",
+      "url": "https://www.sala-apolo.com/en/schedule",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own JSON-LD 'name' field.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own JSON-LD 'startDate' — a non-standard 'YYYY-MM-DD (CEST|CET) HH:MM' shape (a named, universally-fixed offset abbreviation, never a seasonal guess); this package's collector reconstructs the equivalent numeric-offset ISO string mechanically before parsing.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Time-of-day portion of the same 'startDate'.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own JSON-LD 'endDate', same shape.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each event detail page's own JSON-LD 'location.name' is the literal string 'Sala Apolo' — confirmed identical on both a plain Apolo-branded event and a Nitsa-branded event at the same building. HONEST DISCREPANCY recorded: this JSON-LD's own address states house number 113, while the venue's own /en/contact page states 107; 113 could not be independently geocoded to a specific address/POI while 107 could, so 107 is used as the canonical venue address (see venues/barcelona.json's own evidence entry for this venue).",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "No numeric id is exposed; each event's own detail-page URL slug (already the source's own permanent path, discovered from the schedule page) is used as source_record_id.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The event detail page's own URL.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-schedule",
+        "sala-apolo-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-schedule",
+      "sala-apolo-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class JSON_LD_EVENT.",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN (start_date via a documented, mechanical named-offset reconstruction).",
+      "source_record_id PROVEN via a documented URL-slug strategy.",
+      "recommended_family JSON_LD (already-implemented, generic family, plus a small per-venue link-discovery step).",
+      "No unresolved CRITICAL blocker. The schedule page's own bounded near-term window (documented) and the 107-vs-113 address discrepancy (documented, resolved conservatively) are MINOR, not CRITICAL."
+    ],
+    "evidence_refs": [
+      "ev-schedule",
+      "sala-apolo-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-schedule",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public schedule listing page, containing real static /en/event/{slug} links.",
+      "acquired_from": "https://www.sala-apolo.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sala-apolo-barcelona-01/evidence/schedule-page.html"
+    },
+    {
+      "evidence_id": "sala-apolo-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://www.sala-apolo.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sala-apolo-barcelona-01/evidence/schedule-page.html"
+    }
+  ],
+  "supersedes": null
+}

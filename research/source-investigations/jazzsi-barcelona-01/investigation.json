@@ -1,0 +1,149 @@
+{
+  "investigation_id": "jazzsi-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T05:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official concerts RSS feed directly returns real concert permalinks (its own pubDate is the WordPress post-publish timestamp, used only for link discovery — never as the event date); a plain curl GET of an individual concert page directly contains a real schema.org MusicEvent JSON-LD block with an explicit startDate. No browser/headless step was needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.jazzsi.com/concerts/feed/ returned 3 real, current concert permalinks; a plain curl GET of one of those pages directly contained a genuine MusicEvent JSON-LD block with title/startDate/location — no structural/browser escalation was needed.",
+      "evidence_refs": ["ev-feed", "ev-event-manifest", "jazzsi-barcelona-01-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "jazzsi-barcelona-01-candidate",
+  "source_id": "jazzsi-barcelona",
+  "venue_reference": "JazzSí Club (Taller de Músics), El Raval, Barcelona",
+  "official_url": "https://www.jazzsi.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-feed", "ev-event-manifest"],
+    "notes": "Official identity confirmed directly from the retained evidence at https://www.jazzsi.com/ (the venue's own domain, redirecting from its parent foundation's tallerdemusics.com/jazzsi-club page)."
+  },
+  "site_classification": {
+    "acquisition_class": "RSS",
+    "platform": "WordPress with a custom 'concert' post type; its own RSS feed is used purely for link discovery (see 'source_record_id' below), with the actual event facts read from each concert page's own JSON_LD_EVENT block — a two-family combination (ingestion/rss/ + ingestion/json-ld/), both completely unchanged and reused.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-feed", "ev-event-manifest"]
+  },
+  "data_paths": [
+    {
+      "kind": "RSS_FEED_FOR_LINK_DISCOVERY_PLUS_PER_EVENT_JSON_LD",
+      "url": "https://www.jazzsi.com/concerts/feed/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-feed", "ev-event-manifest", "jazzsi-barcelona-01-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each concert page's own JSON-LD MusicEvent 'name' field.",
+      "evidence_refs": ["ev-event-manifest", "jazzsi-barcelona-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each concert page's own JSON-LD MusicEvent 'startDate', a full ISO 8601 instant with an explicit UTC offset ('2026-09-18T19:45:00+00:00' for the sampled page) — UTC_INSTANT.",
+      "evidence_refs": ["ev-event-manifest", "jazzsi-barcelona-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Embedded in the same 'startDate' value (see start_date).",
+      "evidence_refs": ["ev-event-manifest"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in the sampled page.",
+      "evidence_refs": ["ev-event-manifest"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each concert page's own JSON-LD 'location' (a MusicVenue node); this source is a single physical venue, so resolution keys on source_id instead (this project's existing pattern for a single-venue JSON-LD source — matching ingestion/moog-barcelona/harlem-jazz-club precedent).",
+      "evidence_refs": ["ev-event-manifest"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each concert's own permalink URL slug, discovered via the venue's own RSS feed link discovery — a stable, source-native identity (the same 'permalink as stable ID' judgement already established for ingestion/paral-lel-62/).",
+      "evidence_refs": ["ev-feed"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each concert page's own JSON-LD 'url' field (== its own permalink).",
+      "evidence_refs": ["ev-event-manifest"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "No 'offers' object present on the sampled page.",
+      "evidence_refs": ["ev-event-manifest"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-feed", "ev-event-manifest", "jazzsi-barcelona-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class RSS (for link discovery) + JSON_LD_EVENT (for facts), both resolved supported classes.",
+      "A CONFIRMED public data path retained (3 real upcoming concerts observed live at proof time — a genuinely bounded, near-term-only listing, honestly recorded as such, matching this project's existing Sala Apolo precedent).",
+      "title and start_date both PROVEN, directly stated by the source's own JSON-LD.",
+      "source_record_id PROVEN via the concert's own stable permalink slug.",
+      "recommended_family JSON_LD — completely reuses ingestion/json-ld/ and ingestion/rss/, no new generic module needed; only a tiny venue-specific link-discovery module (ingestion/jazzsi/discovery.mjs).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-feed", "ev-event-manifest", "jazzsi-barcelona-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-feed",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own real, live RSS feed of concert posts.",
+      "acquired_from": "https://www.jazzsi.com/concerts/feed/",
+      "acquired_at": "2026-08-26T05:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/rss+xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/jazzsi-barcelona-01/evidence/concerts-feed.xml"
+    },
+    {
+      "evidence_id": "ev-event-manifest",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real, live concert detail page with a genuine MusicEvent JSON-LD block (MANIFEST, September 2026).",
+      "acquired_from": "https://www.jazzsi.com/concerts/manifest/",
+      "acquired_at": "2026-08-26T05:26:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/jazzsi-barcelona-01/evidence/event-manifest.html"
+    },
+    {
+      "evidence_id": "jazzsi-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/jazzsi.test.mjs) re-parses the retained evidence above with the actual collector code (ingestion/jazzsi/discovery.mjs, reusing ingestion/rss/parse.mjs and ingestion/json-ld/ unchanged) and asserts the exact fields recorded above.",
+      "acquired_from": "https://www.jazzsi.com/concerts/feed/",
+      "acquired_at": "2026-08-26T05:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/jazzsi-barcelona-01/evidence/event-manifest.html"
+    }
+  ],
+  "supersedes": null
+}

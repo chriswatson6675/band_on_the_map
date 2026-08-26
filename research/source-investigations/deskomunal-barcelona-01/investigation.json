@@ -1,0 +1,138 @@
+{
+  "investigation_id": "deskomunal-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T06:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official homepage directly contains 8 schema.org Event JSON-LD blocks (server-rendered, no JS execution needed to read them). ingestion/json-ld/'s existing filterMusicEventNodes() honestly separates genuine named-act music nights from a non-music community assembly."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://ladeskomunal.coop/ directly exposed 8 real schema.org Event JSON-LD blocks with explicit dates and, on 6 of them, named performers/acts — no browser/headless escalation was needed.",
+      "evidence_refs": ["ev-homepage", "deskomunal-barcelona-01-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "deskomunal-barcelona-01-candidate",
+  "source_id": "deskomunal-barcelona",
+  "venue_reference": "La Deskomunal (live music/cultural space + restaurant, Sants, Barcelona)",
+  "official_url": "https://ladeskomunal.coop/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "Official identity confirmed directly from the retained evidence at https://ladeskomunal.coop/."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress + a calendar/events plugin emitting schema.org Event JSON-LD directly on the homepage.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"]
+  },
+  "data_paths": [
+    {
+      "kind": "JSON_LD_EVENT_LIST",
+      "url": "https://ladeskomunal.coop/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage", "deskomunal-barcelona-01-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'name'. This venue is a mixed cultural/restaurant space (one sampled record was a community assembly meeting, no music) — this package's collector applies ingestion/json-ld/'s existing filterMusicEventNodes() to keep only genuine named-act music nights (e.g. 'FESTES DE SANTS: LaBulla', 'SENSA YUMA + NAFRA + DJ NAFRAT & DJ ROBEER'), never guessing the assembly into 'music'.",
+      "evidence_refs": ["ev-homepage", "deskomunal-barcelona-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'startDate', a plain 'YYYY-MM-DD' calendar date — DATE_ONLY.",
+      "evidence_refs": ["ev-homepage", "deskomunal-barcelona-01-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "startDate carries a date only, no time-of-day.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "An 'endDate' is present on some but not all sampled nodes.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'location.name' names this single physical venue — resolved by source_id, matching this project's existing single-venue JSON-LD pattern.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'url' (its own permalink) — used as the stable identifier, matching this project's existing antilla-bcn-barcelona/moog-barcelona precedent.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'url'.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "notes": "An 'offers.price' field is present on some records; not consistently populated across the sample.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "deskomunal-barcelona-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class.",
+      "A CONFIRMED public data path retained (8 real Event nodes observed live at proof time, 6 passing the existing music-relevance filter).",
+      "title and start_date both PROVEN, directly stated by the source.",
+      "source_record_id PROVEN via the node's own stable permalink URL.",
+      "recommended_family JSON_LD — completely reuses ingestion/json-ld/ unchanged, no new module needed at all.",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-homepage", "deskomunal-barcelona-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own real, live homepage HTML, containing 8 real schema.org Event JSON-LD blocks.",
+      "acquired_from": "https://ladeskomunal.coop/",
+      "acquired_at": "2026-08-26T06:03:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/deskomunal-barcelona-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "deskomunal-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/deskomunal.test.mjs) re-parses the retained evidence above with ingestion/json-ld/ (unchanged) and asserts the exact music-relevance filter outcome recorded above.",
+      "acquired_from": "https://ladeskomunal.coop/",
+      "acquired_at": "2026-08-26T06:05:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/deskomunal-barcelona-01/evidence/homepage.html"
+    }
+  ],
+  "supersedes": null
+}

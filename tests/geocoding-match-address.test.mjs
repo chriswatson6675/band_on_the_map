@@ -232,3 +232,37 @@ test("two candidates that pass but denote the exact same real place (identical l
   const match = selectGeocodeMatch([candidateA, candidateB], baseVenue());
   assert.equal(match.status, "ACCEPTED");
 });
+
+// BARCELONA-30-VENUE-POPULATION-01 — countryCode option.
+test("evaluateCandidate defaults to Portugal, unchanged, when countryCode is omitted", () => {
+  const spanishCandidate = baseCandidate({ address: { city: "Barcelona", country_code: "es" } });
+  assert.equal(evaluateCandidate(spanishCandidate, baseVenue()).passed, false);
+});
+
+test("evaluateCandidate accepts a Spanish candidate when countryCode: 'es' is explicitly passed", () => {
+  const spanishCandidate = baseCandidate({
+    lat: "41.3851",
+    lon: "2.1734",
+    class: "amenity",
+    type: "nightclub",
+    addresstype: "amenity",
+    address: { city: "Barcelona", country_code: "es" },
+  });
+  const spanishVenue = baseVenue({ canonical_name: "Sala Test", city: "Barcelona", municipality: "Barcelona", address: "Carrer Test 1, 08001 Barcelona" });
+  const { passed, checks } = evaluateCandidate(spanishCandidate, spanishVenue, { countryCode: "es" });
+  assert.equal(checks.country, true);
+  assert.equal(passed, true);
+});
+
+test("selectGeocodeMatch forwards the countryCode option through to every candidate", () => {
+  const spanishCandidate = baseCandidate({
+    lat: "41.3851",
+    lon: "2.1734",
+    type: "nightclub",
+    addresstype: "amenity",
+    address: { city: "Barcelona", country_code: "es" },
+  });
+  const spanishVenue = baseVenue({ canonical_name: "Sala Test", city: "Barcelona", municipality: "Barcelona", address: "Carrer Test 1, 08001 Barcelona" });
+  assert.equal(selectGeocodeMatch([spanishCandidate], spanishVenue, { countryCode: "es" }).status, "ACCEPTED");
+  assert.equal(selectGeocodeMatch([spanishCandidate], spanishVenue).status, "REJECTED");
+});

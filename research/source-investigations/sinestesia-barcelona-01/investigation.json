@@ -1,0 +1,138 @@
+{
+  "investigation_id": "sinestesia-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T06:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: a plain curl GET of the venue's own official homepage directly contains 20 schema.org Event JSON-LD blocks (WordPress + a calendar plugin, server-rendered — no JS execution needed to read them). ingestion/json-ld/'s existing filterMusicEventNodes() then honestly separates genuine named-act music programming from generic/placeholder entries (weekly summary placeholders, an art exhibition, unnamed karaoke/open-mic nights)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://sinestesia.barcelona/reload/ directly exposed 20 real schema.org Event JSON-LD blocks with explicit dates, several with named performers/acts — no browser/headless escalation was needed.",
+      "evidence_refs": ["ev-homepage", "sinestesia-barcelona-01-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "sinestesia-barcelona-01-candidate",
+  "source_id": "sinestesia-barcelona",
+  "venue_reference": "Sinestesia (bar musical, Sants, Barcelona)",
+  "official_url": "https://sinestesia.barcelona/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "Official identity confirmed directly from the retained evidence at https://sinestesia.barcelona/."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress + a calendar/events plugin ('mec-events' custom post type observed in this site's own public REST API, /wp-json/wp/v2/types) emitting schema.org Event JSON-LD directly on the homepage.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"]
+  },
+  "data_paths": [
+    {
+      "kind": "JSON_LD_EVENT_LIST",
+      "url": "https://sinestesia.barcelona/reload/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage", "sinestesia-barcelona-01-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'name'. This venue is a MIXED programme (an occasional exhibition, weekly generic summary placeholder posts like 'semana 33/2026', karaoke/open-mic nights with no named performer, alongside genuine named-act music nights) — this package's collector applies ingestion/json-ld/'s existing filterMusicEventNodes() to keep only the latter, honestly rejecting the rest (never guessing a generic placeholder into 'music').",
+      "evidence_refs": ["ev-homepage", "sinestesia-barcelona-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'startDate', a plain 'YYYY-MM-DD' calendar date — DATE_ONLY.",
+      "evidence_refs": ["ev-homepage", "sinestesia-barcelona-01-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "startDate carries a date only, no time-of-day.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'endDate', also DATE_ONLY.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'location.name' == 'SINESTESIA' (a single physical venue) — resolved by source_id, matching this project's existing single-venue JSON-LD pattern.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'url' (its own permalink) — used as the stable identifier, matching this project's existing antilla-bcn-barcelona/moog-barcelona precedent for a JSON-LD source with no numeric id field.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each Event node's own 'url'/'offers.url'.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Each node's own 'offers.price' is genuinely present but empty-string on every sampled record.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "sinestesia-barcelona-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class.",
+      "A CONFIRMED public data path retained (20 real Event nodes observed live at proof time, 5 passing the existing music-relevance filter).",
+      "title and start_date both PROVEN, directly stated by the source.",
+      "source_record_id PROVEN via the node's own stable permalink URL.",
+      "recommended_family JSON_LD — completely reuses ingestion/json-ld/ unchanged, no new module needed at all.",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-homepage", "sinestesia-barcelona-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own real, live homepage HTML, containing 20 real schema.org Event JSON-LD blocks.",
+      "acquired_from": "https://sinestesia.barcelona/reload/",
+      "acquired_at": "2026-08-26T05:58:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sinestesia-barcelona-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "sinestesia-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/sinestesia.test.mjs) re-parses the retained evidence above with ingestion/json-ld/ (unchanged) and asserts the exact music-relevance filter outcome recorded above.",
+      "acquired_from": "https://sinestesia.barcelona/reload/",
+      "acquired_at": "2026-08-26T06:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sinestesia-barcelona-01/evidence/homepage.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -10,7 +10,7 @@ import {
   findArtistByExactName,
   searchArtists,
 } from "@/ingestion/map/artist-genre-search.mjs";
-import { filterMarkersByDateRange } from "@/ingestion/map/date-filter.mjs";
+import { filterMarkersByDateRange, resolveDefaultFromDate } from "@/ingestion/map/date-filter.mjs";
 import { computeQuickDateRange } from "@/ingestion/map/quick-dates.mjs";
 import publicationData from "@/data/public/lisbon-porto-map.json";
 
@@ -153,13 +153,52 @@ export default function Home() {
     };
   }, []);
 
+  // BAND-ON-THE-MAP-BARCELONA-PRE-INTEGRATION-DATE-AUDIT-01 — default the
+  // From date to the visitor's own today once mounted, so the FIRST view
+  // of the map (before any interaction) already excludes expired
+  // listings, matching what a visitor actually expects "the map" to show
+  // — the publication artifact and every Observation deliberately still
+  // carry full history (proof/evidence, and a visitor can always type an
+  // earlier From to look backward), only this page's own default was
+  // missing a floor. Runs once, client-side only, exactly like the
+  // runtime-fetch effect above — never during the server-rendered/
+  // statically-prerendered pass (this page has no `dynamic = "force-
+  // dynamic"`; Next.js prerenders it once at build time, so baking
+  // "today" into that render would go stale the moment a day passes) —
+  // so there is no hydration-mismatch risk from reading the visitor's
+  // clock during render (see getVisitorTodayDateString's own doc comment
+  // for why "today" is never read outside an event handler/effect).
+  // resolveDefaultFromDate leaves an already-set fromDate (typed, or from
+  // a Quick dates preset that already ran before this microtask) completely
+  // untouched. The setState is deferred one microtask — matching this same
+  // effect's own async-callback shape as the runtime-fetch effect above —
+  // so it is a reaction to "mount completed", not a synchronous render-
+  // phase side effect.
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      setFromDate((current) => resolveDefaultFromDate(current, getVisitorTodayDateString()));
+    });
+  }, []);
+
   const portugalMarkers = useMemo(
     () => (publicationArtifact.countries.Portugal.markers as MapMarker[]) ?? [],
     [publicationArtifact],
   );
+  // BEATMAPPED-BARCELONA-FRONTEND-INTEGRATION-01 — Spain's own bucket,
+  // read the same way as Portugal's above. Optional-chained: an artifact
+  // published before Barcelona existed (e.g. an older cached runtime
+  // response, or a hand-authored test fixture predating
+  // BARCELONA-30-VENUE-POPULATION-01) legitimately has no `countries.Spain`
+  // key at all — see ingestion/map/publication.mjs's own
+  // validatePublicationArtifact() doc comment — and must still render
+  // Portugal/Croatia exactly as before rather than throwing.
+  const spainMarkers = useMemo(
+    () => (publicationArtifact.countries.Spain?.markers as MapMarker[] | undefined) ?? [],
+    [publicationArtifact],
+  );
   const visibleMarkers = useMemo(
-    () => getMarkersForCountry(country, portugalMarkers) as MapMarker[],
-    [country, portugalMarkers],
+    () => getMarkersForCountry(country, portugalMarkers, spainMarkers) as MapMarker[],
+    [country, portugalMarkers, spainMarkers],
   );
 
   // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
@@ -255,6 +294,7 @@ export default function Home() {
           <div className="hero-note" aria-hidden="true">
             <span>Portugal</span>
             <span>Croatia</span>
+            <span>Spain</span>
           </div>
         </section>
 
@@ -288,6 +328,7 @@ export default function Home() {
                 >
                   <option>Portugal</option>
                   <option>Croatia</option>
+                  <option>Spain</option>
                 </select>
               </span>
             </label>

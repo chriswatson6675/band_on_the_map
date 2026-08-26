@@ -1,0 +1,200 @@
+{
+  "investigation_id": "l-auditori-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T05:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC, escalated once to Level 2 STRUCTURAL after Level 1 was genuinely insufficient. A plain curl GET of the official /en/events/ page returns a client-rendered shell (a loading spinner, no server-rendered event cards) — Level 1 could not directly expose event data. Inspecting the page's own linked JS bundles (retained under evidence/) revealed a bespoke first-party WordPress plugin ('auditori-plugin') whose own eventsarchive.js calls a documented internal helper (get_query(), in helper.js) that issues a plain GET against the site's own admin-ajax.php with action=get_auditori_events_query — a plain, unauthenticated curl GET against that exact URL then returned real, structured event JSON directly (Level 2, no browser/headless step needed)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://www.auditori.cat/en/events/ returns only a client-rendered shell (a-events-container/a-loading elements, no server-rendered event cards, no JSON-LD Event/MusicEvent blocks) — no event data is present in the raw HTML itself.",
+      "evidence_refs": ["ev-events-page-shell"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspecting the page's own linked first-party JS (auditori-plugin's eventsarchive.js + helper.js, both retained) revealed a documented internal AJAX helper calling admin-ajax.php?action=get_auditori_events_query. A plain, unauthenticated curl GET against that exact URL (with the same X-Requested-With/Referer headers the site's own JS sends) returned real, structured event JSON directly — no browser/headless observation was needed to discover this data path.",
+      "evidence_refs": ["ev-eventsarchive-js", "ev-helper-js", "ev-batch-1", "l-auditori-barcelona-01-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "l-auditori-barcelona-01-candidate",
+  "source_id": "l-auditori-barcelona",
+  "venue_reference": "L'Auditori de Barcelona (main venue, Carrer de Lepant 150) plus its own touring/community programme and Early Music cycle, which its own feed cross-lists at several OTHER real, distinct, independently canonical Barcelona venues (see 'Cross-listed venues' below) — matching this project's existing Jamboree->Paral-lel-62 cross-listing precedent, never merged into one venue.",
+  "official_url": "https://www.auditori.cat/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page-shell", "ev-batch-1"],
+    "notes": "Official identity confirmed directly from the retained evidence at https://www.auditori.cat/."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "WordPress with a bespoke first-party plugin ('auditori-plugin') exposing its own custom admin-ajax.php action — not the standard Tribe Events Calendar plugin.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-eventsarchive-js", "ev-helper-js", "ev-batch-1"]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_EVENT_LIST",
+      "url": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-batch-1", "ev-batch-2", "l-auditori-barcelona-01-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'wp_post.post_title' (HTML-entity-decoded by this package's collector), combined with 'subtitle' when present.",
+      "evidence_refs": ["ev-batch-1", "l-auditori-barcelona-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'event_next_date', a genuine Unix-seconds timestamp — independently cross-checked against the SAME record's own human-readable 'event_date_text' for several sampled records (e.g. unix 1788627600 == 'September 5, 2026 · 7 p.m.' local Europe/Madrid CEST) — a real UTC instant, not a floating/local value.",
+      "evidence_refs": ["ev-batch-1", "l-auditori-barcelona-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Embedded in the same 'event_next_date' unix timestamp (see start_date).",
+      "evidence_refs": ["ev-batch-1"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": ["ev-batch-1"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'hall_obj.wp_post.post_title'. This source is genuinely multi-venue (see 'Cross-listed venues' below) — resolution keys on this exact hall-name text via venues/source-venue-mappings.json's VENUE_NAME-keyed entries, one per real hall, never a fuzzy match.",
+      "evidence_refs": ["ev-batch-1", "l-auditori-barcelona-01-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own numeric 'id' (the WordPress post ID) — a stable, source-native identifier.",
+      "evidence_refs": ["ev-batch-1"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'link' field.",
+      "evidence_refs": ["ev-batch-1"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'price_text' field, free text (e.g. '20 €', 'Free Admission', 'To determinate').",
+      "evidence_refs": ["ev-batch-1"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-batch-1", "ev-batch-2", "l-auditori-barcelona-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class EMBEDDED_JSON, a resolved supported class.",
+      "A CONFIRMED public data path retained (239 real records observed live across the site's own from_date-cursor pagination, ~152 music-programme-filtered at proof time).",
+      "title and start_date both PROVEN, directly stated by the source (the start_date's UTC-instant reading independently cross-checked against the source's own parallel human-readable text field, not asserted on faith).",
+      "source_record_id PROVEN via the source's own numeric WordPress post ID.",
+      "recommended_family NEW_FAMILY_REQUIRED — a bespoke, venue-specific implementation for a non-generalisable first-party plugin, matching this project's existing bespoke-collector precedent.",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-batch-1", "ev-batch-2", "l-auditori-barcelona-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-events-page-shell",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The official /en/events/ page's own raw, unauthenticated HTML response — a client-rendered shell, no event data present.",
+      "acquired_from": "https://www.auditori.cat/en/events/",
+      "acquired_at": "2026-08-26T04:50:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/events-page-shell-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-eventsarchive-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The first-party 'auditori-plugin' JS bundle (eventsarchive.js) that documents this source's own internal query mechanism, including its real pagination cursor field ('from_date').",
+      "acquired_from": "https://www.auditori.cat/wp-content/plugins/auditori-plugin/resources/js/event/eventsarchive.js",
+      "acquired_at": "2026-08-26T04:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/eventsarchive.js"
+    },
+    {
+      "evidence_id": "ev-helper-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The first-party helper.js, whose get_query() function documents the exact admin-ajax.php request shape (action, page, limit, from_date, etc.).",
+      "acquired_from": "https://www.auditori.cat/wp-content/plugins/auditori-plugin/resources/js/helper.js",
+      "acquired_at": "2026-08-26T04:52:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/helper.js"
+    },
+    {
+      "evidence_id": "ev-batch-1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, live first-page response of this source's own admin-ajax.php event query — 30 real records.",
+      "acquired_from": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "acquired_at": "2026-08-26T04:55:00Z",
+      "method": "curl (plain HTTP GET, X-Requested-With/Referer headers matching the site's own JS, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/batch-1.json"
+    },
+    {
+      "evidence_id": "ev-batch-2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, real live page of the same query using the from_date cursor derived from ev-batch-1's own max event_next_date — directly proves the site's real pagination mechanism (page alone does not advance; from_date does).",
+      "acquired_from": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query&from_date=1791828000",
+      "acquired_at": "2026-08-26T04:56:00Z",
+      "method": "curl (plain HTTP GET, same headers as ev-batch-1)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/batch-2.json"
+    },
+    {
+      "evidence_id": "ev-merged-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, live, deduplicated result of following this source's own from_date cursor across 8 real batches (239 unique records) — the same bounded, single-window acquisition this package's own collector performs.",
+      "acquired_from": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "acquired_at": "2026-08-26T04:58:00Z",
+      "method": "curl (plain HTTP GET, same headers as ev-batch-1, repeated with the site's own from_date cursor)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/auditori-events-merged-sample.json"
+    },
+    {
+      "evidence_id": "l-auditori-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/auditori-barcelona.test.mjs) re-parses the retained evidence above with the actual collector code (ingestion/auditori-barcelona/discovery.mjs, ingestion/auditori-barcelona/observation-adapter.mjs) and asserts the exact fields recorded above, including the real cursor-pagination mechanism (via an injected mock fetchImpl over the two real retained batches, never a live network call) and the music-category filter's real inclusion/exclusion outcomes.",
+      "acquired_from": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "acquired_at": "2026-08-26T05:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-01/evidence/auditori-events-merged-sample.json"
+    }
+  ],
+  "supersedes": null
+}

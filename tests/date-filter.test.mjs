@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { listingWithinDateRange, filterMarkersByDateRange } from "../ingestion/map/date-filter.mjs";
+import { listingWithinDateRange, filterMarkersByDateRange, resolveDefaultFromDate } from "../ingestion/map/date-filter.mjs";
 
 // BEATMAPPED-DATE-FILTER-LIVE-01 — mirrors tests/artist-genre-search.test.mjs's
 // own conventions for the sibling Genre/Artist filters.
@@ -134,4 +134,26 @@ test("invalid/empty date state: an empty string bound behaves exactly like an ab
   assert.deepEqual(filterMarkersByDateRange(markers, "", ""), markers);
   const filtered = filterMarkersByDateRange(markers, "", "2026-10-04");
   assert.equal(filtered.length, 1);
+});
+
+// --- resolveDefaultFromDate: BAND-ON-THE-MAP-BARCELONA-PRE-INTEGRATION-DATE-AUDIT-01 ---
+// app/page.tsx's own default-to-"upcoming" fix — see this function's doc
+// comment in ingestion/map/date-filter.mjs for the full defect this closes.
+
+test("an untouched (empty) From date defaults to today", () => {
+  assert.equal(resolveDefaultFromDate("", "2026-08-26"), "2026-08-26");
+});
+
+test("an explicit From date — typed, or set by a Quick dates preset — is never overridden", () => {
+  assert.equal(resolveDefaultFromDate("2026-09-01", "2026-08-26"), "2026-09-01");
+  // Including one deliberately BEFORE today — an explicit visitor choice
+  // to look backward (e.g. a Quick dates preset, or manually typed) is
+  // always respected, exactly like every other From/To value in this
+  // module — only the genuinely-untouched "" state ever gets a default.
+  assert.equal(resolveDefaultFromDate("2026-01-01", "2026-08-26"), "2026-01-01");
+});
+
+test("null/undefined From is treated the same as empty string", () => {
+  assert.equal(resolveDefaultFromDate(null, "2026-08-26"), "2026-08-26");
+  assert.equal(resolveDefaultFromDate(undefined, "2026-08-26"), "2026-08-26");
 });

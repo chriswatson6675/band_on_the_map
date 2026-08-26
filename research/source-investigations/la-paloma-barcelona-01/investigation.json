@@ -1,0 +1,180 @@
+{
+  "investigation_id": "la-paloma-barcelona-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.1",
+  "investigated_at": "2026-08-26T02:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: retained evidence acquired via curl (raw HTTP, no WebFetch/AI-markdown conversion) with a descriptive User-Agent, no authentication, no browser. A plain curl GET of the venue's own official homepage established its exact evidenced address (footer text 'CARRER DEL TIGRE, 27 — 08001 BARCELONA'). The site's own bundled JS references an admin-ajax action; a plain curl POST reproducing its exact documented parameters (action/type/mes/any/categoria/lang) returned 200 OK with a well-formed JSON array for the queried month."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's own official homepage established its exact evidenced address (footer text 'CARRER DEL TIGRE, 27 — 08001 BARCELONA'). The site's own bundled JS references an admin-ajax action; a plain curl POST reproducing its exact documented parameters (action/type/mes/any/categoria/lang) returned 200 OK with a well-formed JSON array for the queried month.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "la-paloma-barcelona-01-candidate",
+  "source_id": "la-paloma-barcelona",
+  "venue_reference": "La Paloma (historic ballroom/club, El Raval, Barcelona)",
+  "official_url": "https://lapaloma.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ajax-sept",
+      "la-paloma-barcelona-01-offline-proof"
+    ],
+    "notes": "Official identity confirmed directly from the retained evidence at https://lapaloma.com/."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "WordPress; a bespoke, undocumented admin-ajax action reverse-engineered from the site's own bundled JS ('event-management-public.js').",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ajax-sept",
+      "la-paloma-barcelona-01-offline-proof"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "EMBEDDED_JSON_ADMIN_AJAX_ENDPOINT",
+      "url": "https://lapaloma.com/wp-admin/admin-ajax.php (action=event_controller)",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'name' field, with a separate 'subtitle' field for the actual named performer/DJ on many records — combined mechanically (never fabricated) into one display title.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'date_init' field, Catalan natural-language text (e.g. 'divendres 4 de setembre de 2026 a les 23:59') — this package's collector (ingestion/la-paloma/discovery.mjs) parses it via a fixed Catalan month-name table + a fixed-shape regex, a deterministic mechanical lookup, never inference.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "The time-of-day portion of the same Catalan text ('a les HH:MM'), with no timezone/offset at all — honestly FLOATING_LOCAL, never upgraded to UTC.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own numeric 'id' field.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": null,
+      "notes": "Each record's own 'link_plataforma_externa' field (an external ticketing/discovery-platform URL, e.g. Resident Advisor or Xceed — retained as-is, never fabricated into a first-party permalink this source doesn't have).",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "notes": "Not present in this source.",
+      "evidence_refs": [
+        "ev-ajax-sept",
+        "la-paloma-barcelona-01-offline-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-ajax-sept",
+      "la-paloma-barcelona-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN.",
+      "acquisition_class EMBEDDED_JSON (an undocumented but genuinely public, unauthenticated, reproducible endpoint).",
+      "A CONFIRMED public data path retained.",
+      "title and start_date both PROVEN (start_date via a documented, mechanical Catalan-text parse).",
+      "source_record_id PROVEN.",
+      "recommended_family JSON_API (a small, venue-specific implementation).",
+      "MINOR blocker only, not CRITICAL: this endpoint is undocumented and could change if the site's own plugin changes — recorded honestly, not a reason to defer, since it works reliably today and is fully reproducible."
+    ],
+    "evidence_refs": [
+      "ev-ajax-sept",
+      "la-paloma-barcelona-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-ajax-sept",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A live POST response for September 2026 (mes=9, any=2026), 21 real events.",
+      "acquired_from": "https://lapaloma.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "curl (plain HTTP GET/POST, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-paloma-barcelona-01/evidence/ajax-events-sept-2026.json"
+    },
+    {
+      "evidence_id": "la-paloma-barcelona-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "This package's own offline test suite (tests/) re-parses the retained evidence file(s) above with the actual collector code and asserts the exact fields recorded below — a real, dependency-free, no-network, deterministic reproduction, not a one-off proof script.",
+      "acquired_from": "https://lapaloma.com/",
+      "acquired_at": "2026-08-26T02:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/la-paloma-barcelona-01/evidence/ajax-events-sept-2026.json"
+    }
+  ],
+  "supersedes": null
+}
