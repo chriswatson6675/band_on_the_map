@@ -70,12 +70,69 @@ export function isWithinRetentionGrace({ lastSuccessAt, now, graceMs = DEFAULT_R
 }
 
 /**
+ * BEATMAPPED-RETENTION-COLD-START-BOOTSTRAP-AND-BERLIN-INTEGRATION-01 —
+ * derives a genuine `last_success_at` anchor for a source that has NO
+ * recorded one (never observed to succeed under provenance tracking —
+ * e.g. the very first run after this package was deployed for a given
+ * entry point), from the SAME `previousArtifact` this module already
+ * reads for retention (see this file's own "NO SECOND DATASTORE" header
+ * comment) — never a second data source, never git history, never the
+ * wall clock.
+ *
+ * This is a COLD-START path only: once a source has an explicit
+ * `last_success_at` (bootstrapped or genuinely observed, this run or any
+ * future one), `annotateSourceProvenance()` below never calls this again
+ * for it — `previous.last_success_at` already wins over the bootstrap.
+ *
+ * FAIL CLOSED — returns `null` (never a guess) unless ALL of the
+ * following hold:
+ *   - `previousArtifact` is a real object with a valid ISO `generated_at`
+ *     (the caller is responsible for having obtained it via the SAME
+ *     canonical `loadValidatedArtifact()` / `validatePublicationArtifact()`
+ *     path every other consumer of a previous artifact already uses —
+ *     this function never re-validates or re-reads anything itself);
+ *   - `previousArtifact.source_report.sources[]` has an entry for this
+ *     exact `sourceId` with `success === true` (a source_report entry
+ *     that never actually succeeded proves nothing);
+ *   - that same artifact's own markers contain at least one real
+ *     SINGLE-kind display listing whose `source_id` matches — proof the
+ *     `success` flag corresponds to real, present data, not a stale or
+ *     malformed entry with nothing behind it.
+ *
+ * The anchor returned is `previousArtifact.generated_at` itself: the one
+ * moment the WHOLE artifact — and therefore this source's own listings
+ * within it — was genuinely produced. Real, schema-native evidence,
+ * never invented, never "now".
+ */
+export function bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId }) {
+  if (!previousArtifact || typeof previousArtifact !== "object") return null;
+  if (typeof previousArtifact.generated_at !== "string" || Number.isNaN(Date.parse(previousArtifact.generated_at))) return null;
+
+  const sourceEntry = (previousArtifact.source_report?.sources ?? []).find((entry) => entry?.source_id === sourceId);
+  if (!sourceEntry || sourceEntry.success !== true) return null;
+
+  const hasRealListing = ["Portugal", "Spain", "Germany"].some((country) =>
+    (previousArtifact.countries?.[country]?.markers ?? []).some((marker) =>
+      (marker.display_listings ?? []).some((listing) => listing?.kind === "SINGLE" && listing.source_id === sourceId),
+    ),
+  );
+  if (!hasRealListing) return null;
+
+  return previousArtifact.generated_at;
+}
+
+/**
  * Annotate this run's own per-source acquisition results (the exact shape
  * ingestion/lisbon-porto/run.mjs's and ingestion/barcelona/run.mjs's
  * acquireAll() already produce — success/observations/etc.) with durable,
  * cross-run provenance:
  *
- *   last_success_at   - see computeSourceLastSuccessAt() above.
+ *   last_success_at   - see computeSourceLastSuccessAt() above. When no
+ *                        explicit previous value exists, falls back to
+ *                        bootstrapLastSuccessAtFromPreviousArtifact()
+ *                        (see its own doc comment) before giving up and
+ *                        recording `null` — a ONE-TIME cold-start path,
+ *                        never consulted again once a real value exists.
  *   retained_eligible - true ONLY for a source that FAILED this run AND
  *                        whose last_success_at is within `graceMs` of
  *                        `generatedAt`. A source that succeeded this run
@@ -86,17 +143,23 @@ export function isWithinRetentionGrace({ lastSuccessAt, now, graceMs = DEFAULT_R
  * `previousSourceReportSources` is the previous artifact's own
  * `source_report.sources` array (or `[]`/`undefined` when no previous
  * artifact is available) — every source not present there is treated as
- * never-yet-succeeded (`previousLastSuccessAt: null`).
+ * never-yet-succeeded (`previousLastSuccessAt: null`) before the
+ * bootstrap fallback is tried. `previousArtifact` (optional, defaults to
+ * `null`) is the SAME previous artifact object, supplied only so the
+ * bootstrap fallback can inspect its markers — every existing caller that
+ * omits it keeps today's exact behaviour (bootstrap simply never fires).
  */
-export function annotateSourceProvenance({ sourceResults, previousSourceReportSources = [], generatedAt, graceMs = DEFAULT_RETENTION_GRACE_MS }) {
+export function annotateSourceProvenance({ sourceResults, previousSourceReportSources = [], previousArtifact = null, generatedAt, graceMs = DEFAULT_RETENTION_GRACE_MS }) {
   const previousBySourceId = new Map((previousSourceReportSources ?? []).map((entry) => [entry.source_id, entry]));
 
   return (sourceResults ?? []).map((result) => {
     const previous = previousBySourceId.get(result.source_id);
+    const previousLastSuccessAt =
+      previous?.last_success_at ?? bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId: result.source_id });
     const lastSuccessAt = computeSourceLastSuccessAt({
       success: result.success === true,
       generatedAt,
-      previousLastSuccessAt: previous?.last_success_at ?? null,
+      previousLastSuccessAt,
     });
     const retainedEligible = result.success !== true && isWithinRetentionGrace({ lastSuccessAt, now: generatedAt, graceMs });
     return { ...result, last_success_at: lastSuccessAt, retained_eligible: retainedEligible };

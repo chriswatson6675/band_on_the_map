@@ -286,6 +286,12 @@ export async function runUnattendedCycle(args = {}) {
     const sourceResults = annotateSourceProvenance({
       sourceResults: rawSourceResults,
       previousSourceReportSources: previousArtifact?.source_report?.sources ?? [],
+      // BEATMAPPED-RETENTION-COLD-START-BOOTSTRAP-AND-BERLIN-INTEGRATION-01:
+      // the SAME already-validated previousArtifact (loaded above via
+      // loadValidatedArtifact()) — only consulted as a cold-start fallback
+      // when a source has no explicit last_success_at yet. See
+      // annotateSourceProvenance()'s own doc comment.
+      previousArtifact,
       generatedAt,
       graceMs: retentionGraceMs,
     });

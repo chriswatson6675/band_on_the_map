@@ -11,6 +11,7 @@ import {
   computeSourceLastSuccessAt,
   isWithinRetentionGrace,
   annotateSourceProvenance,
+  bootstrapLastSuccessAtFromPreviousArtifact,
   extractRetainableMarkersForSource,
   combineRetainedVenueMaps,
   mergeRetainedMarkers,
@@ -164,6 +165,220 @@ test("annotateSourceProvenance: preserves every other field on the source result
   assert.equal(result.attempts, 2);
   assert.deepEqual(result.notes, ["ok"]);
   assert.equal(result.observation_count, 3);
+});
+
+// --- bootstrapLastSuccessAtFromPreviousArtifact / cold-start bootstrap ---
+// BEATMAPPED-RETENTION-COLD-START-BOOTSTRAP-AND-BERLIN-INTEGRATION-01
+
+function auditoriListing(recordId, date = "2026-09-15") {
+  return { kind: "SINGLE", source_id: "l-auditori-barcelona", source_record_id: recordId, source_name: "L'Auditori", title: `Gig ${recordId}`, start: { date }, end: { date }, event_url: null };
+}
+
+function validPreviousArtifact({ generatedAt, sourceSuccess = true, includeListing = true, sourceId = "l-auditori-barcelona" } = {}) {
+  return {
+    generated_at: generatedAt,
+    window: { from: null, to: null },
+    source_report: {
+      success_count: sourceSuccess ? 1 : 0,
+      failure_count: sourceSuccess ? 0 : 1,
+      sources: [{ source_id: sourceId, success: sourceSuccess, raw_record_count: 138, observation_count: 138 }],
+    },
+    counts: { observation_count: 138, display_listing_count: includeListing ? 1 : 0, map_marker_count: includeListing ? 1 : 0 },
+    countries: {
+      Portugal: { markers: [] },
+      Croatia: { markers: [] },
+      Spain: {
+        markers: includeListing
+          ? [{ venue_id: "venue-barcelona-l-auditori", canonical_name: "L'Auditori", latitude: 41.4092, longitude: 2.1912, address: "Carrer de Lepant, 150", display_listings: [auditoriListing("1")] }]
+          : [],
+      },
+    },
+  };
+}
+
+test("bootstrapLastSuccessAtFromPreviousArtifact: a validated previous artifact with a real success + real listing yields that artifact's own generated_at", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: "2026-08-26T12:26:28.325Z" });
+  const anchor = bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId: "l-auditori-barcelona" });
+  assert.equal(anchor, "2026-08-26T12:26:28.325Z");
+});
+
+test("bootstrapLastSuccessAtFromPreviousArtifact: no previous artifact at all -> null, never guesses", () => {
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact: null, sourceId: "l-auditori-barcelona" }), null);
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact: undefined, sourceId: "l-auditori-barcelona" }), null);
+});
+
+test("bootstrapLastSuccessAtFromPreviousArtifact: previous artifact has no matching source_id -> null", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: "2026-08-26T12:26:28.325Z", sourceId: "some-other-source" });
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId: "l-auditori-barcelona" }), null);
+});
+
+test("bootstrapLastSuccessAtFromPreviousArtifact: matching source_id but success:false in the previous artifact -> null", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: "2026-08-26T12:26:28.325Z", sourceSuccess: false });
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId: "l-auditori-barcelona" }), null);
+});
+
+test("bootstrapLastSuccessAtFromPreviousArtifact: matching source_id, success:true, but NO real listing anywhere -> null, fails closed rather than trusting the flag alone", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: "2026-08-26T12:26:28.325Z", includeListing: false });
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId: "l-auditori-barcelona" }), null);
+});
+
+test("bootstrapLastSuccessAtFromPreviousArtifact: no trustworthy generated_at on the previous artifact -> null", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: "not-a-real-timestamp" });
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId: "l-auditori-barcelona" }), null);
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact: { ...previousArtifact, generated_at: undefined }, sourceId: "l-auditori-barcelona" }), null);
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 1: no current anchor, validated prior success within TTL -> bootstrapped and retained_eligible", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 6 * H).toISOString() }); // 6h ago, well within 24h
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [], // NO explicit last_success_at recorded anywhere — the cold-start case
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, previousArtifact.generated_at);
+  assert.equal(result.retained_eligible, true);
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 2: real prior success older than 24h TTL -> bootstrapped anchor found, but NOT retained (clock respected, no free new window)", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 30 * H).toISOString() }); // 30h ago, outside 24h
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, previousArtifact.generated_at, "the real anchor is still recorded honestly...");
+  assert.equal(result.retained_eligible, false, "...but grace has genuinely expired, so it is NOT retained — the bootstrap capability itself never grants a fresh 24h window");
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 3: an invalid/malformed previous artifact never bootstraps", () => {
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [],
+    previousArtifact: { not: "a valid publication artifact shape" },
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, null);
+  assert.equal(result.retained_eligible, false);
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 4: previous artifact exists and is well-formed but has no entry for THIS source -> no bootstrap", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 6 * H).toISOString(), sourceId: "some-other-barcelona-source" });
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, null);
+  assert.equal(result.retained_eligible, false);
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 5: matching source but no trustworthy timestamp on the previous artifact -> fails closed, never invents one", () => {
+  const previousArtifact = { ...validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 6 * H).toISOString() }), generated_at: null };
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, null);
+  assert.equal(result.retained_eligible, false);
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 6: an existing explicit last_success_at always wins over the bootstrap, even when a previousArtifact is also supplied", () => {
+  const explicitSuccess = new Date(Date.parse(NOW) - 2 * H).toISOString();
+  const previousArtifact = validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 20 * H).toISOString() }); // a different, older timestamp
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [{ source_id: "l-auditori-barcelona", success: false, last_success_at: explicitSuccess }],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, explicitSuccess, "the explicit, already-tracked value must win — the bootstrap is a cold-start fallback only");
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 7: a source that SUCCEEDS this run (including zero events) is authoritative — bootstrap is irrelevant and never consulted", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 6 * H).toISOString() });
+  const [result] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: true, raw_record_count: 0, observation_count: 0 }],
+    previousSourceReportSources: [],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(result.last_success_at, NOW, "a fresh success (zero events or not) is always its own authoritative anchor");
+  assert.equal(result.retained_eligible, false);
+});
+
+test("annotateSourceProvenance + bootstrap, requirement 8: a retired/non-participating source (absent from this run's sourceResults) is never bootstrapped or retained", () => {
+  const previousArtifact = validPreviousArtifact({ generatedAt: new Date(Date.parse(NOW) - 6 * H).toISOString() });
+  const results = annotateSourceProvenance({
+    sourceResults: [{ source_id: "some-other-active-source", success: true, raw_record_count: 5, observation_count: 5 }],
+    previousSourceReportSources: [],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(results.find((r) => r.source_id === "l-auditori-barcelona"), undefined, "a source no longer attempted at all must never appear, bootstrapped or otherwise");
+});
+
+test("end-to-end, requirement 9 + stale/provenance semantics: a bootstrapped anchor flows through extractRetainableMarkersForSource/mergeRetainedMarkers exactly like any other last_success_at — stale:true, retained_since set, expired events dropped, future/unknown kept", () => {
+  const bootstrapGeneratedAt = new Date(Date.parse(NOW) - 6 * H).toISOString();
+  const previousArtifact = {
+    generated_at: bootstrapGeneratedAt,
+    window: { from: null, to: null },
+    source_report: { success_count: 1, failure_count: 0, sources: [{ source_id: "l-auditori-barcelona", success: true, raw_record_count: 3, observation_count: 3 }] },
+    counts: { observation_count: 3, display_listing_count: 3, map_marker_count: 1 },
+    countries: {
+      Portugal: { markers: [] },
+      Croatia: { markers: [] },
+      Spain: {
+        markers: [
+          {
+            venue_id: "venue-barcelona-l-auditori",
+            canonical_name: "L'Auditori",
+            latitude: 41.4092,
+            longitude: 2.1912,
+            address: "Carrer de Lepant, 150",
+            display_listings: [
+              auditoriListing("past", "2026-08-01"), // expired relative to today's "2026-08-26"
+              auditoriListing("future", "2026-09-15"),
+              auditoriListing("unknown", null),
+            ],
+          },
+        ],
+      },
+    },
+  };
+
+  const [annotated] = annotateSourceProvenance({
+    sourceResults: [{ source_id: "l-auditori-barcelona", success: false, error: "fetch failed" }],
+    previousSourceReportSources: [],
+    previousArtifact,
+    generatedAt: NOW,
+  });
+  assert.equal(annotated.retained_eligible, true);
+  assert.equal(annotated.last_success_at, bootstrapGeneratedAt);
+
+  const retained = extractRetainableMarkersForSource({
+    previousArtifact,
+    sourceId: "l-auditori-barcelona",
+    todayDateString: "2026-08-26",
+    retainedSince: annotated.last_success_at,
+  });
+  const venue = retained.get("venue-barcelona-l-auditori");
+  const recordIds = venue.listings.map((l) => l.source_record_id).sort();
+  assert.deepEqual(recordIds, ["future", "unknown"], "the expired listing is dropped, never resurrected; future/unknown are kept");
+  for (const listing of venue.listings) {
+    assert.equal(listing.stale, true);
+    assert.equal(listing.retained_since, bootstrapGeneratedAt, "retained_since is the bootstrapped anchor itself, not wall-clock now");
+  }
+
+  const merged = mergeRetainedMarkers([], retained);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].venue_id, "venue-barcelona-l-auditori");
+  assert.equal(merged[0].display_listings.length, 2);
+  assert.ok(merged[0].display_listings.every((l) => l.stale === true && l.retained_since === bootstrapGeneratedAt));
 });
 
 // --- extractRetainableMarkersForSource ---
