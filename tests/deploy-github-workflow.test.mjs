@@ -9,23 +9,33 @@
 //      trigger shape, the main-history safety gate, the SSH host-key
 //      handling, and that install.sh remains the sole deployment
 //      authority (never duplicated in YAML).
-//   2. A genuine BEHAVIOURAL proof for the one piece of real logic
-//      embedded in the workflow (the runtime-endpoint verification
-//      script): it is extracted byte-for-byte from the workflow file and
-//      actually executed via a real `node` subprocess against real
-//      fixtures — including the REAL, unmodified data/public/
-//      lisbon-porto-map.json this repository already ships, proving it
-//      reuses ingestion/map/publication.mjs's real
-//      validatePublicationArtifact() rather than a second, parallel
-//      schema.
+//   2. A genuine BEHAVIOURAL proof for the real logic embedded in the
+//      workflow — extracted byte-for-byte from the workflow file and
+//      actually executed via real `node` subprocesses against real
+//      fixtures and a real local HTTP server (the SAME
+//      ingestion/publication-server/run.mjs the production host runs —
+//      never a second, hand-rolled mock server), proving it reuses
+//      ingestion/map/publication.mjs's real validatePublicationArtifact()
+//      rather than a second, parallel schema.
+//
+// BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01 —
+// publication is now triggered asynchronously: SSH performs only short,
+// bounded control operations, and completion is verified afterwards
+// entirely over the public, read-only runtime endpoint. This file's
+// behavioural layer now covers TWO extracted scripts (previously one):
+// the pre-trigger baseline capture, and the bounded poll-then-validate
+// script that proves a genuinely NEWER publication cycle was observed —
+// never merely the pre-existing artifact.
 
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+
+import { startServer } from "../ingestion/publication-server/run.mjs";
 
 const WORKFLOW_PATH = fileURLToPath(new URL("../.github/workflows/deploy-beatmapped-collector.yml", import.meta.url));
 const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -52,6 +62,36 @@ function stripCommentLines(yaml) {
     .split("\n")
     .filter((line) => !line.trim().startsWith("#"))
     .join("\n");
+}
+
+// Extracts one step's full body — from its own `- name: <prefix>...` line
+// up to (but excluding) the next 6-space-indented `- name:` line, or to the
+// end of the file if it's the last step. Plain string slicing rather than a
+// single regex with an end-of-string lookahead: this workflow's own body
+// text is full of literal "Z"-suffixed ISO timestamps, which makes a naive
+// `\Z`-as-end-of-string lookahead (JS regex has no \Z metacharacter — an
+// unescaped `\Z` simply matches a literal "Z" character) stop at the FIRST
+// such timestamp instead of the real step boundary.
+function extractStepBody(yaml, namePrefix) {
+  const startMarker = `- name: ${namePrefix}`;
+  const startIdx = yaml.indexOf(startMarker);
+  assert.ok(startIdx >= 0, `expected to find a step starting with "${startMarker}"`);
+  const nextIdx = yaml.indexOf("\n      - name:", startIdx + startMarker.length);
+  return nextIdx === -1 ? yaml.slice(startIdx) : yaml.slice(startIdx, nextIdx);
+}
+
+// Same idea, one level up: extracts a top-level (2-space-indented) job's
+// full body, from `  <jobName>:` up to the next 2-space-indented job key,
+// or to the end of the file if it's the last job.
+function extractJobBody(yaml, jobName) {
+  const startMarker = `\n  ${jobName}:\n`;
+  const startIdx = yaml.indexOf(startMarker);
+  assert.ok(startIdx >= 0, `expected to find a top-level "${jobName}:" job`);
+  // The next line indented at EXACTLY 2 spaces followed by a non-space
+  // character is the next job key — a 4+ space line (this job's own
+  // fields/steps) must not be mistaken for that boundary.
+  const nextJobKey = /\n {2}\S/.exec(yaml.slice(startIdx + startMarker.length));
+  return nextJobKey ? yaml.slice(startIdx, startIdx + startMarker.length + nextJobKey.index) : yaml.slice(startIdx);
 }
 
 // --- content-level: trigger shape ---
@@ -92,9 +132,14 @@ test("workflow: validates the resolved commit is reachable from origin/main via 
 
 test("workflow: the deploy job needs (depends on) the resolve-and-validate job — cannot skip the safety gate", async () => {
   const yaml = await readWorkflow();
-  const deployJobMatch = /^\s{2}deploy:\n([\s\S]*?)(?=^\s{2}\S|\Z)/m.exec(yaml);
-  assert.ok(deployJobMatch, "expected a top-level `deploy:` job");
-  assert.match(deployJobMatch[1], /needs:\s*resolve-and-validate/);
+  const deployJob = extractJobBody(yaml, "deploy");
+  assert.match(deployJob, /needs:\s*resolve-and-validate/);
+});
+
+test("workflow: deploy job still verifies deployed HEAD matches the exact resolved SHA — no 'deploy whatever is on main' regression", async () => {
+  const yaml = await readWorkflow();
+  assert.match(yaml, /DEPLOYED_SHA="\$\(sudo -u botm git -C "\$APP_DIR" rev-parse HEAD\)"/);
+  assert.match(yaml, /if \[ "\$DEPLOYED_SHA" != "\$RESOLVED_SHA" \]; then/);
 });
 
 // --- content-level: SSH / secrets handling ---
@@ -174,17 +219,74 @@ test("workflow: never overrides check-deploy-tree.sh's dirty-tree protection (no
   assert.doesNotMatch(executableLines, /git reset/);
 });
 
-// --- content-level: publication uses the existing service, never a duplicate/manual process ---
+// --- content-level: publication trigger is NON-BLOCKING (async model) ---
 
-test("workflow: publication step starts the SAME existing systemd oneshot unit the timer already uses", async () => {
+test("workflow: publication is triggered via the SAME existing systemd oneshot unit the timer already uses, NON-BLOCKING (--no-block)", async () => {
   const yaml = await readWorkflow();
-  assert.match(yaml, /systemctl start botm-unattended\.service/);
+  assert.match(yaml, /systemctl start --no-block botm-unattended\.service/);
   assert.doesNotMatch(yaml, /systemctl (start|enable).*botm-unattended\.timer/, "the workflow must never alter the timer/cadence itself");
 });
 
-test("workflow: verification step reuses ingestion/map/publication.mjs's validatePublicationArtifact — never a second schema", async () => {
+test("workflow: the SSH step that triggers publication does not itself wait for completion (no systemctl show/is-active polling loop inside the trigger step)", async () => {
+  const yaml = await readWorkflow();
+  const body = extractStepBody(yaml, "Trigger the publication cycle");
+  assert.doesNotMatch(body, /systemctl show/, "the trigger step must not block waiting for the unit's Result");
+  assert.doesNotMatch(body, /\bsleep\b/, "the trigger step must not sleep/wait inside the SSH session");
+});
+
+test("workflow: SSH material is cleaned up immediately after the trigger step, before the long external polling phase begins", async () => {
+  const yaml = await readWorkflow();
+  const stepNames = [...yaml.matchAll(/^\s{6}- name: (.+)$/gm)].map((m) => m[1]);
+  const triggerIdx = stepNames.findIndex((n) => n.startsWith("Trigger the publication cycle"));
+  const cleanupIdx = stepNames.findIndex((n) => n === "Clean up local SSH material");
+  const pollIdx = stepNames.findIndex((n) => n.startsWith("Poll for a newer publication cycle"));
+  assert.ok(triggerIdx >= 0 && cleanupIdx >= 0 && pollIdx >= 0, "expected all three steps to be present");
+  assert.ok(cleanupIdx === triggerIdx + 1, "SSH cleanup must immediately follow the trigger step");
+  assert.ok(pollIdx > cleanupIdx, "the bounded external poll must come after SSH material is already cleaned up");
+});
+
+test("workflow: no SSH invocation anywhere waits on/polls the runtime endpoint or sleeps for the publication cycle", async () => {
+  const yaml = await readWorkflow();
+  // Every `ssh ... <<'REMOTE_SCRIPT'` or single-line ssh command block must
+  // stay short and bounded — none of them may itself loop/poll waiting for
+  // the acquisition cycle to finish.
+  const sshBlocks = [...yaml.matchAll(/ssh -o StrictHostKeyChecking[\s\S]*?(?=\n\n|\Z)/g)].map((m) => m[0]);
+  assert.ok(sshBlocks.length >= 3, "expected at least 3 distinct ssh invocations (deploy, verify, trigger)");
+  for (const block of sshBlocks) {
+    assert.doesNotMatch(block, /RUNTIME_BASE_URL/, "an SSH block must never itself poll the public runtime endpoint");
+    assert.doesNotMatch(block, /while \[/, "an SSH block must never contain its own polling loop");
+  }
+});
+
+test("workflow: the bounded poll step has both a script-level MAX_WAIT_SECONDS and a GitHub Actions step-level timeout-minutes outer bound", async () => {
+  const yaml = await readWorkflow();
+  const pollStep = extractStepBody(yaml, "Poll for a newer publication cycle");
+  assert.match(pollStep, /timeout-minutes:\s*\d+/);
+  assert.match(pollStep, /MAX_WAIT_SECONDS:\s*"?\d+"?/);
+});
+
+test("workflow: the deploy job itself has an outer job-level timeout-minutes safety net", async () => {
+  const yaml = await readWorkflow();
+  const deployJob = extractJobBody(yaml, "deploy");
+  assert.match(deployJob, /^\s+timeout-minutes:\s*\d+/m);
+});
+
+test("workflow: verification reuses ingestion/map/publication.mjs's validatePublicationArtifact — never a second schema", async () => {
   const yaml = await readWorkflow();
   assert.match(yaml, /import \{ validatePublicationArtifact \} from "\.\/ingestion\/map\/publication\.mjs"/);
+});
+
+test("workflow: publication verification checks Portugal, Spain, and Germany all have markers — never a Berlin-only or two-country-only check", async () => {
+  const yaml = await readWorkflow();
+  assert.match(yaml, /\["Portugal", "Spain", "Germany"\]/);
+});
+
+test("workflow: verification never hardcodes an exact marker/listing count as a pass/fail threshold", async () => {
+  const yaml = await readWorkflow();
+  const pollStep = extractStepBody(yaml, "Poll for a newer publication cycle");
+  // Only presence/non-empty checks (`length === 0`), never `=== <number>` on a count.
+  assert.doesNotMatch(pollStep, /map_marker_count\s*===\s*\d/);
+  assert.doesNotMatch(pollStep, /display_listing_count\s*===\s*\d/);
 });
 
 test("workflow: runtime verification stays generic — no enrichment-pilot Artist names hardcoded into deployment infrastructure", async () => {
@@ -197,7 +299,7 @@ test("workflow: runtime verification stays generic — no enrichment-pilot Artis
 test("workflow: uses GITHUB_STEP_SUMMARY so a human never has to read raw logs for a normal run", async () => {
   const yaml = await readWorkflow();
   const summaryWrites = (yaml.match(/GITHUB_STEP_SUMMARY/g) ?? []).length;
-  assert.ok(summaryWrites >= 4, `expected several distinct summary writes, found ${summaryWrites}`);
+  assert.ok(summaryWrites >= 5, `expected several distinct summary writes, found ${summaryWrites}`);
 });
 
 test("workflow: a failed main-history validation uses ::error:: and exits non-zero — never merely a warning", async () => {
@@ -205,24 +307,23 @@ test("workflow: a failed main-history validation uses ::error:: and exits non-ze
   assert.match(yaml, /::error::Refusing to deploy[\s\S]*?exit 1/);
 });
 
-// --- behavioural: the actual embedded runtime-verification script really works ---
+test("workflow: a verification timeout is explicitly distinguished from a deployment failure in its own error message", async () => {
+  const yaml = await readWorkflow();
+  assert.match(yaml, /VERIFICATION TIMEOUT/);
+  assert.match(yaml, /does NOT necessarily mean deployment failed/);
+});
 
-function extractRuntimeVerifyScript(yaml) {
-  // Read from the RAW YAML file text (this test never parses YAML), so
-  // both the heredoc body and its closing delimiter still carry the
-  // literal indentation of the `run: |` block scalar as written in the
-  // file — that indentation is exactly what YAML's own block-scalar
-  // parsing strips away when GitHub Actions actually executes this
-  // workflow (proven separately: the closing delimiter lands at true
-  // column 0 once YAML-parsed, which is what makes the real heredoc work
-  // at all). Tolerate that same leading whitespace here.
-  const m = /<<'VERIFY_EOF'\n([\s\S]*?)\n[ \t]*VERIFY_EOF/.exec(yaml);
-  assert.ok(m, "expected to find the VERIFY_EOF heredoc in the workflow");
+// --- behavioural: the two real embedded scripts actually work ---
+
+function extractHeredocScript(yaml, delimiter) {
+  const re = new RegExp(`<<'${delimiter}'\\n([\\s\\S]*?)\\n[ \\t]*${delimiter}`);
+  const m = re.exec(yaml);
+  assert.ok(m, `expected to find the ${delimiter} heredoc in the workflow`);
   return m[1];
 }
 
 async function withTempDir(fn) {
-  const dir = await mkdtemp(join(tmpdir(), "botm-workflow-runtime-verify-"));
+  const dir = await mkdtemp(join(tmpdir(), "botm-workflow-script-"));
   try {
     await fn(dir);
   } finally {
@@ -230,77 +331,290 @@ async function withTempDir(fn) {
   }
 }
 
-async function runExtractedVerifyScript(scriptSource, artifactPath) {
-  // The real script imports "./ingestion/map/publication.mjs" (relative
-  // to the GitHub Actions workspace root) and reads a fixed "/tmp/map-data.json"
-  // path -- both rewritten here ONLY for local test portability, the
-  // logic itself is untouched, byte-for-byte from the workflow file.
-  const rewritten = scriptSource
-    // A proper file:// URL is required here (not a bare filesystem path)
-    // -- Node's ESM loader rejects a raw "C:/..." import specifier on
-    // Windows as an unsupported URL scheme; .href always produces a
-    // correct, platform-appropriate URL string.
-    .replace("./ingestion/map/publication.mjs", new URL("../ingestion/map/publication.mjs", import.meta.url).href)
-    .replace("/tmp/map-data.json", artifactPath.replace(/\\/g, "/"));
-
-  const dir = await mkdtemp(join(tmpdir(), "botm-workflow-verify-script-"));
-  const scriptPath = join(dir, "verify.mjs");
+async function writeScript(dir, source) {
+  // Both extracted scripts import "./ingestion/map/publication.mjs"
+  // relative to the GitHub Actions workspace root — rewritten here ONLY
+  // for local test portability (a proper file:// URL, since Node's ESM
+  // loader rejects a raw "C:/..." specifier on Windows); the logic itself
+  // is untouched, byte-for-byte from the workflow file.
+  const rewritten = source.replace("./ingestion/map/publication.mjs", new URL("../ingestion/map/publication.mjs", import.meta.url).href);
+  const scriptPath = join(dir, "script.mjs");
   await writeFile(scriptPath, rewritten);
-  try {
-    const stdout = execFileSync("node", [scriptPath], { encoding: "utf8" });
-    return { status: 0, stdout };
-  } catch (err) {
-    return { status: err.status ?? 1, stdout: err.stdout?.toString() ?? "", stderr: err.stderr?.toString() ?? "" };
-  } finally {
-    await rm(dir, { recursive: true, force: true });
-  }
+  return scriptPath;
 }
 
-test("runtime-verify script: accepts the REAL, currently-committed data/public/lisbon-porto-map.json", async () => {
+/** Runs a script as a real child process with the given env, resolving once it exits. */
+function runScript(scriptPath, env) {
+  return new Promise((resolvePromise) => {
+    const child = spawn(process.execPath, [scriptPath], { env: { ...process.env, ...env } });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("close", (code) => resolvePromise({ status: code, stdout, stderr }));
+  });
+}
+
+function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1 }) {
+  const marker = (i, country) => ({
+    venue_id: `venue-${country}-${i}`,
+    canonical_name: `Venue ${country} ${i}`,
+    latitude: 38.7,
+    longitude: -9.1,
+    address: "Test Address",
+    display_listings: [{ kind: "SINGLE", source_id: `source-${country}-${i}`, source_record_id: "rec-1" }],
+  });
+  return {
+    generated_at: generatedAt,
+    window: { from: null, to: null },
+    source_report: { success_count: 1, failure_count: 0, sources: [{ source_id: "test-source", success: true, raw_record_count: 1, observation_count: 1 }] },
+    counts: { observation_count: portugal + spain + germany, display_listing_count: portugal + spain + germany, map_marker_count: portugal + spain + germany },
+    countries: {
+      Portugal: { markers: Array.from({ length: portugal }, (_, i) => marker(i, "pt")) },
+      Croatia: { markers: [] },
+      Spain: { markers: Array.from({ length: spain }, (_, i) => marker(i, "es")) },
+      Germany: { markers: Array.from({ length: germany }, (_, i) => marker(i, "de")) },
+    },
+  };
+}
+
+// --- capture-pretrigger script ---
+
+test("capture-pretrigger script: reads a real running publication server and prints its current generated_at", async () => {
   const yaml = await readWorkflow();
-  const script = extractRuntimeVerifyScript(yaml);
+  const script = extractHeredocScript(yaml, "CAPTURE_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    await writeFile(artifactPath, JSON.stringify(validArtifact({ generatedAt: "2026-08-26T10:00:00.000Z" })));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, { RUNTIME_BASE_URL: `http://127.0.0.1:${port}` });
+      assert.equal(result.status, 0);
+      assert.match(result.stdout, /^PRE_TRIGGER_GENERATED_AT=2026-08-26T10:00:00\.000Z$/m);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+test("capture-pretrigger script: an unreachable endpoint is handled safely — prints an empty baseline, never crashes, never fails the step", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "CAPTURE_EOF");
+  await withTempDir(async (dir) => {
+    const scriptPath = await writeScript(dir, script);
+    // Port 1 is never a real listening service — a genuine connection failure.
+    const result = await runScript(scriptPath, { RUNTIME_BASE_URL: "http://127.0.0.1:1" });
+    assert.equal(result.status, 0, "an unreachable pre-trigger check must never fail the workflow step");
+    assert.match(result.stdout, /^PRE_TRIGGER_GENERATED_AT=$/m);
+  });
+});
+
+// --- poll-and-validate script ---
+
+test("poll-and-validate script: recognizes a newer generation and exits 0 with the new artifact's real totals", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    // Server starts already serving the NEWER cycle — proves the script
+    // correctly recognizes generated_at > preTrigger on the very first poll.
+    await writeFile(artifactPath, JSON.stringify(validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 13, spain: 31, germany: 22 })));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "2026-08-26T18:11:52.772Z",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "5",
+      });
+      assert.equal(result.status, 0, `expected success, stderr: ${result.stderr}`);
+      assert.match(result.stdout, /RUNTIME_GENERATED_AT=2026-08-26T18:41:35\.794Z/);
+      assert.match(result.stdout, /RUNTIME_PORTUGAL_MARKERS=13/);
+      assert.match(result.stdout, /RUNTIME_SPAIN_MARKERS=31/);
+      assert.match(result.stdout, /RUNTIME_GERMANY_MARKERS=22/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+test("poll-and-validate script: an artifact whose generated_at never advances past the pre-trigger baseline is NEVER accepted as success — times out and exits non-zero", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    // Server keeps serving the SAME (pre-trigger) generated_at the whole time.
+    await writeFile(artifactPath, JSON.stringify(validArtifact({ generatedAt: "2026-08-26T18:11:52.772Z" })));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "2026-08-26T18:11:52.772Z",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "0.5",
+      });
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /VERIFICATION TIMEOUT/);
+      assert.match(result.stderr, /does NOT necessarily mean deployment failed/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+test("poll-and-validate script: an unreachable endpoint for the whole window is treated as still-publishing, never crashes, and times out cleanly", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const scriptPath = await writeScript(dir, script);
+    const result = await runScript(scriptPath, {
+      RUNTIME_BASE_URL: "http://127.0.0.1:1",
+      PRE_TRIGGER_GENERATED_AT: "",
+      POLL_INTERVAL_SECONDS: "0.1",
+      MAX_WAIT_SECONDS: "0.5",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /VERIFICATION TIMEOUT/);
+  });
+});
+
+test("poll-and-validate script: a malformed (non-JSON) /health response is handled safely, treated as still-publishing, never crashes", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  const { createServer } = await import("node:http");
+  const malformedServer = createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end("{not valid json");
+  });
+  await new Promise((r) => malformedServer.listen(0, "127.0.0.1", r));
+  try {
+    const { port } = malformedServer.address();
+    await withTempDir(async (dir) => {
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "0.5",
+      });
+      assert.equal(result.status, 1, "malformed responses must never crash the process (non-zero from a clean timeout, not an uncaught exception)");
+      assert.doesNotMatch(result.stderr, /SyntaxError/, "a JSON parse error must be caught internally, never surfaced as an unhandled exception");
+      assert.match(result.stderr, /VERIFICATION TIMEOUT/);
+    });
+  } finally {
+    malformedServer.close();
+  }
+});
+
+test("poll-and-validate script: rejects a newer-timestamped artifact that fails publication schema validation", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    await writeFile(artifactPath, JSON.stringify({ generated_at: "2026-08-26T18:41:35.794Z", not: "a valid publication artifact" }));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "0.5",
+      });
+      // publication-server's own loadValidatedArtifact() already refuses to
+      // serve an invalid artifact at all (502), so this never reaches the
+      // schema-validation branch inside the poll script itself — it stays
+      // "inconclusive" and times out honestly, exactly as it should for a
+      // host that never has a genuinely valid artifact to serve.
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /VERIFICATION TIMEOUT/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+test("poll-and-validate script: source/country continuity — rejects a newer artifact missing Germany markers, never accepts it as success", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 13, spain: 31, germany: 0 });
+    await writeFile(artifactPath, JSON.stringify(artifact));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "2026-08-26T18:11:52.772Z",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "1",
+      });
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /Germany/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+test("poll-and-validate script: source/country continuity — rejects a structurally-valid but wholly EMPTY (zero-marker) newer artifact", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 0, spain: 0, germany: 0 });
+    artifact.counts.map_marker_count = 0;
+    artifact.counts.display_listing_count = 0;
+    await writeFile(artifactPath, JSON.stringify(artifact));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "2026-08-26T18:11:52.772Z",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "1",
+      });
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /Portugal/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+test("poll-and-validate script: real, currently-committed data/public/lisbon-porto-map.json (served fresh) validates successfully end-to-end", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
   const realArtifactPath = join(REPO_ROOT, "data", "public", "lisbon-porto-map.json");
-
-  const result = await runExtractedVerifyScript(script, realArtifactPath);
-  assert.equal(result.status, 0, `expected success, got stderr: ${result.stderr}`);
-  assert.match(result.stdout, /RUNTIME_GENERATED_AT=/);
-  assert.match(result.stdout, /RUNTIME_MARKER_COUNT=\d+/);
-});
-
-test("runtime-verify script: rejects malformed JSON", async () => {
-  const yaml = await readWorkflow();
-  const script = extractRuntimeVerifyScript(yaml);
-  await withTempDir(async (dir) => {
-    const path = join(dir, "map-data.json");
-    await writeFile(path, "{not valid json");
-    const result = await runExtractedVerifyScript(script, path);
-    assert.equal(result.status, 1);
-  });
-});
-
-test("runtime-verify script: rejects a payload that fails publication schema validation", async () => {
-  const yaml = await readWorkflow();
-  const script = extractRuntimeVerifyScript(yaml);
-  await withTempDir(async (dir) => {
-    const path = join(dir, "map-data.json");
-    await writeFile(path, JSON.stringify({ not: "a publication artifact" }));
-    const result = await runExtractedVerifyScript(script, path);
-    assert.equal(result.status, 1);
-  });
-});
-
-test("runtime-verify script: rejects a structurally-valid but EMPTY (zero-marker) artifact — never treats an empty map as success", async () => {
-  const yaml = await readWorkflow();
-  const script = extractRuntimeVerifyScript(yaml);
-  const realArtifact = JSON.parse(await readFile(join(REPO_ROOT, "data", "public", "lisbon-porto-map.json"), "utf8"));
-  realArtifact.countries.Portugal.markers = [];
-  realArtifact.counts.map_marker_count = 0;
-  realArtifact.counts.display_listing_count = 0;
-
-  await withTempDir(async (dir) => {
-    const path = join(dir, "map-data.json");
-    await writeFile(path, JSON.stringify(realArtifact));
-    const result = await runExtractedVerifyScript(script, path);
-    assert.equal(result.status, 1);
-  });
+  const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath: realArtifactPath });
+  try {
+    const { port } = server.address();
+    await withTempDir(async (dir) => {
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "5",
+      });
+      assert.equal(result.status, 0, `expected success, stderr: ${result.stderr}`);
+      assert.match(result.stdout, /RUNTIME_GENERATED_AT=/);
+      assert.match(result.stdout, /RUNTIME_PORTUGAL_MARKERS=\d+/);
+      assert.match(result.stdout, /RUNTIME_SPAIN_MARKERS=\d+/);
+      assert.match(result.stdout, /RUNTIME_GERMANY_MARKERS=\d+/);
+    });
+  } finally {
+    server.close();
+  }
 });

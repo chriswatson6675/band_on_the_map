@@ -16,6 +16,20 @@ name: Deploy BeatMapped Collector
 # Deliberately workflow_dispatch ONLY -- this must never run automatically
 # on push. See deploy/README.md's "Simple human deployment workflow" for
 # the full, plain-language procedure this Action is one step of.
+#
+# BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
+# publication is now triggered ASYNCHRONOUSLY. SSH performs only short,
+# bounded control operations (deploy, HEAD/service verification, and a
+# non-blocking `systemctl start --no-block`) and then disconnects --
+# it is never held open to wait for the full multi-country acquisition
+# cycle (Portugal + Spain + Germany, 61 sources, now routinely ~30
+# minutes; see deploy/README.md and docs/UNATTENDED_RUNNER.md). The
+# server already owns the publication lifecycle through systemd
+# (deploy/systemd/botm-unattended.service); this workflow subsequently
+# verifies completion entirely through the existing public, read-only
+# runtime endpoint (https://data.beatmapped.com/{health,map-data} --
+# ingestion/publication-server/run.mjs), bounded by this workflow's own
+# step timeout, never by an SSH connection's lifetime.
 
 on:
   workflow_dispatch:
@@ -89,6 +103,12 @@ jobs:
     name: Deploy to production collector
     needs: resolve-and-validate
     runs-on: ubuntu-latest
+    # Outer safety net for the whole job (deploy + bounded async publication
+    # wait) -- see the "Poll for a newer publication cycle" step's own
+    # MAX_WAIT_SECONDS for the primary, graceful bound; this is the hard
+    # backstop matching this task's own "use GitHub Actions' normal job
+    # timeout safeguards as an outer bound" requirement.
+    timeout-minutes: 75
     # A dedicated Environment (deliberately NOT the repository's existing
     # "Production"/"Preview" pair, which is Vercel's own auto-managed
     # frontend-deployment environment and unrelated to this SSH-based
@@ -99,6 +119,11 @@ jobs:
     env:
       RESOLVED_SHA: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
       BEATMAPPED_APP_DIR: /opt/band-on-the-map
+      # The SAME public, read-only, uncredentialed runtime endpoint every
+      # other consumer (the frontend, an operator's own browser) already
+      # uses -- see ingestion/publication-server/run.mjs. Never a second,
+      # SSH-only status surface.
+      RUNTIME_BASE_URL: https://data.beatmapped.com
     steps:
       - name: Checkout the resolved commit (for schema-consistent runtime verification later)
         uses: actions/checkout@v4
@@ -128,7 +153,7 @@ jobs:
             "sudo ${BEATMAPPED_APP_DIR}/deploy/install.sh --ref=${RESOLVED_SHA}"
           echo "| Deployment (deploy/install.sh --ref=…) | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Verify deployed HEAD and collector/timer/publication-service health (read-only)
+      - name: Verify deployed HEAD and collector/timer/publication-service health (read-only, short SSH)
         run: |
           set -euo pipefail
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
@@ -154,72 +179,219 @@ jobs:
           echo "| Deployed SHA verified | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Collector timer / publication service | ✅ HEALTHY |" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Run one publication cycle through the existing unattended service
+      # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
+      # captured over the SAME public, read-only endpoint the final
+      # validation step polls -- never over SSH, and never assumed to
+      # succeed (an unreachable/stale endpoint here just means "accept the
+      # first valid publication observed later", handled explicitly by the
+      # poll script below; it never fails the deploy on its own).
+      - name: Capture the pre-trigger publication generation timestamp (read-only HTTPS, no SSH)
+        id: pretrigger
         run: |
           set -euo pipefail
-          # Uses the SAME systemd oneshot unit the twice-daily timer already
-          # triggers -- never a second/parallel collector process, never
-          # new polling infrastructure, never an altered cadence.
+          cat > ./.deploy-capture-pretrigger.mjs <<'CAPTURE_EOF'
+          const baseUrl = process.env.RUNTIME_BASE_URL;
+
+          // A real AbortController + explicit clearTimeout (never
+          // AbortSignal.timeout(), which can leave an unref'd internal
+          // timer handle dangling past process exit and crash Node's
+          // libuv layer on some platforms) -- this script exits promptly
+          // and cleanly either way.
+          async function fetchJson(url) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 20000);
+            try {
+              const res = await fetch(url, { signal: controller.signal });
+              if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+              return { ok: true, body: await res.json() };
+            } catch (error) {
+              return { ok: false, error: error?.message ?? String(error) };
+            } finally {
+              clearTimeout(timer);
+            }
+          }
+
+          async function main() {
+            const result = await fetchJson(`${baseUrl}/health`);
+            if (result.ok && result.body?.artifact_readable && typeof result.body.generated_at === "string") {
+              console.log(`PRE_TRIGGER_GENERATED_AT=${result.body.generated_at}`);
+              return;
+            }
+            console.error(`No valid generated_at readable from ${baseUrl}/health before triggering (${result.error ?? "unexpected response shape"}) -- proceeding with an empty baseline (any subsequent valid publication will be accepted as new).`);
+            console.log("PRE_TRIGGER_GENERATED_AT=");
+          }
+
+          await main();
+          CAPTURE_EOF
+
+          node ./.deploy-capture-pretrigger.mjs | tee /tmp/pretrigger-output.txt
+          rm -f ./.deploy-capture-pretrigger.mjs
+
+          PRE_TRIGGER=$(grep '^PRE_TRIGGER_GENERATED_AT=' /tmp/pretrigger-output.txt | cut -d= -f2-)
+          echo "pre_trigger_generated_at=${PRE_TRIGGER}" >> "$GITHUB_OUTPUT"
+          echo "| Pre-trigger generated_at | \`${PRE_TRIGGER:-(none observed)}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+      # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
+      # the ONE remaining SSH step involved in publication -- it starts the
+      # SAME existing systemd oneshot unit the twice-daily timer already
+      # uses (never a second/parallel collector process, never new polling
+      # infrastructure, never an altered cadence) and returns as soon as
+      # systemd has ACCEPTED the job (`--no-block`), never waiting for the
+      # 30+ minute acquisition cycle itself to finish. `systemctl start
+      # --no-block` fails fast (non-zero exit) if the unit is missing,
+      # masked, or otherwise cannot be queued -- exactly the "publication
+      # launch failure" case this task's own failure-semantics phase
+      # requires, distinct from "publication still running".
+      - name: Trigger the publication cycle (non-blocking -- SSH returns immediately, does not wait for completion)
+        run: |
+          set -euo pipefail
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
             -i "$HOME/.ssh/deploy_key" \
             "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
-            bash -s -- "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT'
-            set -euo pipefail
-            APP_DIR="$1"
+            "systemctl start --no-block botm-unattended.service"
+          echo "| Publication cycle triggered (non-blocking) | ✅ ACCEPTED |" >> "$GITHUB_STEP_SUMMARY"
 
-            systemctl start botm-unattended.service
-            RESULT="$(systemctl show botm-unattended.service -p Result --value)"
-            echo "botm-unattended.service systemd Result: $RESULT"
-            if [ "$RESULT" != "success" ]; then
-              echo "Publication cycle did not complete successfully (systemd Result=$RESULT)." >&2
-              exit 1
-            fi
+      # SSH is not needed again after this point -- every remaining step
+      # verifies completion over the public, read-only runtime endpoint
+      # only. Cleaned up here, immediately once its job is done, rather
+      # than held for the whole (potentially 30+ minute) publication wait.
+      - name: Clean up local SSH material
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts
 
-            OVERALL_STATUS="$(sudo -u botm grep -o '"overall_status": *"[A-Z]*"' "$APP_DIR/runtime/health-reports/latest.json" | grep -o '"[A-Z]*"$' | tr -d '"' || echo unknown)"
-            echo "Publication run overall_status: $OVERALL_STATUS"
-            if [ "$OVERALL_STATUS" = "FAILED" ]; then
-              echo "Publication run reported overall_status=FAILED." >&2
-              exit 1
-            fi
-          REMOTE_SCRIPT
-          echo "| Publication cycle | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Verify the public runtime endpoint (generic — no enrichment-specific content asserted)
+      # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
+      # bounded, sensible-interval polling of the SAME public endpoint
+      # every other consumer already uses -- no busy-loop, no second
+      # publication-state system, no SSH. MAX_WAIT_SECONDS (45 minutes)
+      # comfortably covers the currently-observed ~30 minute three-country
+      # cycle without assuming future runs stay that fast; this step's own
+      # `timeout-minutes` is a hard outer backstop in case the script
+      # itself ever hangs (it should always exit cleanly well before that
+      # on its own). A timeout here means "publication verification could
+      # not be confirmed within this window" -- NOT "deployment failed":
+      # the server-side systemd job is left completely alone, still
+      # running to completion independently, exactly as designed.
+      - name: Poll for a newer publication cycle and validate it (read-only HTTPS, no SSH, bounded)
+        timeout-minutes: 50
+        env:
+          PRE_TRIGGER_GENERATED_AT: ${{ steps.pretrigger.outputs.pre_trigger_generated_at }}
+          POLL_INTERVAL_SECONDS: "60"
+          MAX_WAIT_SECONDS: "2700"
         run: |
           set -euo pipefail
-          curl -fsS https://data.beatmapped.com/map-data -o /tmp/map-data.json
-
           cat > ./.deploy-verify-runtime.mjs <<'VERIFY_EOF'
-          import { readFileSync } from "node:fs";
           import { validatePublicationArtifact } from "./ingestion/map/publication.mjs";
 
-          let artifact;
-          try {
-            artifact = JSON.parse(readFileSync("/tmp/map-data.json", "utf8"));
-          } catch {
-            console.error("Runtime endpoint did not return valid JSON.");
-            process.exit(1);
+          const baseUrl = process.env.RUNTIME_BASE_URL;
+          const preTrigger = process.env.PRE_TRIGGER_GENERATED_AT || "";
+          const pollIntervalMs = Number(process.env.POLL_INTERVAL_SECONDS ?? "60") * 1000;
+          const maxWaitMs = Number(process.env.MAX_WAIT_SECONDS ?? "2700") * 1000;
+          const startedAt = Date.now();
+
+          // A real AbortController + explicit clearTimeout (never
+          // AbortSignal.timeout(), which can leave an unref'd internal
+          // timer handle dangling past process exit and crash Node's
+          // libuv layer on some platforms) -- every fetch below cleans up
+          // its own timer whether it succeeds, fails, or aborts.
+          async function fetchJson(path) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 20000);
+            try {
+              const res = await fetch(`${baseUrl}${path}`, { signal: controller.signal });
+              if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+              return { ok: true, body: await res.json() };
+            } catch (error) {
+              return { ok: false, error: error?.message ?? String(error) };
+            } finally {
+              clearTimeout(timer);
+            }
           }
 
-          // Reuses the SAME schema validation the publication pipeline
-          // itself already uses (ingestion/map/publication.mjs) -- never a
-          // second, parallel schema invented here.
-          const errors = validatePublicationArtifact(artifact);
-          if (errors.length > 0) {
-            console.error("Runtime artifact failed publication schema validation:");
-            for (const e of errors) console.error(" - " + e);
-            process.exit(1);
+          async function main() {
+            let lastObserved = null;
+            let lastError = null;
+
+            // Reuses ingestion/publication-server/run.mjs's own /health
+            // route (generated_at only, no full artifact download) for
+            // cheap, frequent polling -- the full, larger /map-data
+            // payload is only ever fetched once, after a genuinely newer
+            // cycle is observed.
+            while (Date.now() - startedAt < maxWaitMs) {
+              const health = await fetchJson("/health");
+              if (health.ok && health.body?.artifact_readable && typeof health.body.generated_at === "string") {
+                lastObserved = health.body.generated_at;
+                if (!preTrigger || lastObserved > preTrigger) {
+                  console.log(`Newer publication cycle observed: ${lastObserved} (pre-trigger baseline: ${preTrigger || "(unavailable)"})`);
+                  break;
+                }
+                console.log(`Still the pre-trigger cycle (${lastObserved}) -- publication still running, waiting...`);
+              } else {
+                lastError = health.error ?? "artifact not yet readable";
+                console.log(`/health check inconclusive (${lastError}) -- treating as still publishing, waiting...`);
+              }
+              await new Promise((r) => setTimeout(r, pollIntervalMs));
+            }
+
+            if (!lastObserved || (preTrigger && lastObserved <= preTrigger)) {
+              console.error(`VERIFICATION TIMEOUT after ${Math.round((Date.now() - startedAt) / 1000)}s -- no newer publication cycle was observed within the configured window.`);
+              console.error(`Last observed generated_at: ${lastObserved ?? "(none)"}${lastError ? ` (last error: ${lastError})` : ""}`);
+              console.error("This does NOT necessarily mean deployment failed -- the server-side publication job (systemd) runs independently of this workflow and may still complete. Re-check " + baseUrl + "/map-data manually, or re-run this workflow's verification once the cycle has had more time.");
+              process.exitCode = 1;
+              return;
+            }
+
+            const mapData = await fetchJson("/map-data");
+            if (!mapData.ok) {
+              console.error(`Could not fetch full /map-data for validation: ${mapData.error}`);
+              process.exitCode = 1;
+              return;
+            }
+            const artifact = mapData.body;
+
+            // Reuses the SAME schema validation the publication pipeline
+            // itself already uses (ingestion/map/publication.mjs) -- never
+            // a second, parallel schema invented here.
+            const errors = validatePublicationArtifact(artifact);
+            if (errors.length > 0) {
+              console.error("New publication artifact failed schema validation:");
+              for (const e of errors) console.error(" - " + e);
+              process.exitCode = 1;
+              return;
+            }
+
+            if (preTrigger && artifact.generated_at <= preTrigger) {
+              // Race-guard against an atomic-write gap between /health and
+              // /map-data reflecting different moments -- never trusted
+              // blindly just because /health looked newer a moment ago.
+              console.error(`/map-data generated_at (${artifact.generated_at}) is not newer than the pre-trigger baseline (${preTrigger}) -- refusing to treat this as a completed new cycle.`);
+              process.exitCode = 1;
+              return;
+            }
+
+            // Country/source continuity -- presence and non-catastrophic
+            // totals only, never an exact/volatile listing count. This is
+            // a courtesy sanity check on the artifact the pipeline's own
+            // isCatastrophicPublicationRun() already refused-or-accepted
+            // at write time -- never a second publication-safety gate.
+            const requiredCountries = ["Portugal", "Spain", "Germany"];
+            for (const country of requiredCountries) {
+              const markers = artifact.countries?.[country]?.markers;
+              if (!Array.isArray(markers) || markers.length === 0) {
+                console.error(`Expected countries.${country} to have at least one marker in the new publication artifact, found ${Array.isArray(markers) ? markers.length : "none"}.`);
+                process.exitCode = 1;
+                return;
+              }
+            }
+
+            console.log("RUNTIME_GENERATED_AT=" + artifact.generated_at);
+            console.log("RUNTIME_MARKER_COUNT=" + (artifact.counts?.map_marker_count ?? "unknown"));
+            console.log("RUNTIME_LISTING_COUNT=" + (artifact.counts?.display_listing_count ?? "unknown"));
+            console.log("RUNTIME_PORTUGAL_MARKERS=" + artifact.countries.Portugal.markers.length);
+            console.log("RUNTIME_SPAIN_MARKERS=" + artifact.countries.Spain.markers.length);
+            console.log("RUNTIME_GERMANY_MARKERS=" + artifact.countries.Germany.markers.length);
           }
 
-          const markerCount = artifact.countries?.Portugal?.markers?.length ?? 0;
-          if (markerCount === 0) {
-            console.error("Runtime artifact has zero Portugal markers — an empty publication is never treated as success.");
-            process.exit(1);
-          }
-
-          console.log("RUNTIME_GENERATED_AT=" + artifact.generated_at);
-          console.log("RUNTIME_MARKER_COUNT=" + markerCount);
-          console.log("RUNTIME_LISTING_COUNT=" + (artifact.counts?.display_listing_count ?? "unknown"));
+          await main();
           VERIFY_EOF
 
           node ./.deploy-verify-runtime.mjs | tee /tmp/runtime-verify-output.txt
@@ -228,12 +400,12 @@ jobs:
           GENERATED_AT=$(grep '^RUNTIME_GENERATED_AT=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           MARKERS=$(grep '^RUNTIME_MARKER_COUNT=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           LISTINGS=$(grep '^RUNTIME_LISTING_COUNT=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          PT=$(grep '^RUNTIME_PORTUGAL_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          ES=$(grep '^RUNTIME_SPAIN_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          DE=$(grep '^RUNTIME_GERMANY_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           {
-            echo "| Runtime endpoint (data.beatmapped.com/map-data) | ✅ PASS |"
-            echo "| Runtime generated_at | \`$GENERATED_AT\` |"
-            echo "| Runtime listings | $LISTINGS across $MARKERS Portugal venues |"
+            echo "| Runtime endpoint (${RUNTIME_BASE_URL}/map-data) | ✅ PASS |"
+            echo "| Pre-trigger generated_at | \`${PRE_TRIGGER_GENERATED_AT:-(none observed)}\` |"
+            echo "| Post-publication generated_at | \`$GENERATED_AT\` |"
+            echo "| Runtime listings | $LISTINGS across $MARKERS venues (Portugal $PT / Spain $ES / Germany $DE) |"
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Clean up local SSH material
-        if: always()
-        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts
