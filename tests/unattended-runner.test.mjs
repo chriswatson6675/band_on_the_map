@@ -8,6 +8,15 @@
 // retry/isolation behaviour — see tests/unattended-runner-acquire-all.test.mjs
 // for that), and every filesystem write happens under an isolated tmpdir
 // root, never the real repository.
+//
+// BEATMAPPED-UNATTENDED-MULTI-COUNTRY-PUBLICATION-01 extends this suite:
+// Barcelona/Spain acquisition is injected the SAME way Portugal's already
+// is (`acquireBarcelona` option, mirroring the existing `acquireLisbonPorto`
+// option) so every existing test here stays fully offline — none of them
+// were changed to exercise Barcelona; they simply supply a small,
+// deterministic default Barcelona mock (`fakeAcquireBarcelonaEmpty`) so the
+// REAL acquireBarcelona() (live network) is never reached. New tests below
+// prove the actual multi-country wiring itself.
 
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
@@ -28,6 +37,19 @@ import { runUnattendedCycle } from "../ingestion/unattended-runner/run.mjs";
 // registries under an isolated root that define those exact venue_ids.
 const VENUE_ID_A = "venue-lisboa-meo-arena";
 const VENUE_ID_C = "venue-porto-casa-da-musica";
+
+// almo2bar-barcelona: a real, existing SOURCE_ID-keyed entry in the
+// committed venues/source-venue-mappings.json (source_key_type "SOURCE_ID"
+// — matches ANY Observation from this source_id, regardless of
+// source_record_id) resolving to venue-barcelona-almo2bar — the same
+// pattern as VENUE_ID_A/VENUE_ID_C above, just Barcelona's own real,
+// stable, single-venue mapping instead of a fixed hardcoded one (Barcelona
+// has none — every Barcelona source resolves via this data-driven table,
+// see ingestion/venue/resolver.mjs's own doc comment). This table is a
+// static ESM JSON import inside resolver.mjs (never root-relative), so it
+// resolves correctly even under this suite's isolated tmpdir root.
+const BARCELONA_SOURCE_ID = "almo2bar-barcelona";
+const VENUE_ID_ES = "venue-barcelona-almo2bar";
 
 function obs(sourceId, id, overrides = {}) {
   return createObservation({
@@ -87,6 +109,33 @@ async function makeTempRoot({ seedGoodArtifact = false } = {}) {
       ],
     }),
   );
+  // BEATMAPPED-UNATTENDED-MULTI-COUNTRY-PUBLICATION-01: venues/barcelona.json
+  // now must exist under every isolated test root too — runUnattendedCycle()
+  // reads it unconditionally, the same way it already reads venues/lisbon.json
+  // and venues/porto.json. The one venue here (Almo2bar, real committed
+  // coordinates/address — see venues/barcelona.json in the real repository)
+  // matches VENUE_ID_ES/BARCELONA_SOURCE_ID above exactly.
+  await writeFile(
+    join(root, "venues", "barcelona.json"),
+    JSON.stringify({
+      region: "Barcelona",
+      venues: [
+        {
+          venue_id: VENUE_ID_ES,
+          canonical_name: "Almo2bar",
+          country_code: "ES",
+          city: "Barcelona",
+          municipality: "Barcelona",
+          address: "Carrer de Bruniquer, 59-61, 08024 Barcelona",
+          latitude: 41.4056064,
+          longitude: 2.1621059,
+          location_status: "GEOCODED",
+          evidence: [{ url: "https://grupalmodobar.com/" }],
+          retrieved_at: "2026-08-26",
+        },
+      ],
+    }),
+  );
   // No venues/manual-coordinates.json — loadManualCoordinateStore() falls
   // back to an empty store for a missing file, exactly as it already does
   // for a genuinely fresh install.
@@ -130,6 +179,43 @@ function instantDelay() {
   return async () => {};
 }
 
+// BEATMAPPED-UNATTENDED-MULTI-COUNTRY-PUBLICATION-01 — the safe, fast,
+// fully-offline default every EXISTING (Portugal-only-focused) test below
+// passes as `acquireBarcelona`, so none of them ever reach the real
+// acquireBarcelona() (live network against 23 real Barcelona sources).
+// Zero sources, zero observations: a legitimate, honestly-empty Spain
+// acquisition, not a failure — matches how a genuinely quiet source cycle
+// would look.
+async function fakeAcquireBarcelonaEmpty() {
+  return { barcelonaRegistry: { entries: [] }, barcelonaResults: [], barcelonaObservations: [] };
+}
+
+// A single successful Barcelona source (almo2bar-barcelona), for tests
+// that need Spain to actually publish a real marker.
+function fakeAcquireBarcelonaHealthy() {
+  return async () => ({
+    barcelonaRegistry: { entries: [{ id: BARCELONA_SOURCE_ID, name: "Almo2bar" }] },
+    barcelonaResults: [
+      { source_id: BARCELONA_SOURCE_ID, success: true, raw_record_count: 1, observation_count: 1, observations: [obs(BARCELONA_SOURCE_ID, "1")], notes: [] },
+    ],
+    barcelonaObservations: [obs(BARCELONA_SOURCE_ID, "1")],
+  });
+}
+
+// The same real, existing MEO Arena / Casa da Música pair every other
+// HEALTHY-style test in this file already uses.
+function fakeAcquirePortugalHealthy() {
+  return async () => ({
+    lisbonRegistry: { entries: [{ id: "meo-arena" }] },
+    portoRegistry: { entries: [{ id: "casa-da-musica" }] },
+    lisbonResults: [{ source_id: "meo-arena", success: true, raw_record_count: 1, observation_count: 1, observations: [obs("meo-arena", "1")], notes: [], attempts: 1 }],
+    portoResults: [{ source_id: "casa-da-musica", success: true, raw_record_count: 1, observation_count: 1, observations: [obs("casa-da-musica", "1")], notes: [], attempts: 1 }],
+    lisbonObservations: [obs("meo-arena", "1")],
+    portoObservations: [obs("casa-da-musica", "1")],
+    lisbonAssociations: [],
+  });
+}
+
 test("DEGRADED: A succeeds, B fails, C succeeds — safe publication completes, B never blocks A/C", async (t) => {
   const root = await makeTempRoot();
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -147,7 +233,7 @@ test("DEGRADED: A succeeds, B fails, C succeeds — safe publication completes, 
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-degraded", acquireLisbonPorto: fakeAcquire });
+  const { report } = await runUnattendedCycle({ root, runId: "test-degraded", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
 
   assert.equal(report.overall_status, "DEGRADED");
   assert.equal(report.publication_status, "PUBLISHED");
@@ -186,7 +272,7 @@ test("FAILED (all sources fail): the previous known-good public artifact is pres
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-failed", acquireLisbonPorto: fakeAcquire });
+  const { report } = await runUnattendedCycle({ root, runId: "test-failed", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
 
   assert.equal(report.overall_status, "FAILED");
   assert.equal(report.publication_status, "PRESERVED_PREVIOUS");
@@ -211,7 +297,7 @@ test("HEALTHY: every source succeeds and publication succeeds", async (t) => {
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-healthy", acquireLisbonPorto: fakeAcquire });
+  const { report } = await runUnattendedCycle({ root, runId: "test-healthy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
   assert.equal(report.overall_status, "HEALTHY");
   assert.equal(report.failed_source_count, 0);
   assert.equal(report.publication_status, "PUBLISHED");
@@ -232,7 +318,7 @@ test("overlapping run: a second invocation while a lock is already held is refus
     throw new Error("must never be called — the run should be refused before any acquisition happens");
   };
 
-  const outcome = await runUnattendedCycle({ root, runId: "test-overlap", acquireLisbonPorto: fakeAcquire });
+  const outcome = await runUnattendedCycle({ root, runId: "test-overlap", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
 
   assert.equal(outcome.refused, true);
   assert.equal(outcome.reason, "ANOTHER_RUN_IN_PROGRESS");
@@ -259,8 +345,8 @@ test("the lock is released after a normal (HEALTHY) completion, allowing a subse
     lisbonAssociations: [],
   });
 
-  await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: fakeAcquire });
-  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: fakeAcquire });
+  await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
+  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
   assert.equal(second.refused, undefined, "the lock must be released after a normal completion");
   assert.equal(second.report.overall_status, "HEALTHY");
 });
@@ -288,10 +374,10 @@ test("the lock is released after a handled FAILED run (catastrophic), allowing a
     lisbonAssociations: [],
   });
 
-  const first = await runUnattendedCycle({ root, runId: "run-fail", acquireLisbonPorto: failingAcquire });
+  const first = await runUnattendedCycle({ root, runId: "run-fail", acquireLisbonPorto: failingAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
   assert.equal(first.report.overall_status, "FAILED");
 
-  const second = await runUnattendedCycle({ root, runId: "run-recover", acquireLisbonPorto: healthyAcquire });
+  const second = await runUnattendedCycle({ root, runId: "run-recover", acquireLisbonPorto: healthyAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
   assert.equal(second.refused, undefined, "the lock must be released even after a handled FAILED run");
   assert.equal(second.report.overall_status, "HEALTHY");
 });
@@ -310,7 +396,7 @@ test("health report is written with UTC timestamps and can be read back byte-ide
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "run-ts", acquireLisbonPorto: fakeAcquire });
+  const { report } = await runUnattendedCycle({ root, runId: "run-ts", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty });
   assert.ok(report.started_at.endsWith("Z"), "started_at must be a UTC (Z-suffixed) ISO timestamp");
   assert.ok(report.completed_at.endsWith("Z"), "completed_at must be a UTC (Z-suffixed) ISO timestamp");
   assert.ok(typeof report.duration_ms === "number" && report.duration_ms >= 0);
@@ -340,7 +426,205 @@ test("uses this project's bounded retry policy defaults when maxAttempts/retryDe
     };
   };
 
-  await runUnattendedCycle({ root, runId: "run-policy", acquireLisbonPorto: fakeAcquire, delayFn: instantDelay() });
+  await runUnattendedCycle({ root, runId: "run-policy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, delayFn: instantDelay() });
   assert.equal(seenRetryPolicy.maxAttempts, 3);
   assert.equal(seenRetryPolicy.retryDelayMs, 500);
+});
+
+// --- BEATMAPPED-UNATTENDED-MULTI-COUNTRY-PUBLICATION-01 — multi-country wiring proofs ---
+
+test("the unattended runner invokes Barcelona/Spain acquisition every cycle, not just Portugal", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  let barcelonaAcquisitionCalled = false;
+  const spyAcquireBarcelona = async () => {
+    barcelonaAcquisitionCalled = true;
+    return fakeAcquireBarcelonaEmpty();
+  };
+
+  await runUnattendedCycle({ root, runId: "run-spain-invoked", acquireLisbonPorto: fakeAcquirePortugalHealthy(), acquireBarcelona: spyAcquireBarcelona });
+  assert.equal(barcelonaAcquisitionCalled, true, "acquireBarcelona() must be called on every unattended cycle, not left Portugal-only");
+});
+
+test("Portugal AND Spain markers both reach the SAME combined publication artifact", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-both-countries",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: fakeAcquireBarcelonaHealthy(),
+  });
+
+  assert.equal(report.overall_status, "HEALTHY");
+  assert.equal(report.publication_status, "PUBLISHED");
+  // map_marker_count/display_listing_count are GLOBAL totals across every
+  // published country (see ingestion/map/publication.mjs's own doc
+  // comment) — 2 Portugal (MEO Arena, Casa da Música) + 1 Spain (Almo2bar).
+  assert.equal(report.map_marker_count, 3);
+
+  const artifactPath = resolvePublicationArtifactPath({ root });
+  const artifact = JSON.parse(await readFile(artifactPath, "utf8"));
+  assert.deepEqual(
+    artifact.countries.Portugal.markers.map((m) => m.venue_id).sort(),
+    [VENUE_ID_A, VENUE_ID_C].sort(),
+  );
+  assert.deepEqual(
+    artifact.countries.Spain.markers.map((m) => m.venue_id),
+    [VENUE_ID_ES],
+  );
+});
+
+test("a Portugal-side source failure does not zero Spain — Spain still publishes its own successful data", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const degradedPortugal = async () => ({
+    lisbonRegistry: { entries: [{ id: "meo-arena" }] },
+    portoRegistry: { entries: [{ id: "casa-da-musica" }] },
+    lisbonResults: [
+      { source_id: "meo-arena", success: false, error: "HTTP 503 response", raw_record_count: 0, observation_count: 0, observations: [], notes: [], attempts: 3 },
+    ],
+    portoResults: [{ source_id: "casa-da-musica", success: true, raw_record_count: 1, observation_count: 1, observations: [obs("casa-da-musica", "1")], notes: [], attempts: 1 }],
+    lisbonObservations: [],
+    portoObservations: [obs("casa-da-musica", "1")],
+    lisbonAssociations: [],
+  });
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-portugal-partial-fail",
+    acquireLisbonPorto: degradedPortugal,
+    acquireBarcelona: fakeAcquireBarcelonaHealthy(),
+  });
+
+  assert.equal(report.overall_status, "DEGRADED", "one failed Portugal source degrades the run but must not fail it outright");
+  assert.equal(report.publication_status, "PUBLISHED");
+
+  const artifactPath = resolvePublicationArtifactPath({ root });
+  const artifact = JSON.parse(await readFile(artifactPath, "utf8"));
+  assert.deepEqual(
+    artifact.countries.Spain.markers.map((m) => m.venue_id),
+    [VENUE_ID_ES],
+    "Spain's own successful acquisition must be completely unaffected by a Portugal-side source failure",
+  );
+  assert.deepEqual(
+    artifact.countries.Portugal.markers.map((m) => m.venue_id),
+    [VENUE_ID_C],
+    "Casa da Música (the surviving Portugal source) must still publish",
+  );
+});
+
+test("a Spain-side source failure does not zero Portugal — Portugal still publishes its own successful data", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const degradedBarcelona = async () => ({
+    barcelonaRegistry: { entries: [{ id: BARCELONA_SOURCE_ID }] },
+    barcelonaResults: [
+      { source_id: BARCELONA_SOURCE_ID, success: false, error: "HTTP 503 response", raw_record_count: 0, observation_count: 0, observations: [], notes: [] },
+    ],
+    barcelonaObservations: [],
+  });
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-spain-partial-fail",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: degradedBarcelona,
+  });
+
+  assert.equal(report.overall_status, "DEGRADED", "one failed Barcelona source degrades the run but must not fail it outright");
+  assert.equal(report.publication_status, "PUBLISHED");
+
+  const artifactPath = resolvePublicationArtifactPath({ root });
+  const artifact = JSON.parse(await readFile(artifactPath, "utf8"));
+  assert.deepEqual(
+    artifact.countries.Portugal.markers.map((m) => m.venue_id).sort(),
+    [VENUE_ID_A, VENUE_ID_C].sort(),
+    "Portugal's own successful acquisition must be completely unaffected by a Spain-side source failure",
+  );
+  assert.deepEqual(artifact.countries.Spain.markers, [], "Spain honestly publishes zero markers this run — never fabricated");
+});
+
+test("a TOTAL Barcelona acquisition failure (the whole call throws) does not abort Portugal's already-successful cycle", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const throwingAcquireBarcelona = async () => {
+    throw new Error("sources/barcelona.json unreadable");
+  };
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-spain-total-fail",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: throwingAcquireBarcelona,
+  });
+
+  assert.equal(report.overall_status, "DEGRADED", "a total Barcelona acquisition failure must degrade, never crash, the whole cycle");
+  assert.equal(report.publication_status, "PUBLISHED");
+
+  const artifactPath = resolvePublicationArtifactPath({ root });
+  const artifact = JSON.parse(await readFile(artifactPath, "utf8"));
+  assert.deepEqual(
+    artifact.countries.Portugal.markers.map((m) => m.venue_id).sort(),
+    [VENUE_ID_A, VENUE_ID_C].sort(),
+    "Portugal must still publish even though Barcelona's whole acquisition call threw",
+  );
+  assert.deepEqual(artifact.countries.Spain.markers, [], "Spain honestly publishes zero markers — never fabricated");
+
+  // The failure must be VISIBLE in the health report, not silently swallowed.
+  const failedEntry = report.sources.find((s) => s.source_id === "barcelona-acquisition");
+  assert.ok(failedEntry, "the total Barcelona acquisition failure must appear as its own FAILED source entry");
+  assert.equal(failedEntry.status, "FAILED");
+  assert.match(failedEntry.error, /sources\/barcelona\.json unreadable/);
+});
+
+test("failed_source_count/successful_source_count/active_source_count are truthful TOTALS across Portugal + Spain combined", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const degradedPortugal = async () => ({
+    lisbonRegistry: { entries: [{ id: "meo-arena" }] },
+    portoRegistry: { entries: [{ id: "casa-da-musica" }] },
+    lisbonResults: [
+      { source_id: "meo-arena", success: true, raw_record_count: 1, observation_count: 1, observations: [obs("meo-arena", "1")], notes: [], attempts: 1 },
+      { source_id: "broken-lisbon-source", success: false, error: "HTTP 500 response", raw_record_count: 0, observation_count: 0, observations: [], notes: [], attempts: 3 },
+    ],
+    portoResults: [{ source_id: "casa-da-musica", success: true, raw_record_count: 1, observation_count: 1, observations: [obs("casa-da-musica", "1")], notes: [], attempts: 1 }],
+    lisbonObservations: [obs("meo-arena", "1")],
+    portoObservations: [obs("casa-da-musica", "1")],
+    lisbonAssociations: [],
+  });
+  const degradedBarcelona = async () => ({
+    barcelonaRegistry: { entries: [{ id: BARCELONA_SOURCE_ID }] },
+    barcelonaResults: [
+      { source_id: BARCELONA_SOURCE_ID, success: true, raw_record_count: 1, observation_count: 1, observations: [obs(BARCELONA_SOURCE_ID, "1")], notes: [] },
+      { source_id: "broken-barcelona-source", success: false, error: "HTTP 503 response", raw_record_count: 0, observation_count: 0, observations: [], notes: [] },
+    ],
+    barcelonaObservations: [obs(BARCELONA_SOURCE_ID, "1")],
+  });
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-combined-counts",
+    acquireLisbonPorto: degradedPortugal,
+    acquireBarcelona: degradedBarcelona,
+  });
+
+  assert.equal(report.overall_status, "DEGRADED");
+  // 3 Portugal-side (meo-arena, broken-lisbon-source, casa-da-musica) + 2
+  // Barcelona-side (almo2bar-barcelona, broken-barcelona-source) = 5 total.
+  assert.equal(report.active_source_count, 5);
+  assert.equal(report.successful_source_count, 3);
+  assert.equal(report.failed_source_count, 2);
+  assert.deepEqual(
+    report.sources.filter((s) => s.status === "FAILED").map((s) => s.source_id).sort(),
+    ["broken-barcelona-source", "broken-lisbon-source"],
+  );
+  // map_marker_count is the GLOBAL total (2 Portugal + 1 Spain).
+  assert.equal(report.map_marker_count, 3);
 });

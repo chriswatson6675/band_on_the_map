@@ -18,7 +18,19 @@
 //                                    package — every other caller that
 //                                    omits retryPolicy is byte-for-byte
 //                                    unchanged)
+//   acquireBarcelona()               ingestion/barcelona/run.mjs — the
+//                                    exact same 23-source acquisition
+//                                    `npm run ingest:barcelona` and
+//                                    `npm run publish:map-data` already
+//                                    use (BEATMAPPED-UNATTENDED-MULTI-
+//                                    COUNTRY-PUBLICATION-01). It does not
+//                                    yet accept a retryPolicy — a known,
+//                                    pre-existing, documented limitation
+//                                    of ingestion/barcelona/run.mjs itself
+//                                    (see that module's own comment) — not
+//                                    something this narrow package adds.
 //   buildPortugalMarkers()          ingestion/map/publication.mjs
+//   buildSpainMarkers()              ingestion/map/publication.mjs
 //   buildPublicationArtifact()      ingestion/map/publication.mjs
 //   isCatastrophicPublicationRun()  ingestion/map/publication.mjs
 //   writePublicationArtifactAtomic() ingestion/map/publish-artifact-io.mjs
@@ -26,6 +38,16 @@
 //       leaves the previously committed data/public/lisbon-porto-map.json
 //       completely untouched, exactly as `npm run publish:map-data`
 //       already guarantees.
+//
+// COUNTRY-LEVEL FAILURE ISOLATION (BEATMAPPED-UNATTENDED-MULTI-COUNTRY-
+// PUBLICATION-01): Portugal and Barcelona are acquired independently, each
+// wrapped in its own try/catch — a total, unexpected failure of ONE
+// country's acquisition call (as opposed to the per-source isolation
+// acquireAll() already provides inside each country) must never abort the
+// other country's already-successful data, and must never crash the run.
+// A country that fails this way publishes with zero markers THIS RUN ONLY
+// (never fabricated) and the failure is recorded as one synthetic FAILED
+// source entry in the health report, so it is visible, not silent.
 //
 // What THIS package actually adds, all new and all in
 // ingestion/unattended-runner/:
@@ -53,9 +75,10 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
+import { acquireBarcelona } from "../barcelona/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic } from "../map/publish-artifact-io.mjs";
 import { acquireRunLock, releaseRunLock } from "./lock.mjs";
 import { buildHealthReport, writeHealthReport } from "./health-report.mjs";
@@ -72,6 +95,18 @@ function parseArgs(argv) {
     if (toMatch) args.to = toMatch[1];
   }
   return args;
+}
+
+// BEATMAPPED-UNATTENDED-MULTI-COUNTRY-PUBLICATION-01 — one synthetic
+// FAILED source entry recording a total, unexpected acquisition-function
+// failure (see runUnattendedCycle's own try/catch around each country's
+// acquisition call below) — never a real registry source_id, deliberately
+// distinct so it reads unambiguously as "the whole country's acquisition
+// call itself threw", not "one venue's source failed" (that per-source
+// case is already caught and reported inside acquireAll(), one level
+// below this).
+function acquisitionFailureSource(sourceId, error) {
+  return { source_id: sourceId, success: false, error: error?.message ?? String(error), raw_record_count: 0, observation_count: 0 };
 }
 
 /**
@@ -95,6 +130,7 @@ export async function runUnattendedCycle(args = {}) {
   const runId = args.runId ?? randomUUID();
   const startedAt = new Date().toISOString();
   const acquire = args.acquireLisbonPorto ?? acquireLisbonPorto;
+  const acquireSpain = args.acquireBarcelona ?? acquireBarcelona;
 
   console.log(`[unattended] run ${runId} starting at ${startedAt}`);
 
@@ -122,14 +158,35 @@ export async function runUnattendedCycle(args = {}) {
       lisbonAssociations,
     } = await acquire({ from: args.from, to: args.to, retryPolicy });
 
-    const sourceResults = [...lisbonResults, ...portoResults];
-    const observationCount = lisbonObservations.length + portoObservations.length;
+    // BEATMAPPED-UNATTENDED-MULTI-COUNTRY-PUBLICATION-01: Barcelona/Spain
+    // joins Portugal in the same recurring cycle, reusing acquireBarcelona()
+    // exactly as `npm run publish:map-data` already does — never a second,
+    // independently-drifting acquisition path. Wrapped in its own
+    // try/catch (see acquisitionFailureSource's own doc comment above):
+    // acquireBarcelona() does not accept a retryPolicy yet (a pre-existing
+    // limitation of ingestion/barcelona/run.mjs itself, not something this
+    // package changes), and if the call throws entirely, Barcelona simply
+    // publishes zero markers this run — Portugal's own already-acquired
+    // data is never lost because of it.
+    let barcelonaRegistry = { entries: [] };
+    let barcelonaResults;
+    let barcelonaObservations;
+    try {
+      ({ barcelonaRegistry, barcelonaResults, barcelonaObservations } = await acquireSpain());
+    } catch (error) {
+      barcelonaResults = [acquisitionFailureSource("barcelona-acquisition", error)];
+      barcelonaObservations = [];
+      console.error(`[unattended] Barcelona acquisition failed entirely: ${error?.message ?? error} — publishing with zero Spain markers this run, Portugal unaffected`);
+    }
+
+    const sourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults];
+    const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length;
     const successCount = sourceResults.filter((result) => result.success).length;
 
     console.log(`[unattended] acquisition complete: ${successCount}/${sourceResults.length} sources succeeded, ${observationCount} observations`);
     for (const result of sourceResults) {
       if (!result.success) {
-        console.log(`[unattended]   FAILED ${result.source_id} after ${result.attempts} attempt(s): ${result.error}`);
+        console.log(`[unattended]   FAILED ${result.source_id} after ${result.attempts ?? 1} attempt(s): ${result.error}`);
       } else if (result.attempts > 1) {
         console.log(`[unattended]   ${result.source_id} succeeded after ${result.attempts} attempt(s) (retried)`);
       }
@@ -137,6 +194,7 @@ export async function runUnattendedCycle(args = {}) {
 
     const lisbonVenues = JSON.parse(await readFile(resolve(root, "venues/lisbon.json"), "utf8"));
     const portoVenues = JSON.parse(await readFile(resolve(root, "venues/porto.json"), "utf8"));
+    const barcelonaVenues = JSON.parse(await readFile(resolve(root, "venues/barcelona.json"), "utf8"));
     // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
     // venue registries above — falls back to an empty registry/link set
     // for an isolated test root that never seeded artists/*.json, exactly
@@ -144,6 +202,10 @@ export async function runUnattendedCycle(args = {}) {
     // venues/manual-coordinates.json.
     const artistRegistry = await loadArtistRegistry({ root });
     const artistLinks = await loadArtistLinks({ root });
+    // Shared across every country — the SAME store already carries KU
+    // Barcelona's own operator coordinate alongside Lisbon/Porto's
+    // entries (venues/manual-coordinates.json), matching
+    // ingestion/barcelona/run.mjs's own main() convention exactly.
     const manualStore = await loadManualCoordinateStore({ root });
     const manualCoordinatesByVenueId = new Map(manualStore.entries.map((entry) => [entry.venue_id, entry]));
 
@@ -159,15 +221,30 @@ export async function runUnattendedCycle(args = {}) {
       artistRegistry: artistRegistry.artists,
       artistLinks: artistLinks.links,
     });
-    const displayListingCount = portugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+    const spainMarkers = buildSpainMarkers({
+      barcelonaObservations,
+      barcelonaVenues: barcelonaVenues.venues,
+      barcelonaSourceRegistry: barcelonaRegistry.entries,
+      manualCoordinatesByVenueId,
+      artistRegistry: artistRegistry.artists,
+      artistLinks: artistLinks.links,
+    });
+    const displayListingCount =
+      portugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
+      spainMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+    const mapMarkerCount = portugalMarkers.length + spainMarkers.length;
 
-    const catastrophic = isCatastrophicPublicationRun({ sourceSuccessCount: successCount, portugalMarkerCount: portugalMarkers.length });
+    const catastrophic = isCatastrophicPublicationRun({
+      sourceSuccessCount: successCount,
+      portugalMarkerCount: portugalMarkers.length,
+      spainMarkerCount: spainMarkers.length,
+    });
 
     let publicationStatus;
     if (catastrophic) {
       publicationStatus = { succeeded: false, reason: "CATASTROPHIC_RUN" };
       console.error(
-        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${portugalMarkers.length} Portugal map marker(s)) — preserving the previous public artifact untouched`,
+        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${portugalMarkers.length} Portugal + ${spainMarkers.length} Spain map marker(s)) — preserving the previous public artifact untouched`,
       );
     } else {
       const generatedAt = new Date().toISOString();
@@ -176,6 +253,7 @@ export async function runUnattendedCycle(args = {}) {
         from: args.from ?? null,
         to: args.to ?? null,
         portugalMarkers,
+        spainMarkers,
         sourceResults,
         observationCount,
         artistRegistry: artistRegistry.artists,
@@ -200,7 +278,7 @@ export async function runUnattendedCycle(args = {}) {
       sourceResults,
       publicationStatus,
       artifactPreserved: publicationStatus.succeeded !== true,
-      counts: { displayListingCount, mapMarkerCount: portugalMarkers.length },
+      counts: { displayListingCount, mapMarkerCount },
       window: { from: args.from ?? null, to: args.to ?? null },
     });
 
