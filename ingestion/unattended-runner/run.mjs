@@ -30,8 +30,12 @@
 //                                    see that module's own acquireAll()
 //                                    changes; every other caller that omits
 //                                    retryPolicy is byte-for-byte unchanged).
+//   acquireBerlin()                  ingestion/berlin/run.mjs
+//   acquireParis()                   ingestion/paris/run.mjs
 //   buildPortugalMarkers()          ingestion/map/publication.mjs
 //   buildSpainMarkers()              ingestion/map/publication.mjs
+//   buildGermanyMarkers()            ingestion/map/publication.mjs
+//   buildFranceMarkers()             ingestion/map/publication.mjs
 //   buildPublicationArtifact()      ingestion/map/publication.mjs
 //   isCatastrophicPublicationRun()  ingestion/map/publication.mjs
 //   writePublicationArtifactAtomic() ingestion/map/publish-artifact-io.mjs
@@ -107,9 +111,10 @@ import { fileURLToPath } from "node:url";
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { acquireBarcelona } from "../barcelona/run.mjs";
 import { acquireBerlin } from "../berlin/run.mjs";
+import { acquireParis } from "../paris/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildFranceMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
 import { loadValidatedArtifact } from "../publication-server/run.mjs";
 import {
@@ -180,6 +185,7 @@ export async function runUnattendedCycle(args = {}) {
   const acquire = args.acquireLisbonPorto ?? acquireLisbonPorto;
   const acquireSpain = args.acquireBarcelona ?? acquireBarcelona;
   const acquireGermany = args.acquireBerlin ?? acquireBerlin;
+  const acquireFrance = args.acquireParis ?? acquireParis;
   const retentionGraceMs = args.retentionGraceMs ?? DEFAULT_RETENTION_GRACE_MS;
 
   console.log(`[unattended] run ${runId} starting at ${startedAt}`);
@@ -273,8 +279,24 @@ export async function runUnattendedCycle(args = {}) {
       console.error(`[unattended] Berlin acquisition failed entirely: ${error?.message ?? error} — publishing with zero Germany markers this run, Portugal/Spain unaffected`);
     }
 
-    const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults];
-    const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length;
+    // BEATMAPPED-UNATTENDED-PARIS-PARITY-AND-DEPLOY-GUARD-01:
+    // Paris/France is a first-class member of the canonical unattended
+    // cycle, reusing acquireParis() with the same dependency injection,
+    // bounded retry policy, and total-throw isolation as Barcelona/Berlin.
+    let parisRegistry = { entries: [] };
+    let parisResults;
+    let parisObservations;
+    try {
+      ({ parisRegistry, parisResults, parisObservations } = await acquireFrance({ retryPolicy }));
+    } catch (error) {
+      parisResults = [acquisitionFailureSource("paris-acquisition", error)];
+      parisObservations = [];
+      console.error(`[unattended] Paris acquisition failed entirely: ${error?.message ?? error} — publishing with zero France markers this run, Portugal/Spain/Germany unaffected`);
+    }
+
+    const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults, ...parisResults];
+    const observationCount =
+      lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length + parisObservations.length;
     const successCount = rawSourceResults.filter((result) => result.success).length;
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: annotate every source
@@ -310,6 +332,7 @@ export async function runUnattendedCycle(args = {}) {
     const portoVenues = JSON.parse(await readFile(resolve(root, "venues/porto.json"), "utf8"));
     const barcelonaVenues = JSON.parse(await readFile(resolve(root, "venues/barcelona.json"), "utf8"));
     const berlinVenues = JSON.parse(await readFile(resolve(root, "venues/berlin.json"), "utf8"));
+    const parisVenues = JSON.parse(await readFile(resolve(root, "venues/paris.json"), "utf8"));
     // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
     // venue registries above — falls back to an empty registry/link set
     // for an isolated test root that never seeded artists/*.json, exactly
@@ -352,6 +375,14 @@ export async function runUnattendedCycle(args = {}) {
       artistRegistry: artistRegistry.artists,
       artistLinks: artistLinks.links,
     });
+    const franceMarkers = buildFranceMarkers({
+      parisObservations,
+      parisVenues: parisVenues.venues,
+      parisSourceRegistry: parisRegistry.entries,
+      manualCoordinatesByVenueId,
+      artistRegistry: artistRegistry.artists,
+      artistLinks: artistLinks.links,
+    });
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: fill in eligible
     // last-known-good venues for every source that FAILED this run but is
@@ -387,9 +418,11 @@ export async function runUnattendedCycle(args = {}) {
     const retainedPortugalVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Portugal"));
     const retainedSpainVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Spain"));
     const retainedGermanyVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Germany"));
+    const retainedFranceVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "France"));
     const mergedPortugalMarkers = mergeRetainedMarkers(portugalMarkers, retainedPortugalVenues);
     const mergedSpainMarkers = mergeRetainedMarkers(spainMarkers, retainedSpainVenues);
     const mergedGermanyMarkers = mergeRetainedMarkers(germanyMarkers, retainedGermanyVenues);
+    const mergedFranceMarkers = mergeRetainedMarkers(franceMarkers, retainedFranceVenues);
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: every count/validation/
     // publication step from here on uses the MERGED (fresh + eligible
@@ -399,21 +432,23 @@ export async function runUnattendedCycle(args = {}) {
     const displayListingCount =
       mergedPortugalMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
       mergedSpainMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
-      mergedGermanyMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
-    const mapMarkerCount = mergedPortugalMarkers.length + mergedSpainMarkers.length + mergedGermanyMarkers.length;
+      mergedGermanyMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0) +
+      mergedFranceMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
+    const mapMarkerCount = mergedPortugalMarkers.length + mergedSpainMarkers.length + mergedGermanyMarkers.length + mergedFranceMarkers.length;
 
     const catastrophic = isCatastrophicPublicationRun({
       sourceSuccessCount: successCount,
       portugalMarkerCount: mergedPortugalMarkers.length,
       spainMarkerCount: mergedSpainMarkers.length,
       germanyMarkerCount: mergedGermanyMarkers.length,
+      franceMarkerCount: mergedFranceMarkers.length,
     });
 
     let publicationStatus;
     if (catastrophic) {
       publicationStatus = { succeeded: false, reason: "CATASTROPHIC_RUN" };
       console.error(
-        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain + ${mergedGermanyMarkers.length} Germany map marker(s)) — preserving the previous public artifact untouched`,
+        `[unattended] CATASTROPHIC RUN (${successCount} successful source(s), ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain + ${mergedGermanyMarkers.length} Germany + ${mergedFranceMarkers.length} France map marker(s)) — preserving the previous public artifact untouched`,
       );
     } else {
       const artifact = buildPublicationArtifact({
@@ -423,6 +458,7 @@ export async function runUnattendedCycle(args = {}) {
         portugalMarkers: mergedPortugalMarkers,
         spainMarkers: mergedSpainMarkers,
         germanyMarkers: mergedGermanyMarkers,
+        franceMarkers: mergedFranceMarkers,
         sourceResults,
         observationCount,
         artistRegistry: artistRegistry.artists,

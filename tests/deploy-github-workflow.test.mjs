@@ -276,9 +276,11 @@ test("workflow: verification reuses ingestion/map/publication.mjs's validatePubl
   assert.match(yaml, /import \{ validatePublicationArtifact \} from "\.\/ingestion\/map\/publication\.mjs"/);
 });
 
-test("workflow: publication verification checks Portugal, Spain, and Germany all have markers — never a Berlin-only or two-country-only check", async () => {
+test("workflow: publication verification checks Portugal, Spain, Germany, and France all have markers", async () => {
   const yaml = await readWorkflow();
-  assert.match(yaml, /\["Portugal", "Spain", "Germany"\]/);
+  assert.match(yaml, /\["Portugal", "Spain", "Germany", "France"\]/);
+  assert.match(yaml, /RUNTIME_FRANCE_MARKERS/);
+  assert.match(yaml, /Portugal \$PT \/ Spain \$ES \/ Germany \$DE \/ France \$FR/);
 });
 
 test("workflow: verification never hardcodes an exact marker/listing count as a pass/fail threshold", async () => {
@@ -355,7 +357,7 @@ function runScript(scriptPath, env) {
   });
 }
 
-function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1 }) {
+function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1, france = 1 }) {
   const marker = (i, country) => ({
     venue_id: `venue-${country}-${i}`,
     canonical_name: `Venue ${country} ${i}`,
@@ -368,12 +370,13 @@ function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1 }) {
     generated_at: generatedAt,
     window: { from: null, to: null },
     source_report: { success_count: 1, failure_count: 0, sources: [{ source_id: "test-source", success: true, raw_record_count: 1, observation_count: 1 }] },
-    counts: { observation_count: portugal + spain + germany, display_listing_count: portugal + spain + germany, map_marker_count: portugal + spain + germany },
+    counts: { observation_count: portugal + spain + germany + france, display_listing_count: portugal + spain + germany + france, map_marker_count: portugal + spain + germany + france },
     countries: {
       Portugal: { markers: Array.from({ length: portugal }, (_, i) => marker(i, "pt")) },
       Croatia: { markers: [] },
       Spain: { markers: Array.from({ length: spain }, (_, i) => marker(i, "es")) },
       Germany: { markers: Array.from({ length: germany }, (_, i) => marker(i, "de")) },
+      France: { markers: Array.from({ length: france }, (_, i) => marker(i, "fr")) },
     },
   };
 }
@@ -436,6 +439,7 @@ test("poll-and-validate script: recognizes a newer generation and exits 0 with t
       assert.match(result.stdout, /RUNTIME_PORTUGAL_MARKERS=13/);
       assert.match(result.stdout, /RUNTIME_SPAIN_MARKERS=31/);
       assert.match(result.stdout, /RUNTIME_GERMANY_MARKERS=22/);
+      assert.match(result.stdout, /RUNTIME_FRANCE_MARKERS=1/);
     } finally {
       server.close();
     }
@@ -571,7 +575,7 @@ test("poll-and-validate script: source/country continuity — rejects a structur
   const script = extractHeredocScript(yaml, "VERIFY_EOF");
   await withTempDir(async (dir) => {
     const artifactPath = join(dir, "map-data.json");
-    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 0, spain: 0, germany: 0 });
+    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 0, spain: 0, germany: 0, france: 0 });
     artifact.counts.map_marker_count = 0;
     artifact.counts.display_listing_count = 0;
     await writeFile(artifactPath, JSON.stringify(artifact));

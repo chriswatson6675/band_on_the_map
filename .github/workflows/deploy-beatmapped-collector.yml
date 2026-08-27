@@ -22,7 +22,7 @@ name: Deploy BeatMapped Collector
 # bounded control operations (deploy, HEAD/service verification, and a
 # non-blocking `systemctl start --no-block`) and then disconnects --
 # it is never held open to wait for the full multi-country acquisition
-# cycle (Portugal + Spain + Germany, 61 sources, now routinely ~30
+# cycle (Portugal + Spain + Germany + France, now routinely ~30
 # minutes; see deploy/README.md and docs/UNATTENDED_RUNNER.md). The
 # server already owns the publication lifecycle through systemd
 # (deploy/systemd/botm-unattended.service); this workflow subsequently
@@ -373,7 +373,7 @@ jobs:
             // a courtesy sanity check on the artifact the pipeline's own
             // isCatastrophicPublicationRun() already refused-or-accepted
             // at write time -- never a second publication-safety gate.
-            const requiredCountries = ["Portugal", "Spain", "Germany"];
+            const requiredCountries = ["Portugal", "Spain", "Germany", "France"];
             for (const country of requiredCountries) {
               const markers = artifact.countries?.[country]?.markers;
               if (!Array.isArray(markers) || markers.length === 0) {
@@ -389,6 +389,7 @@ jobs:
             console.log("RUNTIME_PORTUGAL_MARKERS=" + artifact.countries.Portugal.markers.length);
             console.log("RUNTIME_SPAIN_MARKERS=" + artifact.countries.Spain.markers.length);
             console.log("RUNTIME_GERMANY_MARKERS=" + artifact.countries.Germany.markers.length);
+            console.log("RUNTIME_FRANCE_MARKERS=" + artifact.countries.France.markers.length);
           }
 
           await main();
@@ -403,9 +404,10 @@ jobs:
           PT=$(grep '^RUNTIME_PORTUGAL_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           ES=$(grep '^RUNTIME_SPAIN_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           DE=$(grep '^RUNTIME_GERMANY_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          FR=$(grep '^RUNTIME_FRANCE_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           {
             echo "| Runtime endpoint (${RUNTIME_BASE_URL}/map-data) | ✅ PASS |"
             echo "| Pre-trigger generated_at | \`${PRE_TRIGGER_GENERATED_AT:-(none observed)}\` |"
             echo "| Post-publication generated_at | \`$GENERATED_AT\` |"
-            echo "| Runtime listings | $LISTINGS across $MARKERS venues (Portugal $PT / Spain $ES / Germany $DE) |"
+            echo "| Runtime listings | $LISTINGS across $MARKERS venues (Portugal $PT / Spain $ES / Germany $DE / France $FR) |"
           } >> "$GITHUB_STEP_SUMMARY"

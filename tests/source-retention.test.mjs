@@ -414,6 +414,36 @@ test("extractRetainableMarkersForSource: extracts only listings matching the giv
   assert.equal(venue.listings[0].source_record_id, "10");
 });
 
+test("France participates in both cold-start bootstrap and source-scoped marker retention", () => {
+  const generatedAt = "2026-08-26T12:26:28.325Z";
+  const sourceId = "sunset-sunside-paris";
+  const previousArtifact = {
+    generated_at: generatedAt,
+    source_report: { sources: [{ source_id: sourceId, success: true }] },
+    countries: {
+      Portugal: { markers: [] },
+      Spain: { markers: [] },
+      Germany: { markers: [] },
+      France: {
+        markers: [marker({
+          venueId: "venue-paris-sunset-sunside",
+          name: "Sunset / Sunside",
+          listings: [singleListing({ sourceId, recordId: "fr-1", date: "2026-09-01" })],
+          lat: 48.8598645,
+          lon: 2.3477284,
+        })],
+      },
+    },
+  };
+
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId }), generatedAt);
+  const retained = extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString: "2026-08-26", retainedSince: generatedAt });
+  assert.equal(retained.size, 1);
+  assert.equal(retained.get("venue-paris-sunset-sunside").country, "France");
+  assert.equal(retained.get("venue-paris-sunset-sunside").listings[0].stale, true);
+  assert.equal(retained.get("venue-paris-sunset-sunside").listings[0].retained_since, generatedAt);
+});
+
 test("extractRetainableMarkersForSource: the real 9-venue L'Auditori scenario — one umbrella source, nine distinct canonical venues, all correctly attributed", () => {
   const AUDITORI_VENUES = [
     "venue-barcelona-l-auditori",
