@@ -129,6 +129,41 @@ test("event_url falls back to ticket_url only when the record has no own event_u
   assert.equal(observation.event_url, "https://tickets.example.cat/x");
 });
 
+test("a known detail-page URL fills a missing event URL without overriding better explicit URLs", () => {
+  const options = {
+    retrievedAt: "2026-08-26T00:00:00.000Z",
+    sourceUrl: "https://example.cat/events/test-1",
+    eventDetailUrl: "https://example.cat/events/test-1",
+  };
+  const fallback = toObservation(baseRecord({ event_url: null, ticket_url: null }), { source_id: "s" }, options);
+  assert.equal(fallback.event_url, options.eventDetailUrl);
+  assert.equal(fallback.source_fields.event_detail_url, options.eventDetailUrl);
+
+  const explicit = toObservation(baseRecord({ event_url: "https://canonical.example/event/1" }), { source_id: "s" }, options);
+  assert.equal(explicit.event_url, "https://canonical.example/event/1");
+
+  const ticket = toObservation(baseRecord({ event_url: null, ticket_url: "https://tickets.example/event/1" }), { source_id: "s" }, options);
+  assert.equal(ticket.event_url, "https://tickets.example/event/1");
+});
+
+test("programme, API, feed, and search source URLs are provenance only", () => {
+  for (const sourceUrl of [
+    "https://example.cat/programme",
+    "https://example.cat/api/events",
+    "https://example.cat/calendar.ics",
+    "https://example.cat/search?q=music",
+  ]) {
+    const observation = toObservation(
+      baseRecord({ event_url: null, ticket_url: null }),
+      { source_id: "s" },
+      { retrievedAt: "2026-08-26T00:00:00.000Z", sourceUrl },
+    );
+    assert.equal(observation.source_url, sourceUrl);
+    assert.equal(observation.event_url, null);
+    assert.equal(observation.source_fields.event_detail_url, null);
+  }
+});
+
 test("toObservation throws without a source_record_id or config.source_id", () => {
   assert.throws(() => toObservation({ ...baseRecord(), source_record_id: null }, { source_id: "s" }), /non-empty source_record_id/);
   assert.throws(() => toObservation(baseRecord(), {}), /config.source_id/);

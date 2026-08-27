@@ -90,6 +90,25 @@ dependency-free, matching the rest of this repository's ingestion code
 }
 ```
 
+### Provenance URL versus outbound event URL
+
+`source_url` identifies the technical resource from which the Observation
+was retrieved. It may be a programme page, API endpoint, feed, search page,
+or an individual event page, so it is never promoted automatically to the
+user-facing `event_url`.
+
+For generic list→detail acquisition, discovery must explicitly hand the
+fetched individual page to the adapter as `eventDetailUrl`. The JSON-LD
+adapter then applies this evidence-backed precedence:
+
+1. the structured record's explicit event URL;
+2. its existing explicit ticket/event URL fallback;
+3. the explicitly identified individual detail-page URL;
+4. otherwise `null`.
+
+Programme, API, feed, and search URLs remain provenance only. A better
+explicit source URL always wins, and no slug or outbound URL is guessed.
+
 Every field an adapter does not supply defaults to `null` (or `{}` for
 `source_fields`) rather than being fabricated — `createObservation()`
 enforces this and throws if `source_id`, `source_record_id`, or

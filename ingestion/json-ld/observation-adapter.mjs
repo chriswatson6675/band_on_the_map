@@ -175,8 +175,9 @@ function addressToText(address) {
  * Convert one normalised JSON-LD Event record into an Observation.
  *
  * `config` — `{ source_id }` at minimum.
- * `options` — `{ retrievedAt, sourceUrl, contentType, fixturePath,
- * venueNameOverride }`, matching every other observation-adapter's
+ * `options` — `{ retrievedAt, sourceUrl, eventDetailUrl, contentType,
+ * fixturePath, venueNameOverride, venueRelocationNoticeDetected }`,
+ * matching every other observation-adapter's
  * convention in this project. `venueNameOverride` lets a single-venue
  * source (the common case — a venue's own site JSON-LD often omits its
  * own name from `location`, or names a room rather than the venue) supply
@@ -214,7 +215,11 @@ export function toObservation(record, config, options = {}) {
     location_text: addressToText(record.location_address),
 
     price_text: record.price_text ?? null,
-    event_url: record.event_url ?? record.ticket_url ?? null,
+    // Outbound-link precedence is explicit source event URL, then the
+    // adapter's existing ticket/event URL semantics, then an explicitly
+    // identified individual detail page. `sourceUrl` is intentionally not
+    // a fallback: it may be a list page, API endpoint, feed, or search URL.
+    event_url: record.event_url ?? record.ticket_url ?? options.eventDetailUrl ?? null,
 
     source_fields: {
       types: record.types ?? [],
@@ -223,6 +228,8 @@ export function toObservation(record, config, options = {}) {
       event_status: record.event_status ?? null,
       event_attendance_mode: record.event_attendance_mode ?? null,
       location_address: record.location_address ?? null,
+      event_detail_url: options.eventDetailUrl ?? null,
+      venue_relocation_notice_detected: options.venueRelocationNoticeDetected ?? false,
     },
 
     raw_evidence: {
