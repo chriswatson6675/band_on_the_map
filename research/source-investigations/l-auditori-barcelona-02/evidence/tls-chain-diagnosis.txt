@@ -1,0 +1,42 @@
+BEATMAPPED-L-AUDITORI-SOURCE-RECOVERY-AND-REPUBLISH-01
+TLS chain diagnosis, retained Level 1 evidence
+
+Default Node v24.15.0 / OpenSSL 3.5.5 request:
+  outcome: failed before HTTP
+  error code: UNABLE_TO_VERIFY_LEAF_SIGNATURE
+  message: unable to verify the first certificate
+
+Node with --use-system-ca:
+  outcome: HTTP 200, 30-record JSON array
+
+Normally validated Windows SslStream chain for www.auditori.cat:
+  validation policy errors: None
+  leaf subject: CN=*.auditori.cat, O=Consorci de L'Auditori i L'Orquestra, S=Cataluña, C=ES
+  leaf issuer: CN=Sectigo Public Server Authentication CA OV R36, O=Sectigo Limited, C=GB
+  leaf SHA-1: 145AFE1AE1860B8517AD2658B97D0EE0C848EF16
+  intermediate subject: CN=Sectigo Public Server Authentication CA OV R36, O=Sectigo Limited, C=GB
+  intermediate issuer: CN=Sectigo Public Server Authentication Root R46, O=Sectigo Limited, C=GB
+  intermediate SHA-1: 321CA056E4E48D57F179A3BDDECBC5213B9916C0
+  root subject/issuer: CN=Sectigo Public Server Authentication Root R46, O=Sectigo Limited, C=GB
+  root SHA-1: AD98F9F3E47D753B65D482B3A45217BB6EF5E438
+
+The exact public intermediate and root above were exported from the normally
+validated operating-system chain and retained beside this file. Their Node
+X509Certificate identities and CA constraints are asserted by the offline tests.
+
+Diagnostic correction history:
+  An initial hypothesis selected the similarly named DV R36 intermediate from
+  the operating-system store. A source-scoped request with that intermediate
+  plus R46 still failed closed with UNABLE_TO_VERIFY_LEAF_SIGNATURE. The normal
+  validation chain above then established that the leaf actually uses OV R36.
+  The DV certificate was removed. No request ever disabled TLS verification.
+
+Corrected source-scoped Node transport:
+  CA set: Node bundled roots + retained R46 root + retained OV R36 intermediate
+  certificate validation: enabled
+  hostname validation: enabled
+  bounded timeout: 20 seconds
+  live outcome: successful bounded acquisition, 239 raw records
+
+This is a manually retained transcript of direct read-only diagnostics and is
+therefore byte_faithful=false.

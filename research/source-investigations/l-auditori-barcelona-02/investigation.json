@@ -1,0 +1,151 @@
+{
+  "investigation_id": "l-auditori-barcelona-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T16:44:23Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Fresh superseding recovery investigation against the live official source. Level 1 PASSIVE_STATIC used ordinary unauthenticated curl requests plus the repository's exact Node fetchText transport path; no browser or higher-level escalation was needed because Level 1 isolated the TLS verification failure and demonstrated the existing public endpoint still returns structured event JSON when Node uses the operating-system CA store."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The official events page and existing public AJAX endpoint returned HTTP 200 through the operating-system trust path. The repository's exact Node fetchText request failed before HTTP with UNABLE_TO_VERIFY_LEAF_SIGNATURE; the identical request succeeded under Node's supported --use-system-ca mode. A normally validated TLS-chain inspection identified the exact OV R36 intermediate and R46 root, and a source-scoped Node transport retaining that public chain completed a genuine 239-record live acquisition. This directly isolates the repeated generic 'fetch failed' as Node trust-path construction, not DNS, timeout, redirect, endpoint movement, request headers, parsing, authoritative zero, or source outage. No Level 2/3 escalation is justified.",
+      "evidence_refs": ["ev-level-1-passive-probe", "ev-tls-chain", "ev-fresh-live-acquisition"]
+    }
+  ],
+  "source_candidate_id": "l-auditori-barcelona-02-recovery",
+  "source_id": "l-auditori-barcelona",
+  "venue_reference": "L'Auditori de Barcelona and the existing source's governed cross-listed canonical Barcelona venues",
+  "official_url": "https://www.auditori.cat/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level-1-passive-probe", "ev-fresh-live-sample"],
+    "notes": "The already-governed source identity is unchanged; the registered official events page and its first-party AJAX event inventory both remain live."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress with the first-party auditori-plugin AJAX action get_auditori_events_query; the endpoint returns JSON bytes with an inaccurate text/html Content-Type.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level-1-passive-probe"]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_WORDPRESS_AJAX_EVENT_LIST",
+      "url": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-level-1-passive-probe"]
+    }
+  ],
+  "field_assessment": {
+    "title": {"state": "PROVEN", "value": "The Band at the Festa Major de Sants", "basis": "DIRECT_SOURCE", "notes": "Representative current value from wp_post.post_title; the collector combines it with subtitle when present.", "evidence_refs": ["ev-fresh-live-sample", "ev-offline-tests"]},
+    "start_date": {"state": "PROVEN", "value": "2026-09-05", "basis": "DIRECT_SOURCE", "notes": "Representative current value from event_next_date Unix seconds, cross-checked by the parallel event_date_text.", "evidence_refs": ["ev-fresh-live-sample", "ev-offline-tests"]},
+    "time": {"state": "PROVEN", "value": "2026-09-05T17:00:00.000Z", "basis": "DIRECT_SOURCE", "notes": "Representative current UTC instant from event_next_date; the source's event_date_text states September 5, 2026 at 7 p.m. Europe/Madrid.", "evidence_refs": ["ev-fresh-live-sample", "ev-offline-tests"]},
+    "end": {"state": "NOT_PRESENT", "value": null, "basis": null, "notes": "The source does not expose an end instant in this response shape.", "evidence_refs": ["ev-fresh-live-sample"]},
+    "venue_location": {"state": "PROVEN", "value": "Parc de l’Espanya Industrial", "basis": "DIRECT_SOURCE", "notes": "Representative current hall_obj.wp_post.post_title; normal governed mappings resolved 151 current observations across nine canonical venues.", "evidence_refs": ["ev-fresh-live-sample", "ev-fresh-live-acquisition"]},
+    "source_record_id": {"state": "PROVEN", "value": "115839", "basis": "DIRECT_SOURCE", "notes": "Representative current numeric WordPress post ID; no current music record lacked one.", "evidence_refs": ["ev-fresh-live-sample", "ev-fresh-live-acquisition"]},
+    "event_url": {"state": "PROVEN", "value": "https://www.auditori.cat/en/esdeveniment/bmb-band-festa-major-sants-2026/", "basis": "DIRECT_SOURCE", "notes": "Representative current value from the record's own link field.", "evidence_refs": ["ev-fresh-live-sample", "ev-offline-tests"]}
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level-1-passive-probe", "ev-tls-chain", "ev-offline-tests", "ev-fresh-live-acquisition"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity remains PROVEN and the existing public JSON data path remains confirmed.",
+      "The exact Node TLS trust-path defect is directly evidenced and corrected without disabling certificate or hostname verification.",
+      "Offline collector, certificate-identity, timeout, filtering, normalization, and Observation tests pass.",
+      "A genuine corrected live acquisition returned 239 raw records and 161 Observations.",
+      "The normal Spain pipeline resolved 151 current observations to the same nine canonical venue identities; ten one-off, out-of-region, or indeterminate locations remained honestly unresolved.",
+      "No unresolved CRITICAL blocker remains. Investigation does not itself activate, publish, or deploy the source."
+    ],
+    "evidence_refs": ["ev-tls-chain", "ev-offline-tests", "ev-fresh-live-acquisition"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level-1-passive-probe",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded retained transcript of fresh unauthenticated official-page/AJAX HTTP results, the exact current Node fetch exception chain, and the successful identical fetch under Node's system-CA mode.",
+      "acquired_from": "https://www.auditori.cat/en/events/ and https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "acquired_at": "2026-08-27T16:44:23Z",
+      "method": "curl GET plus repository fetchText under Node default CA and --use-system-ca; no authentication or browser",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/level-1-passive-probe.txt"
+    },
+    {
+      "evidence_id": "ev-tls-chain",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Exact default-Node failure, normally validated operating-system chain identities, failed-closed diagnostic history, and successful source-scoped verified-chain result.",
+      "acquired_from": "TLS connection to www.auditori.cat:443 and the Windows validated certificate chain",
+      "acquired_at": "2026-08-27T16:59:12Z",
+      "method": "Node HTTPS plus normally validating Windows SslStream; no certificate-verification bypass",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/tls-chain-diagnosis.txt"
+    },
+    {
+      "evidence_id": "ev-ov-r36-certificate",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Public Sectigo OV R36 intermediate from the normally validated chain; exact identity and CA constraint asserted offline.",
+      "acquired_from": "Normally validated operating-system chain for www.auditori.cat:443",
+      "acquired_at": "2026-08-27T16:59:12Z",
+      "method": "X509 certificate export from the validated chain",
+      "content_type": "application/x-pem-file",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/sectigo-public-server-authentication-ca-ov-r36.crt"
+    },
+    {
+      "evidence_id": "ev-r46-certificate",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Public self-signed Sectigo R46 root from the normally validated operating-system trust path; exact identity and CA constraint asserted offline.",
+      "acquired_from": "Windows LocalMachine Root certificate store used by the normally validated chain for www.auditori.cat:443",
+      "acquired_at": "2026-08-27T16:59:12Z",
+      "method": "X509 certificate export from the operating-system trust store",
+      "content_type": "application/x-pem-file",
+      "byte_faithful": true,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/sectigo-public-server-authentication-root-r46.crt"
+    },
+    {
+      "evidence_id": "ev-fresh-live-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded field-preserving three-record excerpt from the corrected live source inventory.",
+      "acquired_from": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query",
+      "acquired_at": "2026-08-27T17:02:32.065Z",
+      "method": "Corrected bounded source collector; no authentication or browser",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/fresh-live-sample.json"
+    },
+    {
+      "evidence_id": "ev-offline-tests",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Fourteen passing offline tests over retained certificate identities, fail-closed transport behavior, real retained batches, filtering, normalization, pagination, and Observation conversion.",
+      "acquired_from": "Retained source fixtures and certificates",
+      "acquired_at": "2026-08-27T17:02:00Z",
+      "method": "node --test tests/auditori-barcelona.test.mjs",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/offline-proof.txt"
+    },
+    {
+      "evidence_id": "ev-fresh-live-acquisition",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Bounded summary of the corrected genuine live acquisition, existing category filter, normal venue resolution, per-marker listing accounting, unresolved observations, and Spain marker projection.",
+      "acquired_from": "https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query plus canonical local registries and projection pipeline",
+      "acquired_at": "2026-08-27T17:12:30.013Z",
+      "method": "fetchAuditoriEvents -> filterAuditoriMusicEvents -> normaliseAuditoriRecord -> toObservations -> summariseBarcelona/buildSpainMarkers",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/l-auditori-barcelona-02/evidence/live-acquisition-and-projection.txt"
+    }
+  ],
+  "supersedes": "l-auditori-barcelona-01"
+}

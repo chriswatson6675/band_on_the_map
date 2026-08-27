@@ -32,17 +32,73 @@
 // (e.g. "Plaça del Congrés Eucarístic") are deliberately excluded — not
 // genuinely a stable, ongoing "venue" identity, only a one-off location.
 
-import { fetchText } from "../http/fetch.mjs";
+import { readFileSync } from "node:fs";
+import { get } from "node:https";
+import { rootCertificates } from "node:tls";
+import { USER_AGENT } from "../http/fetch.mjs";
 
 const AJAX_URL = "https://www.auditori.cat/wp-admin/admin-ajax.php";
 const REFERER = "https://www.auditori.cat/en/events/";
 const MAX_BATCHES = 20; // generous bound well above the ~8 batches observed at proof time (~240 records)
+const REQUEST_TIMEOUT_MS = 20_000;
+const AUDITORI_INTERMEDIATE_CA = readFileSync(
+  new URL("./sectigo-public-server-authentication-ca-ov-r36.crt", import.meta.url),
+  "utf8",
+);
+const AUDITORI_ROOT_CA = readFileSync(
+  new URL("./sectigo-public-server-authentication-root-r46.crt", import.meta.url),
+  "utf8",
+);
+const AUDITORI_CA_CHAIN = [...rootCertificates, AUDITORI_ROOT_CA, AUDITORI_INTERMEDIATE_CA];
+
+/**
+ * Source-scoped HTTPS transport for L'Auditori.
+ *
+ * The source's leaf is issued by Sectigo Public Server Authentication CA
+ * OV R36, but Node cannot build that chain from the certificates supplied
+ * by the server and its bundled roots. The corresponding newer R46 root is
+ * also absent from Node's bundled roots. Retaining that exact public CA
+ * chain here completes verification without disabling certificate or
+ * hostname checks and without changing the trust path of any other source.
+ * See the superseding governed evidence in
+ * research/source-investigations/l-auditori-barcelona-02/.
+ */
+export function fetchAuditoriText(url, { timeoutMs = REQUEST_TIMEOUT_MS, headers = {} } = {}) {
+  return new Promise((resolve, reject) => {
+    const retrievedAt = new Date().toISOString();
+    const request = get(url, {
+      ca: AUDITORI_CA_CHAIN,
+      headers: { "User-Agent": USER_AGENT, ...headers },
+    }, (response) => {
+      const chunks = [];
+      response.on("data", (chunk) => chunks.push(chunk));
+      response.on("end", () => {
+        const text = Buffer.concat(chunks).toString("utf8");
+        const status = response.statusCode ?? 0;
+        resolve({
+          url,
+          status,
+          ok: status >= 200 && status < 300,
+          contentType: response.headers["content-type"] ?? null,
+          linkHeader: response.headers.link ?? null,
+          text,
+          retrievedAt,
+        });
+      });
+    });
+
+    request.setTimeout(timeoutMs, () => {
+      request.destroy(new Error(`L'Auditori request timed out after ${timeoutMs}ms`));
+    });
+    request.on("error", reject);
+  });
+}
 
 function nonEmptyString(value) {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
 }
 
-async function fetchOneBatch(fromDate, { fetchImpl = fetchText } = {}) {
+async function fetchOneBatch(fromDate, { fetchImpl = fetchAuditoriText } = {}) {
   const params = new URLSearchParams({ action: "get_auditori_events_query", page: "1", limit: "30", output_profile: "basic_card" });
   if (fromDate) params.set("from_date", String(fromDate));
   const res = await fetchImpl(`${AJAX_URL}?${params.toString()}`, {
