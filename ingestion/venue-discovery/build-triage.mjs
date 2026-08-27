@@ -149,8 +149,9 @@ function makeIdentityReview(census) {
     const name = candidate?.reported_names[0] ?? id;
     let resolution = "CONFIRMED_EXISTING_MATCH";
     let reason;
-    if (/bi-nuu|bi-nuu/i.test(id)) reason = "Exact reported name plus the retained Bi Nuu investigation's proven identity at Schlesisches Tor resolves the legacy-domain OSM node to the acquired Bi Nuu source/venue.";
-    else if (/kater/i.test(id)) reason = "Exact reported name plus approximately 50-metre entrance-to-venue coordinate proximity and the governed Kater Blau → Kater identity/address evidence resolve the OSM node to the acquired source/venue.";
+    const identityLabel = `${id} ${name}`;
+    if (/bi[\s-]?nuu/i.test(identityLabel)) reason = "Exact reported name plus the retained Bi Nuu investigation's proven identity at Schlesisches Tor resolves the legacy-domain OSM node to the acquired Bi Nuu source/venue.";
+    else if (/kater/i.test(identityLabel)) reason = "Exact reported name plus approximately 50-metre entrance-to-venue coordinate proximity and the governed Kater Blau → Kater identity/address evidence resolve the OSM node to the acquired source/venue.";
     else if (/konzerthaus|row-33/.test(id)) reason = "Exact Gendarmenmarkt address/postcode and retained first-party Konzerthaus identity resolve both records to the acquired venue.";
     else reason = id.includes("1450635676") ? "OSM explicitly reports Volksbühne as operator, while retained first-party evidence proves Roter Salon is an attached room." : "Exact Rosa-Luxemburg-Platz identity/address evidence resolves the record to the acquired Volksbühne venue cluster.";
     return { candidate_id: id, reported_name: name, resolution, reason };

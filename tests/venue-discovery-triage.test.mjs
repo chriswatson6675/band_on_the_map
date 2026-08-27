@@ -43,6 +43,9 @@ test("possible existing matches stay outside the new-candidate ledger and are re
     assert.equal(ledgerIds.has(candidate.reconciled_candidate_id), false);
     assert.equal(reviewIds.has(candidate.reconciled_candidate_id), true);
   }
+  const possibleReviews = triage.identity_review_resolutions.filter((candidate) => possible.some((entry) => entry.reconciled_candidate_id === candidate.candidate_id));
+  assert.match(possibleReviews.find((candidate) => candidate.reported_name === "Bi Nuu").reason, /Bi Nuu/);
+  assert.match(possibleReviews.find((candidate) => candidate.reported_name === "Kater Blau").reason, /Kater/);
 });
 
 test("music candidates have acquisition fields and quick wins are future-proven configuration work", async () => {
