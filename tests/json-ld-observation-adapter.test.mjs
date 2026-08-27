@@ -60,6 +60,13 @@ test("a non-zero-padded ISO offset with a double-digit day still parses correctl
   assert.equal(dt.date, "2026-08-09");
 });
 
+test("an ISO basic numeric offset is normalized without inferring a timezone", () => {
+  const dt = deriveDateTimeFromIso("2026-09-25T21:00:00+0200");
+  assert.equal(dt.certainty, "UTC_INSTANT");
+  assert.equal(dt.iso, "2026-09-25T19:00:00.000Z");
+  assert.equal(dt.date, "2026-09-25");
+});
+
 test("a datetime with no offset at all is honestly FLOATING_LOCAL, never guessed into UTC", () => {
   const dt = deriveDateTimeFromIso("2026-09-17T21:00:00");
   assert.equal(dt.certainty, "FLOATING_LOCAL");

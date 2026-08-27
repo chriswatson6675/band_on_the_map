@@ -1,0 +1,159 @@
+{
+  "investigation_id": "deep-osm-node-9683590917-berlin-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T22:07:05.963Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded read-only deep programme probe using generic first-party HTTP discovery and existing deterministic collector families."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The bounded first-party response did not yield normalized future events through an existing deterministic collector.",
+      "evidence_refs": [
+        "ev-level1"
+      ]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Framework markers and known public structured endpoints did not yield normalized future events.",
+      "evidence_refs": [
+        "ev-level2"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-9683590917",
+  "source_id": null,
+  "venue_reference": "Heideglühen — Berlin",
+  "official_url": "https://heidegluehen.berlin/aktuell/",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-level1"
+    ],
+    "notes": "The URL comes from the retained Berlin research estate and returned the captured public first-party surface."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": "Generic fingerprint: OTHER_EMBEDDED_APP_STATE.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-level1"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "OTHER_EMBEDDED_APP_STATE",
+      "url": "https://heidegluehen.berlin/aktuell/",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-level1"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "No normalized future event proof was established by this level."
+    ],
+    "evidence_refs": [
+      "ev-level1"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded Level 1 public HTTP capture with response body, request metadata, and deterministic fingerprint; represented as JSON and therefore not byte-faithful.",
+      "acquired_from": "https://heidegluehen.berlin/aktuell/",
+      "acquired_at": "2026-08-27T22:07:05.963Z",
+      "method": "Node fetch; unauthenticated GET; redirects followed; 20-second timeout; bounded response; no challenge bypass",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/deep-osm-node-9683590917-berlin-02/evidence/level-1.json"
+    },
+    {
+      "evidence_id": "ev-level2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained structural fingerprint and bounded public endpoint responses attempted only after Level 1 was insufficient.",
+      "acquired_from": "https://heidegluehen.berlin/aktuell/",
+      "acquired_at": "2026-08-27T22:07:06.969Z",
+      "method": "Deterministic public framework inspection and known public endpoint probe",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/deep-osm-node-9683590917-berlin-02/evidence/level-2.json"
+    }
+  ],
+  "supersedes": null
+}

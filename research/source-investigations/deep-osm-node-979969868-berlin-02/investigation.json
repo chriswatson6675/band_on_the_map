@@ -1,0 +1,164 @@
+{
+  "investigation_id": "deep-osm-node-979969868-berlin-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T22:07:38.156Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded read-only deep programme probe using generic first-party HTTP discovery and existing deterministic collector families."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The first-party response and directly exposed programme/detail links yielded normalized future events.",
+      "evidence_refs": [
+        "ev-level1"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-979969868",
+  "source_id": null,
+  "venue_reference": "Ritter Butzke — Berlin",
+  "official_url": "https://club.ritterbutzke.com/",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-level1"
+    ],
+    "notes": "The URL comes from the retained Berlin research estate and returned the captured public first-party surface."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Generic fingerprint: CLIENT_RENDERED_UNKNOWN.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-level1"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "CLIENT_RENDERED_UNKNOWN",
+      "url": "https://club.ritterbutzke.com/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-level1"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Indiskret Berlin",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Reproduced by the existing deterministic collector path from retained first-party evidence.",
+      "evidence_refs": [
+        "ev-level1",
+        "ev-acquisition-proof"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The retained source record directly exposes this date.",
+      "evidence_refs": [
+        "ev-level1",
+        "ev-acquisition-proof"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The deterministic proof used the first-party event URL or source UID, but one acquisition does not independently establish long-term stability.",
+      "evidence_refs": [
+        "ev-acquisition-proof"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://club.ritterbutzke.com/events/280826-IndiskretBerlin",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The retained first-party programme/detail surface exposes this event URL.",
+      "evidence_refs": [
+        "ev-level1",
+        "ev-acquisition-proof"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-level1"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Actual future events passed through an existing deterministic acquisition path; no source was activated."
+    ],
+    "evidence_refs": [
+      "ev-level1",
+      "ev-acquisition-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded Level 1 public HTTP capture with response body, request metadata, and deterministic fingerprint; represented as JSON and therefore not byte-faithful.",
+      "acquired_from": "https://club.ritterbutzke.com/events",
+      "acquired_at": "2026-08-27T22:07:38.156Z",
+      "method": "Node fetch; unauthenticated GET; redirects followed; 20-second timeout; bounded response; no challenge bypass",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/deep-osm-node-979969868-berlin-02/evidence/level-1.json"
+    },
+    {
+      "evidence_id": "ev-acquisition-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Offline-compatible normalized event sample produced through an existing generic JSON-LD, ICS, or Tribe Events Calendar path.",
+      "acquired_from": "https://club.ritterbutzke.com/events",
+      "acquired_at": "2026-08-27T22:07:38.156Z",
+      "method": "Deterministic parser and Observation adapter over the retained Level 1/2 response",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/deep-osm-node-979969868-berlin-02/evidence/acquisition-proof.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-979969868-berlin-01"
+}
