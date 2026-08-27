@@ -1,0 +1,194 @@
+{
+  "investigation_id": "cafe-de-la-danse-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official /programmation/ page, homepage, and one event detail page. The programmation page carries NO schema.org JSON-LD Event data (0 <script type=application/ld+json> blocks) — every field comes from the page's own repeated static 'gt-event-listing' (WordPress 'eventchamp' theme) card markup, which already states title+full date (day+month name+4-digit year)+time+event URL directly per card. Fully answered at Level 1, no escalation needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the official programmation page (https://www.cafedeladanse.com/programmation/) found a WordPress site running the 'eventchamp' theme (wp-theme-eventchamp / eventchamp-theme markup) with NO JSON-LD Event data at all, but whose own repeated static 'gt-event-listing' card markup directly states, per event: a full French-language date including the 4-digit year (e.g. '5 septembre 2026'), a start time (e.g. '20h00'), the event's own title, and its own canonical /event/{slug}/ URL — 47 raw card matches (35 unique events once a duplicate 'Nouvelles dates !' promotional widget further down the same page is deduplicated by slug). The homepage additionally states the venue's own full postal address directly in its own text. This fully answers the investigation question at Level 1; no structural/browser escalation was needed.",
+      "evidence_refs": ["ev-programmation", "ev-homepage", "ev-detail-cocktail-sega"]
+    }
+  ],
+  "source_candidate_id": "cafe-de-la-danse-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Café de la Danse (concert venue, 5 Passage Louis-Philippe, 75011 Paris)",
+  "official_url": "https://www.cafedeladanse.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation", "ev-homepage"],
+    "notes": "The retained programmation page's own <title> reads 'PROGRAMMATION – CAFÉ DE LA DANSE' at the venue's own domain cafedeladanse.com. The retained homepage's own text directly states '05 Passage Louis-Philippe 75011 Paris' — an exact first-party match to this investigation's assigned venue address. Self-consistent first-party artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress running the 'eventchamp' theme (confirmed: 'wp-theme-eventchamp', 'eventchamp-theme', and 'widget_eventchamp_latest_events_widget' markup). No schema.org JSON-LD Event data anywhere sampled (0 <script type=application/ld+json> blocks on either the listing page or a sampled detail page — only the theme's own repeated static 'gt-event-listing'/'gt-title'/'gt-date'/'gt-time' card markup on ONE listing page exposes title/date/time/event_url directly, with no per-event detail-page fetch required for those fields).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LISTING_PAGE",
+      "url": "https://www.cafedeladanse.com/programmation/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programmation"]
+    },
+    {
+      "kind": "HTML_HOMEPAGE_ADDRESS_STATEMENT",
+      "url": "https://www.cafedeladanse.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FOY VANCE : THE WAKE WORLD TOUR",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own 'gt-title' text, stated directly.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-15",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own 'gt-date' text states a FULL date directly, including the 4-digit year (e.g. '15 septembre 2026') — the French month name is a literal, deterministic 1:1 translation (e.g. 'septembre' -> '09'), not an inference about which month/year is meant; the source itself already states the complete, unambiguous fact.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00 (floating local — no explicit UTC offset/timezone stated anywhere on the page)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own 'gt-time' text (e.g. '19h00'), stated directly. No timezone offset is stated anywhere sampled — recorded honestly as FLOATING_LOCAL, never upgraded to a UTC instant.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time/date is present anywhere sampled — neither the listing page nor the one sampled event detail page (research/source-investigations/cafe-de-la-danse-paris-01/evidence/detail-cocktail-sega-raw.html) states a performance end time.",
+      "evidence_refs": ["ev-programmation", "ev-detail-cocktail-sega"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Café de la Danse, 05 Passage Louis-Philippe, 75011 Paris",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Single-venue source: every event belongs to this one venue. The venue's own retained homepage states '05 Passage Louis-Philippe 75011 Paris' directly in its own page text — an exact match to this task's assigned address. The listing page itself does not repeat the address per card (single-venue convention, matching Badehaus Berlin/silent green precedent: resolved by source_id, not re-stated per event).",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "foy-vance",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No numeric id is exposed on the card itself. Each card's own href is this source's own permanent '/event/{slug}/' WordPress permalink page, so the slug is used as source_record_id — the same documented judgement already accepted for badehaus-berlin/tempodrom-berlin/silent-green-kulturquartier-berlin (a permalink URL slug the source uses as its own canonical path). Not independently re-verified by a second live fetch within this investigation's bounded scope, but WordPress permalink slugs are a well-established stable platform convention, not a value this investigation invented.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.cafedeladanse.com/event/foy-vance/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own href, stated directly.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price value is ever printed on a card or its own detail page — only a 'TICKET' button/label linking out to one of several third-party ticketing platforms observed across sampled cards (SeeTickets, Weezevent, Ticketmaster, dice.fm), confirming this task's note that ticketing is split across several third parties per event. No first-party price text exists to record.",
+      "evidence_refs": ["ev-programmation"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation", "cafe-de-la-danse-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This page's own markup carries a minority of events (12 of 47 raw card matches, 0 of 35 once deduplicated) TWICE: once in the main chronological listing and again in a separate 'Nouvelles dates !' promotional widget further down the same page, with byte-identical title/date/time. A collector must deduplicate by the event's own URL slug (keeping the first/main-listing occurrence) — implemented and offline-proven in ingestion/cafe-de-la-danse-paris/observation-adapter.mjs's extractEventCards(). Not CRITICAL: the underlying data is genuinely available, this is a housekeeping deduplication step, not a data-availability gap."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Ticketing/price is fully external and split across at least 4 distinct third-party platforms (SeeTickets, Weezevent, Ticketmaster, dice.fm) observed across sampled cards, with no consistent URL shape between them. A future Offer-layer collector wanting per-event ticket/price data would need either per-platform scraping or to leave Offers unpopulated for this source — out of scope for this Observation-layer investigation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title at the venue's own domain, homepage's own stated address matching this task's assigned address exactly).",
+      "acquisition_class STATIC_HTML, a resolved/supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: one listing-page fetch exposing 35 unique real events at once (47 raw card matches, 12 deduplicated).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — the source's own card text states a complete, unambiguous date (day+month name+4-digit year) with no contextual derivation needed.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following the documented badehaus-berlin/tempodrom-berlin precedent.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family in this project's vocabulary.",
+      "No unresolved CRITICAL blocker — the two MINOR blockers (duplicate-widget deduplication; fragmented third-party ticketing) are both housekeeping/scope notes, not data-availability gaps, and the deduplication is already implemented and offline-proven.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/cafe-de-la-danse.test.mjs), reproducing this investigation's own retained fixture deterministically and offline, including the dedup behaviour — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-programmation", "ev-homepage", "cafe-de-la-danse-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programmation",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official programmation listing page, full raw HTTP response body, byte-faithful.",
+      "acquired_from": "https://www.cafedeladanse.com/programmation/",
+      "acquired_at": "2026-08-26T22:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cafe-de-la-danse-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, full raw HTTP response body, byte-faithful — its own text directly states the venue's full postal address.",
+      "acquired_from": "https://www.cafedeladanse.com/",
+      "acquired_at": "2026-08-26T22:47:40Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cafe-de-la-danse-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-cocktail-sega",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page (Cocktail Séga), full raw HTTP response body, byte-faithful — confirms no additional JSON-LD/structured fields exist beyond the listing page's own card data, and confirms no end-time is ever stated.",
+      "acquired_from": "https://www.cafedeladanse.com/event/cocktail-sega-frederic-joron/",
+      "acquired_at": "2026-08-26T22:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cafe-de-la-danse-paris-01/evidence/detail-cocktail-sega-raw.html"
+    },
+    {
+      "evidence_id": "cafe-de-la-danse-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/cafe-de-la-danse.test.mjs) re-parsing this investigation's own retained fixture (fixtures/cafe-de-la-danse-paris/programmation.html, a copy of ev-programmation) via the new bespoke ingestion/cafe-de-la-danse-paris/observation-adapter.mjs and reproducing every claimed field value deterministically, including the duplicate-widget deduplication.",
+      "acquired_from": "tests/cafe-de-la-danse.test.mjs",
+      "acquired_at": "2026-08-26T23:50:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/cafe-de-la-danse-paris-01/evidence/programmation-raw.html"
+    }
+  ],
+  "supersedes": null
+}

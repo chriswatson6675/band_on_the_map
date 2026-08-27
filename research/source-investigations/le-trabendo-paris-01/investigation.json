@@ -1,0 +1,174 @@
+{
+  "investigation_id": "le-trabendo-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T14:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/programmation/' listing page and one linked event detail page. Both are plain server-rendered WordPress HTML with no schema.org Event JSON-LD (only generic Yoast SEO WebPage/Organization/BreadcrumbList JSON-LD) — every event's title/date/URL is directly present as static HTML text on both the listing page and its own detail page."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.letrabendo.net/programmation/ immediately exposed static event cards, each with class=\"link-act event...\" containing a full h2.date-event ('05 ― septembre 2026'), h3.name-event (title), and its own canonical event URL — no JS execution or further escalation needed. Note (found during offline-proof test-writing, retained honestly): the page renders every one of 67 distinct real events TWICE — once in the main chronological grid (plain class=\"link-act event\") and again, byte-identically, inside a server-rendered 'Votre sélection' filter-section duplicate (class=\"link-act event bl-filt <month> <year> <type>\" with an extra data-month attribute, used for client-side JS filtering) — 134 total card anchors, 67 distinct events after de-duplication by event URL. A second plain GET of one linked detail page (spectrum-waves) confirmed the same title/date directly and added a door-opening time ('Ouverture des portes 23:59') plus the sitewide footer address, all still via a plain static fetch. As due diligence this investigation also fetched /wp-json/ and /sitemap.xml (both plain unauthenticated GETs, still Level 1 in spirit) to check whether a cleaner structured feed existed for the site's 'programmation' custom post type; sitemap.xml confirms 'programmation' is a distinct post type (its own programmation-sitemap.xml) but no /wp/v2/programmation REST route is exposed, so no such feed exists — this did not change the SUFFICIENT verdict already reached from the static HTML cards themselves, only confirmed there is no better path to prefer.",
+      "evidence_refs": ["ev-programmation-page", "ev-event-detail"]
+    }
+  ],
+  "source_candidate_id": "le-trabendo-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Trabendo (concert/club venue, Parc de la Villette, 19th arrondissement, Paris)",
+  "official_url": "https://www.letrabendo.net/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-page"],
+    "notes": "Retained page's own <title> reads 'Programmation – Trabendo' at the venue's own domain letrabendo.net. The sitewide footer (present unchanged on both sampled pages) states 'Parc de la Villette / 211 avenue Jean Jaurès / 75019 Paris', matching the venue's known address, and every script/asset URL is self-hosted under www.letrabendo.net/wp-content/ — a self-consistent, first-party retained artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (Yoast SEO plugin present — wp-json REST root is exposed but carries no queryable route for the site's own 'programmation' custom post type, confirmed via /wp-json/ and /sitemap.xml; a single generic Yoast WebPage/Organization/BreadcrumbList JSON-LD block is present but contains no schema.org Event data at all). The venue's own custom theme renders every event as a plain static HTML card (class=\"link-act event\") on one listing page, with a matching detail page per event.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-page", "ev-event-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.letrabendo.net/programmation/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programmation-page"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.letrabendo.net/programmation/spectrum-waves/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Spectrum Waves",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The h3.name-event text on the listing card, confirmed identical on the event's own detail page heading.",
+      "evidence_refs": ["ev-programmation-page", "ev-event-detail"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-05",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The h2.date-event text ('05 ― septembre 2026') is stated directly and identically on both the listing card and the event's own detail page — no context combination needed.",
+      "evidence_refs": ["ev-programmation-page", "ev-event-detail"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Only a door-opening time is stated on the detail page ('Ouverture des portes 23:59'); no separate performance start time is given anywhere sampled. Treating this door time as a proven performance start would misattribute it (the same doorTime/startDate distinction already established for tempodrom-berlin-01), so this stays honestly PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is stated anywhere on either sampled page.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Le Trabendo, 211 Avenue Jean Jaurès, 75019 Paris (Parc de la Villette)",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Neither sampled page repeats a full venue name+address directly beside the event card itself, but this is mechanically determinable: the site is a dedicated single-venue domain (letrabendo.net) with no other venue ever named anywhere sampled, and its own sitewide footer block — present unchanged on both the listing and detail page — states the venue's address directly.",
+      "evidence_refs": ["ev-programmation-page", "ev-event-detail"],
+      "derivation": {
+        "rule": "every event card and detail page on this dedicated single-venue domain belongs to the one venue named in that domain's own sitewide footer; concatenate the site's own footer address with that implied venue identity to get each event's venue_location",
+        "inputs": [
+          "site is a single-venue dedicated domain (letrabendo.net) with no other venue referenced anywhere sampled",
+          "sitewide footer states 'Parc de la Villette / 211 avenue Jean Jaurès / 75019 Paris' identically on the listing and detail page"
+        ]
+      }
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "spectrum-waves",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric ID is exposed on the card or detail page; the event's own WordPress permalink slug ('/programmation/spectrum-waves/') is this source's own canonical, self-referential path — the same documented judgement already established for tempodrom-berlin-01 and moog-barcelona-01/LAV (a permalink slug the source uses as its own canonical path).",
+      "evidence_refs": ["ev-programmation-page", "ev-event-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.letrabendo.net/programmation/spectrum-waves/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The card's own href, confirmed to resolve to the detail page sampled.",
+      "evidence_refs": ["ev-programmation-page", "ev-event-detail"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is stated on either sampled page. Ticketing is delegated entirely to a third-party platform (shotgun.live) via an outbound 'Billetterie' link — a brief, bounded check of shotgun.live's own venue/event pages (https://shotgun.live/fr/venues/letrabendo and https://shotgun.live/events/spectrum-waves) returned HTTP 429 (rate-limited/blocked) on a single plain GET; per policy this was not retried or escalated (no brute-force probing of a third-party site), and third-party ticketing platforms are not treated as first-party authority for price in any case.",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-page", "ev-event-detail", "le-trabendo-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, sitewide footer address, self-hosted assets, all at the venue's own domain).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the listing page (67 distinct real events, each rendered twice on the page — main grid + filter-section duplicate — 134 total card anchors, de-duplicated by event URL) and one event's own detail page.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, stated directly and identically across both sampled pages.",
+      "source_record_id PROVEN via the site's own permalink slug, following the documented tempodrom-berlin-01/moog-barcelona-01 precedent.",
+      "venue_location PROVEN with basis DETERMINISTIC_CONTEXT, citing a genuine derivation rule and two retained inputs (single-venue-domain structure + sitewide footer address).",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary; the actual field-extraction code is genuinely bespoke to this venue's own markup (see ingestion/le-trabendo/), matching the badehaus-berlin-01/zenner-berlin-01 precedent of a shared conceptual family name over bespoke per-venue code.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/le-trabendo.test.mjs), reproducing this investigation's own retained fixture deterministically and offline — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-programmation-page", "ev-event-detail", "le-trabendo-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programmation-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/programmation/' listing page, retained verbatim in full (177,811 bytes) — 67 distinct real, current events, each rendered twice on the page (main grid + a 'Votre sélection' filter-section duplicate), 134 total card anchors.",
+      "acquired_from": "https://www.letrabendo.net/programmation/",
+      "acquired_at": "2026-08-26T13:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-trabendo-paris-01/evidence/programmation-page.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One linked event's own detail page (Spectrum Waves), retained verbatim in full (48,755 bytes).",
+      "acquired_from": "https://www.letrabendo.net/programmation/spectrum-waves/",
+      "acquired_at": "2026-08-26T13:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-trabendo-paris-01/evidence/event-spectrum-waves.html"
+    },
+    {
+      "evidence_id": "le-trabendo-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/le-trabendo.test.mjs) re-parsing this investigation's own retained fixture (fixtures/le-trabendo-paris/programmation-page.html) via ingestion/le-trabendo/discovery.mjs and observation-adapter.mjs, reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/le-trabendo.test.mjs",
+      "acquired_at": "2026-08-26T16:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/le-trabendo-paris-01/evidence/programmation-page.html"
+    }
+  ],
+  "supersedes": null
+}

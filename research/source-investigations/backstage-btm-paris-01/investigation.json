@@ -1,0 +1,202 @@
+{
+  "investigation_id": "backstage-btm-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official /en/calendar/ listing page, two individual event detail pages, and the /en/information/ page. The listing page carries no JSON-LD Event data (only Yoast SEO boilerplate); its own repeated static card markup states title+full date directly. Each individual detail page additionally states the venue's own physical address in its own text — genuinely establishing the real address (which this task noted as previously unconfirmed) from first-party retained evidence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the official calendar page (https://www.backstage-btm.com/en/calendar/) found a WordPress site with a custom 'agenda' post type (post-type-archive-agenda) and no calendar plugin — its single JSON-LD block is Yoast SEO boilerplate only (CollectionPage/BreadcrumbList/WebSite, no Event nodes). The page's own repeated static card markup ('event-type'/'event-title'/'see-event'/'event-booking') states 30 real events with title, genre, own detail-page URL, and a full DD/MM/YYYY date directly. Fetching two of those detail pages directly then each stated the venue's own address in plain text ('agenda-adresse': 'O’Sullivans By The Mill, 92 bis bd de Clichy - Paris'), and the venue's own separate /en/information/ page states the full postal address including postcode ('92 Boulevard de Clichy 75018 Paris') plus a distinct concert-access note ('Face au 7 Cité Véron 75018 Paris'). This fully answers the investigation question at Level 1; no structural/browser escalation was needed.",
+      "evidence_refs": ["ev-calendar", "ev-detail-atlas", "ev-detail-south-arcade", "ev-information"]
+    }
+  ],
+  "source_candidate_id": "backstage-btm-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Backstage By The Mill (concert venue, physically accessed via/behind O'Sullivans By The Mill (O'Sullivans Pigalle), 92 Bis Boulevard de Clichy, 75018 Paris — address established from retained first-party evidence, not assumed from an unconfirmed prior note)",
+  "official_url": "https://www.backstage-btm.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-calendar", "ev-information"],
+    "notes": "The retained calendar page's own <title> reads 'Event Calendar | Backstage By the Mill' at the venue's own domain backstage-btm.com. The retained /en/information/ page's own text states the venue's full postal address directly ('92 Boulevard de Clichy 75018 Paris', 'Backstage BTM' in the page's own Google Maps deep-link text) and its own access instructions ('Via O’Sullivans By the Mill (O’Sullivans Pigalle)') — matching this task's own hint about the venue's physical relationship to O'Sullivans Pigalle in the 18th arrondissement."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress with a custom 'agenda' post type (confirmed: 'post-type-archive-agenda' body class). No calendar plugin, no schema.org Event JSON-LD anywhere sampled (the page's own single JSON-LD block, present on both list and detail pages, is Yoast SEO boilerplate only: WebPage/CollectionPage/BreadcrumbList/WebSite). A genuinely bespoke two-tier static HTML source: the list page states title+genre+full date, but the venue's own address only exists on each event's own detail page — no time-of-day exists anywhere in this source's retained evidence at all.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-calendar", "ev-detail-atlas"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LISTING_PAGE",
+      "url": "https://www.backstage-btm.com/en/calendar/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-calendar"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.backstage-btm.com/en/calendar/atlas/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-atlas"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "ATLAS",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own 'event-title' text (corroborated by each detail page's own <h1>), stated directly.",
+      "evidence_refs": ["ev-calendar", "ev-detail-atlas"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-08",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own 'event-booking' text states a FULL date directly, including the 4-digit year (e.g. '08/09/2026', DD/MM/YYYY), corroborated identically by each detail page's own 'agenda-booking' text. HONEST CAVEAT: 28 of 30 real sampled cards state a 4-digit year this way, but 2 of them ('07/11/26', '23/10/26' — Any Given Day, Mispyrming) state a bare 2-DIGIT year instead — an inconsistent formatting quirk on the source's OWN page, not a separate data field. This investigation does NOT expand '26' to '2026' for those 2 records: doing so would depend on an assumed century, which is exactly the kind of guessing docs/SOURCE_INVESTIGATION_POLICY.md prohibits, however obviously-correct it looks. Those 2 specific records are honestly left with date: null by the retained collector (ingestion/backstage-btm-paris/discovery.mjs) rather than invented — see collector_assessment.blockers.",
+      "evidence_refs": ["ev-calendar", "ev-detail-atlas"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No time-of-day is stated anywhere in this source's retained evidence — neither the list page nor either sampled detail page states a start/door time at all.",
+      "evidence_refs": ["ev-calendar", "ev-detail-atlas", "ev-detail-south-arcade"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time/date is stated anywhere sampled.",
+      "evidence_refs": ["ev-detail-atlas"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Backstage By The Mill (accessed via O’Sullivans By The Mill / O’Sullivans Pigalle), 92 Bis Boulevard de Clichy, 75018 Paris",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Single-venue source. Both sampled event detail pages state the identical address text directly ('agenda-adresse': 'O’Sullivans By The Mill, 92 bis bd de Clichy - Paris', no postcode). The venue's own separate /en/information/ page states the full address WITH postcode in its own body text ('92 Boulevard de Clichy 75018 Paris') and its own Google Maps deep-link text ('Backstage+BTM,+92+Bis+Bd+de+Clichy,+75018+Paris') — reconciled here as the full canonical address. That same /en/information/ page ALSO states a separate 'Concert Access: Face au 7 Cité Véron 75018 Paris' note, meaning the actual concert entrance may be a different street-level door than the boulevard-facing O'Sullivans entrance — recorded honestly as a nuance, not resolved into a single simplified address. This ESTABLISHES the venue's real address from first-party retained evidence, correcting this task's own prior unconfirmed note (which speculated 'near/behind O'Sullivans Pigalle' without a street number).",
+      "evidence_refs": ["ev-detail-atlas", "ev-detail-south-arcade", "ev-information"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "atlas",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No numeric id is exposed on the card itself. Each card's own href is this source's own permanent '/en/calendar/{slug}/' WordPress permalink page, so the slug is used as source_record_id — the same documented judgement already accepted for badehaus-berlin/tempodrom-berlin/cafe-de-la-danse-paris. Not independently re-verified by a second live fetch within this investigation's bounded scope, but WordPress permalink slugs are a well-established stable platform convention.",
+      "evidence_refs": ["ev-calendar"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.backstage-btm.com/en/calendar/atlas/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own 'See More' href, stated directly.",
+      "evidence_refs": ["ev-calendar"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price value is ever printed on a card or its own detail page — only a 'Ticketing' button linking out to a third-party platform (e.g. aegpresents.fr, confirmed on the South Arcade sample; bit.ly-shortened links on others). No first-party price text exists to record.",
+      "evidence_refs": ["ev-detail-atlas", "ev-detail-south-arcade"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-calendar", "ev-detail-atlas", "backstage-btm-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "2 of 30 real sampled cards ('Any Given Day' / 07/11/26, 'Mispyrming' / 23/10/26) state a bare 2-digit year rather than this source's own usual 4-digit year. The retained collector (ingestion/backstage-btm-paris/discovery.mjs) honestly returns date: null for these 2 records rather than guessing the century — a future production wiring should either surface these as HUMAN_REVIEW/skip, or independently re-derive the year from the detail page's own SEO meta description text (observed to sometimes restate the date in prose, e.g. 'See ATLAS in concert at Backstage BTM on September 8, 2026' for the ATLAS record specifically), on a per-record basis, never a blanket assumption. NOT CRITICAL: affects only 2 of 30 sampled records; every other record is unambiguous."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title at the venue's own domain, the /en/information/ page's own stated address and access instructions).",
+      "acquisition_class STATIC_HTML, a resolved/supported class, reached at Level 1 with no escalation needed.",
+      "CONFIRMED public data paths retained: the list page (30 real events) and detail pages (address, corroborating date).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE for 28 of 30 sampled real events; the 2 genuinely ambiguous 2-digit-year records are honestly left unresolved (null), never guessed.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following the documented badehaus-berlin/tempodrom-berlin/cafe-de-la-danse-paris precedent.",
+      "venue_location additionally PROVEN with basis DIRECT_SOURCE — this investigation establishes the venue's real, previously-unconfirmed address from retained first-party evidence (both event detail pages plus the venue's own /en/information/ page), rather than assuming this task's own unconfirmed prior note.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family in this project's vocabulary.",
+      "No unresolved CRITICAL blocker — the one MINOR blocker (2 records with an ambiguous 2-digit year) is honestly handled by leaving those 2 records' date unresolved rather than guessing, and does not affect the other 28 sampled records.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/backstage-btm.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline, including an explicit test proving the 2-digit-year case is honestly left unresolved — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-calendar", "ev-detail-atlas", "ev-information", "backstage-btm-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-calendar",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official event calendar listing page, full raw HTTP response body, byte-faithful.",
+      "acquired_from": "https://www.backstage-btm.com/en/calendar/",
+      "acquired_at": "2026-08-26T23:00:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/backstage-btm-paris-01/evidence/calendar-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-atlas",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page (ATLAS), full raw HTTP response body, byte-faithful — the source of this source's own address, since it is absent from the list page.",
+      "acquired_from": "https://www.backstage-btm.com/en/calendar/atlas/",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/backstage-btm-paris-01/evidence/detail-atlas-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-south-arcade",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second sampled event detail page (South Arcade), full raw HTTP response body, byte-faithful — confirms the address/markup pattern generalises across events.",
+      "acquired_from": "https://www.backstage-btm.com/en/calendar/south-arcade/",
+      "acquired_at": "2026-08-26T23:52:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/backstage-btm-paris-01/evidence/detail-south-arcade-raw.html"
+    },
+    {
+      "evidence_id": "ev-information",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/en/information/' page, full raw HTTP response body, byte-faithful — states the venue's full postal address (with postcode) and access instructions directly, establishing the real address this task noted as previously unconfirmed.",
+      "acquired_from": "https://www.backstage-btm.com/en/information/",
+      "acquired_at": "2026-08-26T23:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/backstage-btm-paris-01/evidence/information-raw.html"
+    },
+    {
+      "evidence_id": "backstage-btm-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/backstage-btm.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/backstage-btm-paris/) via the new bespoke ingestion/backstage-btm-paris/discovery.mjs + observation-adapter.mjs and reproducing every claimed field value deterministically, including a dedicated test proving the bare-2-digit-year case is honestly left unresolved.",
+      "acquired_from": "tests/backstage-btm.test.mjs",
+      "acquired_at": "2026-08-27T00:05:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/backstage-btm-paris-01/evidence/calendar-raw.html"
+    }
+  ],
+  "supersedes": null
+}

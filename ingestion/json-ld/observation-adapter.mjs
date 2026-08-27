@@ -36,8 +36,16 @@ import { createObservation, emptyDateTime } from "../observation/contract.mjs";
 
 const DEFAULT_CONTENT_TYPE = "application/ld+json";
 
-const ISO_WITH_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
-const ISO_NO_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/;
+// BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: seconds are now optional
+// (`(?::\d{2})?`) — Les Trois Baudets' own real JSON-LD emits
+// "2026-09-03T20:00"/"2026-09-03T20:00+02:00" (no ":00" seconds
+// component at all), which the original seconds-mandatory regex silently
+// failed to match (falling through to TEXT_ONLY, losing the date
+// entirely). A strictly backward-compatible widening: any timestamp this
+// already matched (with explicit seconds) still matches identically,
+// since `(?::\d{2})?` is satisfied either way.
+const ISO_WITH_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const ISO_NO_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?$/;
 const DATE_ONLY_RE = /^(\d{4}-\d{2}-\d{2})$/;
 const NAMED_CET_OFFSET_RE = /^(\d{4}-\d{2}-\d{2}) (CEST|CET) (\d{2}:\d{2})$/;
 const NAMED_CET_OFFSETS = Object.freeze({ CEST: "+02:00", CET: "+01:00" });

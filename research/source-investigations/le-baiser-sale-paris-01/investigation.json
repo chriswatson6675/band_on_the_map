@@ -1,0 +1,178 @@
+{
+  "investigation_id": "le-baiser-sale-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/fr/agenda' page. No JSON-LD/ICS/JSON API is present — every upcoming show is server-rendered directly as static HTML: one full-date heading per calendar date ('Lun. 7 sept. 2026'), followed by one-or-more artist cards (time/title/permalink) until the next date heading."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.lebaisersale.com/fr/agenda immediately exposed 27 real, dated, statically-rendered show cards spanning 2026-08-27 to 2026-09-17 (19 distinct dates, some with more than one show), plus real server-rendered pagination links (/fr/agenda/page-2 .. page-9) for further weeks. No JSON-LD, ICS, or JSON API is present anywhere on this page; no escalation beyond Level 1 was needed since the static HTML itself already fully answers the investigation.",
+      "evidence_refs": ["ev-agenda-raw"]
+    }
+  ],
+  "source_candidate_id": "le-baiser-sale-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Baiser Salé, 58 rue des Lombards, 75001 Paris",
+  "official_url": "https://www.lebaisersale.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-raw"],
+    "notes": "The retained page's own <title> reads \"L'agenda des concerts - Le Baiser Salé\" at the venue's own domain lebaisersale.com. Every sampled show's own permalink resolves under this same domain ('/fr/agenda/{id}-{slug}'). The given street address (58 rue des Lombards, 75001 Paris) is independently corroborated by a live Nominatim geocoding match naming this exact venue at this exact address (see ev-nominatim-le-baiser-sale) — the page itself does not restate its own street address."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom CMS (no WordPress/Drupal/wp-json signal detected). The '/fr/agenda' page server-renders every upcoming show directly as static HTML — no JSON-LD, ICS, or JSON API found anywhere on the page.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-raw"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.lebaisersale.com/fr/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-raw"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_PAGINATED",
+      "url": "https://www.lebaisersale.com/fr/agenda/page-2",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-agenda-raw"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "#LaJamDuLundi de FRANÇOIS CONSTANTIN",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <h2 class=\"artist-name\"> text, stated directly.",
+      "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-07",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "No card itself restates any date at all. Each card is retained as the next 'agenda-line' sibling immediately following one 'date-timeline' heading (which itself states the FULL date, e.g. 'Lun. 7 sept. 2026', directly) and before the next such heading — a source-authored structural convention (proven by direct positional containment in the retained fixture, not assumed from visual layout), mechanically reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"],
+      "derivation": {
+        "rule": "The nearest preceding 'date-timeline' heading governs every 'artist-wrapper' card that follows it, until the next such heading. Parse the heading's own French 'Day. D month[.] YYYY' text into a calendar date and assign it, unchanged, to every governed card.",
+        "inputs": ["Lun. 7 sept. 2026 (date-timeline heading)", "card is the next artist-wrapper sibling following that heading, before the next date-timeline heading"]
+      }
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "21:00 (floating local — no explicit UTC offset or timezone stated anywhere on the page)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own clock-icon time text, stated directly.",
+      "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date appears anywhere on this page for any sampled show.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-card or page-wide as a discrete, structurally-provable field. This source represents exactly one physical venue, consistent with this project's existing single-venue-per-source precedent (badehaus-berlin-01) — venue identity is intended to resolve via source_id at activation time, not by parsing a field the source does not actually expose.",
+      "evidence_refs": ["ev-agenda-raw"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "5971-lajamdulundi-de-francois-constantin#2026-09-07",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "This source's own numeric-id-prefixed permalink slug ('/fr/agenda/{id}-{slug}') is stable and site-authored, but at least one real, retained sampled recurring series (e.g. \"#LaPetiteHeure by... Etienne Mbappé\", slug '5869-lapetiteheure-by...-etienne-mbappe') reuses the SAME slug across 3 distinct consecutive calendar dates (2026-08-27/28/29) — the slug alone is therefore not 1:1 with one real occurrence. The composite of the site's own slug plus this card's own (DETERMINISTIC_CONTEXT-derived) governing date is unique per real occurrence, reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"],
+      "derivation": {
+        "rule": "Concatenate this source's own permalink slug with this card's own governing calendar date, joined by '#', to disambiguate a slug the source itself reuses across more than one real occurrence.",
+        "inputs": ["5971-lajamdulundi-de-francois-constantin (source's own permalink slug)", "2026-09-07 (card's own governing date, itself DETERMINISTIC_CONTEXT)"]
+      }
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.lebaisersale.com/fr/agenda/5971-lajamdulundi-de-francois-constantin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own 'En savoir plus' link href, stated directly (resolved to an absolute URL against the site's own domain).",
+      "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price/tarif/euro text appears anywhere on this page. Each card's own 'Réserver' button links to a third-party ticketing domain (billetweb.fr), which this project's policy does not treat as first-party authority for a price fact (docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section).",
+      "evidence_refs": ["ev-agenda-raw"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Only page 1 of the site's own real, server-rendered pagination (/fr/agenda, /fr/agenda/page-2 .. page-9 confirmed present as real links) was fetched within this bounded investigation, covering ~3 weeks (2026-08-27 to 2026-09-17). A production collector would iterate the same static pagination pattern for fuller date-range coverage — not fetched here to keep this investigation bounded, and not required to prove the acquisition path or field coverage."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from self-consistent domain/title branding, independently corroborated by an exact-match live Nominatim geocoding result naming this exact venue at the given address.",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED PUBLIC data path retained: the default '/fr/agenda' page, exposing 27 real dated show cards across 19 distinct dates.",
+      "title PROVEN DIRECT_SOURCE; start_date and source_record_id both PROVEN DETERMINISTIC_CONTEXT with an explicit derivation object each, citing a genuine structural (not visual-proximity) containment relationship, mechanically reproduced offline.",
+      "A genuinely bespoke collector was built and proven offline: ingestion/le-baiser-sale/discovery.mjs + observation-adapter.mjs, fixture fixtures/le-baiser-sale-paris/agenda-raw.html, and tests/le-baiser-sale.test.mjs (4/4 passing, node:test, zero network calls).",
+      "No unresolved CRITICAL blocker — the one documented MINOR blocker (pagination not fully walked) does not affect field-coverage or acquisition-path conclusions.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (captured `node --test tests/le-baiser-sale.test.mjs` output), satisfying gate 9 and the v1.2 gate 4/5 refinement for both DETERMINISTIC_CONTEXT-basis gated fields (start_date; source_record_id, itself built on start_date)."
+    ],
+    "evidence_refs": ["ev-agenda-raw", "le-baiser-sale-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-raw",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/fr/agenda' page — full raw HTTP response, byte-identical, containing 19 date-timeline headings and 27 artist-wrapper show cards plus real server-rendered pagination links.",
+      "acquired_from": "https://www.lebaisersale.com/fr/agenda",
+      "acquired_at": "2026-08-26T21:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-baiser-sale-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-nominatim-le-baiser-sale",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Live Nominatim geocoding result for this venue's own given address ('58 rue des Lombards, 75001 Paris'). Top candidate is named exactly 'Le Baiser Salé' at this exact address.",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=58+rue+des+Lombards%2C+75001+Paris&format=jsonv2&addressdetails=1&limit=3&countrycodes=fr",
+      "acquired_at": "2026-08-26T22:48:43Z",
+      "method": "ingestion/geocoding/nominatim.mjs searchNominatimLive() — one single, rate-limited live request",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-baiser-sale-paris-01/evidence/nominatim-result.json"
+    },
+    {
+      "evidence_id": "le-baiser-sale-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured output of `node --test tests/le-baiser-sale.test.mjs`: 4/4 tests passing, re-parsing ONLY the retained fixture (fixtures/le-baiser-sale-paris/agenda-raw.html) via the real ingestion/le-baiser-sale/ discovery+adapter modules, offline, with zero network calls, reproducing every claimed field value (including the DETERMINISTIC_CONTEXT date/source_record_id derivations) exactly.",
+      "acquired_from": "tests/le-baiser-sale.test.mjs",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "node --test tests/le-baiser-sale.test.mjs",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-baiser-sale-paris-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

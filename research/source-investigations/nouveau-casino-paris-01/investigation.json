@@ -1,0 +1,180 @@
+{
+  "investigation_id": "nouveau-casino-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T15:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against https://nouveaucasino.fr/ (the .fr domain, per explicit instruction that .net is stale/parked). Level 2 STRUCTURAL: probed /sitemap.xml, /robots.txt, and one guessed per-event path, all to check for a structural path that might resolve the one genuine gap Level 1 left open (the calendar year of each listed event)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of the homepage (Kirby CMS, confirmed by /media/pages/events/{slug}/ asset paths) returned a fully static, richly structured event listing on ONE page: 27 event cards, each with a weekday, a day.month date ('12.12', no year), a start/end time ('20:00'/'– 23:00'), a title, a genre tag, and (where available) a third-party Ticketmaster link. This resolves title/time/venue/genre directly, but NO year appears anywhere on the page (no month/year heading, no season statement) and no internal per-event detail-page URL exists at all (every 'more info' affordance points only to the external Ticketmaster link) — insufficient to establish a full calendar date or a first-party event_url/source_record_id.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Probed /sitemap.xml and /robots.txt (both returned this Kirby site's own custom 404 error page, confirming neither is exposed) and one guessed internal per-event path (https://nouveaucasino.fr/alex-henry-foster, also 404) to check whether any structural path exposes a canonical per-event page or a stated season/year. None does — this Kirby, file-based site genuinely exposes no additional public structural path beyond the one homepage already fetched at Level 1. The year-ambiguity and missing first-party event_url both remain unresolved; per policy, inferring the year from today's date or from ordinary chronological-listing assumptions is exactly the AI_INFERENCE this investigation must not promote to PROVEN.",
+      "evidence_refs": ["ev-sitemap-404", "ev-robots-404", "ev-guessed-event-page-404"]
+    }
+  ],
+  "source_candidate_id": "nouveau-casino-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Nouveau Casino (concert/club venue, 109 rue Oberkampf, 75011 Paris)",
+  "official_url": "https://nouveaucasino.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "The retained homepage's own <title> reads 'Nouveau Casino | Programmation' at the venue's own domain nouveaucasino.fr (the live, non-parked domain per this investigation's own explicit instruction — nouveaucasino.net was NOT used), and its own <meta name=\"description\"> states 'Salle de concert et club culte à Paris' with the page's own footer/contact text stating '109 rue Oberkampf' / '75011' — a first-party match to this investigation's assigned venue address."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Kirby CMS (file-based; confirmed by /media/pages/events/{slug}/{hash}-{unix-timestamp}/ media-asset paths, Kirby's own convention for per-page uploaded media). The entire event listing (27 cards observed) is static HTML on one page — no JSON-LD, no wp-json, no ICS, no sitemap.xml/robots.txt exposed, and no internal per-event canonical page route (a guessed slug path returned Kirby's own custom 404 page).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-sitemap-404", "ev-robots-404", "ev-guessed-event-page-404"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://nouveaucasino.fr/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Alex Henry Foster",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <h3> title text, stated directly.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each card's own <time class=\"events_date\"><div class=\"date\">DD.MM</div></time> states day+month directly and unambiguously (e.g. '12.12'), but NO YEAR appears anywhere in the retained evidence — no page heading, no month/season/year statement, no per-event canonical page (none exists; a guessed detail-page URL 404'd) — and Level 2 STRUCTURAL found no additional path exposing one either. The card list IS chronologically ordered (day.month values ascend, e.g. '...31.10, 11.11, 12.12, 18.12, 27.03', the last entry rolling into what is presumably the following spring), which makes a human reader confident about the intended year — but that confidence rests on assuming 'today's real-world date' and ordinary chronological-listing behaviour, which is precisely the AI_INFERENCE this policy prohibits from ever becoming a PROVEN value (see docs/SOURCE_INVESTIGATION_POLICY.md's worked-examples table, row 4). Stays PARTIAL: day/month genuinely known, year genuinely not determinable from retained source content alone.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00 (floating local — no explicit UTC offset or timezone stated anywhere)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own '<span>20:00</span>' start-time text, stated directly.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each card's own '<span class=\"timeend\">– HH:MM</span>' states an end TIME directly (e.g. '– 23:00', '– 06:00' for a late/overnight club night) — but states no end DATE. Combining this with the card's own start date to build a full end-datetime would require assuming the end falls on the same calendar day as the start (very likely for a 20:00->23:00 show, genuinely ambiguous for a 20:00->06:00 overnight night that may cross midnight) — an assumption this investigation does not make explicitly on the source's behalf. Stays PARTIAL: end time-of-day is known, a full end date is not.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Nouveau Casino, 109 rue Oberkampf, 75011 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source: every event belongs to this one venue, per its own homepage <h1>/title and stated address (see identity above).",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No id, slug, or internal canonical URL is exposed for any event card — every card's only outbound link (where present) is a third-party Ticketmaster URL, not a page this venue itself serves. This source's own /media/pages/events/{slug}/{hash}-{timestamp}/ asset-folder naming (e.g. 'alex-henry-foster') is a PLAUSIBLE per-event content slug Kirby uses internally to organise uploaded media, but no public route resolves at that slug (a bounded single-sample probe, https://nouveaucasino.fr/alex-henry-foster, returned Kirby's own 404 page — see ev-guessed-event-page-404) and no documented/stated identifier scheme was found. Alternative identity strategy documented here per policy rather than inventing a hash-based id.",
+      "evidence_refs": ["ev-homepage", "ev-guessed-event-page-404"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party event detail page exists on this source at all. Where present, a card's own 'Tickets' block links out to a third-party platform (Ticketmaster observed for one sampled card) — a genuine, directly-stated link this venue's own page presents, but not every card necessarily carries one, and this was not verified across all 27 cards within this investigation's bounded scope, so this stays PARTIAL rather than PROVEN or NOT_PRESENT.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price text appears on any sampled card; pricing (if any) lives entirely on the third-party Ticketmaster page, not on this source's own site.",
+      "evidence_refs": ["ev-homepage"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-homepage"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "start_date's calendar year cannot be established from any retained, first-party source content (no page heading, no per-event canonical page, no exposed structural endpoint after a genuine Level 1->Level 2 escalation). A collector built today would either have to fabricate the year (a fundamental violation of this policy's 'unknown facts must never be invented' rule) or emit permanently year-ambiguous TEXT_ONLY dates, which is honest but not useful for a live map that must distinguish past from upcoming events. This blocks READY_FOR_ACTIVATION until a human decides an acceptable path forward (e.g. an explicitly-approved, collector-run-time — not investigation-time — deterministic rollover rule keyed off the collector's own real invocation clock, which is a materially different, defensible engineering technique from this investigation record asserting a fabricated PROVEN date; or waiting for/finding a richer per-event source)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "HUMAN_REVIEW",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (homepage title/meta-description/domain/address all matching the assigned venue).",
+      "acquisition_class STATIC_HTML: the entire 27-event listing is on one static page, no crawling needed for title/time/venue/genre.",
+      "title, time, and venue_location all PROVEN with basis DIRECT_SOURCE directly from the one retained homepage.",
+      "start_date is genuinely, honestly PARTIAL: day+month are stated directly, but no retained first-party content anywhere states the year, and a real Level 1 (INSUFFICIENT) -> Level 2 (INSUFFICIENT) escalation (sitemap.xml, robots.txt, a guessed per-event path) found no additional structural path that resolves it.",
+      "source_record_id is honestly UNKNOWN (no internal canonical URL/id exists at all) and event_url is PARTIAL (only a third-party Ticketmaster link, not verified present on every card).",
+      "A CRITICAL blocker is recorded (start_date year ambiguity) — this investigation does not recommend READY_FOR_ACTIVATION with a fabricated or silently-assumed year, per this policy's explicit prohibition on inventing a missing year 'because today's date makes one seem likely'.",
+      "HUMAN_REVIEW (rather than DEFER or REJECT) because the underlying data quality is otherwise good (title/time/venue all solid, chronological card ordering is a genuine, retained structural property) and a human may reasonably decide an acceptable path forward (e.g. an explicitly-approved collector-run-time year-rollover rule, distinct from this investigation's own field claims) rather than shelving this source indefinitely."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-sitemap-404", "ev-robots-404", "ev-guessed-event-page-404"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage/programme listing (27 event cards), full raw response, byte-identical.",
+      "acquired_from": "https://nouveaucasino.fr/",
+      "acquired_at": "2026-08-26T14:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nouveau-casino-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-sitemap-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Probe of /sitemap.xml (Level 2 STRUCTURAL) — this Kirby site's own custom 404 error page, retained verbatim, confirming no sitemap is exposed.",
+      "acquired_from": "https://nouveaucasino.fr/sitemap.xml",
+      "acquired_at": "2026-08-27T09:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nouveau-casino-paris-01/evidence/sitemap-raw.xml"
+    },
+    {
+      "evidence_id": "ev-robots-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Probe of /robots.txt (Level 2 STRUCTURAL) — the same Kirby custom 404 error page, retained verbatim, confirming none is exposed.",
+      "acquired_from": "https://nouveaucasino.fr/robots.txt",
+      "acquired_at": "2026-08-27T09:06:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nouveau-casino-paris-01/evidence/robots-raw.txt"
+    },
+    {
+      "evidence_id": "ev-guessed-event-page-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One bounded, single-sample probe of a guessed internal per-event URL (derived from the /media/pages/events/{slug}/ asset-path convention) — returned the same custom Kirby 404 page, confirming no such public route exists at this slug.",
+      "acquired_from": "https://nouveaucasino.fr/alex-henry-foster",
+      "acquired_at": "2026-08-27T09:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nouveau-casino-paris-01/evidence/event-detail-alex-henry-foster-raw.html"
+    }
+  ],
+  "supersedes": null
+}

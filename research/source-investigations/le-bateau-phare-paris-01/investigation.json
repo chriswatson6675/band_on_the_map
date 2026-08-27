@@ -1,0 +1,150 @@
+{
+  "investigation_id": "le-bateau-phare-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/en/programmation/' page. A single retained <script type=\"application/ld+json\"> block on that one page contains a schema.org @graph holding BOTH a Restaurant/NightClub/BarOrPub self-description (with its own directly-stated address AND geo coordinates) AND all 9 currently-listed MusicEvent records (name/startDate/location/url/offers/performer) — the same bulk-@graph JSON-LD pattern already proven for tempodrom-berlin-01/waldbuehne-berlin-01, requiring zero new collector code."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official '/en/programmation/' page immediately exposed a single JSON-LD @graph covering the venue's own self-description PLUS all 9 of its currently-listed MusicEvent records at once, each with a full UTC-offset startDate, a directly-stated location/address, a url, and an offers object. No further escalation was needed; Level 1 fully answered the investigation question.",
+      "evidence_refs": ["ev-programmation"]
+    }
+  ],
+  "source_candidate_id": "le-bateau-phare-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Bateau Phare (bar/club/live-music boat on the Seine, formerly Batofar; a genuine same-site rebrand after a 2024 reopening — the old batofar.fr domain is dead/defunct, not a duplicate venue), 3 Port de la Gare, 75013 Paris",
+  "official_url": "https://lebateauphare.paris/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation"],
+    "notes": "The retained page's own JSON-LD self-description directly states name 'Le Bateau Phare', url 'https://lebateauphare.paris/en/', and address 'streetAddress: 3 Port de la Gare, postalCode: 75013, addressLocality: Paris' — matching this task's assigned physical address exactly, confirming this is genuinely the same physical venue (the old Batofar mooring on the Seine at Port de la Gare) under its own current, self-hosted domain, not a separate or duplicate venue. Social links (facebook.com/lebateauphareparis, instagram.com/le_bateau_phare) are also self-consistent with the retained page."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Custom site (WordPress signals present in asset paths, e.g. wp-content/uploads, but no calendar plugin required — see below). One page's own schema.org JSON-LD @graph holds the venue's entire currently-listed programme in one request, exactly matching the pattern already proven for tempodrom-berlin-01/waldbuehne-berlin-01.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://lebateauphare.paris/en/programmation/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programmation"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Artemis (Ar) • Le Bateau Phare • Providence",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'name' field, stated directly.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-12",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'startDate' field is a full ISO 8601 datetime WITH an explicit UTC offset (e.g. '2026-09-12T18:00:00+02:00'), stated directly — genuinely resolving the prior pass's uncertainty about whether these dates were really 2026: the venue's own per-event URL slugs independently corroborate the same year (e.g. 'providence-le-bateau-phare-12-09-26'), and the page's own static HTML month-section headers ('Août 2026', 'Septembre 2026', 'Octobre 2026') agree as well.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "18:00 (Europe/Paris, +02:00 explicit offset)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'startDate' time-of-day + offset portion, stated directly — a confirmed UTC instant, not a floating local guess.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No 'endDate' field is present on any sampled MusicEvent node.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Le Bateau Phare, 3 Port de la Gare, 75013 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'location.name'/'location.address' fields, stated directly and identically across all sampled records; additionally corroborated by the page's own top-level Restaurant/NightClub self-description, which further states first-party 'geo' coordinates directly (latitude 48.83447, longitude 2.37681) — CONFIRMED, not geocoder-derived.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "providence-le-bateau-phare-12-09-26",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric ID is exposed on the Event object itself; each event's own 'url' field is this source's own directly-stated permanent link for that listing (a Shotgun.live URL slug, since the venue's own site links out to Shotgun for ticketing rather than hosting its own per-event detail pages) — the same documented judgement already established for tempodrom-berlin/moog-barcelona-01 (own url-field slug used as source_record_id), applied here even though the domain of that url happens to be a third party: it is still the source's OWN directly-stated, self-consistent reference for that listing, not an ID this investigation invented.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://shotgun.live/events/providence-le-bateau-phare-12-09-26",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each JSON-LD MusicEvent's own 'url' field, stated directly.",
+      "evidence_refs": ["ev-programmation"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each JSON-LD MusicEvent's own 'offers' object states 'priceCurrency: EUR' and 'availability', but no numeric 'price' value on any sampled record — a genuinely incomplete price field on this source, not a missing 'offers' object entirely.",
+      "evidence_refs": ["ev-programmation"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation", "le-bateau-phare-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (JSON-LD's own name/url/address matching the task's assigned physical address exactly) — confirms this is genuinely the same physical venue post-rebrand, not a duplicate.",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: a single request exposing 9 full MusicEvent records at once, plus the venue's own self-description.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — startDate carries a full, explicit UTC offset, genuinely resolving the prior pass's dating uncertainty (independently corroborated by URL slugs and static month headers).",
+      "source_record_id PROVEN via the source's own url-field slug, following the documented tempodrom-berlin/moog-barcelona-01 precedent.",
+      "venue_location additionally PROVEN with CONFIRMED first-party geo coordinates (not geocoder-derived) directly stated in the same retained JSON-LD.",
+      "recommended_family JSON_LD, this project's own existing, fully generic, already-proven collector family (ingestion/json-ld/parse.mjs + ingestion/json-ld/observation-adapter.mjs) — literally zero new collector code required (PARIS_ZERO_CODE).",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/le-bateau-phare.test.mjs, using the EXISTING, completely unmodified ingestion/json-ld/ family), reproducing this investigation's own retained fixture deterministically and offline — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-programmation", "le-bateau-phare-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programmation",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/en/programmation/' page, fetched byte-for-byte via curl. Contains the full retained JSON-LD @graph (Restaurant/NightClub self-description + all 9 currently-listed MusicEvent records) verbatim, plus the surrounding static HTML card grid (data-month attributes, visible dates/times) used as independent corroboration.",
+      "acquired_from": "https://lebateauphare.paris/en/programmation/",
+      "acquired_at": "2026-08-26T22:56:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-bateau-phare-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "le-bateau-phare-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/le-bateau-phare.test.mjs) re-parsing this investigation's own retained fixture (fixtures/le-bateau-phare-paris/programmation-page.html, a copy of ev-programmation) via the EXISTING, completely unmodified ingestion/json-ld/parse.mjs + ingestion/json-ld/observation-adapter.mjs and reproducing the exact claimed field values deterministically, including the CONFIRMED first-party geo coordinates.",
+      "acquired_from": "tests/le-bateau-phare.test.mjs",
+      "acquired_at": "2026-08-26T23:25:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/le-bateau-phare-paris-01/evidence/programmation-raw.html"
+    }
+  ],
+  "supersedes": null
+}

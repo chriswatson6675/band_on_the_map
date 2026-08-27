@@ -135,7 +135,13 @@ const PUBLICATION_PATH = new URL("../data/public/lisbon-porto-map.json", import.
 //     committed floor (Volksbühne's marker only ever existed in an
 //     uncommitted live-run-proof fixture, never in a committed publication
 //     artifact, so it is not part of this evidenced floor).
-const KNOWN_GOOD_MARKER_FLOORS = { Portugal: 12, Spain: 31, Germany: 20 };
+//   France: 25 — the BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 committed
+//     floor, set below every real `npm run publish:map-data` count
+//     observed while wiring Paris (31-33 of 35 map-eligible venues
+//     resolving live, per source-by-source network flakiness on any given
+//     run) — comfortable headroom for a handful of transient source
+//     failures without masking genuine venue-coverage loss.
+const KNOWN_GOOD_MARKER_FLOORS = { Portugal: 12, Spain: 31, Germany: 20, France: 25 };
 
 async function loadPublication() {
   return JSON.parse(await readFile(PUBLICATION_PATH, "utf8"));
@@ -152,11 +158,12 @@ test("total display listings is a positive, internally-consistent count (event v
   assert.ok(artifact.counts.display_listing_count > 0);
 });
 
-test(`venue-marker coverage never falls below the known-good floor per country (Portugal >= ${KNOWN_GOOD_MARKER_FLOORS.Portugal}, Spain >= ${KNOWN_GOOD_MARKER_FLOORS.Spain}, Germany >= ${KNOWN_GOOD_MARKER_FLOORS.Germany} — see header comment)`, async () => {
+test(`venue-marker coverage never falls below the known-good floor per country (Portugal >= ${KNOWN_GOOD_MARKER_FLOORS.Portugal}, Spain >= ${KNOWN_GOOD_MARKER_FLOORS.Spain}, Germany >= ${KNOWN_GOOD_MARKER_FLOORS.Germany}, France >= ${KNOWN_GOOD_MARKER_FLOORS.France} — see header comment)`, async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   const spainMarkers = artifact.countries.Spain.markers;
   const germanyMarkers = artifact.countries.Germany.markers;
+  const franceMarkers = artifact.countries.France.markers;
   assert.ok(
     portugalMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Portugal,
     `Portugal markers dropped below the known-good floor: ${portugalMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.Portugal}`,
@@ -169,9 +176,13 @@ test(`venue-marker coverage never falls below the known-good floor per country (
     germanyMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Germany,
     `Germany markers dropped below the known-good floor: ${germanyMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.Germany}`,
   );
+  assert.ok(
+    franceMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.France,
+    `France markers dropped below the known-good floor: ${franceMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.France}`,
+  );
   assert.equal(
     artifact.counts.map_marker_count,
-    portugalMarkers.length + spainMarkers.length + germanyMarkers.length,
+    portugalMarkers.length + spainMarkers.length + germanyMarkers.length + franceMarkers.length,
     "map_marker_count must be the exact sum of the per-country marker arrays — no independently-drifting total",
   );
 });
@@ -211,16 +222,17 @@ test("CCB's marker, when present, uses exactly the operator-supplied coordinate 
   assert.equal(ccb.longitude, -9.2073); // -9.20730 and -9.2073 are the identical IEEE754 value
 });
 
-test("cluster aggregate gig count across the full live dataset (Portugal + Spain + Germany) sums to the same GLOBAL total the publication artifact already reports", async () => {
+test("cluster aggregate gig count across the full live dataset (Portugal + Spain + Germany + France) sums to the same GLOBAL total the publication artifact already reports", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   const spainMarkers = artifact.countries.Spain.markers;
   const germanyMarkers = artifact.countries.Germany.markers;
+  const franceMarkers = artifact.countries.France.markers;
   // artifact.counts.display_listing_count is a GLOBAL total across every
   // published country (see buildPublicationArtifact()'s own doc comment)
-  // — never Portugal-only — so this cross-check must sum all three.
+  // — never Portugal-only — so this cross-check must sum all four.
   assert.equal(
-    sumGigCounts(portugalMarkers) + sumGigCounts(spainMarkers) + sumGigCounts(germanyMarkers),
+    sumGigCounts(portugalMarkers) + sumGigCounts(spainMarkers) + sumGigCounts(germanyMarkers) + sumGigCounts(franceMarkers),
     artifact.counts.display_listing_count,
   );
 });
@@ -243,6 +255,16 @@ test("all underlying Germany venue markers are recoverable/separable — the clu
   const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
   assert.equal(venueIds.size, germanyMarkers.length);
   assert.ok(germanyMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.Germany);
+});
+
+test("all underlying France venue markers are recoverable/separable — the clustering UI never drops Paris data either", async () => {
+  const artifact = await loadPublication();
+  const franceMarkers = artifact.countries.France.markers;
+  const fc = buildVenueFeatureCollection(franceMarkers);
+  assert.equal(fc.features.length, franceMarkers.length);
+  const venueIds = new Set(fc.features.map((f) => f.properties.venue_id));
+  assert.equal(venueIds.size, franceMarkers.length);
+  assert.ok(franceMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.France);
 });
 
 test("Croatia country bucket is still an untouched empty marker list (this package never alters source acquisition or coverage)", async () => {

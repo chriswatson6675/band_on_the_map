@@ -22,6 +22,71 @@
 
 const LD_JSON_SCRIPT_RE = /<script[^>]*type=["']?application\/ld\+json["']?[^>]*>([\s\S]*?)<\/script>/gi;
 
+// BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 — a bounded, generic repair
+// pass used ONLY as a fallback when a JSON-LD block's raw text fails
+// JSON.parse outright. New Morning Paris's own real homepage embeds a
+// 72-record Event array with two independent, genuine site bugs: (1)
+// literal, unescaped control characters (raw newlines/tabs/carriage
+// returns) inside string values, and (2) a missing comma between two
+// adjacent object properties on some records. Both are purely mechanical,
+// structural repairs — no field value is invented, reordered, or altered;
+// see research/source-investigations/new-morning-paris-01/ for the
+// original offline proof this is lifted from verbatim. Never applied to
+// already-valid JSON (the primary JSON.parse always runs first), so every
+// existing zero-code JSON-LD source (Tempodrom, Waldbühne, etc.) is
+// completely unaffected.
+function escapeRawControlCharsInStrings(text) {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (const ch of text) {
+    if (inString) {
+      if (escaped) {
+        out += ch;
+        escaped = false;
+        continue;
+      }
+      if (ch === "\\") {
+        out += ch;
+        escaped = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = false;
+        out += ch;
+        continue;
+      }
+      if (ch === "\n") {
+        out += "\\n";
+        continue;
+      }
+      if (ch === "\r") {
+        out += "\\r";
+        continue;
+      }
+      if (ch === "\t") {
+        out += "\\t";
+        continue;
+      }
+      out += ch;
+    } else {
+      if (ch === '"') {
+        inString = true;
+      }
+      out += ch;
+    }
+  }
+  return out;
+}
+
+function insertMissingCommas(text) {
+  return text.replace(/\}(?!\s*,)(\s*\n\s*)"/g, '},$1"');
+}
+
+function repairMalformedJsonLd(raw) {
+  return insertMissingCommas(escapeRawControlCharsInStrings(raw));
+}
+
 /**
  * Extract every JSON-LD document embedded in `html`, flattening
  * `@graph`-wrapped documents and top-level arrays into one flat list of
@@ -55,9 +120,13 @@ export function extractJsonLdNodes(html, { strict = false } = {}) {
     let parsed;
     try {
       parsed = JSON.parse(raw);
-    } catch (error) {
-      if (strict) throw new Error(`JSON-LD block did not parse as valid JSON: ${error.message}`);
-      continue;
+    } catch (firstError) {
+      try {
+        parsed = JSON.parse(repairMalformedJsonLd(raw));
+      } catch {
+        if (strict) throw new Error(`JSON-LD block did not parse as valid JSON: ${firstError.message}`);
+        continue;
+      }
     }
 
     for (const doc of Array.isArray(parsed) ? parsed : [parsed]) {

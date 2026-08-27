@@ -1,0 +1,255 @@
+{
+  "investigation_id": "truskel-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (curl, descriptive User-Agent, no authentication/JS) against the task-given official events URL, which returned HTTP 404; Level 2 STRUCTURAL against the site's own publicly-referenced sitemap.xml -> event-pages-sitemap.xml, which enumerates every current event-details/<slug> page, each independently confirmed (by a further Level 1-style plain GET) to embed a full schema.org Event JSON-LD block."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of the task-given official events URL (https://www.truskel.fr/copie-de-concerts-4, labelled 'Live') returned HTTP 404 Not Found — a Wix 'classic-error-pages-statics' page, confirming the task's own suspicion that this path is stale. A further plain curl GET of the site's own homepage (https://www.truskel.fr/) succeeded (HTTP 200) and embeds a Wix Events widget script plus two JSON-LD blocks (LocalBusiness/WebSite, not Event), and exposes only a handful of static <a href> links to individual event-details/<slug> pages directly in the HTML (e.g. flores-wales-blitzdolls, indie-rock-night, melasse-interruption, uk-is-ok) plus a link to /event-list — enough to prove per-event pages exist and are statically linked, but not enough on its own to enumerate the venue's full current schedule.",
+      "evidence_refs": [
+        "ev-copie-de-concerts-4-404",
+        "ev-homepage-excerpt"
+      ]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Fetched the site's own root sitemap.xml (a Wix-generated, publicly-referenced structural endpoint), which points to event-pages-sitemap.xml — a complete, current listing of every live event-details/<slug> URL with a lastmod date, going well beyond the handful of links exposed on the homepage alone. Fetching two of those event-details pages directly (flores-wales-blitzdolls, vision-peripherique-aleas) confirmed each independently embeds one full schema.org Event JSON-LD block (name/startDate+endDate with an explicit +02:00 UTC offset/location name+address/image) — fully answering both 'how do we enumerate the schedule' and 'how do we get structured per-event data' without any further escalation.",
+      "evidence_refs": [
+        "ev-sitemap-index",
+        "ev-event-pages-sitemap-excerpt",
+        "ev-event-detail-flores",
+        "ev-event-detail-vision"
+      ]
+    }
+  ],
+  "source_candidate_id": "truskel-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Truskel (live-music bar/venue, 12 rue Feydeau, 75002 Paris)",
+  "official_url": "https://www.truskel.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-detail-flores",
+      "ev-event-detail-vision"
+    ],
+    "notes": "Every retained event-details page's own JSON-LD 'location' object directly states name 'TRUSKEL' and address '12 Rue Feydeau, 75002 Paris, France' — an exact match to the task-given address — at the venue's own domain truskel.fr (the task's given .fr domain, confirmed live and current; truskel.com was not probed and is out of scope). The <title> of each page reads '... | Le Truskel'."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Wix (confirmed via response headers — 'x-wix-request-id', 'server: cloudflare' fronting Wix, static.parastorage.com/static.wixstatic.com asset hosts — and the Wix 'classic-error-pages-statics' 404 page template). Each individual event-details/<slug> page (not a single bulk list page) embeds its own single schema.org Event JSON-LD block; the venue's full current schedule is enumerated via the site's own Wix-generated sitemap.xml, not a bulk JSON-LD array.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-detail-flores",
+      "ev-event-detail-vision",
+      "ev-sitemap-index"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "SITEMAP_EVENT_PAGE_ENUMERATION",
+      "url": "https://www.truskel.fr/event-pages-sitemap.xml",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-sitemap-index",
+        "ev-event-pages-sitemap-excerpt"
+      ]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.truskel.fr/event-details/flores-wales-blitzdolls",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-event-detail-flores"
+      ]
+    },
+    {
+      "kind": "STALE_TASK_GIVEN_URL",
+      "url": "https://www.truskel.fr/copie-de-concerts-4",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-copie-de-concerts-4-404"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FLORÉS ( WALES ) + BLITZDOLLS",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event-details page's own JSON-LD 'name' field, stated directly.",
+      "evidence_refs": ["ev-event-detail-flores"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event-details page's own JSON-LD 'startDate', a full ISO 8601 instant with explicit +02:00 UTC offset (e.g. '2026-08-27T19:00:00+02:00'), stated directly.",
+      "evidence_refs": ["ev-event-detail-flores"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00 +02:00 (UTC instant, confirmed offset)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same JSON-LD 'startDate' string carries an explicit numeric UTC offset (+02:00) — a confirmed UTC instant, not a floating local guess.",
+      "evidence_refs": ["ev-event-detail-flores"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-27T23:00:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event-details page's own JSON-LD 'endDate' is a full ISO 8601 instant with the same explicit offset, directly stated — unlike Tempodrom Berlin's own 'endDate' (which encoded only a calendar day for multi-day runs), this source's endDate consistently carries a full same-day end time on every sampled record, matching a genuine performance-end reading.",
+      "evidence_refs": ["ev-event-detail-flores", "ev-event-detail-vision"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "TRUSKEL, 12 Rue Feydeau, 75002 Paris, France",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event-details page's own JSON-LD 'location.name'/'location.address', stated directly and identically across both sampled records.",
+      "evidence_refs": ["ev-event-detail-flores", "ev-event-detail-vision"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "flores-wales-blitzdolls",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric ID is exposed on the Event object itself; each event's own JSON-LD 'location.url' (and the page's own canonical URL) is this source's own permanent '/event-details/{slug}/' path — the site's own stable permalink slug is used as source_record_id, the same documented judgement already established for moog-barcelona-01/LAV and tempodrom-berlin-01.",
+      "evidence_refs": ["ev-event-detail-flores"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.truskel.fr/event-details/flores-wales-blitzdolls",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event-details page's own JSON-LD 'location.url', stated directly (schema.org places the Event's own canonical URL on the nested Place object on this source, not on the Event node itself — used as event_url since it is the page's own permanent address).",
+      "evidence_refs": ["ev-event-detail-flores"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Neither sampled JSON-LD Event node includes an 'offers'/price field of any kind; no price text was found elsewhere on the retained excerpts either.",
+      "evidence_refs": ["ev-event-detail-flores", "ev-event-detail-vision"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-event-detail-flores",
+      "ev-event-detail-vision",
+      "truskel-paris-01-offline-proof"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page titles, each JSON-LD's own location.name/address matching the task-given address exactly).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, reached via Level 1 (INSUFFICIENT, task-given URL stale) then Level 2 (SUFFICIENT, sitemap enumeration + per-event JSON-LD).",
+      "CONFIRMED public data paths retained: the sitemap enumeration path plus at least one per-event JSON-LD page.",
+      "title, start_date, time, end, venue_location, source_record_id, event_url all PROVEN with basis DIRECT_SOURCE across two independently-sampled event pages.",
+      "recommended_family JSON_LD, this project's own existing, fully generic, already-proven collector family (ingestion/json-ld/parse.mjs + observation-adapter.mjs) — extractEventNodes()/normaliseJsonLdEvent() already handle a single-Event-node page exactly as well as a bulk array; only a small new per-venue discovery step (fetch sitemap.xml -> event-pages-sitemap.xml -> enumerate event-details URLs -> fetch each) is genuinely new, kept in a bespoke ingestion/truskel-paris/discovery.mjs rather than touching the shared json-ld family.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/truskel-paris.test.mjs, re-parsing the two retained fixtures via the existing json-ld family) — this investigation is therefore READY_FOR_OFFLINE_PROOF; READY_FOR_ACTIVATION is a separate, later, explicitly-authorised step outside this investigation's scope.",
+      "One honest caveat: the task-given events URL (truskel.fr/copie-de-concerts-4) is confirmed stale (404) as of this investigation — any future activation must configure events_url as the sitemap-driven discovery path, not that stale URL."
+    ],
+    "evidence_refs": [
+      "ev-event-detail-flores",
+      "ev-event-detail-vision",
+      "truskel-paris-01-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-copie-de-concerts-4-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full raw HTTP response headers and body for the task-given official events URL (https://www.truskel.fr/copie-de-concerts-4), confirming HTTP 404 Not Found (Wix 'classic-error-pages-statics' template) — proves this specific path is stale, as the task itself suspected.",
+      "acquired_from": "https://www.truskel.fr/copie-de-concerts-4",
+      "acquired_at": "2026-08-26T22:40:18Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/truskel-paris-01/evidence/copie-de-concerts-4-404-body.html"
+    },
+    {
+      "evidence_id": "ev-homepage-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt of the venue's homepage (https://www.truskel.fr/) — the first 60,000 bytes of the original 874,795-byte response, retained to show the embedded Wix Events widget script, JSON-LD LocalBusiness/WebSite blocks, and static <a href> links to individual event-details pages and /event-list.",
+      "acquired_from": "https://www.truskel.fr/",
+      "acquired_at": "2026-08-26T22:40:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response truncated to first 60,000 bytes, disclosed in this description",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/truskel-paris-01/evidence/root-homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-sitemap-index",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own root sitemap.xml (Wix-generated), listing sub-sitemaps including event-pages-sitemap.xml with a recent lastmod (2026-08-26) — a publicly-referenced structural endpoint, retained byte-faithfully in full (592 bytes).",
+      "acquired_from": "https://www.truskel.fr/sitemap.xml",
+      "acquired_at": "2026-08-26T22:41:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/truskel-paris-01/evidence/sitemap-index.xml"
+    },
+    {
+      "evidence_id": "ev-event-pages-sitemap-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt (first 6,000 bytes of 12,441) of event-pages-sitemap.xml, showing multiple current event-details/<slug> URLs with lastmod dates, image titles, and event names — proving a complete, stable enumeration path exists.",
+      "acquired_from": "https://www.truskel.fr/event-pages-sitemap.xml",
+      "acquired_at": "2026-08-26T22:41:10Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response truncated to first 6,000 bytes, disclosed in this description",
+      "content_type": "application/xml",
+      "byte_faithful": false,
+      "path": "research/source-investigations/truskel-paris-01/evidence/event-pages-sitemap-excerpt.xml"
+    },
+    {
+      "evidence_id": "ev-event-detail-flores",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt of one real event-details page (https://www.truskel.fr/event-details/flores-wales-blitzdolls) — the original response was 928,173 bytes, dominated by Wix bundle JS/CSS/navigation markup carrying no event data; this file retains the page's <title> plus the FULL, VERBATIM <script type=application/ld+json> Event block.",
+      "acquired_from": "https://www.truskel.fr/event-details/flores-wales-blitzdolls",
+      "acquired_at": "2026-08-26T22:41:40Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title+JSON-LD only, disclosed in this description",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/truskel-paris-01/evidence/event-details-flores-wales-blitzdolls-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-vision",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt of a second, independently-sampled event-details page (https://www.truskel.fr/event-details/vision-peripherique-aleas) — same bounding approach as ev-event-detail-flores — used to confirm the JSON-LD pattern (including the full end-time endDate) generalises across events, not a one-off.",
+      "acquired_from": "https://www.truskel.fr/event-details/vision-peripherique-aleas",
+      "acquired_at": "2026-08-26T22:42:10Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title+JSON-LD only, disclosed in this description",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/truskel-paris-01/evidence/event-details-vision-peripherique-aleas-raw.html"
+    },
+    {
+      "evidence_id": "truskel-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/truskel-paris.test.mjs) re-parsing this investigation's own two retained fixtures via the EXISTING generic ingestion/json-ld/ family and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/truskel-paris.test.mjs",
+      "acquired_at": "2026-08-26T23:10:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/truskel-paris-01/evidence/event-details-flores-wales-blitzdolls-raw.html"
+    }
+  ],
+  "supersedes": null
+}

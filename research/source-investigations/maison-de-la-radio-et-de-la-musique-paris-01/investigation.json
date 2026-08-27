@@ -1,0 +1,197 @@
+{
+  "investigation_id": "maison-de-la-radio-et-de-la-musique-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's homepage, its full /agenda listing page (a plain Drupal View, still an unauthenticated static fetch, paginated ?page=0..8), the /acces-et-infos-pratiques page (address confirmation), and one individual /evenement/{slug}?s={id} detail page (bounded, single sample, to check for a richer per-event JSON-LD block)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the homepage found a Drupal 11 site (confirmed by the page's own '<meta name=\"Generator\" content=\"Drupal 11\">') whose homepage itself carries no current event listing, only navigation links to /agenda. A further plain GET of /agenda (still unauthenticated, no JS) returned static HTML with a rich, self-contained card per event: title (h2), source-provided category (field_event_type: 'Concert'/'Émission en public'/'Événement'/etc.), a full day/month/year date stated three separate ways on the SAME card (an outer wrapper's own data-date=\"YYYY-MM-DD\" attribute, plus separate Event-Day/Event-Month/Event-Year divs), a weekday+time text, a combined venue+room location string, and a stable-looking '?s={numeric-id}' query parameter on every event's own /evenement/{slug} permalink. This alone fully answers the investigation question with no escalation needed. A bounded, single-sample per-event detail page was additionally fetched (not required to answer Level 1, but to check for further structured data) and found a genuine data-quality caveat — see field_assessment.time.",
+      "evidence_refs": ["ev-homepage", "ev-agenda-page1", "ev-acces-infos", "ev-event-fontaines-dc"]
+    }
+  ],
+  "source_candidate_id": "maison-de-la-radio-et-de-la-musique-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Maison de la Radio et de la Musique (Radio France's multi-hall concert/broadcast complex, 116 avenue du Président Kennedy, 75016 Paris)",
+  "official_url": "https://www.maisondelaradioetdelamusique.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-acces-infos"],
+    "notes": "The retained homepage's own <title> reads 'Accueil | Maison de la radio et de la Musique' at the venue's own domain maisondelaradioetdelamusique.fr, and the retained /acces-et-infos-pratiques page directly states 'Kennedy' and postcode '75016' — a first-party match to this investigation's assigned venue address (116 avenue du Président Kennedy, 75016 Paris)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Drupal 11 (confirmed by the page's own Generator meta tag). The /agenda listing is a plain, static, paginated Drupal View (?page=0..8, ~14 cards/page, ~126 events total observed via pagination links) with no JSON-LD on the list page itself; individual /evenement/{slug}?s={id} detail pages DO carry their own JSON-LD (both a generic 'Event' block and a separate 'MusicEvent' block), but — see field_assessment.time — the MusicEvent block's own machine-readable startDate was found to CONFLICT with the same event's own list-card time text, so the list page's own static cards are the recommended acquisition path, not the per-event JSON-LD.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page1", "ev-event-fontaines-dc"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.maisondelaradioetdelamusique.fr/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-page1"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://www.maisondelaradioetdelamusique.fr/evenement/concert-de-fontaines-dc?s=1513800",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-event-fontaines-dc"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Concert de Fontaines DC",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each /agenda card's own <h2 class=\"Bolder-XXL\"> title text, stated directly.",
+      "evidence_refs": ["ev-agenda-page1"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-02",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Stated directly and redundantly on the SAME card two ways: the card's own outer wrapper 'data-date=\"2026-09-02\"' attribute, and separate 'Event-Day'/'Event-Month'/'Event-Year' divs ('02'/'septembre'/'2026'). Both agree on every sampled card.",
+      "evidence_refs": ["ev-agenda-page1"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:30 (floating local; card states 'Mercredi'/'20h30')",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own weekday+time text (e.g. 'Mercredi' / '20h30'), stated directly. IMPORTANT DATA-QUALITY CAVEAT found via the one bounded per-event detail-page sample: that same event's own separate JSON-LD 'MusicEvent' block states a CONFLICTING 'startDate': '2026-09-02T14:00:00+02:00' (14:00, not 20:30) — while a second, different JSON-LD 'Event'-typed block on the SAME page states 'mer 02/09/2026- 20:30' (a text field, matching the list card). This is recorded honestly as a genuine site-side inconsistency between two of the source's own structured-data blocks, not resolved by guessing which is 'right' — the list card's own weekday+time text is used as this field's PROVEN value because it is corroborated by a second first-party block on the same page, while the MusicEvent JSON-LD's ISO startDate is the outlier. A collector MUST prefer the /agenda list card's own text (or the corroborating 'Event' JSON-LD's text startDate), never the 'MusicEvent' block's ISO startDate, for this source.",
+      "evidence_refs": ["ev-agenda-page1", "ev-event-fontaines-dc"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date appears anywhere on the /agenda card, nor in either of the two JSON-LD blocks on the sampled detail page.",
+      "evidence_refs": ["ev-agenda-page1", "ev-event-fontaines-dc"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Maison de la Radio et de la Musique - Studio 105 (room varies per event, e.g. 'Bal Chavaux' for the sampled Fontaines DC concert)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own 'Small location' div states the venue name plus its own specific named hall/studio directly (e.g. 'Maison de la Radio et de la Musique - Studio 105', or 'Bal Chavaux' alone for another sampled card) — this multi-hall complex names a different internal room per event, all stated directly on the card, never inferred.",
+      "evidence_refs": ["ev-agenda-page1"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "1513800",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every event's own '<a href=\"/evenement/{slug}?s={numeric-id}\">' permalink carries a distinct numeric 's=' query parameter (observed consistently across all sampled pages/cards, e.g. 1513800, 1474830, 1382599, ...) — this is the site's own canonical URL identity for the event (Drupal's own internal entity/session reference embedded directly in its own permalink scheme), used here as source_record_id per the same 'site's own permalink is its own canonical path' judgement already established for tempodrom-berlin-01/les-trois-baudets-paris-01.",
+      "evidence_refs": ["ev-agenda-page1"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.maisondelaradioetdelamusique.fr/evenement/concert-de-fontaines-dc?s=1513800",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Absolute URL built from each card's own href, resolved against the site's own origin.",
+      "evidence_refs": ["ev-agenda-page1"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Some cards' own 'more-info' block states the literal word 'Gratuit' (free) directly — a genuinely PROVEN fact for those specific events — but most sampled cards show no price text at all (that same block instead shows a performer/ensemble name, or nothing). The one sampled detail page's own 'TARIFS' aside block stated a real price range directly, confirming per-event pricing exists via the detail page, but this was not exercised at scale within this investigation's bounded scope. Recorded PARTIAL, not PROVEN or NOT_PRESENT, to honestly reflect this heterogeneity.",
+      "evidence_refs": ["ev-agenda-page1", "ev-event-fontaines-dc"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page1", "maison-de-la-radio-et-de-la-musique-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "A per-event JSON-LD 'MusicEvent' block's own 'startDate' was found to disagree with that SAME event's own /agenda list-card time text (14:00 vs 20:30) on the one sampled detail page. A collector for this source MUST use the /agenda list card's own day/month/year + weekday/time fields (this investigation's recommended, single, self-consistent data path) and must NOT consume the per-event 'MusicEvent' JSON-LD block, which this investigation found to be unreliable for time-of-day on at least one real record."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This is a large, multi-purpose complex whose /agenda listing mixes music concerts with non-music content (radio-show recordings ('Émission en public'), masterclasses, generic 'Événement' entries). A collector should filter on the card's own source-provided 'field_event_type' category (observed values include 'Concert', 'Émission en public', 'Événement') to select genuinely music-relevant listings, e.g. category === 'Concert' — a source-provided classification, not a keyword guess."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (homepage title/domain, /acces-et-infos-pratiques' own stated Kennedy/75016 address).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the /agenda list page, richly structured, self-contained per card.",
+      "title, start_date, time, venue_location, source_record_id, and event_url are ALL PROVEN with basis DIRECT_SOURCE.",
+      "A genuine, honestly-documented data-quality finding (a per-event JSON-LD MusicEvent block's own startDate disagreeing with the corroborated list-card time) is recorded as a MAJOR blocker with a clear, actionable mitigation (use the list card, not that JSON-LD block) — not silently resolved by guessing which source is right.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/maison-de-la-radio-et-de-la-musique.test.mjs), reproducing this investigation's own retained /agenda fixture deterministically and offline, and confirming the MusicEvent JSON-LD time discrepancy is real (not a transcription error) — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-agenda-page1", "maison-de-la-radio-et-de-la-musique-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, full raw response, byte-identical.",
+      "acquired_from": "https://www.maisondelaradioetdelamusique.fr/",
+      "acquired_at": "2026-08-27T08:50:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maison-de-la-radio-et-de-la-musique-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-acces-infos",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official /acces-et-infos-pratiques page (address confirmation), full raw response, byte-identical.",
+      "acquired_from": "https://www.maisondelaradioetdelamusique.fr/acces-et-infos-pratiques",
+      "acquired_at": "2026-08-27T08:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maison-de-la-radio-et-de-la-musique-paris-01/evidence/acces-infos-raw.html"
+    },
+    {
+      "evidence_id": "ev-agenda-page1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official /agenda listing page (first page, 12 richly-structured event cards observed; 9 total pages exist via ?page=0..8 pagination), full raw response, byte-identical.",
+      "acquired_from": "https://www.maisondelaradioetdelamusique.fr/agenda",
+      "acquired_at": "2026-08-27T09:00:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maison-de-la-radio-et-de-la-musique-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-fontaines-dc",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One bounded sample of a single event's own detail page, retained to check for richer structured data beyond the list — full raw response, byte-identical. Contains two DISTINCT JSON-LD blocks (a generic 'Event' and a separate 'MusicEvent') whose own startDate values disagree with each other.",
+      "acquired_from": "https://www.maisondelaradioetdelamusique.fr/evenement/concert-de-fontaines-dc?s=1513800",
+      "acquired_at": "2026-08-27T09:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/maison-de-la-radio-et-de-la-musique-paris-01/evidence/event-detail-fontaines-dc-raw.html"
+    },
+    {
+      "evidence_id": "maison-de-la-radio-et-de-la-musique-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test (tests/maison-de-la-radio-et-de-la-musique.test.mjs) re-parsing this investigation's own retained /agenda fixture and reproducing the exact claimed field values (title/start_date/time/venue_location/source_record_id/event_url/price) deterministically, and asserting the real MusicEvent JSON-LD time discrepancy from the retained detail-page fixture.",
+      "acquired_from": "tests/maison-de-la-radio-et-de-la-musique.test.mjs",
+      "acquired_at": "2026-08-27T10:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/maison-de-la-radio-et-de-la-musique-paris-01/evidence/agenda-raw.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,174 @@
+{
+  "investigation_id": "dome-de-paris-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T21:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's official 'À l'affiche' listing page, then against one show's own detail page (still Level 1 — a second plain page fetch, not an escalation) to confirm what time-of-day/price data this source's own two-page structure exposes."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.ledomedeparis.com/fr/spectacles/a-laffiche immediately exposed 26 real, current, repeated static-HTML event cards, each with a title, a self-stated category (Concert/Comédie musicale/One man show/Spectacle), a French date text, and a stable numeric-id permalink. A second plain GET of one card's own detail page (/fr/spectacle/337/cheb-mami) confirmed this source's own two-page structure: the listing page carries title/date/category/url, and each event's own detail page separately carries time-of-day and a full price breakdown. No JS execution or further escalation was needed at any point.",
+      "evidence_refs": ["ev-a-laffiche-listing", "ev-spectacle-detail-cheb-mami"]
+    }
+  ],
+  "source_candidate_id": "dome-de-paris-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Dôme de Paris (Palais des Sports), 34 Boulevard Victor, 75015 Paris",
+  "official_url": "https://www.ledomedeparis.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-a-laffiche-listing"],
+    "notes": "The retained listing page's own <title> reads 'Tous les spectacles à l'affiche - Dôme de Paris' at the venue's own domain ledomedeparis.com. The same page embeds a real, rendered (not commented-out) Google Maps iframe whose own query string directly names the pinned place 'Le+Dome+de+Paris' at coordinates matching the assigned venue reference's known 15th-arrondissement (Porte de Versailles) location. A separate address text ('34 Boulevard Victor - 75015 Paris') is also present in the retained HTML but inside an HTML comment (a currently-disabled footer block) — noted honestly as present-but-not-rendered, not relied on alone for identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom/bespoke CMS (no WordPress/wp-content/wp-json signal detected). The listing page repeats one real static HTML card per show; each card links to its own first-party detail page (also static HTML) carrying time-of-day and price. Ticket sales are routed to Ticketmaster (an external platform, linked per-detail-page) — the FACTS this source exposes (title/date/category/time/price) are this venue's own first-party markup across its two own pages, not scraped from Ticketmaster.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-a-laffiche-listing", "ev-spectacle-detail-cheb-mami"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.ledomedeparis.com/fr/spectacles/a-laffiche",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-a-laffiche-listing"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.ledomedeparis.com/fr/spectacle/337/cheb-mami",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-spectacle-detail-cheb-mami"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "CHEB MAMI",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each listing card's own `<h4>` link text, stated directly.",
+      "evidence_refs": ["ev-a-laffiche-listing"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-12",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Single-day cards state the full date directly in one field (e.g. 'CHEB MAMI': '05 septembre 2026' — DIRECT_SOURCE, no derivation needed). Multi-day cards (e.g. 'LE ROI SOLEIL': 'Du 12 septembre au 18 octobre 2026') state the row's own year exactly once, trailing the second date, which governs the leading (start) date's own omitted month/year within the SAME retained row — verified mechanically reproducible across every one of the 26 real retained cards, including day-only leading fragments (e.g. 'Du 06 au 07 novembre 2026') (tests/dome-de-paris.test.mjs). This DETERMINISTIC_CONTEXT case is used as this field's representative value since it is the stricter policy-relevant case; the simpler DIRECT_SOURCE single-day case is also fully proven in the same test file.",
+      "evidence_refs": ["ev-a-laffiche-listing", "dome-de-paris-paris-01-offline-proof"],
+      "derivation": {
+        "rule": "within one 'Du D1 [Month1] au D2 Month2 YYYY' listing-card row, the single trailing 'Month2 YYYY' fragment governs any month/year the leading D1 fragment itself omits (day-only, or day+month with no year stated) — applied only to this exact 'Du ... au ...' row shape, never across different rows.",
+        "inputs": [
+          "leading date fragment (this row's own start): '12 septembre' — day+month, no year stated",
+          "trailing date fragment (this row's own end): '18 octobre 2026' — day+month+year, supplying the governing year"
+        ]
+      }
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00 (Europe/Paris, floating local — no explicit UTC offset anywhere in this field)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Not present on the listing page at all — stated directly on the event's own detail page instead, in a 'Horaires et dates des représentations' block ('Samedi 5 septembre 2026 - 20:00'). A doors-opening time ('Ouverture des portes à 19:00') is also directly present and distinct from the performance start time. This is a genuinely two-page source: a collector needs the per-event detail page for time (and price, below), not just the listing page.",
+      "evidence_refs": ["ev-spectacle-detail-cheb-mami"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "For a multi-day run, the listing card's own trailing date fragment directly states a distinct end date (e.g. 'LE ROI SOLEIL' -> end 2026-10-18, DIRECT_SOURCE, no derivation needed for the end value itself — only the START's missing month/year required the DETERMINISTIC_CONTEXT combination described above). The majority of cards (single-day shows) state no distinct end date/time at all. Because presence is genuinely conditional on the card's own shape, this is honestly recorded PARTIAL rather than claiming one universal value.",
+      "evidence_refs": ["ev-a-laffiche-listing"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-card/per-detail-page as a discrete field beyond generic site branding. This source represents exactly one physical venue (Le Dôme de Paris, 34 Boulevard Victor) — consistent with the badehaus-berlin-01/zenner-berlin-01 precedent, venue identity is intended to resolve via source_id at activation time.",
+      "evidence_refs": ["ev-a-laffiche-listing", "ev-spectacle-detail-cheb-mami"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "337",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source's own permalink scheme, `/fr/spectacle/{numeric_id}/{slug}`, is this venue's own canonical, self-consistent path for every listed show — the same documented judgement already established for badehaus-berlin-01/le-grand-rex-paris-01 (a source's own permalink identity is a proven stable identifier).",
+      "evidence_refs": ["ev-a-laffiche-listing"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.ledomedeparis.com/fr/spectacle/337/cheb-mami",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own permalink href, stated directly — this venue's own first-party show page (ticket purchase itself then routes onward to Ticketmaster from that page, but the event_url recorded here is this source's own page).",
+      "evidence_refs": ["ev-a-laffiche-listing"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Prestige : 95€; Carré Or : 79€; Catégorie 1 : 69€; Catégorie 2 : 59€; Catégorie 3 : 49€; PMR : gratuit",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Not present on the listing page — stated directly on the event's own detail page instead, in a 'Prix des places' block. Same two-page caveat as `time` above.",
+      "evidence_refs": ["ev-spectacle-detail-cheb-mami"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-a-laffiche-listing", "ev-spectacle-detail-cheb-mami", "dome-de-paris-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, and a real rendered Google Maps embed directly naming this exact venue at its known location).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained for both the listing page (26 real, current cards) and one representative detail page.",
+      "title PROVEN with basis DIRECT_SOURCE; start_date PROVEN with basis DETERMINISTIC_CONTEXT for the stricter multi-day case (a documented, reproducible, single mechanical combination rule, offline-proven across all 26 real retained cards) and DIRECT_SOURCE for the simpler single-day case.",
+      "source_record_id PROVEN via the site's own numeric permalink.",
+      "This venue's own card carries a real, self-stated 'Concert' category distinguishing it from its own 'Comédie musicale'/'One man show'/'Spectacle' categories — isConcertCard() in ingestion/dome-de-paris/observation-adapter.mjs implements this as an explicit, never-silent filter using the source's own classification.",
+      "PARIS_BESPOKE: no existing collector family in this project matches this exact two-page (listing + per-event detail) static HTML shape; a new, small, bespoke module was written (ingestion/dome-de-paris/observation-adapter.mjs).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/dome-de-paris.test.mjs, 9 passing assertions re-parsing both retained fixtures deterministically, including every one of the 26 real listing dates and the detail-page time/price extraction).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-a-laffiche-listing", "ev-spectacle-detail-cheb-mami", "dome-de-paris-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-a-laffiche-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official 'À l'affiche' listing page, byte-retained in full (49,120 bytes): 26 real, current event cards, each with title/category/date-text/permalink, plus a real rendered Google Maps embed directly naming the venue.",
+      "acquired_from": "https://www.ledomedeparis.com/fr/spectacles/a-laffiche",
+      "acquired_at": "2026-08-26T20:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/dome-de-paris-paris-01/evidence/a-laffiche-listing.html"
+    },
+    {
+      "evidence_id": "ev-spectacle-detail-cheb-mami",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One individual show's own detail page ('CHEB MAMI'), byte-retained in full (20,221 bytes), confirming the detail page (not the listing page) is where time-of-day and price are stated directly.",
+      "acquired_from": "https://www.ledomedeparis.com/fr/spectacle/337/cheb-mami",
+      "acquired_at": "2026-08-26T20:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/dome-de-paris-paris-01/evidence/spectacle-detail-cheb-mami.html"
+    },
+    {
+      "evidence_id": "dome-de-paris-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/dome-de-paris.test.mjs, 9 passing tests) re-parsing this investigation's own retained fixtures (fixtures/dome-de-paris-paris/, byte-identical to the evidence above) via ingestion/dome-de-paris/observation-adapter.mjs and reproducing the exact claimed field values deterministically — including a dedicated test asserting every one of the 26 real retained listing dates (single-day and multi-day alike) parses to a non-null start date under the one documented combination rule.",
+      "acquired_from": "tests/dome-de-paris.test.mjs",
+      "acquired_at": "2026-08-26T21:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/dome-de-paris-paris-01/evidence/a-laffiche-listing.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,215 @@
+{
+  "investigation_id": "le-hasard-ludique-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T14:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own homepage, /infos-pratiques, and /programmation pages. /programmation's own static markup exposed a `data-api=\"/api/events\"` attribute on its listing container; Level 2 STRUCTURAL then followed that publicly-referenced endpoint directly, which returned all 54 currently-listed events (title/date/sub-room/href) in one JSON response. One event detail page was additionally sampled (bounded, single sample) to check whether time-of-day/price are available beyond the list."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "curl GET of the homepage (https://www.lehasardludique.paris/) and /infos-pratiques exposed only a small (6-item) teaser carousel with title+date text and no structured data (no JSON-LD, no ICS, no wp-json); /infos-pratiques carries the venue's own address/opening-hours text but no event listing at all. Neither page is sufficient to characterise the full event-data model or acquire the complete listing.",
+      "evidence_refs": ["ev-homepage", "ev-infos-pratiques"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A further plain GET of /programmation (still an unauthenticated static-page fetch) revealed a fuller (12-card) listing AND a `data-api=\"/api/events\"` attribute on its own `#is_container` element, referencing a publicly-exposed internal JSON endpoint. Following that referenced endpoint (https://www.lehasardludique.paris/api/events?limit=54) returned a JSON payload (`meta.count/offset/limit/next` plus an `items` array) containing all 54 currently-listed events in one request — sufficient to fully characterise and acquire this source's event listing without further escalation.",
+      "evidence_refs": ["ev-programmation", "ev-api-events"]
+    }
+  ],
+  "source_candidate_id": "le-hasard-ludique-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Hasard Ludique (bar/concert/culture venue on the former Petite Ceinture rail site, 128 avenue de Saint-Ouen, 75018 Paris)",
+  "official_url": "https://www.lehasardludique.paris/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-infos-pratiques"],
+    "notes": "The retained homepage's own <title> reads 'Le Hasard Ludique' at the venue's own domain lehasardludique.paris, and its own footer states '128 av. de St Ouen, Paris 18e / Metro 13 / Porte de St Ouen'. The retained /infos-pratiques page additionally states the venue's own full address directly ('LE HASARD LUDIQUE, 128 Avenue de Saint Ouen, 75018 Paris') plus its own contact email/phone — a self-consistent, first-party match to this investigation's assigned venue address."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Custom Ruby on Rails application (csrf-token meta tags and Turbolinks progress-bar markup are Rails-framework signatures; no WordPress/Drupal/Kirby fingerprint found). Exposes its own internal `/api/events` JSON endpoint — the same one its own client-side pagination/filter UI consumes — whose `items` array entries are pre-rendered HTML card fragments (title/date/sub-room/link), not a structured field-per-event JSON schema.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-api-events"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.lehasardludique.paris/programmation",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-programmation"]
+    },
+    {
+      "kind": "JSON_EVENT_LIST_API",
+      "url": "https://www.lehasardludique.paris/api/events?limit=54",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-events"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.lehasardludique.paris/concert/2026-07-09/yama",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-event-detail-yama"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Yama",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each /api/events item's embedded HTML fragment carries its own <h3> title text directly, e.g. '<h3>Yama </h3>'.",
+      "evidence_refs": ["ev-api-events"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-04",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each item's own <strong>DD.MM.YYYY</strong> text states a full calendar date directly, e.g. '04.09.2026' for Yama. One sampled item ('Vente de vinyles Dizonord') instead states an inclusive two-day range in the same slot ('12-13.09.2026') — a genuinely different, ambiguous text shape a collector must honestly treat as TEXT_ONLY/AMBIGUOUS rather than silently guessing a single day; this does not weaken the PROVEN state of the ordinary single-date majority case.",
+      "evidence_refs": ["ev-api-events"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No time-of-day appears anywhere in the /api/events list payload or the /programmation cards. A single, bounded sample of one event's own detail page (/concert/2026-07-09/yama) found a separate 'DATE' block stating 'vendredi 4 septembre / 20h' — confirming a per-event detail-page time field exists — but only one detail page was sampled; the pattern's consistency across all 54 events was not verified within this investigation's bounded scope, and the recommended list-level collector (see collector_assessment) does not fetch detail pages, so time stays PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-event-detail-yama"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time was found in the list API, the list page, or the one sampled detail page.",
+      "evidence_refs": ["ev-api-events", "ev-event-detail-yama"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Le Hasard Ludique, 128 Avenue de Saint Ouen, 75018 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source: every event belongs to this one venue (its own <h1>/title and /infos-pratiques address, cited under identity above). Each list item additionally states a named sub-room directly ('<span class=\"place\">La Salle</span>', also 'La Gare'/'Le Quai' observed) — a sub-location within the one venue, not a separate venue, following the same pattern already documented for Zenner Berlin's 'place' field.",
+      "evidence_refs": ["ev-homepage", "ev-infos-pratiques", "ev-api-events"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "/concert/2026-07-09/yama",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each item's own <a href> is this source's own permanent per-event permalink path (category/date/slug), used by the site itself as the canonical navigational link to that event's own detail page — the same documented judgement already established for tempodrom-berlin-01 and badehaus-berlin-01 (a source's own URL/permalink used as its own canonical path). Note the permalink's embedded date segment does NOT always match the event's own real display date (e.g. Yama's href states '2026-07-09' while its own card date is '04.09.2026') — the href is treated as an opaque stable identifier here, never as a second date fact.",
+      "evidence_refs": ["ev-api-events"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.lehasardludique.paris/concert/2026-07-09/yama",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Absolute URL built from the item's own href, resolved against the site's own origin.",
+      "evidence_refs": ["ev-api-events"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Not present on the /api/events list payload. The one sampled detail page's own 'TARIFS' block stated 'prévente : 12€ / sur place : 14€' directly — confirming price is exposed per-event, but only via a detail-page fetch this investigation did not perform at scale (bounded, single sample only), so this stays PARTIAL rather than PROVEN or NOT_PRESENT.",
+      "evidence_refs": ["ev-event-detail-yama"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-api-events", "le-hasard-ludique-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (homepage title, /infos-pratiques' own stated address matching the assigned venue address).",
+      "acquisition_class PUBLIC_JSON_API, a resolved supported class, reached via a genuine Level 1 (INSUFFICIENT) -> Level 2 (SUFFICIENT) escalation.",
+      "A CONFIRMED public data path retained: /api/events?limit=54 returns all 54 currently-listed events in one request.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, each read directly from the /api/events item's own embedded HTML fragment.",
+      "source_record_id PROVEN via the site's own permalink path, following the documented tempodrom-berlin-01/badehaus-berlin-01 precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary (the same per-card regex-extraction pattern already used for Badehaus Berlin, applied here to card fragments delivered inside a JSON wrapper rather than a raw HTML page).",
+      "time and price are honestly recorded PARTIAL (confirmed present on a per-event detail page via one bounded sample, not exercised at scale) rather than fabricated or silently promoted — neither field is required for READY_FOR_ACTIVATION.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/le-hasard-ludique.test.mjs), reproducing this investigation's own retained /api/events fixture deterministically and offline — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-api-events", "le-hasard-ludique-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, full raw response, byte-identical.",
+      "acquired_from": "https://www.lehasardludique.paris/",
+      "acquired_at": "2026-08-26T13:30:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-hasard-ludique-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-infos-pratiques",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official /infos-pratiques page (address, opening hours, contact), full raw response, byte-identical.",
+      "acquired_from": "https://www.lehasardludique.paris/infos-pratiques",
+      "acquired_at": "2026-08-26T13:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-hasard-ludique-paris-01/evidence/infos-pratiques-raw.html"
+    },
+    {
+      "evidence_id": "ev-programmation",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official /programmation listing page (12 event cards, plus the data-api attribute that led to Level 2 escalation), full raw response, byte-identical.",
+      "acquired_from": "https://www.lehasardludique.paris/programmation",
+      "acquired_at": "2026-08-26T13:32:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-hasard-ludique-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "ev-api-events",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own internal /api/events JSON endpoint, discovered via /programmation's data-api attribute (Level 2 STRUCTURAL probe). Full raw JSON response, byte-identical: meta.count=54, items[] each an HTML card fragment (title/date/sub-room/href).",
+      "acquired_from": "https://www.lehasardludique.paris/api/events?limit=54",
+      "acquired_at": "2026-08-26T13:35:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-hasard-ludique-paris-01/evidence/api-events-raw.json"
+    },
+    {
+      "evidence_id": "ev-event-detail-yama",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One bounded sample of a single event's own detail page, retained to check whether time-of-day/price are exposed beyond the list — full raw response, byte-identical.",
+      "acquired_from": "https://www.lehasardludique.paris/concert/2026-07-09/yama",
+      "acquired_at": "2026-08-26T13:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-hasard-ludique-paris-01/evidence/event-detail-yama-raw.html"
+    },
+    {
+      "evidence_id": "le-hasard-ludique-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test (tests/le-hasard-ludique.test.mjs) re-parsing this investigation's own retained /api/events fixture and reproducing the exact claimed field values (title/start_date/source_record_id/event_url/venue sub-room) deterministically.",
+      "acquired_from": "tests/le-hasard-ludique.test.mjs",
+      "acquired_at": "2026-08-26T15:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/le-hasard-ludique-paris-01/evidence/api-events-raw.json"
+    }
+  ],
+  "supersedes": null
+}

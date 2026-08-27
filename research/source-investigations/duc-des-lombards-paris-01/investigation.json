@@ -1,0 +1,181 @@
+{
+  "investigation_id": "duc-des-lombards-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official 'L'Agenda' page (following one 301 redirect the site itself issues) and one individual event detail page."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official 'L'Agenda' page (https://ducdeslombards.com/fr/l-agenda) is genuine server-rendered Drupal HTML: 39 real <article class=\"... mosaique-evt-item-container ...\"> event cards, each stating its own title, day-name + day-number + month-abbreviation (e.g. '01 sept.'), one or more showtimes (each with its own Drupal node id via data-nid and its own time text, e.g. '19H30'), and a permalink. The page's own month/year separator headings (<div id=\"YYYY-MM\" ... aria-label=\"<month> <year>\">, e.g. id=\"2026-09\" aria-label=\"septembre 2026\") directly state, via a machine-readable id attribute, which year+month every card between one separator and the next belongs to — this fully answers the investigation question at Level 1 (a mechanical DETERMINISTIC_CONTEXT combination of two retained page elements, not an escalation) with no further probing needed. A separate 'sonic-tickets-app' checkout widget is present for the booking/payment flow only, not this source's own event-discovery path. The only <script type=\"application/ld+json\"> block on the page is a generic Article/Organization schema (no Event data).",
+      "evidence_refs": ["ev-agenda-excerpt", "ev-event-anthony-strong"]
+    }
+  ],
+  "source_candidate_id": "duc-des-lombards-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Duc des Lombards (jazz club, rue des Lombards, Paris 1er / Les Halles)",
+  "official_url": "https://ducdeslombards.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-excerpt"],
+    "notes": "The retained page's own <title> reads 'L'Agenda | Le Duc des Lombards' at the venue's own domain ducdeslombards.com, with og:site_name/twitter:site both 'Le Duc des Lombards'. The page's own footer directly states the address '42, rue des lombards / 75001 PARIS' (a Google Maps link), matching this investigation's assigned address exactly. The theme path /sites/all/themes/t_ducdeslombards/ is self-consistent with the venue's own name."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Drupal (theme path /sites/all/themes/t_ducdeslombards/) server-rendering its own event-card listing directly in HTML on the 'L'Agenda' page; a separate 'sonic-tickets-app' custom-element widget (storeUrl=https://billetterie.ducdeslombards.com) handles checkout/booking only, not event discovery.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-excerpt"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://ducdeslombards.com/fr/l-agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-excerpt"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://ducdeslombards.com/fr/l-agenda/anthony-strong-2",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-anthony-strong"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Tierney Sutton meets Charlier/Sourisse",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <h3 class=\"mosaique-evt-titre mb-xxs\"> text, stated directly.",
+      "evidence_refs": ["ev-agenda-excerpt", "duc-des-lombards-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-26",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Each event card's own date header states only a day name + day number + month abbreviation (e.g. '26 août') — never a year. The page's own month/year separator heading immediately preceding a card in document order (a real DOM anchor, <div id=\"YYYY-MM\" ... aria-label=\"<month> <year>\">, e.g. id=\"2026-08\" aria-label=\"août 2026\") governs every card between it and the next separator. Combining the separator's own machine-readable id (\"2026-08\") with the card's own day number (\"26\") mechanically and reproducibly yields '2026-08-26', and only that value — this project's own confirmed reading of the page's real document structure (4 separators found: 2026-08, 2026-09, 2026-10, 2026-11, each strictly preceding the cards it governs), not an assumption from today's date or typical venue habit.",
+      "evidence_refs": ["ev-agenda-excerpt", "duc-des-lombards-offline-proof"],
+      "derivation": {
+        "rule": "the nearest preceding month/year separator (a DOM element with id=\"YYYY-MM\") governs every event card between it and the next separator in document order; concatenate the separator's own year (first 4 characters of its id) and month (next 2 characters) with the card's own day number",
+        "inputs": ["2026-08", "26"]
+      }
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30 (Europe/Paris, floating local — no explicit UTC offset anywhere on this source)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each showtime's own <div class=\"evt-date-heure\">19H30</div> text, stated directly per (day, nid) pair.",
+      "evidence_refs": ["ev-agenda-excerpt"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is stated anywhere on the listing page or the sampled detail page.",
+      "evidence_refs": ["ev-agenda-excerpt", "ev-event-anthony-strong"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Le Duc des Lombards, 42 rue des Lombards, 75001 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source — every card on this page is one of Le Duc des Lombards' own shows; the address is additionally directly stated, verbatim ('42, rue des lombards / 75001 PARIS'), in the page's own footer.",
+      "evidence_refs": ["ev-agenda-excerpt"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "14019",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each showtime's own Drupal node id, stated directly via data-nid=\"(NNNNN)\" — Drupal node ids are a platform-native, permanent content identifier, never reassigned to a different node once created, distinct per showtime even within one multi-night run (a run of consecutive nights, e.g. 'Du mar. 1 au jeu. 3 sept.', carries one distinct node id per night per showtime).",
+      "evidence_refs": ["ev-agenda-excerpt"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://ducdeslombards.com/fr/l-agenda/tierney-sutton-meets-charliersourisse-feat-serge-merlaud-talking-sun",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own permalink href (/fr/l-agenda/{slug}), stated directly.",
+      "evidence_refs": ["ev-agenda-excerpt"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price/tarif text appears on the listing page's own cards. The sampled detail page's own <body> class list includes the literal class 'no-tarifs' — this Drupal template's own conditional class taxonomy directly confirming this specific record carries no price data (other events on this site may honestly carry 'has-tarifs' instead — presence genuinely varies per event within this bounded sample).",
+      "evidence_refs": ["ev-event-anthony-strong"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-excerpt", "duc-des-lombards-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title/domain/theme path, and the assigned address stated directly in the page's own footer).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "CONFIRMED public data paths retained: the 'L'Agenda' listing page, and one sampled event detail page.",
+      "title PROVEN with basis DIRECT_SOURCE; start_date PROVEN with basis DETERMINISTIC_CONTEXT (a genuine two-input mechanical combination — the page's own machine-readable month/year separator id + the card's own day number — matching docs/SOURCE_INVESTIGATION_POLICY.md's own worked example almost exactly), with a cited DETERMINISTIC_DERIVATION offline-proof reproducing the combination for all 4 real separators on the page.",
+      "source_record_id PROVEN via this platform's own permanent Drupal node id.",
+      "recommended_family STATIC_EVENT_LIST — a genuinely bespoke card parser (ingestion/duc-des-lombards/) for this exact Drupal markup, not shared with any other source yet investigated.",
+      "No unresolved CRITICAL blocker.",
+      "price honestly NOT_PRESENT for the sampled record (the source's own body-class taxonomy directly confirms 'no-tarifs'), never fabricated — price is an optional field and does not block activation."
+    ],
+    "evidence_refs": ["ev-agenda-excerpt", "ev-event-anthony-strong", "duc-des-lombards-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official 'L'Agenda' page — the full raw response was originally 563,647 bytes; this file retains a bounded, disclosed excerpt: <title>, the sonic-tickets-app widget tag, all 4 real month/year separator headings found on the page (id=\"2026-08\"/\"2026-09\"/\"2026-10\"/\"2026-11\"), the first 3 full event-card <article> elements verbatim (unedited — 'Tierney Sutton meets Charlier/Sourisse', 'April Varner Quintet', 'JAM DU DUC', together spanning 9 real showtimes), and the footer address block. Non-byte-faithful overall (most of the original page, including 36 other cards, was dropped), but the retained markup itself is copied byte-for-byte.",
+      "acquired_from": "https://ducdeslombards.com/fr/l-agenda",
+      "acquired_at": "2026-08-26T22:39:50Z",
+      "method": "curl -L --compressed (plain HTTP GET, descriptive User-Agent, no authentication, no browser; response then bounded to a disclosed excerpt)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/duc-des-lombards-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-anthony-strong",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page ('Anthony Strong') — the full raw response was originally ~190KB decompressed; this file retains a bounded, disclosed excerpt: <title>, and the <body> tag's own class-list taxonomy (confirming 'no-tarifs' among other conditionally-emitted Drupal classes for this specific record). Non-byte-faithful overall, but the retained substrings themselves are copied byte-for-byte.",
+      "acquired_from": "https://ducdeslombards.com/fr/l-agenda/anthony-strong-2",
+      "acquired_at": "2026-08-26T22:51:00Z",
+      "method": "curl --compressed (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then bounded to a disclosed excerpt",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/duc-des-lombards-paris-01/evidence/event-anthony-strong-raw.html"
+    },
+    {
+      "evidence_id": "ev-nominatim-geocode",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Two rate-limited, live Nominatim queries via ingestion/geocoding/nominatim.mjs's existing searchNominatimLive() export, both retained: a NAME_PLUS_ADDRESS_QUERY ('Le Duc des Lombards, 42 rue des Lombards, 75001 Paris') returned zero candidates (OSM's own node for this location carries no matching name tag); a fallback address-only query ('42 rue des Lombards, 75001 Paris') returned a single candidate with exact house_number/road/postcode match, used as this venue's coordinate.",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=42+rue+des+Lombards%2C+75001+Paris&format=jsonv2&addressdetails=1&limit=5&countrycodes=fr",
+      "acquired_at": "2026-08-26T23:04:40Z",
+      "method": "ingestion/geocoding/nominatim.mjs's searchNominatimLive() (two one-off node -e invocations, no permanent script)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/duc-des-lombards-paris-01/evidence/nominatim-geocode.json"
+    },
+    {
+      "evidence_id": "duc-des-lombards-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/duc-des-lombards.test.mjs) re-parsing this investigation's own retained fixture (fixtures/duc-des-lombards-paris/agenda-excerpt.html, copied verbatim from ev-agenda-excerpt) via ingestion/duc-des-lombards/{discovery,observation-adapter}.mjs, reproducing the exact claimed start_date DETERMINISTIC_CONTEXT combination for all 9 real showtimes across the 3 retained cards. Run via `node --test tests/duc-des-lombards.test.mjs`: 4/4 passing.",
+      "acquired_from": "tests/duc-des-lombards.test.mjs",
+      "acquired_at": "2026-08-27T09:30:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/duc-des-lombards-paris-01/evidence/agenda-raw.html"
+    }
+  ],
+  "supersedes": null
+}

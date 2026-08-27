@@ -1,0 +1,221 @@
+{
+  "investigation_id": "ground-control-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T00:35:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl of the task-given official /programmation/ page (WordPress, confirmed via wp-json Link headers). Level 2 STRUCTURAL: the WordPress REST API (/wp-json/wp/v2/project + project_category taxonomy + ACF meta fields), used specifically to test the task's own explicit concern — whether 'Charolais Club' concerts are genuinely regular, not just occasional — against real, dated, categorised evidence rather than the rendered listing page alone."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of the official /programmation/ page confirmed WordPress (response Link headers reference /wp-json/ and /wp-json/wp/v2/pages/48184) and returned 16 real, current 'gc-agenda-card' items (title/summary/date-text/link), but NONE of the sampled upcoming cards are titled or described as a traditional music concert, and the string 'Charolais Club' (the task-named music sub-space) appears nowhere on this page or the site's homepage. The rendered listing page alone could not confirm or deny whether concerts are genuinely, regularly programmed here — exactly the ambiguity the task brief asked to be checked rather than assumed either way.",
+      "evidence_refs": ["ev-programmation-page", "ev-programmation-headers"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Queried the site's own public WordPress REST API directly: /wp-json/wp/v2/project_category confirmed real, actively-used 'concert' (45 total posts), 'dj-set' (64), and 'musique' (43) taxonomy terms exist — so concerts ARE a genuine, recognised category on this site, not merely assumed from the task brief. Fetching individual posts in these categories (via _fields=acf) revealed structured ACF custom fields including event_date_start/event_date_end (YYYY-MM-DD), event_typologie (e.g. 'concert'), and espace_lieu — and one real post ('Maïm release party') directly confirms espace_lieu: ['Charolais Club'], proving the task-named sub-space genuinely exists as a first-party field value, even though it appears nowhere in the site's own rendered navigation/taxonomy names. However, filtering ALL 45 'concert'-category posts and ALL 64 'dj-set'-category posts by event_date_start >= today (2026-08-26) found only TWO posts with a genuinely future, structured date ('Blu·e Velvet Show', 18 Sept 2026, dj-set, espace_lieu Charolais Club; 'Tap Water Jam', 31 Oct 2026, dj-set) across a roughly 2-3 month forward window — a thin, occasional volume, not evidence of REGULAR concert programming. This fully answered the investigation question; no further escalation was needed.",
+      "evidence_refs": ["ev-wp-project-categories", "ev-wp-post-maim-release-party", "ev-wp-concert-category-all", "ev-wp-djset-category-all"]
+    }
+  ],
+  "source_candidate_id": "ground-control-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Ground Control (multipurpose cultural/social venue, 81 rue du Charolais, 75012 Paris) — including its 'Charolais Club' music sub-space",
+  "official_url": "https://www.groundcontrolparis.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-headers"],
+    "notes": "Response headers on the official /programmation/ page reference the venue's own WordPress site (wp-json Link headers pointing at groundcontrolparis.com's own REST API and page ID 48184); page branding/domain match the task-given identity ('Ground Control', 81 rue du Charolais). No third-party domain is involved."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress, with a custom 'project' post type (used for every listed activity/event, not only concerts) and a 'project_category' taxonomy. Structured per-event scheduling data (event_date_start/event_date_end, event_typologie, espace_lieu, event_ticket_url) is exposed via ACF fields on the standard /wp-json/wp/v2/project REST endpoint — but this scheduling data is NOT consistently populated across every 'concert'/'musique'/'dj-set'-tagged post (many historical posts have event_date_start: null), and the site's own rendered /programmation/ listing and category-name taxonomy never itself surfaces 'Charolais Club' as a named section.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-wp-post-maim-release-party", "ev-wp-concert-category-all"]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_CUSTOM_POST_TYPE",
+      "url": "https://www.groundcontrolparis.com/wp-json/wp/v2/project?project_category=566&per_page=100&_fields=id,slug,title,acf",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wp-concert-category-all"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_TAXONOMY_LOOKUP",
+      "url": "https://www.groundcontrolparis.com/wp-json/wp/v2/project_category?per_page=100",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wp-project-categories"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.groundcontrolparis.com/programmation/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-programmation-page"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Maïm release party",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each 'project' post's own 'title.rendered' field, stated directly, on posts where structured event data is populated.",
+      "evidence_refs": ["ev-wp-post-maim-release-party"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Where populated, 'acf.event_date_start' is a clean 'YYYYMMDD' string (e.g. '20260605') stated directly — but this field is genuinely null/absent on a substantial share of this source's own 'concert'/'musique'/'dj-set'-tagged posts (confirmed by direct sampling: several historical concert-category posts return event_date_start: null). Recorded PARTIAL rather than PROVEN because the field's presence is inconsistent across the source's own records, not because its format is ambiguous when present.",
+      "evidence_refs": ["ev-wp-post-maim-release-party", "ev-wp-concert-category-all"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Where populated, 'acf.event_horaires' is a free-text local time range (e.g. '20h-22h') — no explicit timezone, and (like start_date) not consistently present across the source's own records.",
+      "evidence_refs": ["ev-wp-post-maim-release-party"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Where populated, 'acf.event_date_end' mirrors event_date_start's own presence/format; same inconsistency across the source's own records.",
+      "evidence_refs": ["ev-wp-post-maim-release-party"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Where populated, 'acf.espace_lieu' names a specific sub-space within the venue (e.g. ['Charolais Club']) — directly confirming the task-named music sub-space genuinely exists as a first-party field value. However, this field is empty/absent on other sampled posts (e.g. 'Tap Water Jam' has espace_lieu: ''), so it cannot be honestly claimed PROVEN as a reliably-present field across the source.",
+      "evidence_refs": ["ev-wp-post-maim-release-party", "ev-wp-djset-category-all"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "49276",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each 'project' post's own numeric WordPress post ID (from the REST resource path /wp-json/wp/v2/project/{id}) — a standard, documented, stable WordPress identifier.",
+      "evidence_refs": ["ev-wp-post-maim-release-party"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.groundcontrolparis.com/project/maim-release-party/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each 'project' post's own 'link' field (standard WordPress permalink), stated directly.",
+      "evidence_refs": ["ev-wp-post-maim-release-party"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "'acf.event_ticket_url' exists as a field but was empty on every sampled record; no separate price/amount field was found in the retained ACF sample.",
+      "evidence_refs": ["ev-wp-post-maim-release-party"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-wp-concert-category-all", "ev-wp-djset-category-all"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "Structured per-event scheduling data (event_date_start/event_date_end/event_horaires/espace_lieu) exists via ACF fields on the WordPress REST API, but is inconsistently populated across this source's own 'concert'/'musique'/'dj-set'-tagged posts (many historical posts have event_date_start: null) — a genuine data-quality gap in the source itself, not an acquisition-method problem."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "Filtering all posts in the 'concert' (45 total) and 'dj-set' (64 total) categories to a genuinely future, structured event_date_start (>= 2026-08-26) yielded only TWO usable upcoming records across a roughly 2-3 month forward window. This does not evidence REGULAR concert/live-music programming at this venue — the task brief's own concern (verify regularity before treating this as a solid music venue, not just occasional festivals) is corroborated by this retained sample, not resolved in the venue's favour."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Identity is solidly PROVEN and a real, public, structured JSON data path (the WordPress REST API's project_category + ACF fields) does exist and was confirmed live.",
+      "The task's own named concern is directly addressed with retained evidence, not assumption: 'Charolais Club' IS confirmed to exist as a genuine first-party field value (espace_lieu) on at least one real post, so it is not a fabrication or hallucination from a prior pass — but the site's own current taxonomy/navigation never surfaces it as a named section, and only a small handful of upcoming posts populate it at all.",
+      "Across this source's own 'concert' and 'dj-set' categories combined (109 total historical posts), only 2 carry a genuinely future, structured start date at investigation time — this venue's core 'programmation' page is dominated by workshops, karaoke, drag shows, book/board-game festivals, and sports viewings, with music (concerts or DJ sets) appearing as an occasional category among many rather than a regularly scheduled offering.",
+      "This is honestly a content-density/programming-regularity concern, not a technical acquisition blocker — the data path itself works and is documented. DEFER (rather than READY_FOR_OFFLINE_PROOF or REJECT) is the honest outcome: acquisition is technically possible, but activating this source now would likely surface very few real, current music events relative to the effort, and the source's own event_date_start field is unreliable enough (frequently null) that a future collector would need additional fallback logic this investigation did not attempt to design.",
+      "No fabricated dates, IDs, or venue facts were used to reach this decision — every field_assessment state above reflects exactly what was found, including the two honestly PARTIAL date fields caused by inconsistent source data, not investigator uncertainty about parsing them.",
+      "A human reviewer may reasonably choose to re-investigate later (a new investigation_id, superseding this one) if Ground Control's own concert programming density increases, or to accept this source anyway at low expected event volume — that judgement call is deliberately left to a human, not decided here."
+    ],
+    "evidence_refs": ["ev-wp-post-maim-release-party", "ev-wp-concert-category-all", "ev-wp-djset-category-all"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programmation-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Full raw HTTP response headers for the official /programmation/ page, confirming WordPress via 'Link: <.../wp-json/>; rel=\"https://api.w.org/\"' and a page-specific JSON Link header.",
+      "acquired_from": "https://www.groundcontrolparis.com/programmation/",
+      "acquired_at": "2026-08-26T22:37:07Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ground-control-paris-01/evidence/programmation-headers.txt"
+    },
+    {
+      "evidence_id": "ev-programmation-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt (first 100,000 bytes of the original 221,754-byte response) of the official /programmation/ page, retained to show the real 'gc-agenda-card' listing markup (title/summary/date-text/link per card) and confirm no JSON-LD event data or 'Charolais Club' text is present on this rendered page.",
+      "acquired_from": "https://www.groundcontrolparis.com/programmation/",
+      "acquired_at": "2026-08-26T22:37:07Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response truncated to first 100,000 bytes, disclosed in this description",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ground-control-paris-01/evidence/programmation-raw-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-wp-project-categories",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full WordPress project_category taxonomy list (id/slug/name/count only, trimmed from the full REST response for boundedness), confirming real 'concert' (45), 'dj-set' (64), and 'musique' (43) categories exist, alongside dozens of unrelated categories (ateliers, karaoke, dragshow, football, science, tatouage/piercing, etc.) — direct evidence of this venue's genuinely broad, multi-purpose cultural programming.",
+      "acquired_from": "https://www.groundcontrolparis.com/wp-json/wp/v2/project_category?per_page=100",
+      "acquired_at": "2026-08-27T00:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication); response trimmed to id/slug/name/count fields only, disclosed in this description",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ground-control-paris-01/evidence/wp-project-categories.json"
+    },
+    {
+      "evidence_id": "ev-wp-post-maim-release-party",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, real WordPress REST API response for one 'concert'-category post ('Maïm release party', post ID 49276), retained in full — its own 'acf' object directly states event_date_start/event_date_end ('20260605'), event_horaires ('20h-22h'), espace_lieu (['Charolais Club']), and event_typologie (['concert']), proving these structured fields (and the 'Charolais Club' sub-space name specifically) are genuine, first-party data on this source, not assumed.",
+      "acquired_from": "https://www.groundcontrolparis.com/wp-json/wp/v2/project/49276",
+      "acquired_at": "2026-08-27T00:18:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ground-control-paris-01/evidence/wp-post-maim-release-party-full.json"
+    },
+    {
+      "evidence_id": "ev-wp-concert-category-all",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Every 'concert'-category (id 566) 'project' post (45 total, the category's full historical count, confirmed by the response length matching project_category's own reported 'count'), each with id/slug/title/acf fields only (bounded via the REST API's own _fields parameter) — used to confirm that filtering to event_date_start >= 2026-08-26 (today) yields ZERO posts with a genuinely future, structured date in this category.",
+      "acquired_from": "https://www.groundcontrolparis.com/wp-json/wp/v2/project?project_category=566&per_page=100&orderby=date&order=desc&_fields=id,slug,title,acf",
+      "acquired_at": "2026-08-27T00:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication); response then re-serialized with indentation for readability, disclosed in this description",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ground-control-paris-01/evidence/wp-project-category-concert-all.json"
+    },
+    {
+      "evidence_id": "ev-wp-djset-category-all",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Every 'dj-set'-category (id 443) 'project' post (64 total, the category's full historical count), each with id/slug/title/acf fields only — used to confirm exactly TWO posts ('Blu·e Velvet Show', 18 Sept 2026; 'Tap Water Jam', 31 Oct 2026) carry a genuinely future, structured event_date_start, one of which (Blu·e Velvet Show) directly confirms espace_lieu: ['Charolais Club'].",
+      "acquired_from": "https://www.groundcontrolparis.com/wp-json/wp/v2/project?project_category=443&per_page=100&orderby=date&order=desc&_fields=id,slug,title,acf",
+      "acquired_at": "2026-08-27T00:22:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication); response then re-serialized with indentation for readability, disclosed in this description",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ground-control-paris-01/evidence/wp-project-category-djset-all.json"
+    }
+  ],
+  "supersedes": null
+}

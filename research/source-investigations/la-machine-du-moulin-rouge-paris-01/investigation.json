@@ -1,0 +1,175 @@
+{
+  "investigation_id": "la-machine-du-moulin-rouge-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T14:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/agenda/' listing page and one linked event detail page. Both are plain server-rendered WordPress HTML; every event is a static <article class=\"evenement-item\"> card carrying a machine-readable <time datetime=...> attribute, a title, and a room name, with no schema.org Event JSON-LD anywhere (only generic Yoast SEO WebPage/Organization JSON-LD)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.lamachinedumoulinrouge.com/agenda/ immediately exposed 42 static event cards (<article class=\"evenement-item ...\">), each with a machine-readable <time datetime=\"2026-08-28T23:59:00+00:00\">, a title (h2.titevtagenda), a room name (div#lieuevtagenda), and its own canonical event URL — no escalation needed. A second plain GET of one linked detail page (chronologic-2) confirmed the same title/date/room directly and additionally exposed an explicit end time ('23H59 — 06H00').",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    }
+  ],
+  "source_candidate_id": "la-machine-du-moulin-rouge-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "La Machine du Moulin Rouge (club/concert venue, 90 Boulevard de Clichy, 75018 Paris — a distinct venue adjacent to, and NOT part of, the Moulin Rouge cabaret itself)",
+  "official_url": "https://www.lamachinedumoulinrouge.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page"],
+    "notes": "Retained page's own <title> reads 'Agenda | La Machine du Moulin Rouge | clubs ∙ concerts ∙ expos ...' at the venue's own domain lamachinedumoulinrouge.com (generator meta tag: WordPress 7.1). The sitewide footer states '90 bd de Clichy / 75018 Paris', matching the venue's known address, and every asset URL is self-hosted under wp-content/uploads/. This domain/branding is explicitly distinct from moulinrouge.fr (the cabaret) — confirmed by the retained page's own branding, address, and content (club/concert/exhibition programming, not a cabaret revue) never referencing the cabaret as the same entity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress 7.1 (generator meta tag present; a single generic Yoast-style WebPage/WebSite JSON-LD block is present but contains no schema.org Event data). Every event is rendered as a plain static HTML <article> card on one listing page, with a matching detail page per event.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.lamachinedumoulinrouge.com/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-page"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.lamachinedumoulinrouge.com/evenement/chronologic-2/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Chronologic",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The h2.titevtagenda text on the listing card, confirmed identical on the event's own detail page heading.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The card's own <time datetime=\"2026-08-28T23:59:00+00:00\"> date portion, confirmed by the same page's own human-readable badge ('Ven 28/08') and the detail page's own badge ('Ven 28/08').",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "23:59 (Europe/Paris floating local wall-clock)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "IMPORTANT HONESTY CAVEAT, found and retained during this investigation: the machine-readable <time datetime=...> attribute's trailing '+00:00' is NOT evidence of a genuine UTC instant. Every one of the 42 sampled cards' datetime attributes carries the identical '+00:00' suffix regardless of calendar date, spanning a real Europe/Paris DST transition (late October 2026) — a genuine UTC conversion would show a mix of +02:00 (CEST, before the transition) and +01:00 (CET, after it), not a constant +00:00 in every case. This proves '+00:00' is a fixed placeholder appended by the site's theme/plugin, not a real timezone conversion — the same category of 'looks stable but isn't' finding already logged for Hot Clube de Portugal's ICS UID. The wall-clock digits themselves (23:59) are directly stated and corroborated by the page's own human-readable text ('23H59'), so time is recorded PROVEN/DIRECT_SOURCE for the wall-clock value only, with certainty FLOATING_LOCAL — never upgraded to a UTC instant.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "06:00, following calendar day (Europe/Paris floating local wall-clock)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail page directly states the time range '23H59 — 06H00' in its hero info block. Same floating-local caveat as 'time' above applies — this is a directly-stated wall-clock value, not a confirmed UTC instant.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "La Machine du Moulin Rouge — Central, 90 Boulevard de Clichy, 75018 Paris",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Each event card and detail page directly states its own room name within the venue complex ('Central', 'Bar à Bulles', 'Chaufferie'), but the full venue name+street address is not repeated beside the event data itself. This is mechanically determinable: the site is a dedicated single-venue domain with no other venue ever named, and its sitewide footer states the full address identically on both sampled pages.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"],
+      "derivation": {
+        "rule": "every event card's own directly-stated room name identifies the specific space within this dedicated single-venue domain's own complex; concatenate that room name with the site's own sitewide footer address to get each event's full venue_location",
+        "inputs": [
+          "event card/detail page directly states its own room name (e.g. 'Central') via div#lieuevtagenda",
+          "sitewide footer states '90 bd de Clichy / 75018 Paris' identically on the listing and detail page"
+        ]
+      }
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "chronologic-2",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own WordPress permalink slug ('/evenement/chronologic-2/'), used as this source's own canonical path — the same documented judgement as tempodrom-berlin-01/le-trabendo-paris-01. Empirically strengthened here: two distinct sampled events share the same title ('Chronologic', on 2026-08-28 and again on 2026-09-04) but resolve to two genuinely distinct slugs ('chronologic-2' and 'chronologic'), confirming the slug — not the title — is this source's real per-record identity.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.lamachinedumoulinrouge.com/evenement/chronologic-2/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The card's own href, confirmed to resolve to the detail page sampled.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is stated on either sampled page. Ticketing is delegated entirely to a third-party platform (shotgun.live) via an outbound 'Billetterie' link, matching the same pattern already found and bounded-checked (HTTP 429, not retried) for le-trabendo-paris-01 on the same third-party domain — not repeated here to avoid redundant third-party probing.",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page", "ev-event-detail", "la-machine-du-moulin-rouge-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, sitewide footer address, self-hosted assets, generator meta tag), and explicitly distinguished from the Moulin Rouge cabaret itself.",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the listing page (42 real event cards) and one event's own detail page.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "time and end additionally PROVEN with basis DIRECT_SOURCE, with an explicit, evidenced honesty caveat that the machine-readable datetime's '+00:00' suffix is not a genuine UTC offset (verified by its invariance across a real DST transition) — recorded as FLOATING_LOCAL, never upgraded to a false UTC instant.",
+      "source_record_id PROVEN via the site's own permalink slug, empirically strengthened by two same-titled events resolving to two distinct slugs.",
+      "venue_location PROVEN with basis DETERMINISTIC_CONTEXT, citing a genuine derivation rule and two retained inputs (per-event room name + sitewide footer address).",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary; the actual field-extraction code is genuinely bespoke to this venue's own markup (see ingestion/la-machine-du-moulin-rouge/).",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/la-machine-du-moulin-rouge.test.mjs), reproducing this investigation's own retained fixture deterministically and offline — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-agenda-page", "ev-event-detail", "la-machine-du-moulin-rouge-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/agenda/' listing page, retained verbatim in full (145,041 bytes) — 42 real, current static event cards.",
+      "acquired_from": "https://www.lamachinedumoulinrouge.com/agenda/",
+      "acquired_at": "2026-08-26T13:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-machine-du-moulin-rouge-paris-01/evidence/agenda-page.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One linked event's own detail page (Chronologic, 2026-08-28), retained verbatim in full (102,913 bytes).",
+      "acquired_from": "https://www.lamachinedumoulinrouge.com/evenement/chronologic-2/",
+      "acquired_at": "2026-08-26T13:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-machine-du-moulin-rouge-paris-01/evidence/event-chronologic.html"
+    },
+    {
+      "evidence_id": "la-machine-du-moulin-rouge-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/la-machine-du-moulin-rouge.test.mjs) re-parsing this investigation's own retained fixture (fixtures/la-machine-du-moulin-rouge-paris/agenda-page.html) via ingestion/la-machine-du-moulin-rouge/discovery.mjs and observation-adapter.mjs, reproducing the exact claimed field values deterministically, including the FLOATING_LOCAL certainty on start/end.",
+      "acquired_from": "tests/la-machine-du-moulin-rouge.test.mjs",
+      "acquired_at": "2026-08-26T16:10:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/la-machine-du-moulin-rouge-paris-01/evidence/agenda-page.html"
+    }
+  ],
+  "supersedes": null
+}

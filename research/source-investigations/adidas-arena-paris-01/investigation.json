@@ -1,0 +1,157 @@
+{
+  "investigation_id": "adidas-arena-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T21:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official 'Programmation' page. This is a Nuxt (Vue) server-side-rendered application: every visible event card (a category tag, a French-language date+time string, a title, and an indicative 'from' price) is already fully rendered in the plain HTTP response, requiring no client-side JS execution to read."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.adidasarena.com/programmation immediately exposed dozens of fully-rendered `.app-programmation-card` event blocks, each with its own category, a French date+time string, a title, a price, and a detail-page link — everything this investigation's field_assessment needed. No escalation was required; Level 1 fully answered the investigation question.",
+      "evidence_refs": ["ev-cards"]
+    }
+  ],
+  "source_candidate_id": "adidas-arena-paris-candidate",
+  "source_id": null,
+  "venue_reference": "Adidas Arena — 56 Boulevard Ney, 75018 Paris (multi-purpose arena, Porte de la Chapelle, Paris 18e)",
+  "official_url": "https://www.adidasarena.com/programmation",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards"],
+    "notes": "The retained page's own <title> reads 'adidas arena — Programmation' at the venue's own domain adidasarena.com, matching the well-known Porte de la Chapelle arena (the former Paris Arena / Palais Omnisports renamed). Every card image asset URL is self-hosted under adidasarena.directus.app (the venue's own Directus-backed asset store)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Nuxt (Vue) server-side-rendered custom application, backed by a Directus content store. Every visible event card is fully rendered as static markup in the plain HTTP response; no `window.__NUXT__`/payload.json client-hydration data was needed or found.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.adidasarena.com/programmation",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cards"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Diljit Dosanjh - Aura World Tour",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <h2 class=\"H2 bold\"> text, stated directly.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <h3 class=\"P2 date medium\"> text (e.g. '28 AOÛT 2026 à 20h00'), a French day/full-month-name/year/time string, stated directly and unambiguously. One sampled card (M. Pokora) instead reads '2 & 3 OCTOBRE 2026' (a two-date run) — this project's own parser (ingestion/adidas-arena/observation-adapter.mjs) does NOT match this two-date shape against its single-date regex and honestly falls back to TEXT_ONLY certainty for that one record rather than guessing which date is meant; never fabricated.",
+      "evidence_refs": ["ev-cards", "adidas-arena-paris-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Embedded directly in the same date+time card text ('à 20h00'), stated directly. No timezone/offset is stated anywhere on the page, so this is recorded as a floating local time (Europe/Paris being the only plausible reading for a Paris venue's own listing), never upgraded to a confirmed UTC instant.",
+      "evidence_refs": ["ev-cards", "adidas-arena-paris-01-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is shown anywhere on this list-card view.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "adidas arena",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The retained page's own <title> directly states the venue name; this is a single-venue source (every card is this one venue), so every Observation is resolved to it by source_id, not per-record text.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "diljit-dosanjh-aura-world-tour--1471",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source exposes no separate numeric event id field on the card itself, but each card's own '/programmation/{slug}--{numeric-id}' href already embeds a numeric id as the trailing suffix of its own permanent permalink slug; the full slug (including that suffix) is used as source_record_id, following the same documented judgement already established for other sources in this project (a site's own URL-slug permalink as its stable identity).",
+      "evidence_refs": ["ev-cards"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.adidasarena.com/programmation/diljit-dosanjh-aura-world-tour--1471",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own href, stated directly, resolved against the venue's own domain.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "78.5€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own 'À partir de {X}€' text, stated directly. Present on every one of the 7 sampled cards, including both music and non-music categories.",
+      "evidence_refs": ["ev-cards", "adidas-arena-paris-01-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards", "adidas-arena-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This one plain fetch returned dozens of event cards across multiple categories (concert, sport, mma, and others); whether this represents the venue's complete near-term calendar or a bounded/paginated subset was not exhaustively confirmed within this bounded investigation."
+      },
+      {
+        "severity": "MINOR",
+        "description": "One sampled card's own date text spans two dates ('2 & 3 OCTOBRE 2026') rather than this source's usual single-date format; the parser correctly falls back to TEXT_ONLY rather than guessing, but a production collector may want dedicated handling for genuinely multi-date runs."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, self-hosted Directus asset domain).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: a single plain fetch exposing every currently-listed event card at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following documented precedent.",
+      "The card's own wrapper class directly states its category (e.g. 'concert'), giving this source a genuinely direct (not keyword-guessed) music-relevance filter — see ingestion/adidas-arena/discovery.mjs's filterMusicEventCards().",
+      "recommended_family STATIC_EVENT_LIST, requiring a small, genuinely bespoke card parser (no existing collector family in this repository already matches this exact markup) — see ingestion/adidas-arena/.",
+      "No unresolved CRITICAL blocker — both blockers are MINOR and documented.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/adidas-arena.test.mjs, 4/4 passing)."
+    ],
+    "evidence_refs": ["ev-cards", "adidas-arena-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-cards",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official programmation page — the full raw response was 171,382 bytes, dominated by navigation/CSS/Nuxt-runtime markup carrying no event data on its own. This file retains the page's own <title> plus a contiguous run of real `.app-programmation-card` blocks verbatim (byte-for-byte substring), covering both music (concert) and non-music (sport, mma) categories as genuinely encountered, undisguised.",
+      "acquired_from": "https://www.adidasarena.com/programmation",
+      "acquired_at": "2026-08-26T20:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title + a contiguous run of .app-programmation-card blocks, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/adidas-arena-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "adidas-arena-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/adidas-arena.test.mjs) re-parsing this investigation's own retained fixture (fixtures/adidas-arena-paris/programmation.html, a copy of ev-cards) via ingestion/adidas-arena/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically (4/4 tests passing).",
+      "acquired_from": "tests/adidas-arena.test.mjs",
+      "acquired_at": "2026-08-26T21:50:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/adidas-arena-paris-01/evidence/programmation-raw.html"
+    }
+  ],
+  "supersedes": null
+}

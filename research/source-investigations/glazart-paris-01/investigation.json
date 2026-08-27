@@ -1,0 +1,177 @@
+{
+  "investigation_id": "glazart-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/agenda-concerts/' page, plus two individual event detail pages fetched to check field consistency (time/price/address). The listing page's own JSON-LD is Organization/Breadcrumb metadata only (no Event/MusicEvent node) — the real event data lives in a static WordPress 'portfolio' custom-post-type grid, one card per event, each stating its own date as a 'DD.MM.YY <Title>' prefix in both its <h3> text and its own permalink slug."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official '/agenda-concerts/' page immediately exposed 21 real, static, dated event cards (WordPress 'portfolio' custom post type) — each with its own DD.MM.YY-prefixed title, permalink URL, and category (concert/after). No further escalation was needed; Level 1 fully answered the investigation question.",
+      "evidence_refs": ["ev-agenda"]
+    }
+  ],
+  "source_candidate_id": "glazart-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Glazart (live music venue and club), 7-15 Avenue de la Porte de la Villette, 75019 Paris",
+  "official_url": "https://www.glazart.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda", "ev-event-detail-funebrarum"],
+    "notes": "The retained agenda page's own og:title reads 'AGENDA → GLAZART Paris' at the venue's own self-hosted domain www.glazart.com. The retained event-detail page's own footer widget directly states the full postal address '7/15 Avenue de la Porte de la Villette, 75019 Paris', matching this task's assigned address exactly — a self-consistent, first-party retained artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress with a custom 'portfolio' post type (no calendar/events plugin, no JSON-LD Event node — the page's own JSON-LD is All-in-One-SEO's generic Organization/Breadcrumb/WebPage schema only). The agenda page's static HTML directly embeds every currently-listed event as one card each, no pagination observed within the 21 cards retained.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.glazart.com/agenda-concerts/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Concert : FUNEBRARUM",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <h3><a> text states its title directly, immediately following its own 'DD.MM.YY' date prefix (stripped by the collector, not part of the title itself).",
+      "evidence_refs": ["ev-agenda"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-15",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <h3><a> title text AND its own permalink URL both state the date as a leading 'DD.MM.YY' (e.g. '15-09-26' / '15.09.26'), a two-digit year. Expanding 'YY' to '20YY' is a direct, literal transcription of exactly what the source states — the same established convention already used in this project for ausland-berlin/admiralspalast-berlin/galeria-ze-dos-bois (see ingestion/admiralspalast/observation-adapter.mjs's own doc comment): this project's live listings only ever run in the 2020s, and the two digits are read exactly as printed, never guessed from today's date. Cross-checked across all 21 sampled cards (29.08.26, 30.08.26, 06.09.26, 15.09.26, 17.09.26, ... all self-consistent between title and permalink slug). One honest caveat: this one sampled event's own free-text BODY copy (a Facebook-style pasted blurb) separately states 'Mardi 17.09.26' near the top before also stating 'Mardi 15 Septembre 2026' further down — an internal inconsistency in the venue's own copy for this one record. The investigation treats the structured <h3>/permalink date (self-consistent, WordPress-generated, matching the site-wide pattern) as authoritative rather than the free-text body blurb, and flags this as a MINOR data-quality risk (see collector_assessment.blockers) rather than downgrading the whole field.",
+      "evidence_refs": ["ev-agenda", "ev-event-detail-funebrarum"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present on the list page itself. One sampled 'concert'-category detail page states an explicit doors time in free text ('🕒 Ouverture des portes: 19.00'); one sampled 'after'-category detail page states a differently-shaped operating-hours range ('Samedi 29.08.2026 > 06H – 16H') that also appears, unchanged, as this venue's site-wide boilerplate footer note ('After : 6h-16h / 6h-7h Happy Hour !') — i.e. likely generic recurring-series copy, not a per-event-specific time. Format is inconsistent between event types and only reachable per-event (not on the list page), so this bounded collector does not harvest it (matching the admiralspalast-berlin-01 precedent of not fetching every detail page to stay bounded).",
+      "evidence_refs": ["ev-event-detail-funebrarum", "ev-event-detail-afteroclock"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No reliable, per-event-specific end/close time concept was found. The one number that could be read as an 'end' (the after-party sample's '16H') is the same value as this venue's own site-wide boilerplate footer opening-hours note, not evidence of a genuine per-event value.",
+      "evidence_refs": ["ev-event-detail-afteroclock"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Glazart, 7/15 Avenue de la Porte de la Villette, 75019 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The retained event-detail page's own footer widget ('Infos pratiques') states the full address directly; single-venue source, resolved by source_id (venue_name is set to 'Glazart' as an override, matching the LAV/Tempodrom precedent for a single-venue source whose own per-record location field is absent).",
+      "evidence_refs": ["ev-event-detail-funebrarum"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "15-09-26-concert-funebrarum",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric ID is exposed; each event's own WordPress permalink slug (e.g. 'https://www.glazart.com/15-09-26-concert-funebrarum/') is used as source_record_id, the same documented judgement already established for badehaus-berlin/tempodrom-berlin (own URL-slug permalink).",
+      "evidence_refs": ["ev-agenda"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.glazart.com/15-09-26-concert-funebrarum/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <a href> is this source's own permanent per-event page URL, stated directly.",
+      "evidence_refs": ["ev-agenda"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Not present on the list page itself. Both sampled event-detail pages state a price in free text ('🎟️ Tickets: 15€ / 18€ sur place' and 'Sur place avant 12h : 9,50...') — genuinely present per-event, but only reachable by fetching each event's own detail page individually, which this bounded collector does not do (see 'time' above for the same bounding rationale).",
+      "evidence_refs": ["ev-event-detail-funebrarum", "ev-event-detail-afteroclock"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda", "glazart-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "One sampled event's own free-text body copy states a conflicting date ('Mardi 17.09.26') alongside its own correct structured date ('15.09.26', matching its own title and permalink slug) — an internal inconsistency in the venue's own page copy, not in this collector's parsing. Does not affect the structured <h3>/permalink date this collector actually relies on, but documents a real data-quality risk on this source."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page og:title, footer address matching the task's assigned address).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: 21 real, current event cards sampled from the live agenda page in one fetch.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — the venue's own WordPress-generated <h3>/permalink date prefix, cross-checked self-consistent across all 21 sampled cards.",
+      "source_record_id PROVEN via a documented URL-slug strategy, matching the badehaus-berlin/tempodrom-berlin precedent.",
+      "recommended_family STATIC_EVENT_LIST, an existing named family in this project's collector-family vocabulary.",
+      "No unresolved CRITICAL blocker — only one honestly-documented MINOR data-quality risk on a single sampled record's free-text body copy, which does not affect the structured fields this collector actually relies on.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/glazart.test.mjs, using the new ingestion/glazart/observation-adapter.mjs), reproducing this investigation's own retained fixture deterministically and offline — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-agenda", "glazart-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/agenda-concerts/' page, fetched byte-for-byte via curl. Contains 21 real, current event cards (WordPress 'portfolio' custom post type).",
+      "acquired_from": "https://www.glazart.com/agenda-concerts/",
+      "acquired_at": "2026-08-26T22:53:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/glazart-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-funebrarum",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled 'concert'-category event's own detail page, fetched byte-for-byte via curl. States the venue's own footer address, a doors time, and a ticket price in free text; also documents the one date inconsistency noted in field_assessment.start_date.",
+      "acquired_from": "https://www.glazart.com/15-09-26-concert-funebrarum/",
+      "acquired_at": "2026-08-26T22:54:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/glazart-paris-01/evidence/event-detail-funebrarum-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-afteroclock",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled 'after'-category event's own detail page, fetched byte-for-byte via curl. Cross-checks the DD.MM.YY-to-full-date convention (this card's own body text restates 'Samedi 29.08.2026', matching its title/slug's '29.08.26' with no inconsistency) and shows the venue's own boilerplate opening-hours note reused per-page.",
+      "acquired_from": "https://www.glazart.com/29-08-26-after-oclock-x-la-plage-open-air-roulita-arrabiata-mariad/",
+      "acquired_at": "2026-08-26T22:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/glazart-paris-01/evidence/event-detail-afteroclock-raw.html"
+    },
+    {
+      "evidence_id": "glazart-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/glazart.test.mjs) re-parsing this investigation's own retained fixture (fixtures/glazart-paris/agenda-page.html, a copy of ev-agenda) via the new ingestion/glazart/observation-adapter.mjs and reproducing the exact claimed field values deterministically, including the DD.MM.YY-to-20YY expansion.",
+      "acquired_from": "tests/glazart.test.mjs",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/glazart-paris-01/evidence/agenda-raw.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,205 @@
+{
+  "investigation_id": "olympia-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T19:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (curl, plain HTTP GET) against the venue's official 'Upcoming events' page found only an empty, JS-populated calendar shell. Level 2 STRUCTURAL escalation — fetching the page's own referenced JS bundle (a plain HTTP GET of a public .js file, no execution) and reading the plain REST endpoint URL strings it constructs — found a real, public, unauthenticated WordPress REST route this theme itself exposes, then confirmed it directly with a second plain HTTP GET."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://www.olympiahall.com/en/upcoming-events/ returns real static HTML for the page shell (header/footer/filters), but the actual listing container is genuinely empty in the response: `<div class=\"t-programmation loading--\">...<div class=\"c-calendar__days\"></div>` with zero event cards anywhere in the retained bytes. No JSON-LD, NUXT/NEXT data blob, or repeated static event card markup is present either.",
+      "evidence_refs": ["ev-upcoming-events-page"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Fetched the page's own referenced compiled JS bundle (https://www.olympiahall.com/wp-content/themes/olympia/dist/app.js, a plain HTTP GET of a public static file, no execution) and found it literally constructs `window.location.origin + \"/wp-json/olympia/v1/events-calendar/?lang=\" + e` and `.../wp-json/df-elastic-search/v1/search-evenements/?lang=\" + e`, plus a `formatPeriods()` function building a `filter_periods[0][begin_date]=YYYY-MM-DD` query parameter — all read directly as literal strings in the bundle, never guessed. Calling the second endpoint directly with that exact parameter shape returned 124 real, current, full event records (title/permalink/genre/begin_date/end_date/price). Level 2 fully answered the investigation question; no browser/headless step was needed.",
+      "evidence_refs": ["ev-app-js-endpoint-excerpt", "ev-search-evenements-response"]
+    }
+  ],
+  "source_candidate_id": "olympia-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "L'Olympia, 28 Boulevard des Capucines, 75009 Paris",
+  "official_url": "https://www.olympiahall.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-upcoming-events-page"],
+    "notes": "The retained page's own <title> reads 'Concerts & shows in Paris | L'Olympia' at the venue's own domain olympiahall.com. The page's own footer directly self-identifies: 'L'Olympia / 28 boulevard des Capucines / 75009 Paris' — matching the assigned venue reference exactly, a self-consistent first-party artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress with a bespoke theme (olympia) and two custom REST namespaces (`olympia/v1`, `df-elastic-search/v1`) — the client-rendered programmation page calls its own theme's public REST route to populate the listing. Never HEADLESS_REQUIRED: the endpoint is reachable and fully data-complete via a plain HTTP GET with no browser/JS execution, discovered only by reading the bundle's own literal endpoint-construction strings (Level 2 STRUCTURAL), not by observing rendered network traffic.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-app-js-endpoint-excerpt", "ev-search-evenements-response"]
+  },
+  "data_paths": [
+    {
+      "kind": "CLIENT_RENDERED_HTML_PAGE",
+      "url": "https://www.olympiahall.com/en/upcoming-events/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-upcoming-events-page"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_CALENDAR_FLAGS",
+      "url": "https://www.olympiahall.com/wp-json/olympia/v1/events-calendar/?lang=en",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-events-calendar-endpoint"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_EVENTS_SEARCH",
+      "url": "https://www.olympiahall.com/wp-json/df-elastic-search/v1/search-evenements/?lang=en&filter_periods[0][begin_date]=2026-08-26&page=1&posts_per_page=20&keyword=",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-search-evenements-response"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Baby Keem",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own `post_title` field, stated directly.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-03",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own `meta.begin_date` field (e.g. '2026-09-03 20:30:00'), stated directly, full date always present.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:30 (Europe/Paris, floating local — no explicit UTC offset anywhere in this field)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The time-of-day portion of `meta.begin_date`, stated directly. No timezone offset is ever appended in the sampled data — recorded honestly as FLOATING_LOCAL.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-03",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own distinct `meta.end_date` field, stated directly (e.g. Baby Keem: same calendar day, '2026-09-03 23:25:00'; a genuine multi-day record, 'Jarry', shows begin_date '2026-09-09' and a distinct end_date '2026-09-11' — a real 3-day run, both directly stated, not derived).",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-record as a discrete field. This source represents exactly one physical venue (L'Olympia, 28 Boulevard des Capucines) — consistent with the badehaus-berlin-01/zenner-berlin-01 precedent, venue identity is intended to resolve via source_id at activation time.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "5526",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own numeric WordPress post `ID` field (this source's 'evenement' custom post type's own database identity), stated directly and distinct from the human-readable permalink slug.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.olympiahall.com/en/upcoming-events/baby-keem/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own `permalink` field, stated directly — this venue's own first-party event page.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "From 54,30€ to 99,40€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own `meta.gamme_de_prix` field, stated directly as a ready-made price-range string.",
+      "evidence_refs": ["ev-search-evenements-response"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-search-evenements-response", "olympia-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, and the page's own footer directly stating the venue's full name and address).",
+      "Level 1 was genuinely insufficient (empty, JS-populated calendar shell) and honestly recorded as such before escalating.",
+      "Level 2 STRUCTURAL escalation (reading the page's own referenced JS bundle's literal endpoint-construction strings, then confirming with a plain HTTP GET) found a real, public, unauthenticated REST route — acquisition_class PUBLIC_JSON_API, a resolved supported class.",
+      "A CONFIRMED public data path retained: one request exposing 124 real, current, full event records at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own numeric WordPress post ID, directly present on every record.",
+      "This source's own genre taxonomy directly distinguishes music genres from its one non-music value ('Comedy') — isMusicRecord() in ingestion/olympia-paris/observation-adapter.mjs implements this as an explicit, never-silent filter using the source's own classification, never a keyword guess.",
+      "PARIS_BESPOKE: no existing collector family in this project matches this exact custom REST-plugin JSON shape; a new, small, bespoke module was written (ingestion/olympia-paris/observation-adapter.mjs).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/olympia-paris.test.mjs, 5 passing assertions re-parsing the retained fixture deterministically, including the multi-day case).",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-search-evenements-response", "olympia-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-upcoming-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official 'Upcoming events' page, byte-retained in full (56,683 bytes), proving Level 1 insufficiency: an empty `.c-calendar__days` container and `.t-programmation.loading--` state, zero event cards in the static response.",
+      "acquired_from": "https://www.olympiahall.com/en/upcoming-events/",
+      "acquired_at": "2026-08-26T19:00:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/olympia-paris-01/evidence/upcoming-events-page.html"
+    },
+    {
+      "evidence_id": "ev-app-js-endpoint-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt (900 bytes) of the venue's own compiled theme JS bundle (originally 489,342 bytes, a minified webpack bundle), retaining only the literal code constructing the REST endpoint URLs (`wp-json/olympia/v1/events-calendar/`, `wp-json/df-elastic-search/v1/search-evenements/`) and the `filter_periods[0][begin_date]` query-parameter shape. The retained excerpt itself is a verbatim substring of the original file (not re-parsed/re-serialized); the surrounding ~488KB of unrelated minified JS was dropped, disclosed honestly here.",
+      "acquired_from": "https://www.olympiahall.com/wp-content/themes/olympia/dist/app.js?v=19",
+      "acquired_at": "2026-08-26T19:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution — a static .js file fetched as plain text, never executed)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/olympia-paris-01/evidence/app-js-endpoint-discovery-excerpt.js"
+    },
+    {
+      "evidence_id": "ev-events-calendar-endpoint",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw response (2,668 bytes) of the `olympia/v1/events-calendar` REST route for August 2026, confirming it returns only per-day `has_event` booleans, not event detail fields — explaining why the OTHER endpoint (`df-elastic-search/v1/search-evenements`) is this source's actual data path for facts.",
+      "acquired_from": "https://www.olympiahall.com/wp-json/olympia/v1/events-calendar/?lang=en",
+      "acquired_at": "2026-08-26T19:12:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/olympia-paris-01/evidence/events-calendar-endpoint-response.json"
+    },
+    {
+      "evidence_id": "ev-search-evenements-response",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed, real subset (12 records, 7,225 bytes) of this endpoint's actual live response (originally 124 matching records across 7 pages, 277,649 bytes for one page of 20). Each retained record keeps every field this investigation's field_assessment relies on (ID/post_name/post_title/permalink/genre/meta.begin_date/end_date/period_string_dates/gamme_de_prix/global_sales_status) and drops only verbose, unused fields (image size variants, full HTML `flexible_content` body) — disclosed here, not silently trimmed. Deliberately includes one genuine multi-day record ('Jarry') and multiple 'Comedy'-genre records alongside real music-genre records.",
+      "acquired_from": "https://www.olympiahall.com/wp-json/df-elastic-search/v1/search-evenements/?lang=en&filter_periods[0][begin_date]=2026-08-26&page=1&posts_per_page=20&keyword=",
+      "acquired_at": "2026-08-26T19:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication); response then bounded to a real subset with disclosed field trimming, per this description",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/olympia-paris-01/evidence/search-evenements-response-subset.json"
+    },
+    {
+      "evidence_id": "olympia-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/olympia-paris.test.mjs, 5 passing tests) re-parsing this investigation's own retained fixture (fixtures/olympia-paris/search-evenements-response-subset.json, identical to the evidence above) via ingestion/olympia-paris/observation-adapter.mjs and reproducing the exact claimed field values deterministically, including the multi-day case and the genre-based music/non-music distinction.",
+      "acquired_from": "tests/olympia-paris.test.mjs",
+      "acquired_at": "2026-08-26T20:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/olympia-paris-01/evidence/search-evenements-response-subset.json"
+    }
+  ],
+  "supersedes": null
+}

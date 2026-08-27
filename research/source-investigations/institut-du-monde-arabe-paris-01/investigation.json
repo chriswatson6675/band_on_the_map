@@ -1,0 +1,200 @@
+{
+  "investigation_id": "institut-du-monde-arabe-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the institute's own official homepage, its 'Musique' agenda category listing, its 'Les Escales musicales du musée' listing page, and one of that series' own event detail pages. All four are plain, server-rendered static HTML with no client-side rendering step required."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs of the homepage, the 'Musique' agenda category, the 'Les Escales musicales du musée' listing page, and one event detail page within that series all returned fully server-rendered static HTML. The listing page's own '.cards-grid' contains one dated card per upcoming instance (title, full date, permalink); each linked detail page's own sidebar accordions state the exact time/duration ('Dates & horaires') and location within the building ('Lieu') as plain text. No JavaScript execution, API probing, or further escalation was needed to obtain every field this investigation required.",
+      "evidence_refs": ["ev-homepage", "ev-agenda-musique-listing", "ev-escales-listing", "ev-escales-detail-chants-mariage"]
+    }
+  ],
+  "source_candidate_id": "institut-du-monde-arabe-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Institut du Monde Arabe — 1 rue des Fossés-Saint-Bernard, Place Mohammed V, 75005 Paris",
+  "official_url": "https://www.imarabe.org/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-escales-detail-chants-mariage"],
+    "notes": "The retained homepage's own <title> reads 'Bienvenue à l'Institut du monde arabe | Institut du monde arabe' at the institute's own domain imarabe.org. The detail page's own JSON-LD 'author'/'Organization' node directly states name 'Institut du monde arabe', url 'https://www.imarabe.org', and a self-hosted logo asset — a self-consistent, first-party retained artifact. The event's own 'Lieu' (location) sidebar text ('Musée (niveau 6), accès par l'entrée du musée de l'IMA, au 7e étage') is self-referential to the institute's own museum building."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Drupal (X-Drupal-Cache response header observed on the agenda listing pages). Event data is genuinely server-rendered static HTML: a per-category listing page ('.cards-grid') carries one dated card per event (title, full date, permalink), and each event's own detail page carries exact time/duration/location as plain text inside named sidebar accordions ('field_dates_text_sidebar', 'field_location_text'). No JSON-LD Event/MusicEvent markup, no REST/JSON:API endpoint, and no ICS feed were found on either page type — only generic schema.org Article/WebSite/Organization/BreadcrumbList JSON-LD (SEO boilerplate, not event data).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-escales-listing", "ev-escales-detail-chants-mariage"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LISTING_PAGE",
+      "url": "https://www.imarabe.org/fr/agenda/les-escales-musicales-du-musee",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-escales-listing"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.imarabe.org/fr/agenda/spectacles/les-escales-musicales-chants-mariage-du-maghreb-vus-par-les-musiques-actuelles",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-escales-detail-chants-mariage"]
+    },
+    {
+      "kind": "HTML_EVENT_LISTING_PAGE",
+      "url": "https://www.imarabe.org/fr/agenda/musique",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-agenda-musique-listing"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Les Escales musicales | Chants de mariage du Maghreb vus par les musiques actuelles",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing card's own <h3> link text, stated directly, cross-checked identical against the detail page's own JSON-LD 'headline' field.",
+      "evidence_refs": ["ev-escales-listing", "ev-escales-detail-chants-mariage"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-16",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing card's own '.dates' div states the full date directly ('16 septembre 2026') — day, month, AND year all stated on the card itself, not inferred from any surrounding context. Cross-checked against the detail page's own sidebar text ('Mercredi 16 septembre'), which independently confirms the same day/month.",
+      "evidence_refs": ["ev-escales-listing"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00 (Europe/Paris, floating local — the source states plain 'à 19h' text with no explicit UTC offset)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own 'Dates & horaires' sidebar accordion states the time directly for this specific event: 'Mercredi 16 septembre à 19h'.",
+      "evidence_refs": ["ev-escales-detail-chants-mariage"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "20:00 (Europe/Paris, floating local)",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The source does not state an end time directly, but its own 'Dates & horaires' sidebar accordion states BOTH the start time ('Mercredi 16 septembre à 19h') AND the event's own duration ('Durée : 1h') for this exact event, in the same retained block. Adding a stated duration to a stated start time is a fixed, reproducible arithmetic rule with exactly one result — not a plausibility guess.",
+      "evidence_refs": ["ev-escales-detail-chants-mariage"],
+      "derivation": {
+        "rule": "end time = start time + stated duration, both directly stated in the same retained 'Dates & horaires' sidebar block for this exact event",
+        "inputs": ["19h", "1h"]
+      }
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Institut du Monde Arabe — Musée (niveau 6), accès par l'entrée du musée de l'IMA, au 7e étage",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own 'Lieu' sidebar accordion states the location directly for this exact event, self-referential to the institute's own museum building (the source under investigation is itself the Institut du Monde Arabe — this is a room/floor within the venue, not a separate venue).",
+      "evidence_refs": ["ev-escales-detail-chants-mariage"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "les-escales-musicales-chants-mariage-du-maghreb-vus-par-les-musiques-actuelles",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric id is exposed on either the card or the detail page itself; the page's own URL path segment (its own canonical permalink slug) is used as source_record_id — the same documented judgement already established for moog-barcelona-01/LAV (ingestion/lav/discovery.mjs) and tempodrom-berlin-01. A third-party ticketing 'productId' (102119463297) is also observed in the page's own 'Je réserve' link, but belongs to the third-party billetterie.imarabe.org platform, not this source's own first-party identity, so it is not used as the primary identifier.",
+      "evidence_refs": ["ev-escales-listing", "ev-escales-detail-chants-mariage"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.imarabe.org/fr/agenda/spectacles/les-escales-musicales-chants-mariage-du-maghreb-vus-par-les-musiques-actuelles",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing card's own href, stated directly (relative path resolved against the site's own known base origin, https://www.imarabe.org, from ev-homepage).",
+      "evidence_refs": ["ev-escales-listing", "ev-homepage"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-escales-listing", "ev-escales-detail-chants-mariage", "institut-du-monde-arabe-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This investigation's field assessment and activation scope are limited to the 'Les Escales musicales du musée' card family specifically (the recurring, verified series the task brief asked about). The broader 'Musique'/'Spectacles' agenda categories were confirmed to contain other genuine concert listings (e.g. Souad Massi, Camélia Jordana) with a similar card+detail-page structure, but were not individually field-assessed in this bounded pass — a plausible, low-risk future extension of the same collector, not a blocker to activating the Escales Musicales family itself."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status PROVEN from a self-consistent retained artifact (homepage title, detail page's own Organization JSON-LD, self-referential location text).",
+      "acquisition_class STATIC_HTML, a resolved supported class, fully answered at Level 1 with no escalation needed.",
+      "CONFIRMED public data paths retained for both the listing page and a detail page within the 'Les Escales musicales du musée' series.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — the listing card states a full day/month/year date directly, no context-inheritance guess needed.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following the documented moog-barcelona-01/LAV precedent.",
+      "time additionally PROVEN (DIRECT_SOURCE) and end additionally PROVEN (DETERMINISTIC_CONTEXT, start+duration, both directly stated together in the same retained sidebar block) — a genuinely complete date/time field set.",
+      "recommended_family STATIC_EVENT_LIST, requiring genuinely bespoke per-venue extraction code (this exact Drupal card+accordion markup shape is unique to this venue in this pass) — classified PARIS_BESPOKE.",
+      "No unresolved CRITICAL blocker (one MINOR note recorded about this pass's scope being limited to the Escales Musicales family).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/institut-du-monde-arabe.test.mjs, run offline against the retained ev-escales-listing.html / ev-escales-detail-chants-mariage.html fixtures) — gate 9/v1.2 satisfied.",
+      "'Les Escales musicales du musée' is confirmed as a genuine, recurring monthly music series (4 upcoming dated instances retained: 16 September, 7 October, 18 November, 16 December 2026), each with its own event page — not an occasional or one-off cultural event, directly answering the task's central verification question."
+    ],
+    "evidence_refs": ["ev-escales-listing", "ev-escales-detail-chants-mariage", "institut-du-monde-arabe-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The institute's official homepage. Original response was 145,274 bytes; this file retains a bounded, disclosed excerpt: the <title> and every music/concert/escale-relevant /fr/agenda/... href discovered on the page.",
+      "acquired_from": "https://www.imarabe.org/fr",
+      "acquired_at": "2026-08-26T22:40:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain HTTP GET, no authentication, no browser); response then bounded to the fields described above, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/institut-du-monde-arabe-paris-01/evidence/ev-homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-agenda-musique-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The institute's 'Musique' agenda category listing page. Original response was 135,103 bytes; this file retains a bounded, disclosed excerpt: the <title> and every /fr/agenda/spectacles/... concert-detail href discovered on the page (8 distinct concert listings, confirming genuine music programming beyond the Escales Musicales series specifically).",
+      "acquired_from": "https://www.imarabe.org/fr/agenda/musique",
+      "acquired_at": "2026-08-26T22:39:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then bounded, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/institut-du-monde-arabe-paris-01/evidence/ev-agenda-musique-listing-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-escales-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The 'Les Escales musicales du musée' listing page. Original response was 131,125 bytes; this file retains a bounded, disclosed excerpt: the <title> and all 4 real event-card blocks found in the page's own '.cards-grid' (each with its own title, full date, and permalink href).",
+      "acquired_from": "https://www.imarabe.org/fr/agenda/les-escales-musicales-du-musee",
+      "acquired_at": "2026-08-26T22:41:30Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then bounded to the 4 card blocks, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/institut-du-monde-arabe-paris-01/evidence/ev-escales-listing.html"
+    },
+    {
+      "evidence_id": "ev-escales-detail-chants-mariage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One event detail page within the Escales Musicales series. Original response was 132,173 bytes; this file retains a bounded, disclosed excerpt: the <title>, the page's own single JSON-LD block (schema.org Article/Organization/WebPage/WebSite — NOT Event), and the two sidebar accordion blocks that carry this event's own date/time/duration ('Dates & horaires': 'Mercredi 16 septembre à 19h' / 'Durée : 1h') and location ('Lieu': 'Musée (niveau 6), accès par l'entrée du musée de l'IMA, au 7e étage').",
+      "acquired_from": "https://www.imarabe.org/fr/agenda/spectacles/les-escales-musicales-chants-mariage-du-maghreb-vus-par-les-musiques-actuelles",
+      "acquired_at": "2026-08-26T22:42:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then bounded to the fields described above, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/institut-du-monde-arabe-paris-01/evidence/ev-escales-detail-chants-mariage.html"
+    },
+    {
+      "evidence_id": "institut-du-monde-arabe-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/institut-du-monde-arabe.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/institut-du-monde-arabe-paris/) via ingestion/institut-du-monde-arabe/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically, including the start+duration -> end derivation.",
+      "acquired_from": "tests/institut-du-monde-arabe.test.mjs",
+      "acquired_at": "2026-08-26T23:15:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/institut-du-monde-arabe-paris-01/evidence/ev-escales-detail-chants-mariage.html"
+    }
+  ],
+  "supersedes": null
+}

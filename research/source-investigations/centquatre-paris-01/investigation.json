@@ -1,0 +1,215 @@
+{
+  "investigation_id": "centquatre-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T00:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl of the task-given official events page (Nuxt-rendered HTML plus a JSON-LD ItemList and an embedded __NUXT_DATA__ SSR payload). Level 2 STRUCTURAL: decoded the __NUXT_DATA__ devalue payload to identify the public, self-documenting Hydra/API-Platform JSON API (/api/events) the Nuxt frontend itself calls, then fetched that API directly with the correct documented filter parameters."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://www.104.fr/programme?genre=concerts returned a Nuxt-rendered page with one JSON-LD block — an ItemList of 62 programme items (title + URL only, no dates/venue/price) — and an embedded __NUXT_DATA__ SSR payload (a devalue-encoded flat array) carrying a richer Hydra collection with full event records. However, the '?genre=concerts' query string was NOT honoured server-side: the embedded payload's own hydra:totalItems (62) and its sampled member list included non-music items (a market, workshops, a theatre piece) identically to an unfiltered fetch — confirming genre filtering happens client-side after hydration, not on this static response. The raw HTML/JSON-LD/SSR payload alone therefore cannot reliably isolate concerts from the venue's full multi-discipline programme (theatre, dance, exhibitions, workshops, markets) without further work.",
+      "evidence_refs": ["ev-programme-page", "ev-programme-jsonld-itemlist"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Decoded the __NUXT_DATA__ payload's own devalue-encoded structure (a flat, index-referencing array, the same general encoding family as ingestion/sveltekit-data/decode.mjs already handles for SvelteKit, though Nuxt's own reactive-wrapper tags required a small variant resolver) and found it embeds a genuine Hydra (API Platform / Symfony) JSON-LD collection whose member resources carry their own '@id' (e.g. '/api/events/90') and 'name'/'arrayDates'/'placesNames'/'tags'/'minPrice'/'maxPrice'/'url' fields. Fetching that API directly at https://www.104.fr/api/events (Accept: application/ld+json, no authentication) confirmed it is public and fully self-documenting: its own 'hydra:search' IriTemplate lists every supported filter. Resolving the site's own 'Concert' tag IRI via GET /api/tags?search=concert (-> '/api/tags/14') and then querying /api/events with 'taggedEntities.tag[]=/api/tags/14', 'sortingFirstDateTime[after]=2026-08-26', and 'order[sortingFirstDateTime]=asc' correctly returned exactly the future, concert-tagged subset (22 items) with full structured fields — fully answering the investigation question. No further escalation was needed.",
+      "evidence_refs": ["ev-nuxt-data-payload", "ev-api-events-concert-future-sample"]
+    }
+  ],
+  "source_candidate_id": "centquatre-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "CENTQUATRE-PARIS ('Le 104') — multidisciplinary cultural venue, 5 rue Curial (public entrance) / 104 rue d'Aubervilliers, 75019 Paris",
+  "official_url": "https://www.104.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programme-jsonld-itemlist", "ev-api-events-concert-future-sample"],
+    "notes": "The retained page's own JSON-LD 'Organization' node ('@id': 'https://www.104.fr/#identity') directly states name 'Le Centquatre-Paris' and address streetAddress '5 Rue Curial', postalCode '75019', addressLocality 'Paris' — an exact match to the task-given public-entrance address. Every sampled API record's own 'placesNames' field additionally states 'Le CENTQUATRE-PARIS' directly."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Nuxt 3 (SSR, confirmed via '__NUXT__'/__NUXT_DATA__ markers and /_nuxt/ asset paths) frontend over a Symfony/API-Platform backend exposing a public Hydra JSON-LD REST API at /api/*. The Nuxt frontend's own SSR payload embeds calls to this same API; fetching it directly (bypassing the Nuxt page entirely) is the clean, structured, documented acquisition path — exactly the 'JSON data endpoint the Nuxt frontend itself calls' the task brief anticipated.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-nuxt-data-payload", "ev-api-events-concert-future-sample"]
+  },
+  "data_paths": [
+    {
+      "kind": "PUBLIC_JSON_API_COLLECTION",
+      "url": "https://www.104.fr/api/events?taggedEntities.tag%5B%5D=%2Fapi%2Ftags%2F14&sortingFirstDateTime%5Bafter%5D=2026-08-26&order%5BsortingFirstDateTime%5D=asc",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API_TAG_LOOKUP",
+      "url": "https://www.104.fr/api/tags?search=concert",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-tags-concert"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD_AND_NUXT_PAYLOAD",
+      "url": "https://www.104.fr/programme?genre=concerts",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-programme-page"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Canine",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each API event resource's own 'name' field, stated directly.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-11-27",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each API event resource's own 'arrayDates[0]', a full ISO 8601 instant with explicit UTC offset (e.g. '2026-11-27T20:30:00+01:00'), stated directly. 'sortingFirstDateTime' independently repeats the same value for sorting purposes.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:30 +01:00 (UTC instant, confirmed offset)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same 'arrayDates[0]' string carries an explicit numeric UTC offset — a confirmed UTC instant, not a floating local guess.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-11-27T21:50:00+01:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each single-performance API event resource's own 'arrayDates[1]' is a full ISO 8601 end instant with the same explicit offset, directly stated — confirmed to be a genuine performance end-time (not a multi-day span marker) by cross-checking 'longRunningEvent: false' on the same record.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Le CENTQUATRE-PARIS, 5 Rue Curial, 75019 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This is a single-venue source: every API event resource's own 'placesNames' field directly states 'Le CENTQUATRE-PARIS', combined with the source's own separately-retained Organization address (identity evidence).",
+      "evidence_refs": ["ev-api-events-concert-future-sample", "ev-programme-jsonld-itemlist"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "90",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each API event resource's own '@id' (e.g. '/api/events/90') is the source's own Hydra/API-Platform resource IRI — a documented, stable, source-declared identity scheme (the API's own permanent resource path), not a guessed or hashed substitute. The numeric suffix is used as source_record_id.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.104.fr/fr/programmation/saison-2026-2027/concert/canine-liminal",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each API event resource's own 'url' field (site-relative, e.g. '/fr/programmation/saison-2026-2027/concert/canine-liminal'), resolved against the venue's own domain.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "10.00–28.00 EUR (minPrice/maxPrice in cents; priceRange text \"De 10 à 28 €\")",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each API event resource's own 'minPrice'/'maxPrice' (integer cents) and human-readable 'priceRange' string, stated directly.",
+      "evidence_refs": ["ev-api-events-concert-future-sample"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-api-events-concert-future-sample", "centquatre-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (JSON-LD Organization address exactly matching the task-given address; every API record's own placesNames confirms the same venue name).",
+      "acquisition_class PUBLIC_JSON_API, a resolved supported class, reached via Level 1 (INSUFFICIENT — the query-string genre filter is not honoured server-side) then Level 2 (SUFFICIENT — the Nuxt frontend's own public, self-documenting Hydra API, correctly filterable once the right parameter names and tag IRI were resolved).",
+      "CONFIRMED public data paths retained: the filtered /api/events collection (concert tag + future dates) and the /api/tags lookup used to resolve the tag IRI.",
+      "title, start_date, time, end, venue_location, source_record_id, and event_url all PROVEN with basis DIRECT_SOURCE; price additionally PROVEN — a genuinely complete field set, better than most sources in this project's prior Berlin/Barcelona trials.",
+      "source_record_id PROVEN via the API's own documented, stable Hydra resource IRI ('@id') — a stronger identity guarantee than a URL-slug fallback, since it is the source's own explicit resource identity scheme.",
+      "No existing collector family/module in this repository implements a Hydra/API-Platform-style JSON API (ingestion/events-calendar-api/ is specific to the WordPress Tribe Events Calendar REST shape, a different vocabulary and pagination model). recommended_family is the existing generic 'JSON_API' vocabulary member (COLLECTOR_FAMILIES), but its concrete implementation for this source is genuinely new code (ingestion/centquatre-paris/).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/centquatre-paris.test.mjs), re-parsing the retained fixture via the new ingestion/centquatre-paris/ adapter and reproducing the exact claimed field values deterministically.",
+      "No unresolved CRITICAL blocker. READY_FOR_ACTIVATION was deliberately not claimed; turning this into an enabled source is a separate, later, explicitly-authorised step outside this investigation's scope.",
+      "One honest caveat: the task-given events URL's own '?genre=concerts' query parameter has no server-side effect — any future activation must call the /api/events endpoint directly with the documented taggedEntities.tag[] filter, not rely on that query string."
+    ],
+    "evidence_refs": ["ev-api-events-concert-future-sample", "centquatre-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programme-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed excerpt (first 4,000 bytes of the original 354,454-byte response) of the task-given official programme page (https://www.104.fr/programme?genre=concerts), retained to show the page's own <head>/meta and the start of its Nuxt-rendered body.",
+      "acquired_from": "https://www.104.fr/programme?genre=concerts",
+      "acquired_at": "2026-08-26T22:40:16Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response truncated to first 4,000 bytes, disclosed in this description",
+      "content_type": "text/html;charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/centquatre-paris-01/evidence/programme-head-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-programme-jsonld-itemlist",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, verbatim <script type=\"application/ld+json\" data-nuxt-schema-org=\"true\"> block from the programme page — a schema.org @graph containing the site's WebSite/Organization identity (address) and an ItemList of 62 programme items (title+URL, no dates) — retained byte-faithfully in full (5,641 bytes).",
+      "acquired_from": "https://www.104.fr/programme?genre=concerts",
+      "acquired_at": "2026-08-26T22:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); JSON-LD script block extracted verbatim",
+      "content_type": "application/ld+json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/centquatre-paris-01/evidence/programme-jsonld-itemlist.json"
+    },
+    {
+      "evidence_id": "ev-nuxt-data-payload",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "The decoded (devalue-resolved) content of the page's own <script id=\"__NUXT_DATA__\"> SSR payload, confirming it embeds a Hydra 'hydra:member'/'hydra:totalItems' collection of Event resources with '@id'/'name'/'arrayDates'/'tags'/'minPrice'/'maxPrice'/'url' fields, and that the '?genre=concerts' query string does not filter this embedded collection server-side (62 unfiltered items present, spanning every discipline).",
+      "acquired_from": "https://www.104.fr/programme?genre=concerts (embedded __NUXT_DATA__ script, decoded offline)",
+      "acquired_at": "2026-08-26T23:15:00Z",
+      "method": "curl (plain HTTP GET) to retrieve the page, then an offline, deterministic devalue-index-resolution pass (no network) over the extracted __NUXT_DATA__ JSON array",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/centquatre-paris-01/evidence/programme-jsonld-itemlist.json"
+    },
+    {
+      "evidence_id": "ev-api-tags-concert",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The public API's own tag-lookup response confirming '/api/tags/14' is this source's own 'Concert' tag (slug 'concert', name 'Concert') — used to resolve the exact tag IRI required by the events-filtering call.",
+      "acquired_from": "https://www.104.fr/api/tags?search=concert",
+      "acquired_at": "2026-08-26T23:30:00Z",
+      "method": "curl (plain HTTP GET, Accept: application/ld+json, descriptive User-Agent, no authentication)",
+      "content_type": "application/ld+json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/centquatre-paris-01/evidence/api-events-concert-future-sample.json"
+    },
+    {
+      "evidence_id": "ev-api-events-concert-future-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, disclosed sample (first 5 of 22 total members) of the public API's own future, concert-tagged event collection — the full, real Hydra JSON-LD response (headers + body), including the self-documenting 'hydra:search' IriTemplate and 'hydra:view' pagination metadata, with each member record's real, complete field set (name, arrayDates, tags, placesNames, minPrice/maxPrice, priceRange, url, @id).",
+      "acquired_from": "https://www.104.fr/api/events?taggedEntities.tag%5B%5D=%2Fapi%2Ftags%2F14&sortingFirstDateTime%5Bafter%5D=2026-08-26&order%5BsortingFirstDateTime%5D=asc",
+      "acquired_at": "2026-08-26T23:35:00Z",
+      "method": "curl (plain HTTP GET, Accept: application/ld+json, descriptive User-Agent, no authentication); response's hydra:member array truncated to the first 5 entries, disclosed in this description",
+      "content_type": "application/ld+json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/centquatre-paris-01/evidence/api-events-concert-future-sample.json"
+    },
+    {
+      "evidence_id": "centquatre-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/centquatre-paris.test.mjs) re-parsing this investigation's own retained fixture via a new adapter (ingestion/centquatre-paris/) and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/centquatre-paris.test.mjs",
+      "acquired_at": "2026-08-27T00:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/centquatre-paris-01/evidence/api-events-concert-future-sample.json"
+    }
+  ],
+  "supersedes": null
+}

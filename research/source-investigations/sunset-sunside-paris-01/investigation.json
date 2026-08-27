@@ -1,0 +1,189 @@
+{
+  "investigation_id": "sunset-sunside-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:55:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official 'Agenda' page and one individual event permalink page, plus a confirmatory unauthenticated GET of this WordPress install's own bundled 'The Events Calendar' plugin REST API."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official 'Agenda' page (https://www.sunset-sunside.com/agenda/) already exposes real, server-rendered event cards (<li class=\"concert ...\" data-horaire=\"YYYYMMDDHHmm\">), each with its own title, room name ('Sunset' or 'Sunside'), and a machine-readable full date+time timestamp directly in a data-horaire attribute — already fully answering the investigation question at Level 1. A confirmatory check of this WordPress install's own CSS class names (single-tribe_events on a detail page) led to a plain, unauthenticated GET of its own bundled 'The Events Calendar' plugin REST API (/wp-json/tribe/events/v1/events), which is genuinely public (HTTP 200, no access_token/login/CAPTCHA) and returns an even richer, fully structured JSON record per event — id, title, slug, start_date/end_date with BOTH local and true UTC variants plus an explicit IANA timezone, cost, and a nested venue object stating its own name/address/city/zip. This is the SAME existing, already-generic ingestion/events-calendar-api/ family already proven for ccb-lisbon-01 — zero new collector code required, only a per-source config.",
+      "evidence_refs": ["ev-agenda-excerpt", "ev-event-laurent-epstein", "ev-tribe-events-sample"]
+    }
+  ],
+  "source_candidate_id": "sunset-sunside-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Sunset / Sunside (jazz club, rue des Lombards, Paris 1er — ONE single venue/business with two named performance rooms, 'Sunset' and 'Sunside', sharing one address; NOT two separate venues)",
+  "official_url": "https://www.sunset-sunside.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-excerpt", "ev-tribe-events-sample"],
+    "notes": "The retained agenda page's own <title>/meta description read 'Agenda - Sunset Sunside jazz club Paris 1er' at the venue's own domain sunset-sunside.com. Every sampled Events Calendar API record's own nested 'venue' object directly states address '60 rue des Lombards', city 'Paris 1er', zip '75001' — matching this investigation's assigned address exactly — under TWO distinct room names, 'Sunset' and 'Sunside', confirming the task's own one-venue-two-rooms model rather than two separate venues."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress with 'The Events Calendar' plugin (tribe_events custom post type); its own bundled public REST API v1 (/wp-json/tribe/events/v1/) is genuinely unauthenticated.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-tribe-events-sample", "ev-event-laurent-epstein"]
+  },
+  "data_paths": [
+    {
+      "kind": "EVENTS_CALENDAR_API_TRIBE_EVENTS_V1",
+      "url": "https://www.sunset-sunside.com/wp-json/tribe/events/v1/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-tribe-events-sample"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.sunset-sunside.com/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-excerpt"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Laurent Epstein Quartet",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each Tribe Events API record's own 'title' field, stated directly.",
+      "evidence_refs": ["ev-tribe-events-sample", "sunset-sunside-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-26",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'utc_start_date' field (e.g. '2026-08-26 19:00:00'), a confirmed true UTC instant (the API also states an explicit IANA 'timezone': 'Europe/Paris' and a local 'start_date' — this is genuinely stronger than a bare local date/time, matching the certainty already established for CCB's own events-calendar-api records).",
+      "evidence_refs": ["ev-tribe-events-sample", "sunset-sunside-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00 UTC / 21:00 Europe/Paris local",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'utc_start_date' time-of-day portion, a confirmed UTC instant, stated directly.",
+      "evidence_refs": ["ev-tribe-events-sample"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "21:00 UTC / 23:00 Europe/Paris local (2026-08-26)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'utc_end_date' field, a confirmed true UTC instant, stated directly — a genuine performance end-time (unlike some other sources in this project where an 'end' field instead means a multi-day run's last calendar day; this source's own end_date/utc_end_date pair share the same calendar day as start_date/utc_start_date for every sampled single-night record, consistent with a real end-time reading).",
+      "evidence_refs": ["ev-tribe-events-sample"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Sunside, 60 rue des Lombards, 75001 Paris, France",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own nested 'venue' object states 'venue' (room name: 'Sunset' or 'Sunside'), 'address', 'city', 'zip', 'country' directly. Both room names share the identical address across every sampled record — confirmed as ONE venue with two named rooms, not two separate venues, per this investigation's own task scope.",
+      "evidence_refs": ["ev-tribe-events-sample"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "152278",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own numeric 'id' field — the underlying WordPress post ID for this custom post type, a platform-native, permanent identifier — stated directly.",
+      "evidence_refs": ["ev-tribe-events-sample"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.sunset-sunside.com/concert/laurent-epstein-quartet-4/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'url' field, stated directly, matching its 'slug'.",
+      "evidence_refs": ["ev-tribe-events-sample", "ev-event-laurent-epstein"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "18,00€ à 28,00€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'cost' field (HTML-entity encoded '&euro;' in the raw response), stated directly, plus a parsed 'cost_details.values' array (e.g. ['18','23','28']).",
+      "evidence_refs": ["ev-tribe-events-sample"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-tribe-events-sample", "sunset-sunside-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title/domain, and the assigned address stated directly within every sampled API record's own nested venue object, across both room names).",
+      "acquisition_class PUBLIC_JSON_API, a resolved supported class, reached at Level 1 (the static agenda page itself was already sufficient; the richer JSON API was found as a confirmatory check, not an escalation).",
+      "A CONFIRMED public data path retained: the venue's own bundled 'The Events Calendar' plugin REST API, genuinely unauthenticated.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — start_date additionally backed by a confirmed true UTC instant (utc_start_date + explicit IANA timezone), the strongest certainty tier this project models.",
+      "source_record_id PROVEN via this platform's own permanent WordPress post ID.",
+      "recommended_family JSON_API — this project's own EXISTING, already-generic ingestion/events-calendar-api/ family (client.mjs/observation-adapter.mjs), already proven for ccb-lisbon-01 — PARIS_ZERO_CODE: literally zero new collector code required, only a per-source config object ({ baseUrl: 'https://www.sunset-sunside.com', source_id: 'sunset-sunside-paris' }).",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/sunset-sunside.test.mjs, exercising the EXISTING generic family against this source's own retained fixture) — gate 9/v1.2 satisfied.",
+      "venue_location additionally confirms the one-venue-two-rooms model this task required: both 'Sunset' and 'Sunside' room names share the identical address across every sampled record — modeled as one venue, never two."
+    ],
+    "evidence_refs": ["ev-tribe-events-sample", "sunset-sunside-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official 'Agenda' page — the full decompressed raw response was originally 1,519,163 bytes; this file retains a bounded, disclosed excerpt: <title>, one Yoast JSON-LD block (WebPage/BreadcrumbList, confirming no Event schema exists), and the first 4 full <li class=\"concert...\"> event cards verbatim (including each card's own data-horaire attribute). Non-byte-faithful overall, but the retained markup itself is copied byte-for-byte.",
+      "acquired_from": "https://www.sunset-sunside.com/agenda/",
+      "acquired_at": "2026-08-26T22:39:52Z",
+      "method": "curl --compressed (plain HTTP GET, descriptive User-Agent, no authentication, no browser; response then bounded to a disclosed excerpt)",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sunset-sunside-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-laurent-epstein",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page ('Laurent Epstein Quartet') — the full decompressed raw response was originally ~228KB; this file retains a bounded, disclosed excerpt: <title>, and one occurrence of the 'single-tribe_events' CSS class confirming this page's own post type is 'The Events Calendar' plugin's tribe_events custom post type. Non-byte-faithful overall, but the retained substrings themselves are copied byte-for-byte.",
+      "acquired_from": "https://www.sunset-sunside.com/concert/laurent-epstein-quartet-4/",
+      "acquired_at": "2026-08-26T22:47:00Z",
+      "method": "curl --compressed (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then bounded to a disclosed excerpt",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sunset-sunside-paris-01/evidence/event-laurent-epstein-quartet-4-raw.html"
+    },
+    {
+      "evidence_id": "ev-tribe-events-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded sample of 5 real, current events from this install's own public 'The Events Calendar' REST API (/wp-json/tribe/events/v1/events), selected to cover BOTH named rooms ('Sunside' and 'Sunset') — full raw response, byte-for-byte (retained verbatim from a live per_page=20 query, trimmed to these 5 records; see this file's own JSON for the exact retained records).",
+      "acquired_from": "https://www.sunset-sunside.com/wp-json/tribe/events/v1/events?per_page=20",
+      "acquired_at": "2026-08-26T22:48:00Z",
+      "method": "curl --compressed (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sunset-sunside-paris-01/evidence/wp-json-tribe-events-sample20.json"
+    },
+    {
+      "evidence_id": "ev-nominatim-geocode",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A single, rate-limited, live Nominatim query for 'Sunset Sunside, 60 rue des Lombards, 75001 Paris' (countrycodes=fr), via ingestion/geocoding/nominatim.mjs's existing searchNominatimLive() export — full raw response, byte-for-byte. Single confident candidate, name 'Sunset sunside', exact house_number/road/postcode match.",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=Sunset+Sunside%2C+60+rue+des+Lombards%2C+75001+Paris&format=jsonv2&addressdetails=1&limit=5&countrycodes=fr",
+      "acquired_at": "2026-08-26T23:04:48Z",
+      "method": "ingestion/geocoding/nominatim.mjs's searchNominatimLive() (one-off node -e invocation, no permanent script)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/sunset-sunside-paris-01/evidence/nominatim-geocode.json"
+    },
+    {
+      "evidence_id": "sunset-sunside-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/sunset-sunside.test.mjs) re-parsing this investigation's own retained fixture (fixtures/sunset-sunside-paris/tribe-events-sample.json, copied verbatim from ev-tribe-events-sample) via the EXISTING, already-generic ingestion/events-calendar-api/{client,observation-adapter}.mjs — zero new collector code — reproducing the exact claimed field values (including both room names and the confirmed UTC_INSTANT certainty) deterministically. Run via `node --test tests/sunset-sunside.test.mjs`: 4/4 passing.",
+      "acquired_from": "tests/sunset-sunside.test.mjs",
+      "acquired_at": "2026-08-27T09:00:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/sunset-sunside-paris-01/evidence/wp-json-tribe-events-sample20.json"
+    }
+  ],
+  "supersedes": null
+}

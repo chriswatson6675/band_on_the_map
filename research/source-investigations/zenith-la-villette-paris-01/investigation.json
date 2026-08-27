@@ -1,0 +1,156 @@
+{
+  "investigation_id": "zenith-la-villette-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T21:15:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official 'Programme' page. Every visible event card (artist name, a French-language date string, and a per-event detail link) is already fully rendered as static server-side markup in the plain HTTP response."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://le-zenith.com/program immediately exposed 8 fully-rendered `.card-show` event blocks, each with an artist name, a French date string, and a detail-page link. No escalation was required; Level 1 fully answered the investigation question.",
+      "evidence_refs": ["ev-cards"]
+    }
+  ],
+  "source_candidate_id": "zenith-la-villette-paris-candidate",
+  "source_id": null,
+  "venue_reference": "Zénith Paris - La Villette — 211 Avenue Jean Jaurès, 75019 Paris (large concert arena, Parc de la Villette)",
+  "official_url": "https://le-zenith.com/program",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards"],
+    "notes": "The retained page's own <title> reads 'Programme | Zénith Paris - La Villette' at the venue's own domain le-zenith.com, matching the well-known Parc de la Villette arena. Every image asset URL is self-hosted under le-zenith.com/media/cache/."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom server-rendered CMS (no WordPress/wp-json signal detected). Every card repeats the identical `.card-show` structure directly in the plain HTTP response.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://le-zenith.com/program",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cards"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Inès de la Miséricorde",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own `.card-show__artist` text, stated directly.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-05",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own `.card-show__date` text (e.g. 'Samedi 05 sept. 2026'), a French day-name/day/abbreviated-month/year string, stated directly. At least 2 of 8 sampled cards (BINI, 'Annulé'/Cancelled; Hexagone MMA, 'Reporté'/Postponed) show this same date struck through (<del>) with no replacement date printed anywhere on the page — those two are honestly excluded from this source's published Observations (ingestion/zenith-la-villette/observation-adapter.mjs's toObservations()) rather than asserting a struck-through date as still valid, and are never silently dropped from extraction itself (ingestion/zenith-la-villette/discovery.mjs still returns them, flagged 'cancelled: true').",
+      "evidence_refs": ["ev-cards", "zenith-la-villette-paris-01-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No time-of-day is shown anywhere on this list-card view for any sampled event — a calendar date only.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is shown anywhere on this list-card view.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Zénith Paris - La Villette",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The retained page's own <title> directly states the venue name; this is a single-venue source (every card is this one venue), so every Observation is resolved to it by source_id, not per-record text.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "Inès de la Miséricorde-22278",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source exposes no separate machine-readable event id field; each card's own '/shows/{Name}-{numeric-id}' href is this source's own permanent permalink, so the URL-encoded slug (decoded) is used as source_record_id — the same documented judgement already established for tempodrom-berlin-01/badehaus-berlin-01 (a site's own URL-slug permalink as its stable identity). The numeric suffix within the slug (e.g. '22278') looks like it may itself be a stable per-show id, but this was not independently re-verified across repeated fetches within this bounded investigation, so only the full slug (not the bare number alone) is claimed PROVEN here.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://le-zenith.com/shows/In%C3%A8s%20de%20la%20Mis%C3%A9ricorde-22278",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own href, stated directly, resolved against the venue's own domain.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price of any kind is shown anywhere on this list-card view for any sampled event — this source's own ticketing is entirely delegated to third-party links (Ticketmaster, and a secondary 'P.S.H'/yoolabox listing) that are never resolved to a price on this page itself.",
+      "evidence_refs": ["ev-cards"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards", "zenith-la-villette-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This one plain fetch returned 8 event cards; whether this represents the venue's complete near-term calendar or a bounded/paginated subset was not confirmed within this bounded investigation (no pagination control was observed on the fetched page, but this was not exhaustively verified)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This source shows no machine-readable music/non-music category field on its cards; every sampled card in this investigation was in fact music/live-performance-relevant (including the excluded-for-cancellation Hexagone MMA, which is a combat-sports event, not music) — a production collector should add an explicit category/keyword filter before broad activation, mirroring ingestion/accor-arena/discovery.mjs's own bounded approach, rather than assuming every future card is music."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title at the venue's own domain, self-hosted assets).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: a single plain fetch exposing every currently-listed event card at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following documented precedent.",
+      "recommended_family STATIC_EVENT_LIST, requiring a small, genuinely bespoke card parser (no existing collector family in this repository already matches this exact markup) — see ingestion/zenith-la-villette/.",
+      "No unresolved CRITICAL blocker — both blockers are MINOR and documented.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/zenith-la-villette.test.mjs, 5/5 passing), including an explicit test proving the cancelled/struck-through-date card is correctly excluded rather than fabricated as valid."
+    ],
+    "evidence_refs": ["ev-cards", "zenith-la-villette-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-cards",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official programme page — the full raw response was 103,194 bytes, dominated by navigation/CSS/menu markup carrying no event data. This file retains the page's own <title> plus the FIRST 8 real `.card-show` event listing blocks verbatim (byte-for-byte substring), each with an artist name, a French-language date string, and a per-event detail link. At least one sampled card (BINI) shows its date struck through with no replacement printed nearby — retained here exactly as served, disclosed in this description and honestly reflected in field_assessment.start_date.",
+      "acquired_from": "https://le-zenith.com/program",
+      "acquired_at": "2026-08-26T20:45:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title + the first 8 .card-show blocks, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/zenith-la-villette-paris-01/evidence/program-raw.html"
+    },
+    {
+      "evidence_id": "zenith-la-villette-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/zenith-la-villette.test.mjs) re-parsing this investigation's own retained fixture (fixtures/zenith-la-villette-paris/program.html, a copy of ev-cards) via ingestion/zenith-la-villette/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically, including correct exclusion of both struck-through/cancelled cards (5/5 tests passing).",
+      "acquired_from": "tests/zenith-la-villette.test.mjs",
+      "acquired_at": "2026-08-26T21:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/zenith-la-villette-paris-01/evidence/program-raw.html"
+    }
+  ],
+  "supersedes": null
+}

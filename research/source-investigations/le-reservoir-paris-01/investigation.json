@@ -1,0 +1,149 @@
+{
+  "investigation_id": "le-reservoir-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T00:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the one plausible official-domain candidate (reservoirclub.com, surfaced only as a discovery lead by third-party directory listings — never used as fact authority) plus five other plausible domain guesses. No working official first-party web presence was found at all, so no escalation to Level 2 was meaningful — there is no site to inspect structurally."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "BLOCKED",
+      "reason": "The one candidate domain surfaced by third-party directories as this venue's official site (reservoirclub.com) returns an OVHcloud hosting-provider 'Site not installed' placeholder over plain HTTP (HTTP 404, title 'Site not installed - OVHcloud', body text 'The site ... is not yet installed'), and its HTTPS variant fails outright with a certificate/SNI mismatch (no valid TLS certificate is configured for this hostname at all) — this is a domain that is registered but has no functioning website behind it, not merely a page this investigation could not reach. Five other plausible domain-name guesses (lereservoirparis.com, reservoirparis.fr, le-reservoir.paris, reservoirclub.fr, with/without 'www') all failed outright at DNS resolution. No first-party official web presence for this venue could be found by any means available at Level 1 (or that Level 2 structural inspection could improve on, since there is no live site to inspect). Recorded BLOCKED rather than INSUFFICIENT because this is a genuine, hard boundary (no working origin exists to probe further), not merely 'the first attempt didn't find enough' — per policy, BLOCKED terminates escalation rather than justifying a more aggressive method.",
+      "evidence_refs": ["ev-reservoirclub-home", "ev-domain-guesses-probe"]
+    }
+  ],
+  "source_candidate_id": "le-reservoir-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Réservoir (assigned candidate: small live-music bar/venue, Bastille/Ledru-Rollin area, 11th/12th arrondissement)",
+  "official_url": null,
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-reservoirclub-home", "ev-domain-guesses-probe"],
+    "notes": "Third-party directory/review sources (used here only as discovery leads, never as fact authority, per policy) consistently describe a venue named 'Le Réservoir' at 16 rue de la Forge Royale, 75011 Paris — a restaurant/bar/concert space near Faidherbe-Chaligny (Bastille/Ledru-Rollin area), and multiple independent third-party sources (TripAdvisor reviews, sortiraparis) describe it as still operating and hosting live music. However, NO first-party official website could be located: the one candidate domain those same third-party sources pointed to (reservoirclub.com) is an unconfigured/parked domain, not a live site. Because no first-party page exists to directly confirm current operating status, name, or address in this project's own terms, identity is recorded AMBIGUOUS rather than PROVEN or REJECTED outright — the physical venue may well still be real and operating, but this investigation cannot establish that from any retained first-party evidence."
+  },
+  "site_classification": {
+    "acquisition_class": "UNSUPPORTED",
+    "platform": "No functioning first-party website exists for this candidate under any URL this investigation could find. reservoirclub.com resolves to an OVHcloud 'site not installed' hosting placeholder (plain HTTP) and has no valid TLS certificate at all (HTTPS fails at the SNI/certificate-verification stage). No wp-json, JSON-LD, ICS, or any other structured data path can exist without a live site behind the domain.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-reservoirclub-home", "ev-domain-guesses-probe"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_PAGE",
+      "url": "https://www.reservoirclub.com/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    },
+    "start_date": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to state this venue's own address in this project's own terms; only third-party directory listings do (16 rue de la Forge Royale, 75011 Paris), which are not used as fact authority here.",
+      "evidence_refs": ["ev-domain-guesses-probe"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No first-party website exists to assess.",
+      "evidence_refs": ["ev-reservoirclub-home"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-reservoirclub-home", "ev-domain-guesses-probe"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No first-party official website exists for this candidate under any URL this investigation could locate (the one third-party-suggested domain is an unconfigured hosting placeholder with no valid TLS certificate; six other domain-name guesses all failed DNS resolution). There is no honest acquisition path to build a collector against, and none would appear from further static/structural probing since there is no live origin to inspect."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "No first-party official website could be located for this candidate under any URL this investigation could find, despite a genuine search (a WebSearch discovery pass plus six direct domain probes).",
+      "The one domain third-party directory sources suggested as this venue's official site (reservoirclub.com) is a parked/unconfigured OVHcloud hosting placeholder ('Site not installed') over plain HTTP, and has no valid TLS certificate at all over HTTPS — not a functioning website by any measure.",
+      "Only third-party review/directory sources (TripAdvisor, Yelp, sortiraparis, parisjazzclub, adhocmusic, bonplanaparis) describe this venue at all; per policy these are discovery leads, never first-party fact authority, so none of their content (address, hours, 'concerts frequently organised') was used to populate any field_assessment value here.",
+      "Per the task's own explicit framing, this is exactly the kind of 'genuinely hostile, unclear, or non-musical source' case where REJECT is the correct, honest outcome, rather than fabricating an acquisition path against a site that does not exist.",
+      "No fabricated fact was used to reach this decision."
+    ],
+    "evidence_refs": ["ev-reservoirclub-home", "ev-domain-guesses-probe"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-reservoirclub-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The one candidate domain third-party sources suggested as this venue's official site — the full, byte-faithful raw response (4,959 bytes, HTTP 404), confirming it is an OVHcloud 'Site not installed' hosting placeholder, plus its response headers.",
+      "acquired_from": "http://www.reservoirclub.com/",
+      "acquired_at": "2026-08-26T23:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-reservoir-paris-01/evidence/home-raw.html"
+    },
+    {
+      "evidence_id": "ev-domain-guesses-probe",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained curl output (stdout+stderr) for six further domain-name guesses (lereservoirparis.com, reservoirparis.fr, le-reservoir.paris, reservoirclub.fr — with/without 'www' — plus reservoirclub.com's own HTTPS variant), ALL of which either fail DNS resolution outright or fail TLS certificate verification, confirming no functioning first-party website exists under any plausible domain.",
+      "acquired_from": "several candidate domains (see file)",
+      "acquired_at": "2026-08-26T23:55:00Z",
+      "method": "curl (plain HTTP/HTTPS GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-reservoir-paris-01/evidence/domain-guesses-probe.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,149 @@
+{
+  "investigation_id": "la-maroquinerie-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/fr/agenda/' listing page AND one sampled per-event detail page, to honestly check whether a calendar year is available anywhere on this source (list page, detail page, or a referenced feed/API) before concluding it genuinely is not."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of http://www.lamaroquinerie.fr/fr/agenda/ (note: la-maroquinerie.com is an unrelated leather-goods business, confirmed NOT used) returned 50 static '<li class=\"event\">' cards, each with title, a detail-page URL carrying a stable numeric ID, and a '<h3 class=\"date\">' text — but that date text is ONLY 'DD monthname' (e.g. '30 septembre', ' 1 octobre'), with no year anywhere on any of the 50 cards. A further sampled per-event detail page (https://www.lamaroquinerie.fr/fr/agenda/view/2105/yse/) confirmed the SAME 'DD monthname'-only date text, no JSON-LD, no sitemap/feed reference, and no CMS/theme fingerprint (WordPress, Events Calendar, etc.) anywhere on the site — a bespoke, legacy PHP-templated site ('themes/default/js/...'). This fully and honestly answered the investigation question at Level 1: every other field (title, time, venue, source_record_id, event_url) is cleanly resolvable, but a calendar YEAR is genuinely never published anywhere this investigation could find, on either page tier. No further escalation was pursued, per this policy's 'DEFER/HUMAN_REVIEW does not require exhausting the ladder' — a browser/headless session would not surface a fact this source's own markup never states.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+    }
+  ],
+  "source_candidate_id": "la-maroquinerie-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "La Maroquinerie (concert hall, 23 rue Boyer, 75020 Paris)",
+  "official_url": "http://www.lamaroquinerie.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-html"],
+    "notes": "The retained page's own footer directly states 'La Maroquinerie' / '23 rue Boyer, 75020 Paris' — matching the assigned venue address exactly, at the venue's own domain lamaroquinerie.fr (explicitly NOT the unrelated la-maroquinerie.com leather-goods business, which was never fetched or used)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "A bespoke, legacy PHP-templated site (no WordPress/wp-json, no Events-Calendar, no JSON-LD, no ICS/RSS feed found). Every event is a static, repeated '<li class=\"event\">' card on the '/fr/agenda/' listing page itself. Ticket purchase links point to third-party platforms per-event (Weezevent, Shotgun observed directly on sampled cards) — first-party for acquisition purposes (title/date/venue), but never used as price authority.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "http://www.lamaroquinerie.fr/fr/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-html"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "YSÉ",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own '<h2>' (thumbnail heading), stated directly.",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Every one of the 50 sampled cards' own '<h3 class=\"date\">' states ONLY a day-of-month and a month name (e.g. ' 1 octobre'), never a year. No page heading, section, breadcrumb, meta tag, JSON-LD, or sampled per-event detail page states a year anywhere in this investigation's retained evidence — there is no second retained piece of first-party context to mechanically combine with the day/month (the v1.2 DETERMINISTIC_CONTEXT worked-example table's own 'no month/year context at all' non-example applies directly here; inferring a year from today's date would be AI_INFERENCE and is explicitly prohibited). Left honestly PARTIAL: day+month are DIRECT_SOURCE-known, the year is genuinely unresolved from retained context alone. One sampled card (LOUVE) additionally illustrates why guessing would be actively harmful: its own free-text description states the event was 'reporté au 24 février 2027' (postponed to 24 February 2027) — a completely different year than naive 'current year' rollover would ever produce for a card showing '30 septembre'.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own '<div class=\"time\">' (list page) / '<p class=\"time\">' (detail page), stated directly. No timezone is stated — floating local (Europe/Paris) time, not a UTC instant.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end-time or end-date is stated anywhere on either the list card or the sampled detail page.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "La Maroquinerie, 23 rue Boyer, 75020 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source. The retained page's own header directly states the full name and address.",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "2105",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own detail-page URL follows this site's own stable '/fr/agenda/view/{id}/{slug}/' routing scheme, e.g. '/fr/agenda/view/2105/yse/' — the numeric id is this source's own canonical permalink path segment, empirically consistent between the list card and the detail page it links to for the same event.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.lamaroquinerie.fr/fr/agenda/view/2105/yse/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own anchor 'href', stated directly — this venue's own first-party detail page.",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is shown on the list card or the sampled detail page. Ticket purchase links point to third-party platforms (Weezevent, Shotgun observed directly), which this policy does not treat as first-party price authority.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "start_date's calendar year is not published anywhere on this source (list page, sampled detail page, or any discoverable feed/JSON-LD) — it can only be recovered by an explicit, human-authorised policy decision (e.g. an operator-approved 'assume the nearest future occurrence of this day/month at true collection time' rule, itself an OPERATOR_DECISION this AI investigation cannot make on its own authority per this policy's anti-guessing rule), or by re-investigating if the source ever adds a year to its own markup. This is a genuine, permanent source limitation, not an escalation-solvable acquisition problem — the LOUVE card's own retained postponement text ('reporté au 24 février 2027' for a card still showing '30 septembre') demonstrates that a naive 'current/next year' assumption would have been actively wrong here."
+      }
+    ]
+  },
+  "decision": {
+    "status": "HUMAN_REVIEW",
+    "reasons": [
+      "Identity PROVEN, acquisition_class STATIC_HTML resolved at Level 1, and title/time/venue_location/source_record_id/event_url are all cleanly PROVEN with basis DIRECT_SOURCE — this is a clean, non-hostile, fully first-party static source.",
+      "The sole blocker is start_date.state PARTIAL: no retained page, section, or per-event detail page anywhere states a calendar year, and no second piece of first-party context exists to mechanically combine per v1.2's DETERMINISTIC_CONTEXT rule. Inferring a year from today's date or from 'this is probably the current concert season' would be exactly the AI_INFERENCE this policy prohibits from ever being marked PROVEN.",
+      "A real, retained example (LOUVE, 'reporté au 24 février 2027' shown against a card still dated '30 septembre') demonstrates this is not a hypothetical risk: a naive year-rollover assumption would have been concretely wrong for this exact source.",
+      "This is a genuine, permanent source-side limitation rather than an access/escalation problem, so HUMAN_REVIEW (not further probing, and not READY_FOR_ACTIVATION) is the honest decision: a human operator may choose to explicitly authorise a documented year-assignment policy (e.g. a real-time 'nearest future occurrence' collector rule, evaluated at actual collection time rather than at investigation time) as an OPERATOR_DECISION, which this investigation itself cannot self-authorise.",
+      "No collector code was built for this source in this pass, consistent with HUMAN_REVIEW not requiring READY_FOR_OFFLINE_PROOF/ACTIVATION's offline-proof gate."
+    ],
+    "evidence_refs": ["ev-agenda-html", "ev-detail-yse-html"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/fr/agenda/' events listing page, retrieved via plain curl GET with a descriptive User-Agent, retained byte-faithfully in full (54,248 bytes) — 50 static event cards, each with title/date(day+month only)/time/detail-URL.",
+      "acquired_from": "http://www.lamaroquinerie.fr/fr/agenda/",
+      "acquired_at": "2026-08-26T22:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-maroquinerie-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-yse-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled per-event detail page (YSÉ), retrieved to honestly check whether a year, JSON-LD, or any other richer structured data is available beyond the list page — retained byte-faithfully in full (10,937 bytes). Confirms the SAME 'day+month, no year' date text, no JSON-LD, and no CMS/feed fingerprint.",
+      "acquired_from": "https://www.lamaroquinerie.fr/fr/agenda/view/2105/yse/",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-maroquinerie-paris-01/evidence/detail-yse-raw.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,193 @@
+{
+  "investigation_id": "la-boule-noire-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own homepage (its 301-redirect target from the supplied /en/programmation/162 URL, via the Polylang plugin) and one individual event permalink page."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the supplied URL (https://laboule-noire.fr/en/programmation/162) 301-redirects (Polylang plugin) to the site's own homepage (https://laboule-noire.fr/), which IS this venue's live programme listing: a WordPress + Elementor 'Posts' widget renders one <article class=\"elementor-post ...\"> card per current/upcoming show, each with its own title, full French date+time text (day name, day number, month name, year, hour — e.g. 'MERCREDI 30 SEPTEMBRE 2026 – 19H30'), and permalink — directly answering the investigation question with no escalation needed. Confirmatory checks: the only <script type=\"application/ld+json\"> block on the homepage is Yoast SEO's own WebPage/WebSite/Organization schema (no Event/MusicEvent data anywhere); this site's own wp-json REST API returns HTTP 401 ('DRA: Only authenticated users can access the REST API') for /wp-json/wp/v2/posts, confirming no queryable events REST route exists on this install either.",
+      "evidence_refs": ["ev-homepage", "ev-event-alexis-muratti", "ev-wp-json-401"]
+    }
+  ],
+  "source_candidate_id": "la-boule-noire-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "La Boule Noire (concert venue, Montmartre, Paris 18e; physically linked to La Cigale next door but a genuinely separate, distinct venue/business)",
+  "official_url": "https://laboule-noire.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-alexis-muratti"],
+    "notes": "The retained homepage's own <title>/meta description read 'La Boule Noire salle de concert – Paris Montmartre Programmation' at the venue's own domain laboule-noire.fr. The event detail page's own footer directly states '120 BOULEVARD DE ROCHECHOUART - 75018 PARIS', matching this investigation's assigned address exactly. Every asset is self-hosted under laboule-noire.fr/wp-content/."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (wp-content/wp-includes/wp-json present) with an Elementor 'Posts' widget rendering the live show listing directly in server-rendered HTML on the homepage; no 'The Events Calendar' or other queryable events REST route exists (this install's own wp-json REST API returns HTTP 401 for every route tried, via a security plugin restricting REST access to authenticated users).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-wp-json-401"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://laboule-noire.fr/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://laboule-noire.fr/alexis-muratti/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-alexis-muratti"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "ALEXIS MURATTI",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own <h2 class=\"elementor-post__title\"> text, stated directly.",
+      "evidence_refs": ["ev-homepage", "la-boule-noire-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-30",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event card's own excerpt text states the FULL date directly on one line — day name, day number, month name, and year all together (e.g. 'MERCREDI 30 SEPTEMBRE 2026 – 19H30') — no contextual combination across separate page elements is needed; this is a single retained field already stating the complete date.",
+      "evidence_refs": ["ev-homepage", "la-boule-noire-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30 (Europe/Paris, floating local — no explicit UTC offset anywhere on this source)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Stated directly within the same card excerpt text as start_date (e.g. '... – 19H30').",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is stated anywhere on the listing page or the sampled detail page.",
+      "evidence_refs": ["ev-homepage", "ev-event-alexis-muratti"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "La Boule Noire, 120 Boulevard de Rochechouart, 75018 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source (every card on this homepage is one of La Boule Noire's own shows), matching ingestion/badehaus's own single-venue-source precedent; the address is additionally directly stated, verbatim, in the sampled event detail page's own footer.",
+      "evidence_refs": ["ev-event-alexis-muratti"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "alexis-muratti",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This site's own WordPress permalink slug (e.g. 'https://laboule-noire.fr/alexis-muratti/') — its own canonical path — used as source_record_id, matching the documented precedent already established for badehaus-berlin-01/ingestion/badehaus/observation-adapter.mjs.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://laboule-noire.fr/alexis-muratti/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own permalink href, stated directly.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "20 EUR",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The event detail page's own numeric heading (class=\"prix-event\", text '20') never itself prints a currency symbol in the page's HTTP response text — the '€' a human sees is supplied purely by this same page's own retained CSS rule '.prix-event p:after{content:\"€\"}'. Combining these two distinct retained first-party inputs (the numeral, and the site's own CSS declaring what it always appends to that exact element) mechanically and reproducibly yields '20 EUR', and only that value — a genuine DETERMINISTIC_CONTEXT combination, not a plausibility guess.",
+      "evidence_refs": ["ev-event-alexis-muratti", "la-boule-noire-offline-proof"],
+      "derivation": {
+        "rule": "the numeral inside the element carrying class=\"prix-event\" is immediately followed, per this page's own CSS rule '.prix-event p:after{content:\"€\"}', by a Euro-sign suffix; concatenate the numeral with ' EUR'",
+        "inputs": ["20", ".prix-event p:after{content:\"€\";}"]
+      }
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "la-boule-noire-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title/domain, and the assigned address stated directly on the sampled event detail page's own footer).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed (this site's own wp-json REST API is blocked (401), ruling out a JSON path).",
+      "CONFIRMED public data paths retained: the homepage's own live listing, and one sampled event detail page.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — the full date is stated on one line per card, no contextual combination needed for the gated fields.",
+      "source_record_id PROVEN via this site's own WordPress permalink slug, following the documented badehaus-berlin-01 precedent.",
+      "price additionally PROVEN with basis DETERMINISTIC_CONTEXT — a genuine two-input mechanical combination (a bare numeral + this page's own retained CSS currency rule), with a DETERMINISTIC_DERIVATION offline-proof citing it (gate refinement for basis DETERMINISTIC_CONTEXT satisfied even though price itself is not a gated field).",
+      "recommended_family STATIC_EVENT_LIST — a genuinely bespoke static-HTML card parser (ingestion/la-boule-noire/), matching this project's existing badehaus-berlin-01 precedent, not a new reusable family (this exact markup/CSS pattern is not shared with any other source yet investigated).",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/la-boule-noire.test.mjs, passing against fixtures/la-boule-noire-paris/) — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-event-alexis-muratti", "la-boule-noire-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own homepage (the 301-redirect target of the supplied /en/programmation/162 URL) — full raw response, retained byte-for-byte (115,400 bytes).",
+      "acquired_from": "https://laboule-noire.fr/en/programmation/162",
+      "acquired_at": "2026-08-26T22:40:40Z",
+      "method": "curl -L --compressed (plain HTTP GET, descriptive User-Agent, no authentication, no browser; redirect followed)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-boule-noire-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-alexis-muratti",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page (the site's own permalink for the 'ALEXIS MURATTI' card) — full raw response, retained byte-for-byte (82,078 bytes).",
+      "acquired_from": "https://laboule-noire.fr/alexis-muratti/",
+      "acquired_at": "2026-08-26T22:41:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-boule-noire-paris-01/evidence/event-alexis-muratti-raw.html"
+    },
+    {
+      "evidence_id": "ev-wp-json-401",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "This install's own wp-json REST API response for a plain, unauthenticated GET of /wp-json/wp/v2/posts — HTTP 401, body {\"code\":\"rest_cannot_access\",\"message\":\"DRA: Only authenticated users can access the REST API.\",...} — confirming no queryable events REST route is publicly exposed on this install.",
+      "acquired_from": "https://laboule-noire.fr/wp-json/wp/v2/posts?per_page=3",
+      "acquired_at": "2026-08-26T22:41:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-boule-noire-paris-01/evidence/wp-json-posts-sample.json"
+    },
+    {
+      "evidence_id": "ev-nominatim-geocode",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A single, rate-limited, live Nominatim query for 'La Boule Noire, 120 Boulevard de Rochechouart, 75018 Paris' (countrycodes=fr), via ingestion/geocoding/nominatim.mjs's existing searchNominatimLive() export — full raw response, byte-for-byte. Single confident candidate, name 'La Boule Noire', exact house_number/road/postcode match.",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=La+Boule+Noire%2C+120+Boulevard+de+Rochechouart%2C+75018+Paris&format=jsonv2&addressdetails=1&limit=3&countrycodes=fr",
+      "acquired_at": "2026-08-26T23:04:26Z",
+      "method": "ingestion/geocoding/nominatim.mjs's searchNominatimLive() (one-off node -e invocation, no permanent script)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-boule-noire-paris-01/evidence/nominatim-geocode.json"
+    },
+    {
+      "evidence_id": "la-boule-noire-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/la-boule-noire.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/la-boule-noire-paris/, copied verbatim from ev-homepage/ev-event-alexis-muratti) via ingestion/la-boule-noire/{discovery,observation-adapter}.mjs and reproducing the exact claimed field values (including the price DETERMINISTIC_CONTEXT combination) deterministically. Run via `node --test tests/la-boule-noire.test.mjs`: 6/6 passing.",
+      "acquired_from": "tests/la-boule-noire.test.mjs",
+      "acquired_at": "2026-08-26T23:35:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/la-boule-noire-paris-01/evidence/event-alexis-muratti-raw.html"
+    }
+  ],
+  "supersedes": null
+}

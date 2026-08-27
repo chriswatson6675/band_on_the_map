@@ -1,0 +1,171 @@
+{
+  "investigation_id": "la-java-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:40:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official home page and '/programmation' page. The venue's own home page carries a NightClub JSON-LD block with its own GEO coordinates; the programmation page (a Next.js app) already streams its full event list as a first-party embedded 'events' JSON array inside its initial HTML response (a React Server Component 'self.__next_f.push' payload) — no separate client-side request needed. No escalation was required."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://la-java.fr/programmation returned this venue's own Next.js page. Its initial HTML already embeds a first-party JSON array (19 events at the time of retrieval) inside a React Server Component 'self.__next_f.push' script chunk — each event carrying its own stable id, name, a full ISO datetime, type, poster, and outbound ticketUrl. A second, independent fetch minutes later (research/source-investigations/la-java-paris-01/evidence/programmation-raw-refetch.html) reproduced the exact same 19 records byte-for-byte, empirically confirming id stability. This fully answered the investigation question at Level 1; no escalation was needed.",
+      "evidence_refs": ["ev-home-html", "ev-programmation-html", "ev-programmation-refetch-html"]
+    }
+  ],
+  "source_candidate_id": "la-java-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "La Java (historic Latin/world-music-leaning concert club, 105 rue du Faubourg du Temple, 75010 Paris)",
+  "official_url": "https://la-java.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-html"],
+    "notes": "The retained home page's own embedded schema.org JSON-LD directly states '@type\":\"NightClub\",\"name\":\"La Java\"' with 'address':{'streetAddress':'105 rue du Faubourg du Temple','postalCode':'75010'} and 'sameAs' links to the venue's own verified Instagram/Facebook/TikTok handles ('la_java_paris'/'lajava.paris') — a self-consistent, first-party retained artifact at the venue's own domain la-java.fr, matching the assigned venue address exactly. Public sources (Wikipedia, ABC Salles) independently corroborate this as the historic club operating at this address since 1923, used here only as a discovery lead, not as fact authority."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Next.js (App Router / React Server Components). The '/programmation' page's own initial HTML response embeds its full event list as a first-party JSON array inside one of several '<script>self.__next_f.push([1,\"...\"])</script>' React Flight-protocol chunks — the unescaped string content of one such chunk contains a bracket-balanced '\"events\":[...]' array. This is a distinct streaming-data convention from ingestion/sveltekit-data/ (a different framework's own '__data.json' shape). Ticket purchase redirects to a third-party ticketing domain (shotgun.live), but the venue's own page directly and consistently designates which Shotgun URL belongs to which event — that designation itself is first-party.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_PAGE_WITH_EMBEDDED_RSC_JSON",
+      "url": "https://la-java.fr/programmation",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programmation-html"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "100% Bruno Mars Party !! (Paris )",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each embedded event object's own 'name' field, stated directly.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each embedded event object's own 'date' field's date portion (e.g. '2026-08-28T17:30:00.000Z'), stated directly. The calendar-date portion is safe to use as-is regardless of the timezone-labelling issue noted under 'time' below, since no cross-midnight shift is plausible for this source's own evening/night event times.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "17:30 (Europe/Paris, FLOATING_LOCAL — the source's own trailing '.000Z' is NOT a genuine UTC instant)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each embedded event object's own 'date' field's time-of-day portion is directly stated, but its trailing '.000Z' is honestly NOT treated as a confirmed UTC instant: this investigation cross-checked the SAME retained page's own human-readable card text for another event ('jeu. 27 août, 21:00', for event id '2026-08-23-java-party', whose JSON 'date' is '2026-08-27T21:00:00.000Z') — the digits are identical with no timezone conversion applied. A genuine UTC->Europe/Paris (UTC+2 in August) conversion would have shown '23:00', not '21:00'. Recorded as FLOATING_LOCAL, matching the same honest distinction already established for tempodrom-berlin-01.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end-time or end-date field exists anywhere in the embedded event objects.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "La Java, 105 rue du Faubourg du Temple, 75010 Paris (48.8714, 2.3702)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source. The home page's own NightClub JSON-LD directly states both the full postal address AND its own 'geo':{'latitude':48.8714,'longitude':2.3702} GEO property — a first-party, directly-evidenced coordinate pair, not geocoder-derived (location_status should be recorded CONFIRMED, not merely GEOCODED, per this project's coordinate-provenance convention already used for uber-arena-berlin-01).",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "2026-08-28-100-bruno-mars-party-paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each embedded event object's own 'id' field. Stability empirically proven: a second, independent fetch of the same page minutes later (ev-programmation-refetch-html) reproduced every one of the 19 records' 'id' values, and every other field, byte-for-byte identically — satisfying the stable-identifier rule's 'proven empirically' path.",
+      "evidence_refs": ["ev-programmation-html", "ev-programmation-refetch-html"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://shotgun.live/fr/events/100-bruno-mars-party-in-paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each embedded event object's own 'ticketUrl' field, stated directly — this is the venue's own first-party-authored designation of where to buy tickets for that specific event, even though the URL itself resolves to a third-party ticketing domain (Shotgun). The designation (which URL belongs to which event) is first-party; the checkout page's own content is not used as evidence for anything here.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price field exists in the embedded event objects. Price, where shown at all, would only appear on the third-party Shotgun checkout page, which this policy does not treat as first-party price authority.",
+      "evidence_refs": ["ev-programmation-html"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html", "la-java-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (home page's own NightClub JSON-LD: name, full address, GEO, verified social handles).",
+      "acquisition_class EMBEDDED_JSON, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: a single page fetch exposing this venue's own full near-term event list (19 events) at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN and empirically proven stable via an independent second fetch — the strongest of the policy's three stability-proof paths.",
+      "venue_location additionally PROVEN, and the venue's own JSON-LD directly states its own GEO coordinates (CONFIRMED-grade, not geocoder-derived).",
+      "time is honestly recorded FLOATING_LOCAL rather than silently promoted to a fabricated UTC instant, per a genuine cross-check against this same page's own human-readable card text.",
+      "recommended_family NEW_FAMILY_REQUIRED: this venue's own Next.js React Server Component embedded-JSON convention does not match any existing reusable family (distinct from ingestion/sveltekit-data/, a different framework's own convention). A new bespoke module (ingestion/la-java-paris/) was written.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/la-java.test.mjs, 5/5 passing) re-parsing the retained fixture and reproducing every claimed field value deterministically, including proving the FLOATING_LOCAL time is never silently upgraded to a fabricated UTC instant."
+    ],
+    "evidence_refs": ["ev-home-html", "ev-programmation-html", "ev-programmation-refetch-html", "la-java-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official home page — the full, byte-faithful raw response (69,676 bytes), retained in full. Carries the venue's own NightClub JSON-LD (name, address, GEO, opening hours, social handles).",
+      "acquired_from": "https://la-java.fr/",
+      "acquired_at": "2026-08-26T23:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-java-paris-01/evidence/home-raw.html"
+    },
+    {
+      "evidence_id": "ev-programmation-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/programmation' page — the full, byte-faithful raw response (89,088 bytes), retained in full. Carries the embedded 'events' JSON array inside a React Server Component script chunk.",
+      "acquired_from": "https://la-java.fr/programmation",
+      "acquired_at": "2026-08-26T23:26:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-java-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "ev-programmation-refetch-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, independent fetch of the SAME page a few minutes after ev-programmation-html, retained in full, used to empirically prove source_record_id (and every other field) is stable across re-fetches, not regenerated per request.",
+      "acquired_from": "https://la-java.fr/programmation",
+      "acquired_at": "2026-08-26T23:32:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-java-paris-01/evidence/programmation-raw-refetch.html"
+    },
+    {
+      "evidence_id": "la-java-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/la-java.test.mjs, 5 tests) re-parsing a retained, bounded, byte-faithful fixture (fixtures/la-java-paris/programmation-rsc-chunk.html — the single script chunk carrying the embedded events array) through the bespoke ingestion/la-java-paris/ collector, reproducing every claimed field value deterministically, and proving the FLOATING_LOCAL time-certainty handling is never silently upgraded to a fabricated UTC instant.",
+      "acquired_from": "tests/la-java.test.mjs",
+      "acquired_at": "2026-08-26T23:50:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/la-java-paris-01/evidence/programmation-raw.html"
+    }
+  ],
+  "supersedes": null
+}
