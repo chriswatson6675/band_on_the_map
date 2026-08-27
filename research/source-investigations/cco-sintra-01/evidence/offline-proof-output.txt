@@ -1,0 +1,36 @@
+PASS: page 1 contains exactly 5 event rows
+PASS: page 2 contains exactly 5 event rows
+PASS: 10/10 sampled event rows parsed with a non-null title
+PASS: 10/10 sampled event rows have a full ISO date (YYYY-MM-DD) directly in ic-single-next
+PASS: 9/10 sampled event rows have an HH:MM start time directly in ic-single-starttime (time is common but NOT universal — see next check)
+PASS: exactly 1/10 sampled rows (event id 551) has NO ic-single-starttime span at all on either its list row or its own detail page — an honest, empirically-found exception, not smoothed over
+PASS: 10/10 sampled event rows have a venue that is one of the two known CCOC auditoria
+PASS: 10/10 sampled event rows expose a permalink whose own id/slug components match the row's own id, and whose date-time suffix's date component matches the row's own displayed date
+PASS: for the 9/10 rows that DO show a displayed time, the permalink's own date-time suffix time component matches that displayed time exactly
+PASS: event id 551's permalink itself still encodes a time suffix (17-00) even though no ic-single-starttime span displays it anywhere — the permalink's time component cannot be treated as proof that a start time is genuinely, reliably displayed for every event
+PASS: both known auditoria appear at least once across the 10-row sample
+PASS: event id 543 (Evita) appears exactly twice in the 10-row sample (two distinct dates)
+PASS: the two id-543 rows have two DIFFERENT dates but the SAME bare numeric id — proving the bare id is NOT alone a per-occurrence-unique key
+PASS: the two id-543 rows nonetheless have two DIFFERENT full permalink URLs (id+slug+date-time)
+PASS: body-event-gnr.html: retained detail page's own <link rel="canonical"> exactly matches the URL it was fetched from
+PASS: body-event-evita1.html: retained detail page's own <link rel="canonical"> exactly matches the URL it was fetched from
+PASS: body-event-evita2.html: retained detail page's own <link rel="canonical"> exactly matches the URL it was fetched from
+PASS: body-event-orquestra.html: retained detail page's own <link rel="canonical"> exactly matches the URL it was fetched from
+PASS: body-event-evita1.html (fetched at .../2026-09-03-21-00) states its own date as 2026-09-03
+PASS: body-event-evita2.html (fetched at .../2026-09-04-21-00) states its own date as 2026-09-04
+PASS: body-event-gnr.html contains a free-text 'Duração:' block (75 minutos)
+PASS: body-event-gnr.html contains a free-text 'Preço:' block with at least one € value
+PASS: body-event-orquestra.html contains NEITHER a 'Duração:' NOR a 'Preço:' block — proving these are not universally present, structured fields
+PASS: demonstration only: GNR start 21:00 + retained duration 75min = 22:15
+PASS: headers-feed.txt records HTTP/1.1 410 Gone for /agenda?format=feed&type=rss
+PASS: body-feed.xml is a generic nginx 410 error page, not an RSS/XML feed
+PASS: retained event-detail page states the full postal address 'Praça Dr. Francisco Sá Carneiro, 2710-720 SINTRA' for Centro Cultural Olga Cadaval
+PASS: retained event-detail page states a cm-sintra.pt (Câmara Municipal de Sintra) contact email
+PASS: retained event-detail page's own footer privacy-policy text names 'Câmara Municipal de Sintra'
+PASS: retained homepage names 'Centro Cultural Olga Cadaval' in its own meta description/keywords
+PASS: retained agenda-page HTML body classes literally contain 'com_icagenda' and 'com-icagenda'
+PASS: retained homepage HTML contains the literal generator tag HELIX_ULTIMATE_GENERATOR_TEXT (Joomla Helix Ultimate template framework)
+PASS: retained homepage HTML contains the literal string 'Joomla'
+PASS: no application/ld+json (JSON-LD) block exists anywhere in the retained agenda list page or the 4 retained detail pages
+
+OFFLINE PROOF: PASSED (all checks succeeded, 0 failures)

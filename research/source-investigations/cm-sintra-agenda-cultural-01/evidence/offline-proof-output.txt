@@ -1,0 +1,42 @@
+PASS: page 1 (/agenda) contains exactly 10 event rows
+PASS: page 2 (/agenda?page=2) contains exactly 8 event rows
+PASS: combined retained sample is exactly 18 rows, matching the page's own 'Existem 18 eventos próximos' count
+PASS: 18/18 sampled rows parsed with a non-null title
+PASS: 18/18 sampled rows carry their own source-provided category label directly (ic-title-cat-btn)
+PASS: the retained 18-row sample spans at least 5 distinct first-party categories (a genuine multi-topic civic calendar, not a music-only feed)
+PASS: the retained sample includes several genuinely non-music categories (Bibliotecas, Exposições, Teatro, Visitas Guiadas, Outros)
+PASS: exactly 3 of the 18 raw rows carry the source's own 'Música' category label
+PASS: GET /agenda?filter_from=<today>&filter_category=3 (the site's own server-side filter) returns exactly 3 rows
+PASS: every row returned by the filtered query itself carries category 'Música' (100% precision, not merely trusted)
+PASS: the filtered query's 3 rows are EXACTLY the same 3 (id, date) occurrences found by independently tallying the raw unfiltered 18-row sample — the category filter is proven complete AND accurate, not just plausible
+PASS: 3/3 sampled Música rows use the 'single' (specific occurrence) date sub-template, not the 'period' range sub-template
+PASS: 3/3 sampled Música rows have a full ISO date (YYYY-MM-DD) directly in ic-single-next
+PASS: 3/3 sampled Música rows have an HH:MM start time directly in ic-single-starttime
+PASS: 3/3 sampled Música rows have a non-null venue name directly in the row's own place/ic-place element
+PASS: 3/3 sampled Música rows have a distinct permalink whose own date-time suffix matches the row's own displayed date+time
+PASS: event id 148 ('Evita no Olga Cadaval') appears exactly twice in the 18-row sample (two distinct dates)
+PASS: the two id-148 rows have two DIFFERENT dates but the SAME bare numeric id — the bare id alone is NOT a per-occurrence-unique key
+PASS: the two id-148 rows nonetheless have two DIFFERENT full permalink URLs (slug + date-time suffix)
+PASS: body-event-evita.html: contains NO <link rel="canonical"> anywhere (confirmed absent, not merely unchecked)
+PASS: body-event-evita.html: its own og:url meta tag exactly matches the URL it was fetched from
+PASS: body-event-orfeu.html: contains NO <link rel="canonical"> anywhere (confirmed absent, not merely unchecked)
+PASS: body-event-orfeu.html: its own og:url meta tag exactly matches the URL it was fetched from
+PASS: body-event-evita.html states its own date/time as 2026-09-03 21:00
+PASS: body-event-evita.html states its own venue as 'Centro Cultural Olga Cadaval'
+PASS: body-event-orfeu.html states its own date/time as 2026-10-17 21:00
+PASS: body-event-orfeu.html states its own venue as 'Museu Arqueológico de São Miguel de Odrinhas'
+PASS: body-event-evita.html contains the word 'gratuita' SOMEWHERE on the page, but NOT within its own event description block — a naive 'gratuit*' text match would be WRONG for this ticketed musical
+PASS: body-event-evita.html's own full description links out to an external Ticketline URL rather than stating a price directly on this page
+PASS: body-event-orfeu.html's own full description states, within its own text, that admission is free ('proposta cultural gratuita')
+PASS: headers-feed.txt records HTTP/1.1 410 Gone for /agenda?format=feed&type=rss
+PASS: body-feed.xml is a generic nginx 410 error page, not an RSS/XML feed
+PASS: the retained agenda page's own <head> nonetheless advertises that (now-dead) RSS route via <link rel="alternate">
+PASS: retained homepage's own OpenSearch <link> title names 'Câmara Municipal de Sintra'
+PASS: retained homepage and agenda page both state a municipe@cm-sintra.pt contact email
+PASS: retained Evita event-detail page's own og:site_name states 'Câmara Municipal de Sintra'
+PASS: retained agenda-page <body> class list literally contains 'com_icagenda' and 'com-icagenda'
+PASS: retained homepage <meta name="generator"> literally contains 'Helix Ultimate' and 'Joomla'
+PASS: the retained agenda page's one application/ld+json block is a BreadcrumbList only — no Event/MusicEvent JSON-LD exists anywhere on the retained agenda list page or the 2 retained detail pages
+PASS: retained robots.txt does not Disallow /agenda anywhere
+
+OFFLINE PROOF: PASSED (0 failures)

@@ -1,0 +1,31 @@
+=== plano-b-porto-01 offline proof ===
+Verifying retained evidence supports the DEFER decision (site currently unreachable).
+
+PASS: dns-lookups.txt records NXDOMAIN for www.planobporto.com
+PASS: dns-lookups.txt records a resolved A record for the bare domain planobporto.com (50.62.172.212)
+PASS: dns-lookups.txt records NS delegation to name-services.com (Network Solutions default DNS)
+PASS: tls-probe-log.txt records a curl/Schannel TLS handshake failure (SEC_E_ILLEGAL_MESSAGE)
+PASS: tls-probe-log.txt records a PowerShell/.NET TLS handshake failure
+PASS: tls-probe-log.txt records a WebFetch/OpenSSL TLS handshake failure
+PASS: tls-probe-log.txt records WebFetch's own independent DNS resolver also failing for www.planobporto.com
+PASS: at least 3 independent TLS client implementations failed the handshake (found 3)
+PASS: plain HTTP request to planobporto.com returned status 409
+PASS: plain HTTP response headers identify a Cloudflare-fronted edge (Server: cloudflare)
+PASS: plain HTTP response body is the literal Cloudflare "error code: 1001" (DNS resolution error at the edge)
+PASS: robots.txt request also returned status 409 (same edge-level failure, not path-specific)
+PASS: robots.txt response body is also the literal Cloudflare "error code: 1001"
+PASS: archive.org availability API confirms a historical snapshot exists for www.planobporto.com
+PASS: archive.org's closest snapshot for both hostname forms is the same 2022-03-15 capture (timestamp 20220315072517)
+PASS: CDX snapshot list is non-empty
+PASS: CDX snapshot list contains historical /event/ or /events/ URLs (found 77) — evidence this candidate genuinely once published a WordPress-shaped events listing
+PASS: CDX root-URL snapshots include at least one 200 (site was live)
+PASS: CDX root-URL snapshots include at least one 404 (site later went dark) at or after the last 200
+PASS: the last recorded 404 for the root URL comes chronologically after the last recorded 200 (CDX list is timestamp-ordered ascending)
+PASS: archived snapshot <title> self-identifies as "PLANO B" programme page
+PASS: archived snapshot links its own Facebook page (facebook.com/planobclub)
+PASS: archived snapshot links its own Instagram page (instagram.com/planobporto)
+PASS: archived snapshot (2022) shows a bespoke Bootstrap-based static-asset build, not a WordPress generator tag — platform had already migrated away from the earlier (2019-2021 CDX) WordPress-shaped URLs
+PASS: Songkick's own retained page (third-party, not first-party authority) repeats the venue's street address "Rua Cândido Dos Reis, 30" 16 time(s), consistent with the prior loose registry lead's physical_address
+PASS: Songkick's own retained page lists 7 distinct 2026 event startDate value(s) for this venue — third-party corroboration (not fact authority) that the real-world venue is still actively operating today, supporting DEFER over REJECT
+
+OFFLINE PROOF: PASSED (0 failing check(s))

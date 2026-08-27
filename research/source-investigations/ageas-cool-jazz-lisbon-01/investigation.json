@@ -1,0 +1,303 @@
+{
+  "investigation_id": "ageas-cool-jazz-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:40:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA, no browser automation) against the site's own public lineup page (cartaz.html), its homepage, one guessed schedule-page path (horarios.html, 404), and one bounded cross-check fetch of the site's own linked third-party ticketing-widget event page (cooljazz.seetickets.com). Inspected the retained HTML for JSON-LD/schema.org markup (none found), RSS/ICS (none found), a WordPress/CMS fingerprint (none found), and first-party prose text naming each festival night's headline artist, day-of-month, month, year (where restated), venue, and named stage. A dependency-free, no-network Node offline-proof script re-parsed the retained fixture deterministically to extract all 8 dated festival nights, cross-check a real id/content mismatch in the source's own markup, and reproduce a mixed DIRECT_SOURCE/DETERMINISTIC_CONTEXT date derivation for every night. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA) of https://ageascooljazz.pt/cartaz.html and of the homepage https://ageascooljazz.pt both returned 200 OK with fully server-rendered, static HTML (a stable Last-Modified header on each, no client-side rendering needed to see any event content). The page's own <title> ('CARTAZ - 08 a 31 JULHO 2026 / CASCAIS') and <meta name=\"keywords\"> (naming 'Hipódromo Manuel Possolo') establish a single, explicit edition-level date-range/location context. The cartaz page contains 9 named day-blocks (desk-cartaz-diaNN comment-delimited sections) covering 8 distinct festival nights, each with first-party prose text directly naming a headline artist, at least a day-of-month + month, and (for 4 of 8 nights) the year too; 6 of 8 nights additionally carry a direct ticket-purchase anchor to the festival's own linked ticketing-widget domain. No schema.org JSON-LD, RSS, ICS, or JSON API was found anywhere in the retained HTML of either page; this is a hand-built static microsite (no WordPress/wp-json fingerprint; 'Blocs' desktop-app site-builder CSS class naming, e.g. 'l-bloc'/'bloc'), not a structured feed. This already answered identity, platform classification, data-path discovery, and enough of field assessment (title and start_date both reach PROVEN; venue_location and event_url reach PARTIAL; time and end reach NOT_PRESENT; source_record_id reaches UNKNOWN with an alternative strategy documented) without inspecting any JS bundle or opening a browser. One guessed schedule-page path (https://ageascooljazz.pt/horarios.html, following a 'CARTAZ + HORÁRIOS' nav link's implied naming) returned a plain 404 and was not pursued further, and one bounded cross-check fetch of the site's own linked ticketing-widget event page (cooljazz.seetickets.com) returned HTTP 410 Gone (sold out) rather than a live page — both retained as evidence, neither changing the core Level 1 finding. Escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-cartaz-body",
+        "ev-cartaz-headers",
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-horarios-body",
+        "ev-horarios-headers",
+        "ev-seetickets-body",
+        "ev-seetickets-headers",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "ageas-cool-jazz-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Ageas Cool Jazz -- an annual multi-night jazz/pop festival at Hipódromo Manuel Possolo, Cascais, Portugal (organiser of record: Live Experiences, per the site's own footer copyright and its liveexperiences.pt-hosted legal documents); the 2026 edition retained here runs 8 nights across 08-31 July 2026, each headlined by one main-stage artist with supporting acts across up to two additional named stages ('Cascais Jazz Sessions by Smooth FM', 'Late Night') within the same physical site. Loose prior discovery lead: sources/lisbon.json's existing 'ageas-cool-jazz' entry (official_website https://ageascooljazz.pt, events_url https://ageascooljazz.pt/cartaz.html) -- independently re-verified from freshly retained evidence by this investigation, not assumed.",
+  "official_url": "https://ageascooljazz.pt/cartaz.html",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cartaz-body", "ev-home-body", "ev-seetickets-body"],
+    "notes": "ageascooljazz.pt/cartaz.html matches sources/lisbon.json's existing events_url exactly and https://ageascooljazz.pt matches its official_website exactly, both independently re-confirmed by this investigation's own retained evidence rather than assumed from the registry note: the page's own <title> ('CARTAZ - 08 a 31 JULHO 2026 / CASCAIS') and <meta name=\"keywords\"> both name 'Hipódromo Manuel Possolo' and 'Cascais'; the footer states '© 2025 Live Experiences' and links to three liveexperiences.pt-hosted legal documents (Política de Cookies, Política de Privacidade, Termos e Condições), matching the registry's own research_notes ('organiser of record is Live Experiences') and rights_notes ('Explicit Termos e Condições plus cookie/privacy links in the footer'). A bounded cross-check fetch of the site's own linked ticketing-widget page for one headliner (cooljazz.seetickets.com/event/gilberto-gil-ageas-cooljazz-2026/...) independently corroborates the same artist name and '2026' edition branding in its own <title>/<h1> ('Gilberto Gil | Ageas Cooljazz 2026'), even though that specific page itself returned HTTP 410 Gone (sold out) rather than a live purchasable page at investigation time -- retained honestly as a cross-check, not treated as first-party fact authority per this policy's third-party-sources rule (the ticketing widget is the festival's own linked partner, not an independent aggregator, but this investigation still relies on ageascooljazz.pt's own prose for every field claim, never on seetickets.com content). DISCREPANCY WITH THE REGISTRY'S OWN NOTES: sources/lisbon.json's physical_address for this candidate reads 'Hipódromo Manuel Possolo / Parque Marechal Carmona, Cascais' -- this investigation's retained evidence (both pages, full text) names 'Hipódromo Manuel Possolo' repeatedly but never 'Parque Marechal Carmona' anywhere; recorded honestly as a discrepancy with the registry's own prior note, not silently reconciled or assumed still accurate for this edition."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Hand-built static microsite: no WordPress/wp-json fingerprint, no recognisable calendar plugin, no schema.org JSON-LD, RSS, ICS, or JSON API found anywhere in the retained evidence. CSS class naming ('bloc', 'l-bloc', 'container bloc-lg', lazysizes-style 'lazyload'/'data-src' image attributes) matches the 'Blocs' desktop-app static-site-builder's characteristic output, not a CMS. Both retained pages are fully server-rendered (stable Last-Modified headers; identical content on a plain unauthenticated GET) -- no client-side rendering is needed to see any event content. Event data lives entirely in first-party marketing prose embedded per headline artist inside per-night <div> blocks, not in a repeated, class-consistent structured card the way ingestion/wp-evenement-cards/-style sources expose it.",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-cartaz-body", "ev-cartaz-headers", "ev-home-body", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://ageascooljazz.pt/cartaz.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cartaz-body", "ev-cartaz-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_SUMMARY_PAGE (homepage; repeats the same 6 ticket-linked headliners and the same page-title edition-year context as cartaz.html)",
+      "url": "https://ageascooljazz.pt",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-home-body", "ev-home-headers"]
+    },
+    {
+      "kind": "THIRD_PARTY_TICKETING_WIDGET_EVENT_PAGE (the site's own linked See Tickets integration -- discovery/cross-check lead only, per policy never treated as first-party fact authority; sampled page returned HTTP 410 Gone / sold-out at investigation time, not a live purchasable resource)",
+      "url": "https://cooljazz.seetickets.com/event/gilberto-gil-ageas-cooljazz-2026/hipodromo-manuel-possolo-cascais/3597645",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-seetickets-body", "ev-seetickets-headers"]
+    },
+    {
+      "kind": "GUESSED_SCHEDULE_PAGE (nav text elsewhere on the site reads 'CARTAZ + HORÁRIOS', suggesting a separate times/schedule page might exist; this specific guessed path returned a plain 404 and was not explored further, per bounded-evidence policy)",
+      "url": "https://ageascooljazz.pt/horarios.html",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-horarios-body", "ev-horarios-headers"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Gilberto Gil",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each of the 8 festival nights names one headline artist directly in retained first-party prose (e.g. 'A 8 de julho, o Hipódromo Manuel Possolo recebe... Gilberto Gil'), and for 6 of 8 nights this is cross-confirmed by the festival's own ticket-link URL slug (e.g. '.../event/gilberto-gil-ageas-cooljazz-2026/...'). Value here anchors on the 8 July night (Gilberto Gil) as a representative example; see evidence/offline-proof-output.txt for the full 8-night table (David Byrne, Loyle Carner, Jamiroquai/Moullinex, Diana Krall, Franz Ferdinand, Scissor Sisters, Chet Faker). IMPORTANT, HONESTLY-RECORDED AMBIGUITY: each night is a multi-act bill -- one ticketed headliner plus several supporting acts across up to three named stages ('palco Ageas'/main stage, 'Cascais Jazz Sessions by Smooth FM', 'Late Night'). This field assessment addresses only the headline-artist title per night; this investigation does not resolve whether Band on the Map should also model undercard/support-stage performers as separate titled Events -- see collector_assessment.blockers.",
+      "evidence_refs": ["ev-cartaz-body", "ev-home-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-07-08",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The page's own <title> ('CARTAZ - 08 a 31 JULHO 2026 / CASCAIS') states a single edition-level 'DD a DD MONTH YYYY' context (month=July, year=2026) governing the whole cartaz page. 4 of 8 nights (14, 15, 22, 25 July) additionally restate the year directly in their own retained prose (e.g. 'Loyle Carner ... dia 15 de Julho de 2026'), reaching DIRECT_SOURCE for those specific nights; the other 4 (8, 18, 29, 31 July, including this anchor value) state only day-of-month + month locally and require the page-title's year context to complete, which is genuinely DETERMINISTIC_CONTEXT -- see the derivation object below. All 8 nights independently resolve to one unambiguous 2026-07-DD date each, mechanically reproduced in evidence/offline-proof-output.txt (8/8 nights cross-checked, including a proof that the two blocks both covering 22 July agree on the same date despite one carrying a misleading div id -- see venue_location and source_record_id notes). Today's real-world date, agent knowledge, or a 'probable' season were never consulted -- the year comes only from the page's own retained <title> text.",
+      "evidence_refs": ["ev-cartaz-body", "ev-offline-proof"],
+      "derivation": {
+        "rule": "The page's own <title> states a single 'DD a DD MONTH YYYY' edition-range context (e.g. '08 a 31 JULHO 2026') that governs every day-block on the page. Each day-block's own retained prose states at least one 'DD de <mês>' mention for its own night. Where the block's own prose does not also restate the year, concatenate the page-title's month+year with the block's own day as YYYY-MM-DD; where the block's own prose does restate the year directly, both sources independently agree (verified for all 4 such nights in evidence/offline-proof-output.txt). Exactly one result per night in every case observed in this bounded sample.",
+        "inputs": [
+          "CARTAZ - 08 a 31 JULHO 2026 / CASCAIS",
+          "A 8 de julho, o Hipódromo Manuel Possolo recebe o histórico compositor... Gilberto Gil"
+        ]
+      }
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No performance or door time-of-day text (e.g. '21h', '21:00', 'portas abertas') was found anywhere in the retained HTML text of either page, across any of the 8 nights. A nav link elsewhere on the site reads 'CARTAZ + HORÁRIOS' ('lineup + schedule/times'), implying set times might exist somewhere, but the one guessed path this investigation tried for a dedicated schedule page (horarios.html) returned a plain 404 (ev-horarios-body/ev-horarios-headers) and was not explored further. If times exist at all for this source, they most likely live only inside the poster image assets themselves (not machine-readable text), which this investigation did not OCR or otherwise attempt to read as text content.",
+      "evidence_refs": ["ev-cartaz-body", "ev-horarios-body"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end date/time was found anywhere in the retained evidence for any of the 8 nights -- each night's own text states only a single day, never a duration or closing time.",
+      "evidence_refs": ["ev-cartaz-body"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "'Hipódromo Manuel Possolo' (in Cascais) is the only physical venue name found anywhere in either retained page's full text -- no other physical venue name or address (checked explicitly for 'Casino Estoril', 'Parque Marechal Carmona', 'Centro Cultural', 'Coliseu' in evidence/offline-proof.mjs) appears anywhere in the retained evidence, contrary to this task's initial multi-venue hypothesis. However, per evidence/offline-proof-output.txt, only 6 of the 8 dated nights name either that venue directly or one of the festival's own two named supporting stages ('Cascais Jazz Sessions by Smooth FM', 'Late Night') somewhere in their own retained prose; 2 of 8 (25 July / Franz Ferdinand, 31 July / Chet Faker) do not restate a venue or stage name anywhere in their own retained text at all. This investigation deliberately does NOT promote venue_location to PROVEN/DETERMINISTIC_CONTEXT for those 2 nights merely because the page's global <meta name=\"keywords\"> also mentions 'Hipódromo Manuel Possolo' once -- per docs/SOURCE_INVESTIGATION_POLICY.md's explicit warning against over-generalising inheritance from a value 'appearing once, near the top of a page' without genuinely demonstrable structural containment, a page-level SEO <meta> tag is an even weaker signal than that warned-against case, not a per-event structural container. Recorded honestly as PARTIAL for the field as a whole, not silently rounded up.",
+      "evidence_refs": ["ev-cartaz-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "ageascooljazz.pt itself exposes no documented internal id scheme for its own festival nights (no data-event-id, no canonical per-event URL, no JSON-LD @id). The festival's own linked ticketing-widget URLs do carry a numeric id (e.g. '3597645' in the Gilberto Gil link), but this id belongs to a third-party ticketing platform, not the source's own first-party identifier, and its stability was never empirically re-tested (this investigation made only a single bounded fetch per link); worse, the one such link this investigation did re-fetch live returned HTTP 410 Gone rather than a stable, resolvable resource, directly undermining any assumption of durability. Per docs/SOURCE_INVESTIGATION_POLICY.md's stable-identifier rule, this field honestly stays UNKNOWN rather than being promoted on the strength of a value that merely 'looks like' an id. ALTERNATIVE IDENTITY STRATEGY (documented per the READY_FOR_ACTIVATION gate, for future use): a composite key of (headline-artist-name-or-ticket-slug + the night's own derived 2026-07-DD date) is available and was proven unique across all 8 sampled nights in evidence/offline-proof-output.txt -- analogous to how this repository already handles Hot Clube de Portugal's non-stable ICS UID per docs/OBSERVATION_PIPELINE.md.",
+      "evidence_refs": ["ev-cartaz-body", "ev-seetickets-body", "ev-seetickets-headers", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "6 of 8 nights carry a direct ticket-purchase anchor (cooljazz.seetickets.com/event/...) in the retained HTML of both cartaz.html and the homepage; 2 of 8 (14 July / David Byrne, 18 July / Jamiroquai + Moullinex) carry only a 'buy tickets' image with no <a href> wrapper at all, i.e. genuinely no purchase URL in the retained evidence. Even where a link is present, this investigation independently observed one sampled link (Gilberto Gil / 8 July) returning HTTP 410 Gone (sold out) rather than a live page at investigation time -- a link's mere presence in retained HTML does not itself prove present purchasability. ageascooljazz.pt itself has no per-night canonical detail-page URL of its own (all detail is embedded directly in cartaz.html); the only 'event_url' concept this source exposes at all is the third-party ticketing-widget link, which is why this stays PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-cartaz-body", "ev-seetickets-body", "ev-seetickets-headers", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price/admission text (no '€' character anywhere) was found in the retained HTML of either page. If price information exists at all for this source, it is only exposed through the third-party ticketing-widget's own pages, which this investigation did not treat as first-party fact authority and did not otherwise explore beyond the one bounded, currently-sold-out cross-check sample.",
+      "evidence_refs": ["ev-cartaz-body"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-cartaz-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The source's own div `id` attributes are proven unreliable as a day-of-month key: the block whose id reads 'desk-cartaz-dia12' contains zero mentions of '12 de julho' anywhere in its own body and is entirely about 22 July (Diana Krall / Gisela Mabel) instead, empirically demonstrated in evidence/offline-proof-output.txt. A collector must derive each night's date from the block's own prose text, never from its id/position."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "Date/artist/venue extraction depends on matching Portuguese-language marketing-prose sentence patterns ('DD de julho', 'DD de Julho de YYYY', 'no Hipódromo Manuel Possolo, em Cascais') rather than a repeated, class-consistent per-event DOM container. This is materially more fragile than a structured feed or a clean repeated card (contrast gulbenkian-lisbon-01's fcg-card/JSON-LD structure) and will likely need real adjustment for wording changes in a future edition."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "Genuine, unresolved architectural ambiguity: each festival night bundles one ticketed headliner plus several supporting/undercard acts across up to three named stages within the same physical site. This investigation intentionally does not decide whether Band on the Map should model only headliners, or every named performer, as distinct Observations -- that is a product/architecture decision, not something this bounded investigation can or should resolve unilaterally."
+      },
+      {
+        "severity": "MINOR",
+        "description": "2 of 8 nights (14 and 18 July) carry no ticket-purchase link at all in the retained evidence."
+      },
+      {
+        "severity": "MINOR",
+        "description": "2 of 8 nights (25 and 31 July) do not restate the venue or a named stage anywhere in their own retained prose, even though no other physical venue was found anywhere in the retained evidence -- see field_assessment.venue_location."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No set/door time-of-day was found anywhere in the retained text evidence for any night -- see field_assessment.time."
+      },
+      {
+        "severity": "MINOR",
+        "description": "source_record_id cannot be proven stable: the only id-like value present belongs to a third-party ticketing widget, was never empirically re-tested for stability, and the one sampled instance already returned HTTP 410 Gone during this investigation -- see field_assessment.source_record_id for the documented alternative composite-key strategy."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (matching official_website/events_url, page title/meta, footer organiser name and legal-document links), independently re-established rather than assumed from the existing sources/lisbon.json registry note.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class, reached via a single SUFFICIENT Level 1 probe -- no JSON-LD/RSS/ICS/JSON API/CMS fingerprint was found; this is a hand-built static microsite whose event data lives entirely in first-party prose.",
+      "A CONFIRMED public data_paths entry (cartaz.html) is retained, corroborated by the homepage; a guessed schedule-page path (horarios.html) was tried and honestly recorded as REJECTED (404) rather than silently omitted.",
+      "field_assessment.title and field_assessment.start_date both reach PROVEN, with basis DIRECT_SOURCE and DETERMINISTIC_CONTEXT respectively -- start_date's DETERMINISTIC_CONTEXT combination (page-title edition year + each night's own day+month prose) is proven reproducible offline for all 8 sampled nights in evidence/offline-proof-output.txt, satisfying the v1.2 offline-derivation-proof requirement for a gated field.",
+      "field_assessment.source_record_id is honestly UNKNOWN, with an explicit alternative identity strategy documented in its notes (a composite headline-artist + derived-date key, proven unique across all 8 sampled nights) -- satisfying the READY_FOR_ACTIVATION identity gate's alternative-strategy clause even though this decision does not proceed to that status.",
+      "Despite the formal activation gates not being strictly blocked, this investigation deliberately stops at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION because three MAJOR, honestly-recorded blockers remain genuinely unresolved: (a) the source's own div id attributes are empirically proven unreliable as a date key (id=\"desk-cartaz-dia12\" content is entirely about 22 July, never 12 July) -- any real collector must parse dates from prose text alone, a materially more fragile approach than a structured feed; (b) extraction depends on matching Portuguese marketing-prose sentence patterns rather than a repeated, class-consistent per-event container, and is likely to need real maintenance across future editions; (c) a genuine, unresolved product/architecture question -- each night bundles one headliner plus several undercard acts across up to three named stages, and this investigation does not decide how Band on the Map should model that.",
+      "Contrary to this task's initial multi-venue hypothesis, only ONE physical venue name/address was found anywhere in the retained evidence across both pages: 'Hipódromo Manuel Possolo, Cascais'. The festival's up to three named stages ('palco Ageas'/main stage, 'Cascais Jazz Sessions by Smooth FM', 'Late Night') are sub-parts of that one site in every case this investigation could evidence, not separate physical venues -- and the registry's own 'Parque Marechal Carmona' note was not corroborated anywhere in this edition's retained content, recorded honestly as a discrepancy rather than silently reconciled.",
+      "Eight distinct dated festival nights with resolvable headline-artist + date pairs were retained for later, separate venue-registry work per this task's own instructions (no venues/*.json entry created or edited here): 2026-07-08 Gilberto Gil, 2026-07-14 David Byrne, 2026-07-15 Loyle Carner, 2026-07-18 Jamiroquai/Moullinex, 2026-07-22 Diana Krall, 2026-07-25 Franz Ferdinand, 2026-07-29 Scissor Sisters, 2026-07-31 Chet Faker -- all at the single confirmed physical venue, Hipódromo Manuel Possolo, Cascais.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every claim above (8/8 nights fully cross-checked, exit 0).",
+      "collector_assessment.blockers contains no CRITICAL entries -- three MAJOR and four MINOR, all honestly recorded rather than smoothed over.",
+      "This decision is a research conclusion only -- it does not edit sources/*.json or any registry; it does not change sources/lisbon.json's existing 'ageas-cool-jazz' entry in any way."
+    ],
+    "evidence_refs": ["ev-cartaz-body", "ev-home-body", "ev-seetickets-body", "ev-horarios-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-cartaz-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the festival's public lineup/'cartaz' page: 9 desktop day-blocks (desk-cartaz-diaNN) plus a duplicated mobile rendering, covering 8 distinct dated festival nights with first-party prose naming headline artists, dates, venue/stage names, and (for 6/8 nights) a direct ticket-purchase link.",
+      "acquired_from": "https://ageascooljazz.pt/cartaz.html",
+      "acquired_at": "2026-08-27T09:25:26Z",
+      "method": "curl -sS -D headers-cartaz.txt -o body-cartaz.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/body-cartaz.html"
+    },
+    {
+      "evidence_id": "ev-cartaz-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same cartaz.html request: 200 OK, nginx, a stable Last-Modified date (20 May 2026) proving server-side static rendering, no client-side rendering required.",
+      "acquired_from": "https://ageascooljazz.pt/cartaz.html",
+      "acquired_at": "2026-08-27T09:25:26Z",
+      "method": "curl -sS -D headers-cartaz.txt (same request as ev-cartaz-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/headers-cartaz.txt"
+    },
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the festival's homepage: same page-title edition-year context ('08 a 31 JULHO 2026 / CASCAIS') and the same 6 ticket-linked headliners as cartaz.html, corroborating identity and date context.",
+      "acquired_from": "https://ageascooljazz.pt",
+      "acquired_at": "2026-08-27T09:25:26Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same homepage request: 200 OK, nginx, a stable Last-Modified date (05 Aug 2026).",
+      "acquired_from": "https://ageascooljazz.pt",
+      "acquired_at": "2026-08-27T09:25:26Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-horarios-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for one guessed schedule-page path, tried because another page's nav text reads 'CARTAZ + HORÁRIOS': a plain, small 404 error page, not a real schedule/times resource.",
+      "acquired_from": "https://ageascooljazz.pt/horarios.html",
+      "acquired_at": "2026-08-27T09:27:46Z",
+      "method": "curl -sS -D headers-horarios.txt -o body-horarios.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=iso-8859-1",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/body-horarios.html"
+    },
+    {
+      "evidence_id": "ev-horarios-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same guessed schedule-page request: 404 Not Found.",
+      "acquired_from": "https://ageascooljazz.pt/horarios.html",
+      "acquired_at": "2026-08-27T09:27:46Z",
+      "method": "curl -sS -D headers-horarios.txt (same request as ev-horarios-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/headers-horarios.txt"
+    },
+    {
+      "evidence_id": "ev-seetickets-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for one bounded cross-check fetch of the festival's own linked ticketing-widget event page (Gilberto Gil, 8 July): its own <title>/<h1> corroborate the artist name and '2026' edition branding, but the page itself states 'não há bilhetes disponíveis' (no tickets available) under an HTTP 410 Gone status -- retained as a cross-check and as direct proof that a present ticket link does not guarantee present purchasability, never treated as first-party fact authority for date/venue/price per this policy's third-party-sources rule.",
+      "acquired_from": "https://cooljazz.seetickets.com/event/gilberto-gil-ageas-cooljazz-2026/hipodromo-manuel-possolo-cascais/3597645",
+      "acquired_at": "2026-08-27T09:31:31Z",
+      "method": "curl -sS -D headers-seetickets-gilberto-gil.txt -o body-seetickets-gilberto-gil.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET; a link the festival's own cartaz.html page itself provides)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/body-seetickets-gilberto-gil.html"
+    },
+    {
+      "evidence_id": "ev-seetickets-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same ticketing-widget request: HTTP 410 Gone.",
+      "acquired_from": "https://cooljazz.seetickets.com/event/gilberto-gil-ageas-cooljazz-2026/hipodromo-manuel-possolo-cascais/3597645",
+      "acquired_at": "2026-08-27T09:31:31Z",
+      "method": "curl -sS -D headers-seetickets-gilberto-gil.txt (same request as ev-seetickets-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/headers-seetickets-gilberto-gil.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses body-cartaz.html's 9 desktop day-blocks, confirms the page-title edition-year context, proves the desk-cartaz-dia12/dia22 id-vs-content mismatch (both blocks independently resolve to the same 2026-07-22 date despite one carrying a misleading id), aggregates ticket-link and venue/stage-name presence per distinct night (6/8 and 6/8 respectively), confirms no other physical venue name appears anywhere in the retained evidence, and derives all 8 nights' full dates (4 DIRECT_SOURCE, 4 DETERMINISTIC_CONTEXT) with a stated, reproducible combination rule. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/ (body-cartaz.html, read locally, no network)",
+      "acquired_at": "2026-08-27T09:45:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixture)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/ageas-cool-jazz-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

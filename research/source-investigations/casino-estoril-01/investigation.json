@@ -1,0 +1,283 @@
+{
+  "investigation_id": "casino-estoril-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) against: the venue's own homepage (which 302-redirects to /pt/home), the given candidate 'Música ao Vivo' events page, the venue's own 'Sobre/Contactos' page (for independent identity/address confirmation), and a publicly-served JSON data asset (/assets/json/agenda_content.pt.json) discovered directly inside the retained agenda page's own inline <script> tag ($.getJSON call) -- itself still a Level 1 passive-static discovery, not a hidden endpoint requiring JS execution or introspection. The agenda page's raw, unrendered HTML already contains the entire server-rendered performer/day summary for this residency (8 performer entries, each with day-of-month figures and 'de Agosto'), and the JSON asset independently confirms the same content plus structured room/price/schedule fields for this and 48 other agenda listings site-wide. A dependency-free, no-network Node offline-proof script re-parsed the retained HTML/JSON files to mechanically re-derive every claim below, including a deliberate, mechanical check for whether any 4-digit year token appears anywhere in the retained performer/day summary block (none found) and a cross-check against a genuine one-off, specifically-dated show ('ABBA MIA') in the same retained JSON, which independently confirms the missing-year pattern is a site-wide convention, not a gap unique to this candidate. Level 1 was SUFFICIENT to reach a well-evidenced conclusion -- including the conclusion that the source structurally never publishes the calendar year for these performance dates -- so no escalation to Level 2/3/4 was attempted: browser/headless observation would not surface a year that the site's own server-rendered HTML and its own JSON data asset simply never emit."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://casino-estoril.pt (302 -> /pt/home), https://casino-estoril.pt/pt/home, https://casino-estoril.pt/pt/agenda/musica-ao-vivo (the given candidate page), https://casino-estoril.pt/pt/casino-estoril (the venue's own 'Sobre/Contactos' page), and https://casino-estoril.pt/assets/json/agenda_content.pt.json (a public JSON asset referenced directly in the agenda page's own inline <script>) all returned 200 OK (or a normal 302 redirect for the bare domain). The agenda page's raw HTML already contains the fully server-rendered performer/day summary paragraph (8 performer entries) with no JS execution needed, and the JSON asset independently duplicates and structurally confirms the same content (name/description/content/price/schedule_text/room/date_begin/date_end) for this and 48 other site-wide agenda listings. This already answers identity, platform classification, data-path discovery, and field assessment -- including the genuinely negative finding that no 4-digit year is stated anywhere in the retained performer/day content for this candidate, and (via a retained comparison record for a specifically-dated one-off show, 'ABBA MIA') that this is a site-wide convention rather than something a deeper probe would resolve. Escalating to Level 2 (STRUCTURAL) or beyond was not attempted because the blocking finding is an absence of data in the source's own server-rendered output and its own JSON asset, not a client-rendering or hidden-endpoint problem that a JS-bundle inspection or browser session could plausibly resolve.",
+      "evidence_refs": [
+        "ev-home-headers",
+        "ev-home-pt-body",
+        "ev-home-pt-headers",
+        "ev-agenda-body",
+        "ev-agenda-headers",
+        "ev-agenda-json-body",
+        "ev-agenda-json-headers",
+        "ev-sobre-body",
+        "ev-sobre-headers",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "casino-estoril-01-candidate",
+  "source_id": null,
+  "venue_reference": "Casino Estoril -- Lounge D (nightly live-music slot), Av. Dr. Stanley Ho, 2765-190 Estoril, Cascais municipality, Portugal (loose prior discovery lead: sources/lisbon.json's 'casino-estoril-musica-ao-vivo' entry -- independently re-verified from freshly retained evidence by this investigation, not assumed)",
+  "official_url": "https://casino-estoril.pt/pt/agenda/musica-ao-vivo",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-sobre-body", "ev-agenda-json-body"],
+    "notes": "Independently re-confirmed by this investigation's own retained evidence, not assumed from the prior loose registry note. The candidate agenda page's own <title> ('Música ao Vivo | Casino Estoril'), og:site_name ('Casino Estoril'), and <h1>Música ao Vivo</h1> all self-identify consistently. The venue's own separately-fetched 'Sobre/Contactos' page (https://casino-estoril.pt/pt/casino-estoril) independently states the postal address under its own 'MORADA' heading: 'Av. Dr. Stanley Ho / Edifício do Casino Estoril / 2765-190 Estoril' -- matching the municipality/city already recorded in sources/lisbon.json's loose lead (Estoril, Cascais) -- plus a Google Maps link literally referencing 'Casino+Estoril' and an official contact email (info@estoril-sol.com) under the 'Grupo Estoril Sol' footer branding shared by every page on the domain. The retained JSON asset's own record for this exact candidate (slug 'https://casino-estoril.pt/pt/agenda/musica-ao-vivo') carries the same name ('Música ao Vivo') and the same 'Lounge D' room as the HTML page's own sidebar contact box, cross-confirming the two independently-fetched retained sources describe the same real-world thing."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "A bespoke, hand-authored PHP backend (X-Powered-By: PHP/7.4.33, per-page PHPSESSID cookies, author meta 'Bang Bang | Creative Shots') -- not WordPress, not a recognisable off-the-shelf events/calendar plugin. Pages are genuinely server-rendered per-route (the agenda page, the Sobre page, and the redirected homepage all returned distinct, page-specific HTML bodies, unlike an SPA catch-all shell), so acquisition does not require JS execution. In addition to the server-rendered HTML, the site publishes a single large public JSON asset (/assets/json/agenda_content.pt.json, application/json, 112KB, cache-busted with a query-string version token, Last-Modified header present) containing structured records (name/description/content/price/ticket_url/age_group/date_begin/date_end/schedule_header/schedule_text/room/slug) for every one of 49 agenda-section listings on the site, including this exact candidate. This JSON is referenced directly inside the agenda page's own inline <script> tag (used client-side for the site's search box), not a queryable REST/GraphQL API -- a static, wholesale JSON dump of the CMS's own agenda content, hence EMBEDDED_JSON rather than PUBLIC_JSON_API.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-agenda-json-headers", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://casino-estoril.pt/pt/agenda/musica-ao-vivo",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "EMBEDDED_JSON_AGENDA_FEED (site-wide asset; contains this exact candidate's own structured record among 49 listings)",
+      "url": "https://casino-estoril.pt/assets/json/agenda_content.pt.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-json-body", "ev-agenda-json-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "VENUE_IDENTITY_PAGE (not an event data source; used only to independently confirm venue identity/address)",
+      "url": "https://casino-estoril.pt/pt/casino-estoril",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-sobre-body", "ev-sobre-headers", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "VANESSA FERREIRA",
+      "basis": "DIRECT_SOURCE",
+      "notes": "There is no separate abstract show title on this source -- the performer's own name IS the closest thing to a 'title', directly and literally stated (e.g. the retained HTML/JSON content states 'VANESSA FERREIRA - 1, 29 de Agosto' verbatim). Value shown here is one representative performer (the first listed); the retained offline-proof output mechanically confirms all 8/8 listed performer names are non-empty, directly-stated text (VANESSA FERREIRA, CARLA RIBEIRO, GUTTA, RITA RICE, NUNO GONÇALO DE MATOS, MANUEL MELO, JOANA ALFAIATE, MIGUEL CRUZ).",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "notes": "Day-of-month and month are both directly stated for every one of the 8 performer entries (e.g. VANESSA FERREIRA: days 1 and 29, 'de Agosto'), mechanically confirmed in evidence/offline-proof-output.txt. But NO 4-digit year appears anywhere in the retained performer/day summary block, the item's own description/content/schedule_text/schedule_header fields, or anywhere else in the retained HTML or JSON for this candidate -- mechanically confirmed by a direct regex scan finding zero year tokens. The JSON's own date_begin/date_end fields ('2025-10-24'..'2027-12-31') do NOT resolve this: they span more than one distinct calendar year, so more than one real August (2026 and 2027) falls inside that window -- mechanically confirmed in evidence/offline-proof-output.txt. This is further corroborated by cross-checking a genuinely one-off, specifically-dated show in the same retained JSON ('ABBA MIA', whose own schedule_text states only 'DATA: 11 Outubro' with no year either, and whose own date_begin/date_end is likewise a generic full-calendar-year display-visibility window, not the show's real date) -- proving date_begin/date_end is a content-visibility window this CMS uses site-wide, never the actual occurrence date, and that omitting the year from schedule_text is a systemic site convention, not a gap unique to this candidate. Per docs/SOURCE_INVESTIGATION_POLICY.md's date/time rule and its v1.2 worked-examples table, inferring a specific year (e.g. '2026' merely because that is the current real-world year) would be exactly the prohibited AI_INFERENCE pattern, not a mechanical DETERMINISTIC_CONTEXT combination with exactly one valid result -- there are genuinely two structurally-plausible years (2026, 2027) within the record's own retained validity window, so no single result is determinable. Stays AMBIGUOUS rather than PROVEN or PARTIAL: day and month are known, year is not, and this is not a case where the source's own structure settles the ambiguity.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "22:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The item's own retained schedule_text field states directly: 'HORÁRIO:22h00 à 00h30' -- a page-level/series-level constant, not repeated per individual performer entry, but stated once, explicitly, and unambiguously as this residency's own default nightly start time (matching the page's own <h2>De quarta a domingo, das 22h00 à 00h30.</h2>). Floating local time -- no explicit UTC offset or IANA timezone is stated anywhere in retained evidence; Europe/Lisbon is the obvious real-world timezone but this was never promoted to a fabricated UTC instant. IMPORTANT DOCUMENTED EXCEPTION: the retained content itself states one specific per-night override -- 'MANUEL MELO - 8 de Agosto, 23h00' -- proving the shared 22h00 default is NOT universal. Mechanically confirmed in evidence/offline-proof-output.txt. A collector must not blindly hard-code 22:00 for every night; the source itself already demonstrates at least one genuine exception.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "00:30",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same retained schedule_text field ('HORÁRIO:22h00 à 00h30') directly states this residency's own default nightly close time. Floating local time, same timezone caveat as 'time'. This crosses midnight (implying the calendar date rolls over), which the source itself never explicitly disambiguates -- left honestly as a floating time-of-day value rather than promoted to a specific end-datetime, since start_date's own calendar year is independently unresolved (see start_date.notes) and compounding that uncertainty with a same/next-day assumption would not be mechanical. No per-night exception to this close time was observed in retained evidence (unlike the one documented start-time exception for MANUEL MELO).",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Casino Estoril -- Lounge D, Av. Dr. Stanley Ho, Edifício do Casino Estoril, 2765-190 Estoril",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The candidate's own retained JSON record states its room as 'Lounge D' directly, but does not itself restate the venue's full street address. The venue's own, separately-fetched 'Sobre/Contactos' page (https://casino-estoril.pt/pt/casino-estoril) independently and explicitly states the postal address under its own 'MORADA' heading. Combining these two distinct, retained, first-party pieces of context (the candidate's own room field + the venue's own address page) via a fixed rule yields exactly one result. Mechanically reproduced in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-agenda-json-body", "ev-sobre-body", "ev-offline-proof"],
+      "derivation": {
+        "rule": "The candidate agenda-item's own 'room' field in agenda_content.pt.json names the specific space within the venue. The venue's own separately-retained 'Sobre/Contactos' page states its own single physical postal address under its own 'MORADA' heading. Concatenate as '<Venue name> -- <room>, <venue's own stated address>'. Both inputs are first-party (same registrable domain, casino-estoril.pt) and there is only one venue and one room value for this candidate, so the combination is unambiguous.",
+        "inputs": ["Lounge D (room field, agenda_content.pt.json)", "Av. Dr. Stanley Ho / Edifício do Casino Estoril / 2765-190 Estoril (MORADA heading, https://casino-estoril.pt/pt/casino-estoril)"]
+      }
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The retained JSON record for this candidate carries no numeric/opaque id field at all -- only a 'slug' field, which is the item's own canonical page URL (https://casino-estoril.pt/pt/agenda/musica-ao-vivo), matching the page's own og:url meta and the page's own request URL. That slug is a stable identifier for the RESIDENCY SERIES as a whole (this specific recurring live-music slot, as opposed to the venue's other agenda listings such as 'dj-sessions' or 'fado-tropical'), but it is shared identically by all 8 currently-listed performer nights -- it is not, and cannot be treated as, a per-occurrence identifier. DOCUMENTED ALTERNATIVE IDENTITY STRATEGY, HONESTLY FLAGGED AS CURRENTLY NON-VIABLE (not smoothed over): the obvious candidate composite key would be (slug + calendar date), mirroring the strategy used successfully in fama-dalfama-lisbon-01. That strategy cannot be safely applied here today because the calendar date's own YEAR is not established by any retained evidence (see field_assessment.start_date.notes) -- a composite key built from an unresolved/guessed year would itself be a fabricated identifier, which this policy explicitly prohibits. This is recorded as the investigation's single CRITICAL blocker (see collector_assessment.blockers) rather than silently downgraded to a MINOR gap.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "A genuine, reliably-extractable public URL exists (https://casino-estoril.pt/pt/agenda/musica-ao-vivo -- confirmed identically via the page's own request URL, its own og:url meta, and the retained JSON record's own 'slug' field), but it is shared by all 8 currently-listed performer nights, not unique per occurrence -- the same honest distinction already established in fama-dalfama-lisbon-01. A collector can report this as 'where this fact was read' but must never synthesize a fabricated distinct per-night URL from it.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "FREE",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The candidate's own retained schedule_text field states directly: 'ENTRADA: LIVRE*' (free entry), matching the page's own sidebar contact box ('ENTRADA: LIVRE*'). The JSON record's separate 'price' field is an empty string (not itself a usable value), so this claim rests on schedule_text, which does state it explicitly and directly -- not combined from separate context, hence DIRECT_SOURCE rather than DETERMINISTIC_CONTEXT. HONEST CAVEAT, not smoothed over: the retained page's own footnote states the asterisk means 'Às sextas-feiras, sábados e em noites temáticas, é obrigatório o consumo mínimo para lugares sentados na zona de bar' (on Fridays, Saturdays, and themed nights, a minimum consumption charge is mandatory for seated bar-area seating) -- so 'FREE' is an honest characterisation of admission itself, but not an unconditional zero-cost guarantee for every seating arrangement on every night.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-agenda-json-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The exact calendar year of every one of the 8 currently-listed performance dates is never stated anywhere in retained evidence: not in the candidate page's own server-rendered HTML, not in the referenced JSON asset's own description/content/schedule_text/schedule_header fields for this candidate, and not mechanically resolvable from the JSON's own date_begin/date_end fields (empirically proven, via offline-proof, to be a generic content-visibility window rather than the real occurrence date -- it spans more than one distinct calendar year, and the same imprecise pattern was independently confirmed on a genuinely one-off, specifically-dated show, 'ABBA MIA', in the same retained JSON). A collector built on this source today could only fill in a year by assuming 'the nearest/current one' from today's real-world date -- exactly the AI_INFERENCE pattern docs/SOURCE_INVESTIGATION_POLICY.md prohibits from ever becoming a PROVEN fact. Until the source itself begins stating the year (directly, or via some other retained, mechanically-combinable first-party context), no automated collector can honestly produce a dated Observation from this candidate."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No source-documented per-night identifier or per-night URL exists (see field_assessment.source_record_id.notes and field_assessment.event_url.notes) -- all 8 currently-listed nights share one series-level slug/URL. Even once the CRITICAL year blocker above is resolved, a collector would still need to synthesize a composite (venue + room + calendar date) key rather than relying on any id from the source itself."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The nightly default start time (22h00) is stated once as a page-level/series-level constant, but the source's own retained content already demonstrates at least one genuine per-night exception (MANUEL MELO, 23h00) -- a collector that hard-codes the constant without checking for a stated per-entry override would misdate that specific night."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The 'FREE' admission claim carries a source-stated asterisked exception (mandatory minimum consumption for seated bar-area seating on Fridays, Saturdays, and themed nights) that a flat 'FREE' price field would silently lose unless a collector also propagates the footnote text."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "This candidate's structural shape (a genuinely server-rendered public page plus a publicly-referenced, structured JSON data asset naming performer, day-of-month, month, room, admission, and default schedule) is otherwise a clean, honest fit for automated acquisition -- title, time, end, venue_location, and price all reach PROVEN with cited, retained, mechanically-reproduced evidence, and none of this required browser/headless observation.",
+      "However, field_assessment.start_date honestly reaches only AMBIGUOUS: the retained evidence establishes day-of-month and month for every listed performer, but no 4-digit year is stated anywhere on this source for this candidate, and the JSON's own date_begin/date_end field -- which might otherwise have resolved this -- was empirically proven (via offline-proof, and via a corroborating cross-check against a genuinely one-off, specifically-dated show in the same JSON) to be a generic content-visibility window rather than the real occurrence date, spanning more than one distinct calendar year.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md's date/time rule and its v1.2 field-value-basis worked examples, promoting a specific year to PROVEN here -- merely because today's real-world date (2026-08-27) makes '2026' the obvious guess -- would be exactly the prohibited AI_INFERENCE pattern, not a genuine DETERMINISTIC_CONTEXT combination with exactly one valid result. This investigation deliberately does not do that.",
+      "Because the year cannot be honestly established, field_assessment.source_record_id also cannot reach a safe alternative identity strategy: the obvious composite (slug + calendar date) key used successfully in fama-dalfama-lisbon-01 is not viable here without an unresolved/guessed year, which this policy explicitly prohibits inventing.",
+      "collector_assessment.blockers records this honestly as a single CRITICAL blocker (plus three MINOR ones) rather than smoothing it into a MINOR note or silently working around it -- READY_FOR_ACTIVATION explicitly requires no unresolved CRITICAL blocker, and this investigation does not attempt to force that gate.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md's escalation ladder, DEFER never requires exhausting or even attempting every probe level: the blocking finding here is a genuine absence of year data in the source's own server-rendered HTML and its own JSON asset, not a client-rendering or hidden-data-path problem that a Level 2/3/4 probe could plausibly resolve, so this investigation stops at a single, SUFFICIENT Level 1 probe_history entry rather than opening a browser session merely to appear thorough.",
+      "This is a legitimate, complete, evidenced investigation outcome, not a failure -- see docs/SOURCE_INVESTIGATION_POLICY.md's 'Level 5 -- Defer' section. A future re-investigation (a new investigation_id, superseding this one) may reach a different conclusion if the source itself later begins stating the year, or if some other retained, mechanically-combinable first-party context (e.g. a dated page revision, a differently-structured programme page) is found.",
+      "This decision is a research conclusion only -- it does not edit sources/*.json or any registry; it does not change sources/lisbon.json's existing 'casino-estoril-musica-ao-vivo' entry in any way."
+    ],
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-json-body", "ev-sobre-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the bare domain request: 302 Moved Temporarily, Location: https://casino-estoril.pt/pt/home, nginx, PHP/7.4.33, PHPSESSID cookie -- confirms the domain is live and redirects to a language-prefixed homepage route (no response body).",
+      "acquired_from": "https://casino-estoril.pt",
+      "acquired_at": "2026-08-27T07:53:01Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-home-pt-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the redirected homepage (https://casino-estoril.pt/pt/home): <title>História e Ousadia | Casino Estoril</title>, standard site-wide header/nav/footer shared by every page on the domain.",
+      "acquired_from": "https://casino-estoril.pt/pt/home",
+      "acquired_at": "2026-08-27T07:53:15Z",
+      "method": "curl -sS -D headers-home-pt.txt -o body-home-pt.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/body-home-pt.html"
+    },
+    {
+      "evidence_id": "ev-home-pt-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the redirected homepage request: 200 OK, nginx, PHP/7.4.33.",
+      "acquired_from": "https://casino-estoril.pt/pt/home",
+      "acquired_at": "2026-08-27T07:53:15Z",
+      "method": "curl -sS -D headers-home-pt.txt (same request as ev-home-pt-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/headers-home-pt.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate 'Música ao Vivo' page: fully server-rendered, including the <h1>/<h2> cadence statement ('De quarta a domingo, das 22h00 à 00h30.'), the 8-performer/day summary paragraph, per-performer biography text, the sidebar 'Lounge D / ENTRADA: LIVRE* / HORÁRIO 22h00 à 00h30 / M/18**' contact box, and the inline <script> referencing the site's agenda_content.pt.json asset.",
+      "acquired_from": "https://casino-estoril.pt/pt/agenda/musica-ao-vivo",
+      "acquired_at": "2026-08-27T07:53:02Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the agenda-page request: 200 OK, nginx, PHP/7.4.33, chunked transfer encoding.",
+      "acquired_from": "https://casino-estoril.pt/pt/agenda/musica-ao-vivo",
+      "acquired_at": "2026-08-27T07:53:02Z",
+      "method": "curl -sS -D headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-json-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response body for the publicly-referenced agenda data asset: an array of 49 structured records covering every agenda-section listing on the site, including this exact candidate ('slug': '.../musica-ao-vivo') with its own name/description/content/price/ticket_url/age_group/date_begin/date_end/schedule_header/schedule_text/room fields, plus comparison records used for the offline-proof's site-wide-convention cross-check (e.g. 'abba-mia-tributo-a-abba').",
+      "acquired_from": "https://casino-estoril.pt/assets/json/agenda_content.pt.json?6035",
+      "acquired_at": "2026-08-27T07:53:49Z",
+      "method": "curl -sS -D headers-agenda-json.txt -o body-agenda-content.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET; URL copied verbatim from the retained agenda page's own inline <script> $.getJSON call)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/body-agenda-content.json"
+    },
+    {
+      "evidence_id": "ev-agenda-json-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the JSON asset request: 200 OK, application/json, Content-Length 112199, Last-Modified: Mon, 24 Aug 2026 17:31:39 GMT (three days before this investigation's own fetch -- noted only as a freshness signal, never used to infer any event's calendar year).",
+      "acquired_from": "https://casino-estoril.pt/assets/json/agenda_content.pt.json?6035",
+      "acquired_at": "2026-08-27T07:53:49Z",
+      "method": "curl -sS -D headers-agenda-json.txt (same request as ev-agenda-json-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/headers-agenda-json.txt"
+    },
+    {
+      "evidence_id": "ev-sobre-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the venue's own 'Sobre/Contactos' page: states the venue's postal address under its own 'MORADA' heading ('Av. Dr. Stanley Ho / Edifício do Casino Estoril / 2765-190 Estoril'), an EMAIL contact (info@estoril-sol.com), and a Google Maps link referencing 'Casino+Estoril'.",
+      "acquired_from": "https://casino-estoril.pt/pt/casino-estoril",
+      "acquired_at": "2026-08-27T07:54:10Z",
+      "method": "curl -sS -D headers-sobre.txt -o body-sobre.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/body-sobre.html"
+    },
+    {
+      "evidence_id": "ev-sobre-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the Sobre-page request: 200 OK, nginx, PHP/7.4.33.",
+      "acquired_from": "https://casino-estoril.pt/pt/casino-estoril",
+      "acquired_at": "2026-08-27T07:54:10Z",
+      "method": "curl -sS -D headers-sobre.txt (same request as ev-sobre-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/casino-estoril-01/evidence/headers-sobre.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses the agenda page's 8-performer/day summary paragraph and the JSON asset's own 'musica-ao-vivo' record, confirms zero 4-digit year tokens anywhere in the summary block, confirms date_begin/date_end spans more than one distinct calendar year (so more than one real August falls inside it), cross-checks a genuinely one-off, specifically-dated comparison show ('ABBA MIA') in the same retained JSON to confirm the missing-year pattern is a site-wide convention, mechanically combines the room field + the Sobre page's own address text into a single venue_location, and confirms the schedule_text field's price/time/end text directly. Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/casino-estoril-01/evidence/ (all body-*.html/json files above, read locally, no network)",
+      "acquired_at": "2026-08-27T08:04:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/casino-estoril-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

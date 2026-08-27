@@ -1,0 +1,35 @@
+PASS  agenda_content.pt.json contains a 'musica-ao-vivo' record
+PASS  record name is 'Música ao Vivo'
+PASS  performer/day summary paragraph found in retained HTML
+PASS  exactly 8 performer/day lines found
+PASS  every performer/day line matches 'NAME - day(s) de Agosto[, HHhMM]'
+
+Parsed performer/day entries (day + month only -- see year check below):
+  - VANESSA FERREIRA: days [1, 29] of Agosto
+  - CARLA RIBEIRO: days [2, 8, 20, 22] of Agosto
+  - GUTTA: days [5, 19] of Agosto
+  - RITA RICE: days [6, 13] of Agosto
+  - NUNO GON&Ccedil;ALO DE MATOS: days [7, 9, 14, 16, 26] of Agosto
+  - MANUEL MELO: days [8] of Agosto, time override 23h00
+  - JOANA ALFAIATE: days [12, 15, 21, 23, 28] of Agosto
+  - MIGUEL CRUZ: days [27, 30] of Agosto
+PASS  no 4-digit year appears anywhere in the performer/day summary block
+PASS  MANUEL MELO's per-night time override (23h00) is captured, proving the page-level 22h00-00h30 default is not universal
+PASS  musica-ao-vivo date_begin/date_end spans more than one calendar year
+PASS  more than one distinct calendar-year August falls inside date_begin..date_end (proves the range cannot mechanically resolve a single year)
+PASS  comparison record 'abba-mia-tributo-a-abba' found in retained JSON
+PASS  the one-off 'ABBA MIA' show's own schedule_text ('DATA: 11 Outubro...') also carries no year -- confirms a site-wide convention, not a candidate-specific gap
+PASS  'ABBA MIA' date_begin/date_end is also a display-visibility window (2026-01-01..2026-12-31), not a specific show date -- corroborates that date_begin/date_end never encodes the real occurrence date on this source
+PASS  agenda_content.pt.json record's own room field is 'Lounge D'
+PASS  the venue's own retained 'Sobre/Contactos' page states the address 'Av. Dr. Stanley Ho ... 2765-190 Estoril'
+PASS  venue_location mechanically combines to exactly one result
+
+Derived venue_location: Casino Estoril -- Lounge D, Av. Dr. Stanley Ho, Edifício do Casino Estoril, 2765-190 Estoril
+PASS  item.schedule_text literally contains 'ENTRADA: LIVRE'
+PASS  item.schedule_text states a start/end time pair (22h00 .. 00h30)
+
+Derived default time window: 22:00 -> 00:30 (floating local, no timezone stated)
+PASS  agenda page <title> mentions 'Casino Estoril'
+PASS  'Sobre' page contains a Google Maps link referencing 'Casino+Estoril'
+
+OFFLINE PROOF: PASSED

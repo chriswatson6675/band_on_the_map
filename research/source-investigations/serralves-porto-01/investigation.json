@@ -1,0 +1,307 @@
+{
+  "investigation_id": "serralves-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:35:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (plain curl GET of the live public agenda page, inspecting server-rendered HTML and its 16 embedded schema.org JSON-LD blocks) found real structured data but genuinely INSUFFICIENT — every JSON-LD block describes a multi-week/multi-month exhibition run, not a single dated activity/concert, and every block's organizer/location/performer fields are broken, unresolvable placeholder tokens. Escalated to Level 2 STRUCTURAL: inspected the same page's own publicly-referenced embedded JSON content payload (window.BndLyrContent, served from a <script src> the page itself declares), which exposed a 27-item, individually-dated 'activities' data set with a genuine, mechanically-resolvable category taxonomy. Cross-checked one representative item (the one genuine music/concert event found in that data set) against a live, plain-curl fetch of its own public detail page. A dependency-free, no-network offline script (evidence/offline-proof.mjs) reproduces every claim below deterministically against the retained fixtures. No browser/headless session was used anywhere in this investigation."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain, unauthenticated curl GET (custom UA, no auth) of https://www.serralves.pt/en/agenda-serralves/ returned 200 OK with real, server-rendered content and 16 embedded schema.org JSON-LD 'Event' blocks (evidence/agenda.html) — this is genuine structured data, not an empty client-rendered shell. However, on inspection every one of the 16 blocks' own startDate/endDate spans more than 14 days (several span 6-12+ months, e.g. Jenny Holzer 2026-06-18 to 2026-11-01) — these are exhibition/programme RUN dates, not individual dated activity/concert instances, and none of the 16 titles reads as a concert/music event. Every block's organizer/location/performer 'name' field is also an opaque token (e.g. 'nkAuLJivT2J') that does not resolve to any real string anywhere in this investigation's retained evidence — a broken/placeholder field, not usable first-party data on its own. The static JSON-LD therefore cannot answer this investigation's central question (does Serralves publish individually-dated, genuinely-music activities, and if so how are they identified?) — escalating to inspect the page's own publicly-referenced structural/bootstrap data was necessary.",
+      "evidence_refs": ["ev-agenda-html", "ev-headers-agenda", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "The agenda page's own <script> block publicly references window.BndLyrScripts, including a versioned content-data payload at https://cdn.bndlyr.com/nsa343pdfl/_p/content.cGqJg12zZbF7p_0.js — a legitimate, conventionally-discoverable, publicly-served JS asset the page itself loads, not a brute-forced or private endpoint. A plain curl GET of that URL (evidence/content-blob.js, 1.07MB) returned the full window.BndLyrContent object: 30 named 'repeater' data sets, one of which (id cmLWMdoHxiBolXCW, 27 items, sorted by its own datetime_data_de_inicio field ascending) is a genuinely individually-dated public activities listing spanning 21 Aug - 21 Nov 2026, each item carrying a real ISO-shaped start/end datetime, a human-readable display date/time string, a display venue/room string, a display title, a canonical URL slug, price/ticket-purchase text and link, and a category reference that resolves via the same payload's own 'related' lookup table to a real category name (e.g. 'SESSÃO DE CINEMA', 'Performance', 'Oficinas'). This is materially richer and more complete than the static JSON-LD, resolves the broken-organizer/location problem for this specific data set (this repeater's own venue/room text is populated directly, not via the broken placeholder tokens), and mechanically exposes a source-defined category taxonomy that can be inspected to honestly assess how much of the agenda is genuinely music. One representative item (the one item whose category-adjacent content was independently confirmed to be a real concert — 'STEPHEN O'MALLEY & CONTRECHAMPS', 13 Sep 2026) was cross-checked against a live, plain-curl fetch of its own public detail page (evidence/detail-omalley.html), which independently reproduces the same date/time, venue, and price text verbatim. This fully answers data-path discovery and field assessment without needing to execute any JavaScript or open a browser, so this is logged SUFFICIENT and escalation terminates here.",
+      "evidence_refs": [
+        "ev-content-blob",
+        "ev-headers-content-blob",
+        "ev-detail-omalley",
+        "ev-headers-detail-omalley",
+        "ev-offline-proof",
+        "ev-offline-proof-output"
+      ]
+    }
+  ],
+  "source_candidate_id": "serralves-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Fundação de Serralves — Porto, Portugal (museum/park/cultural foundation; specifically its public 'Agenda Serralves' programme page, one part of the foundation's much broader museum/park/library/cinema-house/education programme; already listed as id \"serralves\" in sources/porto.json, lifecycle_status DISCOVERED, monitoring_status NEEDS_TECHNICAL_REVIEW at the time this investigation began)",
+  "official_url": "https://www.serralves.pt/en/agenda-serralves/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-root-html", "ev-agenda-html", "ev-visitar-html"],
+    "notes": "serralves.pt matches sources/porto.json's existing official_website/events_url exactly for id \"serralves\". Independently re-confirmed by this investigation's own retained evidence: the agenda page's own <title> is 'Agenda Serralves', and the exact phrase 'Fundação de Serralves' (matching the registry's own \"name\" field verbatim) and its English equivalent 'Serralves Foundation' appear directly in the retained root, agenda, and visit-info pages (e.g. the Jenny Holzer and Manoel de Oliveira exhibition descriptions embedded in evidence/agenda.html's own JSON-LD both self-attribute to 'the Serralves Foundation'). The prior loose research_notes in sources/porto.json ('Major museum/park/foundation with a genuine, regular concert programme in its Museum of Contemporary Art auditorium') was treated as a discovery lead only, not assumed — this investigation independently re-established identity from its own fresh evidence."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Bond Habits / bond-frontend (bndlyr.com CDN, project id nsa343pdfl) — the SAME JS site-builder platform independently investigated for Maus Hábitos (research/source-investigations/maus-habitos-porto-01/, X-Server-Name: bond-frontend on both sites) and referenced in the existing sources/porto.json note ('Same client-rendered bond-frontend platform directly observed for maus-habitos and agenda-vila-do-conde'). Unlike the maus-habitos investigation's finding, Serralves' own agenda page ALSO carries genuine server-rendered schema.org JSON-LD (16 blocks) — so this is not a pure empty client-rendered shell — but that JSON-LD is only useful for the foundation's exhibition/programme highlights (multi-week/month spans, broken organizer/location fields), not for individually-dated activities. The page's own publicly-referenced embedded JSON content payload (window.BndLyrContent) is the reliable data path for individually-dated activities, including genuine concerts.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-html", "ev-headers-agenda", "ev-content-blob", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD (16 exhibition/programme-highlight blocks; broken organizer/location/performer placeholder fields; no individually-dated activity)",
+      "url": "https://www.serralves.pt/en/agenda-serralves/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-html", "ev-headers-agenda", "ev-offline-proof"]
+    },
+    {
+      "kind": "EMBEDDED_JSON_CONTENT_BLOB (window.BndLyrContent; repeater cmLWMdoHxiBolXCW is the 27-item individually-dated public activities listing, sorted by datetime_data_de_inicio)",
+      "url": "https://cdn.bndlyr.com/nsa343pdfl/_p/content.cGqJg12zZbF7p_0.js",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-content-blob", "ev-headers-content-blob", "ev-offline-proof"]
+    },
+    {
+      "kind": "ACTIVITY_DETAIL_PAGE (canonical slug URL; server-rendered; independently confirms the content blob's own date/time/venue/price text for the sampled item)",
+      "url": "https://www.serralves.pt/en/atividades-serralves/{slug}/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-omalley", "ev-headers-detail-omalley", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "STEPHEN O’MALLEY & CONTRECHAMPS",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Extracted directly from the content blob's own text_display_title field for the sampled item (part of the ref_ciclo-linked 'FOCO STEPHEN O'MALLEY' focus series; subtitle 'Avaeken / But Remember What You Have Had II'), independently confirmed verbatim on the item's own live detail page. All 27 items in the same repeater carry a non-empty _title/text_display_title (confirmed in evidence/offline-proof-output.txt), so extraction is structurally reliable across the whole data set, not just this sample — but see collector_assessment.blockers for why the GENRE of most of those 27 titles is not music.",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-13",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The content blob's own text_display_date field states '13 SET 2026 | 19:00' directly, and the same item's datetime_data_de_inicio field states '2026-09-13T19:00:00.000Z' — both independently confirmed verbatim on the item's own live detail page. Recording only the calendar date here (see 'time' below for the honest treatment of the time-of-day and the 'Z' suffix).",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The content blob's own display text states '19:00' directly, matching the ISO-shaped datetime_data_de_inicio field's own time-of-day component ('19:00:00'). However, that ISO field carries a trailing 'Z' suffix that this investigation does NOT treat as a genuine confirmed UTC instant: the displayed local text and the 'UTC' field show the identical clock time (19:00), which is exactly the signature of a CMS storing a floating local wall-clock value and appending 'Z' as a formatting artefact, not a real timezone conversion (Porto/Lisbon is UTC+1 in September, so a true 19:00 WEST performance would serialise as 18:00Z, not 19:00Z, if the field were a genuine UTC instant). No explicit IANA timezone or UTC offset is stated anywhere in the retained evidence. Recorded honestly as a floating local time only, per docs/SOURCE_INVESTIGATION_POLICY.md's date/time rule — never promoted to a precise, confirmed instant.",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The content blob's own backend datetime_data_de_fim field for this item is populated (2026-09-13T22:00:30.000Z), but this end time/date is NOT rendered anywhere in the public display text (text_display_date shows only the start time) and is NOT shown on the item's own live detail page. Per this policy's honesty rule this investigation does not promote an internal, unpublished backend field to a genuine source-published fact — recorded as NOT_PRESENT (no publicly-displayed end time), not PROVEN from the raw backend value.",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Auditório do Museu, Fundação de Serralves, Porto, Portugal",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The content blob's own text_display_local field states 'Auditório do Museu' directly for this item, independently confirmed verbatim on the item's own live detail page. This is NOT derived from the broken ref_local placeholder-token path found in the static JSON-LD (see site_classification notes) — text_display_local is a separately-populated, directly-stated display string on the SAME repeater item, unaffected by that bug. All 27 items in the sample carry a non-empty text_display_local (confirmed in evidence/offline-proof-output.txt), though the specific room/area named varies per item (e.g. 'Parque', 'Auditório da Casa do Cinema Manoel de Oliveira', 'Jardim das Aromáticas') — the whole site is inherently Fundação de Serralves' own agenda, but the specific on-site venue/room is a genuine per-item fact, not a sitewide constant.",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The item's own URL-path slug ('1309-stephen-omalley-andamp-contrechamps') is used consistently, by the source itself, as both the content blob's own _slug field and the canonical detail-page URL segment (/en/atividades-serralves/{slug}/) — independently confirmed by fetching that exact URL and getting a 200 OK page for the matching event. This is the same stable-identifier PATTERN this project already accepted for maus-habitos-porto-01 on the identical underlying platform (a source-owned permalink slug). However, this investigation sampled only ONE item's slug/URL pair — a single successful match is a necessary but not yet sufficient empirical proof of stability per this policy's stable-identifier rule ('proven empirically, e.g. repeated acquisition of the same record returning the same ID'), and this investigation did not independently re-fetch the same slug on a second occasion or cross-check a second item's slug against its own detail page. Recorded honestly as PARTIAL (a credible, platform-consistent candidate identity strategy, not yet fully empirically proven within this investigation's own bounded evidence) rather than PROVEN.",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.serralves.pt/en/atividades-serralves/1309-stephen-omalley-andamp-contrechamps/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The agenda page's own <a href> for this item (visible in evidence/agenda.html's rendered markup, matching the content blob's own _slug) resolves to a real 200 OK detail page (evidence/detail-omalley.html) whose own <title> names the same event.",
+      "evidence_refs": ["ev-agenda-html", "ev-content-blob", "ev-detail-omalley", "ev-headers-detail-omalley", "ev-offline-proof"],
+      "derivation": null
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Bilhete: 10€ Amigos de Serralves, Estudantes, Jovens, e >65 anos: 5€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The content blob's own text_info_compra_de_bilhete field states this directly for the sampled item, independently confirmed verbatim on the item's own live detail page, along with a direct link_compra_de_bilhete ticket-purchase link (https://serralves.byblueticket.pt/).",
+      "evidence_refs": ["ev-content-blob", "ev-detail-omalley", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-content-blob", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Serralves' own 27-item individually-dated public activities data set (evidence/content-blob.js, repeater cmLWMdoHxiBolXCW, spanning 21 Aug - 21 Nov 2026, the current/near-term window this investigation could observe) is OVERWHELMINGLY NOT MUSIC: 10/27 are film screenings (SESSÃO DE CINEMA), 4/27 are workshops (Oficinas), 2/27 are guided tours (Visitas), 1/27 is a talk (Conversas e Conferências), 1/27 is a non-music festival (BOIL - Climate Festival), 1/27 is a book presentation, 1/27 is a book fair appearance, and 4/27 are uncategorised (an untitled draft item, a summer-holidays activities block, a book-fair appearance, and an autumn-season festival — none music). Only 3/27 fall in the source's own 'Performance'/'Artes Performativas' category, and of those 3 only ONE (STEPHEN O'MALLEY & CONTRECHAMPS, a genuine concert, confirmed by its own linked focus-series description explicitly naming 'concerts', Sunn O))), and named ensembles/orchestras) is actually live music by content — the other 2 ('PONCILI CREACIÓN', 'PERFORMANCE Sitters') read as performance-art/theatre by their own titles and are not corroborated as music anywhere in this investigation's retained evidence. Crucially, this investigation found NO category, tag, or filter anywhere in the entire retained content blob (checked exhaustively across all 30 repeaters and their related{} lookup tables — see evidence/offline-proof-output.txt) that is itself named 'Music'/'Música'/'Concert'/'Concerto' — the closest available category ('Performance'/'Artes Performativas') is a mixed bucket of music AND non-music performing arts, with no further source-provided sub-classification. An automated collector filtering on 'Performance' would import roughly 2 non-music items for every genuine concert (in this sample); a collector importing the WHOLE 27-item feed would be over 96% non-music noise. Reliably isolating genuine live-music/concert events would require reading each item's own free-text description for musician/ensemble names or genre language — an AI/content-based judgement call this policy does not permit as the sole basis for what enters an automated pipeline (see docs/SOURCE_INVESTIGATION_POLICY.md's 'What may AI NOT infer?' — 'silently using low-confidence AI interpretation as source fact'). This is a genuine content-composition/curation blocker, not a technical-extraction blocker — see decision.reasons."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The agenda page's own static schema.org JSON-LD (16 blocks) carries broken/unresolvable organizer, location, and performer 'name' fields — every one of the 16 blocks shares the exact same opaque placeholder token (e.g. 'nkAuLJivT2J') for organizer, which does not resolve to any real string anywhere in this investigation's retained evidence (confirmed empirically in evidence/offline-proof-output.txt). A future collector must not use the static JSON-LD's organizer/location/performer fields at all; the content blob's own text_display_local field is a reliable, separately-populated alternative for venue/room text specifically."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The backend datetime_data_de_fim ('end') field is populated for at least the sampled item but is never rendered in any publicly-visible text this investigation found (list display, detail page) — a collector must not treat this raw field as a genuine source-published end time; field_assessment.end is honestly NOT_PRESENT rather than PROVEN from an unpublished backend value."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation's stable-identifier finding for source_record_id (the item's own URL-path slug) rests on a single sampled item, not a multi-item empirical re-confirmation — see field_assessment.source_record_id.notes. A future re-investigation intending to reach READY_FOR_ACTIVATION should independently re-fetch several slugs' detail pages to more fully satisfy this policy's stable-identifier rule before that field is promoted to PROVEN."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The acquisition MECHANISM itself is genuinely proven and clean: Level 1 (plain HTTP fetch of the public agenda page) was honestly found INSUFFICIENT (real JSON-LD present, but only for multi-month exhibition spans with broken organizer/location fields, not individually-dated activities), which justified escalating to Level 2 (STRUCTURAL) — inspecting the same page's own publicly-referenced embedded JSON content payload, entirely via plain HTTP, with no browser session anywhere in this investigation. That payload exposes a genuinely well-structured, individually-dated, 27-item public activities data set with reliable title/date/venue/price/ticket-link fields, cross-checked against a live, independently-fetched detail page for the sampled item, and reproduced deterministically offline (evidence/offline-proof.mjs, 33/33 checks passing).",
+      "However, per this task's explicit instruction to honestly assess whether Serralves' agenda genuinely includes real MUSIC events as opposed to being overwhelmingly non-music: it is overwhelmingly non-music. Of the 27 individually-dated activities this investigation could observe (a real, current 3-month window: 21 Aug - 21 Nov 2026), only ONE is a genuine, confirmed concert (STEPHEN O'MALLEY & CONTRECHAMPS, 13 Sep 2026, part of a 2026 'focus' series on musician Stephen O'Malley whose own description explicitly names concerts, Sunn O))), and several named ensembles/orchestras). The remainder are film screenings (10), workshops (4), guided tours (2), talks (1), a non-music climate festival (1), book-related events (2), and uncategorised items (4) — none of which is music.",
+      "This investigation exhaustively searched the entire retained content blob (all 30 repeaters and their related{} category/cycle lookup tables) for any source-defined category literally named Music/Música/Concert/Concerto and found none (see evidence/offline-proof-output.txt). The nearest available category, 'Performance'/'Artes Performativas', is a mixed bucket containing both the one genuine concert AND at least two non-music performance-art/theatre items in this same sample. There is therefore no reliable, mechanical, source-provided signal a collector could filter on to isolate genuine live-music/concert events from Serralves' much larger non-music programme, without resorting to AI/content-based judgement on free-text descriptions — which this policy does not permit as the sole basis for automated inclusion (see docs/SOURCE_INVESTIGATION_POLICY.md's 'What may AI NOT infer?').",
+      "DEFER, not REJECT: Serralves is a legitimate, clearly-identified, official first-party source (identity.status PROVEN, HIGH confidence) that DOES genuinely stage real live music/concert programming (proven by this investigation's own retained evidence, not merely the pre-existing research_notes claim) — it is not a wrong or fraudulent candidate, and the technical acquisition path works. REJECT would misrepresent that. DEFER, not READY_FOR_ACTIVATION or READY_FOR_OFFLINE_PROOF: automated ingestion of this data path today, at any reasonable filter granularity this investigation could establish, would either import an overwhelmingly non-music feed (if unfiltered or filtered only on 'Performance') or require exactly the kind of unreliable AI content-classification this policy prohibits as production logic (if filtered by reading descriptions) — a genuine, currently-unresolved CRITICAL blocker (collector_assessment.blockers), consistent with 'DEFER does not require exhausting the ladder' and 'DEFER is a legitimate, complete investigation outcome' in docs/SOURCE_INVESTIGATION_POLICY.md.",
+      "A future re-investigation could reasonably re-open this if: (a) Serralves' own site adds a genuine Music/Concert sub-category to its 'Performance' taxonomy (this investigation would then likely reach READY_FOR_OFFLINE_PROOF or better very quickly, since the rest of the extraction mechanism already works cleanly); (b) a human curator is willing to manually pre-select which 'Performance'-category items are music, on a recurring basis, rather than fully automating selection; or (c) the annual 'Serralves em Festa' festival (mentioned in sources/porto.json's overlap_notes, historically a major multi-stage music event) is found, in a future investigation timed closer to its actual dates, to have its own dedicated, cleanly-taggable listing — this investigation's retained evidence window (21 Aug - 21 Nov 2026) did not contain any 'Serralves em Festa'-dated item to assess.",
+      "This decision is a research conclusion only. It does not edit sources/*.json, any venues/*.json registry, manual-coordinates.json, or any public map data, and does not build or enable any collector, per 'Investigation and activation are separate' in docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-content-blob", "ev-agenda-html", "ev-detail-omalley", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-root-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the site's English homepage — used for identity/platform confirmation. Self-identifies as 'Fundação de Serralves' directly in the retained markup; X-Server-Name: bond-frontend confirmed in the paired headers file.",
+      "acquired_from": "https://www.serralves.pt/en/",
+      "acquired_at": "2026-08-27T09:25:22Z",
+      "method": "curl -sS -L -D headers-root.txt -o root.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/root.html"
+    },
+    {
+      "evidence_id": "ev-headers-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the homepage fetch: 200 OK, Cloudflare-fronted (openresty/CF-RAY), X-Server-Name: bond-frontend.",
+      "acquired_from": "https://www.serralves.pt/en/",
+      "acquired_at": "2026-08-27T09:25:22Z",
+      "method": "curl -sS -L -D headers-root.txt -o root.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/headers-root.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the public agenda page: real server-rendered content including 16 embedded schema.org JSON-LD 'Event' blocks (each a multi-week/month exhibition-run span with broken organizer/location/performer placeholder tokens), plus the page's own <script> reference to its embedded JSON content payload (window.BndLyrScripts / content.cGqJg12zZbF7p_0.js).",
+      "acquired_from": "https://www.serralves.pt/en/agenda-serralves/",
+      "acquired_at": "2026-08-27T09:25:23Z",
+      "method": "curl -sS -L -D headers-agenda.txt -o agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/agenda.html"
+    },
+    {
+      "evidence_id": "ev-headers-agenda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the agenda page fetch: 200 OK, Cloudflare-fronted, X-Server-Name: bond-frontend, X-Debug-URI: /en/agenda-serralves/index.html.",
+      "acquired_from": "https://www.serralves.pt/en/agenda-serralves/",
+      "acquired_at": "2026-08-27T09:25:23Z",
+      "method": "curl -sS -L -D headers-agenda.txt -o agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-visitar-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the site's public visitor-information page — used as a second, independent page confirming the 'Fundação de Serralves' self-identification.",
+      "acquired_from": "https://www.serralves.pt/en/visitar-serralves/",
+      "acquired_at": "2026-08-27T09:31:54Z",
+      "method": "curl -sS -L -D headers-visitar.txt -o visitar.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/visitar.html"
+    },
+    {
+      "evidence_id": "ev-headers-visitar",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the visitor-information page fetch.",
+      "acquired_from": "https://www.serralves.pt/en/visitar-serralves/",
+      "acquired_at": "2026-08-27T09:31:54Z",
+      "method": "curl -sS -L -D headers-visitar.txt -o visitar.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/headers-visitar.txt"
+    },
+    {
+      "evidence_id": "ev-content-blob",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "THE key positive finding of this investigation: the agenda page's own publicly-referenced embedded JSON content payload (window.BndLyrContent). Contains 30 named data repeaters; repeater id cmLWMdoHxiBolXCW is a 27-item, individually-dated public activities listing (21 Aug - 21 Nov 2026) with title/date/time/venue/category/price/ticket-link fields, plus a 'related' lookup table resolving category/cycle/location reference ids to real display names.",
+      "acquired_from": "https://cdn.bndlyr.com/nsa343pdfl/_p/content.cGqJg12zZbF7p_0.js?v=1787819795257 (URL discovered via the agenda page's own <script> reference)",
+      "acquired_at": "2026-08-27T09:26:56Z",
+      "method": "curl -sS -D headers-content-blob.txt -o content-blob.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/content-blob.js"
+    },
+    {
+      "evidence_id": "ev-headers-content-blob",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the embedded content payload fetch: 200 OK, application/javascript, with a Last-Modified timestamp showing this asset was regenerated the same day as this investigation (evidence the underlying data is actively maintained, not a stale cached artefact).",
+      "acquired_from": "https://cdn.bndlyr.com/nsa343pdfl/_p/content.cGqJg12zZbF7p_0.js?v=1787819795257",
+      "acquired_at": "2026-08-27T09:26:56Z",
+      "method": "curl -sS -D headers-content-blob.txt -o content-blob.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/headers-content-blob.txt"
+    },
+    {
+      "evidence_id": "ev-detail-omalley",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the sampled item's own public detail page — the one genuine concert this investigation identified. Independently, verbatim, confirms the content blob's own date/time text ('13 SET 2026 | 19:00'), venue text ('Auditório do Museu'), price text, and ticket-purchase link (byblueticket.pt) — a real list/blob -> detail cross-check, not merely re-reading the same source once.",
+      "acquired_from": "https://www.serralves.pt/en/atividades-serralves/1309-stephen-omalley-andamp-contrechamps/",
+      "acquired_at": "2026-08-27T09:30:57Z",
+      "method": "curl -sS -L -D headers-detail-omalley.txt -o detail-omalley.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/detail-omalley.html"
+    },
+    {
+      "evidence_id": "ev-headers-detail-omalley",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the sampled item's detail-page fetch: 200 OK, Cloudflare-fronted, X-Server-Name: bond-frontend (same platform).",
+      "acquired_from": "https://www.serralves.pt/en/atividades-serralves/1309-stephen-omalley-andamp-contrechamps/",
+      "acquired_at": "2026-08-27T09:30:57Z",
+      "method": "curl -sS -L -D headers-detail-omalley.txt -o detail-omalley.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/headers-detail-omalley.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically re-parses evidence/agenda.html, evidence/content-blob.js, and evidence/detail-omalley.html: confirms the 16-block/27-item counts, confirms every JSON-LD block spans >14 days with a shared broken organizer placeholder token that does not resolve anywhere in the content blob, computes the category breakdown (10 cinema / 4 workshops / 3 performance / 2 tours / 1 talk / 1 festival / 1 book presentation / 1 book fair / 4 uncategorised), confirms zero source-defined categories anywhere are literally named Music/Concert, extracts and cross-checks the sampled item's title/date/time/venue/price/ticket-link against its own live detail page, and confirms the platform/identity findings.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-08-27T09:33:00Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/serralves-porto-01/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`, run in this investigation directory: exits 0, 33/33 checks PASS, \"OFFLINE PROOF: PASSED\", including the printed category-breakdown table this investigation's decision relies on.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against retained fixtures only; no network access",
+      "acquired_at": "2026-08-27T09:34:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/serralves-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

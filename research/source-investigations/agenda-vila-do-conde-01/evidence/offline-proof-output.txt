@@ -1,0 +1,20 @@
+PASS  Level 1 page contains zero JSON-LD blocks
+PASS  Level 1 page's own events-grid block (data-repeater="cDUzN6R14bU0s0UB") is present but empty at load (no event cards server-rendered)
+PASS  Level 1 page contains the genuine "Carregar..." (Loading) placeholder text (client-side data fetch, not server-rendered)
+PASS  Top-nav category taxonomy has exactly 8 sections, none literally named Música/Concertos
+PASS  Second, independent "ref_tags_1o_nivel" taxonomy (16 items) contains exactly one entry literally labelled "Concerto"
+PASS  Concerto tag id resolves to "swG7HKMEvjxvs6Dg"
+PASS  Admission-type taxonomy contains "Entrada Gratuita" (Free entry)
+PASS  PII-bearing users collection was genuinely redacted (item count preserved, personal fields removed)
+PASS  Two retained pages together yield 29 raw upcoming-window event records
+PASS  Exactly 4 records are mechanically tagged Concerto in this retained sample
+PASS  Every Concerto record's free-text local time (text_datas_em_texto) matches the hour/minute embedded in its own datetime_start_date field exactly (4/4) — the field is a real, deliberately-set wall-clock time, but this also proves the datetime field's own "Z" (UTC) suffix cannot be a genuine UTC instant, since Portugal is UTC+1 in August: it is a floating local datetime mislabelled with a Z suffix, not evidence this investigation invents a corrected offset for
+PASS  Every Concerto record's datetime_start_date has zero seconds/milliseconds (a deliberately-set time, not a record-creation-timestamp artefact)
+PASS  Every Concerto record is independently tagged "Entrada Gratuita" via the separate ref_tags_2o_nivel field (not inferred from empty text_price)
+PASS  At least one non-Concerto record's datetime_start_date is millisecond-precision and within 24h of its own _created_at (an unreliable default artefact, not a deliberately-set event time) — confirms the Concerto records' clean, zero-second on-the-hour times are not a coincidence of this platform's data model
+PASS  Re-fetching the same repeater query returns an identical id+slug for the first record (empirical id-stability check, path 1 of 2)
+PASS  Independent path 2 of 2: the constructed permalink https://agenda.cm-viladoconde.pt/en/evento/<slug>/ resolves live (200) and its own <title> matches the record's own _title ("Ivandro")
+PASS  request-repeater-fetch.json's repeater.collection id matches the collection id found in the retained struct.js excerpt
+PASS  struct.js excerpt confirms the events collection's own URL slug is "evento", matching the live-confirmed detail-page path
+
+All checks passed (0 failures) against 29 retained live event record(s).

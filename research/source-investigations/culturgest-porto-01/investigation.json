@@ -1,0 +1,335 @@
+{
+  "investigation_id": "culturgest-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:31:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (plain curl, no headers beyond a UA) followed by Level 2 STRUCTURAL (inspecting the site's own linked compiled JS bundle to understand its AJAX pattern, then reproducing that exact pattern via plain curl with a standard X-Requested-With: XMLHttpRequest content-negotiation header — no browser, no session bypass, no auth). Level 2 was SUFFICIENT; no escalation to Level 3/4 was attempted. The investigation's central question was not 'can this source be acquired' (yes) but 'does Culturgest Porto specifically have any music events right now' — answered mechanically via the source's own first-party place=1/2/3 (Lisboa/Porto/Fora de Portas) and typology=8 (Música) server-side filters, cross-checked against the full 35-event current agenda and re-verified offline in evidence/offline-proof.mjs."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET (BandOnTheMap-SourceInvestigation/0.1 UA, no special headers) of https://www.culturgest.pt/pt/programacao/por-evento/ returned 200 OK (nginx/Django, real Content-Length), matching the existing sources/porto.json note that this page is server-shell-rendered but its own event-listing container (div.js-eventContainer) is genuinely empty in the raw response — populated client-side. The same raw response's own inline <script> tags do statically expose two candidate AJAX endpoint paths (window.filter_list_url = '/pt/programacao/filtrar/', window.event_list_url = '/pt/programacao/schedule/events/'), so a naive follow-up plain GET (still no special headers) was tried against the event-list path directly; it returned 404 Not Found. Level 1 alone could not expose real event data by either route.",
+      "evidence_refs": ["ev-shell", "ev-events-endpoint-404"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Fetched the site's own linked compiled JS bundle (https://www.culturgest.pt/static/CACHE/js/540c1c5ab34f.js, referenced directly in the shell page's own <script src> tag) to understand HOW the frontend actually calls window.event_list_url/window.filter_list_url. It is a plain jQuery $.ajax({type:'GET', url: window.event_list_url + get_params}) call with no auth, no POST, and no session-specific payload beyond the page's own current query string. The only thing distinguishing it from a bare GET is that the server keys off request content-negotiation (it 404s a bare request but serves the real fragment once a standard X-Requested-With: XMLHttpRequest header is present) -- not a browser fingerprint, not JS execution, not a cookie/session secret. Reproducing that exact header via plain curl against both discovered endpoints returned real 200 OK server-rendered HTML fragments: /pt/programacao/filtrar/ revealed the site's own first-party 'place' taxonomy (id=1 Lisboa, id=2 Porto, id=3 Fora de Portas) and 'typology' taxonomy (id=8 Musica, among others); /pt/programacao/schedule/events/ returned the full 35-event current+future agenda, and, when the SAME place/typology query parameters the site's own filter widget uses are appended, returns a server-side-filtered subset. This already answers identity, platform classification, data-path discovery, and -- critically -- the Porto-vs-Lisboa scoping question the task requires, all without executing any client-side JavaScript or opening a browser. Escalation to Level 3 was not attempted.",
+      "evidence_refs": [
+        "ev-cachejs",
+        "ev-filtrar-xhr",
+        "ev-events-xhr",
+        "ev-events-place1",
+        "ev-events-place2",
+        "ev-events-place3",
+        "ev-events-place2-music",
+        "ev-events-music-all",
+        "ev-detail-ormsson",
+        "ev-detail-kalimalone",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "culturgest-porto-candidate",
+  "source_id": "culturgest-porto",
+  "venue_reference": "Culturgest Porto -- the Porto location (R. Sá da Bandeira 374, Porto) of Culturgest, a Caixa Geral de Depósitos (CGD) cultural foundation that operates TWO physical venues, Culturgest Lisboa and Culturgest Porto, sharing one website and one shared programme listing at https://www.culturgest.pt/pt/programacao/por-evento/. This investigation targets ONLY the subset of that shared programme that the source itself tags as physically located in Porto (its own 'place' filter, data-id=2), per the existing sources/porto.json registry entry for id 'culturgest-porto'.",
+  "official_url": "https://www.culturgest.pt/pt/programacao/por-evento/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-shell", "ev-detail-ormsson", "ev-filtrar-xhr"],
+    "notes": "www.culturgest.pt is the official_website/events_url already recorded in sources/porto.json for id 'culturgest-porto'; this investigation independently re-confirms it from freshly retained evidence rather than assuming the registry note. The shell page's own footer states both 'Lisboa Tel. 21 790 54 54' and 'Porto Tel. 22 209 81 16' contact numbers for the same organisation. Critically, the site's own first-party 'filter-places' widget (evidence/body-filtrar-xhr.html) explicitly names three place options -- 'Lisboa' (id=1), 'Porto' (id=2), 'Fora de Portas' (id=3) -- directly confirming, from the source's own structure (not an external inference), that this is genuinely the shared bi-city Culturgest site the sources/porto.json entry describes, and that the source itself distinguishes Porto content from Lisboa content. The one event genuinely tagged place=2 (evidence/body-detail-ormsson.html) states its own venue name directly as 'Culturgest Porto' in a static DOM node, matching the registry's physical_address ('R. Sá da Bandeira 374, Porto')."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Django-backed CMS (nginx + Django session/language cookies -- sessionid, django_language -- matching the existing sources/porto.json acquisition_path_detail note) serving a bespoke jQuery-driven event-filter system, not a recognisable off-the-shelf calendar plugin. The shell page (/pt/programacao/por-evento/) ships with its event-listing container genuinely empty, but its own inline <script> tags statically expose two first-party endpoint paths (window.filter_list_url, window.event_list_url) that the site's own compiled JS bundle calls via a plain jQuery $.ajax GET, keyed on request content-negotiation (an X-Requested-With: XMLHttpRequest header) rather than any browser-only behaviour. Both endpoints return plain server-rendered HTML fragments (not JSON, not JSON-LD) and accept the same 'place'/'typology' GET query parameters the site's own visible filter UI uses.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-shell", "ev-cachejs", "ev-filtrar-xhr", "ev-events-xhr"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_SHELL_PAGE",
+      "url": "https://www.culturgest.pt/pt/programacao/por-evento/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-shell"]
+    },
+    {
+      "kind": "AJAX_ENDPOINT_WITHOUT_XHR_HEADER (naive attempt, no query params, no X-Requested-With)",
+      "url": "https://www.culturgest.pt/pt/programacao/schedule/events/",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-events-endpoint-404"]
+    },
+    {
+      "kind": "HTML_FILTER_WIDGET_FRAGMENT (reveals the source's own place/typology taxonomy)",
+      "url": "https://www.culturgest.pt/pt/programacao/filtrar/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-filtrar-xhr"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_AJAX_FRAGMENT (supports ?place=&typology= server-side filtering)",
+      "url": "https://www.culturgest.pt/pt/programacao/schedule/events/?place=2&typology=8",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-xhr", "ev-events-place1", "ev-events-place2", "ev-events-place3", "ev-events-place2-music", "ev-events-music-all", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.culturgest.pt/pt/programacao/joao-penalva-coleccao-ormsson-apresentada-por-joao-penalva/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-ormsson", "ev-detail-kalimalone", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "A Colecção Ormsson apresentada por João Penalva",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The one genuinely Porto-tagged (place=2) event's title is stated directly, identically, on both its list card (<h3 class=\"event-title\">) and its own detail page (<h1>) -- reproduced offline in evidence/offline-proof-output.txt. The SAME <h1>/event-title markup pattern was independently cross-checked on a Lisboa music event (Kali Malone) and matches, confirming this is a site-wide reliable pattern, not a one-off. IMPORTANT SCOPE CAVEAT, recorded honestly: this one sampled event is an exhibition (typology 'Artes Visuais'), not a music/concert event -- see decision.reasons for why that matters for this Porto-scoped investigation.",
+      "evidence_refs": ["ev-detail-ormsson", "ev-detail-kalimalone", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-03",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The one Porto event's detail page states its run's start date directly and unambiguously in a static event-info-block node ('3 OUT 2026 -- 10 JAN 2027') -- no context combination needed, reproduced offline. IMPORTANT CAVEAT, recorded honestly rather than smoothed over: this is a multi-day EXHIBITION RUN start date, not a single-instant gig/performance start_date -- Culturgest Porto's only current event is not concert-shaped. As a separate, non-Porto cross-check of the SAME template applied to a genuine single-instant concert, the Lisboa event 'Kali Malone' states a full date+time directly on the identical event-info-block node pattern ('23 SET 2026' + 'QUA 21:00', i.e. 2026-09-23 21:00 floating local) -- this is retained only as evidence that the source's template CAN express a clean single-instant gig start_date directly (DIRECT_SOURCE, no derivation needed) if/when Culturgest Porto ever programs one; it is explicitly NOT used as a Porto fact.",
+      "evidence_refs": ["ev-detail-ormsson", "ev-detail-kalimalone", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The one genuinely Porto-tagged event (an exhibition) has no single performance time-of-day -- it exposes an opening-night time ('Inauguração: 2 OUT, SEX 22:00') and separate ongoing opening hours ('Horário: TER-DOM 13:00-18:00'), neither of which is a single event start time in the gig sense. Recorded honestly as NOT_PRESENT for this Porto sample rather than invented. The source's shared template DOES expose a clean single time-of-day directly for concert-format events elsewhere on the same site (Kali Malone: 'QUA 21:00') -- but that is Lisboa evidence, out of scope for a Porto field claim, and is not promoted here.",
+      "evidence_refs": ["ev-detail-ormsson"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2027-01-10",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same static event-info-block date node that gives start_date also gives the run's end date directly ('10 JAN 2027'), reproduced offline. Same exhibition-run caveat as start_date applies -- this is a run end date, not a single-performance end time.",
+      "evidence_refs": ["ev-detail-ormsson", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Culturgest Porto",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own static event-info-block-highlight node states the venue name directly as 'Culturgest Porto' -- not inferred from the place=2 filter tag alone, though that tag corroborates it. Matches sources/porto.json's physical_address ('R. Sá da Bandeira 374, Porto'). Reproduced offline.",
+      "evidence_refs": ["ev-detail-ormsson", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No numeric or otherwise source-documented stable event identifier was found anywhere in the retained shell page, list fragments, filter widget, or the sampled detail pages -- no JSON-LD, no data-event-id, no canonical <link> tag exposing one. The only candidate is the event's own URL path slug (e.g. 'joao-penalva-coleccao-ormsson-apresentada-por-joao-penalva'), which is consistently used as both the list card's href and the detail page's own resolved URL -- but this investigation observed it exactly once and did not empirically re-fetch it on a later date to test regeneration/stability, nor is slug stability documented anywhere by the source itself. Per docs/SOURCE_INVESTIGATION_POLICY.md's stable-identifier rule, an unproven-but-plausible-looking value must stay UNKNOWN rather than be promoted to PROVEN. ALTERNATIVE IDENTITY STRATEGY (documented per the same rule): a future collector should treat the URL path slug as a provisional identity key pending empirical re-confirmation across at least two independent fetches over time, analogous to this repository's existing Hot Clube de Portugal ICS-UID caution in docs/OBSERVATION_PIPELINE.md.",
+      "evidence_refs": ["ev-detail-ormsson", "ev-events-place2"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.culturgest.pt/pt/programacao/joao-penalva-coleccao-ormsson-apresentada-por-joao-penalva/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The place=2-filtered list card's own href ('/pt/programacao/joao-penalva-coleccao-ormsson-apresentada-por-joao-penalva/?place=2') resolves, once the transient '?place=2' filter-state query suffix is stripped, to the exact URL this investigation independently fetched and retained (200 OK, matching <h1> and event-info-block content). Reproduced offline.",
+      "evidence_refs": ["ev-events-place2", "ev-detail-ormsson", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "FREE",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same static event-info-block-highlight node that states the venue name also states 'Entrada gratuita' directly, immediately beneath 'Culturgest Porto'. Reproduced offline. The same node pattern states a numeric price directly for the Lisboa cross-check sample (Kali Malone: '18€') -- confirming the template supports non-free numeric prices too, though that is Lisboa evidence and not promoted as a Porto fact.",
+      "evidence_refs": ["ev-detail-ormsson", "ev-detail-kalimalone", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-events-xhr", "ev-filtrar-xhr", "ev-detail-ormsson", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "Culturgest Porto currently has ZERO events tagged both place=2 (Porto) and typology=8 (Música) -- mechanically confirmed as 0/35 against the full current+future agenda (evidence/offline-proof-output.txt). Only one event at all is tagged place=2, and it is a visual-arts exhibition, not music. There is no genuine Porto-located live-music record in the current agenda for a collector to be built or validated against."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No stable, source-documented source_record_id was found; only an unproven URL-slug candidate (see field_assessment.source_record_id.notes)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The AJAX endpoints (/pt/programacao/filtrar/ and /pt/programacao/schedule/events/) 404 on a bare request and only serve real content with an X-Requested-With: XMLHttpRequest header present -- not a hard blocker (a plain HTTP client can set this header; no browser or session bypass required), but a future collector implementation must know to set it."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The one available Porto sample is a multi-day exhibition run, not a single-instant gig -- this investigation could not directly observe how the source's time-of-day field behaves for a genuine Porto concert record; the Kali Malone (Lisboa) cross-check is suggestive but explicitly not treated as Porto evidence."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The acquisition mechanism itself is genuinely proven and safe: identity.status is PROVEN (HIGH confidence), site_classification.acquisition_class is a resolved, supported class (STATIC_HTML), and multiple data_paths entries are access:PUBLIC and status:CONFIRMED against retained evidence -- no browser, authentication bypass, or session trick was needed, only a standard content-negotiation header.",
+      "The source's OWN first-party place taxonomy (place=1 Lisboa / place=2 Porto / place=3 Fora de Portas, discovered in its own filter widget) was used to genuinely separate Porto-located events from Lisboa-located events, rather than assuming or guessing -- and that partition was mechanically verified to be complete and non-overlapping against the current agenda (32 + 1 + 2 = 35 total events, reproduced in evidence/offline-proof.mjs).",
+      "The central, decisive finding: place=2 (Porto) AND typology=8 (Música) together return exactly 0 of the 35 currently-listed events. Only ONE event at all is tagged as being in Porto, and its own typology tag is 'Artes Visuais' (visual arts), not 'Música'. There are currently ZERO genuinely Porto-located music events to observe, sample, or validate a collector against.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, an investigation must never activate a source 'solely because a sample looks right', and must not conflate general site-wide capability (proven here, including on Lisboa music content) with genuine evidence for the specific candidate under investigation (Culturgest PORTO). Recommending READY_FOR_ACTIVATION for a Porto music source that currently has no Porto music content to collect would not be an honest conclusion, even though the underlying mechanism is technically sound.",
+      "DEFER is a legitimate, complete investigation outcome under this policy and does not require exhausting the escalation ladder -- Level 2 (STRUCTURAL) was SUFFICIENT to answer both the acquisition-mechanism question and the Porto-vs-Lisboa scoping question; Level 3/4 (browser) was correctly never attempted, since nothing about this DEFER turns on missing client-rendered content.",
+      "This finding is not necessarily permanent: Culturgest Porto's programme evidently does vary over time (the one current Porto event, an exhibition, runs Oct 2026-Jan 2027 and is itself new), and the exact same place=2&typology=8 filtered query this investigation used to reach 0 today would need to be periodically rechecked -- a cheap, well-documented, non-browser recheck -- for a future, evidence-driven re-investigation (with a supersedes pointer to this one) if/when Culturgest Porto programs live music.",
+      "This decision is a research conclusion only -- it does not edit sources/*.json, any venues/*.json registry, venues/manual-coordinates.json, or any public map data, and does not build or enable any collector, per docs/SOURCE_INVESTIGATION_POLICY.md's 'Investigation and activation are separate' section."
+    ],
+    "evidence_refs": ["ev-events-place2-music", "ev-events-xhr", "ev-events-place1", "ev-events-place2", "ev-events-place3", "ev-detail-ormsson", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-shell",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers + body for the shared programme shell page. Confirms nginx/Django, Content-Language: pt, django_language/sessionid cookies, and that div.js-eventContainer is present but genuinely empty in the raw response. Also contains, as static byte content of the response (no JS execution needed to read it), the inline <script> assignments window.filter_list_url = '/pt/programacao/filtrar/' and window.event_list_url = '/pt/programacao/schedule/events/'.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/por-evento/",
+      "acquired_at": "2026-08-27T09:25:17Z",
+      "method": "curl -sS -D headers-programacao.txt -o body-programacao.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no special headers)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-programacao.html"
+    },
+    {
+      "evidence_id": "ev-events-endpoint-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP 404 response for a naive plain GET of the event-list endpoint path (no query params, no special headers beyond UA) -- direct proof that Level 1 alone (a bare request to the 'obvious' discovered path) does not expose event data, motivating the Level 2 escalation.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/",
+      "acquired_at": "2026-08-27T09:26:29Z",
+      "method": "curl -sS -D headers-events-endpoint.txt -o body-events-endpoint.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no special headers)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-endpoint.html"
+    },
+    {
+      "evidence_id": "ev-cachejs",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained compiled JS bundle, linked directly from the shell page's own <script src>. Contains the jQuery $.ajax({type:'GET', url: window.event_list_url + get_params}) call pattern for both .js-filterContainer and .js-eventContainer, proving the AJAX call is a plain GET with the current URL's own query string appended -- no POST, no auth token, no session-specific payload.",
+      "acquired_from": "https://www.culturgest.pt/static/CACHE/js/540c1c5ab34f.js",
+      "acquired_at": "2026-08-27T09:25:52Z",
+      "method": "curl -sS -D headers-cachejs.txt -o body-cachejs.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-cachejs.js"
+    },
+    {
+      "evidence_id": "ev-filtrar-xhr",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment from the filter-widget endpoint, fetched with an X-Requested-With: XMLHttpRequest header (per the pattern discovered in ev-cachejs). Reveals the source's own first-party 'place' taxonomy (id=1 Lisboa, id=2 Porto, id=3 Fora de Portas) and 'typology' taxonomy (id=8 Musica, among 13 others) -- the exact mechanism this investigation used to distinguish genuinely Porto-located events from Lisboa ones.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/filtrar/",
+      "acquired_at": "2026-08-27T09:26:59Z",
+      "method": "curl -sS -D headers-filtrar-xhr.txt -o body-filtrar-xhr.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-filtrar-xhr.html"
+    },
+    {
+      "evidence_id": "ev-events-xhr",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment: the FULL unfiltered current+future programme, 35 event cards, fetched via the same XHR-header pattern. This is the complete population this investigation's place/typology partition is checked against.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/",
+      "acquired_at": "2026-08-27T09:26:58Z",
+      "method": "curl -sS -D headers-events-xhr.txt -o body-events-xhr.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-xhr.html"
+    },
+    {
+      "evidence_id": "ev-events-place1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment: events filtered to place=1 (Lisboa), 32 event cards -- used to mechanically verify the place taxonomy is a complete, non-overlapping partition of the 35-event total.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/?place=1",
+      "acquired_at": "2026-08-27T09:30:31Z",
+      "method": "curl -sS -D headers-events-place1.txt -o body-events-place1.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-place1.html"
+    },
+    {
+      "evidence_id": "ev-events-place2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment: events filtered to place=2 (Porto), exactly 1 event card -- 'A Colecção Ormsson apresentada por João Penalva', typology 'Artes Visuais'. This is the ONLY event this investigation found genuinely tagged as being in Porto on the current agenda.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/?place=2",
+      "acquired_at": "2026-08-27T09:27:17Z",
+      "method": "curl -sS -D headers-events-place2.txt -o body-events-place2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-place2.html"
+    },
+    {
+      "evidence_id": "ev-events-place3",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment: events filtered to place=3 (Fora de Portas / off-site, neither Lisboa nor Porto), 2 event cards, both typology 'Artes Visuais' -- confirms these are not Porto events either and completes the 32+1+2=35 partition check.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/?place=3",
+      "acquired_at": "2026-08-27T09:30:31Z",
+      "method": "curl -sS -D headers-events-place3.txt -o body-events-place3.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-place3.html"
+    },
+    {
+      "evidence_id": "ev-events-place2-music",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment: events filtered to place=2 (Porto) AND typology=8 (Música) simultaneously -- returns ZERO event cards. This is the single most decisive piece of evidence behind this investigation's DEFER decision.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/?place=2&typology=8",
+      "acquired_at": "2026-08-27T09:27:25Z",
+      "method": "curl -sS -D headers-events-place2-music.txt -o body-events-place2-music.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-place2-music.html"
+    },
+    {
+      "evidence_id": "ev-events-music-all",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML fragment: events filtered to typology=8 (Música) across ALL places, 11 event cards -- confirms music events do exist on this shared site (so the typology filter itself works and is meaningful), just none of them tagged place=2 Porto. Used as the Lisboa cross-check source pool (Kali Malone drawn from this list).",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/schedule/events/?typology=8",
+      "acquired_at": "2026-08-27T09:30:30Z",
+      "method": "curl -sS -D headers-events-music-all.txt -o body-events-music-all.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\" -H \"Referer: https://www.culturgest.pt/pt/programacao/por-evento/\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-events-music-all.html"
+    },
+    {
+      "evidence_id": "ev-detail-ormsson",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the ONE genuinely Porto-tagged event's own detail page: title (<h1>), full run date range stated directly ('3 OUT 2026 -- 10 JAN 2027'), venue name stated directly ('Culturgest Porto'), and price stated directly ('Entrada gratuita'). No JSON-LD present anywhere on the page.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/joao-penalva-coleccao-ormsson-apresentada-por-joao-penalva/",
+      "acquired_at": "2026-08-27T09:28:10Z",
+      "method": "curl -sS -D headers-detail-ormsson.txt -o body-detail-ormsson.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-detail-ormsson.html"
+    },
+    {
+      "evidence_id": "ev-detail-kalimalone",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for a Lisboa music event's own detail page (Kali Malone, place=1, typology=8) -- retained ONLY as a general cross-check that the SAME template can express a clean single-instant concert date+time+venue+price directly ('23 SET 2026' + 'QUA 21:00', venue 'Auditório Emílio Rui Vilar', price '18€'). Explicitly NOT used as evidence for any Porto-specific field claim -- this is Lisboa content, out of scope for the culturgest-porto candidate.",
+      "acquired_from": "https://www.culturgest.pt/pt/programacao/kali-malone/",
+      "acquired_at": "2026-08-27T09:28:41Z",
+      "method": "curl -sS -D headers-detail-kalimalone.txt -o body-detail-kalimalone.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/body-detail-kalimalone.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-derives: the raw shell's empty event container; the 35/32/1/2 total/Lisboa/Porto/Fora-de-Portas event counts and that they sum correctly; that place=2 AND typology=8 together yield exactly 0 events; that typology=8 (all places) yields exactly 11; that the one Porto event's own typology tag is Artes Visuais, not Música; and that title/date/venue/price extract correctly and directly from both the Porto sample and the Lisboa cross-check sample. All 18 checks passed (exit 0).",
+      "acquired_from": "research/source-investigations/culturgest-porto-01/evidence/ (all body-*.html files above, read locally, no network)",
+      "acquired_at": "2026-08-27T09:31:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/culturgest-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

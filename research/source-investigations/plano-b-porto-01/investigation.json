@@ -1,0 +1,366 @@
+{
+  "investigation_id": "plano-b-porto-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only (INSUFFICIENT — no escalation to Level 2/3/4 was possible or attempted; see notes below). All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) plus independent DNS lookups (nslookup) and two independent alternative TLS client implementations (PowerShell/.NET Invoke-WebRequest and the WebFetch tool's own remote OpenSSL-based fetch infrastructure), used only to corroborate a genuine, real transport-layer reachability finding — never to bypass, authenticate past, or otherwise defeat any access control. The prior loose sources/porto.json lead's official_website (https://www.planobporto.com) was found to be DNS NXDOMAIN, corroborated by two independent resolvers (this machine's local nslookup and the WebFetch tool's own separate remote resolver). The only variant that resolves at all, the bare domain https://planobporto.com, resolves to a live IP (50.62.172.212) but fails a TLS handshake to port 443 reproduced across three independent TLS client stacks (curl/Schannel, PowerShell/.NET, WebFetch/OpenSSL) from at least two independent network vantage points. A plain, unencrypted HTTP (port 80) request to the same bare domain reaches a Cloudflare-fronted edge that itself returns HTTP 409 with the literal body 'error code: 1001' — Cloudflare's own documented code for 'DNS resolution error', meaning even Cloudflare's own edge cannot reach whatever origin is configured behind this hostname today. Because no HTTP response body was ever obtained from the candidate's own live site under any protocol/client combination, there was no HTML, JS, or bootstrap data available to inspect, so a genuine, non-fabricated Level 2 (STRUCTURAL) escalation was not possible — there was nothing structural to inspect. To responsibly distinguish 'the venue itself no longer exists' from 'only its website is currently broken' (a DEFER-vs-REJECT question, not fact acquisition), this investigation additionally retained the Wayback Machine's own availability API + CDX snapshot history for this domain (showing the site was genuinely live for many years, publishing real WordPress-shaped /events/ and /event/{slug}/ pages, before beginning to return 404/absent responses from October 2022 onward) and one retained historical snapshot of the site's own former homepage (2022-03-15), plus one retained fetch of a third-party listing (Songkick's own venue page), used explicitly and only as corroborating discovery-lead context per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section, never as first-party fact authority. A dependency-free, no-network Node offline-proof script re-parsed every retained evidence file to mechanically re-confirm every unreachability/corroboration claim below."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain, unauthenticated requests to every resolvable form of the candidate's official domain failed to return any usable content. https://www.planobporto.com (the exact official_url recorded in the prior loose sources/porto.json lead) is DNS NXDOMAIN, independently corroborated by two separate resolvers (local nslookup and the WebFetch tool's own remote DNS resolution — see evidence/dns-lookups.txt and evidence/tls-probe-log.txt). The only variant that resolves at all, https://planobporto.com (bare domain, no www), resolves to a real IP (50.62.172.212) but fails the TLS handshake itself on every attempt, reproduced across three independent TLS client implementations (curl/Schannel, PowerShell/.NET, and the WebFetch tool's own separate OpenSSL-based infrastructure) from at least two independent network vantage points — this is not a single client's misconfiguration. A plain HTTP (port 80, unencrypted) request to the same bare domain does reach a live Cloudflare-fronted edge, but that edge itself returns HTTP 409 with body 'error code: 1001' (Cloudflare's own documented 'DNS resolution error' code, meaning Cloudflare's own edge cannot resolve/reach whatever backend origin is configured for this hostname) — reproduced identically for both the homepage and /robots.txt, ruling out a path-specific cause. No HTML, JSON-LD, RSS, ICS, JS bundle, or any other content was obtained from the candidate's own live site under any protocol or client tested. This already conclusively answers the passive-static question (no usable data is currently exposed by this candidate's own official presence, under any client), and there is no HTML/JS/bootstrap data of any kind to inspect for a genuine Level 2 escalation — Level 2 requires actual retained page content to analyse, which does not exist here. Per docs/SOURCE_INVESTIGATION_POLICY.md's 'DEFER does not require exhausting the ladder', a single retained INSUFFICIENT Level 1 entry is sufficient grounds to reach DEFER without fabricating a Level 2/3/4 attempt that has nothing real to act on.",
+      "evidence_refs": [
+        "ev-dns-lookups",
+        "ev-tls-probe-log",
+        "ev-http-home-body",
+        "ev-http-home-headers",
+        "ev-http-robots-body",
+        "ev-http-robots-headers"
+      ]
+    }
+  ],
+  "source_candidate_id": "plano-b-porto-01-candidate",
+  "source_id": null,
+  "venue_reference": "Plano B — independent Porto club/venue (jazz, rock, electronic, experimental programming), R. de Cândido dos Reis 30, 4050-151 Porto, Portugal. Per the prior loose sources/porto.json lead ('plano-b-porto') and third-party listings retained by this investigation (Songkick); NOT independently confirmed today via first-party live evidence, because the candidate's own official website is currently unreachable under every protocol/client tested — see identity below.",
+  "official_url": "https://www.planobporto.com",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-archive-snapshot", "ev-cdx-recent", "ev-cdx-historical", "ev-archive-avail-www", "ev-archive-avail-bare"],
+    "notes": "Identity cannot honestly be marked PROVEN today: the candidate's official website is currently completely unreachable under every protocol/client tested (see probe_history), so no CURRENT first-party evidence of self-identification exists. However, a retained Wayback Machine snapshot of this exact domain's own former homepage (2022-03-15, evidence/body-archive-snapshot.html — a byte-retained copy of what planobporto.com's own server literally served, not an AI summary) self-identifies with <title>PLANO B :: PROGRAMAÇÃO</title> and links its own social accounts (facebook.com/planobclub, instagram.com/planobporto) — genuinely first-party historical identity evidence, just not current. The retained CDX snapshot history (evidence/body-cdx-recent.txt, evidence/body-cdx-historical.txt is actually named body-cdx.txt) further shows this exact domain was live and publishing real, dated events (e.g. 'Aniversário Plano B', touring DJ/live bookings) continuously from at least 2007 through 2021, then began returning 404/absent responses from October 2022 onward — consistent with a real, long-running venue whose website specifically broke at some point, not a domain that was never genuinely this venue's. This investigation additionally retained one third-party page (Songkick's own venue listing, evidence/body-songkick.html) purely as a DISCOVERY LEAD to check whether the real-world venue is still operating at all (relevant to choosing DEFER over REJECT) — never as authority for any first-party fact. That page's own JSON-LD repeats a street address ('Rua Cândido Dos Reis, 30', Porto, 4050-151) matching the prior loose registry lead's physical_address, and lists several dated 2026 concerts at this venue. Per docs/SOURCE_INVESTIGATION_POLICY.md, this third-party corroboration is recorded honestly as context, not promoted to identity proof. Net assessment: PARTIAL/MEDIUM — strong historical first-party evidence this domain was genuinely Plano B's own site, plus third-party corroboration the real venue is still operating, but no current first-party confirmation this exact domain is still under the same control today, since it cannot currently be reached at all."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": "Cannot be classified from current live evidence — the site is entirely unreachable today (see probe_history). Historically (per retained Wayback CDX + the 2022-03-15 snapshot only): 2007-2021 CDX entries show WordPress-shaped URL conventions (/events/, /event/{slug}/, /comments/feed/, /author/planob/, akismet-plugin-probe 404s), but the retained 2022-03-15 snapshot itself shows the site had migrated to a bespoke, hand-built static-asset front end (Bootstrap 5.1.3 via jsDelivr CDN, jQuery 3.5.1, a local assets/css/stylesheet.css and assets/js/general.js, Typekit web fonts) with no WordPress generator meta tag or wp-content path visible in that snapshot. This is offered only as historical platform context, not a current classification — a future re-investigation, once/if the domain becomes reachable again, would need to re-establish this from scratch rather than assume either platform still applies.",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-cdx-recent", "ev-cdx-historical", "ev-archive-snapshot"]
+  },
+  "data_paths": [
+    {
+      "kind": "HOMEPAGE (www subdomain — checked, DNS NXDOMAIN, corroborated by two independent resolvers)",
+      "url": "https://www.planobporto.com",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-dns-lookups", "ev-tls-probe-log"]
+    },
+    {
+      "kind": "HOMEPAGE (bare domain, https — checked, DNS resolves but TLS handshake fails across 3 independent client TLS stacks)",
+      "url": "https://planobporto.com",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-dns-lookups", "ev-tls-probe-log"]
+    },
+    {
+      "kind": "HOMEPAGE (bare domain, plain http — checked, reaches a live Cloudflare edge that itself returns 409 'error code: 1001', i.e. the edge cannot reach its own configured origin)",
+      "url": "http://planobporto.com",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-http-home-body", "ev-http-home-headers", "ev-http-robots-body", "ev-http-robots-headers"]
+    },
+    {
+      "kind": "WAYBACK_HISTORICAL_SNAPSHOT (informational/identity research only — a frozen 2022-03-15 copy; not a usable acquisition path for current or future event data, and never treated as one)",
+      "url": "https://web.archive.org/web/20220315072517/http://planobporto.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-archive-snapshot", "ev-archive-avail-www", "ev-archive-avail-bare"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current live event data of any kind could be retrieved from the candidate's own official site (see probe_history) — there is nothing to assess a title field against today. The 2022 archived homepage snapshot lists past event/artist names (e.g. 'Príncipe Porto: DJ Marfox, PML Beatz'), but that is frozen historical content, not a currently-observable field on a live source, so it is not used to claim anything about the source's present-day title field.",
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Same reasoning as title: no live page exists to observe a date field on. The historical CDX record confirms the site once published dated event pages, but no current instance of that structure can be inspected.",
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No live page exists to observe a time field on.",
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No live page exists to observe an end-time/duration field on.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No live first-party page exists to confirm a venue/location field from. A third-party page (Songkick) states a street address matching the prior loose registry lead, but per policy this is discovery-lead corroboration only, never first-party fact authority, so it is not promoted to a claimed value here.",
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No live source exists to observe an id scheme from. The historical CDX record shows past permalink slugs (e.g. /events/andre-cascais-all-night/) that were plausibly stable identifiers on the old site, but nothing about a currently-unreachable site's id scheme can be honestly claimed.",
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No live source exists to observe an event-URL scheme from today.",
+      "evidence_refs": []
+    },
+    "price": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No live source exists to observe a price field from today.",
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-tls-probe-log", "ev-http-home-body"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The candidate's official website is currently completely unreachable under every protocol/client tested: https://www.planobporto.com (the prior loose registry lead's own official_url) is DNS NXDOMAIN (two independent resolvers); the only resolvable variant, https://planobporto.com, fails the TLS handshake itself on every attempt (three independent TLS client stacks, two independent network vantage points); and the plain-HTTP path to the same bare domain reaches a live Cloudflare edge that itself reports it cannot reach its own configured origin (HTTP 409, 'error code: 1001'). No public acquisition path exists today under any acquisition strategy — this is not a rendering/JS/data-path problem this project's existing collector families could solve, it is total transport-layer unavailability of the candidate's own official presence."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Third-party listings (Songkick, and per this investigation's research, also Resident Advisor, Bandsintown, DICE, Shotgun) strongly suggest the real-world venue is still open and actively booking 2026 events, so this is very plausibly a temporary/recoverable website outage or a lapsed/misconfigured domain rather than a closed venue — but per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section, none of those third-party platforms may be treated as first-party authority for this candidate's own facts, so this cannot be used to build a collector against those platforms as a substitute without a separate, explicit governance decision to do so."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "No public acquisition path exists today: the candidate's official website is unreachable under every protocol/client tested (DNS NXDOMAIN for the www subdomain on two independent resolvers; TLS handshake failure for the only resolving bare-domain form, reproduced across three independent TLS client stacks from two independent network vantage points; and a Cloudflare edge in front of the bare domain that itself reports a backend DNS-resolution failure over plain HTTP). This is a genuine, multiply-corroborated infrastructure finding, not a single client's misconfiguration or a guess.",
+      "site_classification.acquisition_class is honestly UNKNOWN — there is no live content of any kind to classify a current acquisition strategy against.",
+      "No data_paths entry is both access:PUBLIC and status:CONFIRMED for a usable, current acquisition path (the one CONFIRMED PUBLIC entry, the Wayback historical snapshot, is explicitly a frozen 2022 research artifact, not a live source).",
+      "field_assessment for every mandatory field is honestly UNKNOWN — there is no live page to assess title/start_date/etc against, and this investigation deliberately did not promote any third-party (Songkick) or historical-archive value into a claimed first-party field value, per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section and the general prohibition on inventing/assuming facts.",
+      "collector_assessment.recommended_family is honestly null (not a known family, not NEW_FAMILY_REQUIRED) — there is no live sample to base any collector recommendation on.",
+      "collector_assessment.blockers contains one CRITICAL entry (total current unreachability of the official site) — this alone would independently block READY_FOR_ACTIVATION even if every other gate were somehow met, which none are.",
+      "This is recorded as DEFER, not REJECT, because independently-retained historical evidence (a long, continuous Wayback CDX history from 2007-2021, including real dated events, ending in 404s from October 2022) plus third-party corroboration (Songkick's own retained page listing multiple real, dated 2026 concerts at this venue) together make it very plausible this is a recoverable website outage or DNS/hosting misconfiguration for a venue that is still genuinely operating, not a permanently defunct or fabricated candidate. A future re-investigation should first simply re-probe https://www.planobporto.com and https://planobporto.com to see whether the domain has recovered, and/or search for whether the venue has published a replacement official domain, before considering any alternative (e.g. third-party-platform-based) acquisition strategy.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained evidence file that mechanically reproduces every unreachability and corroboration claim above (DNS NXDOMAIN, the three independent TLS handshake failures, the Cloudflare 409/1001 response, the Wayback CDX 200-to-404 transition, the archived snapshot's own self-identification, and the Songkick corroboration).",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md's 'DEFER does not require exhausting the ladder', a single retained INSUFFICIENT Level 1 probe_history entry is sufficient grounds for this decision — there was no genuine Level 2/3/4 attempt to make, since no page content of any kind was ever obtained to escalate from.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; it does not mark this candidate as permanently unsuitable. A future investigation may supersede this one (via its own new investigation_id with supersedes set to \"plano-b-porto-01\") if and when the official site becomes reachable again."
+    ],
+    "evidence_refs": [
+      "ev-dns-lookups",
+      "ev-tls-probe-log",
+      "ev-http-home-body",
+      "ev-http-home-headers",
+      "ev-http-robots-body",
+      "ev-http-robots-headers",
+      "ev-archive-avail-www",
+      "ev-archive-avail-bare",
+      "ev-cdx-recent",
+      "ev-cdx-historical",
+      "ev-archive-snapshot",
+      "ev-songkick-body",
+      "ev-offline-proof-script",
+      "ev-offline-proof-output"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-http-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for a plain, unencrypted (port 80) GET of the bare domain: the literal 16-byte Cloudflare error body \"error code: 1001\" (Cloudflare's own documented code for a DNS-resolution failure between its edge and the configured backend origin).",
+      "acquired_from": "http://planobporto.com",
+      "acquired_at": "2026-08-27T07:54:02Z",
+      "method": "curl -sS -D headers-home-http.txt -o body-home-http.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -L \"http://planobporto.com\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-home-http.html"
+    },
+    {
+      "evidence_id": "ev-http-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same request: HTTP/1.1 409 Conflict, Server: cloudflare, CF-RAY present — confirms a genuine, live Cloudflare edge is in front of this hostname, but that edge itself cannot reach its configured origin.",
+      "acquired_from": "http://planobporto.com",
+      "acquired_at": "2026-08-27T07:54:02Z",
+      "method": "curl -sS -D headers-home-http.txt (same request as ev-http-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/headers-home-http.txt"
+    },
+    {
+      "evidence_id": "ev-http-robots-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for a plain GET of /robots.txt on the same bare domain: identical 16-byte 'error code: 1001' body, ruling out a path-specific cause (i.e. it is not that only the homepage route is broken).",
+      "acquired_from": "http://planobporto.com/robots.txt",
+      "acquired_at": "2026-08-27T07:55:00Z",
+      "method": "curl -sS -D headers-robots-http.txt -o body-robots-http.txt --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"http://planobporto.com/robots.txt\"",
+      "content_type": "text/plain; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-robots-http.txt"
+    },
+    {
+      "evidence_id": "ev-http-robots-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /robots.txt request: identical HTTP/1.1 409 Conflict / Server: cloudflare signature as the homepage.",
+      "acquired_from": "http://planobporto.com/robots.txt",
+      "acquired_at": "2026-08-27T07:55:00Z",
+      "method": "curl -sS -D headers-robots-http.txt (same request as ev-http-robots-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/headers-robots-http.txt"
+    },
+    {
+      "evidence_id": "ev-dns-lookups",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained output of nslookup against www.planobporto.com (NXDOMAIN), planobporto.com (resolves to 50.62.172.212), and the domain's own NS delegation (dns1-5.name-services.com — Network Solutions' default DNS, not a Cloudflare-managed zone).",
+      "acquired_from": "Local DNS resolver (nslookup) queried against www.planobporto.com and planobporto.com",
+      "acquired_at": "2026-08-27T08:00:00Z",
+      "method": "nslookup www.planobporto.com; nslookup planobporto.com; nslookup -type=NS planobporto.com; nslookup -type=CNAME www.planobporto.com — all output captured verbatim to this file",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/dns-lookups.txt"
+    },
+    {
+      "evidence_id": "ev-tls-probe-log",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim transcript of every TLS/DNS reachability probe attempted against planobporto.com / www.planobporto.com using three independent client implementations (curl/Schannel, PowerShell/.NET Invoke-WebRequest, and the WebFetch tool's own separate remote OpenSSL-based fetch infrastructure) — all failing the TLS handshake against the resolving bare domain, and WebFetch's own independent resolver also reporting NXDOMAIN for the www subdomain. Manually transcribed from the real, unedited output each tool actually returned during this investigation (not paraphrased or summarised) — recorded here so this material finding is retained per docs/SOURCE_INVESTIGATION_POLICY.md's no-scratchpad rule, rather than existing only in the investigation session's own transcript.",
+      "acquired_from": "https://planobporto.com and https://www.planobporto.com, probed via curl (this machine), PowerShell Invoke-WebRequest (this machine), and the WebFetch tool (separate remote infrastructure)",
+      "acquired_at": "2026-08-27T07:52:00Z",
+      "method": "curl -sS -v --tls-max 1.2 --http1.1 ...; PowerShell Invoke-WebRequest -Uri https://planobporto.com ...; WebFetch https://planobporto.com and https://www.planobporto.com — transcribed verbatim",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/tls-probe-log.txt"
+    },
+    {
+      "evidence_id": "ev-archive-avail-www",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response from the Internet Archive's Wayback Availability API for www.planobporto.com: closest available snapshot is 2022-03-15 (timestamp 20220315072517), status 200 at capture time.",
+      "acquired_from": "https://archive.org/wayback/available?url=www.planobporto.com",
+      "acquired_at": "2026-08-27T07:56:00Z",
+      "method": "curl -sS -D headers-archive-avail-www.txt -o body-archive-avail-www.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://archive.org/wayback/available?url=www.planobporto.com\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-archive-avail-www.json"
+    },
+    {
+      "evidence_id": "ev-archive-avail-bare",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response from the same Wayback Availability API for the bare domain planobporto.com: identical closest snapshot (2022-03-15, timestamp 20220315072517) — confirms both hostname forms resolve to the same archived site.",
+      "acquired_from": "https://archive.org/wayback/available?url=planobporto.com",
+      "acquired_at": "2026-08-27T07:56:00Z",
+      "method": "curl -sS -D headers-archive-avail-bare.txt -o body-archive-avail-bare.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://archive.org/wayback/available?url=planobporto.com\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-archive-avail-bare.json"
+    },
+    {
+      "evidence_id": "ev-cdx-historical",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained CDX (Wayback Machine index) listing of the earliest ~50 collapsed snapshots for planobporto.com, spanning 2007-2014 — establishes this is a long-established, genuinely real domain (not a recently-registered or parked one), consistently returning HTTP 200 across those years.",
+      "acquired_from": "https://web.archive.org/cdx/search/cdx?url=planobporto.com&matchType=domain&output=text&fl=timestamp,original,statuscode&collapse=timestamp:6&limit=50",
+      "acquired_at": "2026-08-27T07:58:00Z",
+      "method": "curl -sS -D headers-cdx.txt -o body-cdx.txt --max-time 45 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://web.archive.org/cdx/search/cdx?url=planobporto.com&matchType=domain&output=text&fl=timestamp,original,statuscode&collapse=timestamp:6&limit=50\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-cdx.txt"
+    },
+    {
+      "evidence_id": "ev-cdx-recent",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained CDX listing of snapshots for planobporto.com from 2019 onward: shows a genuine, WordPress-shaped /events/ listing and dozens of individual /events/{slug}/ event pages returning HTTP 200 through 2021, then the root URL beginning to return 404 from 2022-10-10 onward (and again 2024-05-12) — the site's own crawl history independently corroborates today's live unreachability finding.",
+      "acquired_from": "https://web.archive.org/cdx/search/cdx?url=planobporto.com&matchType=domain&output=text&fl=timestamp,original,statuscode&collapse=timestamp:6&from=2019&limit=200",
+      "acquired_at": "2026-08-27T07:59:00Z",
+      "method": "curl -sS -D headers-cdx-recent.txt -o body-cdx-recent.txt --max-time 45 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://web.archive.org/cdx/search/cdx?url=planobporto.com&matchType=domain&output=text&fl=timestamp,original,statuscode&collapse=timestamp:6&from=2019&limit=200\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-cdx-recent.txt"
+    },
+    {
+      "evidence_id": "ev-archive-snapshot",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML of the Wayback Machine's own 2022-03-15 capture of planobporto.com's homepage (the id_ raw-content form, not Wayback's own toolbar-wrapped replay view): self-identifies via <title>PLANO B :: PROGRAMAÇÃO</title>, links its own facebook.com/planobclub and instagram.com/planobporto accounts, and lists a genuine past event ('Príncipe Porto: DJ Marfox, PML Beatz'). By this date the site had migrated to a bespoke Bootstrap 5.1.3 + jQuery static-asset build, with no WordPress fingerprint visible in this particular snapshot (contrast with the WordPress-shaped URLs seen in the 2019-2021 CDX history).",
+      "acquired_from": "https://web.archive.org/web/20220315072517id_/http://planobporto.com/",
+      "acquired_at": "2026-08-27T08:01:00Z",
+      "method": "curl -sS -D headers-archive-snapshot.txt -o body-archive-snapshot.html --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" \"https://web.archive.org/web/20220315072517id_/http://planobporto.com/\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-archive-snapshot.html"
+    },
+    {
+      "evidence_id": "ev-ra-blocked-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for an attempted fetch of Resident Advisor's own venue listing page (a candidate third-party corroboration source): HTTP 403, X-DataDome: protected — a genuine bot-challenge encountered and NOT bypassed (no CAPTCHA-solving, no credential/session reuse, no evasion attempted), per docs/SOURCE_INVESTIGATION_POLICY.md's explicit prohibition. This investigation used Songkick instead, which returned a plain 200 with no challenge.",
+      "acquired_from": "https://ra.co/clubs/6433",
+      "acquired_at": "2026-08-27T07:58:50Z",
+      "method": "curl -sS -D headers-ra.txt -o body-ra.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -L \"https://ra.co/clubs/6433\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/headers-ra.txt"
+    },
+    {
+      "evidence_id": "ev-ra-blocked-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the same Resident Advisor request: the DataDome challenge page itself (not the actual venue page content) — retained honestly to document the block was real and was not worked around.",
+      "acquired_from": "https://ra.co/clubs/6433",
+      "acquired_at": "2026-08-27T07:58:50Z",
+      "method": "curl -sS -D headers-ra.txt -o body-ra.html (same request as ev-ra-blocked-headers)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-ra.html"
+    },
+    {
+      "evidence_id": "ev-songkick-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML of Songkick's own venue page for Plano B, including its own embedded schema.org JSON-LD (MusicVenue + several MusicEvent entries with real 2026 startDate values). Used explicitly and only as third-party discovery-lead corroboration that the real-world venue is still operating — per docs/SOURCE_INVESTIGATION_POLICY.md this is never treated as first-party authority for any of this candidate's own field_assessment values, all of which remain honestly UNKNOWN in this investigation.",
+      "acquired_from": "https://www.songkick.com/venues/479706-plano-b",
+      "acquired_at": "2026-08-27T07:58:00Z",
+      "method": "curl -sS -D headers-songkick.txt -o body-songkick.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -L \"https://www.songkick.com/venues/479706-plano-b\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/body-songkick.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof-script",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that re-parses every retained evidence file above and mechanically re-verifies each unreachability/corroboration claim in this record (DNS NXDOMAIN text, all three independent TLS handshake failure signatures, the Cloudflare 409/'error code: 1001' body, the CDX 200-to-404 transition, the archived snapshot's own self-identification and social links, and the Songkick address/date corroboration) — proving these are reproducible, checked facts rather than bare assertions.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-08-27T09:01:00Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above: 26/26 checks passed, exit code 0.",
+      "acquired_from": "research/source-investigations/plano-b-porto-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T09:01:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/plano-b-porto-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

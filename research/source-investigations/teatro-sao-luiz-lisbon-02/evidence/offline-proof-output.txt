@@ -1,0 +1,53 @@
+=== teatro-sao-luiz-lisbon-02 offline proof ===
+
+[PASS] Step 1a: EN programme page's own data-temporada-actual attribute states a two-year season label
+[PASS] Step 1b: season label parses to seasonStartYear=2026, seasonEndYear=2027 (consecutive years)
+[PASS] Step 1c: PT programme page independently states the identical season label (cross-language consistency, not a translation artefact)
+[PASS] Step 2: NO retained static page contains a single explicit prose sentence stating the season's month-to-month span (e.g. 'decorre de setembro a julho') -- confirms this rule is not stated as marketing prose anywhere sampled
+[PASS] Step 3: bilheteira (box office) page states its own opening hours run 'a partir de 1 de setembro' (from 1 September) and that it closes 'entre 1 a 31 de agosto' (1-31 August) -- first-party corroboration that the venue's own operating year turns over at the Aug/Sep boundary
+[PASS] Step 4a: retained theme main.js contains the literal, fixed comparison 'if (currentMonth >= N && currentMonth <= M) { selectedMonth = `${selectedSeason.split("-")[0]}-...` }' -- i.e. a month-number range mapped explicitly to the season's OWN start-year component, hardcoded in the site's own public source, not inferred
+[PASS] Step 4b: the retained rule's own literal boundary numbers are 8-12 (expected 8-12, i.e. August-December mapped to the season's start year; by elimination January-July map to the season's end year, confirmed by the same code's else branch using selectedSeason.split("-")[1])
+[PASS] Step 4c: retained theme main.js's own else-branch confirms the complementary case: any month NOT in 8-12 maps to selectedSeason.split("-")[1] -- the season's own end-year component -- completing the full, unconditional, two-branch mapping (never a today's-date lookup, never an assumption)
+[PASS] Step 5a: all 12 months (01-12) of season=2026-2027 were queried and retained (9 months returned real dated entries, 3 months returned an empty result -- never an error)
+[PASS] Step 5b: every single date entry returned across all 12 months (46 entries total, across 9 non-empty months) matches the Step 4 rule's predicted year for its own month -- ZERO contradictions found
+[PASS] Step 6a: the retained static EN programme page contains 26 event cards (found 26)
+[PASS] Step 6b: every one of the 26 static events' day+month text was successfully parsed (no card defeated the parser)
+
+--- Step 6c: full derived date table (all 26 static events) ---
+  2026-09-09  [September 9]  Batucadeiras das Olaias (PT)
+  2026-09-09 .. 2026-09-13  [September 9  - 13]  PICADEIRO FEST 2026
+  2026-09-09  [September 9]  REQUIEM (PT)
+  2026-09-10  [September 10]  DUOT with STRINGS feat. ZARM QUARTET (ES/PT)
+  2026-09-11  [September 11]  GONÇALO MARQUES QUARTETO (PT/JP/USA)
+  2026-09-11  [September 11]  treze (PT)
+  2026-09-12  [September 12]  NORBERTO LOBO &#8220;SOLO&#8221; (PT)
+  2026-09-12  [September 12]  RHIZOME  (PT/USA)
+  2026-09-13  [September 13]  ENSEMBLE OF OTHER LIVING BEINGS (PT)
+  2026-09-16 .. 2026-09-27  [September 16  - 27]  O PAI (The Father)
+  2026-09-18 .. 2026-09-19  [September 18  - 19]  A Arte do Trio
+  2026-09-30  [September 30]  CAMINHO DO CÉU (PATH TO HEAVEN)
+  2026-10-27  [October 27]  Sentimento Oceânico da Vida (The Oceanic Sense of Life)
+  2026-11-16  [November 16]  Coffeepaste 20 Years
+  2026-11-18  [November 18]  EAST FOREST
+  2026-11-19  [November 19]  SURMA
+  2026-11-19  [November 19]  Svaneborg Kardyb + Vega Trails
+  2026-11-20  [November 20]  RAÜL REFREE &#038; MARIA MAZZOTTA
+  2026-11-21  [November 21]  VINCENT PEIRANI
+  2026-11-22  [November 22]  JOSH COHEN
+  2026-11-22  [November 22]  LEVI.SCT
+  2026-11-25  [November 25]  Miguel Araújo
+  2026-12-10 .. 2026-12-20  [December 10  - 20]  As Ilhas Desconhecidas (The Unknown Islands)
+  2027-01-14  [January 14]  André Rosinha Trio
+  2027-01-28 .. 2027-01-31  [January 28  - 31]  VÁCUO
+  2027-04-02 .. 2027-04-04  [April 2  - 4]  ERA UM PEITO SÓ CHEIO DE PROMESSAS
+
+  year distribution across 26 events: {"2026":23,"2027":3}
+[PASS] Step 6d: all 26 events resolve to exactly one of the season's two calendar years (2026 or 2027) -- none fall outside the season
+
+Step 7: of 32 individual derived dates checked against the auxiliary API's own same-month results, 3 were independently confirmed present in the API's own data (the API's sparse, inconsistent coverage -- documented in the superseded -01 investigation -- means a low match count here is expected and is not itself a contradiction; a genuine YEAR contradiction, checked separately in Step 5, would be).
+[PASS] Step 8a: two independent fetches of the same event detail page reproduce the identical WordPress shortlink post id (35378 vs 35378)
+[PASS] Step 8b: the two independent fetches' HTML bodies are byte-identical
+[PASS] Step 8c: the id reproduced in THIS investigation (35378) matches the id the superseded -01 investigation recorded for the same event (35378) -- id stability confirmed not just within one investigation, but across investigations days apart
+
+=== SUMMARY ===
+OFFLINE PROOF: PASSED -- every check above passed. The season-boundary rule is genuinely explicit (retained in the site's own public theme JavaScript), fully mechanical (no today's-date lookup, no plausibility), and empirically exhaustive (confirmed against literal every month, 01-12, of the season's own auxiliary API with zero contradictions).

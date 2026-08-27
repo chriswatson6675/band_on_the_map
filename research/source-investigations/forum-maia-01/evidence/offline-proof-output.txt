@@ -1,0 +1,48 @@
+PASS  homepage <title> is 'CM Maia'
+PASS  homepage meta description self-identifies as CM Maia's official site
+PASS  homepage og:site_name includes 'Câmara Municipal da Maia'
+PASS  the sources/porto.json events_url returns HTTP 301 (not a live page in its own right)
+PASS  the 301 redirects within the same 'agenda' path family (not to an unrelated page)
+PASS  the independently-discovered general listing root (/agenda/todos-os-eventos) returns HTTP 200
+PASS  listing page (bounded page 1 sample) contains at least 8 dated event cards
+PASS  listing page reports exactly 12 event_item_container blocks on page 1
+PASS  listing page's own pagination links include a page number > 100 (a large, multi-page archive, not a single short page)
+PASS  listing page contains zero application/ld+json blocks
+PASS  listing page contains no rel="alternate" RSS/ICS link
+      (categories observed across 5 retained listing pages: Biblioteca | Cultura | Desporto | Desporto-Destaque | Educação | Homepage | Agenda - Eventos na Maia | Institucional | Juventude | Juventude | Homepage | Turismo)
+PASS  at least 6 distinct category values were observed across the 5-page bounded sample
+PASS  no category value anywhere in the bounded sample names music/concerts specifically (the decisive negative finding)
+PASS  'Cultura' (the broadest arts/culture bucket) is present as a category value
+PASS  a non-music, non-culture category ('Desporto') is also present, confirming the taxonomy spans the whole civic calendar, not just arts
+PASS  page 283 (the last retained pagination page) contains at least one event dated '14 (2014)
+PASS  Maia Blues Fest 2026: listing page (page 1) links to this event's own href
+PASS  Maia Blues Fest 2026: page declares its own <meta canonical> URL
+PASS  Maia Blues Fest 2026: canonical URL matches the expected permalink
+PASS  Maia Blues Fest 2026: atc_date_start is directly present and matches expected value
+PASS  Maia Blues Fest 2026: atc_date_end is directly present and matches expected value
+PASS  Maia Blues Fest 2026: atc_timezone is directly present and is 'Europe/Lisbon'
+PASS  Maia Blues Fest 2026: atc_location names the Fórum da Maia auditorium
+PASS  Maia Blues Fest 2026: an independent second field (meta content_date) cross-confirms the same start date as atc_date_start
+PASS  Maia Blues Fest 2026: a separately-labelled structured 'Local:' field is also present
+PASS  Maia Blues Fest 2026: the labelled 'Local:' field agrees with atc_location
+PASS  Maia Blues Fest 2026: a labelled 'Preço:' (price) field is present and states 'Gratuito'
+PASS  Maia Blues Fest 2026: a wm:page_id meta tag is present
+PASS  Maia Blues Fest 2026: an event_detail_<id> container is present
+PASS  Sons de Verão 2026: listing page (page 1) links to this event's own href
+PASS  Sons de Verão 2026: page declares its own <meta canonical> URL
+PASS  Sons de Verão 2026: canonical URL matches the expected permalink
+PASS  Sons de Verão 2026: atc_date_start is directly present and matches expected value
+PASS  Sons de Verão 2026: atc_date_end is directly present and matches expected value
+PASS  Sons de Verão 2026: atc_timezone is directly present and is 'Europe/Lisbon'
+PASS  Sons de Verão 2026: atc_location names the Fórum da Maia auditorium
+PASS  Sons de Verão 2026: an independent second field (meta content_date) cross-confirms the same start date as atc_date_start
+PASS  Sons de Verão 2026: a separately-labelled structured 'Local:' field is also present
+PASS  Sons de Verão 2026: the labelled 'Local:' field agrees with atc_location
+PASS  Sons de Verão 2026: a labelled 'Preço:' (price) field is present and states 'Gratuito'
+PASS  Sons de Verão 2026: a wm:page_id meta tag is present
+PASS  Sons de Verão 2026: an event_detail_<id> container is present
+PASS  wm:page_id is IDENTICAL across both distinct sampled events (proves it is NOT a per-event id)
+PASS  event_detail_<id> container id is IDENTICAL across both distinct sampled events (same trap, independently confirmed)
+PASS  the two sampled events nonetheless have genuinely DIFFERENT canonical permalink URLs (confirming the URL slug, not wm:page_id, is what is actually unique per event)
+
+All checks passed.

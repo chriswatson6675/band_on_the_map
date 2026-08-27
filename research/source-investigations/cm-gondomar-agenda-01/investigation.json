@@ -1,0 +1,365 @@
+{
+  "investigation_id": "cm-gondomar-agenda-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "PASSIVE_STATIC (Level 1) then STRUCTURAL (Level 2) against a freshly, live-fetched cm-gondomar.pt (2026-08-27): real, unauthenticated HTTP GET/POST requests only via curl — no browser automation, no session credentials, no bypass of any access control. robots.txt (retained) allows unrestricted crawling of the whole site."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain, unauthenticated GET of https://www.cm-gondomar.pt/agenda/ (evidence/agenda-index.html) is genuinely server-rendered WordPress HTML — no client-side shell — and exposes 6 real 'event-001' cards, each with a title, a permalink, a poster image, and a free-text date field ('20 Setembro', '19 Setembro - 31 Outubro', ...). No JSON-LD/schema.org Event markup, no ICS, and no per-card category/tag label exist anywhere in this response, so this level alone cannot mechanically isolate music from the full civic calendar (the page's own 'Categoria' <select> lists 21 unrelated categories — Ambiente, Desporto, Saúde, etc. — but the selected filter is applied client-side via JS, not baked into any static/linkable URL). Critically, no date-text value anywhere in this response ever carries a year. A plain GET of the site's advertised RSS feed (evidence/feed-post_type-all.xml, linked from this same page's footer) was also checked at this level per the policy's Level 1 definition — it is a generic sitewide press/news feed ('/feed/?post_type=all'), containing unrelated content (vaccination campaigns, council notices) rather than the 'eventos' agenda content type, and offers no category filtering at all. Both gaps (music isolation, year) required escalation.",
+      "evidence_refs": ["ev-agenda-index-html", "ev-agenda-index-headers", "ev-rss-feed", "ev-rss-feed-headers", "ev-robots-txt"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspected the theme's public JS bundle referenced by the /agenda/ page (evidence/layout1.min.js, https://www.cm-gondomar.pt/wp-content/themes/gsk-portal-institucional/js/skill/templates-components/component-event-list/layout1.min.js) and the inline 'paginationParams'/'ajaxParams' bootstrap data on the same page. This revealed the filter mechanism in full: a plain, public, unauthenticated POST to https://www.cm-gondomar.pt/wp-admin/admin-ajax.php with action=search_events and data[category]=<term_id> reproduces exactly what the page's own 'Categoria' dropdown does client-side. A direct, non-browser HTTP POST with data[category]=56 (the source's own 'Música' <option value=\"56\">, retained verbatim in evidence/agenda-index.html's filter <select>) returned a genuine JSON response (evidence/ajax-music-response.json, Content-Type application/json) whose own paginationData.tax-query independently confirms the server applied taxonomy 'eventos-categorias', term_id '56' — not a client-side/AI guess. This yielded 50 further music-tagged event records in a single bounded call (140 total across the full history, per the same response's paginationData.total-posts) — SUFFICIENT to solve the music-isolation problem cleanly and mechanically, the same first-party-taxonomy pattern already established for ingestion/cm-gaia-eventos/discovery.mjs and ingestion/odivelas/discovery.mjs. Two of this filtered sample's detail pages were then sampled directly (evidence/event-detail-recital-de-acordeao-e-piano.html, evidence/event-detail-concerto-rita-redshoes.html) to check for a fuller date, a time, a venue, and a price on the canonical per-event page rather than just the summary card — both retained a structured 'data'/'local'/'entrada' (and, on one of the two, 'horário') block, but neither, nor any of the 58 distinct date-text values checked across every retained fixture (mechanically re-verified offline in evidence/offline-proof.mjs / evidence/offline-proof-output.txt), ever states a year, and no page/section-level heading anywhere establishes one either — unlike this project's own CM Gaia precedent (whose date field always includes the year, e.g. '20 Set 2026') or the policy's own DETERMINISTIC_CONTEXT worked example (a month/year heading governing day-only cards). This is a genuine, source-side data gap, not an acquisition-access problem, so escalating to Level 3 (browser observation) was not attempted: a browser session cannot make the source state a fact — the event year — it simply never publishes anywhere.",
+      "evidence_refs": ["ev-layout1-js", "ev-layout1-js-headers", "ev-ajax-music-response", "ev-ajax-music-headers", "ev-ajax-textsearch-response", "ev-ajax-textsearch-headers", "ev-event-detail-recital", "ev-event-detail-recital-headers", "ev-event-detail-rita", "ev-event-detail-rita-headers", "ev-offline-proof", "ev-offline-proof-output"]
+    }
+  ],
+  "source_candidate_id": "cm-gondomar-agenda-01-candidate",
+  "source_id": null,
+  "venue_reference": "Câmara Municipal de Gondomar — Agenda (the Gondomar municipality's own public events/cultural-agenda calendar, Porto metro area, Portugal; existing registry candidate sources/porto.json id \"cm-gondomar-agenda\", official_website https://www.cm-gondomar.pt, events_url https://www.cm-gondomar.pt/agenda/)",
+  "official_url": "https://www.cm-gondomar.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-index-html", "ev-event-detail-recital"],
+    "notes": "https://www.cm-gondomar.pt/agenda/ is genuinely the municipality's own official presence: og:site_name/og:title identify it as 'Câmara Municipal de Gondomar' / 'Agenda - Câmara Municipal de Gondomar' (evidence/agenda-index.html), and every sampled page's footer independently states the same official contact details (Praça Manuel Guedes 4420-193 Gondomar; geral@cm-gondomar.pt; verified official Facebook/Instagram/Twitter/LinkedIn/YouTube/Vimeo accounts), matching sources/porto.json's existing official_website field exactly. This is the same domain already recorded in the registry, not a third-party aggregator."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress (custom theme 'gsk-portal-institucional', WP Rocket cache/optimisation plugin) — a custom 'eventos' post type + 'eventos-categorias' taxonomy, exposed publicly and unauthenticated via wp-admin/admin-ajax.php's 'search_events' action (server-side filterable by taxonomy term id, free-text search, and a location taxonomy), in addition to genuinely server-rendered static event cards on /agenda/ itself.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-index-html", "ev-layout1-js", "ev-ajax-music-response"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.cm-gondomar.pt/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-index-html"]
+    },
+    {
+      "kind": "AJAX_JSON_ENDPOINT",
+      "url": "https://www.cm-gondomar.pt/wp-admin/admin-ajax.php (POST action=search_events, data[category]=56 for the source's own 'Música' taxonomy term)",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-ajax-music-response", "ev-layout1-js"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.cm-gondomar.pt/eventos/recital-de-acordeao-e-piano/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-recital"]
+    },
+    {
+      "kind": "RSS_FEED",
+      "url": "http://cm-gondomar.pt/feed/?post_type=all",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rss-feed"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Recital de Acordeão e Piano",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Every 'event-001' card (index page and category=56 AJAX response alike) states its own title directly in 'event-001-inner-text-inner', and every sampled per-event detail page restates it in its own 'title-001' heading — confirmed on 2/2 sampled detail pages plus 56 distinct cards across the two bulk samples (6 index + 50 AJAX).",
+      "evidence_refs": ["ev-agenda-index-html", "ev-ajax-music-response", "ev-event-detail-recital", "ev-event-detail-rita"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The source directly states a day + unabbreviated month for every event ('20 Setembro', '28 Novembro', '21 Agosto - 22 Agosto' for ranges) — but NEVER a year, anywhere. Mechanically confirmed by evidence/offline-proof.mjs: all 58 distinct date-text values retained across this investigation (6 index cards + 50 category=56 AJAX cards + both sampled detail pages' own 'data' field) were scanned for a 4-digit year token; zero matches. No page-level, section-level, or listing-level heading establishes a governing year either (the /agenda/ page has no month/year grouping headings at all, unlike this project's own CM Gaia precedent whose date field always includes the year, or the policy's own DETERMINISTIC_CONTEXT worked example's month/year heading) — so there are never two retained pieces of first-party context to mechanically combine; DETERMINISTIC_CONTEXT (policy v1.2) genuinely does not apply here, it is not merely unused. Candidate filename-derived years (wp-content/uploads/<year>/<month>/ upload-date paths; occasional year-suffixed permalink slugs on recurring annual events, e.g. 'concurso-internacional-de-musica-de-gondomar-2026' vs. year-less slugs like 'recital-de-acordeao-e-piano') were considered and rejected as a basis: non-universal across records, not a fact the source itself documents as its date semantic, and the exact 'infer the year from the upload path or poster filename' heuristic this candidate's own prior desk-research note (sources/porto.json, PORTO-COVERAGE-02) already tested and rejected for the same reason. Promoting any of this to a claimed date would be AI_INFERENCE, which v1.2 forbids for PROVEN.",
+      "evidence_refs": ["ev-agenda-index-html", "ev-ajax-music-response", "ev-event-detail-recital", "ev-event-detail-rita", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "A 'horário' field exists in the per-event detail page's structured info block, but only on some events: present as '21h30' (floating local time, no explicit timezone/UTC offset) on the sampled 'Concerto Rita Redshoes' detail page, and genuinely absent (no 'horário' row at all) on the sampled 'Recital de Acordeão e Piano' detail page. Never present on the summary cards themselves (index page or AJAX response), only on the individual detail page.",
+      "evidence_refs": ["ev-event-detail-recital", "ev-event-detail-rita"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No source-modelled 'end date/time' field exists distinct from the free-text 'data' value. Some cards show a day-month range inside that same single date-text field ('21 Agosto - 22 Agosto', '19 Setembro - 31 Outubro') rather than a separate structured end field, and — like start_date — the range's own second endpoint carries the identical year-absence problem, so even where a range exists it cannot be promoted to a precise end date.",
+      "evidence_refs": ["ev-agenda-index-html", "ev-ajax-music-response"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Casa Branca de Gramido",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each sampled per-event detail page states its own venue directly in a structured 'local' field: 'Casa Branca de Gramido' (recital-de-acordeao-e-piano) and 'Auditório Municipal de Gondomar' (concerto-rita-redshoes) — a real, specific place name in both cases, not merely a city. Not present on the summary cards themselves; only proven at the detail-page level, sampled 2/2.",
+      "evidence_refs": ["ev-event-detail-recital", "ev-event-detail-rita"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "recital-de-acordeao-e-piano",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The permalink slug (e.g. 'recital-de-acordeao-e-piano' from https://www.cm-gondomar.pt/eventos/recital-de-acordeao-e-piano/) is the source's own canonical path for each event, matching this project's existing stable-identifier rule ('derived from a deterministic source property whose own stability is itself evidenced, e.g. a permalink URL slug the source uses as its own canonical path'). Independently corroborated on the sampled detail page by the WordPress-internal numeric post id appearing twice, consistently, in unrelated retained locations on the same response: <link rel='shortlink' href='.../?p=132629'> and <body class='...postid-132629...'>.",
+      "evidence_refs": ["ev-event-detail-recital"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.cm-gondomar.pt/eventos/recital-de-acordeao-e-piano/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Every card (index and AJAX alike) links directly to its own detail-page permalink; confirmed resolvable and self-consistent (breadcrumb + title-001 match) on 2/2 sampled detail pages.",
+      "evidence_refs": ["ev-agenda-index-html", "ev-ajax-music-response", "ev-event-detail-recital"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "An 'entrada' field exists in the per-event detail page's structured info block, confirmed present on 2/2 sampled detail pages with genuinely different values: free-text 'livre' (recital-de-acordeao-e-piano) and 'entrada 12€' (concerto-rita-redshoes) — a per-event free-text label, not a structured amount+currency pair, and never present on the summary cards themselves. Presence rate/consistency across the full 140-record 'Música' corpus was not verified within this bounded investigation.",
+      "evidence_refs": ["ev-event-detail-recital", "ev-event-detail-rita"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "WORDPRESS_CALENDAR",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-ajax-music-response", "ev-layout1-js", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No retained evidence anywhere — 58 distinct date-text values across the /agenda/ index page, the category=56 ('Música') AJAX-filtered sample, and both independently sampled per-event detail pages, mechanically re-checked offline by evidence/offline-proof.mjs — ever states a year for any event. The source's own date field is always day+unabbreviated-month only, and no page/section/listing-level heading, filter default, or other retained first-party context establishes a governing year either, so policy v1.2's DETERMINISTIC_CONTEXT derivation genuinely does not apply (there is only ever one piece of date context, never two to combine). A collector built against this source today could not honestly assign a calendar year to any event without AI_INFERENCE/guessing, which docs/SOURCE_INVESTIGATION_POLICY.md prohibits outright."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Level 1 (PASSIVE_STATIC) confirmed real, rich, server-rendered per-event data (title, free-text date, permalink, poster image) on the live /agenda/ page, but no per-card category/taxonomy label and no year anywhere — genuinely INSUFFICIENT on its own to mechanically isolate music or resolve dates.",
+      "Level 2 (STRUCTURAL) found and confirmed a genuine, public, unauthenticated wp-admin/admin-ajax.php JSON endpoint (action=search_events) that reliably, server-side filters to the source's own 'Música' taxonomy term (id 56) — SUFFICIENT to solve the music-isolation problem cleanly, matching this project's existing cm-gaia-eventos/odivelas category-tag precedent. Escalation stopped here; no browser/headless probing (Level 3+) was attempted or needed for acquisition.",
+      "Despite the acquisition path being fully solved, the date field is fundamentally inadequate: mechanically proven offline (evidence/offline-proof.mjs, a DETERMINISTIC_DERIVATION) that no retained evidence anywhere ever states a year, and no retained context combines to establish one either. This differs materially from this project's CM Gaia precedent (whose own date field always includes the year) and from the policy's own DETERMINISTIC_CONTEXT worked example (a month/year heading governing day-only cards) — Gondomar has neither.",
+      "Filename/path-derived year candidates (wp-content/uploads/<year>/<month>/ upload paths; occasional year-suffixed permalink slugs on recurring annual events) were considered and rejected as a basis, consistent with this exact candidate's own prior desk-research note already recorded in sources/porto.json (research_notes, PORTO-COVERAGE-02) — non-universal, not source-documented, and exactly the kind of brittle inference policy v1.2's >=2-input DETERMINISTIC_CONTEXT bar exists to exclude.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a legitimate, complete outcome. This investigation is not blocked on access — the source is fully open (robots.txt allows unrestricted crawling; no auth, CAPTCHA, or session requirement anywhere touched) — but on the source's own data simply never stating a fact (the event year) this project requires and will not invent.",
+      "This investigation does not edit sources/*.json, any venues/*.json registry, or venues/manual-coordinates.json; the existing cm-gondomar-agenda registry entry's monitoring_status/lifecycle_status are left exactly as they were."
+    ],
+    "evidence_refs": ["ev-agenda-index-html", "ev-ajax-music-response", "ev-event-detail-recital", "ev-event-detail-rita", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-index-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained HTTP response body for a live, plain, unauthenticated GET of the candidate's own agenda listing page: 6 real server-rendered 'event-001' cards (title, permalink, poster image, free-text date), a 21-option 'Categoria' filter <select> including <option value=\"56\">Música</option>, and the inline 'paginationParams'/'ajaxParams' JS bootstrap data (total-posts: 1809 across the full unfiltered civic calendar).",
+      "acquired_from": "https://www.cm-gondomar.pt/agenda/",
+      "acquired_at": "2026-08-27T09:44:42Z",
+      "method": "HTTP GET via curl (BandOnTheMapResearchBot/1.0 user agent)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/agenda-index.html"
+    },
+    {
+      "evidence_id": "ev-agenda-index-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the same /agenda/ GET (HTTP/1.1 200 OK, Content-Type text/html; charset=UTF-8, Server Apache/2.4.63) — proves the fetch above was a genuine live 200 response, not a cached/synthetic artefact.",
+      "acquired_from": "https://www.cm-gondomar.pt/agenda/",
+      "acquired_at": "2026-08-27T09:44:42Z",
+      "method": "HTTP GET via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-agenda-index.txt"
+    },
+    {
+      "evidence_id": "ev-layout1-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained public JS bundle referenced by the /agenda/ page's own <script src>, revealing the client-side filter's exact AJAX request shape: POST wp-admin/admin-ajax.php, action=search_events, data={posts-per-page, tax-query, text, category, localization} — the basis for this investigation's Level 2 STRUCTURAL probe.",
+      "acquired_from": "https://www.cm-gondomar.pt/wp-content/themes/gsk-portal-institucional/js/skill/templates-components/component-event-list/layout1.min.js?ver=feb2d892d12bfa711c733e64a4c39fa6",
+      "acquired_at": "2026-08-27T09:45:10Z",
+      "method": "HTTP GET via curl",
+      "content_type": "text/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/layout1.min.js"
+    },
+    {
+      "evidence_id": "ev-layout1-js-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the layout1.min.js GET (HTTP/1.1 200 OK).",
+      "acquired_from": "https://www.cm-gondomar.pt/wp-content/themes/gsk-portal-institucional/js/skill/templates-components/component-event-list/layout1.min.js?ver=feb2d892d12bfa711c733e64a4c39fa6",
+      "acquired_at": "2026-08-27T09:45:10Z",
+      "method": "HTTP GET via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-layout1-js.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-music-response",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained JSON response from a direct, non-browser HTTP POST to the discovered admin-ajax.php endpoint with data[category]=56 (the source's own 'Música' term id) and data[posts-per-page]=50. Contains 50 event cards (title, date-text, permalink) plus paginationData confirming the server itself applied taxonomy 'eventos-categorias' term_id '56' (tax-query echoed back) and total-posts=140 across max-num-pages=3 for this category.",
+      "acquired_from": "https://www.cm-gondomar.pt/wp-admin/admin-ajax.php (POST action=search_events, data[category]=56, data[posts-per-page]=50)",
+      "acquired_at": "2026-08-27T09:45:35Z",
+      "method": "HTTP POST via curl (application/x-www-form-urlencoded)",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/ajax-music-response.json"
+    },
+    {
+      "evidence_id": "ev-ajax-music-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the category=56 admin-ajax.php POST (HTTP/1.1 200 OK, Content-Type application/json; charset=utf-8) — confirms this is a genuine public JSON API response, not an HTML page.",
+      "acquired_from": "https://www.cm-gondomar.pt/wp-admin/admin-ajax.php",
+      "acquired_at": "2026-08-27T09:45:35Z",
+      "method": "HTTP POST via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-ajax-music.txt"
+    },
+    {
+      "evidence_id": "ev-ajax-textsearch-response",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained JSON response from a second, corroborating direct HTTP POST to the same endpoint, this time with data[text]=Acorde and no category filter (4 total matches, including 'Recital de Acordeão e Piano') — confirms the endpoint's free-text search independently locates the same event sampled at the detail-page level, and that the category=56 bulk sample's absence of this specific title is an ordering artefact (the endpoint appears to order by publish/modify date, not event date) rather than a mis-tagging.",
+      "acquired_from": "https://www.cm-gondomar.pt/wp-admin/admin-ajax.php (POST action=search_events, data[text]=Acorde, data[posts-per-page]=10)",
+      "acquired_at": "2026-08-27T09:50:12Z",
+      "method": "HTTP POST via curl (application/x-www-form-urlencoded)",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/ajax-textsearch-acorde-response.json"
+    },
+    {
+      "evidence_id": "ev-ajax-textsearch-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the text-search admin-ajax.php POST (HTTP/1.1 200 OK, Content-Type application/json; charset=utf-8).",
+      "acquired_from": "https://www.cm-gondomar.pt/wp-admin/admin-ajax.php",
+      "acquired_at": "2026-08-27T09:50:12Z",
+      "method": "HTTP POST via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-ajax-textsearch.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-recital",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained HTTP response body for a live, plain, unauthenticated GET of one sampled per-event detail page. Contains the canonical title ('title-001'), and a structured info block: data='20 Setembro' (no year), local='Casa Branca de Gramido', entrada='livre' — no 'horário' (time) field present for this event. Also carries the WordPress-internal post id twice, consistently ('?p=132629' shortlink and 'postid-132629' body class), used to corroborate source_record_id stability.",
+      "acquired_from": "https://www.cm-gondomar.pt/eventos/recital-de-acordeao-e-piano/",
+      "acquired_at": "2026-08-27T09:46:20Z",
+      "method": "HTTP GET via curl",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/event-detail-recital-de-acordeao-e-piano.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-recital-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the recital-de-acordeao-e-piano detail-page GET (HTTP/1.1 200 OK).",
+      "acquired_from": "https://www.cm-gondomar.pt/eventos/recital-de-acordeao-e-piano/",
+      "acquired_at": "2026-08-27T09:46:20Z",
+      "method": "HTTP GET via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-event-detail-recital.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-rita",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained HTTP response body for a live, plain, unauthenticated GET of a second, independently sampled per-event detail page (chosen from the category=56 bulk sample). Contains title-001='Concerto Rita Redshoes' and a structured info block: data='28 Novembro' (no year), horário='21h30' (floating local time), local='Auditório Municipal de Gondomar', entrada='12€' — this event DOES have a time and a paid price, proving both fields are genuinely per-event-optional rather than absent from the template.",
+      "acquired_from": "https://www.cm-gondomar.pt/eventos/concerto-rita-redshoes/",
+      "acquired_at": "2026-08-27T09:47:05Z",
+      "method": "HTTP GET via curl",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/event-detail-concerto-rita-redshoes.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-rita-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the concerto-rita-redshoes detail-page GET (HTTP/1.1 200 OK).",
+      "acquired_from": "https://www.cm-gondomar.pt/eventos/concerto-rita-redshoes/",
+      "acquired_at": "2026-08-27T09:47:05Z",
+      "method": "HTTP GET via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-event-detail-rita-redshoes.txt"
+    },
+    {
+      "evidence_id": "ev-rss-feed",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained RSS response for the site's own advertised feed link (footer 'RSS' link, all sampled pages). Confirmed to be a generic sitewide press/news feed (post_type=all) — items are municipal news articles ('Campanha de vacinação antirrábica...', 'Hasta pública para a alienação...') categorised under unrelated WordPress post categories (Sem categoria, Cultura, Património, Mobilidade, Município), NOT the 'eventos' custom post type this investigation targets, and offers no category/taxonomy filtering at all.",
+      "acquired_from": "http://cm-gondomar.pt/feed/?post_type=all",
+      "acquired_at": "2026-08-27T09:48:03Z",
+      "method": "HTTP GET via curl",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/feed-post_type-all.xml"
+    },
+    {
+      "evidence_id": "ev-rss-feed-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the RSS feed GET (HTTP/1.1 200 OK, Content-Type application/rss+xml; charset=UTF-8).",
+      "acquired_from": "http://cm-gondomar.pt/feed/?post_type=all",
+      "acquired_at": "2026-08-27T09:48:03Z",
+      "method": "HTTP GET via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-rss-feed.txt"
+    },
+    {
+      "evidence_id": "ev-robots-txt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained robots.txt: 'User-agent: *' / 'Disallow:' (empty) — confirms the whole site, including /agenda/, /eventos/*, and wp-admin/admin-ajax.php, is unrestricted for crawling; no access-control boundary was approached or bypassed anywhere in this investigation.",
+      "acquired_from": "https://www.cm-gondomar.pt/robots.txt",
+      "acquired_at": "2026-08-27T09:48:40Z",
+      "method": "HTTP GET via curl",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/robots.txt"
+    },
+    {
+      "evidence_id": "ev-robots-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw HTTP response headers for the robots.txt GET (HTTP/1.1 200 OK).",
+      "acquired_from": "https://www.cm-gondomar.pt/robots.txt",
+      "acquired_at": "2026-08-27T09:48:40Z",
+      "method": "HTTP GET via curl (-D header dump)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/headers-robots.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that re-parses ONLY the retained fixtures above (agenda-index.html, ajax-music-response.json, both event-detail HTML files) and mechanically reproduces: (1) 6 index cards + 50 category=56 AJAX cards, each with title/date_text/event_url; (2) both sampled detail pages' own title/data/local/horário/entrada fields; (3) a year-token regex scan (/\\b(19|20)\\d{2}\\b/) across all 58 distinct retained date-text values, asserting zero matches — the mechanical proof backing field_assessment.start_date's PARTIAL state and this investigation's DEFER decision.",
+      "acquired_from": "Authored directly for this investigation against the retained evidence files in this same directory; not fetched from a live source",
+      "acquired_at": "2026-08-27T10:00:00Z",
+      "method": "Authored by the AI investigator; run via `node research/source-investigations/cm-gondomar-agenda-01/evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, 'OFFLINE PROOF: PASSED', reporting 6 index cards + 50 AJAX cards parsed, both detail pages' fields reproduced exactly matching field_assessment above, and '0 matches' for the year-token scan across all 58 retained date-text values.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against only the retained fixtures in this directory; no network access",
+      "acquired_at": "2026-08-27T10:00:05Z",
+      "method": "`node research/source-investigations/cm-gondomar-agenda-01/evidence/offline-proof.mjs > research/source-investigations/cm-gondomar-agenda-01/evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-gondomar-agenda-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

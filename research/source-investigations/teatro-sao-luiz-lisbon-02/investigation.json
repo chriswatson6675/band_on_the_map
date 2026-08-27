@@ -1,0 +1,522 @@
+{
+  "investigation_id": "teatro-sao-luiz-lisbon-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "A targeted re-investigation, explicitly authorised, of the ONE open question the superseded teatro-sao-luiz-lisbon-01 investigation deliberately left to a human/operator decision: whether a policy-compliant (v1.2) DETERMINISTIC_CONTEXT derivation can establish the full-season calendar year for every event, not just the 6 months -01 happened to sample. Level 1 PASSIVE_STATIC (INSUFFICIENT for this specific question) then Level 2 STRUCTURAL (SUFFICIENT). All retained evidence freshly re-acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion) on 2026-08-27, two days after -01. Level 1: re-fetched the EN+PT programme pages, EN+PT home pages, the PT+EN 'Temporadas Anteriores'/'Seasons' archive pages, and the box-office ('Bilheteira') page, searching all of them for any first-party PROSE sentence stating the season's own month boundaries -- none was found (the season is only ever labelled '2026-2027', never spelled out as 'runs from month X to month Y' in plain text). The box-office page's own operating-hours text ('a partir de 1 de setembro' / 'entre 1 a 31 de agosto') was retained as corroborating (but not yet sufficient on its own, being about box-office hours rather than an explicit season/year rule) first-party context. This confirmed Level 1 alone still could not answer the specific question this investigation exists to resolve, justifying escalation. Level 2: inspected the site's own public theme JavaScript bundle (wp-content/themes/tsl/js/main.js, referenced directly by the retained programme page's own <script> tag -- public bootstrap/client code, not a private/undocumented asset) and found a literal, unconditional, non-time-dependent comparison hardcoded in the site's own season-selector change handler: a month number 8-12 maps to the season label's own start-year component, and (via the same code's else branch) a month number 1-7 maps to the season label's own end-year component. This rule was then independently, empirically re-confirmed by re-querying the same auxiliary /wp-json/custom/v1/espetaculos endpoint -01 had already discovered, but this time for literal EVERY month of the season (01 through 12, not the 6 -01 sampled) -- 46 real, year-inclusive date entries were returned across 9 non-empty months, and every single one matched the JS rule's predicted year for its own month, with zero contradictions. A dependency-free, no-network Node offline-proof script re-parsed every retained fixture to mechanically reproduce this finding, apply the proven rule to all 26 events on the freshly re-fetched static programme list, and independently re-confirm the WordPress shortlink source_record_id's stability (including across the two investigations, days apart). Level 2 was SUFFICIENT; no browser/headless session (Level 3) was opened."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://www.teatrosaoluiz.pt/en/programme/, /programacao/, /en/, /, /temporadas/, /en/seasons/, and /bilheteira/ all returned 200 OK. All of them state the season label '2026-2027' repeatedly (a <body data-temporada-actual> attribute, a <select> option, a breadcrumb span, an <aside data-season> attribute) but NONE of them contains a plain-text sentence stating which calendar months belong to which half of the season (mechanically confirmed: evidence/offline-proof.mjs Step 2 greps every retained static page for a 'decorre de setembro a ... julho/agosto' -style sentence and finds none). The box-office page does independently state its own opening hours run 'a partir de 1 de setembro' (from 1 September) and that it closes 'entre 1 a 31 de agosto' (1-31 August) -- real, retained, first-party corroboration that the venue's own operating year turns over at the Aug/Sep boundary -- but this is a statement about box-office hours, not an explicit, general season/year mapping rule an investigator could mechanically apply to every event without further work. A GET-parameter probe of the 'Temporadas Anteriores' (previous seasons) archive filter (?opt_filter=2025-2026) was also tried, in case an archived, already-completed season's own event list would show real historical full dates as a second empirical check -- it returned the same static 'no results' shell as an unfiltered request, confirming that filter is AJAX-driven (via admin-ajax.php, not fetched further) rather than server-rendered, so it could not be used as a plain static data path. Level 1 alone therefore cannot establish an explicit, mechanical season-boundary rule -- only Level 2 (public JS/bootstrap inspection) could locate the site's own client-side rule, so escalation was justified.",
+      "evidence_refs": ["ev-programme-en", "ev-programme-pt", "ev-home-en", "ev-home-pt", "ev-seasons-pt", "ev-seasons-en", "ev-seasons-pt-filter-probe", "ev-bilheteira", "ev-offline-proof-output"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspecting the same public programme page's own referenced theme JavaScript asset (wp-content/themes/tsl/js/main.js, plus plugins.js, both fetched as plain public GETs -- per Level 2 guidance: 'inspect public JS/bootstrap data') found a literal, source-authored, non-time-dependent rule inside the season-selector's own 'change' handler: `if (currentMonth >= 8 && currentMonth <= 12) { selectedMonth = selectedSeason.split('-')[0] + '-' + currentMonth; } else { selectedMonth = selectedSeason.split('-')[1] + '-' + currentMonth; }` -- i.e. month numbers 8-12 map to the season label's own start-year component, and month numbers 1-7 map to its own end-year component, evaluated purely against literal integers, never against `new Date()` or any other real-world clock value in this branch. This rule was then independently, empirically re-confirmed (per Level 2's own 'inspect publicly-referenced endpoints' guidance) by re-querying the already-discovered /wp-json/custom/v1/espetaculos endpoint for literal EVERY month of the season (01 through 12), not merely the 6 months -01 sampled: 9 of the 12 months returned real, year-inclusive dated entries (46 entries total), and mechanically checking every single one (evidence/offline-proof.mjs Steps 5a/5b) found the returned year matched the JS rule's own prediction for that month with ZERO contradictions anywhere. Applying the proven rule to all 26 events on the freshly re-fetched static programme list (evidence/offline-proof.mjs Step 6) resolves every one of them to exactly one of the season's two calendar years, with no ambiguity. This already fully answers the one open question this investigation exists to resolve, so escalation to Level 3 (BROWSER_OBSERVATION) was not attempted.",
+      "evidence_refs": ["ev-theme-main-js", "ev-theme-plugins-js", "ev-espetaculos-01", "ev-espetaculos-02", "ev-espetaculos-03", "ev-espetaculos-04", "ev-espetaculos-05", "ev-espetaculos-06", "ev-espetaculos-07", "ev-espetaculos-08", "ev-espetaculos-09", "ev-espetaculos-10", "ev-espetaculos-11", "ev-espetaculos-12", "ev-wpjson-root", "ev-offline-proof", "ev-offline-proof-output"]
+    }
+  ],
+  "source_candidate_id": "teatro-sao-luiz-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Teatro São Luiz (officially 'São Luiz Teatro Municipal') -- Lisbon, Portugal, a municipal theatre in Chiado managed under EGEAC (Empresa de Gestão de Equipamentos e Animação Cultural, the City of Lisbon's cultural-facilities management company). Same candidate as teatro-sao-luiz-lisbon-01: this re-investigation targets the same English-language public programme/event listing at /en/programme/, covering the same full 2026-2027 mixed multi-discipline season (26 events), and resolves the ONE finding -01 explicitly deferred to a human/operator decision -- whether the season's calendar-year gap can be closed via a genuine DETERMINISTIC_CONTEXT derivation.",
+  "official_url": "https://www.teatrosaoluiz.pt/en/programme/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-en", "ev-home-pt", "ev-programme-en", "ev-wpjson-root"],
+    "notes": "Independently re-confirmed with freshly re-acquired evidence (not merely carried forward from -01). The retained homepage footer (both EN and PT) gives the theatre's real Chiado street address ('R. António Maria Cardoso, 38, 1200-027 Lisboa') and displays the EGEAC logo. The site's own standard WordPress REST discovery document (/wp-json/), re-fetched fresh, independently states 'name':'Teatro São Luiz', 'description':'São Luiz Teatro Municipal' -- the venue's own backend self-description, unchanged from -01's finding two days earlier."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (bespoke 'tsl' theme, ver=7.1 per the freshly re-fetched theme asset query strings; WPML multilingual plugin evidenced by wp-json 'wpml/*' namespaces and the /en/ URL prefix). Unchanged from -01: event title/date/venue/price data is fully server-rendered static HTML, no JS execution required to read it. NEW in this investigation: the theme's own public main.js bundle (not previously inspected by -01, which stayed at Level 1) is itself a genuine, governed data source for a SEPARATE fact -- the season's own calendar-year mapping rule -- discovered via ordinary Level 2 public-JS inspection, not JS execution/rendering of the events themselves.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programme-en", "ev-detail-batucadeiras", "ev-wpjson-root", "ev-theme-main-js", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.teatrosaoluiz.pt/en/programme/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programme-en", "ev-offline-proof-output"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.teatrosaoluiz.pt/en/performance/batucadeiras-das-olaias-pt/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-batucadeiras", "ev-detail-batucadeiras-recheck", "ev-detail-andre-rosinha", "ev-detail-o-pai", "ev-detail-vacuo", "ev-offline-proof-output"]
+    },
+    {
+      "kind": "PUBLIC_THEME_JS_SEASON_BOUNDARY_RULE (the central new finding of this investigation -- NOT an events feed itself, but the source's own explicit, mechanical season-label -> calendar-year mapping rule, hardcoded in its own public client bootstrap code)",
+      "url": "https://www.teatrosaoluiz.pt/wp-content/themes/tsl/js/main.js",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-theme-main-js", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    {
+      "kind": "CUSTOM_JSON_CALENDAR_HIGHLIGHT_API (auxiliary; still NOT a complete/reliable EVENTS feed -- -01's sparse-coverage finding is unchanged and independently re-confirmed here -- but now empirically validated, across literal every month of the season, as a reliable YEAR-TAGGING oracle for whichever events it does happen to cover, used here solely to falsification-test the theme-JS rule above, never as this investigation's primary events source)",
+      "url": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=NN",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-wpjson-root", "ev-espetaculos-01", "ev-espetaculos-02", "ev-espetaculos-03", "ev-espetaculos-04", "ev-espetaculos-05", "ev-espetaculos-06", "ev-espetaculos-07", "ev-espetaculos-08", "ev-espetaculos-09", "ev-espetaculos-10", "ev-espetaculos-11", "ev-espetaculos-12", "ev-offline-proof-output"]
+    },
+    {
+      "kind": "HTML_SEASON_ARCHIVE_PAGE (REJECTED as a direct/static data path -- the season-filter <select> submits via a client-side AJAX call to admin-ajax.php, not a server-rendered GET; a plain GET with the same ?opt_filter= query string returns the identical unfiltered 'no results' shell, confirmed empirically, not assumed)",
+      "url": "https://www.teatrosaoluiz.pt/temporadas/?opt_filter=2025-2026",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-seasons-pt-filter-probe", "ev-seasons-pt"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Batucadeiras das Olaias (PT)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unchanged from -01: reliably extractable from the list page's own <span class=\"title\"> on every one of the 26 freshly re-confirmed cards, and from each sampled detail page's own <title> tag. Representative value shown is the first event on the freshly re-fetched list; evidence/offline-proof-output.txt Step 6c prints all 26 titles alongside their derived dates. Stated directly by the source's own markup -- no combination with surrounding context needed, hence DIRECT_SOURCE.",
+      "evidence_refs": ["ev-programme-en", "ev-detail-batucadeiras", "ev-offline-proof-output"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-09",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "THE central finding of this v1.2 re-investigation, and the one gap that kept -01 at HUMAN_REVIEW. The retained static list gives every event's own day-of-month and month name (e.g. 'Batucadeiras das Olaias (PT)': '9 September') but never a calendar year, exactly as -01 found. This investigation establishes the year mechanically, not by assumption: the site's own public theme JavaScript (wp-content/themes/tsl/js/main.js) hardcodes an unconditional, non-time-dependent rule mapping a month number to one of the season label's own two year components (month 8-12 -> the season's start-year component; month 1-7 -> its end-year component -- see derivation below). This rule was independently, empirically re-tested against literal every month (01-12) of the season's own auxiliary calendar API (not merely the 6 months -01 sampled): 46 real, year-inclusive date entries were returned across 9 non-empty months (Feb/Mar/Aug returned no data at all -- never a conflicting year), and every single one matched the rule's own prediction for its month, with ZERO contradictions (evidence/offline-proof.mjs Steps 5a/5b). Applying the proven rule to all 26 events on the freshly re-fetched static list (Step 6c) resolves every one of them to exactly one of the season's two calendar years -- 23 events to 2026 (September/October/November/December), 3 events to 2027 (January x2, April) -- with no event falling outside the season and no ambiguity. Representative value shown ('2026-09-09') is for Batucadeiras das Olaias, the first list event; a multi-day event's OWN date range (e.g. Picadeiro Fest 2026, '9 - 13 September') resolves to a start AND end date via the identical rule, both printed per-event in evidence/offline-proof-output.txt. Today's date, agent knowledge, or a probable/likely season were never consulted anywhere in this derivation -- the rule is evaluated purely against the season label's own two integer year components and the retained JS's own literal 8/12 boundary integers.",
+      "evidence_refs": ["ev-programme-en", "ev-theme-main-js", "ev-espetaculos-09", "ev-espetaculos-01", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": {
+        "rule": "Convert the event's own month name (from the retained static programme list) to a month number 1-12. Split the site's own season label (its own 'data-temporada-actual' / 'data-season' attribute, e.g. '2026-2027') into a start-year component and an end-year component. Apply the two-branch mapping hardcoded, unconditionally, in the site's own public theme JavaScript (wp-content/themes/tsl/js/main.js): a month number in the fixed range 8-12 maps to the season label's start-year component; any other month number (1-7) maps to the season label's end-year component. This mapping does not read or depend on the real-world clock at the moment it is evaluated -- it is a fixed comparison against literal integers baked into the site's own retained source code, evaluated the same way regardless of when the derivation is run. Concatenate the mapped year with the month number and the event's own day-of-month as YYYY-MM-DD. This mapping was independently, empirically re-confirmed against every one of the season's own auxiliary calendar API's 12 months, with zero contradictions across 46 real returned date entries.",
+        "inputs": [
+          "2026-2027 (site's own season label, from data-temporada-actual / data-season attributes on the retained programme and calendar pages)",
+          "site's own theme JavaScript rule (wp-content/themes/tsl/js/main.js): month 8-12 -> season start-year component, month 1-7 -> season end-year component, retained verbatim in evidence/body-theme-main-js.js",
+          "9 September (event's own day+month text, from the retained static programme list card for Batucadeiras das Olaias)"
+        ]
+      }
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Unchanged from -01: time-of-day text is reliably present in every sampled detail page's 'Dates and Schedules' field (e.g. Batucadeiras: '5:30pm'; André Rosinha Trio: '7pm'). A multi-day run can give weekday-conditional times in free text (e.g. O Pai: 'Wednesday to Saturday, 8.00 pm; Sunday, 5.30 pm') rather than one uniform showtime. No explicit UTC offset or IANA timezone is stated anywhere in the retained HTML -- this is a floating local time-of-day, never promoted to a fabricated UTC instant. This investigation's scope was the calendar-YEAR gap specifically; the time-of-day field's own limitations are re-confirmed but not newly resolved.",
+      "evidence_refs": ["ev-detail-batucadeiras", "ev-detail-andre-rosinha", "ev-detail-o-pai"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Unchanged from -01: no explicit end date/time is given for any sampled event. For a multi-day run, the last day of the source's own date range is the closest honest proxy for an end date, and now inherits a PROVEN year via the same start_date derivation above (the rule applies identically to a range's start and end days -- see evidence/offline-proof-output.txt Step 6c, e.g. Picadeiro Fest 2026 resolves to 2026-09-09 .. 2026-09-13). Only 1 of the 5 sampled detail pages (O Pai) additionally exposes an approximate 'Duration' field ('1h30 aprox.'), still not present on the others sampled, so end-time-of-day remains genuinely PARTIAL, not PROVEN.",
+      "evidence_refs": ["ev-detail-o-pai", "ev-detail-batucadeiras", "ev-offline-proof-output"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Largo do Picadeiro",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unchanged from -01: each detail page's own 'Venue' field states a room/place name directly for that event (e.g. 'Largo do Picadeiro' for Batucadeiras, 'Sala Bernardo Sassetti' for André Rosinha Trio, 'Sala Luis Miguel Cintra' for O Pai, 'Sala Mário Viegas' for Vácuo -- all freshly re-confirmed in this investigation's own retained detail-page fetches). Stated directly, no context combination needed, hence DIRECT_SOURCE. The theatre's own single street address is independently confirmed from the homepage footer (both EN and PT).",
+      "evidence_refs": ["ev-home-en", "ev-detail-batucadeiras", "ev-detail-andre-rosinha", "ev-detail-o-pai", "ev-detail-vacuo"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "35378",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unchanged from -01, and now further strengthened: every sampled detail page's HTTP response carries a standard WordPress 'Link: <.../?p=NNNNN>; rel=shortlink' header, stated directly by the platform, no combination needed. Empirically re-proven TWICE over in this investigation: (1) an independent second fetch of the same event (batucadeiras-das-olaias-pt), taken specifically to re-test id/body stability, reproduced the identical id (35378) and a byte-identical HTML body; (2) the id reproduced here (35378) matches EXACTLY what the superseded -01 investigation recorded for the same event two days earlier -- i.e. stability demonstrated not only within one investigation but across independent investigations. Same multi-day-run caveat as -01: this id identifies one WordPress POST (one 'performance' entry), which for a multi-day run represents the whole run, not one individual date -- recorded as a MINOR blocker below, unchanged from -01.",
+      "evidence_refs": ["ev-detail-batucadeiras", "ev-detail-batucadeiras-recheck", "ev-offline-proof-output"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.teatrosaoluiz.pt/en/performance/batucadeiras-das-olaias-pt/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unchanged from -01: every sampled detail page's own canonical URL matches exactly the href actually followed from the freshly re-fetched list page's own card. Taken directly from the source's own <a href>, never constructed/guessed.",
+      "evidence_refs": ["ev-programme-en", "ev-detail-batucadeiras"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Free admission, subject to the venue's capacity.",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unchanged from -01: every sampled detail page has a labelled 'Price' field with real, reliably-extractable text -- a numeric range ('€12 to €15 (with discounts) | ...' for O Pai), a free-admission label (Batucadeiras, shown here as the representative value), or an honest not-yet-set placeholder ('Prices to be confirmed' for André Rosinha Trio and Vácuo, both January 2027 events). Stated directly per event, no context combination needed. Never collapsed to one fabricated single number when a range or placeholder was shown.",
+      "evidence_refs": ["ev-detail-batucadeiras", "ev-detail-andre-rosinha", "ev-detail-o-pai", "ev-detail-vacuo"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programme-en", "ev-detail-batucadeiras", "ev-theme-main-js", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The season-boundary rule this investigation relies on lives only in the theme's own public main.js bundle (observed at theme asset version 'ver=7.1'). If the theme is later redesigned or this script is rewritten, the literal rule (or its exact 8/12 boundary integers) could change or be removed without notice. A future collector baking this rule in as a documented constant should periodically re-verify the retained JS still states the identical rule (e.g. by re-running a version of this investigation's offline-proof script against a freshly re-fetched main.js) rather than treating it as permanently fixed."
+      },
+      {
+        "severity": "MINOR",
+        "description": "August (month 8) is empirically untested by this investigation's own data: the auxiliary calendar API returned zero events for month=08, and the box office's own retained closure statement covers the whole of August, consistent with there being no real event to check that month against. The rule's own boundary places August in the SAME bucket as September-December (the season's start year), which the retained evidence neither confirms nor contradicts for that specific month -- this is recorded honestly as an untested edge rather than silently assumed correct, and would need re-checking if the site is ever observed to schedule an August event."
+      },
+      {
+        "severity": "MINOR",
+        "description": "A multi-day run (e.g. O Pai, 16-27 September; Picadeiro Fest, 9-13 September) is represented by exactly one WordPress post / one shortlink id for the whole run, with no structured per-date breakdown at all -- only a free-text date range plus, sometimes, weekday-conditional show times. A collector wanting one Observation per individual performance date, not one per run, would need its own non-source-provided convention to enumerate and key individual occurrences. Unchanged from -01."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The auxiliary /wp-json/custom/v1/espetaculos endpoint remains an unreliable, incomplete mirror of the static programme as an EVENTS feed (unchanged finding from -01 -- e.g. its own January response includes 'NA MINHA BOCA', a title absent from the retained static English programme list entirely). This investigation used it solely to falsification-test the theme-JS year-mapping rule, never as a source of event titles/venues/prices -- a future collector must not be tempted to use it as a primary or supplementary events feed on the strength of this investigation's positive year-mapping finding."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence, independently re-confirmed with freshly re-acquired evidence (not merely carried forward from -01): the retained homepage footer address/EGEAC branding and the site's own WordPress REST self-description ('São Luiz Teatro Municipal') both match the known official domain and candidate programme URL.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class -- the full-season programme list (26 events, freshly re-fetched and re-counted) and every sampled detail page remain plain, fully server-rendered HTML.",
+      "Two data_paths entries (the programme list page and the detail-page pattern) are access:PUBLIC and status:CONFIRMED against freshly retained evidence; a new PUBLIC_THEME_JS_SEASON_BOUNDARY_RULE data_paths entry documents the central discovery of this investigation; the auxiliary calendar API and the season-archive AJAX filter are both honestly recorded (CANDIDATE and REJECTED respectively) rather than overstated.",
+      "field_assessment.title, .venue_location, .event_url, .price, and .source_record_id are all PROVEN with basis DIRECT_SOURCE, each stated directly by retained first-party evidence with no combination required.",
+      "field_assessment.start_date is now PROVEN with basis DETERMINISTIC_CONTEXT -- THE central finding of this investigation, and the one gap that kept -01 at HUMAN_REVIEW. The derivation combines the site's own season label with the site's own theme-JavaScript-hardcoded, non-time-dependent month-to-year mapping rule and each event's own day+month text, per docs/SOURCE_INVESTIGATION_POLICY.md's own worked-examples table entry for exactly this pattern ('Programme states season + month, WITH the source's own explicit, retained season-boundary rule ... only if the season->year mapping is itself explicit and mechanical, not assumed'). The rule is explicit (found verbatim in the site's own public, unobfuscated theme JavaScript, not inferred from behaviour) AND was empirically re-tested against literal every month (01-12) of the season's own auxiliary calendar API, finding zero contradictions across 46 real returned date entries -- satisfying both the 'explicit' and the 'exhaustive/no contradictions' bars this investigation's own task explicitly required before treating this as safe to promote to PROVEN.",
+      "field_assessment.start_date's DETERMINISTIC_CONTEXT basis cites evidence/offline-proof.mjs and evidence/offline-proof-output.txt, both evidence_class DETERMINISTIC_DERIVATION, satisfying the v1.2-specific READY_FOR_ACTIVATION gate that a DETERMINISTIC_CONTEXT-basis gated field must prove its combination was genuinely reproduced offline, not merely asserted.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST at HIGH confidence (raised from -01's MEDIUM, specifically because the year gap that capped it there is now honestly resolved with cited, reproducible evidence).",
+      "collector_assessment.blockers contains only MINOR entries (JS-rule fragility over time, an empirically-untested August edge, multi-day-run id granularity, and the auxiliary API's continued unreliability as an EVENTS feed specifically) -- no CRITICAL, no unresolved MAJOR.",
+      "This investigation used only ordinary, read-only, unauthenticated GETs of publicly served pages and publicly-referenced assets (a theme's own public JS bundle, a publicly-documented custom REST route already discovered by -01) -- no CAPTCHA/login/paywall was encountered or bypassed, no private/undocumented API was assumed, and no AI_INFERENCE basis was used anywhere (the derivation.rule text was mechanically checked by ingestion/source-investigation/contract.mjs's forbidden-phrase safety net and passes; today's date, agent knowledge, and any 'this is probably right' reasoning were deliberately never consulted).",
+      "This decision independently supersedes teatro-sao-luiz-lisbon-01's HUMAN_REVIEW status by resolving the exact question -01 explicitly and honestly deferred -- it does not silently reinterpret or discard -01's own findings (which remain durable and unedited on disk, per 'History and supersession' in the policy), and this record's own supersedes field names it explicitly.",
+      "This decision is a research conclusion only -- it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-programme-en", "ev-theme-main-js", "ev-espetaculos-01", "ev-espetaculos-09", "ev-detail-batucadeiras", "ev-detail-batucadeiras-recheck", "ev-wpjson-root", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programme-en",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained (2026-08-27) raw HTML for the public English programme/event-list page: 26 server-rendered event cards for the full 2026-2027 season, each with a title, category tag, day(-range)+month date text (no year), and a link to its own detail page. Also carries the season label in its own 'data-temporada-actual=\"2026-2027\"' body attribute.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/programme/",
+      "acquired_at": "2026-08-27T07:55:02Z",
+      "method": "curl -sS -D headers-programme-en.txt -o body-programme-en.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-programme-en.html"
+    },
+    {
+      "evidence_id": "ev-programme-pt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the Portuguese-language programme page, used to independently cross-check the season label is identical across languages (not a translation artefact).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/programacao/",
+      "acquired_at": "2026-08-27T07:55:04Z",
+      "method": "curl -sS -D headers-programme-pt.txt -o body-programme-pt.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-programme-pt.html"
+    },
+    {
+      "evidence_id": "ev-home-en",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the English homepage: footer address and EGEAC branding, used to independently re-confirm official identity.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/",
+      "acquired_at": "2026-08-27T07:55:06Z",
+      "method": "curl -sS -D headers-home-en.txt -o body-home-en.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-home-en.html"
+    },
+    {
+      "evidence_id": "ev-home-pt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the Portuguese homepage: same footer address/EGEAC branding, independently re-confirmed in the site's own primary language.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/",
+      "acquired_at": "2026-08-27T07:55:09Z",
+      "method": "curl -sS -D headers-home-pt.txt -o body-home-pt.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-home-pt.html"
+    },
+    {
+      "evidence_id": "ev-seasons-pt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the 'Temporadas Anteriores' (previous seasons) archive landing page: a season <select> listing every season back to 2003-2004, but no event cards and no plain-text season-boundary sentence anywhere on the page itself.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/temporadas/",
+      "acquired_at": "2026-08-27T07:55:38Z",
+      "method": "curl -sS -D headers-seasons-pt.txt -o body-seasons-pt.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-seasons-pt.html"
+    },
+    {
+      "evidence_id": "ev-seasons-en",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the English 'Seasons' archive landing page (same structure/content as the PT version).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/seasons/",
+      "acquired_at": "2026-08-27T07:55:39Z",
+      "method": "curl -sS -D headers-seasons-en.txt -o body-seasons-en.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-seasons-en.html"
+    },
+    {
+      "evidence_id": "ev-seasons-pt-filter-probe",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for a GET request to the season-archive page with the same ?opt_filter=2025-2026 query string its own <form method=\"get\"> would submit -- returned the identical, unfiltered 'no results' shell as ev-seasons-pt, empirically proving the archive filter is AJAX-only (via admin-ajax.php) rather than server-rendered, so it was rejected as a direct static data path (see data_paths).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/temporadas/?opt_filter=2025-2026",
+      "acquired_at": "2026-08-27T07:55:52Z",
+      "method": "curl -sS -D headers-seasons-pt-2025.txt -o body-seasons-pt-2025.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-seasons-pt-2025.html"
+    },
+    {
+      "evidence_id": "ev-bilheteira",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the box office ('Bilheteira') page: states its own opening hours run 'a partir de 1 de setembro' (from 1 September) and that it closes 'entre 1 a 31 de agosto' (1-31 August) -- first-party corroborating context for the Aug/Sep season turnover, retained honestly as corroboration rather than the derivation's own basis (see field_assessment.start_date.derivation, which relies on the theme-JS rule + empirical API cross-check instead).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/bilheteira/",
+      "acquired_at": "2026-08-27T07:59:50Z",
+      "method": "curl -sS -D headers-bilheteira.txt -o body-bilheteira.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-bilheteira.html"
+    },
+    {
+      "evidence_id": "ev-theme-main-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JavaScript for the theme's own public main.js bundle (asset version 'ver=7.1', referenced directly by the programme page's own <script id=\"scripts-js\"> tag). THE key retained artefact of this investigation: contains the literal, unconditional, non-time-dependent season-boundary rule (`if (currentMonth >= 8 && currentMonth <= 12) { ... selectedSeason.split('-')[0] ... } else { ... selectedSeason.split('-')[1] ... }`) this investigation's DETERMINISTIC_CONTEXT derivation is built on.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-content/themes/tsl/js/main.js?v14&ver=7.1",
+      "acquired_at": "2026-08-27T07:56:56Z",
+      "method": "curl -sS -D headers-theme-main-js.txt -o body-theme-main-js.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-theme-main-js.js"
+    },
+    {
+      "evidence_id": "ev-theme-plugins-js",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JavaScript for the theme's own public plugins.js bundle, inspected alongside main.js as part of the same Level 2 public-JS review (no additional season-boundary logic found in this file; retained for completeness/provenance of what was actually inspected).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-content/themes/tsl/js/plugins.js?v23&ver=7.1",
+      "acquired_at": "2026-08-27T07:56:57Z",
+      "method": "curl -sS -D headers-theme-plugins-js.txt -o body-theme-plugins-js.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-theme-plugins-js.js"
+    },
+    {
+      "evidence_id": "ev-wpjson-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON for the site's standard WordPress REST API discovery document: confirms 'name':'Teatro São Luiz', 'description':'São Luiz Teatro Municipal', 'gmt_offset':'1', and lists the same custom route /custom/v1/espetaculos -01 discovered, unchanged.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/",
+      "acquired_at": "2026-08-27T08:00:30Z",
+      "method": "curl -sS -D headers-wpjson-root.txt -o body-wpjson-root.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-wpjson-root.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-01",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=01: 4 entries, all year 2027 (André Rosinha Trio 2027-01-14; NA MINHA BOCA x3, 15-17 Jan 2027) -- matches the theme-JS rule's prediction for month 1 (season end-year component).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=01",
+      "acquired_at": "2026-08-27T07:57:10Z",
+      "method": "curl -sS -D headers-espetaculos-01.txt -o body-espetaculos-01.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-01.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-02",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=02: empty array -- no events returned (never an error, never a conflicting year).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=02",
+      "acquired_at": "2026-08-27T07:57:11Z",
+      "method": "curl -sS -D headers-espetaculos-02.txt -o body-espetaculos-02.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-02.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-03",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=03: empty array.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=03",
+      "acquired_at": "2026-08-27T07:57:12Z",
+      "method": "curl -sS -D headers-espetaculos-03.txt -o body-espetaculos-03.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-03.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-04",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=04: 2 entries ('Visitas Guiadas 2026-2027' recurring markers), both year 2027 -- matches the rule's prediction for month 4.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=04",
+      "acquired_at": "2026-08-27T07:57:13Z",
+      "method": "curl -sS -D headers-espetaculos-04.txt -o body-espetaculos-04.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-04.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-05",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=05: 3 entries, all year 2027 -- matches the rule's prediction for month 5.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=05",
+      "acquired_at": "2026-08-27T07:57:14Z",
+      "method": "curl -sS -D headers-espetaculos-05.txt -o body-espetaculos-05.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-05.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-06",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=06: 10 date-keys / 13 entries, all year 2027 -- matches the rule's prediction for month 6.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=06",
+      "acquired_at": "2026-08-27T07:57:15Z",
+      "method": "curl -sS -D headers-espetaculos-06.txt -o body-espetaculos-06.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-06.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-07",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=07: 9 date-keys / 19 entries, all year 2027 -- matches the rule's prediction for month 7.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=07",
+      "acquired_at": "2026-08-27T07:57:16Z",
+      "method": "curl -sS -D headers-espetaculos-07.txt -o body-espetaculos-07.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-07.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-08",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=08: empty array -- consistent with the box office's own retained closure statement for the whole of August (see ev-bilheteira). No event to check the rule against this month, and none contradicts it.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=08",
+      "acquired_at": "2026-08-27T07:57:17Z",
+      "method": "curl -sS -D headers-espetaculos-08.txt -o body-espetaculos-08.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-08.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-09",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=09: 1 entry ('Visitas Guiadas 2026-2027', 2026-09-19), year 2026 -- matches the rule's prediction for month 9 (season start-year component).",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=09",
+      "acquired_at": "2026-08-27T07:57:18Z",
+      "method": "curl -sS -D headers-espetaculos-09.txt -o body-espetaculos-09.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-09.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-10",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=10: 1 entry, year 2026 -- matches the rule's prediction for month 10.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=10",
+      "acquired_at": "2026-08-27T07:57:19Z",
+      "method": "curl -sS -D headers-espetaculos-10.txt -o body-espetaculos-10.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-10.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-11",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=11: 2 date-keys ('Coffeepaste 20 Anos' 2026-11-16 -- matching the static list's own 'Coffeepaste 20 Years' 16 Nov card by date -- plus a 'Visitas Guiadas' marker), both year 2026 -- matches the rule's prediction for month 11.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=11",
+      "acquired_at": "2026-08-27T07:57:20Z",
+      "method": "curl -sS -D headers-espetaculos-11.txt -o body-espetaculos-11.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-11.json"
+    },
+    {
+      "evidence_id": "ev-espetaculos-12",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw JSON, season=2026-2027 month=12: 1 entry, year 2026 -- matches the rule's prediction for month 12.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/wp-json/custom/v1/espetaculos?season=2026-2027&month=12",
+      "acquired_at": "2026-08-27T07:57:21Z",
+      "method": "curl -sS -D headers-espetaculos-12.txt -o body-espetaculos-12.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-espetaculos-12.json"
+    },
+    {
+      "evidence_id": "ev-detail-batucadeiras",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the 'Batucadeiras das Olaias (PT)' detail page: 'Dates and Schedules'/'Venue'/'Price' fields (no year, matching -01's finding), WordPress shortlink post id 35378 -- identical to what -01 recorded two days earlier.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/performance/batucadeiras-das-olaias-pt/",
+      "acquired_at": "2026-08-27T08:00:32Z",
+      "method": "curl -sS -D headers-detail-batucadeiras.txt -o body-detail-batucadeiras.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-batucadeiras.html"
+    },
+    {
+      "evidence_id": "ev-detail-batucadeiras-recheck",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Independent second fetch of the same 'Batucadeiras das Olaias (PT)' URL, retained specifically to empirically re-prove id/body stability within this investigation: reproduced the identical shortlink id (35378) and a byte-identical HTML body.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/performance/batucadeiras-das-olaias-pt/",
+      "acquired_at": "2026-08-27T08:00:38Z",
+      "method": "curl -sS -D headers-detail-batucadeiras-recheck.txt -o body-detail-batucadeiras-recheck.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-batucadeiras-recheck.html"
+    },
+    {
+      "evidence_id": "ev-detail-andre-rosinha",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the 'André Rosinha Trio' detail page (14 January, the API-cross-checked event from -01): 'Dates and Schedules' shows '14 January<br />Thursday, 7pm' -- still no year stated on the detail page itself, confirming the static acquisition path alone never carries the year even for this specific, already-cross-checked event.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/performance/andre-rosinha-trio/",
+      "acquired_at": "2026-08-27T08:00:34Z",
+      "method": "curl -sS -D headers-detail-andre-rosinha.txt -o body-detail-andre-rosinha.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-andre-rosinha.html"
+    },
+    {
+      "evidence_id": "ev-detail-o-pai",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the 'O PAI (The Father)' detail page (16-27 September, weekday-conditional showtimes, price range, the only sampled page with a 'Duration' field), WordPress shortlink post id 35368.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/performance/o-pai/",
+      "acquired_at": "2026-08-27T08:00:35Z",
+      "method": "curl -sS -D headers-detail-o-pai.txt -o body-detail-o-pai.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-o-pai.html"
+    },
+    {
+      "evidence_id": "ev-detail-vacuo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Freshly retained raw HTML for the 'VÁCUO' detail page (28-31 January, 'Prices to be confirmed'), WordPress shortlink post id 35306 -- identical to what -01 recorded.",
+      "acquired_from": "https://www.teatrosaoluiz.pt/en/performance/vacuo/",
+      "acquired_at": "2026-08-27T08:00:37Z",
+      "method": "curl -sS -D headers-detail-vacuo.txt -o body-detail-vacuo.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-vacuo.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Dependency-free, no-network Node.js script (evidence/offline-proof.mjs) that re-parses every retained fixture above: extracts the season label, confirms no retained static page states an explicit season-boundary sentence in prose, confirms the bilheteira page's corroborating operating-hours text, extracts and verifies the literal theme-JS season-boundary rule (including its own 8/12 boundary integers), cross-checks that rule against all 12 retained espetaculos-*.json fixtures for zero contradictions, applies the rule to all 26 static events to produce a full derived-date table, and re-proves source_record_id stability both within this investigation and against -01's own recorded id.",
+      "acquired_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/ (all retained body-*.html/.js/.json files above, read locally, no network)",
+      "acquired_at": "2026-08-27T08:05:00Z",
+      "method": "Authored by the AI investigator; run via `node offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node offline-proof.mjs`, zero network access) against every retained evidence file. All checks print [PASS]; zero [FAIL] lines; exits 0 with 'OFFLINE PROOF: PASSED'. Includes the full 26-event derived-date table and the year-distribution summary (23 events -> 2026, 3 events -> 2027).",
+      "acquired_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T08:05:05Z",
+      "method": "node offline-proof.mjs > offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": "teatro-sao-luiz-lisbon-01"
+}

@@ -1,0 +1,158 @@
+
+
+<div class="filters-container">
+    <div class="container">
+        <div class="filters filters-datepicker">
+            <div class="datepicker">
+                <div class="datepicker-tab  active"><div class="datepicker-btn js-datepickerBtn js-datepickerFrom" data-property="from" data-label='De'></div></div>
+                <div class="datepicker-tab"><div class="datepicker-btn js-datepickerBtn js-datepickerTo" data-property="to" data-label='Até'></div></div>
+            </div>
+        </div>
+
+        <div id="filter-places" class="filters filters-list">
+            <ul>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="place" data-id="1">Lisboa </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="place" data-id="2">Porto </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="place" data-id="3">Fora de Portas </a>
+                    </li>
+                
+            </ul>
+        </div>
+
+        <div id="filter-public" class="filters filters-list">
+            <ul>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="public" data-id="8">Público Geral </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="public" data-id="3">Escolas </a>
+                    </li>
+                
+            </ul>
+        </div>
+
+        <div id="filter-typology" class="filters filters-list cols-2">
+            <ul>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="22">Fora de portas </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="20">Open Call </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="21">Ópera </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="1">Teatro </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="2">Dança </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="8">Música </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="4">Artes Visuais </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="5">Cinema </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="3">Performance </a>
+                    </li>
+                
+                    <li class="alert-success">
+                        <a class="js-Filter" href="javascript:void(0);" data-property="typology" data-id="6">Conferências e Debates </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="15">Workshops </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="18">Aula Aberta </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="17">Online </a>
+                    </li>
+                
+                    <li class="disabled">
+                        <a  href="javascript:void(0);" data-property="typology" data-id="19">Livraria </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="filters-nav-tools js-filtersNavTools">
+
+
+    <div class="container">
+
+        
+            <h3>Agenda</h3>
+        
+
+        <div class="filters-selected js-resultHolder">
+            
+
+            
+            
+
+            
+
+            
+        </div>
+
+        <div class="filters-actions">
+            
+                <a href="javascript:void(0);" id="open_filters" class="open-filters-btn js-openFilters">Filtrar</a>
+            
+        </div>
+
+    </div>
+</div>
+<script>
+	$(document).ready(function(){
+	    fixed_filters = $('body').hasClass('fixed-filters-navbar');
+	    hideShowFilter(fixed_filters);
+
+	    function hideShowFilter(state) {
+	        if (!state) {
+	            $('#open_filters').hide();
+	        }
+	        else {
+	            $('#open_filters').show();
+	        }
+	    }
+	    // userHasScrolled = false;
+	    $(window).on('scroll',function (e) {
+	        // userHasScrolled = true;
+	        fixed_filters = $('body').hasClass('fixed-filters-navbar');
+	        hideShowFilter(fixed_filters);
+	    });
+	});
+</script>

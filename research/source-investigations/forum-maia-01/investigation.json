@@ -1,0 +1,351 @@
+{
+  "investigation_id": "forum-maia-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:52:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (SUFFICIENT). All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent). sources/porto.json's existing forum-maia entry was read first for context (not edited). Its own events_url, https://www.cm-maia.pt/institucional/agenda/evento/agenda-cultural_fim-de-semana-88, returned an HTTP 301 redirect to a path-corrected same-page URL (…/institucional/atualidade-e-participacao/agenda/evento/agenda-cultural_fim-de-semana-88), which is itself a single dated ('fim de semana' = 'weekend') listing, not the live listing root — exactly the stale/dated-page concern flagged in this task. The site's own homepage (https://www.cm-maia.pt) was fetched and grepped for its own agenda navigation links, which independently pointed at a genuinely different, general listing root: /institucional/atualidade-e-participacao/agenda/todos-os-eventos ('all events'). That page, and 4 further pages of its own pagination plus its final page (283), were retained, along with two full event detail pages sampled specifically because their titles indicate genuine live/recorded music content (Maia Blues Fest 2026, a 3-day international blues festival; 'Sons de Verão 2026', a recurring outdoor concert series at the Auditório Exterior do Fórum da Maia) rather than being chosen arbitrarily. Every page is fully server-rendered static HTML with complete content in the initial response — no JSON-LD, no RSS/ICS feed, and no client-side rendering were found or required anywhere. Each event detail page embeds a structured (non-JSON, var-tag based) 'addtocalendar' widget exposing atc_date_start/atc_date_end/atc_timezone/atc_title/atc_location/atc_organizer directly, plus separately labelled Local:/Preço:/Organização:(/Horário: on some pages) fields — independently cross-checked against each other and against a third field (meta content_date) on the same page, and against the listing page's own href for the same event. A dependency-free, no-network Node offline-proof script re-parsed every retained evidence file to mechanically re-derive every claim below, including the identity check, the redirect-vs-general-listing contrast, the full 5-page category-taxonomy scan (no music-specific tag found anywhere in the bounded sample), the archive-scope check (page 283 contains 2014-dated events), and a stable-identifier trap check proving wm:page_id/event_detail_<id> are NOT usable as a per-event id (both are identical across two genuinely distinct sampled events) — matching this project's own previously-documented Hot Clube ICS UID caution. Level 1 alone answered identity, platform classification, data-path discovery, and field assessment in full; Level 2/3 structural or browser escalation was not attempted because nothing about this static, server-rendered source suggested Level 1 was insufficient — the only genuinely open question this investigation could not mechanically resolve was a content-scope one (see decision below), not an acquisition-technique one."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://www.cm-maia.pt (homepage), the given sources/porto.json events_url (a 301 redirect to a path-corrected same single-weekend page), the independently-discovered general listing root (/institucional/atualidade-e-participacao/agenda/todos-os-eventos, plus 4 further pagination pages and its final page 283), and two sampled event detail pages (Maia Blues Fest 2026, Sons de Verão 2026) all returned complete, fully server-rendered HTML in the initial response — real event titles, dates (day+month+2-digit-year directly on every listing card), category tags, and, on detail pages, a structured addtocalendar widget (atc_date_start/atc_date_end/atc_timezone/atc_location/atc_organizer) plus separately labelled Local:/Preço:/Organização: fields, cross-confirmed against a second independent meta field (content_date) on the same page. No JSON-LD, RSS, or ICS was found, but none was needed: the plain static HTML itself already fully answers identity, platform classification, data-path discovery, and field assessment (title/start_date/end/venue_location/event_url all reach PROVEN directly from this one retained fetch). robots.txt imposes no crawl restriction. No CAPTCHA, login wall, or bot-challenge was encountered anywhere. Because Level 1 alone answered every question this investigation needed to resolve about acquisition technique, escalation to Level 2 (STRUCTURAL) or higher was not attempted — nothing observed suggested static inspection was insufficient. The one genuinely unresolved question (whether music can be mechanically isolated from the rest of the municipal cultural calendar) is a content-scope finding about the retained data itself, not a gap that browser/headless observation could resolve.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-events-weekend-body",
+        "ev-events-weekend-headers",
+        "ev-events-redirect-target-body",
+        "ev-agenda-todos-body",
+        "ev-agenda-todos-headers",
+        "ev-agenda-todos-page2",
+        "ev-agenda-todos-page3",
+        "ev-agenda-todos-page4",
+        "ev-agenda-todos-page5",
+        "ev-agenda-todos-page283",
+        "ev-event-maiabluesfest",
+        "ev-event-sonsdeverao",
+        "ev-robots",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "forum-maia-01-candidate",
+  "source_id": null,
+  "venue_reference": "Fórum da Maia / Câmara Municipal da Maia's own municipal cultural agenda (Maia, Porto metropolitan area, Portugal). Referenced loose lead: sources/porto.json's existing 'forum-maia' entry (official_website https://www.cm-maia.pt, events_url a single weekend-agenda page) — read in full before this investigation and not edited by it.",
+  "official_url": "https://www.cm-maia.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body"],
+    "notes": "The retained homepage independently re-confirms official identity from its own content, not merely the task prompt's context note: <title>CM Maia</title>, a meta description reading 'Sítio oficial da Câmara Municipal da Maia. Informação sobre o município, composição e atividades. Inclui uma agenda de eventos no concelho.' ('Official site of Maia Municipal Council… Includes an events agenda for the municipality'), and og:site_name 'Câmara Municipal da Maia'. This matches the candidate's registry entry (official_website: https://www.cm-maia.pt, city/municipality: Maia) exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom municipal CMS ('wm-smile'-branded front-end assets, WMCookieConsent consent script, wm:pagetype/wm:page_id meta tags) rendering fully server-side. Both the paginated event-listing pages and every individual event detail page contain their complete content in the initial HTTP response — no client-side rendering step is required anywhere. No JSON-LD schema.org markup and no RSS/ICS feed/alternate link were found on any retained page. Each event detail page instead embeds a structured (HTML var-tag based, not JSON) 'addtocalendar' widget carrying atc_date_start, atc_date_end, atc_timezone (always 'Europe/Lisbon' in the retained sample), atc_title, atc_description, atc_location, and atc_organizer directly — plus separately labelled Local:/Preço:/Organização:(/Horário: on some pages) fields that independently agree with the atc widget's own values. The listing page paginates via a simple query parameter (?events_list_54_page=N) with no authentication or token required.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-agenda-todos-body", "ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (the given sources/porto.json events_url — checked and confirmed a stale/narrow single-weekend page, not the live listing root; a 301 redirect target, not itself a usable general feed)",
+      "url": "https://www.cm-maia.pt/institucional/agenda/evento/agenda-cultural_fim-de-semana-88",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-weekend-body", "ev-events-weekend-headers", "ev-events-redirect-target-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (independently discovered general listing root — a real, paginated, server-rendered index of the municipality's own full events calendar)",
+      "url": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-todos-body", "ev-agenda-todos-headers", "ev-agenda-todos-page2", "ev-agenda-todos-page3", "ev-agenda-todos-page4", "ev-agenda-todos-page5", "ev-agenda-todos-page283", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (per-event permalink; carries the structured addtocalendar widget plus labelled Local:/Preço:/Organização: fields)",
+      "url": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos/evento-42/maia-blues-fest-2026",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Maia Blues Fest 2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every sampled event's title is stated directly and identically in at least three places on its own detail page (og:title, twitter:title, and the atc_title var), and matches the listing card's own <h2> text and aria-label verbatim. Mechanically confirmed for both of the 2 sampled events (Maia Blues Fest 2026, Sons de Verão 2026) in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-agenda-todos-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-11",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event detail page's own addtocalendar widget states atc_date_start directly as '2026-09-11 00:00:00' (a full, unambiguous ISO-style date with an explicit year) with atc_timezone 'Europe/Lisbon' — no combination of separate context fragments is needed, unlike the policy's DETERMINISTIC_CONTEXT worked examples. This is independently cross-confirmed by a second, separate structured field on the same page (<meta name=\"content_date\" content=\"2026-09-11T00:00:00.000Z\">) and is consistent with the listing card's own '11 a 13 Set '26' day-range/2-digit-year text. The listing card's own 2-digit year ('26) is likewise a direct, unambiguous statement of 2026 in the source's own abbreviation convention, not an inference. Mechanically re-confirmed for both sampled events in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-agenda-todos-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The addtocalendar widget's atc_date_start/atc_date_end are always stamped '00:00:00' — a day-level placeholder, not a genuine clock time. A separately labelled, genuinely structured 'Horário:' field exists and states a real time on some event pages (Sons de Verão: 'Horário: 18h30 e 21h30' — two performance times in one line), but is ABSENT on others (Maia Blues Fest, a multi-day, multi-act festival, where specific act times exist only inside unstructured 'Informação adicional' prose, e.g. '21h30 – Kenny \"Blues Boss\" Wayne', '17h00 – Maia Blues Fest Band'). Because this structured field is inconsistently present across the 2-sample set, and even when present is not always a single canonical event start time, time cannot honestly be marked PROVEN for a general collector.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-13",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same addtocalendar widget states atc_date_end directly ('2026-09-13 00:00:00' for the 3-day blues festival; '2026-09-06 00:00:00' for the 10-day 'Sons de Verão' series) — an explicit end date, not inferred from duration or guessed. Mechanically re-confirmed for both sampled events in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Auditório Exterior do Fórum da Maia",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Stated directly and identically in two independent structured locations on the same detail page: the addtocalendar widget's own atc_location var, and a separately labelled 'Local:' widget field — the two agree exactly for both sampled events, mechanically cross-checked in evidence/offline-proof-output.txt. This directly confirms the candidate's own registry venue identity (Fórum da Maia).",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos/evento-42/maia-blues-fest-2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own permalink URL, as directly self-declared by its own <meta name=\"canonical\"> tag and matching the href used to reach it from the listing page, is used as source_record_id — the same policy-endorsed strategy already used by this project's own cm-gaia-eventos/paral-lel-62-barcelona-01 precedent (a permalink slug the source itself treats as its own canonical path). This investigation explicitly checked, and rejected, the two values that LOOK like structural ids on this platform: the page's own wm:page_id meta tag and the event_detail_<id> container id are both IDENTICAL ('3876' / '107') across the two genuinely distinct sampled events — proving neither is a per-event identifier at all, but a shared template/config id. This is exactly the trap this project's own stable-identifier rule warns about (the Hot Clube ICS UID precedent) — mechanically confirmed in evidence/offline-proof-output.txt, not merely asserted.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-agenda-todos-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos/evento-42/maia-blues-fest-2026",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Directly constructible and confirmed live: the listing page's own href for this event, and the detail page's own <meta name=\"canonical\">, agree exactly. A plain GET of this URL returned HTTP 200 with the full event content server-rendered.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-agenda-todos-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Gratuito",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Both sampled events carry a separately labelled 'Preço:' field stating 'Gratuito' (free admission) directly. This is honestly recorded as representative of the 2 sampled events, not a blanket claim that every event on this source is free — no paid-ticket example was encountered in this bounded sample, and that gap is noted rather than guessed at.",
+      "evidence_refs": ["ev-event-maiabluesfest", "ev-event-sonsdeverao"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-agenda-todos-body", "ev-event-maiabluesfest", "ev-event-sonsdeverao", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No dedicated, filterable music/concert category or tag exists anywhere in this source's own taxonomy. Across a bounded 5-page listing sample (60 events), the only category values observed are: Biblioteca, Cultura, Desporto, Desporto-Destaque, Educação, 'Homepage | Agenda - Eventos na Maia', Institucional, Juventude, 'Juventude | Homepage', Turismo — mechanically confirmed in evidence/offline-proof-output.txt. 'Cultura' is the closest bucket, but it bundles genuine music events (Maia Blues Fest, Sons de Verão) together with unrelated content under the same tag (e.g. 'Feira das Cebolas - Castelo da Maia' — an onion fair/market — is also tagged 'Cultura', observed on the same retained page). Unlike this project's cm-gaia-eventos precedent (an item-level 'música' tag that lets filtering stay mechanical and source-provided), this source provides no equivalently granular signal — isolating genuinely music-only events from the rest of 'Cultura' would require either title/description keyword matching (which this project's policy does not treat as mechanical, source-provided isolation) or a maintained editorial allowlist of known recurring series, which is an explicit human/operator scope decision this investigation is not positioned to make unilaterally."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The general listing (/agenda/todos-os-eventos) is a full historical archive, not a future-scoped feed: its last observed pagination page (283 of 283) contains events dated as far back as 2014 (mechanically confirmed in evidence/offline-proof-output.txt), and roughly 3,400 events are paginated across those 283 pages at 12 per page. Listing order is not strictly chronological page-to-page (page 1 contains a mix of near-term 2026 dates, not a clean ascending/descending sequence), so a future collector would need its own bounding logic to avoid importing over a decade of past civic events; this investigation did not attempt to design or prove that logic."
+      }
+    ]
+  },
+  "decision": {
+    "status": "HUMAN_REVIEW",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence (the retained homepage's own <title>, meta description, and og:site_name self-identify as the official Câmara Municipal da Maia site), and site_classification.acquisition_class is STATIC_HTML — a resolved, supported class. The given sources/porto.json events_url turned out to be a stale, narrow single-weekend page (a 301 redirect target, not a usable feed), but this investigation independently discovered the site's own general listing root (/agenda/todos-os-eventos) exactly as this task anticipated, and confirmed it is a real, paginated, fully server-rendered event index.",
+      "Field extraction is genuinely strong for the two sampled music events: title, start_date, end, venue_location, event_url, and price are all PROVEN with basis DIRECT_SOURCE, each independently cross-checked against a second structured field on the same page (atc widget vs. meta content_date vs. labelled Local:/Preço: fields vs. the listing card). source_record_id is PROVEN using the event's own canonical permalink URL — this investigation also explicitly discovered and rejected a plausible-looking but genuinely unstable id (wm:page_id / event_detail_<id>, identical across two different events), the same class of trap this project's own stable-identifier rule already warns about.",
+      "The one genuinely unresolved gap is content scope, not acquisition technique: this source's own category taxonomy stops at a broad 'Cultura' bucket that mixes real, substantial, standalone music events (a 3-day international blues festival; a recurring outdoor concert series) together with unrelated cultural content (markets/fairs, exhibitions, and presumably theatre/talks not sampled here) under the same single tag — mechanically confirmed absent of any music-specific value across a bounded 5-page/60-event sample. Per this task's explicit instruction, a category/tag field is required for mechanical isolation, and AI/keyword title classification does not qualify as mechanical, source-provided isolation under this project's policy.",
+      "This is deliberately recorded as HUMAN_REVIEW rather than REJECT or READY_FOR_ACTIVATION: unlike wow-world-of-wine-gaia-01 (where music content was genuinely incidental, bundled only into dinner/hospitality packages within a non-events ticketing catalog), this source's music content is substantial and standalone, and the technical acquisition path is fully proven — so REJECT would understate a genuinely strong, working source. But forcing READY_FOR_ACTIVATION would require this investigation to unilaterally decide how 'real music events' get scoped out of a ~3,400-event general civic archive (e.g., a maintained allowlist of known recurring series vs. full 'Cultura'-category import with downstream filtering) — a deliberate editorial/collector-scope decision this policy reserves for an explicit human/operator call, exactly as hard-club-porto-01 reserved its own remaining year-handling gap for human review rather than guessing past it.",
+      "collector_assessment.blockers records this content-scope gap as MAJOR (not CRITICAL) precisely because it is a scope decision, not a technical/access blocker, plus a MINOR note that the listing root is a full ~12-year historical archive requiring its own future-only bounding logic that this investigation did not attempt to design.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every claim above, including the identity check, the stale-lead-vs-general-listing contrast, the full category-taxonomy scan, the archive-scope (2014) check, and the wm:page_id/event_detail_<id> stable-identifier trap.",
+      "This decision is a research conclusion only — it does not edit sources/porto.json or any registry. A future re-investigation (e.g. after a human/operator decides the music-scope question) must be recorded as a NEW investigation citing supersedes: \"forum-maia-01\", never a rewrite of this record."
+    ],
+    "evidence_refs": [
+      "ev-home-body",
+      "ev-events-weekend-headers",
+      "ev-events-redirect-target-body",
+      "ev-agenda-todos-body",
+      "ev-event-maiabluesfest",
+      "ev-event-sonsdeverao",
+      "ev-agenda-todos-page283",
+      "ev-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the CM Maia homepage: full server-rendered HTML including <title>CM Maia</title>, a self-identifying meta description, og:site_name 'Câmara Municipal da Maia', and the site's own agenda navigation links (used to discover /agenda/todos-os-eventos).",
+      "acquired_from": "https://www.cm-maia.pt",
+      "acquired_at": "2026-08-27T09:45:06Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no -L)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the homepage request: 200 OK, Server: nginx/1.20.1.",
+      "acquired_from": "https://www.cm-maia.pt",
+      "acquired_at": "2026-08-27T09:45:06Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-events-weekend-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the given sources/porto.json events_url: a 175-byte nginx redirect placeholder body, not the page's own content.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/agenda/evento/agenda-cultural_fim-de-semana-88",
+      "acquired_at": "2026-08-27T09:45:07Z",
+      "method": "curl -sS -D headers-events-weekend.txt -o body-events-weekend.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no -L)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-events-weekend.html"
+    },
+    {
+      "evidence_id": "ev-events-weekend-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the given events_url: HTTP/1.1 301 Moved Permanently, Location pointing at a path-corrected version of the SAME single-weekend page (…/institucional/atualidade-e-participacao/agenda/evento/agenda-cultural_fim-de-semana-88) — confirming the given lead is stale/narrow, not a dead link.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/agenda/evento/agenda-cultural_fim-de-semana-88",
+      "acquired_at": "2026-08-27T09:45:07Z",
+      "method": "curl -sS -D headers-events-weekend.txt (same request as ev-events-weekend-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/headers-events-weekend.txt"
+    },
+    {
+      "evidence_id": "ev-events-redirect-target-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the 301's own redirect target: a single-weekend cultural agenda page (server-rendered), confirming the given lead resolves to a narrow, dated page rather than the general listing root.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/evento/agenda-cultural_fim-de-semana-88",
+      "acquired_at": "2026-08-27T09:45:23Z",
+      "method": "curl -sS -D headers-events-redirect-target.txt -o body-events-redirect-target.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-events-redirect-target.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the independently-discovered general listing root, page 1: 12 full, server-rendered event cards (title, date, category, thumbnail, permalink href each), plus pagination links up to page 283.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos",
+      "acquired_at": "2026-08-27T09:45:35Z",
+      "method": "curl -sS -D headers-agenda-todos.txt -o body-agenda-todos.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-agenda-todos.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the general listing root: 200 OK, Server: nginx/1.20.1.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos",
+      "acquired_at": "2026-08-27T09:45:35Z",
+      "method": "curl -sS -D headers-agenda-todos.txt (same request as ev-agenda-todos-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/headers-agenda-todos.txt"
+    },
+    {
+      "evidence_id": "ev-event-maiabluesfest",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for a sampled genuine music-event detail page: 'Maia Blues Fest 2026', a 3-day international blues festival at the Auditório Exterior do Fórum da Maia. Contains a structured addtocalendar widget (atc_date_start '2026-09-11 00:00:00', atc_date_end '2026-09-13 00:00:00', atc_timezone 'Europe/Lisbon', atc_location, atc_organizer), separately labelled Local:/Preço:('Gratuito')/Organização: fields, meta content_date '2026-09-11T00:00:00.000Z', a canonical URL, and a wm:page_id/event_detail_<id> pair later shown to be shared with an unrelated event (the stable-identifier trap).",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos/evento-42/maia-blues-fest-2026",
+      "acquired_at": "2026-08-27T09:46:20Z",
+      "method": "curl -sS -D headers-event-maiabluesfest.txt -o body-event-maiabluesfest.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-event-maiabluesfest.html"
+    },
+    {
+      "evidence_id": "ev-event-sonsdeverao",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for a second sampled genuine music-event detail page: '\"Sons de Verão 2026\" no Auditório Exterior do Fórum da Maia', a recurring free outdoor concert series. Contains the same structured addtocalendar widget (atc_date_start '2026-08-28 00:00:00', atc_date_end '2026-09-06 00:00:00'), a genuinely structured 'Horário:' field ('18h30 e 21h30') absent from the blues-fest sample, and the same shared wm:page_id/event_detail_<id> pair as the blues-fest page — independently confirming the stable-identifier trap.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos/evento-42/sons-de-verao-2026-no-auditorio-exterior-do-forum-da-maia",
+      "acquired_at": "2026-08-27T09:47:23Z",
+      "method": "curl -sS -D headers-event-sonsdeverao.txt -o body-event-sonsdeverao.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-event-sonsdeverao.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-page2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for general listing page 2 (?events_list_54_page=2) — part of the bounded 5-page category-taxonomy sample.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos?events_list_54_page=2",
+      "acquired_at": "2026-08-27T09:48:11Z",
+      "method": "curl -sS -D headers-agenda-todos-page2.txt -o body-agenda-todos-page2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-agenda-todos-page2.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-page3",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for general listing page 3 — part of the bounded 5-page category-taxonomy sample.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos?events_list_54_page=3",
+      "acquired_at": "2026-08-27T09:48:12Z",
+      "method": "curl -sS -D headers-agenda-todos-page3.txt -o body-agenda-todos-page3.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-agenda-todos-page3.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-page4",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for general listing page 4 — part of the bounded 5-page category-taxonomy sample.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos?events_list_54_page=4",
+      "acquired_at": "2026-08-27T09:48:13Z",
+      "method": "curl -sS -D headers-agenda-todos-page4.txt -o body-agenda-todos-page4.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-agenda-todos-page4.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-page5",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for general listing page 5 — part of the bounded 5-page category-taxonomy sample. Categories found across all 5 pages (60 events total): Biblioteca, Cultura, Desporto, Desporto-Destaque, Educação, 'Homepage | Agenda - Eventos na Maia', Institucional, Juventude, 'Juventude | Homepage', Turismo — no music-specific value anywhere.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos?events_list_54_page=5",
+      "acquired_at": "2026-08-27T09:48:14Z",
+      "method": "curl -sS -D headers-agenda-todos-page5.txt -o body-agenda-todos-page5.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-agenda-todos-page5.html"
+    },
+    {
+      "evidence_id": "ev-agenda-todos-page283",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the LAST general listing pagination page (283 of 283, per page 1's own pagination links): contains events dated as far back as 2014, proving this listing is a full historical archive (~3,400 events across 283 pages), not a future-scoped feed.",
+      "acquired_from": "https://www.cm-maia.pt/institucional/atualidade-e-participacao/agenda/todos-os-eventos?events_list_54_page=283",
+      "acquired_at": "2026-08-27T09:50:13Z",
+      "method": "curl -sS -D headers-agenda-todos-page283.txt -o body-agenda-todos-page283.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-agenda-todos-page283.html"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained robots.txt: no Disallow directives are active (the ban-all-spiders block is commented out) — no crawl restriction encountered anywhere in this investigation.",
+      "acquired_from": "https://www.cm-maia.pt/robots.txt",
+      "acquired_at": "2026-08-27T09:50:14Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/forum-maia-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-confirms: the homepage identity strings, the given-lead-vs-general-listing contrast (301 target vs. 200 general root), the listing page's own 12-card/pagination structure, the absence of JSON-LD/RSS/ICS, the full 5-page category-taxonomy scan (no music-specific tag found), the 2014-dated archive-scope finding on page 283, the atc-widget/content_date/Local:/Preço: cross-checks for both sampled music events, and the wm:page_id/event_detail_<id> stable-identifier trap (identical ids across two genuinely distinct events). Exited 0 with all 45 checks passing.",
+      "acquired_from": "research/source-investigations/forum-maia-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T09:52:30Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/forum-maia-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

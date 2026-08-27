@@ -1,0 +1,397 @@
+{
+  "investigation_id": "cm-matosinhos-agenda-cultural-amp-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:56:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only (SUFFICIENT) — no browser/headless session at any point. All retained evidence acquired via plain curl (raw HTTP GET, and one plain HTTP POST submitting exactly the field names/values a retained public HTML <form> itself declares — no JS execution, no session/login, no private endpoint), real descriptive User-Agent (BandOnTheMap-SourceInvestigation/0.1). This investigation started from sources/porto.json's existing 'cm-matosinhos-agenda-cultural-amp' entry (events_url https://www.cm-matosinhos.pt/servicos/cultura/agenda-cultural-da-amp) and found that URL is NOT itself an events listing at all — it is a static informational article page (data-content_type=Article) describing 'iPorto', an Área Metropolitana do Porto (AMP) initiative covering 16 municipalities, and pointing readers to a THIRD-PARTY domain, iporto.amp.pt, for the actual programme. This investigation independently probed iporto.amp.pt (a WordPress site with a public /wp-json/wp/v2/event REST API, a 'counties' taxonomy including Matosinhos, and a 'categories' taxonomy including Música) far enough to confirm the naming-caution in this task's brief is real (that portal genuinely aggregates 16 municipalities, and its own Matosinhos-tagged content is filed by an AMP-operated third party, not CM Matosinhos itself) — then went further and found the decisive clue on one of that portal's own event pages: a 'Mais informação' link back to https://www.cm-matosinhos.pt/evento/{slug}. Following that link proved CM Matosinhos' OWN domain independently hosts a genuine, first-party, native event-detail template (an 'EventDetail' widget) for the very same events, with structured add-to-calendar (atc_date_start/atc_date_end/atc_timezone) fields, a native category taxonomy including 'Eventos | Música', and a native venue/location taxonomy of exclusively Matosinhos venues. From there this investigation located CM Matosinhos' own native, category-filtered, paginated, plain-GET events listing at https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica (an 'EventsList' widget, page 1 of 31, ?events_list_64_page=N pagination) — the genuine, recommended acquisition path, wholly independent of the registry's given (dead-end) events_url and of the third-party AMP portal. A public 'EventSearchForm' widget (category_id=34 = 'Eventos | Música') was also read directly from its own retained HTML and submitted via a plain POST as a bounded, confirmatory cross-check (not the recommended mechanism) — including once with its own start_date filter to bound a genuine current/future count. Level 1 answered every question this investigation needed; no Level 2/3/4 escalation was attempted or needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain, unauthenticated GET of the registry's given events_url (https://www.cm-matosinhos.pt/servicos/cultura/agenda-cultural-da-amp) already exposed everything needed to classify it: a fully server-rendered, static informational Article widget with no event data of its own, explicitly stating the 'Agenda Cultural da AMP' ('iporto') is a Junta Metropolitana do Porto initiative covering 16 AMP municipalities, published quarterly, and directing readers to a separate domain (http://iporto.amp.pt) for the actual programme. Following that same plain-GET discipline to iporto.amp.pt (still a plain, unauthenticated request) exposed a WordPress 'Link' response header pointing at /wp-json/ and, from there, a public /wp-json/wp/v2/event REST route with 'categories' (Música, id 36) and 'counties' (Matosinhos, id 45) taxonomies filterable via plain query-string GET — all discoverable without any JS execution, login, or browser session. One sampled iporto.amp.pt event's own server-rendered HTML detail page (still a plain GET) then contained a 'Mais informação' link back to CM Matosinhos' own domain (https://www.cm-matosinhos.pt/evento/{slug}) — following that link (again a plain GET) revealed CM Matosinhos' own native, first-party 'EventDetail' widget with structured add-to-calendar microformat fields (atc_date_start/atc_date_end/atc_timezone), a native category taxonomy including 'Eventos | Música', and a native, Matosinhos-only venue/location taxonomy. From CM Matosinhos' own /agenda and /servicos/comunicacao-e-imagem/eventos pages (both plain GETs) this investigation then found a public 'EventSearchForm' widget (its own HTML directly names category_id=34 as 'Eventos | Música') and, from the site's own left-nav, a clean, bookmarkable, plain-GET, paginated URL already scoped to that same category: https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica. Every one of these steps — reading server-rendered HTML, a WP REST Link header, a public HTML <form>'s own field names, and a site's own left-nav links — is squarely Level 1 (plain response bodies, headers, links, static event cards, known-platform fingerprints); no JS bundle was inspected, no headless/browser session was opened, and no private/undocumented endpoint was used. This single Level 1 pass fully answered identity, platform classification, data-path discovery, the naming-caution question (which events are genuinely IN Matosinhos), and field assessment, so no escalation to Level 2/3/4 was needed or attempted.",
+      "evidence_refs": [
+        "ev-cmmatosinhos-agenda-page",
+        "ev-iporto-home",
+        "ev-wpjson-root",
+        "ev-wpjson-categories",
+        "ev-wpjson-counties",
+        "ev-wpjson-event-musica-matosinhos",
+        "ev-iporto-event-detail",
+        "ev-cmmatosinhos-evento-detail-1",
+        "ev-cmmatosinhos-evento-detail-2",
+        "ev-cmmatosinhos-agenda-listing-page",
+        "ev-cmmatosinhos-eventos-listing-searchform",
+        "ev-cmmatosinhos-eventos-musica-page1",
+        "ev-cmmatosinhos-eventos-musica-page2",
+        "ev-post-musica-search",
+        "ev-post-musica-future",
+        "ev-cmmatosinhos-home"
+      ]
+    }
+  ],
+  "source_candidate_id": "cm-matosinhos-agenda-cultural-amp",
+  "source_id": null,
+  "venue_reference": "Câmara Municipal de Matosinhos (CM Matosinhos) — the Matosinhos municipality's own official website and its native, first-party municipal events system (Porto metropolitan area, Portugal). Referenced existing registry entry: sources/porto.json's 'cm-matosinhos-agenda-cultural-amp' (id unchanged; not edited by this investigation). NOTE: the registry's current events_url (https://www.cm-matosinhos.pt/servicos/cultura/agenda-cultural-da-amp) is, per this investigation, a dead-end informational page that does not itself list events — see identity/data_paths/decision below for the genuine acquisition path this investigation independently found on the SAME official domain.",
+  "official_url": "https://www.cm-matosinhos.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cmmatosinhos-home", "ev-cmmatosinhos-agenda-page", "ev-cmmatosinhos-evento-detail-1"],
+    "notes": "https://www.cm-matosinhos.pt is independently re-confirmed as CM Matosinhos' own official site from retained evidence, not merely assumed from the registry: the homepage's own footer states the municipality's own postal address ('Avenida D. Afonso Henriques 4454-510 Matosinhos'), official email (mail@cm-matosinhos.pt) and phone numbers, and og:site_name 'Câmara Municipal de Matosinhos'/'CM Matosinhos' throughout. The registry's given events_url (agenda-cultural-da-amp) is genuinely this same official domain's own page — but its OWN content self-describes the actual 'Agenda Cultural da AMP' programme as a separate Área Metropolitana do Porto (AMP) initiative ('iporto', http://iporto.amp.pt), not as something CM Matosinhos itself operates. Independently of that dead-end lead, this investigation found CM Matosinhos' own domain separately and genuinely hosts its own first-party, native event pages (/evento/{slug}, an 'EventDetail' widget) and its own native events search/listing system (/agenda, /servicos/comunicacao-e-imagem/eventos, an 'EventSearchForm'/'EventsList' widget pair) — confirmed live, on this same officially-identified domain, not on any third-party site. identity.status here reflects CM Matosinhos' domain identity, not the (rejected) AMP lead."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "A shared Portuguese municipal-government website platform (CSP 'frame-ancestors *.skillmind.pt' on every page; asset paths under /assets/wm-smile/ and /assets/wm-citizen/; widgets self-identify via data-content_type attributes: Article, EventsList, EventDetail, EventSearchForm, HorizontalMenu, VerticalMenu, Breadcrumb, SiteMap, HtmlBlock). Every page investigated is fully server-rendered HTML — no client-side framework renders the event content (unlike iporto.amp.pt, a separate WordPress+custom-theme site). The native 'EventSearchForm' widget (id=2, form action /pages/1463, method POST) declares a first-party category taxonomy as a plain HTML <select> — including category_id=34 'Eventos | Música' — and a first-party venue/location taxonomy restricted entirely to genuine Matosinhos venues (Teatro Municipal Constantino Nery, Casa da Música [Matosinhos' own], Mercado Municipal de Matosinhos, Museu da Quinta de Santiago, etc.). The site's own left-hand category nav additionally exposes a clean, bookmarkable, plain-GET URL per category (e.g. /servicos/comunicacao-e-imagem/eventos/musica), paginated via a plain ?events_list_64_page=N query parameter — no POST/session/CSRF token required to read it.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cmmatosinhos-eventos-listing-searchform", "ev-cmmatosinhos-eventos-musica-page1", "ev-cmmatosinhos-eventos-musica-page2", "ev-cmmatosinhos-evento-detail-1"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_INFO_PAGE (the registry's GIVEN events_url — checked live and found NOT to be an events listing at all; a dead-end static informational page pointing to a third-party AMP portal)",
+      "url": "https://www.cm-matosinhos.pt/servicos/cultura/agenda-cultural-da-amp",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cmmatosinhos-agenda-page"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API (third-party AMP metropolitan portal's own WordPress REST 'event' post type, filterable by counties=45 [Matosinhos] and categories=36 [Música] — genuinely reachable and genuinely filterable, but operated by Área Metropolitana do Porto, not CM Matosinhos itself; rejected as this candidate's OWN acquisition path per this project's third-party-source rule, even though it corroborates the county-level Matosinhos scoping)",
+      "url": "https://iporto.amp.pt/wp-json/wp/v2/event",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-root", "ev-wpjson-categories", "ev-wpjson-counties", "ev-wpjson-event-musica-matosinhos", "ev-iporto-event-detail"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (CM Matosinhos' OWN native, category-filtered, paginated, plain-GET events listing — the genuine, recommended acquisition path, independently discovered by this investigation)",
+      "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cmmatosinhos-eventos-musica-page1", "ev-cmmatosinhos-eventos-musica-page2"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (per-event canonical detail page — the site's own 'EventDetail' widget; DIRECT_SOURCE for full local datetime, IANA timezone, venue, category, and price text)",
+      "url": "https://www.cm-matosinhos.pt/evento/{slug}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cmmatosinhos-evento-detail-1", "ev-cmmatosinhos-evento-detail-2"]
+    },
+    {
+      "kind": "HTML_FORM_SEARCH_ENDPOINT (native 'EventSearchForm' widget, POST /pages/1463 — a bounded, confirmatory cross-check of the category/date filter only; NOT the recommended acquisition mechanism, since it requires a session cookie + CSRF token where the plain-GET category listing above needs neither)",
+      "url": "https://www.cm-matosinhos.pt/pages/1463",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-post-musica-search", "ev-post-musica-future"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Quarteto de Cordas de Matosinhos com João Reis",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 12 sampled items on the Música-category listing page states its own title directly in an <h2> title widget_field (12/12 mechanically confirmed non-empty in evidence/offline-proof-output.txt); each event's own detail page repeats it directly in both an <h2> and the add-to-calendar microformat's atc_title. The value shown here is the representative sampled detail-page title used throughout this record's other field assessments.",
+      "evidence_refs": ["ev-cmmatosinhos-eventos-musica-page1", "ev-cmmatosinhos-evento-detail-1"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-04-02",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Stated directly and fully-qualified (day+month+year) at BOTH the listing level (each item's own 'dates widget_field' contains a literal YYYY/MM/DD substring — 12/12 confirmed offline, including the two multi-day items whose start is day-only but whose SAME field also states a fully-qualified end/anchor date) and the detail-page level (atc_date_start '2026-04-02 21:30:00' for this representative sampled event). No page/section heading or contextual combination was needed — every date claim here is the source's own literal text, not a derived one.",
+      "evidence_refs": ["ev-cmmatosinhos-eventos-musica-page1", "ev-cmmatosinhos-evento-detail-1"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "21:30 Europe/Lisbon",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own add-to-calendar microformat states a full local datetime (atc_date_start '2026-04-02 21:30:00') AND an explicit IANA timezone (atc_timezone 'Europe/Lisbon') directly — together resolvable to an exact UTC instant without any inference. The human-readable 'schedule widget_field' ('21h30') independently corroborates the same time. Mechanically re-extracted for two independently sampled events in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-cmmatosinhos-evento-detail-1", "ev-cmmatosinhos-evento-detail-2"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-13T23:00:00 Europe/Lisbon (representative multi-day example; single-instant events state atc_date_end identical to atc_date_start)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own add-to-calendar microformat states atc_date_end directly for every event sampled. For a genuine single-instant event (sample 1: 'Quarteto de Cordas...') atc_date_end literally equals atc_date_start ('2026-04-02 21:30:00' both) — the source's own explicit statement of a single-instant event, not an assumption made by this investigation. For a genuine multi-day event (sample 2: 'Os Hospitalários no Caminho de Santiago') atc_date_end ('2026-09-13 23:00:00') genuinely differs from atc_date_start ('2026-09-08 14:00:00'). Both cases mechanically re-verified in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-cmmatosinhos-evento-detail-1", "ev-cmmatosinhos-evento-detail-2"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Teatro Municipal de Matosinhos Constantino Nery",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Stated directly by the source at both listing level ('location widget_field') and detail level ('location widget_field' + atc_location in the add-to-calendar microformat) for every sampled event. This is also this project's honest answer to the task's naming-caution: the site's own venue/location taxonomy (read directly from the EventSearchForm's own <select> options) lists ONLY genuine Matosinhos venues/parishes (Teatro Municipal Constantino Nery, Casa da Música, Mercado Municipal de Matosinhos, Museu da Quinta de Santiago, Marginal de Matosinhos, Praia de Matosinhos, Igreja de Matosinhos, etc.) — this native CM Matosinhos system is genuinely Matosinhos-scoped by its own structure, unlike the registry's given (rejected) AMP-wide lead.",
+      "evidence_refs": ["ev-cmmatosinhos-evento-detail-1", "ev-cmmatosinhos-evento-detail-2", "ev-cmmatosinhos-eventos-listing-searchform"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "quarteto-de-cordas-de-matosinhos-com-joao-reis",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own permalink slug is used both as the URL CM Matosinhos itself links to from every listing ('/evento/{slug}') AND is independently restated in that same page's own <meta name=\"canonical\"> tag (mechanically cross-checked equal in evidence/offline-proof-output.txt) — satisfying this project's stable-identifier rule's third clause: a permalink slug the source itself uses as its own canonical path. Not empirically re-fetched on a second date (a genuine limitation, honestly noted), but the self-referential canonical-tag match is itself real, retained, structural evidence of the source's own intended stability, not merely something that looks stable.",
+      "evidence_refs": ["ev-cmmatosinhos-evento-detail-1"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.cm-matosinhos.pt/evento/quarteto-de-cordas-de-matosinhos-com-joao-reis",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing's own permalink href, confirmed live (HTTP 200, real server-rendered EventDetail content) and matching the detail page's own <meta name=\"canonical\">.",
+      "evidence_refs": ["ev-cmmatosinhos-eventos-musica-page1", "ev-cmmatosinhos-evento-detail-1"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No dedicated 'price' widget_field exists anywhere in the retained detail-page markup (mechanically confirmed: only image/title/dates/schedule/location/categories/summary/text widget_field blocks are present). Price information (e.g. 'Preço Inteiro – 7,50€', senior/student/child rates, exemptions) appears only as unstructured prose embedded inside the free-text 'text widget_field' description for SOME events (confirmed present for sample 1; not confirmed present for sample 2, whose sampled description did not mention a price at all — likely a free event, but this investigation did not confirm that explicitly rather than merely absent text). Never promoted to a structured PROVEN value from prose that would require free-text parsing this investigation did not attempt.",
+      "evidence_refs": ["ev-cmmatosinhos-evento-detail-1", "ev-cmmatosinhos-evento-detail-2"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cmmatosinhos-eventos-musica-page1", "ev-cmmatosinhos-eventos-musica-page2", "ev-cmmatosinhos-evento-detail-1", "ev-cmmatosinhos-evento-detail-2"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The registry's existing sources/porto.json events_url (https://www.cm-matosinhos.pt/servicos/cultura/agenda-cultural-da-amp) is, per this investigation, a dead-end informational page — it must be corrected to the genuine acquisition path this investigation found (https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica) before any collector is built against it. This investigation deliberately does NOT make that registry edit itself (investigation and activation/registry changes are separate, explicitly-authorised actions per docs/SOURCE_INVESTIGATION_POLICY.md)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "price has no dedicated structured field — a future collector must either omit price entirely (the one field this project's policy allows to be fully omitted) or attempt bounded free-text parsing of the 'text widget_field' description, which was not attempted/proven here."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The category-filtered listing (/eventos/musica) returns the site's FULL historical archive (31 pages observed, ordered newest/most-future-first, descending) — a real collector must apply this project's existing date-bounding logic (matching every other collector in ingestion/lisbon-porto/run.mjs) rather than ingesting the entire archive; this investigation did not itself build or bound a collector."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN (CM Matosinhos' own domain, independently re-confirmed) and site_classification.acquisition_class is STATIC_HTML (fully server-rendered, plain-GET-readable) — a genuine, low-complexity public acquisition path.",
+      "The registry's GIVEN events_url is a dead-end informational page, mechanically proven by directly reading its own retained content (a static Article widget naming a third-party AMP initiative and portal, not an events listing) — this is a REJECTED data_paths entry, not the recommended path.",
+      "This investigation directly addresses this task's naming-caution: the Área Metropolitana do Porto's own iporto.amp.pt portal genuinely aggregates 16 municipalities (its own 'counties' WordPress taxonomy proves this), and its Matosinhos-tagged content is filed by a third-party (AMP) operator, not CM Matosinhos itself — so it was REJECTED as this candidate's own acquisition authority per this project's third-party-source rule, even though it usefully corroborated that genuine Matosinhos-located music events exist and helped lead to the real path.",
+      "Independently of both the given dead lead and the third-party AMP portal, this investigation discovered that CM Matosinhos' OWN domain hosts its own first-party, native, Matosinhos-only event system (its own EventDetail/EventsList/EventSearchForm widgets, its own venue/location taxonomy restricted to genuine Matosinhos venues, and its own category taxonomy including 'Eventos | Música', category_id=34) — a plain-GET, paginated, category-filtered listing at https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica, confirmed CONFIRMED/PUBLIC in data_paths.",
+      "Every gate-relevant field (title, start_date, source_record_id) is PROVEN with basis DIRECT_SOURCE, and time/end/venue_location are additionally PROVEN DIRECT_SOURCE from a structured add-to-calendar microformat (atc_date_start/atc_date_end/atc_timezone/atc_location) present on every sampled detail page — no DETERMINISTIC_CONTEXT derivation was even needed for this candidate; every claimed value is the source's own literal text.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide the required DETERMINISTIC_DERIVATION evidence: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every field_assessment claim above, including the single-instant-vs-multi-day atc_date_start/atc_date_end contrast and the canonical-URL/source_record_id stability cross-check.",
+      "collector_assessment.blockers contains only MINOR entries (a registry events_url correction needed before building a collector, an honestly-unresolved price field, and a date-bounding requirement for a future collector) — none CRITICAL.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry, and does not build a collector. Turning this into an active source requires a separate, explicitly-authorised registry-correction step (updating events_url to the path this investigation found) plus collector implementation, per docs/SOURCE_INVESTIGATION_POLICY.md's 'Investigation and activation are separate'."
+    ],
+    "evidence_refs": [
+      "ev-cmmatosinhos-agenda-page",
+      "ev-iporto-home",
+      "ev-wpjson-counties",
+      "ev-wpjson-event-musica-matosinhos",
+      "ev-iporto-event-detail",
+      "ev-cmmatosinhos-evento-detail-1",
+      "ev-cmmatosinhos-evento-detail-2",
+      "ev-cmmatosinhos-eventos-musica-page1",
+      "ev-cmmatosinhos-eventos-listing-searchform",
+      "ev-offline-proof",
+      "ev-offline-proof-output"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-cmmatosinhos-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for CM Matosinhos' own homepage — self-identifying meta tags, official postal address/email/phone in the footer.",
+      "acquired_from": "https://www.cm-matosinhos.pt",
+      "acquired_at": "2026-08-27T09:44:32Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-agenda-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for the registry's GIVEN events_url. Proves this page is a static informational Article widget (no event data), naming 'iporto'/Área Metropolitana do Porto and its separate portal http://iporto.amp.pt as the actual programme — the decisive dead-end-lead finding.",
+      "acquired_from": "https://www.cm-matosinhos.pt/servicos/cultura/agenda-cultural-da-amp",
+      "acquired_at": "2026-08-27T09:44:33Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-iporto-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for the third-party AMP portal's own homepage. The response headers include a WordPress-standard Link header pointing at /wp-json/ and /wp-json/wp/v2/pages/73 — the plain, unauthenticated discovery of its REST API.",
+      "acquired_from": "https://iporto.amp.pt",
+      "acquired_at": "2026-08-27T09:45:41Z",
+      "method": "curl -sS -D headers-iporto-https.txt -o body-iporto-https.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET; http:// variant returned a plain 301 to https, also retained as body-iporto.html/headers-iporto.txt)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-iporto-https.html"
+    },
+    {
+      "evidence_id": "ev-wpjson-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response for the AMP portal's own WP REST API root — its full route index, including /wp/v2/event (a public custom post type, X-WP-Total 27700 across the whole portal) and /wp/v2/counties, /wp/v2/categories taxonomy routes. Retained for context/corroboration only — this is third-party infrastructure, not CM Matosinhos' own.",
+      "acquired_from": "https://iporto.amp.pt/wp-json/",
+      "acquired_at": "2026-08-27T09:45:51Z",
+      "method": "curl -sS -D headers-wpjson-root.txt -o body-wpjson-root.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET of a public REST endpoint)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-wpjson-root.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-categories",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response listing the AMP portal's own 'categories' taxonomy terms (id 36 = 'musica'/'Música', count 14185, among 9 total categories). Corroboration only.",
+      "acquired_from": "https://iporto.amp.pt/wp-json/wp/v2/categories?per_page=100",
+      "acquired_at": "2026-08-27T09:46:22Z",
+      "method": "curl -sS -D headers-wpjson-categories.txt -o body-wpjson-categories.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET of a public REST endpoint)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-wpjson-categories.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-counties",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response listing the AMP portal's own 'counties' taxonomy terms — 18 terms including all 16 real AMP municipalities plus an 'amp'-wide catch-all, directly proving this task's naming-caution: 'Agenda Cultural da AMP' genuinely spans many municipalities (id 45 = 'matosinhos', count 3280), not just Matosinhos.",
+      "acquired_from": "https://iporto.amp.pt/wp-json/wp/v2/counties?per_page=100",
+      "acquired_at": "2026-08-27T09:46:23Z",
+      "method": "curl -sS -D headers-wpjson-counties.txt -o body-wpjson-counties.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET of a public REST endpoint)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-wpjson-counties.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-event-musica-matosinhos",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response for the AMP portal's own /wp/v2/event listing filtered to categories=36 (Música) AND counties=45 (Matosinhos): X-WP-Total 252 across the portal's full history. Corroborates that genuine Matosinhos-located music events exist in this regional dataset, and (via one item's own permalink) is the specific record that led this investigation to CM Matosinhos' own domain.",
+      "acquired_from": "https://iporto.amp.pt/wp-json/wp/v2/event?categories=36&counties=45&per_page=20&orderby=date&order=desc",
+      "acquired_at": "2026-08-27T09:46:35Z",
+      "method": "curl -sS -D headers-wpjson-event-musica-matosinhos.txt -o body-wpjson-event-musica-matosinhos.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET of a public REST endpoint with ordinary query-string filters)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-wpjson-event-musica-matosinhos.json"
+    },
+    {
+      "evidence_id": "ev-iporto-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for one sampled AMP-portal event detail page (Quarteto de Cordas de Matosinhos & João Reis). Its own server-rendered content states item-category 'Música', item-county 'Matosinhos', item-location (a link to CM Matosinhos' own venue page), and — critically — a 'Mais informação' link back to https://www.cm-matosinhos.pt/evento/quarteto-de-cordas-de-matosinhos-com-joao-reis, which is what led this investigation to CM Matosinhos' own native event system.",
+      "acquired_from": "https://iporto.amp.pt/eventos/quarteto-de-cordas-de-matosinhos-joao-reis/",
+      "acquired_at": "2026-08-27T09:46:59Z",
+      "method": "curl -sS -D headers-event-page.txt -o body-event-page.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-event-page.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-evento-detail-1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for CM Matosinhos' OWN native event detail page (same event as ev-iporto-event-detail, but on CM Matosinhos' own domain) — an 'EventDetail' widget with dates ('2026/04/02'), schedule ('21h30'), an add-to-calendar microformat (atc_date_start/atc_date_end both '2026-04-02 21:30:00', atc_timezone 'Europe/Lisbon', atc_location, atc_title), a categories field including 'Eventos | Música', a summary/text (Sinopse), and a source-stated price ('Preço Inteiro – 7,50€' etc.) embedded in free text. A genuine single-instant event (start === end).",
+      "acquired_from": "https://www.cm-matosinhos.pt/evento/quarteto-de-cordas-de-matosinhos-com-joao-reis",
+      "acquired_at": "2026-08-27T09:47:51Z",
+      "method": "curl -sS -D headers-cmmatosinhos-evento.txt -o body-cmmatosinhos-evento.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-cmmatosinhos-evento.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-evento-detail-2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for a second, independently-sampled CM Matosinhos event detail page ('Os Hospitalários no Caminho de Santiago', a multi-day event at Mosteiro de Leça do Balio) — proves atc_date_start ('2026-09-08 14:00:00') and atc_date_end ('2026-09-13 23:00:00') genuinely differ when the source itself states a real multi-day span, and that this event also carries the 'Eventos | Música' category tag.",
+      "acquired_from": "https://www.cm-matosinhos.pt/evento/os-hospitalarios-no-caminho-de-santiago-4",
+      "acquired_at": "2026-08-27T09:53:29Z",
+      "method": "curl -sS -D headers-cmmatosinhos-evento2.txt -o body-cmmatosinhos-evento2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-cmmatosinhos-evento2.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-agenda-listing-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for CM Matosinhos' own /agenda page — a general (all-category) 'EventsList' widget ('Destaques da Semana'), plus a hidden SEO text block explicitly naming Música among the site's own event categories (Cultura, Ambiente, Desporto, Exposições, Literatura, Música, Teatro, Juventude) and a 'mais eventos' link to the full listing page.",
+      "acquired_from": "https://www.cm-matosinhos.pt/agenda",
+      "acquired_at": "2026-08-27T09:48:27Z",
+      "method": "curl -sS -D headers-cmmatosinhos-agenda.txt -o body-cmmatosinhos-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-cmmatosinhos-agenda.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-eventos-listing-searchform",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for CM Matosinhos' own /servicos/comunicacao-e-imagem/eventos page — contains the native 'EventSearchForm' widget's own HTML: a category <select> naming category_id=34 as 'Eventos | Música' among 10 categories, and a location <select> naming 34 genuine Matosinhos-only venues/parishes. This form's own field names/values are what this investigation later submitted verbatim as a bounded, confirmatory POST (ev-post-musica-search).",
+      "acquired_from": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos",
+      "acquired_at": "2026-08-27T09:49:13Z",
+      "method": "curl -sS -D headers-cmmatosinhos-eventos-listing.txt -o body-cmmatosinhos-eventos-listing.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-cmmatosinhos-eventos-listing.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-eventos-musica-page1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for THE RECOMMENDED acquisition path, page 1: a clean, plain-GET, already-category-filtered, paginated (31 pages total) events listing. Every one of the 12 items on this page carries the source's own literal 'Eventos | Música' category tag AND a fully-qualified YYYY/MM/DD date, mechanically re-confirmed (12/12) in evidence/offline-proof-output.txt.",
+      "acquired_from": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+      "acquired_at": "2026-08-27T09:50:32Z",
+      "method": "curl -sS -D headers-eventos-musica-clean.txt -o body-eventos-musica-clean.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no session/cookie/token)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-eventos-musica-clean.html"
+    },
+    {
+      "evidence_id": "ev-cmmatosinhos-eventos-musica-page2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for page 2 of the same listing (?events_list_64_page=2) — confirms the plain-GET pagination mechanism genuinely works (no session/cookie/token needed) and that pages are ordered newest/most-future-first, descending (page 2's dates, 2026/08/01-2026/08/16, are all earlier than page 1's).",
+      "acquired_from": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica?events_list_64_page=2",
+      "acquired_at": "2026-08-27T09:52:59Z",
+      "method": "curl -sS -D headers-eventos-musica-page2.txt -o body-eventos-musica-page2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-eventos-musica-page2.html"
+    },
+    {
+      "evidence_id": "ev-post-musica-search",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for a bounded, confirmatory POST submitting the EventSearchForm's OWN field names/values (category_id=34, all else blank) exactly as declared in ev-cmmatosinhos-eventos-listing-searchform's retained HTML, using only the authenticity_token and cookies that same public GET response itself issued (no login, no private credentials). Returned 24 unique music-tagged events, cross-confirming the category filter independently of the clean-URL listing.",
+      "acquired_from": "https://www.cm-matosinhos.pt/pages/1463",
+      "acquired_at": "2026-08-27T09:49:38Z",
+      "method": "curl -sS -b cookies.txt -D headers-post-musica.txt -o body-post-musica.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -X POST (plain HTTP POST submitting exactly the public <form>'s own field names/values; --data-urlencode for each)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-post-musica.html"
+    },
+    {
+      "evidence_id": "ev-post-musica-future",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body + headers for the same EventSearchForm POST, additionally setting its own start_date field to 2026/08/27 (today, per the form's own yy/mm/dd date_picker format). Returned exactly 14 unique current/future Matosinhos music events with no further pagination controls rendered — used only to bound the 'roughly how many' question honestly from real retained evidence, not as the recommended acquisition mechanism.",
+      "acquired_from": "https://www.cm-matosinhos.pt/pages/1463",
+      "acquired_at": "2026-08-27T09:52:00Z",
+      "method": "curl -sS -b cookies.txt -D headers-post-musica-future.txt -o body-post-musica-future.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -X POST (plain HTTP POST, same form, start_date field additionally set)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/body-post-musica-future.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that re-parses the retained fixtures (the Música-category listing page and two independently-sampled event detail pages) and mechanically re-derives every field_assessment claim above: the listing's own category tag + fully-qualified date per item, the detail pages' own atc_date_start/atc_date_end/atc_timezone/atc_location/atc_title, the single-instant-vs-multi-day start/end contrast, the source-stated price text, and the canonical-URL/source_record_id stability cross-check.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-08-27T09:55:00Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, every check PASSED, final line 'OFFLINE PROOF: PASSED' — reproducing every field_assessment claim above deterministically from the retained fixtures alone, no network access.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against retained fixtures only; no network access",
+      "acquired_at": "2026-08-27T09:55:05Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

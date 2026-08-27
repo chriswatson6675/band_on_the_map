@@ -1,0 +1,33 @@
+=== teatro-sao-carlos-lisbon-01 offline proof ===
+
+OK   bare saocarlos.pt returns 301 to https://www.saocarlos.pt/
+OK   homepage <title> self-identifies as "TNSC - Teatro Nacional de São Carlos"
+OK   homepage meta description names the venue as "o único teatro de ópera em Portugal"
+OK   homepage names its own producing entity "OPART"
+OK   homepage's own retained news item states the São Carlos building is currently relocated to Boa Hora during works ("São Carlos, por agora, na Boa Hora")
+OK   homepage contains zero application/ld+json blocks
+OK   homepage/calendar HTML is built on the bespoke "bl-" (Bond Habits / bndlyr) platform, not WordPress
+OK   /feed/ returns 404 (no WordPress-style RSS feed)
+OK   /wp-json/ returns 403 (no public WP REST API)
+OK   robots.txt does not blanket-disallow ordinary crawling (only disallows archive.org bots)
+OK   retained /calendar/ page contains exactly 60 Card.Calendar rows
+OK   every row has non-null day/month/year/time/type/local/city/title/href/contentId
+OK   zero of the 60 retained rows list "Teatro Nacional de São Carlos" itself as the performance venue (Local) — confirms the closure/relocation finding above
+     -> distinct Local values in this retained sample: Teatro Nacional de São João | Teatro Camões | Centro Cultural Olga Cadaval | Convento de São Francisco | Coliseu Porto Ageas | Centro Cultural de Belém | Teatro das Figuras | Teatro Micaelense | Teatro Tivoli BBVA | Teatro Aberto | Teatro Municipal de Vila Real | Theatro Circo | Teatro Municipal Joaquim Benite | Casa da Música | Teatro Municipal de Bragança | Castelo Kuressaare  | Castelo Kuressaare
+OK   all 60 contentIds are unique within the retained fetch
+OK   hrefs are shared across multiple session dates of the same production (fewer unique hrefs than rows)
+OK   second, independent fetch of /calendar/ also returns exactly 60 rows
+OK   data-content-id is empirically stable across two independent fetches (60/60 positions match) — satisfies the stable-identifier rule empirically
+OK   every row's day+month+year+time mechanically combines into a well-formed ISO-local datetime (DIRECT_SOURCE, all inputs co-located on one row)
+     -> sample derived ISO-local datetimes:
+        "Relicário perpétuo": 11 Set 2026 21:00 -> 2026-09-11T21:00:00
+        "Relicário perpétuo": 12 Set 2026 19:00 -> 2026-09-12T19:00:00
+        "Concerto inaugural": 19 Set 2026 18:30 -> 2026-09-19T18:30:00
+OK   every row's day is a plausible 1-31 integer
+OK   every row's month token is a recognised Portuguese 3-letter abbreviation
+OK   no € / price token found anywhere on the retained /calendar/ page
+OK   no € / price token found anywhere on the retained /program/ page
+OK   the individual production detail page's own 'Sessions Flex Layout' repeater is empty in retained static HTML (session-level detail there is client-rendered; the listing pages are the real data path)
+OK   the Carmen detail page names "Teatro Nacional de São Carlos" only as a credited company (its own choir), never as this production's performance venue
+
+=== OFFLINE PROOF: PASSED ===
