@@ -45,6 +45,7 @@ const DEFAULT_CONTENT_TYPE = "application/ld+json";
 // already matched (with explicit seconds) still matches identically,
 // since `(?::\d{2})?` is satisfied either way.
 const ISO_WITH_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const ISO_WITH_BASIC_OFFSET_RE = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)([+-]\d{2})(\d{2})$/;
 const ISO_NO_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?$/;
 const DATE_ONLY_RE = /^(\d{4}-\d{2}-\d{2})$/;
 const NAMED_CET_OFFSET_RE = /^(\d{4}-\d{2}-\d{2}) (CEST|CET) (\d{2}:\d{2})$/;
@@ -106,6 +107,20 @@ export function deriveDateTimeFromIso(rawValue) {
   const withOffset = ISO_WITH_OFFSET_RE.exec(rawValue);
   if (withOffset) {
     const parsed = new Date(rawValue);
+    if (!Number.isNaN(parsed.getTime())) {
+      const iso = parsed.toISOString();
+      dt.iso = iso;
+      dt.is_utc = true;
+      dt.date = iso.slice(0, 10);
+      dt.certainty = "UTC_INSTANT";
+      return dt;
+    }
+  }
+
+  const withBasicOffset = ISO_WITH_BASIC_OFFSET_RE.exec(rawValue);
+  if (withBasicOffset) {
+    const rewritten = `${withBasicOffset[1]}${withBasicOffset[2]}:${withBasicOffset[3]}`;
+    const parsed = new Date(rewritten);
     if (!Number.isNaN(parsed.getTime())) {
       const iso = parsed.toISOString();
       dt.iso = iso;
