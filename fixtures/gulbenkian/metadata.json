@@ -1,0 +1,79 @@
+{
+  "source_id": "gulbenkian",
+  "investigation_id": "gulbenkian-lisbon-01",
+  "investigation_path": "research/source-investigations/gulbenkian-lisbon-01/investigation.json",
+  "note": "Every file under fixtures/gulbenkian/ is a byte-exact, line-range slice of the retained investigation evidence in research/source-investigations/gulbenkian-lisbon-01/evidence/ — nothing here was hand-authored or fabricated. Large unrelated real markup (related-artist bios, navigation, scripts) sitting between the slices used from each source file is dropped and marked with an explicit HTML comment; the retained bytes themselves (card markup, address/price DOM nodes, JSON-LD script blocks) are verbatim.",
+  "list_page": {
+    "fixture_path": "fixtures/gulbenkian/discovery/agenda-index-excerpt.html",
+    "sliced_from": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-musica-agenda.html",
+    "source_url": "https://gulbenkian.pt/musica/agenda/",
+    "line_range": "1792-2260 (one contiguous slice; includes 8 real event cards, among them the 4 sampled below plus 4 unrelated real cards kept only because they fall inside the same contiguous byte range)"
+  },
+  "detail_pages": [
+    {
+      "slug": "vale-do-silencio-3",
+      "fixture_path": "fixtures/gulbenkian/pages/vale-do-silencio-3.html",
+      "sliced_from": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-vale-do-silencio.html",
+      "source_url": "https://gulbenkian.pt/musica/agenda/vale-do-silencio-3/",
+      "line_ranges": { "header": "881-884", "location_and_price": "978-1003", "json_ld": "1686-1689" },
+      "note": "The off-site sample event: location[0].name is 'Parque Vale do Silêncio', not 'Grande Auditório' — kept specifically so a downstream venue-resolution test can show it stays unmapped/different from the main-auditorium events."
+    },
+    {
+      "slug": "kafka-fragmente",
+      "fixture_path": "fixtures/gulbenkian/pages/kafka-fragmente.html",
+      "sliced_from": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-kafka-fragmente.html",
+      "source_url": "https://gulbenkian.pt/musica/agenda/kafka-fragmente/",
+      "line_ranges": { "header": "883-886", "location_and_price": "980-1005", "json_ld": "1865-1868" }
+    },
+    {
+      "slug": "quarteto-diotima",
+      "fixture_path": "fixtures/gulbenkian/pages/quarteto-diotima.html",
+      "sliced_from": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-quarteto-diotima.html",
+      "source_url": "https://gulbenkian.pt/musica/agenda/quarteto-diotima/",
+      "line_ranges": { "header": "881-884", "location_and_price": "978-1003", "json_ld": "1560-1563" }
+    },
+    {
+      "slug": "beatrice-rana-4",
+      "fixture_path": "fixtures/gulbenkian/pages/beatrice-rana-4.html",
+      "sliced_from": "research/source-investigations/gulbenkian-lisbon-01/evidence/body-detail-beatrice-rana-4.html",
+      "source_url": "https://gulbenkian.pt/musica/agenda/beatrice-rana-4/",
+      "line_ranges": { "header": "878-880", "location_and_price": "973-998", "json_ld": "1729-1732" },
+      "note": "This page's own JSON-LD carries no top-level 'description' field at all (unlike the other 3 sampled pages) — retained honestly; a collector must treat description as genuinely absent here, not null-by-omission-of-effort."
+    }
+  ],
+  "expected_field_values": {
+    "vale-do-silencio-3": {
+      "source_record_id": "106594",
+      "title": "Vale do Silêncio",
+      "start_iso": "2026-09-05T21:30:00",
+      "end_iso": "2026-09-05T23:00:00",
+      "location_name": "Parque Vale do Silêncio",
+      "price_text": "Entrada Livre"
+    },
+    "kafka-fragmente": {
+      "source_record_id": "106787",
+      "title": "Kafka-Fragmente",
+      "start_iso": "2026-09-09T20:00:00",
+      "end_iso": "2026-09-09T21:00:00",
+      "location_name": "Grande Auditório",
+      "price_text": "Entrada gratuita"
+    },
+    "quarteto-diotima": {
+      "source_record_id": "106799",
+      "title": "Quarteto Diotima",
+      "start_iso": "2026-09-12T19:00:00",
+      "end_iso": "2026-09-12T21:00:00",
+      "location_name": "Grande Auditório",
+      "price_text": "Entrada gratuita"
+    },
+    "beatrice-rana-4": {
+      "source_record_id": "106821",
+      "title": "Beatrice Rana",
+      "start_iso": "2026-10-11T18:00:00",
+      "end_iso": "2026-10-11T20:00:00",
+      "location_name": "Grande Auditório",
+      "price_text": "24,00 € – 46,00 €"
+    }
+  },
+  "cross_check": "These values reproduce research/source-investigations/gulbenkian-lisbon-01/evidence/offline-proof-output.txt exactly (same 4 events, same start/end/location/price values; the offline proof's 'startDate'/'endDate' with a space separator and this fixture's 'T'-separated start_iso/end_iso are the same floating-local instant, just reformatted)."
+}

@@ -1,0 +1,40 @@
+Page <title>: "CARTAZ - 08 a 31 JULHO 2026 / CASCAIS"
+OK:   page-title context: days 08-31, month=7 (JULHO), year=2026
+
+Parsed 9 desktop day-blocks (desk-cartaz-diaNN) from body-cartaz.html
+OK:   found 9 desktop day-blocks (>= 8) — see below for why this is 9 blocks covering 8 distinct festival nights, not a clean 1-block-per-night mapping
+
+--- Per-block day-mention / id-consistency / venue / ticket checks ---
+id=desk-cartaz-dia08 (idDay=8) contentDays=[8] idDayInOwnBody=true ticketSlug=gilberto-gil-ageas-cooljazz-2026 venue=true cascaisJazzSessions=false lateNight=false
+id=desk-cartaz-dia14 (idDay=14) contentDays=[14] idDayInOwnBody=true ticketSlug=(none) venue=true cascaisJazzSessions=false lateNight=false
+id=desk-cartaz-dia15 (idDay=15) contentDays=[15] idDayInOwnBody=true ticketSlug=loyle-carner-ageas-cooljazz-2026 venue=true cascaisJazzSessions=false lateNight=false
+id=desk-cartaz-dia18 (idDay=18) contentDays=[18] idDayInOwnBody=true ticketSlug=(none) venue=false cascaisJazzSessions=true lateNight=false
+id=desk-cartaz-dia22 (idDay=22) contentDays=[22] idDayInOwnBody=true ticketSlug=(none) venue=false cascaisJazzSessions=true lateNight=false
+id=desk-cartaz-dia12 (idDay=12) contentDays=[22] idDayInOwnBody=false ticketSlug=diana-krall-ageas-cooljazz-2026 venue=true cascaisJazzSessions=true lateNight=false
+id=desk-cartaz-dia25 (idDay=25) contentDays=[25] idDayInOwnBody=true ticketSlug=franz-ferdinand-ageas-cooljazz-2026 venue=false cascaisJazzSessions=false lateNight=false
+id=desk-cartaz-dia29 (idDay=29) contentDays=[29] idDayInOwnBody=true ticketSlug=scissor-sisters-ageas-cooljazz-2026 venue=true cascaisJazzSessions=false lateNight=true
+id=desk-cartaz-dia31 (idDay=31) contentDays=[31] idDayInOwnBody=true ticketSlug=chet-faker-ageas-cooljazz-2026 venue=false cascaisJazzSessions=false lateNight=false
+OK:   confirmed (not silently reconciled): div id="desk-cartaz-dia12" mentions 0 occurrences of '12 de julho' in its own body, but does mention '22 de julho' — the source's own id attribute does NOT reliably identify which festival night a block describes; a collector must key dates off the block's own prose text, never off this id
+
+6/8 distinct festival nights carry a cooljazz.seetickets.com ticket-purchase link at investigation time; 2/8 do not (day(s): 14, 18).
+OK:   exactly 6/8 nights carry a ticket-purchase link at investigation time; 2/8 (14 and 18 July) do not — HTTP 410 Gone was independently observed on a bounded live fetch of one of the present ticket links (Gilberto Gil / 8 July), showing the link's mere presence does not itself guarantee purchasability
+OK:   no other physical venue name (Casino Estoril / Parque Marechal Carmona / Centro Cultural / Coliseu) appears anywhere in body-cartaz.html — every dated night in this bounded sample points to one physical site, 'Hipódromo Manuel Possolo, Cascais', with up to three named STAGES within it (Ageas main stage, 'Cascais Jazz Sessions by Smooth FM', 'Late Night')
+
+6/8 distinct festival nights name either the physical venue (Hipódromo Manuel Possolo) or one of the festival's own two named supporting stages somewhere in their own retained prose; 2/8 do not (day(s): 25, 31) — recorded honestly as a genuine field_assessment.venue_location gap for those nights, not silently inherited from the page's global <meta name="keywords"> mention of the same venue name.
+
+--- Derived per-night date (DIRECT_SOURCE where year stated in-block, else DETERMINISTIC_CONTEXT) ---
+desk-cartaz-dia08: day=8 -> 2026-07-08 (basis=DETERMINISTIC_CONTEXT)
+desk-cartaz-dia14: day=14 -> 2026-07-14 (basis=DIRECT_SOURCE)
+desk-cartaz-dia15: day=15 -> 2026-07-15 (basis=DIRECT_SOURCE)
+desk-cartaz-dia18: day=18 -> 2026-07-18 (basis=DETERMINISTIC_CONTEXT)
+desk-cartaz-dia22: day=22 -> 2026-07-22 (basis=DETERMINISTIC_CONTEXT)
+desk-cartaz-dia12: day=22 -> 2026-07-22 (basis=DIRECT_SOURCE)
+desk-cartaz-dia25: day=25 -> 2026-07-25 (basis=DIRECT_SOURCE)
+desk-cartaz-dia29: day=29 -> 2026-07-29 (basis=DETERMINISTIC_CONTEXT)
+desk-cartaz-dia31: day=31 -> 2026-07-31 (basis=DETERMINISTIC_CONTEXT)
+OK:   both blocks covering 22 July (desk-cartaz-dia22, desk-cartaz-dia12) independently resolve to the same date 2026-07-22, despite one carrying a misleading id
+OK:   all 8 distinct derived nights match the expected day set [8,14,15,18,22,25,29,31], each resolving to a single unambiguous 2026-07-DD date
+
+Across 9 blocks (covering 8 distinct nights): 4 state their own full day+month+year directly in retained prose (basis DIRECT_SOURCE); 5 state only day+month locally and require the page-title year context (basis DETERMINISTIC_CONTEXT).
+
+RESULT: all checks passed against retained evidence (8/8 festival nights fully cross-checked).

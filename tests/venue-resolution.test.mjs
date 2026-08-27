@@ -59,7 +59,11 @@ test("every registry venue passes validateVenue and has a deterministic venue_id
 test("no registry venue with location_status ADDRESS_ONLY or UNRESOLVED carries coordinates", async () => {
   const registry = await loadRegistry();
   for (const venue of registry.venues) {
-    if (venue.location_status !== "CONFIRMED") {
+    // VENUE-GEOCODING-01 (predating this test's own last update) legitimately
+    // introduced a second coordinate-bearing status, GEOCODED, alongside
+    // CONFIRMED — see ingestion/venue/contract.mjs's MAP_ELIGIBLE_LOCATION_STATUSES.
+    // Only ADDRESS_ONLY/UNRESOLVED venues are asserted coordinate-free here.
+    if (venue.location_status === "ADDRESS_ONLY" || venue.location_status === "UNRESOLVED") {
       assert.equal(venue.latitude, null, venue.venue_id);
       assert.equal(venue.longitude, null, venue.venue_id);
     }

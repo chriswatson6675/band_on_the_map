@@ -1,0 +1,53 @@
+=== wow-world-of-wine-gaia-01 offline proof ===
+
+-- Level 1: empty-shell check --
+PASS: PT homepage (body-home-pt.html): exactly one <div id="root">
+PASS: PT homepage (body-home-pt.html): zero JSON-LD blocks
+PASS: candidate agenda-cultural page (body-agenda.html): exactly one <div id="root">
+PASS: candidate agenda-cultural page (body-agenda.html): zero JSON-LD blocks
+PASS: candidate agenda-cultural page (body-agenda.html): INLINED_PAGE_TYPE is an empty JSON.parse('') (nothing server-inlined)
+
+-- Level 2: urlResolver dead-lead vs. real-category contrast --
+PASS: urlResolver('agenda-cultural') with Store:pt returns null (given candidate lead is a dead URL)
+PASS: urlResolver('experiencias/agenda') with Store:pt resolves to a real CATEGORY
+
+-- Category 163 ('Agenda') content --
+PASS: category 163 is named 'Agenda'
+PASS: category 163 reports product_count 19
+PASS: products163 total_count is 19
+PASS: products163 returned exactly 19 items
+PASS: every one of the 19 products has a non-empty name
+
+-- Facet/attribute scan for a music-specific filter --
+PASS: category 163's own facets exist (price/category_uid/time_of_day/visitor_type/ticket_type)
+PASS: no facet attribute label in category 163 names a music/concert-specific filter
+PASS: no facet OPTION label in category 163 names a music/concert-specific filter
+PASS: ticket_type facet options are exactly the generic set found live (Destaques/Museus/Workshops/Gastronomy/Bilhetes Conjuntos)
+
+-- Sub-categories 438 and 453 --
+PASS: category 438 product_count is 8
+PASS: products438 returned exactly 8 items
+PASS: none of category 438's 8 products' names match even the loose music/party-adjacent name pattern
+PASS: category 453 is named 'Gastronomia e Eventos'
+PASS: category 453 product_count is 6
+PASS: products453 returned exactly 6 items
+PASS: category 453 mixes music-adjacent items (Fado/Comedy/Cine/Oktoberfest/Gatsby/Sunsets) — all 6 match the loose pattern, confirming it is a mixed hospitality/entertainment bucket, not a music-only one
+PASS: only 1 of the 6 products in the closest bucket is actually music-named (Fado) — the rest are comedy/film/beer-festival/dinner-theatre/sunset-session, not concerts
+
+-- Sampled Fado product: categories, id stability, year-absence --
+PASS: Fado product id is 22663
+PASS: Fado product's own categories carry no music-specific category name
+PASS: Fado product's categories are exactly the generic set observed live
+PASS: urlResolver('fado-show-and-dinner') resolves to PRODUCT id 22663 — matches the id from the category listing (2 independent query paths, same id)
+PASS: Fado description mentions 'a partir das 20h' (a genuine time statement)
+PASS: no year appears within 80 characters of the actual time statement 'a partir das 20h'
+PASS: the only years present anywhere in the description are wine vintages (2019, 2023), not an event date
+
+-- Year-absence scan across all 19 product names --
+PASS: none of the 19 product names in category 163 contain a 4-digit year
+PASS: at least one product name states a day+month with no year at all (the genuine AMBIGUOUS start_date finding)
+
+-- price artefact check --
+PASS: Fado product's price_range.minimum_price.regular_price.value is literally 0 (not promoted to a claimed FREE value in field_assessment)
+
+=== ALL CHECKS PASSED ===

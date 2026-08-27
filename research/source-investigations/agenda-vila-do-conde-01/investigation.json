@@ -1,0 +1,497 @@
+{
+  "investigation_id": "agenda-vila-do-conde-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T11:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (INSUFFICIENT) then Level 2 STRUCTURAL (SUFFICIENT). All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent \"BandOnTheMap-SourceInvestigation/0.1\"). Level 1: a plain GET of the registry's own events_url (https://agenda.cm-viladoconde.pt/en/calendario/) returned a 170KB, mostly server-rendered page — but with zero JSON-LD, zero RSS/ICS <link> tags, and its own events grid (data-repeater=\"cDUzN6R14bU0s0UB\", the page's own \"Flex Layout Events\" block) genuinely empty at load, carrying only a \"Carregar...\" (Loading) placeholder — a client-side-fetched grid, not server-rendered event cards. A bounded set of common feed/API paths (as this task explicitly required: /feed, /rss, /ics, /api, /wp-json, ?format=json) were each tried directly and none exposed real feed/API content (mostly 301/404s to nowhere; ?format=json silently ignored, returning the identical HTML; a coincidentally-named /rss/ page turned out to be an unrelated CMS content screen literally titled \"RSS\" with no feed inside it). Level 2: fetched the page's own publicly-referenced JS assets (the embedded-content payload window.BndLyrContent, plus boot.js/struct.js/player.js from the same bndlyr.com/bondlayer.com CDN family already investigated for Maus Habitos and Serralves). Unlike those two prior investigations, the embedded content payload here holds only filter taxonomy (an 8-item top-nav category list and a genuinely separate, independent 16-item content-type tag list including a literal \"Concerto\" entry) — not the actual dated event records. struct.js's own bootstrap data contains the events grid's full repeater config (id cDUzN6R14bU0s0UB, live-fetch flag, its own \"future\" date filter, its target collection id, and the events collection's own URL slug \"evento\"); player.js's own source defines the exact runtime endpoint (https://repeater.bondlayer.com/fetch, a separate, publicly reachable, unauthenticated JSON POST API, X-Server-Name: render) and the exact POST payload shape every \"live\" repeater on this platform sends. This investigation reconstructed that payload BY HAND from the retained repeater config and the page's own data-bl-* attributes (no JS was executed; this is ordinary, ordinary ordinary HTTP request construction from publicly readable static JS source, ordinary curl -X POST, not authentication bypass or a private API) and issued it, receiving 29 real, currently-live, future-window event records across 2 pages -- including one happening the very next day (2026-08-28). Cross-referencing the record's own ref_tags_1o_nivel field against the retained 16-item tag taxonomy mechanically isolated exactly 4 records genuinely tagged \"Concerto\" (id swG7HKMEvjxvs6Dg). Empirical stability was proven two independent ways: (a) re-issuing the identical POST request returned an identical id+slug for the same record, and (b) constructing a detail-page permalink from the record's own slug and the events collection's own \"evento\" URL slug resolved live (200) with a matching page <title>. Level 2 was SUFFICIENT; no browser/headless session (Level 3) was opened -- the reconstructed public API already fully answered identity, platform classification, data-path discovery, and field/content assessment, including the decisive music-scope finding. A same-endpoint privacy finding (an unrelated 'users' collection served by the same public content payload, carrying real email addresses and password hashes) was noted honestly but is unrelated to this investigation's own question and was redacted before any evidence was retained -- see evidence description for ev-content-blob-redacted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GET of the registry's own events_url (https://agenda.cm-viladoconde.pt/en/calendario/) returned a real, mostly server-rendered page (170,631 bytes; X-Server-Name: bond-frontend, the same platform family already investigated for maus-habitos-porto-01/serralves-porto-01), but contains zero application/ld+json blocks, zero RSS/ICS <link> tags, and its own events grid (data-repeater=\"cDUzN6R14bU0s0UB\") is present in the markup but genuinely empty -- an adjacent \"Load more\" block carries only a \"Carregar...\" (Loading) placeholder, confirming the grid is populated client-side at runtime, not server-rendered. Per this task's explicit instruction, a bounded set of common feed/API paths was also tried directly on the same subdomain: /feed, /feed/, /rss, /rss/, /ics, /ics/, /calendario/ics, /calendario.ics, /api, /api/, /wp-json, /wp-json/wp/v2/events, and ?format=json on the calendar page itself. None exposed real feed/API content: most either 404 or redirect to another 404; /wp-json returned 403 (not a WordPress site); ?format=json silently returned the byte-identical 170,631-byte HTML page (the query parameter is ignored); /rss/ alone returned 200, but its own retained body shows it is an unrelated CMS content screen coincidentally named \"RSS\" (data-bl-name=\"RSS\"), containing no feed markup or feed links whatsoever. Level 1 alone therefore cannot expose any actual event record, and cannot classify a usable data path -- escalation to Level 2 was necessary to inspect the platform's own publicly-referenced JS bootstrap data for a live data path.",
+      "evidence_refs": ["ev-agenda-home-body", "ev-agenda-home-headers", "ev-format-json-body", "ev-format-json-headers", "ev-rss-path-body", "ev-rss-path-headers", "ev-common-path-probe-log", "ev-offline-proof"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Fetched the page's own publicly-referenced JS bootstrap assets (per Level 2 guidance: public JS/bootstrap data and publicly-referenced endpoints). The embedded content payload (window.BndLyrContent, served from the page's own declared <script> URL) holds only filter taxonomy -- an 8-item top-nav category list (Vila Summer/Cinema/Ao ar livre/Arte e exposicoes/Palcos/Desporto/Toda a Familia/Conversas e workshops, none literally 'Musica'/'Concertos') and a SEPARATE, independent 16-item content-type tag list (Cinema/Circo/Comunidade/Concerto/Danca/Edicao/Espetaculo/Exposicao/Festa/Oficina/Performance/Provas/Stand Up Comedy/Teatro/Visita/Workshop) that DOES include a literal 'Concerto' entry -- not the dated event records themselves. struct.js's own bootstrap data (1.3MB; a bounded excerpt was retained, not the full file) contains the events grid's exact repeater config (id cDUzN6R14bU0s0UB: realtime/liveFetch true, a 'future' datetime_end_date filter, sort by datetime_end_date, 15-per-page pagination, target collection id c8ks2f3U0auUJh8T) and that same collection's own screen/routing definition, whose URL slug is 'evento'. player.js's own source (856KB; a bounded excerpt was retained) defines the exact runtime data endpoint (https://repeater.bondlayer.com/fetch, a public, unauthenticated JSON POST API on a DIFFERENT host than the page itself, X-Server-Name: render) and the exact POST body shape every live repeater sends (hash/target/geoData/searchQuery/favorites/repeater-config/locale/contentId/projectId). This investigation reconstructed that exact payload by hand from the retained repeater config plus the live page's own data-bl-hash/data-bl-target/data-bl-content/data-bl-locale/data-bl-project attributes -- ordinary, publicly-documented-by-its-own-source-code HTTP request construction, not authentication bypass, not a private/undocumented API, not browser automation -- and POSTed it with plain curl, receiving 29 real, current, future-window event records across 2 pages (one -- Ivandro -- occurring the very next calendar day). A separate direct GET of the platform's own templated lazy-screen-bootstrap JSON URL (https://cdn.bndlyr.com/<project>/_p/screen.<screen>_0.json) was also tried and returned 404 -- retained honestly even though it turned out unnecessary, since the current screen's own repeater config was already present in the already-fetched struct.js. Cross-referencing every record's own ref_tags_1o_nivel field against the retained 16-item tag taxonomy mechanically isolated exactly 4 records genuinely tagged 'Concerto' (Ivandro, Roda de Samba, Smells Like 90's, Vox Cordis | Itinerarios) -- a real, source-provided, controlled-vocabulary classification, not AI judgement. Every one of those 4 records' datetime_start_date is a clean, zero-second, on-the-hour/half-hour value whose hour:minute exactly matches an independently-stated free-text local-time field (text_datas_em_texto) in all 4 cases -- in contrast to several OTHER (non-Concerto) records in the same retained sample whose datetime_start_date is demonstrably just a millisecond-precision _created_at artefact, not a real event time. This same cross-check also proves the field's own 'Z' (UTC) suffix cannot be a genuine UTC instant (Portugal is UTC+1/WEST in August; a literal Z-as-UTC reading would be one hour later than the independently-stated local time) -- retained and reported honestly as a floating local datetime, not silently corrected or assumed. Stability of the record identifier was proven two independent ways: re-issuing the identical POST request returned an identical id+slug for the same record, and constructing a detail-page permalink from the record's own slug plus the events collection's own 'evento' URL slug resolved live (200) with a matching page <title>. This already fully answers identity, platform classification, data-path discovery, and field/content assessment (including the decisive Concerto-tag music-scope finding) without needing any JS execution or browser session, so escalation to Level 3 (BROWSER_OBSERVATION) was not attempted.",
+      "evidence_refs": ["ev-content-blob-redacted", "ev-content-blob-headers", "ev-boot-body", "ev-boot-headers", "ev-struct-excerpt", "ev-struct-headers", "ev-player-excerpt", "ev-player-headers", "ev-screen-json-404-body", "ev-screen-json-404-headers", "ev-repeater-fetch-request", "ev-repeater-fetch-body", "ev-repeater-fetch-headers", "ev-repeater-fetch-page2-request", "ev-repeater-fetch-page2-body", "ev-repeater-fetch-page2-headers", "ev-repeater-fetch-recheck-body", "ev-repeater-fetch-recheck-headers", "ev-event-detail-body", "ev-event-detail-headers", "ev-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "agenda-vila-do-conde-01-candidate",
+  "source_id": null,
+  "venue_reference": "Agenda Vila do Conde -- the Camara Municipal de Vila do Conde's own dedicated events-calendar micro-site, hosted on a distinct subdomain (agenda.cm-viladoconde.pt) from the municipality's main site (www.cm-viladoconde.pt), Vila do Conde, Porto metropolitan area, Portugal. Referenced existing lead: sources/porto.json's 'agenda-vila-do-conde' entry (source_type: CITY_FEED, events_url: https://agenda.cm-viladoconde.pt/en/calendario/, monitoring_status: NEEDS_TECHNICAL_REVIEW at the time of this investigation) -- not edited by this investigation.",
+  "official_url": "https://agenda.cm-viladoconde.pt/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-home-body", "ev-agenda-home-headers"],
+    "notes": "The registry's given events_url (https://agenda.cm-viladoconde.pt/en/calendario/) was independently re-confirmed as the municipality's own official presence, not merely assumed. The retained page's own footer credit line self-identifies its exact domain: \"agenda.cm-viladoconde.pt desenvolvido por Bondhabits\" (developed by Bondhabits, the same site-builder agency/platform -- bond-frontend/bndlyr.com -- already independently confirmed for maus-habitos-porto-01 and serralves-porto-01). The page's own organiser/venue filter list includes an entry literally titled \"Municipio de Vila do Conde\", and its header logo asset is literally named \"emblema-vc-preto.svg\" (VC = Vila do Conde) served from the platform's own project CDN path. The subdomain's own HTTP response headers additionally carry X-Debug-Host: agenda.cm-viladoconde.pt, self-confirming the domain server-side. No independent street-address/postal-code confirmation was retained (this page does not itself state one), recorded honestly as a minor gap rather than guessed."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Bond Habits / bond-frontend (bndlyr.com / bondlayer.com CDN family, project id sflunz0ml8bmfk2l) -- the SAME JS site-builder platform independently investigated for Maus Habitos (research/source-investigations/maus-habitos-porto-01/) and Serralves (research/source-investigations/serralves-porto-01/), and referenced in sources/porto.json's own existing research_notes for this candidate ('Same client-rendered bond-frontend platform directly observed for maus-habitos and serralves'). This investigation independently confirmed that note's platform fingerprint (X-Server-Name: bond-frontend) but reached a DIFFERENT, more favourable acquisition conclusion than that prior note's bounded search: this is not a pure client-rendered empty shell, and -- unlike maus-habitos/serralves, where the actual per-event data was already present in the page's own static window.BndLyrContent payload (EMBEDDED_JSON) -- here that static payload holds only filter taxonomy (categories/tags), and the real, current, dated event records are served live by a SEPARATE, publicly reachable, unauthenticated JSON POST API on a different host (https://repeater.bondlayer.com/fetch, X-Server-Name: render). The page itself is served static/server-rendered (openresty, X-Server-Name: bond-frontend) except for its one client-fetched events grid; the underlying content-management schema exposes a genuine, controlled, source-provided classification taxonomy (ref_tags_1o_nivel, 16 values including literal 'Concerto') on every event record, which this investigation used as the sole, mechanical basis for isolating real live-music events -- never AI/text-based inference.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-content-blob-redacted", "ev-struct-excerpt", "ev-player-excerpt", "ev-repeater-fetch-body", "ev-repeater-fetch-headers", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_CALENDAR_PAGE_BOOTSTRAP (server-rendered filter taxonomy + the page's own data-bl-hash/target/content/locale/project attributes needed to construct the live API request; events grid itself empty at load)",
+      "url": "https://agenda.cm-viladoconde.pt/en/calendario/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-home-body", "ev-agenda-home-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "EMBEDDED_JSON_CONTENT_BLOB (static; category + content-type-tag taxonomy only -- confirmed NOT to contain dated event records)",
+      "url": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/content.csswBHWaTra8qoOm_0.js",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-content-blob-redacted", "ev-content-blob-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API (POST) -- the real, live, paginated event-records feed, filtered server-side to a future date window and sorted by date",
+      "url": "https://repeater.bondlayer.com/fetch",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-repeater-fetch-request", "ev-repeater-fetch-body", "ev-repeater-fetch-headers", "ev-repeater-fetch-page2-request", "ev-repeater-fetch-page2-body", "ev-repeater-fetch-page2-headers", "ev-repeater-fetch-recheck-body", "ev-repeater-fetch-recheck-headers", "ev-struct-excerpt", "ev-player-excerpt", "ev-offline-proof"]
+    },
+    {
+      "kind": "STABLE_EVENT_DETAIL_PAGE (per-record permalink, HTML; URL constructed from the record's own slug plus the events collection's own 'evento' URL-slug definition; confirmed live)",
+      "url": "https://agenda.cm-viladoconde.pt/en/evento/ivandro-1783090101082/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-body", "ev-event-detail-headers", "ev-struct-excerpt", "ev-offline-proof"]
+    },
+    {
+      "kind": "LAZY_SCREEN_BOOTSTRAP_JSON (checked, rejected -- a direct GET of the platform's own templated screen.json URL for this exact screen returned 404; NOT needed since this screen's repeater config was already present in the already-fetched struct.js)",
+      "url": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/screen.csswBHWaTra8qoOm_0.json",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-screen-json-404-body", "ev-screen-json-404-headers"]
+    },
+    {
+      "kind": "COMMON_FEED_PATH_PROBE (checked, rejected -- /feed, /rss, /ics, /api, /wp-json, and ?format=json all checked directly on this subdomain per this task's explicit instruction; none expose real feed/API content)",
+      "url": "https://agenda.cm-viladoconde.pt/rss/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rss-path-body", "ev-rss-path-headers", "ev-format-json-body", "ev-format-json-headers", "ev-common-path-probe-log"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Ivandro",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 29 retained event records carries a non-empty _title.all field directly (mechanically confirmed by evidence/offline-proof.mjs). The value shown here is the record used representatively throughout this investigation (per this project's v1.2 convention for a PROVEN entry needing an actual non-null value): Ivandro, one of 4 records this investigation mechanically confirmed carries the source's own 'Concerto' tag.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every retained record carries a direct datetime_start_date field. For the 4 Concerto-tagged records, this investigation went further than a bare field read: it mechanically cross-checked each record's datetime_start_date against an independent, separately-stated free-text local-time field (text_datas_em_texto), and all 4 matched exactly on hour:minute (evidence/offline-proof.mjs). This is what earns a PROVEN/DIRECT_SOURCE date -- not every record in the wider 29-record raw sample is this reliable: at least one other (non-Concerto) record's datetime_start_date is demonstrably just a millisecond-precision copy of its own _created_at timestamp, an unreliable CMS default rather than a deliberately-set event date. This distinction (clean, zero-second, cross-confirmed values vs. messy creation-timestamp artefacts) is retained honestly per-record, not smoothed into a single blanket claim for the whole source. IMPORTANT caveat carried into field_assessment.time below: the same cross-check proves the field's own trailing 'Z' cannot denote genuine UTC (Portugal is UTC+1/WEST in August; treating '22:00:00.000Z' as literal UTC would put the event one hour later than the independently-stated local time) -- this investigation reports the value as a floating local (Portugal) date, not a verified UTC instant, and does not invent a corrected offset.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-repeater-fetch-page2-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "22:00 local (Europe/Lisbon wall-clock time, as independently cross-confirmed against text_datas_em_texto=\"22h00\"; the source's own datetime_start_date field carries a trailing \"Z\" but is empirically NOT a genuine UTC instant -- see start_date notes)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Directly stated twice, redundantly, by two separate first-party fields on the same record (the structured datetime_start_date field's own hour:minute, and the free-text text_datas_em_texto field) -- both agree, for all 4 Concerto-tagged records checked (4/4, evidence/offline-proof.mjs). Recorded as a floating local time rather than a UTC instant because this investigation's own retained evidence disproves the field's 'Z' suffix as literal UTC (see start_date.notes); no timezone offset is invented, only the honest floating-local reading both source fields agree on.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Every record does carry a datetime_end_date field, but this investigation's own retained evidence shows it is NOT a genuine event-end time: for the sampled Ivandro/Roda de Samba/Smells Like 90's records its value sits within minutes of the record's own _created_at/_updated_at timestamp on the SAME calendar day as the start (e.g. Ivandro: start 2026-08-28T22:00:00.000Z, end 2026-08-28T14:50:41.045Z -- earlier in the day than the start, and matching neither a plausible show-end time nor the start date's own evening slot), consistent with an auto-populated 'listing still active until' bookkeeping field rather than a real duration/end time. One Concerto record (Vox Cordis) instead carries end==start exactly, which is equally uninformative (no real end stated, just a default equal to start). No reliable event-end/duration information was found anywhere in retained evidence, so this is honestly NOT_PRESENT rather than guessed from the raw end field.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Cais da Alfândega",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every retained record carries a direct text_local free-text venue-name field (e.g. \"Cais da Alfandega\", \"Mercado Municipal de Vila do Conde\", \"Igreja da Misericordia de Vila do Conde\" across the 4 Concerto records). This is a genuine, directly-stated first-party text value, so PROVEN as a text field -- but it is honestly only a free-text label: the record's own structured venue-reference field (ref_local) is null on every sampled record, text_morada (street address) is empty, and no geocoding/registry link is present. A future collector would need this project's own separate venue-matching step (per docs/ARCHITECTURE.md's Source/Venue separation) rather than treating this text as a resolved venue identity.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "ivandro-1783090101082",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every record's own permalink slug (_slug.all) is present directly and was empirically cross-checked via two independent paths for the sampled record (matching this project's stable-identifier rule's empirical-proof clause): (1) re-issuing the identical POST request to https://repeater.bondlayer.com/fetch a second time returned an identical id (sIfxtwEI5cLkXfTi) and slug for the same record; (2) the record's own slug, combined with the events collection's own canonical URL-slug definition ('evento', found directly in struct.js), constructs a permalink (https://agenda.cm-viladoconde.pt/en/evento/ivandro-1783090101082/) that resolves live (200) with a matching page <title>. This satisfies the stable-identifier rule's third clause directly: a permalink-style slug the source itself uses as its own canonical routing path.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-repeater-fetch-recheck-body", "ev-event-detail-body", "ev-struct-excerpt", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://agenda.cm-viladoconde.pt/en/evento/ivandro-1783090101082/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Directly constructible as https://agenda.cm-viladoconde.pt/en/evento/{slug}/ from two directly-retained first-party facts on the SAME record/screen (the record's own _slug field and the events collection's own 'evento' URL-slug definition) -- confirmed live: a direct GET of the constructed URL for the Ivandro record returned 200 OK with a matching page <title>.",
+      "evidence_refs": ["ev-event-detail-body", "ev-event-detail-headers", "ev-struct-excerpt", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "FREE",
+      "basis": "DIRECT_SOURCE",
+      "notes": "text_price is empty on every sampled Concerto record, so this investigation deliberately did NOT infer FREE from an empty text field (an AI-plausibility trap this project's policy explicitly warns against). Instead, price is established from a SEPARATE, directly-stated first-party field on the same record: ref_tags_2o_nivel, a controlled 2-value admission-type taxonomy (\"Bilheteira\" / box-office-ticketed vs. \"Entrada Gratuita\" / free entry) independently retained and confirmed. All 4 Concerto-tagged records carry ref_tags_2o_nivel == the \"Entrada Gratuita\" id (4/4, evidence/offline-proof.mjs) -- a genuine, direct, source-stated fact, not an inference from absence. Other (non-Concerto, paid) records in the same retained sample DO carry a non-empty text_price (e.g. \"2 EUR\", \"3 EUR\") and the OTHER admission-type id, confirming the taxonomy is genuinely meaningful and not a static default.",
+      "evidence_refs": ["ev-repeater-fetch-body", "ev-content-blob-redacted", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-repeater-fetch-request", "ev-repeater-fetch-body", "ev-struct-excerpt", "ev-player-excerpt", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The source's own datetime_start_date field carries a trailing 'Z' (UTC) suffix that this investigation's own retained evidence proves is NOT a genuine UTC instant -- it is empirically a floating Europe/Lisbon wall-clock time (cross-confirmed against an independent free-text time field, 4/4 sampled records). A future collector must NOT literally parse this field as UTC (that would shift every event by Portugal's own UTC offset, +1h in summer/DST, +0h in winter) -- it must be treated as a floating local datetime and combined with this project's own timezone-handling convention for Portuguese sources, not silently trusted at face value."
+      },
+      {
+        "severity": "MINOR",
+        "description": "venue_location is a free-text label only (text_local) -- no structured venue registry reference, address, or coordinates are present on the event record itself (ref_local is null, text_morada is empty on every sampled record). A collector would need this project's own separate venue-matching/resolution step, not a direct 1:1 registry link from this source."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This source's controlled content-type taxonomy (ref_tags_1o_nivel) has 16 values; only records literally tagged 'Concerto' were treated as in-scope music events. Several adjacent tags (Espetaculo/Show, Performance, Festa/Party, Danca/Dance) could occasionally carry music-adjacent programming this project would still consider out of scope for a strict 'Concerto' filter, or could very rarely mislabel a genuine concert under a broader tag. This investigation deliberately chose the conservative, mechanical, literal-tag-match reading (never inferring music from a title/description) -- an honest under-count risk is preferred over any AI-judgement-based over-inclusion."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Only 29 raw records (2026-08-27 retrieval, forward-looking window) were retained and only 4 of them are Concerto-tagged -- a small sample reflecting this being a small municipality's own agenda, not a data-completeness problem with the mechanism itself. A production collector should expect a modest, variable Concerto count per pagination window, not a large volume."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN (this really is Vila do Conde's own official events micro-site, independently re-confirmed via its own footer credit line, organiser-list self-reference, and emblem asset naming) and site_classification.acquisition_class is PUBLIC_JSON_API (a real, reachable, unauthenticated JSON POST API -- https://repeater.bondlayer.com/fetch -- was genuinely discovered by inspecting the platform's own publicly-referenced JS source, reconstructed by hand from documented-in-plain-sight request-building logic, and queried successfully with plain curl).",
+      "This investigation reaches a DIFFERENT, more favourable conclusion than the existing sources/porto.json research_notes for this candidate ('no server-rendered event markup found within this bounded search') -- that prior note's bounded search evidently did not find the runtime repeater.bondlayer.com/fetch API (a different acquisition shape from the EMBEDDED_JSON mechanism sufficient for maus-habitos-porto-01/serralves-porto-01, where per-event data was already present in the static content payload). This is recorded as a genuinely new, independently-evidenced finding, not a dismissal of the prior note's honesty.",
+      "A genuine, source-provided, controlled-vocabulary taxonomy (ref_tags_1o_nivel, 16 values) mechanically isolates real concerts -- exactly the kind of first-party category/tag field this task required (matching the precedent already established for ingestion/cm-gaia-eventos/discovery.mjs's own 'musica' tag filter), never an AI/text-based classification. 4 of 29 currently-retained upcoming records are genuinely tagged 'Concerto' (Ivandro, Roda de Samba, Smells Like 90's, Vox Cordis | Itinerarios), including one occurring the very next calendar day after this investigation (2026-08-28) -- concrete evidence this is a live, currently-maintained listing, not stale/abandoned content (unlike maus-habitos-porto-01's own DEFER finding for the same platform family).",
+      "field_assessment.title and field_assessment.start_date (the two v1.2 activation-gated fields) are both PROVEN with basis DIRECT_SOURCE -- no DETERMINISTIC_CONTEXT derivation was even needed here, since the source states a full date+time directly on each record (with an honestly-documented floating-local-time caveat, not a fabricated UTC offset). source_record_id is PROVEN via two independent empirical stability checks (a repeat POST request, and a live permalink resolution), satisfying the stable-identifier rule's empirical-proof and canonical-permalink clauses simultaneously.",
+      "collector_assessment.blockers contains only MINOR entries (a timezone-handling caveat a collector must respect, a venue free-text-only caveat, a conservative single-tag scope choice, and a small expected sample size) -- no CRITICAL or MAJOR blocker was found.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every claim above -- the empty-events-grid finding, the taxonomy contents, the Concerto-tag filter and its 4-record result, the local-time cross-check (and its 'Z'-suffix-is-not-UTC implication), the messy-vs-clean datetime contrast, the id/slug stability cross-check, and the free-entry admission-tag confirmation.",
+      "A same-endpoint privacy exposure (an unrelated 'users' collection carrying real emails and password hashes, served by the same public content payload) was found and is disclosed honestly above and in ev-content-blob-redacted's own description; it was redacted before evidence retention, is unrelated to this investigation's own music-event-source question, and does not itself block or affect this decision.",
+      "This decision is a research conclusion only -- it does not edit sources/*.json or any registry, and does not build a collector. Turning this into an active source (updating sources/porto.json's existing 'agenda-vila-do-conde' entry and implementing ingestion/agenda-vila-do-conde/ or an equivalent collector) is a separate, explicitly-authorised action outside this investigation's scope."
+    ],
+    "evidence_refs": ["ev-agenda-home-body", "ev-content-blob-redacted", "ev-repeater-fetch-body", "ev-repeater-fetch-page2-body", "ev-repeater-fetch-recheck-body", "ev-event-detail-body", "ev-struct-excerpt", "ev-player-excerpt", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the registry's own events_url: a server-rendered filter/taxonomy shell (170,631 bytes) with a genuinely empty events grid (data-repeater=\"cDUzN6R14bU0s0UB\") carrying only a \"Carregar...\" (Loading) placeholder. Zero application/ld+json blocks. Contains the page's own data-bl-hash/data-bl-target/data-bl-content/data-bl-locale/data-bl-project attributes later used to construct the Level 2 API request.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/en/calendario/",
+      "acquired_at": "2026-08-27T09:45:00Z",
+      "method": "curl -sS -D headers-agenda-home.txt -o body-agenda-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-agenda-home.html"
+    },
+    {
+      "evidence_id": "ev-agenda-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the events_url request: 200 OK, Server: openresty, X-Server-Name: bond-frontend, X-Debug-Host: agenda.cm-viladoconde.pt.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/en/calendario/",
+      "acquired_at": "2026-08-27T09:45:00Z",
+      "method": "curl -sS -D headers-agenda-home.txt (same request as ev-agenda-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-agenda-home.txt"
+    },
+    {
+      "evidence_id": "ev-format-json-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the events_url with ?format=json appended (one of the common paths this task required checking): byte-identical 170,631-byte HTML page -- the query parameter is silently ignored, confirming no hidden JSON output mode exists at this path.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/en/calendario/?format=json",
+      "acquired_at": "2026-08-27T09:57:01Z",
+      "method": "curl -sS -D headers-format-json.txt -o body-format-json.html --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-format-json.html"
+    },
+    {
+      "evidence_id": "ev-format-json-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the ?format=json request: 200 OK, Content-Type text/html (not JSON).",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/en/calendario/?format=json",
+      "acquired_at": "2026-08-27T09:57:01Z",
+      "method": "curl -sS -D headers-format-json.txt (same request as ev-format-json-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-format-json.txt"
+    },
+    {
+      "evidence_id": "ev-rss-path-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for /rss/ (the only common-feed-path probe that returned 200 rather than a 404/redirect): an unrelated CMS content screen literally named \"RSS\" (data-bl-name=\"RSS\", page <title>RSS</title>) with no feed markup, RSS XML, or feed links anywhere in the body -- a coincidental screen name, not a real feed.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/rss/",
+      "acquired_at": "2026-08-27T09:57:33Z",
+      "method": "curl -sS -D headers-rss-path.txt -o body-rss-path.html --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-rss-path.html"
+    },
+    {
+      "evidence_id": "ev-rss-path-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /rss/ request: 200 OK, Content-Type text/html.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/rss/",
+      "acquired_at": "2026-08-27T09:57:33Z",
+      "method": "curl -sS -D headers-rss-path.txt (same request as ev-rss-path-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-rss-path.txt"
+    },
+    {
+      "evidence_id": "ev-common-path-probe-log",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained plain-text transcript of HTTP status codes for every common feed/API path this task required checking directly on agenda.cm-viladoconde.pt: /feed(/), /rss(/), /ics(/), /calendario/ics, /calendario.ics, /en/calendario/feed, /wp-json(/wp/v2/events), /api(/), /en/calendario/?format=json, /en/calendario.json, /sitemap.xml. Every path either 404s, redirects to a 404, returns 403 (wp-json -- not a WordPress site), or (rss/, ?format=json) resolves to non-feed content, each individually confirmed above.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/ (multiple paths)",
+      "acquired_at": "2026-08-27T09:56:00Z",
+      "method": "curl -sS -o /dev/null -w \"%{http_code}\" --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" <url>, for each path in turn",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/common-path-probe-log.txt"
+    },
+    {
+      "evidence_id": "ev-content-blob-redacted",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained response body for the page's own referenced embedded-content payload (window.BndLyrContent), WITH ONE DELIBERATE, DISCLOSED REDACTION: this same public, unauthenticated endpoint also serves an entirely unrelated 'users' collection (152 items) carrying real personal data (email addresses, password hashes, home addresses) for community/organisation accounts on this platform -- a vendor-side over-exposure finding unrelated to this investigation's own music-event-source question. Those items' personal fields were redacted (replaced with only their id, collection name, and a list of original field KEYS, for structural honesty) before this file was retained in this repository; every OTHER repeater in the payload (the 8-item category taxonomy, the 16-item content-type tag taxonomy including \"Concerto\", the 2-item admission-type taxonomy) is retained unmodified. byte_faithful is false because of this redaction, not because the underlying fetch itself was altered.",
+      "acquired_from": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/content.csswBHWaTra8qoOm_0.js?v=1787819496071",
+      "acquired_at": "2026-08-27T09:46:40Z",
+      "method": "curl -sS -D headers-content-blob.txt -o content-blob.js --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET), then a local, offline redaction pass (see evidence description) producing content-blob-REDACTED.js",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/content-blob-REDACTED.js"
+    },
+    {
+      "evidence_id": "ev-content-blob-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the content-blob request: 200 OK, Server: cloudflare, Last-Modified: 2026-08-27T08:31:35Z (fetched same day as this investigation -- confirms the payload is actively current, not a stale cached artefact).",
+      "acquired_from": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/content.csswBHWaTra8qoOm_0.js?v=1787819496071",
+      "acquired_at": "2026-08-27T09:46:40Z",
+      "method": "curl -sS -D headers-content-blob.txt (same request as ev-content-blob-redacted, prior to redaction)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-content-blob.txt"
+    },
+    {
+      "evidence_id": "ev-boot-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained boot loader script (2,295 bytes), referenced by the page's own <script src> tag. Sequentially loads window.BndLyrScripts (content blob, struct.js, player.js) -- the discovery lead for fetching those three assets.",
+      "acquired_from": "https://cdn.bndlyr.com/royale/boot.js?v=1778795441461",
+      "acquired_at": "2026-08-27T09:47:53Z",
+      "method": "curl -sS -D headers-boot.txt -o body-boot.js --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-boot.js"
+    },
+    {
+      "evidence_id": "ev-boot-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the boot.js request: 200 OK, Server: cloudflare.",
+      "acquired_from": "https://cdn.bndlyr.com/royale/boot.js?v=1778795441461",
+      "acquired_at": "2026-08-27T09:47:53Z",
+      "method": "curl -sS -D headers-boot.txt (same request as ev-boot-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-boot.txt"
+    },
+    {
+      "evidence_id": "ev-struct-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Two bounded excerpts of the publicly-referenced struct.js bundle (1,298,214 bytes total; per this policy's evidence-capture boundedness principle, only the two decisive fragments are retained verbatim rather than the full file). Excerpt A is the events grid's own complete repeater config (id cDUzN6R14bU0s0UB: realtime/liveFetch flags, future-date filter on datetime_end_date, sort, 15-per-page pagination, and its target collection id c8ks2f3U0auUJh8T) -- the exact source used to build request-repeater-fetch.json. Excerpt B is that same collection's own screen/routing definition, showing its URL slug is 'evento'.",
+      "acquired_from": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/struct.js?v=1778795441461",
+      "acquired_at": "2026-08-27T09:47:53Z",
+      "method": "curl -sS -o struct.js --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\", then a local, offline, bounded excerpt (two fixed-offset substrings) saved to struct-js-events-repeater-config-excerpt.txt; the full downloaded file was not retained in this repository (evidence-capture boundedness)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/struct-js-events-repeater-config-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-struct-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the struct.js request: 200 OK, Server: cloudflare.",
+      "acquired_from": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/struct.js?v=1778795441461",
+      "acquired_at": "2026-08-27T09:47:53Z",
+      "method": "curl -sS -D headers-struct.txt (same request that produced ev-struct-excerpt, prior to excerpting)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-struct.txt"
+    },
+    {
+      "evidence_id": "ev-player-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Three bounded excerpts of the publicly-referenced player.js bundle (855,712 bytes total; again only the decisive fragments are retained, not the full file). Excerpt A is the runtime data-fetch endpoint constant (E=\"https://repeater.bondlayer.com/fetch\"). Excerpt B is the POST request body this runtime code assembles (hash/target/geoData/searchQuery/favorites/repeater-config/locale/contentId/projectId) -- the exact template request-repeater-fetch.json was built to match. Excerpt C is the lazy screen-bootstrap JSON URL template, retained for completeness even though a live GET of it (ev-screen-json-404-body) returned 404 and was not needed.",
+      "acquired_from": "https://cdn.bndlyr.com/royale/player.js?v=1778795441461",
+      "acquired_at": "2026-08-27T09:47:55Z",
+      "method": "curl -sS -o player.js --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\", then a local, offline, bounded excerpt (three fixed-offset substrings) saved to player-js-fetch-endpoint-excerpt.txt; the full downloaded file was not retained in this repository (evidence-capture boundedness)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/player-js-fetch-endpoint-excerpt.txt"
+    },
+    {
+      "evidence_id": "ev-player-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the player.js request: 200 OK, Server: cloudflare.",
+      "acquired_from": "https://cdn.bndlyr.com/royale/player.js?v=1778795441461",
+      "acquired_at": "2026-08-27T09:47:55Z",
+      "method": "curl -sS -D headers-player.txt (same request that produced ev-player-excerpt, prior to excerpting)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-player.txt"
+    },
+    {
+      "evidence_id": "ev-screen-json-404-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for a direct GET of the platform's own templated lazy-screen-bootstrap JSON URL for this exact screen: a generic Cloudflare 404 page, not JSON. Retained honestly to show this path was genuinely tried and rejected, not silently skipped -- this investigation did not need it since the current screen's repeater config was already present in struct.js.",
+      "acquired_from": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/screen.csswBHWaTra8qoOm_0.json",
+      "acquired_at": "2026-08-27T09:49:31Z",
+      "method": "curl -sS -D headers-screen-json.txt -o body-screen.json --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-screen.json"
+    },
+    {
+      "evidence_id": "ev-screen-json-404-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the screen.json request: 404 Not Found, Server: cloudflare.",
+      "acquired_from": "https://cdn.bndlyr.com/sflunz0ml8bmfk2l/_p/screen.csswBHWaTra8qoOm_0.json",
+      "acquired_at": "2026-08-27T09:49:31Z",
+      "method": "curl -sS -D headers-screen-json.txt (same request as ev-screen-json-404-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-screen-json.txt"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-request",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The exact POST request body this investigation constructed by hand (page 1), assembled from the repeater config found in struct.js (ev-struct-excerpt) and the live page's own data-bl-hash/data-bl-target/data-bl-content/data-bl-locale/data-bl-project attributes (ev-agenda-home-body) per the payload shape found in player.js (ev-player-excerpt). Not itself a response from the source, but the retained, reproducible input this investigation sent to it.",
+      "acquired_from": "constructed locally from ev-struct-excerpt + ev-agenda-home-body + ev-player-excerpt",
+      "acquired_at": "2026-08-27T09:50:00Z",
+      "method": "hand-authored JSON file, matching player.js's own documented POST body shape",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/request-repeater-fetch.json"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body for the reconstructed POST request (page 1): 15 real, current, future-window event records (of a stated total 15 for this page), each with a direct title/date/time/venue-text/tag/admission-tag/price field. Includes the sample record used representatively throughout this investigation (Ivandro, 2026-08-28, tagged 'Concerto').",
+      "acquired_from": "https://repeater.bondlayer.com/fetch (POST, body = ev-repeater-fetch-request)",
+      "acquired_at": "2026-08-27T09:50:28Z",
+      "method": "curl -sS -D headers-repeater-fetch.txt -o body-repeater-fetch.json --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Content-Type: application/json\" -X POST --data @request-repeater-fetch.json",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-repeater-fetch.json"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the page-1 repeater-fetch request: 200 OK, Server: cloudflare, X-Server-Name: render (a DIFFERENT backend from the static site's own bond-frontend, confirming this is a genuinely separate runtime API).",
+      "acquired_from": "https://repeater.bondlayer.com/fetch",
+      "acquired_at": "2026-08-27T09:50:28Z",
+      "method": "curl -sS -D headers-repeater-fetch.txt (same request as ev-repeater-fetch-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-repeater-fetch.txt"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-page2-request",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The same reconstructed POST request body, with repeater.page set to 2 (this platform's own documented pagination field, per struct.js's pagination config) to retrieve the second page of the same future-window query.",
+      "acquired_from": "constructed locally, identical to ev-repeater-fetch-request except repeater.page",
+      "acquired_at": "2026-08-27T09:51:00Z",
+      "method": "hand-authored JSON file (page field incremented)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/request-repeater-fetch-page2.json"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-page2-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body for page 2 of the same query: 14 further real event records, bringing the retained total to 29 across both pages -- including a second Concerto-tagged record (Vox Cordis | Itinerarios) and a clear example of an unreliable, _created_at-derived datetime_start_date on a non-Concerto record.",
+      "acquired_from": "https://repeater.bondlayer.com/fetch (POST, body = ev-repeater-fetch-page2-request)",
+      "acquired_at": "2026-08-27T09:51:41Z",
+      "method": "curl -sS -D headers-repeater-fetch-page2.txt -o body-repeater-fetch-page2.json --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Content-Type: application/json\" -X POST --data @request-repeater-fetch-page2.json",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-repeater-fetch-page2.json"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-page2-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the page-2 repeater-fetch request: 200 OK, Server: cloudflare, X-Server-Name: render.",
+      "acquired_from": "https://repeater.bondlayer.com/fetch",
+      "acquired_at": "2026-08-27T09:51:41Z",
+      "method": "curl -sS -D headers-repeater-fetch-page2.txt (same request as ev-repeater-fetch-page2-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-repeater-fetch-page2.txt"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-recheck-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body from re-issuing the IDENTICAL page-1 request a second time, minutes later: the first record's id and slug are unchanged (sIfxtwEI5cLkXfTi / ivandro-1783090101082) -- the first of two independent empirical stability checks for source_record_id.",
+      "acquired_from": "https://repeater.bondlayer.com/fetch (POST, body = ev-repeater-fetch-request, re-issued)",
+      "acquired_at": "2026-08-27T09:53:29Z",
+      "method": "curl -sS -D headers-repeater-fetch-recheck.txt -o body-repeater-fetch-recheck.json --max-time 30 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Content-Type: application/json\" -X POST --data @request-repeater-fetch.json",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-repeater-fetch-recheck.json"
+    },
+    {
+      "evidence_id": "ev-repeater-fetch-recheck-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the recheck request: 200 OK, Server: cloudflare, X-Server-Name: render.",
+      "acquired_from": "https://repeater.bondlayer.com/fetch",
+      "acquired_at": "2026-08-27T09:53:29Z",
+      "method": "curl -sS -D headers-repeater-fetch-recheck.txt (same request as ev-repeater-fetch-recheck-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-repeater-fetch-recheck.txt"
+    },
+    {
+      "evidence_id": "ev-event-detail-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the constructed permalink https://agenda.cm-viladoconde.pt/en/evento/ivandro-1783090101082/: 200 OK, page <title>Ivandro</title> matching the record's own _title -- the second of two independent empirical stability/identity checks, and the live confirmation of field_assessment.event_url.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/en/evento/ivandro-1783090101082/",
+      "acquired_at": "2026-08-27T09:52:39Z",
+      "method": "curl -sS -D headers-event-detail-ivandro.txt -o body-event-detail-ivandro.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/body-event-detail-ivandro.html"
+    },
+    {
+      "evidence_id": "ev-event-detail-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the event-detail permalink request: 200 OK, Server: openresty, X-Server-Name: bond-frontend.",
+      "acquired_from": "https://agenda.cm-viladoconde.pt/en/evento/ivandro-1783090101082/",
+      "acquired_at": "2026-08-27T09:52:39Z",
+      "method": "curl -sS -D headers-event-detail-ivandro.txt (same request as ev-event-detail-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/headers-event-detail-ivandro.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-confirms: zero JSON-LD on the Level 1 page, the genuinely-empty events grid, the Carregar/Loading placeholder, the 8-item category taxonomy (none literally music/concert-named), the 16-item tag taxonomy's single \"Concerto\" entry and its exact id, the redaction of the PII-bearing users collection, the 29-record two-page total, the 4-record Concerto-tag filter result, the local-time-vs-Z-suffix cross-check (4/4 match, proving the Z suffix is not genuine UTC), the zero-second/deliberate-time property of all 4 Concerto records, the free-entry admission-tag on all 4, a contrasting messy/unreliable datetime on a non-Concerto record, the id/slug stability re-check, the live permalink-title match, and that the hand-built POST request genuinely matches the struct.js-derived repeater config. Exited 0 with all 17 checks passing.",
+      "acquired_from": "research/source-investigations/agenda-vila-do-conde-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T11:00:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/agenda-vila-do-conde-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

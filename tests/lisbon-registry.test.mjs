@@ -7,10 +7,10 @@ async function loadJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, import.meta.url), "utf8"));
 }
 
-test("sources/lisbon.json contains the 25 first-wave entries plus BOTM-MULTISOURCE-LINKS-01's Capitólio addition and LISBON-PORTO-P1-SOURCE-AUTOMATION-01's LAV addition (27 total)", async () => {
+test("sources/lisbon.json contains the 25 first-wave entries plus BOTM-MULTISOURCE-LINKS-01's Capitólio addition, LISBON-PORTO-P1-SOURCE-AUTOMATION-01's LAV addition, and PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01's Gulbenkian and Teatro São Luiz additions (29 total)", async () => {
   const registry = await loadJson("../sources/lisbon.json");
   assert.equal(Array.isArray(registry.entries), true);
-  assert.equal(registry.entries.length, 27);
+  assert.equal(registry.entries.length, 29);
 });
 
 test("every entry in sources/lisbon.json passes registry validation", async () => {
@@ -26,6 +26,8 @@ test("every first-wave entry carries research provenance from BOTM-RESEARCH-LISB
     "galeria-ze-dos-bois",
     "lav-lisboa-ao-vivo",
     "ccb-centro-cultural-belem",
+    "gulbenkian",
+    "teatro-sao-luiz",
   ]);
   const firstWave = registry.entries.filter((entry) => !laterAdditions.has(entry.id));
   assert.equal(firstWave.length, 23);
@@ -72,6 +74,24 @@ test("BOTM-CCB-ACTIVATION-01: the ccb-centro-cultural-belem entry carries its ow
   assert.equal(ccb.rights_status, "UNKNOWN");
 });
 
+test("PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: gulbenkian and teatro-sao-luiz are new entries with their own provenance, both TECHNICALLY_REVIEWED", async () => {
+  const registry = await loadJson("../sources/lisbon.json");
+  for (const id of ["gulbenkian", "teatro-sao-luiz"]) {
+    const entry = registry.entries.find((e) => e.id === id);
+    assert.ok(entry, `expected entry ${id} to exist`);
+    assert.equal(entry.research_provenance.research_id, "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01");
+    assert.equal(entry.research_provenance.review_date, "2026-08-27");
+    assert.equal(entry.monitoring_status, "TECHNICAL_PATH_PROVEN");
+    assert.equal(entry.lifecycle_status, "TECHNICALLY_REVIEWED");
+    assert.equal(entry.rights_status, "UNKNOWN");
+  }
+  // teatro-sao-luiz is a distinct venue from the pre-existing, unrelated
+  // tnsc-sao-carlos entry — never conflated.
+  const tnsc = registry.entries.find((e) => e.id === "tnsc-sao-carlos");
+  const tsl = registry.entries.find((e) => e.id === "teatro-sao-luiz");
+  assert.notEqual(tnsc.physical_address, tsl.physical_address);
+});
+
 test("AgendaLX appears exactly once in the Lisbon registry", async () => {
   const registry = await loadJson("../sources/lisbon.json");
   const byId = registry.entries.filter((entry) => entry.id === "agendalx");
@@ -115,9 +135,9 @@ test("AgendaLX's monitoring and lifecycle state are consistent, not contradictor
   assert.equal(agendalx.rights_status, "AMBER");
 });
 
-test("distributions across sources/lisbon.json each total exactly 27", async () => {
+test("distributions across sources/lisbon.json each total exactly 29", async () => {
   const registry = await loadJson("../sources/lisbon.json");
-  assert.equal(registry.entries.length, 27);
+  assert.equal(registry.entries.length, 29);
 
   function countBy(field) {
     const counts = {};
@@ -133,9 +153,9 @@ test("distributions across sources/lisbon.json each total exactly 27", async () 
 
   const sum = (counts) => Object.values(counts).reduce((total, n) => total + n, 0);
 
-  assert.equal(sum(byType), 27, `source_type counts: ${JSON.stringify(byType)}`);
-  assert.equal(sum(byAcquisition), 27, `acquisition_method counts: ${JSON.stringify(byAcquisition)}`);
-  assert.equal(sum(byLifecycle), 27, `lifecycle_status counts: ${JSON.stringify(byLifecycle)}`);
+  assert.equal(sum(byType), 29, `source_type counts: ${JSON.stringify(byType)}`);
+  assert.equal(sum(byAcquisition), 29, `acquisition_method counts: ${JSON.stringify(byAcquisition)}`);
+  assert.equal(sum(byLifecycle), 29, `lifecycle_status counts: ${JSON.stringify(byLifecycle)}`);
 });
 
 test("no first-wave entry carries rights_status RED without a non-empty explanation, and none currently do", async () => {
@@ -182,6 +202,7 @@ test("the structured sources are exactly the entries using API_JSON/RSS/ICS_CALE
     "ccb-centro-cultural-belem",
     "cm-odivelas-agenda-cultura",
     "forum-luisa-todi",
+    "gulbenkian",
     "hot-clube-de-portugal",
     "lav-lisboa-ao-vivo",
     "village-underground-lisboa",

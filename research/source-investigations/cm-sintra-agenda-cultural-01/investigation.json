@@ -1,0 +1,402 @@
+{
+  "investigation_id": "cm-sintra-agenda-cultural-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:48:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) against the candidate's own official domain: the homepage, the given candidate '/agenda' events page (page 1 of the current listing), a second agenda list page (?page=2, the current listing's final page), the site's own advertised RSS route, robots.txt, two independent server-side filtered views of the SAME agenda page (?filter_category=3 alone, and ?filter_category=3&filter_from=<today>, both using the candidate's own first-party category-id query parameter discovered directly on the retained list pages), and two individual event-detail permalinks for the two distinct music-tagged productions found. Inspected retained HTML for JSON-LD Event/MusicEvent data (none found; the single JSON-LD block present is a generic BreadcrumbList), RSS/ICS (the advertised route is dead, HTTP 410 Gone), CMS/plugin fingerprints (found: Joomla, Helix Ultimate template framework, and the 'com_icagenda' / iCagenda Joomla events-calendar extension — the SAME platform family already identified for the sibling cco-sintra-01 investigation, but this is a genuinely distinct Joomla install on a distinct domain, independently re-confirmed here rather than assumed), and a fully server-rendered, non-paginated-beyond-2-pages event list with a genuine, first-party, multi-category taxonomy (Bibliotecas, Exposições, Teatro, Visitas Guiadas, Música, Outros) exposed both as a visible per-row category label/link and as a working server-side '?filter_category=N' query parameter. A dependency-free, no-network Node offline-proof script re-parsed every retained HTML/XML file to mechanically re-derive every claim below, including independently tallying the 18-row unfiltered listing's own category breakdown and cross-checking it, record-for-record, against the site's own dedicated music-filtered query result (exact match, 3/3), and re-confirming the SAME bare-numeric-id-is-not-per-occurrence-unique nuance already discovered on the sibling cco-sintra-01 investigation. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://cm-sintra.pt (homepage), https://cm-sintra.pt/agenda (the given candidate events page, page 1), https://cm-sintra.pt/agenda?page=2 (the listing's final page — no further ?page=3 link exists anywhere in the retained HTML), https://cm-sintra.pt/agenda?format=feed&type=rss (the site's own advertised RSS route), https://cm-sintra.pt/robots.txt, https://cm-sintra.pt/agenda?filter_category=3 (the site's own category-filter query parameter, discovered directly on the retained list pages' own per-row category links, applied here with no date bound), https://cm-sintra.pt/agenda?filter_from=2026-08-27&filter_category=3 (the same filter combined with the site's own date-lower-bound parameter, also discovered directly on the retained list pages), and two individual event-detail permalinks, all returned real, server-rendered content on the first plain request — no client-side rendering was needed anywhere. The two retained unfiltered list pages already contained, verbatim, in plain HTML, the site's own count text 'Existem 18 eventos próximos' and exactly 18 event rows across the two pages (10 + 8, with no further pagination link present), each carrying its own title, first-party category label, date (either a single occurrence date+time or a multi-day date range, both sub-templates retained honestly), venue name, and permalink. This already answers identity, platform classification (Joomla + the identifiable 'com_icagenda' calendar plugin — the same family as the sibling cco-sintra-01 investigation, independently re-confirmed on this distinct domain), data-path discovery (including a genuinely functional, source-provided category+date filter, not merely a decorative category label), and field assessment for every field this policy requires, without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted. The one alternative data path checked (the site's own advertised RSS route) was actively probed and found genuinely disabled (410 Gone), not merely left unchecked — matching the identical finding already established for the sibling cco-sintra-01 investigation on the same municipal platform family.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-agenda-body",
+        "ev-agenda-headers",
+        "ev-agenda-page2-body",
+        "ev-agenda-page2-headers",
+        "ev-agenda-musica-body",
+        "ev-agenda-musica-headers",
+        "ev-agenda-musica-upcoming-body",
+        "ev-agenda-musica-upcoming-headers",
+        "ev-event-evita-body",
+        "ev-event-evita-headers",
+        "ev-event-orfeu-body",
+        "ev-event-orfeu-headers",
+        "ev-feed-body",
+        "ev-feed-headers",
+        "ev-robots-body",
+        "ev-robots-headers",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "cm-sintra-agenda-cultural",
+  "source_id": null,
+  "venue_reference": "Câmara Municipal de Sintra — Agenda Cultural, the municipality's own public cultural-events calendar covering venues/spaces across the Sintra municipality (e.g. Centro Cultural Olga Cadaval, MU.SA, Museu Arqueológico de São Miguel de Odrinhas, Bibliotecas Municipais de Sintra, Casa da Cultura Lívio de Morais), not a single physical venue itself. Registry entry already exists at sources/lisbon.json (id: cm-sintra-agenda-cultural), official_website https://cm-sintra.pt, events_url https://cm-sintra.pt/agenda — both independently re-confirmed correct by this investigation, no correction needed.",
+  "official_url": "https://cm-sintra.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-event-evita-body", "ev-offline-proof"],
+    "notes": "Independently re-confirmed by this investigation's own retained evidence, not assumed from the prior loose sources/lisbon.json note. This is the municipality's own top-level web domain (cm-sintra.pt = 'Câmara Municipal de Sintra'), not a third-party listing. The retained homepage's own OpenSearch <link> states 'OpenSearch Câmara Municipal de Sintra' directly (mechanically confirmed in evidence/offline-proof-output.txt). Both the retained homepage and the retained agenda list page state a first-party municipe@cm-sintra.pt contact email. A retained event-detail page's own Open Graph metadata states, directly, <meta property=\"og:site_name\" content=\"Câmara Municipal de Sintra\">. The site runs the SAME Joomla/Helix-Ultimate/com_icagenda platform already independently confirmed for this project's sibling cco-sintra-01 investigation (Centro Cultural Olga Cadaval, whose own retained footer states its contact email on the cm-sintra.pt domain) — an internally consistent finding across two genuinely separate investigations of two genuinely separate municipal Sintra sites, not merely restated from one to the other. The prior loose research note's claim that this source 'feeds into Centro Cultural Olga Cadaval, MU.SA, and Casa da Cultura Lívio de Morais listings' is independently corroborated by this investigation's own retained sample: 'Centro Cultural Olga Cadaval' appears as a per-event venue value for the retained 'Evita' music event, 'MU.SA — Museu das Artes de Sintra' appears as a per-event venue for one retained non-music (Exposições) row, and 'Casa da Cultura Lívio de Morais' appears as a per-event venue for another retained non-music (Exposições) row (all three mechanically confirmed in evidence/offline-proof-output.txt's parsed-list-event data, cross-checked by grep against the retained fixture)."
+  },
+  "site_classification": {
+    "acquisition_class": "KNOWN_CALENDAR_PLUGIN",
+    "platform": "Joomla (Helix Ultimate template framework — the retained homepage's own <meta name=\"generator\" content=\"Helix Ultimate - The Most Popular Joomla! Template Framework.\">) running the 'iCagenda' events-calendar extension (com_icagenda) — confirmed unambiguously via the retained agenda page's own <body> class list ('com_icagenda com-icagenda view-events ... itemid-463 ...') and its component-specific asset paths (/media/com_icagenda/css/icagenda-front.css, /components/com_icagenda/themes/packs/ic_rounded/...). This is the SAME platform family already identified for the sibling cco-sintra-01 investigation (Centro Cultural Olga Cadaval), but cm-sintra.pt is a genuinely distinct Joomla install/domain — independently re-confirmed here, not assumed from that prior investigation. No JSON-LD Event/MusicEvent data is emitted anywhere on the retained agenda list pages or the 2 retained event-detail pages; the single application/ld+json block present on the agenda page is a generic BreadcrumbList only. The site's own advertised RSS route (<link href=\"/agenda?format=feed&amp;type=rss\" rel=\"alternate\" type=\"application/rss+xml\" title=\"RSS 2.0\">, present in the retained agenda page's own <head>) was actively probed and found permanently disabled at the server level (HTTP 410 Gone), ruling out RSS as a usable data path rather than leaving it unchecked — the identical finding already established for cco-sintra-01 on this same platform family. The candidate's entire current event calendar (18 upcoming/ongoing events across exactly 2 list pages at fetch time, with no further pagination link present anywhere in the retained HTML) is present verbatim in plain, server-rendered HTML; no client-side rendering or hidden data path is needed to read it. Additionally, and unlike cco-sintra-01, this instance's own list pages expose a genuinely functional, first-party category-filter query parameter (?filter_category=N, discovered directly on the retained pages' own per-row category links, e.g. filter_category=3 for 'Música'), independently proven server-side functional (not merely a decorative label) by directly requesting it and mechanically cross-checking the result against the raw unfiltered listing's own category tally.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-home-body", "ev-feed-body", "ev-feed-headers", "ev-agenda-musica-upcoming-body", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (unfiltered, iCagenda list view, all civic categories)",
+      "url": "https://cm-sintra.pt/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-agenda-page2-body", "ev-agenda-page2-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (server-side filtered: ?filter_from=<date>&filter_category=3 — the site's own first-party mechanism to isolate 'Música'-tagged upcoming events from the full civic calendar)",
+      "url": "https://cm-sintra.pt/agenda?filter_from=2026-08-27&filter_category=3",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-musica-upcoming-body", "ev-agenda-musica-upcoming-headers", "ev-agenda-musica-body", "ev-agenda-musica-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (per-occurrence permalink: /agenda/{slug}/{date}-{time})",
+      "url": "https://cm-sintra.pt/agenda/evita-no-olga-cadaval-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-evita-body", "ev-event-evita-headers", "ev-event-orfeu-body", "ev-event-orfeu-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "RSS_FEED (checked — the site's own advertised route, but HTTP 410 Gone / permanently disabled server-side)",
+      "url": "https://cm-sintra.pt/agenda?format=feed&type=rss",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-feed-body", "ev-feed-headers", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Evita no Olga Cadaval com Sofia Escobar e Diogo Morgado",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 3 sampled Música-tagged rows carries its own non-empty title, directly stated in the row's own <h3><a> anchor text, reconfirmed on both retained event-detail pages' own <title>/og:title. Mechanically verified 3/3 in evidence/offline-proof-output.txt. The representative value here ('Evita no Olga Cadaval com Sofia Escobar e Diogo Morgado') is this investigation's most fully-evidenced worked example (list row + detail page + og:url self-match); the other 2 sampled titles ('Sintra celebra música e mitologia nas Noites de Orfeu', and the 2026-09-04 occurrence of the same Evita production) are recorded in the offline-proof output, not restated individually here.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-evita-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-03",
+      "basis": "DIRECT_SOURCE",
+      "notes": "All 3 sampled Música-tagged rows state their own full ISO calendar date (YYYY-MM-DD) directly in a dedicated <span class=\"ic-single-next\"> element — never a bare day-of-month requiring month/year context from elsewhere, so no DETERMINISTIC_CONTEXT combination was needed for this source's music category. Mechanically verified 3/3 in evidence/offline-proof-output.txt. This is a floating local date — no explicit UTC offset or IANA timezone is stated anywhere in the retained HTML; Europe/Lisbon is the obvious real-world timezone but this was never promoted to a fabricated UTC instant. Note for a future collector: this iCagenda instance also emits a SECOND list-item date sub-template for date-RANGE events (ic-period-startdate/ic-period-enddate, used by exhibitions/series in the retained non-music sample) — none of the 3 sampled Música rows used this range sub-template, but a collector must not assume every future Música-tagged row will be a single-occurrence row; see collector_assessment.blockers.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-evita-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "21:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "All 3 sampled Música-tagged rows state an explicit HH:MM start time directly in a dedicated <span class=\"ic-single-starttime\"> element, matching the time embedded in that row's own permalink suffix exactly (mechanically verified 3/3 in evidence/offline-proof-output.txt). Unlike the sibling cco-sintra-01 investigation (where 1 of 10 sampled rows had no displayed time at all), every sampled row on THIS source's Música category had a time — but this is honestly scoped to the bounded 3-row sample actually retained, not claimed as a universal guarantee across the whole civic calendar's other categories.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-evita-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end-time, duration, or 'Duração:' field of any kind was found anywhere on either of the 2 retained event-detail pages (Evita, Orfeu) — mechanically confirmed absent (not merely unchecked) in evidence/offline-proof-output.txt. This differs from the sibling cco-sintra-01 finding (where a free-text duration sentence was present on 2 of 4 sampled detail pages) — this investigation does not assume the same free-text pattern recurs here merely because the platform is the same; it is recorded as genuinely absent in this source's own bounded 2-page sample.",
+      "evidence_refs": ["ev-event-evita-body", "ev-event-orfeu-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Centro Cultural Olga Cadaval",
+      "basis": "DIRECT_SOURCE",
+      "notes": "All 3 sampled Música-tagged rows state their own venue name directly in a dedicated 'place ic-place' element — no inheritance/derivation needed, each row carries its own explicit value, reconfirmed on both retained event-detail pages' own free-text 'Local' line. Two distinct real venues appear in the retained 3-row sample: 'Centro Cultural Olga Cadaval' (2/3 rows, both dates of the Evita production) and 'Museu Arqueológico de São Miguel de Odrinhas' (1/3 rows, the Noites de Orfeu concert). No street address or geocoordinates are given per-event; this investigation did not touch venues/manual-coordinates.json or any venue registry. The representative value here (Centro Cultural Olga Cadaval, the Evita event) is this investigation's most fully-evidenced worked example.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-evita-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "evita-no-olga-cadaval-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unlike the sibling cco-sintra-01 investigation, this source's own public permalink URLs carry NO numeric event id at all — the URL shape is /agenda/{slug}/{date}-{time}, with no leading digits. An internal numeric id IS present, but only in an HTML class attribute never exposed in any URL (e.g. class=\"ic-list-event ic-clearfix ic-event-id-148\"), so it is not itself a usable public identifier. THE STABLE-IDENTIFIER RULE'S NUANCE, EMPIRICALLY DEMONSTRATED (not assumed) — the SAME nuance already found on the sibling cco-sintra-01 investigation, independently re-confirmed on this distinct site: this internal id is NOT per-occurrence-unique — id 148 (the Evita production) appears twice in this investigation's own retained 18-row sample, once for 2026-09-03 and once for 2026-09-04, with the SAME internal id both times (mechanically confirmed in evidence/offline-proof-output.txt). The slug+date-time PERMALINK, however, IS proven stable and source-declared per occurrence: this platform emits no <link rel=\"canonical\"> at all (confirmed absent, not merely unchecked), but each of the 2 retained event-detail pages' own <meta property=\"og:url\"> exactly matches the exact URL it was fetched from (2/2, mechanically confirmed), including the two id-148 dates (proven via the platform's own Open Graph self-declaration, the functional equivalent of a canonical link for this purpose). A future collector MUST use the slug+date-time permalink (never any internal id) as its per-occurrence key.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-evita-body", "ev-event-orfeu-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://cm-sintra.pt/agenda/evita-no-olga-cadaval-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 3 sampled Música rows carries its own distinct, absolute-resolvable permalink, and both retained event-detail pages independently self-declare that exact same URL via their own <meta property=\"og:url\"> (this platform emits no <link rel=\"canonical\">, confirmed absent). This source genuinely provides a distinct URL per calendar occurrence, including for two different dates of the same underlying production (internal id 148) — the same pattern already proven for the sibling cco-sintra-01 investigation.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-evita-body", "ev-event-orfeu-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No dedicated price field exists anywhere on the retained agenda list pages or the 2 retained event-detail pages. The 2 sampled Música events resolve differently and inconsistently: the Evita page's own full description links out to an external ticketing site (ticketline.pt) with no price stated on cm-sintra.pt itself; the Orfeu page's own full description states, in free prose, that admission is free ('proposta cultural gratuita') — a genuine self-description, but embedded free text, not a structured field. IMPORTANT, empirically demonstrated pitfall: the literal word 'gratuita' also appears elsewhere on the retained Evita page — in an UNRELATED footer news-slider item about a different venue's free exhibition ('MU.SA apresenta duas novas exposições de entrada gratuita') — NOT about Evita's own price. A naive whole-page 'gratuit*' text match would incorrectly mark the ticketed Evita musical as free; this was checked and explicitly distinguished in evidence/offline-proof.mjs (mirrors the identical 'gratuito = free parking, not free admission' pitfall already documented in the sibling cco-sintra-01 investigation). Given the inconsistent presence and meaning of any price-adjacent text, this stays PARTIAL rather than PROVEN or NOT_PRESENT.",
+      "evidence_refs": ["ev-event-evita-body", "ev-event-orfeu-body", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-musica-upcoming-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Genuine yield is modest: only 3 upcoming Música-tagged occurrences (2 productions) existed in the full current civic calendar (18 total upcoming/ongoing events across all categories) at review time. This matches the same honest 'modest but genuine' yield already noted for the sibling municipal cm-gaia-eventos source in sources/porto.json; it is not treated as a reason to lower field-assessment rigour or to widen the category filter beyond the source's own 'Música' label."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The internal numeric event id (visible only in an HTML class attribute, never in any URL) is not unique per calendar occurrence for a multi-date production — empirically demonstrated in this investigation's own retained sample (internal id 148 shared by two distinct dates of the Evita production). A collector must key records on the full slug+date-time permalink, never any internal id (see field_assessment.source_record_id.notes)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This iCagenda instance emits two distinct list-item date sub-templates: a single-occurrence 'ic-single-next' template (used by all 3 sampled Música rows) and a date-RANGE 'ic-period-startdate'/'ic-period-enddate' template (used by several sampled non-music rows — exhibitions, a talks series). No range-type row was observed tagged Música in this bounded sample, so this investigation does not resolve how a collector should honestly represent a future range-type Música event's start_date/end; a collector implementation must handle (or explicitly reject/flag) that shape rather than assuming every Música row will always be single-occurrence."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Price, where present at all, is either an external ticketing link (no price stated on-site) or inconsistent free prose ('gratuita') that can be mistaken for an unrelated page element if matched naively (see field_assessment.price.notes). A collector could attempt best-effort free-text extraction scoped strictly to the event's own description block, but must never treat a whole-page text search as reliable."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation retained the FULL current unfiltered listing (both of the site's own 2 list pages, 18/18 rows — no further pagination link exists) plus 2 of the 3 currently-listed Música occurrences' own detail pages (the third, the 2026-09-04 Evita date, shares its production's detail-page content pattern with the retained 2026-09-03 date and was not separately re-fetched). Broad structural consistency was demonstrated across the full current listing, but only 2 event-detail pages were individually retained and verified."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (homepage OpenSearch title, a retained event-detail page's own og:site_name, and a shared municipe@cm-sintra.pt contact email) — cm-sintra.pt is the municipality's own top-level domain, not a third-party listing, independently re-confirmed rather than assumed from the prior loose sources/lisbon.json note.",
+      "site_classification.acquisition_class is KNOWN_CALENDAR_PLUGIN, a resolved/supported class — the retained agenda page's own body-class list and component asset paths unambiguously identify the Joomla 'com_icagenda' (iCagenda) events-calendar extension (the same platform family already proven for the sibling cco-sintra-01 investigation, independently re-confirmed here on a distinct domain), and the entire current event calendar is present verbatim in plain server-rendered HTML.",
+      "Four data_paths entries (the unfiltered list, the server-side category+date-filtered list, the per-occurrence event-detail permalink pattern, and the checked-and-rejected RSS route) are evidenced against retained material; three are access:PUBLIC/status:CONFIRMED and the source's own advertised RSS route was actively checked and honestly REJECTED (HTTP 410 Gone) rather than left unexamined.",
+      "A genuine, mechanical way to isolate real MUSIC events from the full civic calendar exists and was independently proven, not merely observed: the source's own first-party 'Música' category (filter_category=3) was cross-checked, record-for-record, against an independent tally of the raw unfiltered 18-row listing and matched exactly (3/3) — this is a real category field, not AI classification, satisfying the task's core requirement.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN with basis DIRECT_SOURCE (no contextual combination was needed — every sampled Música row states its own full title and full ISO calendar date directly), satisfying the v1.2 activation gate without requiring a DETERMINISTIC_CONTEXT offline-proof citation on either gated field.",
+      "field_assessment.source_record_id.state is PROVEN, empirically grounded in the same stable-identifier-rule nuance already discovered on the sibling cco-sintra-01 investigation and independently re-confirmed here: the internal numeric id is demonstrably NOT per-occurrence-unique (id 148 shared by two distinct dates), but the slug+date-time permalink is proven stable via each sampled detail page's own self-declared og:url exactly matching the fetched URL, 2/2 (this platform emits no <link rel=\"canonical\"> at all, confirmed absent rather than merely unchecked).",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every claim above, including the full 18-row category tally, the exact-match cross-check against the site's own music filter, the internal-id-148 multi-date empirical stress-test, the 2/2 og:url self-match, and the honest gratuita-text-pitfall distinction.",
+      "collector_assessment.blockers contains only MINOR entries (a modest yield, the internal-id-vs-permalink nuance, an unobserved date-range Música edge case, inconsistent price text, and a bounded rather than exhaustive detail-page sample) — none CRITICAL.",
+      "This investigation independently re-verifies the prior loose research note's acquisition_path_detail claim ('Dated entries with an interactive month-calendar UI; no RSS or JSON-LD found') — the 'no RSS or JSON-LD' half is confirmed exactly, while this investigation additionally discovers that the underlying list is genuinely category-filterable server-side, which the prior note did not identify.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-agenda-page2-body", "ev-agenda-musica-body", "ev-agenda-musica-upcoming-body", "ev-event-evita-body", "ev-event-orfeu-body", "ev-feed-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Câmara Municipal de Sintra homepage: OpenSearch title naming 'Câmara Municipal de Sintra', Helix Ultimate/Joomla generator tag, municipe@cm-sintra.pt contact email.",
+      "acquired_from": "https://cm-sintra.pt",
+      "acquired_at": "2026-08-27T09:44:02Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the homepage request: 200 OK, nginx.",
+      "acquired_from": "https://cm-sintra.pt",
+      "acquired_at": "2026-08-27T09:44:02Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate '/agenda' events page (page 1): 10 fully server-rendered event rows ('AGENDA', 'Existem 18 eventos próximos'), each with its own title/category/date/place/permalink, plus the com_icagenda/Joomla platform body-class fingerprints, the site's own advertised (now-dead) RSS <link>, and one generic BreadcrumbList JSON-LD block (no Event data).",
+      "acquired_from": "https://cm-sintra.pt/agenda",
+      "acquired_at": "2026-08-27T09:44:03Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /agenda request: 200 OK, nginx.",
+      "acquired_from": "https://cm-sintra.pt/agenda",
+      "acquired_at": "2026-08-27T09:44:03Z",
+      "method": "curl -sS -D headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-page2-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the second (and final — no further ?page=3 link present) agenda list page (?page=2): 8 more fully server-rendered event rows, completing the retained full 18-row current listing.",
+      "acquired_from": "https://cm-sintra.pt/agenda?page=2",
+      "acquired_at": "2026-08-27T09:45:05Z",
+      "method": "curl -sS -D headers-agenda-page2.txt -o body-agenda-page2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-agenda-page2.html"
+    },
+    {
+      "evidence_id": "ev-agenda-page2-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the ?page=2 request: 200 OK, nginx.",
+      "acquired_from": "https://cm-sintra.pt/agenda?page=2",
+      "acquired_at": "2026-08-27T09:45:05Z",
+      "method": "curl -sS -D headers-agenda-page2.txt (same request as ev-agenda-page2-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-agenda-page2.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-musica-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the source's own category-filter query (?filter_category=3, the 'Música' category id discovered directly on the retained list pages) with NO date lower-bound applied: returns 10 rows, all self-tagged 'Música', including several with PAST dates — used to demonstrate that filter_category alone is not date-bounded and that filter_from must be combined with it for an upcoming-only result.",
+      "acquired_from": "https://cm-sintra.pt/agenda?filter_category=3",
+      "acquired_at": "2026-08-27T09:45:07Z",
+      "method": "curl -sS -D headers-agenda-musica.txt -o body-agenda-musica.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-agenda-musica.html"
+    },
+    {
+      "evidence_id": "ev-agenda-musica-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the filter_category=3 (no date bound) request: 200 OK, nginx, Cache-Control: no-store (a freshly server-computed filtered response, not a cached static page).",
+      "acquired_from": "https://cm-sintra.pt/agenda?filter_category=3",
+      "acquired_at": "2026-08-27T09:45:07Z",
+      "method": "curl -sS -D headers-agenda-musica.txt (same request as ev-agenda-musica-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-agenda-musica.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-musica-upcoming-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the source's own combined category+date filter (?filter_from=2026-08-27&filter_category=3): returns exactly 3 rows, all self-tagged 'Música', all with dates on or after the given filter_from date — this is the key, mechanically-proven data path this investigation recommends for isolating genuine upcoming music events from the full civic calendar.",
+      "acquired_from": "https://cm-sintra.pt/agenda?filter_from=2026-08-27&filter_category=3",
+      "acquired_at": "2026-08-27T09:45:31Z",
+      "method": "curl -sS -D headers-agenda-musica-upcoming.txt -o body-agenda-musica-upcoming.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-agenda-musica-upcoming.html"
+    },
+    {
+      "evidence_id": "ev-agenda-musica-upcoming-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the combined filter_from+filter_category=3 request: 200 OK, nginx, Cache-Control: no-store.",
+      "acquired_from": "https://cm-sintra.pt/agenda?filter_from=2026-08-27&filter_category=3",
+      "acquired_at": "2026-08-27T09:45:31Z",
+      "method": "curl -sS -D headers-agenda-musica-upcoming.txt (same request as ev-agenda-musica-upcoming-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-agenda-musica-upcoming.txt"
+    },
+    {
+      "evidence_id": "ev-event-evita-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'Evita no Olga Cadaval' event-detail permalink (2026-09-03 occurrence): full date/time, venue ('Centro Cultural Olga Cadaval'), a self-declared og:url matching the fetched URL exactly, an og:site_name naming 'Câmara Municipal de Sintra', an external Ticketline link (no on-site price), an unrelated footer 'gratuita' text (a different venue's free exhibition — not this event's own price), and the 'Todas as datas' block listing both 2026-09-03 and 2026-09-04 as the same production's two dates.",
+      "acquired_from": "https://cm-sintra.pt/agenda/evita-no-olga-cadaval-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "acquired_at": "2026-08-27T09:45:45Z",
+      "method": "curl -sS -D headers-event-evita.txt -o body-event-evita.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-event-evita.html"
+    },
+    {
+      "evidence_id": "ev-event-evita-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the Evita event-detail request: 200 OK, nginx.",
+      "acquired_from": "https://cm-sintra.pt/agenda/evita-no-olga-cadaval-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "acquired_at": "2026-08-27T09:45:45Z",
+      "method": "curl -sS -D headers-event-evita.txt (same request as ev-event-evita-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-event-evita.txt"
+    },
+    {
+      "evidence_id": "ev-event-orfeu-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'Sintra celebra música e mitologia nas Noites de Orfeu' event-detail permalink: full date/time, venue ('Museu Arqueológico de São Miguel de Odrinhas'), a self-declared og:url matching the fetched URL exactly, and a free-text description explicitly stating free admission ('proposta cultural gratuita') — this event's own genuine self-description, not an unrelated page element.",
+      "acquired_from": "https://cm-sintra.pt/agenda/sintra-celebra-musica-e-mitologia-nas-noites-de-orfeu/2026-10-17-21-00",
+      "acquired_at": "2026-08-27T09:45:46Z",
+      "method": "curl -sS -D headers-event-orfeu.txt -o body-event-orfeu.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-event-orfeu.html"
+    },
+    {
+      "evidence_id": "ev-event-orfeu-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the Orfeu event-detail request: 200 OK, nginx.",
+      "acquired_from": "https://cm-sintra.pt/agenda/sintra-celebra-musica-e-mitologia-nas-noites-de-orfeu/2026-10-17-21-00",
+      "acquired_at": "2026-08-27T09:45:46Z",
+      "method": "curl -sS -D headers-event-orfeu.txt (same request as ev-event-orfeu-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-event-orfeu.txt"
+    },
+    {
+      "evidence_id": "ev-feed-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body for the site's own advertised RSS route: a generic nginx 410 Gone HTML error page, not RSS/XML — confirming the feed is genuinely disabled server-side, not merely empty. Matches the identical finding already established for the sibling cco-sintra-01 investigation on this same municipal platform family.",
+      "acquired_from": "https://cm-sintra.pt/agenda?format=feed&type=rss",
+      "acquired_at": "2026-08-27T09:46:45Z",
+      "method": "curl -sS -D headers-feed.txt -o body-feed.xml --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-feed.xml"
+    },
+    {
+      "evidence_id": "ev-feed-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the RSS-route request: HTTP/1.1 410 Gone.",
+      "acquired_from": "https://cm-sintra.pt/agenda?format=feed&type=rss",
+      "acquired_at": "2026-08-27T09:46:45Z",
+      "method": "curl -sS -D headers-feed.txt (same request as ev-feed-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-feed.txt"
+    },
+    {
+      "evidence_id": "ev-robots-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body for robots.txt: Disallow rules for administrative/system Joomla paths only (/administrator/, /api/, /bin/, /cache/, /cli/, /components/, /includes/, /installation/, /language/, /layouts/, /libraries/, /logs/, /modules/, /tmp/) plus a sitemap reference — /agenda is not disallowed anywhere, and no crawl-delay directive is present. This investigation's request pattern (a small, bounded number of GETs to /agenda, its own filter query variants, and 2 event-detail permalinks) respects the spirit of this file; no automated high-frequency crawling was performed.",
+      "acquired_from": "https://cm-sintra.pt/robots.txt",
+      "acquired_at": "2026-08-27T09:44:04Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-robots-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the robots.txt request: 200 OK, nginx.",
+      "acquired_from": "https://cm-sintra.pt/robots.txt",
+      "acquired_at": "2026-08-27T09:44:04Z",
+      "method": "curl -sS -D headers-robots.txt (same request as ev-robots-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/headers-robots.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-parses both retained unfiltered agenda list pages' 18 event rows (confirming the site's own 'Existem 18 eventos próximos' count and that no further pagination exists), independently tallies their category breakdown (6 distinct first-party categories, exactly 3 'Música'-tagged), cross-checks that tally record-for-record against the site's own dedicated filter_from+filter_category=3 query result (exact match, 3/3), confirms all 3 sampled Música rows directly state title/date/time/venue/permalink with no contextual derivation needed, empirically demonstrates that internal event id 148 is shared by two different dates while its full permalink differs, confirms each of the 2 retained event-detail pages' own og:url self-declaration exactly matches the URL it was fetched from (this platform emits no <link rel=\"canonical\"> at all, confirmed absent), distinguishes the Evita page's unrelated footer 'gratuita' text from Orfeu's own genuine free-admission self-description, confirms the RSS route's 410 Gone status, confirms the retained municipal identity text (OpenSearch title, contact email, og:site_name) and Joomla/com_icagenda/Helix-Ultimate platform fingerprints, confirms no Event/MusicEvent JSON-LD exists anywhere in the retained sample, and confirms robots.txt does not disallow /agenda. Exited 0 with all 40 checks passing.",
+      "acquired_from": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T09:48:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

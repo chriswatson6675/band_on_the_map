@@ -1,0 +1,47 @@
+{
+  "source_id": "museu-do-fado",
+  "investigation_id": "museu-do-fado-lisbon-01",
+  "investigation_path": "research/source-investigations/museu-do-fado-lisbon-01/investigation.json",
+  "investigation_decision_status": "READY_FOR_ACTIVATION",
+  "note": "These fixtures are bounded, byte-derived excerpts of the retained investigation evidence at research/source-investigations/museu-do-fado-lisbon-01/evidence/ — never independently re-fetched, never fabricated. Building this collector does NOT activate the source (no sources/*.json edit); that remains a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md.",
+  "official_events_list_url": "https://museudofado.pt/eventos",
+  "acquisition_shape": "STATIC_EVENT_LIST — server-rendered list page whose cards link to individually server-rendered detail pages; the detail page's own labelled field block (Data/Horas/Até/Termina/Local/Preços) is the authoritative source for every field, per investigation.json's collector_assessment.recommended_family",
+  "pages": [
+    {
+      "fixture": "fixtures/museu-do-fado/pages/eventos-list-excerpt.html",
+      "derived_from": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-eventos.html",
+      "derived_from_lines": "505-716",
+      "content": "the section-filters block (source-defined <select name=\"type\"> event-type taxonomy) plus the section-thumb block (6 ordinary event cards + 1 highlighted/featured card), a verbatim contiguous slice — nothing fabricated, nothing reordered"
+    },
+    {
+      "fixture": "fixtures/museu-do-fado/pages/detail-marco-rodrigues-canta-carlos-do-carmo.html",
+      "derived_from": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-marco-rodrigues-canta-carlos-do-carmo.html",
+      "derived_from_lines": "45-55 (og:url meta) + 495-541 (h1 + wraps-description field block, bounded by the same col-md col-12 marker evidence/offline-proof.mjs uses)",
+      "content": "Concerto, 7 novembro 2026, Centro Cultural de Belém - Grande Auditório, 19:00-20:30, 12,50€-25,00€"
+    },
+    {
+      "fixture": "fixtures/museu-do-fado/pages/detail-sul.html",
+      "derived_from": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-sul.html",
+      "derived_from_lines": "45-55 (og:url meta) + 495-545 (h1 + wraps-description field block)",
+      "content": "Concerto, 30 outubro 2026, Centro Cultural de Belém - Pequeno Auditório, 20:00-21:30, 12,00€-15,00€"
+    },
+    {
+      "fixture": "fixtures/museu-do-fado/pages/detail-pop-up-fado-4.html",
+      "derived_from": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-pop-up-fado-4.html",
+      "derived_from_lines": "45-55 (og:url meta) + 495-544 (h1 + wraps-description field block)",
+      "content": "Workshop, 3 setembro 2026, Museu do Fado, 11:00-12:30, 3€ por pessoa, no bol.pt link (email-reservation instruction instead)"
+    },
+    {
+      "fixture": "fixtures/museu-do-fado/pages/detail-o-fado-sou-eu.html",
+      "derived_from": "research/source-investigations/museu-do-fado-lisbon-01/evidence/body-detail-o-fado-sou-eu.html",
+      "derived_from_lines": "45-55 (og:url meta) + 495-544 (h1 + wraps-description field block)",
+      "content": "the one highlighted/featured list-page card's own detail page, 26 agosto 2026, Museu do Fado, 11:00-12:00, 3€ por pessoa"
+    }
+  ],
+  "findings": {
+    "field_extraction_cross_check": "ingestion/museu-do-fado/discovery.mjs's extractMuseuDoFadoEventFacts() reproduces, field-for-field, the values already mechanically verified by research/source-investigations/museu-do-fado-lisbon-01/evidence/offline-proof.mjs and recorded in offline-proof-output.txt for all 4 sampled events.",
+    "source_record_id": "PARTIAL per investigation.json's field_assessment.source_record_id — no numeric id is exposed anywhere in the retained HTML; ingestion/museu-do-fado/observation-adapter.mjs derives source_record_id from the event page's own URL slug (the documented ALTERNATIVE IDENTITY STRATEGY), and records source_fields.source_record_id_basis = \"URL_SLUG_PARTIAL_UNCONFIRMED_STABILITY\" honestly rather than presenting it as a confirmed stable id.",
+    "timezone": "No timezone/UTC offset is stated anywhere in the retained evidence for any date/time field. Every Observation's start/end certainty is FLOATING_LOCAL (date + time-of-day both mechanically known, no UTC instant asserted), matching investigation.json's field_assessment notes verbatim.",
+    "not_included": "The list page's multi-date-range card ('Visitas Cantadas', '25 julho - 5 setembro, 2026') and its detail page are NOT included in these fixtures — investigation.json's own sample deliberately excluded it (range dates are not mechanically parsed by this collector either; date_iso stays null rather than being guessed at for that shape), and neither the archived 'À Descoberta do Fado' / 'A Todas as Mulheres' cards' own detail pages were fetched by the investigation."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "source_id": "campo-pequeno",
+  "investigation_id": "campo-pequeno-lisbon-01",
+  "investigation_path": "research/source-investigations/campo-pequeno-lisbon-01/investigation.json",
+  "investigation_decision_status": "READY_FOR_ACTIVATION",
+  "note": "These fixtures are bounded, byte-derived excerpts of the retained investigation evidence at research/source-investigations/campo-pequeno-lisbon-01/evidence/ — never independently re-fetched, never fabricated. Each detail fixture concatenates several genuine, verbatim, non-contiguous line ranges from its source evidence file (the canonical <link> tag, the <h1> title, the event-header-info block, the Sessões tab-pane, and the price-details list), skipping only decorative/unrelated markup (share-button SVGs, unrelated tab panes, the long synopsis prose) between them — exactly the same non-contiguous-concatenation approach fixtures/museu-do-fado/metadata.json documents. Building this collector does NOT activate the source (no sources/*.json edit); that remains a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md.",
+  "official_agenda_url": "https://www.sagrescampopequeno.pt/pt/agenda",
+  "acquisition_shape": "STATIC_EVENT_LIST — server-rendered agenda list page whose 28 event cards each link (via an agenda-relative /pt/agenda/{slug} href) to an individually server-rendered detail page also reachable, and PROVEN canonical, at the short form /pt/{slug}; the detail page's own event-header-info block (date+location) and Sessões/price-details blocks are the authoritative source for every field, per investigation.json's collector_assessment.recommended_family",
+  "pages": [
+    {
+      "fixture": "fixtures/campo-pequeno/pages/agenda-list-excerpt.html",
+      "derived_from": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-agenda-www.html",
+      "derived_from_lines": "605-984",
+      "content": "a verbatim contiguous slice covering 19 of the agenda page's 28 real event cards (from 'Simplesmente Roupa Nova' through 'Megadeth'), including all 4 of this investigation's sampled events (alphaville, brandi-carlile---cancelado, the-nutcracker-ice-show, megadeth) — nothing fabricated, nothing reordered"
+    },
+    {
+      "fixture": "fixtures/campo-pequeno/pages/detail-alphaville.html",
+      "derived_from": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-alphaville.html",
+      "derived_from_lines": "32 (canonical link) + 440 (h1) + 504-514 (event-header-info block) + 558-564 (Sessões tab-pane) + 597-626 (price-details list)",
+      "content": "Alphaville, 16 outubro 2026 , sexta-feira, Lisboa - Sagres Campo Pequeno, 21H30/20H30 (pattern A), 7-tier price list 45€-60€, not cancelled"
+    },
+    {
+      "fixture": "fixtures/campo-pequeno/pages/detail-megadeth.html",
+      "derived_from": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-megadeth.html",
+      "derived_from_lines": "52 (canonical link) + 460 (h1) + 524-534 (event-header-info block) + 587-592 (Sessões tab-pane) + 632-653 (price-details list)",
+      "content": "Megadeth, 13 abril 2027 , terça-feira, Lisboa - Sagres Campo Pequeno, 19h30/18h30 (pattern B — reversed order, lowercase h, no colon, no accent on 'Inicio' — a genuine, deliberately-retained data-quality inconsistency vs. the other 3 sampled events), 5-tier price list 50€-65€, not cancelled"
+    },
+    {
+      "fixture": "fixtures/campo-pequeno/pages/detail-nutcracker.html",
+      "derived_from": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-nutcracker.html",
+      "derived_from_lines": "44 (canonical link) + 452 (h1) + 516-526 (event-header-info block) + 567-572 (Sessões tab-pane) + 612-649 (price-details list)",
+      "content": "The Nutcracker Ice Show, 14 novembro 2026 , sábado, Lisboa - Sagres Campo Pequeno, 19H30/18H30 (pattern A), 9-tier price list 29€-89€, not cancelled"
+    },
+    {
+      "fixture": "fixtures/campo-pequeno/pages/detail-cancelado.html",
+      "derived_from": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-cancelado.html",
+      "derived_from_lines": "36 (canonical link) + 444 (h1, itself already stating '- cancelado') + 508-518 (event-header-info block) + 583-591 (Sessões tab-pane, itself already stating 'Evento Cancelado') + 639-680 (price-details list, retained from before cancellation)",
+      "content": "Brandi Carlile - cancelado, 1 novembro 2026 , domingo, Lisboa - Sagres Campo Pequeno, 20H00/19H00 (pattern A), 10-tier price list 31€-51€ retained pre-cancellation, CANCELLED — the ONE deliberately-sampled already-cancelled listing this investigation used to observe the source's own honest (free-text-only) cancellation signal"
+    }
+  ],
+  "findings": {
+    "field_extraction_cross_check": "ingestion/campo-pequeno/discovery.mjs's extractCampoPequenoEventFacts() reproduces, field-for-field, the values already mechanically verified by research/source-investigations/campo-pequeno-lisbon-01/evidence/offline-proof.mjs and recorded in offline-proof-output.txt for all 4 sampled events, including the two distinct 'Sessões' free-text time-format patterns (A: 3/4 events; B: 1/4, megadeth) and the mechanically-confirmed Gregorian weekday for every sampled date.",
+    "entity_decoding": "Unlike the 'date'/'location' divs (plain literal UTF-8 characters), the 'Sessões' tab-pane text encodes accented Portuguese characters as named HTML entities (e.g. 'In&iacute;cio de espet&aacute;culo'). ingestion/campo-pequeno/discovery.mjs decodes the same small, fixed set of named entities evidence/offline-proof.mjs's own ENTITY_MAP already proved sufficient, before pattern-matching the time text — never a general-purpose HTML-entity library.",
+    "source_record_id": "PROVEN per investigation.json's field_assessment.source_record_id — the site's own <link rel=\"canonical\"> tag (corroborated by its sitemap and an empirical cross-fetch) declares the short /pt/{slug} form as this event's stable identifying path. ingestion/campo-pequeno/observation-adapter.mjs derives source_record_id ONLY from that canonical event_url shape, never from the agenda-relative /pt/agenda/{slug} href form or any third-party ticketing URL.",
+    "timezone": "No timezone/UTC offset is stated anywhere in the retained evidence for any date/time field. certainty is FLOATING_LOCAL when both the calendar date and a Sessões time_text are mechanically known (3 of the 4 sampled events additionally expose a doors/start time, matching field_assessment.time.state = PARTIAL), DATE_ONLY when only the calendar date is known.",
+    "cancellation": "The source has no structured status/cancelled field (collector_assessment.blockers). The one sampled cancelled event (brandi-carlile---cancelado) signals cancellation only via free text: '- cancelado' appended to its own <h1> title, and 'Evento Cancelado' inside its own Sessões tab-pane text. is_cancelled is derived honestly from either signal and is NEVER used to drop the event from ingestion/campo-pequeno/observation-adapter.mjs's toObservation() output — the event remains a genuine Observation, with source_fields.is_cancelled = true and an honest description, exactly mirroring how the source itself still lists it on its own live public agenda."
+  }
+}

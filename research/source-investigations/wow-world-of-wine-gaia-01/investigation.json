@@ -1,0 +1,439 @@
+{
+  "investigation_id": "wow-world-of-wine-gaia-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (INSUFFICIENT) then Level 2 STRUCTURAL (SUFFICIENT). All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent). Level 1: curl GETs of https://www.wow.pt (301 -> /en/), https://www.wow.pt/pt/ (the site's own Portuguese homepage), and the given candidate events_url https://www.wow.pt/pt/agenda-cultural all returned an empty React client-rendered shell (<div id=\"root\"></div>, an empty `INLINED_PAGE_TYPE = JSON.parse('')`, webpack runtime/vendor/client chunk scripts, a <noscript> 'JavaScript is disabled' fallback) with zero server-rendered event content and zero JSON-LD anywhere. Level 2: fetched and grepped the site's own referenced webpack client bundle, which fingerprints Magento Open Source + PWA Studio (Apollo Client GraphQL queries against storeConfig/customer/ProductInterface/CmsPage/CATEGORY/PRODUCT route types) and constructs its GraphQL endpoint as new URL(\"/graphql\", origin) — a publicly reachable, unauthenticated GraphQL API at https://www.wow.pt/graphql. Queried that endpoint with ordinary, read-only, non-mutating GraphQL (availableStores, urlResolver, category, products, aggregations) using a Store: pt request header (required for the PT storefront's own URL-key routing to resolve at all, itself discovered from availableStores). This is the site's own public, documented storefront API (used by its own PWA frontend), not a private/internal API, not authentication bypass, not brute force. urlResolver mechanically proved the GIVEN candidate lead URL (\"agenda-cultural\") does not resolve to any page in this store at all (dead lead), while the site's own live navigation/redirect map (found in the retained client bundle) and urlResolver both independently pointed at the real, resolvable events/ticketing listing: \"experiencias/agenda\", a Magento CATEGORY (id 163, named 'Agenda', 19 products). Retrieving that category's own product listing and its own facet/attribute aggregations (ticket_type, category_uid, time_of_day, visitor_type, price) showed it is a general ticketed-admissions catalog for the entire multi-attraction complex (day passes, museum tickets, kids workshops, an annual membership card) with a 'Gastronomia e Eventos' (Gastronomy & Events) sub-bucket mixing a Fado dinner-show, a comedy-club night, a film-club series, Oktoberfest, and a dinner-theatre show — and NO dedicated, filterable live-music/concert category anywhere in the source's own taxonomy. A dependency-free, no-network Node offline-proof script re-parsed every retained evidence file to mechanically re-derive every claim below, including the empty-shell check, the dead-lead vs. real-category urlResolver contrast, the full facet-label scan for any music/concert-specific filter (none found), and a cross-store-view empirical id-stability check for one sampled product. Level 2 was SUFFICIENT; no browser/headless session (Level 3) was opened — the GraphQL API already fully answered the content question."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://www.wow.pt (301 redirect to /en/), https://www.wow.pt/pt/ (site's own PT homepage), and the given candidate events_url https://www.wow.pt/pt/agenda-cultural all returned an empty React client-rendered shell: a bare `<div id=\"root\"></div>`, an inline script literally computing `INLINED_PAGE_TYPE = JSON.parse(''.replace(...))` (an empty string — nothing inlined), three webpack chunk `<script src>` tags (runtime/vendors/client), and a `<noscript>` fallback stating 'JavaScript is disabled'. No JSON-LD, no RSS/ICS link, no server-rendered event cards or listing text anywhere in any of the three retained bodies. Only `og:title`/`og:description`/keyword `<meta>` tags (self-describing the site as 'WOW Porto - The Cultural District... Cluster of museums, restaurants & bars in cellars, telling the story of Porto's port wine industry') were present as static text — no field of an actual event/ticket record. Level 1 alone cannot answer whether the given candidate page even exists as a real route, cannot classify a data path, and exposes zero event fields, so escalation to Level 2 was justified.",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-home-pt-body", "ev-home-pt-headers", "ev-agenda-body", "ev-agenda-headers", "ev-offline-proof"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Fetched the same public page's own referenced webpack runtime and client JS bundles (per Level 2 guidance: public JS/bootstrap data and publicly-referenced endpoints). The client bundle fingerprints Magento Open Source + PWA Studio (Apollo Client GraphQL query documents against storeConfig/customer/ProductInterface/CategoryInterface/CmsPage, and a client-side router with RootCmp_CMS_PAGE/RootCmp_CATEGORY/RootCmp_PRODUCT route types) and constructs its GraphQL client as `new URL(\"/graphql\", origin)`. A plain, read-only, unauthenticated `availableStores` query against https://www.wow.pt/graphql confirmed four store views (en/pt/es/fr). Using a `Store: pt` request header (the storefront's own documented multi-store mechanism, not a bypass of anything), a read-only `urlResolver` query for the GIVEN candidate lead path (\"agenda-cultural\") returned `null` — this path does not resolve to any page in the PT store at all, confirming the candidate lead is a dead/stale URL, independently of the fact that it happens to return HTTP 200 (every route on this SPA returns the same generic shell regardless of validity; only urlResolver reveals whether client-side routing would actually render a page or a 404). A second `urlResolver` query for \"experiencias/agenda\" (found in the retained client bundle's own old-URL-to-new-URL redirect map, which repeatedly points several legacy paths at \"/experience/agenda?ticket_type[filter]=...\") resolved to `{type: CATEGORY, id: 163}` — a real, live page. Read-only `category`/`products`/`aggregations` queries against category 163 (named 'Agenda', url_path 'o-que-fazer-no-wow/agenda', 19 products) retrieved the full bounded product list and its own facet/attribute aggregations. The facets are: price, category_uid (Museus/Restaurantes/Pink Palace/Gastronomia e Eventos/Workshops/etc.), time_of_day, visitor_type (Criança/Adulto/Família), and ticket_type (Destaques/Museus/Workshops/Gatronomia & Eventos/Bilhetes Conjuntos) — none of which is a live-music/concert-specific filter. Drilling into the two candidate sub-buckets most likely to carry music content (category 438, the 'Agenda' sub-category proper, 8 products — all museum tickets/workshops/membership card, zero music; and category 453 'Gastronomia e Eventos', 6 products: a Fado dinner-show, a comedy-club night, a film-club series, Oktoberfest, a dinner-theatre show, and a recurring 'sunset' session) confirmed the catalog mixes hospitality/exhibition/workshop programming with only incidental, dinner-bundled music content, never as its own filterable category. One sampled product's own categories field (Fado Show & Dinner) lists only Restaurantes/Visita o WOW/Agenda/Gastronomia e Eventos — no music-specific tag. This already fully answers identity, platform classification, data-path discovery, and field/content assessment (including the decisive content-scope finding) without needing any JS execution or browser session, so escalation to Level 3 (BROWSER_OBSERVATION) was not attempted.",
+      "evidence_refs": ["ev-runtime-body", "ev-client-body", "ev-graphql-availablestores", "ev-urlresolver-agenda-cultural", "ev-urlresolver-experiencias-agenda", "ev-graphql-category163", "ev-graphql-products163", "ev-graphql-aggregations163", "ev-graphql-category438", "ev-graphql-products438", "ev-graphql-category453", "ev-graphql-products453", "ev-graphql-product-fado", "ev-graphql-product-fado-desc", "ev-graphql-highlights", "ev-graphql-storeconfig", "ev-graphql-urlsuffix", "ev-graphql-urlresolver-fado", "ev-product-fado-page", "ev-offline-proof"]
+    }
+  ],
+  "source_candidate_id": "wow-world-of-wine-gaia-01-candidate",
+  "source_id": null,
+  "venue_reference": "WOW — World of Wine — a large cultural quarter (museums, restaurants, bars, and event spaces) on the Vila Nova de Gaia riverfront, Cais de Gaia, Vila Nova de Gaia, Portugal (Porto metropolitan catchment). Referenced loose lead: sources/porto.json's 'wow-world-of-wine-gaia' entry (not edited by this investigation).",
+  "official_url": "https://www.wow.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-pt-body", "ev-graphql-storeconfig"],
+    "notes": "https://www.wow.pt was given as the loose lead's official website and this investigation independently re-confirmed it from its own retained evidence, not merely assumed. The retained PT homepage's own `og:title`/`og:description` meta tags self-identify as 'WOW Porto - The Cultural District' / 'WOW Porto - O Distrito Cultural' — 'Cluster of museums, restaurants & bars in cellars, telling the story of Porto's port wine industry' / 'Conjunto de museus, restaurantes e bares nas caves, contando a história da indústria do vinho do Porto' — matching the candidate's own self-description as a large Vila Nova de Gaia riverfront cultural quarter. The retained GraphQL storeConfig response self-reports `base_url`/`secure_base_url` as `https://www.wow.pt/`, a same-domain, self-referential confirmation. No street address or postal code was found in the retained static evidence (the address itself is rendered client-side, not present in the retained HTML/JSON, since the whole storefront is a client-rendered SPA) — recorded honestly as a minor gap rather than guessed."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Magento Open Source storefront running PWA Studio (a React single-page app served as static webpack chunks — runtime/vendors/client — with Apollo Client GraphQL queries against a standard Magento GraphQL schema: storeConfig, customer, ProductInterface, CategoryInterface, CmsPage, urlResolver). Front end is fully client-rendered (empty `<div id=\"root\">` shell, confirmed at Level 1). Backend is a separate, publicly reachable GraphQL API at https://www.wow.pt/graphql, unauthenticated, supporting ordinary read-only queries (availableStores, urlResolver, category, products, aggregations) when a `Store` request header selects the desired storefront locale (en/pt/es/fr). This is a genuine e-commerce/ticketing catalog API (Magento's product/category model), not an events-specific schema — there is no dedicated Event/Concert GraphQL type; 'events' in this source's own vocabulary means a purchasable admission ticket (a Magento Product) filed under ordinary catalog categories.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-client-body", "ev-graphql-availablestores", "ev-urlresolver-experiencias-agenda", "ev-graphql-category163", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (client-rendered shell; the given candidate URL — checked and confirmed a DEAD LEAD, not merely unrendered)",
+      "url": "https://www.wow.pt/pt/agenda-cultural",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-urlresolver-agenda-cultural", "ev-offline-proof"]
+    },
+    {
+      "kind": "GRAPHQL_CATEGORY_PRODUCT_LISTING (checked — a real, reachable, well-structured public API, but its content is a generic multi-attraction ticketed-admissions catalog, not a filterable live-music/concert event listing)",
+      "url": "https://www.wow.pt/graphql",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-graphql-category163", "ev-graphql-products163", "ev-graphql-aggregations163", "ev-graphql-category438", "ev-graphql-products438", "ev-graphql-category453", "ev-graphql-products453", "ev-graphql-highlights", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FADO SHOW & DINNER - 25 SETEMBRO",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The value shown is the one sampled product's own GraphQL `name` field, used representatively (per this record's v1.2 requirement that a PROVEN entry carry an actual non-null value, unlike v1.1's aggregate-finding convention seen in fama-dalfama-lisbon-01). Every one of the 19 retained products in category 163 ('Agenda') carries a non-empty `name` field directly (e.g. this one, 'COMEDY CLUB NO ANGEL'S SHARE - 17 SETEMBRO', 'OKTOBERFEST - 2 A 5 OUTUBRO'), mechanically confirmed 19/19 non-empty in evidence/offline-proof-output.txt. This field being technically extractable does not by itself make the source a genuine music-event candidate — see decision below.",
+      "evidence_refs": ["ev-graphql-products163", "ev-graphql-product-fado", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "notes": "Several product names embed a day-of-month + month-name fragment directly in free text (e.g. '25 SETEMBRO', '17 SETEMBRO', '2 A 5 OUTUBRO') — but no year is stated anywhere in connection with any of these dates. None of the 19 product names contains a 4-digit year at all (mechanically confirmed, 0/19). The one sampled product's free-text description (Fado Show & Dinner) does contain two 4-digit numbers, but they are wine-vintage years in the dinner-pairing menu text ('Sílica Branco 2023', 'São Lourenço Tinto 2019') — unrelated to the event's own date — mechanically confirmed by evidence/offline-proof.mjs, which checks specifically that no year appears near the description's actual time statement ('a partir das 20h') and that the only years present anywhere are exactly those two wine vintages. This is exactly the negative example this project's own policy names explicitly (docs/SOURCE_INVESTIGATION_POLICY.md's v1.2 worked-examples table: a bare day+month with no page/section year context must stay AMBIGUOUS/UNKNOWN, never promoted to a claimed year via AI plausibility). Unlike fama-dalfama-lisbon-01 (an explicit 'AGOSTO 2026' heading) or the example-deterministic-context-ready-01 fixture (an explicit 'September 2026' heading), no retained WOW evidence states a governing year anywhere, so DETERMINISTIC_CONTEXT is genuinely unavailable here, not merely unused.",
+      "evidence_refs": ["ev-graphql-products163", "ev-graphql-product-fado-desc", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "One sampled product's free-text description (Fado Show & Dinner) states 'Uma experiência a não perder, a partir das 20h' (from 20h) — a genuine, explicit local time statement, but embedded in unstructured marketing/menu prose, not a structured field, and only checked for this single sampled product (1 of 19) — not verified as systematically present across the catalog. No UTC offset or IANA timezone is stated anywhere.",
+      "evidence_refs": ["ev-graphql-product-fado-desc"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or duration was found anywhere in any retained evidence file (product names, descriptions, or category data).",
+      "evidence_refs": ["ev-graphql-products163", "ev-graphql-product-fado-desc"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "The overall complex identity and city (WOW, Vila Nova de Gaia riverfront) is established via `identity` above, but no structural, per-product location field was found in the retained GraphQL schema fields queried (categories only name generic catalog groupings like 'Restaurantes', not a specific room/space). The one sampled Fado product's free-text description names a specific dining room ('o restaurante 1828 na sala privada Dona Maria') — but this is unstructured prose, observed for only 1 of 19 sampled products, not a systematic per-record field.",
+      "evidence_refs": ["ev-graphql-product-fado", "ev-graphql-product-fado-desc"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "22663",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every product's own GraphQL `id` (a Magento internal product id, e.g. 22663 for the Fado product) is present directly and was empirically cross-checked via two independent query paths for one sampled product: the category-163 `products()` list query and a separate `urlResolver(url: \"fado-show-and-dinner\")` lookup both returned id 22663 (1/1 cross-checked, matching this project's stable-identifier rule's empirical-proof clause — a smaller sample than coliseu-ageas-porto-01's 2/2, honestly noted). The product's own `url_key` is additionally the source's own canonical routing key (confirmed live via urlResolver to resolve to `{type: PRODUCT, id: 22663}`), satisfying the rule's third clause (a permalink-style slug the source itself uses as its canonical path).",
+      "evidence_refs": ["ev-graphql-products163", "ev-graphql-product-fado", "ev-graphql-urlresolver-fado", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.wow.pt/pt/fado-show-and-dinner",
+      "basis": "DIRECT_SOURCE",
+      "notes": "A canonical detail-page URL is directly constructible as https://www.wow.pt/pt/{url_key} (e.g. https://www.wow.pt/pt/fado-show-and-dinner) — confirmed live: `urlResolver(url: \"fado-show-and-dinner\")` (with `Store: pt`) resolves to `{type: PRODUCT, id: 22663, redirectCode: 0}`, matching the same product id found via the category listing, and a direct curl GET of the constructed URL returned 200 OK (the same client-rendered shell as every other route, honestly noted — the page itself still requires client-side rendering to display content; only the URL's validity/routing is proven server-side).",
+      "evidence_refs": ["ev-graphql-urlresolver-fado", "ev-product-fado-page", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "notes": "The one sampled product's `price_range.minimum_price.regular_price` returned `{value: 0, currency: \"EUR\"}` — but this is almost certainly an artefact of the product being a configurable/bundle product whose real price depends on unselected options (date/party-size), not a genuine EUR 0 / free admission. This investigation did not resolve the real per-occurrence ticket price, and explicitly did NOT promote the literal '0' to a claimed FREE/PROVEN value, since doing so would misrepresent what the source actually guarantees.",
+      "evidence_refs": ["ev-graphql-product-fado"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-graphql-category163", "ev-graphql-products163", "ev-graphql-aggregations163", "ev-graphql-category438", "ev-graphql-products453", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "This candidate's genuine, reachable 'Agenda' data path (Magento category 163) is a generic ticketed-admissions catalog for the entire multi-attraction complex — day passes, museum tickets, kids' workshops, an annual membership card — not a music-event listing. Its own facet/attribute taxonomy (ticket_type: Destaques/Museus/Workshops/Gatronomia & Eventos/Bilhetes Conjuntos; category_uid: Museus/Restaurantes/Pink Palace/etc.) contains no dedicated, filterable live-music/concert category anywhere. The closest bucket, 'Gastronomia e Eventos' (6 products), mixes a Fado dinner-show with a comedy-club night, a film-club series, Oktoberfest, and a dinner-theatre show — genuinely incidental music content bundled into dinner/hospitality packages, not a standalone concert programme. Per this project's own scope rule (do not treat restaurants/bars as candidates merely because they occasionally host music), and per this task's explicit instruction to only recommend activation when a genuinely identifiable, filterable music-event category or listing exists, this candidate fails that bar. This is a content-scope/suitability finding, not a technical acquisition failure — the GraphQL API itself is real, reachable, and well-structured (see site_classification, data_paths, and several PROVEN field_assessment entries above)."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "Even for the small number of genuinely music-adjacent products (Fado Show & Dinner, Comedy Club, Oktoberfest), no retained evidence anywhere states a year for the stated day/month — start_date can only honestly reach AMBIGUOUS, not PROVEN, for any of them under this project's date/time rule."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The given loose lead's events_url (https://www.wow.pt/pt/agenda-cultural) does not resolve to any page in this store at all (urlResolver returns null) — it is a dead/stale URL and must not be reused as-is if this candidate is ever reconsidered; the real, resolvable path is the 'experiencias/agenda' -> category 163 route discovered by this investigation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "identity.status is PROVEN (this really is WOW's own official site, independently re-confirmed from retained evidence) and site_classification.acquisition_class is PUBLIC_JSON_API (a real, reachable, well-structured public GraphQL API was genuinely discovered and queried) — so this REJECT is NOT an identity or technical-acquisition failure, unlike this repository's other REJECTed candidates (le-divan-du-monde-paris-01, le-reservoir-paris-01, musik-frieden-berlin-01), which all failed because no live first-party site/content existed at all.",
+      "The given candidate lead URL (https://www.wow.pt/pt/agenda-cultural) is itself a dead lead: mechanically proven via a live, read-only GraphQL urlResolver query returning null for that exact path — it does not resolve to any page in the store, despite returning HTTP 200 (every SPA route does, regardless of validity).",
+      "This investigation independently discovered the real, resolvable events/ticketing listing (Magento category 163, 'Agenda', 19 products) and inspected it in full, including its own facet/attribute taxonomy (ticket_type, category_uid, time_of_day, visitor_type) — and found NO dedicated, filterable live-music/concert category anywhere in the source's own structure. The listing is a generic ticketed-admissions catalog spanning museum entry, kids' workshops, day passes, and an annual membership card, with genuinely music-adjacent content (a Fado dinner-show, a comedy-club night) appearing only incidentally, bundled inside a mixed 'Gastronomia e Eventos' (Gastronomy & Events) dinner/hospitality bucket alongside a film-club series and Oktoberfest — never as its own filterable category.",
+      "Per this task's explicit instruction and this project's existing scope rule (do not treat restaurants/bars as candidates merely because they occasionally host music, generalised here to a whole cultural-quarter ticketing catalog that occasionally bundles a dinner-show), only a genuinely identifiable, filterable music-event category or listing would justify activation — this candidate does not have one, so activation is not recommended.",
+      "collector_assessment.blockers contains a CRITICAL entry describing this content-scope failure precisely, plus a MAJOR entry noting that even the few music-adjacent products lack a stated year anywhere in retained evidence (start_date can only honestly reach AMBIGUOUS).",
+      "This decision does not claim the technical work was wasted: several field_assessment entries (title, source_record_id, event_url) are honestly PROVEN, demonstrating the API itself is genuinely usable — the rejection is specifically about content scope/suitability for this project's music-event-source purpose, not acquisition feasibility.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces the empty-shell finding, the dead-lead-vs-real-category urlResolver contrast, the full facet-label scan (confirming no music/concert-specific filter exists), the year-absence scan across all product names/descriptions, and the id-stability cross-check for the one sampled product.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry. If WOW ever adds a genuinely dedicated, filterable concert/live-music listing, a NEW investigation (citing supersedes: \"wow-world-of-wine-gaia-01\") would be required, never a rewrite of this record."
+    ],
+    "evidence_refs": ["ev-agenda-body", "ev-urlresolver-agenda-cultural", "ev-urlresolver-experiencias-agenda", "ev-graphql-category163", "ev-graphql-products163", "ev-graphql-aggregations163", "ev-graphql-category438", "ev-graphql-products438", "ev-graphql-category453", "ev-graphql-products453", "ev-graphql-product-fado", "ev-graphql-product-fado-desc", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for https://www.wow.pt: a 301 redirect to /en/ (nginx placeholder body, not the storefront itself).",
+      "acquired_from": "https://www.wow.pt",
+      "acquired_at": "2026-08-27T07:53:23Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, no -L)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the root-domain request: 301 Moved Permanently, Server: cloudflare, location: https://www.wow.pt/en/.",
+      "acquired_from": "https://www.wow.pt",
+      "acquired_at": "2026-08-27T07:53:23Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-home-pt-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the site's own PT homepage: an empty React client-rendered shell (`<div id=\"root\"></div>`), but with static `og:title`/`og:description`/keyword `<meta>` tags self-identifying the venue ('WOW Porto - The Cultural District... museums, restaurants & bars in cellars, telling the story of Porto's port wine industry') and `<link rel=\"alternate\" hreflang>` entries for en/es/pt.",
+      "acquired_from": "https://www.wow.pt/pt/",
+      "acquired_at": "2026-08-27T07:53:36Z",
+      "method": "curl -sS -D headers-home-pt.txt -o body-home-pt.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-home-pt.html"
+    },
+    {
+      "evidence_id": "ev-home-pt-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the PT homepage request: 200 OK, Server: cloudflare, Content-Type text/html;charset=UTF-8.",
+      "acquired_from": "https://www.wow.pt/pt/",
+      "acquired_at": "2026-08-27T07:53:36Z",
+      "method": "curl -sS -D headers-home-pt.txt (same request as ev-home-pt-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/headers-home-pt.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the GIVEN candidate events_url: an empty React client-rendered shell (`<div id=\"root\"></div>`, `INLINED_PAGE_TYPE = JSON.parse('')`, webpack runtime/vendors/client script tags, `<noscript>` fallback), byte-comparable in structure to ev-home-pt-body. No JSON-LD, no server-rendered event data.",
+      "acquired_from": "https://www.wow.pt/pt/agenda-cultural",
+      "acquired_at": "2026-08-27T07:53:23Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the candidate agenda-cultural request: 200 OK, Server: cloudflare, a very large content-security-policy-report-only header (ad-tech/analytics allow-list).",
+      "acquired_from": "https://www.wow.pt/pt/agenda-cultural",
+      "acquired_at": "2026-08-27T07:53:23Z",
+      "method": "curl -sS -D headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-runtime-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained webpack runtime JS chunk (5,731 bytes), referenced by the public agenda-page's own `<script src>` tag.",
+      "acquired_from": "https://www.wow.pt/runtime.5a98d3ab56228a752d18.js",
+      "acquired_at": "2026-08-27T07:54:16Z",
+      "method": "curl -sS -D headers-runtime-js.txt -o body-runtime.js --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-runtime.js"
+    },
+    {
+      "evidence_id": "ev-client-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained main client webpack bundle (1,225,421 bytes), referenced by the public agenda-page's own `<script src>` tag. Mechanically confirmed (offline-proof.mjs) to contain Magento PWA Studio / Apollo GraphQL query documents (storeConfig, customer, ProductInterface, CategoryInterface, CmsPage), a `new URL(\"/graphql\", origin)` GraphQL client construction, and an old-URL-to-new-URL redirect map repeatedly pointing legacy agenda-related paths at \"/experience/agenda?ticket_type[filter]=...\" — the discovery lead for this investigation's Level 2 escalation. No literal \"agenda-cultural\" string appears anywhere in this bundle.",
+      "acquired_from": "https://www.wow.pt/client.ab82e002c8a05caaf174.js",
+      "acquired_at": "2026-08-27T07:54:16Z",
+      "method": "curl -sS -D headers-client-js.txt -o body-client.js --max-time 40 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/javascript; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-client.js"
+    },
+    {
+      "evidence_id": "ev-graphql-availablestores",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `availableStores` query: four store views (en/pt/es/fr), with pt locale pt_PT — the discovery of the `Store: pt` header mechanism used by every subsequent query.",
+      "acquired_from": "https://www.wow.pt/graphql?query=query%7BavailableStores%7Bcode+locale+store_name%7D%7D",
+      "acquired_at": "2026-08-27T07:55:54Z",
+      "method": "curl -sS -D headers-graphql-availablestores.txt -o body-graphql-availablestores.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -G --data-urlencode \"query=query{availableStores{code locale store_name}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-availablestores.json"
+    },
+    {
+      "evidence_id": "ev-urlresolver-agenda-cultural",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `urlResolver(url: \"agenda-cultural\")` query, with `Store: pt` header: `{\"data\":{\"urlResolver\":null}}` — mechanical proof the GIVEN candidate lead URL does not resolve to any page in this store at all (a dead lead).",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:56:03Z",
+      "method": "curl -sS -D headers-urlresolver-pt_agenda-cultural.txt -o body-urlresolver-pt_agenda-cultural.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{urlResolver(url:\\\"agenda-cultural\\\"){type id relative_url redirectCode}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-urlresolver-pt_agenda-cultural.json"
+    },
+    {
+      "evidence_id": "ev-urlresolver-experiencias-agenda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `urlResolver(url: \"experiencias/agenda\")` query, with `Store: pt` header: `{\"data\":{\"urlResolver\":{\"type\":\"CATEGORY\",\"id\":163,\"relative_url\":\"experiencias/agenda\",\"redirectCode\":0}}}` — the real, resolvable events/ticketing listing this investigation independently discovered in place of the dead given lead.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:56:04Z",
+      "method": "curl -sS -D headers-urlresolver-pt_experiencias_agenda.txt -o body-urlresolver-pt_experiencias_agenda.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{urlResolver(url:\\\"experiencias/agenda\\\"){type id relative_url redirectCode}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-urlresolver-pt_experiencias_agenda.json"
+    },
+    {
+      "evidence_id": "ev-graphql-category163",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `category(id: 163)` query: name 'Agenda', url_path 'o-que-fazer-no-wow/agenda', product_count 19, plus a Page-Builder HTML `description` block (slider/banner markup, self-describing 'O WOW IMPULSIONA A CULTURA DA CIDADE... Mantém-te a par dos nossos eventos').",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:56:24Z",
+      "method": "curl -sS -D headers-graphql-category163.txt -o body-graphql-category163.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{category(id:163){id name url_path description product_count}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-category163.json"
+    },
+    {
+      "evidence_id": "ev-graphql-products163",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only, bounded GraphQL `products(filter: {category_id: {eq: \"163\"}}, pageSize: 25)` query: total_count 19, with id/sku/name/url_key for every product — day passes, museum tickets, kids' workshop, a membership card, and a handful of dated dinner-shows/parties (Fado Show & Dinner - 25 Setembro, Comedy Club - 17 Setembro, Oktoberfest - 2 a 5 Outubro, The House of Gatsby, Sunsets no VP, Cine Society WOW).",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:56:36Z",
+      "method": "curl -sS -D headers-graphql-products163.txt -o body-graphql-products163.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{category_id:{eq:\\\"163\\\"}},pageSize:25){total_count items{id sku name url_key}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-products163.json"
+    },
+    {
+      "evidence_id": "ev-graphql-aggregations163",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `products(...) { aggregations { attribute_code label options { label value count } } } }` query for category 163: full facet list (price, category_uid, time_of_day, visitor_type, ticket_type) with every option label. The decisive negative finding: no facet or option label anywhere names a live-music/concert-specific filter.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:56:52Z",
+      "method": "curl -sS -D headers-graphql-aggregations163.txt -o body-graphql-aggregations163.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{category_id:{eq:\\\"163\\\"}},pageSize:25){total_count aggregations{attribute_code label count options{label value count}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-aggregations163.json"
+    },
+    {
+      "evidence_id": "ev-graphql-category438",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `category(id: 438)` query: a second category also named 'Agenda' (url_path 'o-que-fazer-no-wow/agenda/agenda'), 8 products.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:57:10Z",
+      "method": "curl -sS -D headers-graphql-category438.txt -o body-graphql-category438.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{category(id:438){id name url_path product_count}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-category438.json"
+    },
+    {
+      "evidence_id": "ev-graphql-products438",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `products(filter: {category_id: {eq: \"438\"}})` query: 8 products, ALL museum tickets/kids-workshop/membership-card — zero music content, confirming this sub-'Agenda' category is even more clearly non-music than category 163.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:57:18Z",
+      "method": "curl -sS -D headers-graphql-products438.txt -o body-graphql-products438.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{category_id:{eq:\\\"438\\\"}},pageSize:25){total_count items{id sku name url_key}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-products438.json"
+    },
+    {
+      "evidence_id": "ev-graphql-category453",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `category(id: 453)` query: 'Gastronomia e Eventos' (Gastronomy & Events), url_path 'restaurants-and-bars/gastronomy-and-events', 6 products — the sub-bucket closest to genuinely music-adjacent content.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:57:11Z",
+      "method": "curl -sS -D headers-graphql-category453.txt -o body-graphql-category453.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{category(id:453){id name url_path product_count}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-category453.json"
+    },
+    {
+      "evidence_id": "ev-graphql-products453",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `products(filter: {category_id: {eq: \"453\"}})` query: 6 products (Cine Society WOW, Sunsets no VP, Comedy Club - 17 Setembro, Fado Show & Dinner - 25 Setembro, Oktoberfest - 2 a 5 Outubro, The House of Gatsby) — the decisive evidence that even the most music-adjacent bucket is a mixed film-club/comedy/beer-festival/dinner-theatre/fado grouping, never a dedicated concert listing.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:57:29Z",
+      "method": "curl -sS -D headers-graphql-products453.txt -o body-graphql-products453.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{category_id:{eq:\\\"453\\\"}},pageSize:25){total_count items{id sku name url_key}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-products453.json"
+    },
+    {
+      "evidence_id": "ev-graphql-product-fado",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `products(filter: {sku: {eq: \"...\"}})` query for the Fado Show & Dinner product: id 22663, price_range minimum 0 EUR (an artefact, not a genuine free-admission claim — see field_assessment.price notes), and its own `categories` list (Restaurantes, Visita o WOW, Agenda, Gastronomia e Eventos — no music-specific category tag anywhere).",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T07:59:47Z",
+      "method": "curl -sS -D headers-graphql-product-fado.txt -o body-graphql-product-fado.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{sku:{eq:\\\"8f035a91-1229-4d84-bd74-b7517b64bd83\\\"}}){items{id sku name url_key price_range{minimum_price{regular_price{value currency}}} categories{id name}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-product-fado.json"
+    },
+    {
+      "evidence_id": "ev-graphql-product-fado-desc",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `description`/`short_description` query for the Fado Show & Dinner product: full marketing/menu-pairing prose text (music-show content genuinely present — 'uma viagem por vários estilos e épocas do fado... uma fadista e dois instrumentistas' — but framed entirely as a dinner-and-wine-pairing experience at 'restaurante 1828', with 'a partir das 20h' the only time statement; the only two 4-digit numbers present anywhere are wine-vintage years in the menu text (2023, 2019), unrelated to the event's own date).",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T08:00:40Z",
+      "method": "curl -sS -D headers-graphql-product-fado-desc.txt -o body-graphql-product-fado-desc.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{sku:{eq:\\\"8f035a91-1229-4d84-bd74-b7517b64bd83\\\"}}){items{id sku name description{html} short_description{html}}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-product-fado-desc.json"
+    },
+    {
+      "evidence_id": "ev-graphql-highlights",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `products(filter: {category_id: {eq: \"163\"}, ticket_type: {eq: \"238\"}})` query — the 'Destaques' (Highlights) facet, the closest thing to a 'featured events' filter this source has: 10 products spanning day passes, a museum exhibition, sunset DJ sessions, comedy club, Fado dinner, Oktoberfest, dinner theatre, wine-cellar passes, and the annual membership card — confirming even the 'Highlights' filter is generic, not music-specific.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T08:01:51Z",
+      "method": "curl -sS -D headers-graphql-highlights.txt -o body-graphql-highlights.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{products(filter:{category_id:{eq:\\\"163\\\"},ticket_type:{eq:\\\"238\\\"}},pageSize:25){total_count items{id name url_key}}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-highlights.json"
+    },
+    {
+      "evidence_id": "ev-graphql-storeconfig",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `storeConfig { store_code store_name base_url secure_base_url default_title }` query: base_url/secure_base_url self-report as https://www.wow.pt/ (same-domain, self-referential identity confirmation), default_title 'Magento Commerce' (platform confirmation).",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T08:01:41Z",
+      "method": "curl -sS -D headers-graphql-storeconfig.txt -o body-graphql-storeconfig.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{storeConfig{store_code store_name base_url secure_base_url default_title}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-storeconfig.json"
+    },
+    {
+      "evidence_id": "ev-graphql-urlsuffix",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `storeConfig { product_url_suffix category_url_suffix }` query: both null, confirming product/category URLs use bare url_key values with no appended suffix (e.g. /fado-show-and-dinner, not /fado-show-and-dinner.html).",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T08:03:28Z",
+      "method": "curl -sS -D headers-graphql-urlsuffix.txt -o body-graphql-urlsuffix.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{storeConfig{product_url_suffix category_url_suffix}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-urlsuffix.json"
+    },
+    {
+      "evidence_id": "ev-graphql-urlresolver-fado",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response to a read-only GraphQL `urlResolver(url: \"fado-show-and-dinner\")` query, with `Store: pt` header: `{\"type\":\"PRODUCT\",\"id\":22663,\"relative_url\":\"fado-show-and-dinner\",\"redirectCode\":0}` — id 22663 matches ev-graphql-product-fado's own id via an independent query path, the empirical source_record_id stability cross-check.",
+      "acquired_from": "https://www.wow.pt/graphql (Store: pt header)",
+      "acquired_at": "2026-08-27T08:03:37Z",
+      "method": "curl -sS -D headers-graphql-urlresolver-fado.txt -o body-graphql-urlresolver-fado.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"Store: pt\" -G --data-urlencode \"query=query{urlResolver(url:\\\"fado-show-and-dinner\\\"){type id relative_url redirectCode}}\"",
+      "content_type": "application/json; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-graphql-urlresolver-fado.json"
+    },
+    {
+      "evidence_id": "ev-product-fado-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response body for the constructed product detail URL: 200 OK, same generic client-rendered shell as every other route (the important finding is the 200 status plus the independent urlResolver PRODUCT confirmation above, not this HTML's own content).",
+      "acquired_from": "https://www.wow.pt/pt/fado-show-and-dinner",
+      "acquired_at": "2026-08-27T08:03:29Z",
+      "method": "curl -sS -D headers-product-fado-page.txt -o body-product-fado-page.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/body-product-fado-page.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-confirms: the empty-shell/no-JSON-LD finding for all three Level-1 HTML pages, the dead-lead-vs-real-category urlResolver contrast, category163's 19-product total and every product name being non-empty, the full facet/option-label scan across category163's aggregations finding no music/concert-specific filter, the same negative scan repeated for categories 438 and 453, the year-absence scan across every retained product name/description, and the id-stability cross-check (22663 reproduced via two independent GraphQL query paths). Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T08:09:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/wow-world-of-wine-gaia-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

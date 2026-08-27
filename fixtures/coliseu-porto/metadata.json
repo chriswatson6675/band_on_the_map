@@ -1,0 +1,27 @@
+{
+  "source_id": "coliseu-do-porto",
+  "task": "COLISEU-PORTO-GRAPHQL-COLLECTOR-01",
+  "provenance_investigation": "research/source-investigations/coliseu-ageas-porto-01/investigation.json",
+  "investigation_decision": "READY_FOR_ACTIVATION",
+  "graphql_endpoint": "https://nest.coliseu.pt/graph/",
+  "notes": "Built entirely offline from research/source-investigations/coliseu-ageas-porto-01's already-retained evidence, per docs/SOURCE_INVESTIGATION_POLICY.md. No live network re-query was made to construct these fixtures.",
+  "fixtures": [
+    {
+      "file": "events-page-1.json",
+      "kind": "RETAINED_EVIDENCE_COPY",
+      "description": "Exact copy of the real, retained GraphQL response body: research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-events-sample.json (a bounded 5-event sample; paging limit:5 offset:0, sorting startDate ASC, filter isVisible:{is:true}/isArchived:{is:false}). Genuine retained evidence, byte-for-byte the same field values as the original evidence file (re-serialized/pretty-printed only) — not synthetic, not invented.",
+      "source_evidence_path": "research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-events-sample.json",
+      "totalCount": 72,
+      "node_count": 5,
+      "node_ids": ["1951", "1923", "1955", "1911", "1977"]
+    },
+    {
+      "file": "events-page-2-synthetic.json",
+      "kind": "SYNTHETIC_TEST_ONLY",
+      "description": "NOT retained evidence, and must never be treated as, or mistaken for, real retained evidence. Two hand-authored synthetic event nodes (ids 9001/9002 — obviously outside the real observed id range 1911-1977) whose `name` fields are explicitly prefixed '[FIXTURE-ONLY SYNTHETIC EVENT — NOT REAL RETAINED EVIDENCE]'. Used only to exercise a second/later paginated response shape (a small final page) in tests. Every field present (id/name/slug/startDate/estimatedDuration/ticketsSeller/ticketsUrl/minimumAge/category.name/room.name/promoter.name) is structurally consistent with the real Event schema retained at research/source-investigations/coliseu-ageas-porto-01/evidence/body-graphql-eventtype.json — same field names, same types, same nesting shape as the real sample — only the values are invented. This fixture's own totalCount (2) is intentionally its own self-contained scenario, not a continuation of events-page-1.json's real totalCount (72).",
+      "totalCount": 2,
+      "node_count": 2,
+      "node_ids": ["9001", "9002"]
+    }
+  ]
+}

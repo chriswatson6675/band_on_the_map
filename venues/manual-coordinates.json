@@ -65,6 +65,110 @@
       "method": "MANUAL_OPERATOR_ENTRY",
       "entered_at": "2026-08-26T10:28:27.146Z",
       "note": "BAND-ON-THE-MAP-BARCELONA-30-VENUE-POPULATION-02: KU Barcelona (Passeig de la Barceloneta, 38, 08003) has no address-level POI in OSM/Nominatim for house number 38 (only the street way itself). The nearest resolvable OSM street-way node genuinely on Passeig Maritim de la Barceloneta, close to the confirmed neighbouring venue-barcelona-opium coordinate (house number 34, ~100m away on the same short beachfront promenade), is used as an operator-entered street-level approximation. Venue identity/address independently confirmed by the venue's own official site (kubarcelona.com) and cross-checked against Fourvenues platform listings for the same organizer_slug (ku-barcelona). This is a disclosed approximation, not a guessed building-level pin."
+    },
+    {
+      "venue_id": "venue-porto-coliseu-porto-ageas",
+      "latitude": 41.1471403,
+      "longitude": -8.6051922,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T07:47:54.224Z",
+      "note": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: ADDRESS_ONLY_QUERY Nominatim geocoding of this venue's own evidenced address (R. de Passos Manuel 137, 4000-385 Porto) returned an AMBIGUOUS_MULTIPLE_CANDIDATES_PASSED outcome (this project's automated acceptance rule requires exactly one passing candidate) because the same house number/postcode hosts three distinct OSM POIs (a theatre, a cinema across the street, and a bare house node). The chosen coordinate is the single highest-importance candidate, explicitly named 'Coliseu do Porto' and typed amenity=theatre in OSM (place_id 286372981, osm way/223346220) — an unambiguous match on both name and type to the real venue, not a guessed pin. See fixtures/geocoding/nominatim/venue-porto-coliseu-porto-ageas.json for the full cached candidate set this decision was made from."
+    },
+    {
+      "venue_id": "venue-porto-hard-club",
+      "latitude": 41.141976,
+      "longitude": -8.6149052,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T07:47:54.235Z",
+      "note": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: ADDRESS_ONLY_QUERY Nominatim geocoding of this venue's own evidenced address (Mercado Ferreira Borges, Praca do Infante D. Henrique, Porto) returned AMBIGUOUS_MULTIPLE_CANDIDATES_PASSED: OSM carries two separate POIs both explicitly named 'Hard Club' (a tourism=attraction way and an amenity=nightclub node), about 20m apart within the same Mercado Ferreira Borges building complex. The chosen coordinate is the higher-importance, way-level candidate (place_id 417418384, osm way/210580232, importance 0.305 vs 0.168) — an unambiguous name match to the real venue, not a guessed pin. See fixtures/geocoding/nominatim/venue-porto-hard-club.json for the full cached candidate set this decision was made from."
+    },
+    {
+      "venue_id": "venue-porto-hot-five-jazz-blues-club",
+      "latitude": 41.1423566,
+      "longitude": -8.6078912,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T09:06:23.057Z",
+      "note": "STRUCTURED_POI_QUERY against Nominatim (2026-08-27) for the venue's own self-published address ('R. de Guerra Junqueiro 495, 4150-098 Porto', retained in research/source-investigations/hot-five-porto-01/) returned exactly one candidate: OSM node 4554590988 / place_id 284019931, amenity=nightclub, name='Hot Five Jazz & Blues Club' (exact string match), extratags.website='https://hotfive.pt/' (byte-identical to the source's own official domain) -- an unambiguous POI-identity match. The automated acceptance check failed on postcode alone: OSM's own address block for this node reads postcode 4000-279, while the venue's self-published footer reads 4150-098. This is a genuine discrepancy between OSM's postal-district boundary data and the venue's own printed postcode for the same building, not an identity ambiguity -- name, amenity type, and website all agree, and only one candidate was returned at all (no competing location to choose between). Coordinates taken directly from this node's own lat/lon, not approximated or averaged. Same class of disclosed operator decision as the existing KU Barcelona / Coliseu Porto Ageas / Hard Club precedents."
+    },
+    {
+      "venue_id": "venue-sintra-centro-cultural-olga-cadaval",
+      "latitude": 38.8033236,
+      "longitude": -9.3826091,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:37:41.938Z",
+      "note": "Free-text Nominatim search 'Centro Cultural Olga Cadaval, Sintra' (2026-08-27) returned exactly one candidate: OSM way/49682515 / place_id 297050478, amenity=theatre, name='Centro Cultural Olga Cadaval' (exact string match), address 'Praça Doutor Francisco Sá Carneiro, Sintra, 2710-575'. The automated STRUCTURED_POI_QUERY pipeline (an amenity= exact-name structured query) returned zero candidates for this same venue, even though the identical free-text query is unambiguous and POI-identity-matched. Coordinates taken directly from this node's own lat/lon, not approximated. Same class of disclosed operator decision as the existing KU Barcelona / Coliseu Porto Ageas / Hard Club / Hot Five Porto precedents."
+    },
+    {
+      "venue_id": "venue-matosinhos-teatro-municipal-de-matosinhos-constantino-nery",
+      "latitude": 41.1841226,
+      "longitude": -8.6949029,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:37:41.944Z",
+      "note": "Free-text Nominatim search 'Teatro Constantino Nery, Matosinhos' (2026-08-27) returned exactly one candidate: OSM way/1071543069, amenity=theatre, name='Cine-Teatro Constantino Nery' (OSM's own naming differs slightly from the source's fuller 'Teatro Municipal de Matosinhos Constantino Nery', but address/city/coordinates all uniquely match the same real building; re-confirmed identical with a second query variant, 'Constantino Nery, Matosinhos'). The automated STRUCTURED_POI_QUERY pipeline (exact amenity-name structured query) returned zero candidates for this venue. Coordinates taken directly from this node's own lat/lon, not approximated."
+    },
+    {
+      "venue_id": "venue-vila-do-conde-cais-da-alfandega",
+      "latitude": 41.3498698,
+      "longitude": -8.7436772,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:37:41.948Z",
+      "note": "Free-text Nominatim search 'Cais da Alfândega, Vila do Conde' (2026-08-27) returned exactly one candidate: OSM way/1525603982 / place_id 418983467, the street itself ('Rua Cais da Alfândega', residential), Centro Histórico / Bairro Piscatório, Vila do Conde. This is a real riverside quay area, not a named indoor amenity, so the coordinate represents the street/quay location the source's own text_local field names, not a specific building. The automated STRUCTURED_POI_QUERY pipeline returned zero candidates. Coordinates taken directly from this way's own lat/lon, not approximated."
+    },
+    {
+      "venue_id": "venue-vila-do-conde-mercado-municipal-de-vila-do-conde",
+      "latitude": 41.3545918,
+      "longitude": -8.7417874,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:37:41.952Z",
+      "note": "Free-text Nominatim search 'Mercado Municipal de Vila do Conde' (2026-08-27) returned exactly one candidate: OSM node/12249919016 / place_id 286981164, amenity=marketplace, name='Mercado Municipal de Vila do Conde' (exact string match), address 'Rua Nossa Senhora de Fátima, Centro Histórico, Alto da Pega, Vila do Conde, 4480-746'. The automated STRUCTURED_POI_QUERY pipeline returned NO_CANDIDATE_PASSED_ALL_CHECKS for this same venue (its acceptance checks are stricter than a plain free-text search). Coordinates taken directly from this node's own lat/lon, not approximated. Only one candidate was ever returned — no ambiguity to resolve."
+    },
+    {
+      "venue_id": "venue-vila-do-conde-igreja-da-misericordia-de-vila-do-conde",
+      "latitude": 41.3543826,
+      "longitude": -8.7439974,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:37:41.957Z",
+      "note": "Free-text Nominatim search 'Igreja da Misericórdia de Vila do Conde' (2026-08-27) returned exactly one candidate: OSM way/412063107 / place_id 284877146, amenity=place_of_worship, name='Igreja da Misericórdia' (OSM's own shorter name; the source's fuller 'Igreja da Misericórdia de Vila do Conde' matches on location/neighbourhood — Centro Histórico / Alto da Pega, Vila do Conde, same as the Mercado Municipal entry a few dozen metres away). The automated STRUCTURED_POI_QUERY pipeline returned zero candidates for the exact fuller name. Coordinates taken directly from this way's own lat/lon, not approximated. Only one candidate was ever returned — no ambiguity to resolve."
+    },
+    {
+      "venue_id": "venue-matosinhos-jardins-do-senhor-do-padrao",
+      "latitude": 41.1812853,
+      "longitude": -8.6942316,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:56:10.325Z",
+      "note": "Free-text Nominatim search 'Jardim do Senhor do Padrão, Matosinhos' (singular; the source's own text reads plural 'Jardins') (2026-08-27) returned exactly one candidate: OSM way/111177979 / place_id 286505759, leisure=park, name='Jardim do Senhor do Padrão' (exact string match on the singular form). The automated STRUCTURED_POI_QUERY pipeline returned zero candidates for this venue. Coordinates taken directly from this way's own lat/lon, not approximated. Only one candidate was ever returned — no ambiguity to resolve."
+    },
+    {
+      "venue_id": "venue-matosinhos-jardim-basilio-teles",
+      "latitude": 41.1827254,
+      "longitude": -8.6841546,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:56:10.334Z",
+      "note": "Free-text Nominatim search 'Jardim Basílio Teles, Matosinhos' (2026-08-27) returned exactly one candidate: OSM way/1026178863 / place_id 286302866, leisure=park, name='Jardim Basílio Teles' (exact string match). The automated STRUCTURED_POI_QUERY pipeline returned zero candidates for this venue. Coordinates taken directly from this way's own lat/lon, not approximated. Only one candidate was ever returned."
+    },
+    {
+      "venue_id": "venue-matosinhos-praca-guilhermina-suggia",
+      "latitude": 41.1876971,
+      "longitude": -8.6851672,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:56:10.338Z",
+      "note": "Free-text Nominatim search 'Praça Guilhermina Suggia, Matosinhos' (2026-08-27) returned exactly one candidate: OSM way/1016953323 / place_id 286319750, the square itself, name='Praça Guilhermina Suggia' (exact string match). The automated STRUCTURED_POI_QUERY pipeline returned zero candidates for this venue. Coordinates taken directly from this way's own lat/lon, not approximated. Only one candidate was ever returned."
+    },
+    {
+      "venue_id": "venue-matosinhos-praca-da-cidadania",
+      "latitude": 41.190416,
+      "longitude": -8.6112952,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:56:10.341Z",
+      "note": "Free-text Nominatim search 'Praça da Cidadania, São Mamede de Infesta' (2026-08-27) returned exactly one candidate: OSM way/1174311193 / place_id 286445853, place=square, name='Praça da Cidadania' (exact string match), within the São Mamede de Infesta parish of Matosinhos municipality. The automated STRUCTURED_POI_QUERY pipeline (queried with city=Matosinhos rather than the parish name) returned zero candidates for this venue. Coordinates taken directly from this way's own lat/lon, not approximated. Only one candidate was ever returned."
+    },
+    {
+      "venue_id": "venue-matosinhos-parque-das-varas",
+      "latitude": 41.2086098,
+      "longitude": -8.6216855,
+      "method": "MANUAL_OPERATOR_ENTRY",
+      "entered_at": "2026-08-27T10:56:10.343Z",
+      "note": "Free-text Nominatim search 'Parque das Varas, Leça do Balio' (2026-08-27) returned exactly one candidate: OSM way/451114911 / place_id 283812271, leisure=park, name='Parque das Varas' (exact string match). The automated STRUCTURED_POI_QUERY pipeline returned zero candidates for this venue. Coordinates taken directly from this way's own lat/lon, not approximated. Only one candidate was ever returned."
     }
   ]
 }

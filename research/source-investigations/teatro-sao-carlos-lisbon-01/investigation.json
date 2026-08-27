@@ -1,0 +1,352 @@
+{
+  "investigation_id": "teatro-sao-carlos-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) against the real live site: the bare domain (confirming its 301 redirect to www), the www homepage, the /calendar/ page (fetched twice, independently, to empirically test id stability), the /program/ page, one individual production detail page (/program/carmen-1776857160664/), /feed/, /wp-json/, and /robots.txt. The homepage's own retained news item was read in full and found to state that the physical Teatro Nacional de São Carlos building is currently closed for requalification works, with administrative/box-office operations relocated nearby to 'Boa Hora' — this independently explains a major, initially surprising finding: zero of the 60 retained /calendar/ entries (spanning Sep 2026-Jul 2027) list Teatro Nacional de São Carlos itself as the performance venue; all are OPART touring productions (opera, concerts, ballet) staged at other Portuguese venues (Porto, Sintra, Coimbra, Vila Real, Bragança, etc.) and even abroad (Estónia). The /calendar/ and /program/ pages are genuinely server-rendered (data-reactroot present, full event data baked into the retained HTML, not an empty client shell) on a bespoke in-house platform ('bl-' / bndlyr / Bond Habits), not WordPress — /feed/ (404) and /wp-json/ (403) were both actively checked and ruled out. A dependency-free, no-network Node offline-proof script re-parsed the retained HTML files to mechanically re-derive every claim below, including an empirical id-stability cross-check (two independent fetches of /calendar/, 60/60 content-ids matching in the same order) and a deterministic ISO-datetime reconstruction from each event row's own co-located day/month/year/time fields. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://saocarlos.pt (301 -> https://www.saocarlos.pt/), the www homepage, https://www.saocarlos.pt/calendar/ (fetched twice, independently), https://www.saocarlos.pt/program/, an individual production detail page, /feed/, /wp-json/, and /robots.txt all returned real, informative responses without needing any JS execution. The /calendar/ page's raw, unrendered HTML already contained 60 fully server-rendered event rows (data-reactroot present) — each with its own day/month/year/time/type/local/city/title, a production permalink, and a stable-looking content-id — and the /program/ page independently corroborated the same production data via its own 'Card.Sessions' rows. The homepage's own retained news text explained why zero of those 60 rows list the São Carlos building itself as venue (a genuine, currently-active building closure/relocation, not a data-extraction failure). /feed/ (404) and /wp-json/ (403) were actively checked and ruled out as alternative data paths; no JSON-LD, ICS, or RSS was found anywhere. This already answers identity, platform classification, data-path discovery, and field assessment without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-home-bare",
+        "ev-home-www-body",
+        "ev-home-www-headers",
+        "ev-calendar-body",
+        "ev-calendar-headers",
+        "ev-calendar-recheck-body",
+        "ev-calendar-recheck-headers",
+        "ev-program-body",
+        "ev-program-headers",
+        "ev-carmen-detail-body",
+        "ev-carmen-detail-headers",
+        "ev-feed",
+        "ev-wpjson",
+        "ev-robots",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "teatro-sao-carlos-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Teatro Nacional de São Carlos (TNSC) — Portugal's state opera house, Largo de São Carlos, 1200-201 Lisboa (Chiado); produced/operated by OPART - Organismo de Produção Artística, E.P.E. Per this investigation's own retained evidence, the physical building is currently closed for requalification works, with administrative/box-office operations temporarily relocated to Largo da Boa Hora 13, 1200-062 Lisboa.",
+  "official_url": "https://www.saocarlos.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-bare", "ev-home-www-body", "ev-offline-proof"],
+    "notes": "Independently re-confirmed by this investigation's own retained evidence, not assumed from the prior loose sources/lisbon.json note. The bare domain https://saocarlos.pt (the official_url on file) returns a real 301 redirect to https://www.saocarlos.pt/, whose retained homepage <title> is 'TNSC - Teatro Nacional de São Carlos' and whose meta description states it is 'o único teatro de ópera em Portugal' (Portugal's only opera theatre), inaugurated 30 June 1793. The page repeatedly and consistently names its own producing entity as 'OPART - Organismo de Produção Artística, E.P.E.', which is genuinely the real public entity operating São Carlos, São João, and the national touring opera/orchestra/choir/ballet companies. IMPORTANT, MATERIAL FINDING NOT IN THE PRIOR LOOSE NOTE: the homepage's own retained news text ('São Carlos, por agora, na Boa Hora') states the physical São Carlos building is undergoing requalification works and that administrative teams and the Bilheteira (box office) relocated operations to a former courthouse building at Largo da Boa Hora 13, 'a poucos minutos do Teatro Nacional de São Carlos' (a few minutes from TNSC) as of the stated 1 September. This was not invented or inferred — it is the source's own retained first-party statement, cited verbatim in evidence. Its direct, load-bearing consequence (see site_classification and field_assessment.venue_location below) is that this candidate's own published calendar currently shows zero performances physically at the São Carlos building itself."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "A bespoke, in-house-built platform (not WordPress, not a recognisable off-the-shelf events/calendar plugin) — 'bl-'-prefixed markup and cdn.bndlyr.com assets, built by the agency Bond Habits ('bondhabits.com' footer credit). Both https://www.saocarlos.pt/calendar/ and https://www.saocarlos.pt/program/ are genuinely server-rendered on first load (data-reactroot present, full event data present verbatim in the retained raw HTML, not an empty client shell) — a materially different, much stronger acquisition path than the empty-shell SPA pattern seen at other investigated candidates in this repository (e.g. coliseu-ageas-porto-01's Level 1 finding). No JSON-LD Event/MusicEvent data was found anywhere. /feed/ returns 404 (no WordPress-style RSS) and /wp-json/ returns 403 (no public WP REST API) — both actively checked and ruled out, not merely unchecked. By contrast, individual production detail pages (e.g. /program/carmen-1776857160664/) have their own per-session 'Sessions Flex Layout' repeater left genuinely EMPTY in the retained static HTML — that finer-grained detail is client-rendered — but this does not block acquisition, because the /calendar/ and /program/ LISTING pages already carry the full per-occurrence day/month/year/time/type/local/city/title data server-side, without needing the detail page's own session list at all.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-calendar-body", "ev-calendar-headers", "ev-program-body", "ev-carmen-detail-body", "ev-feed", "ev-wpjson", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_CALENDAR_PAGE",
+      "url": "https://www.saocarlos.pt/calendar/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-calendar-body", "ev-calendar-headers", "ev-calendar-recheck-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_PROGRAM_PAGE (corroborating; overlapping production set with /calendar/, some productions only reachable via one page or the other)",
+      "url": "https://www.saocarlos.pt/program/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-program-body", "ev-program-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_PRODUCTION_DETAIL_PAGE (own session list is client-rendered/empty in retained static HTML; not a usable primary data path on its own, but corroborates production-level identity/synopsis/casting)",
+      "url": "https://www.saocarlos.pt/program/carmen-1776857160664/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-carmen-detail-body", "ev-carmen-detail-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "RSS_FEED (checked — 404 Not Found, no feed exists)",
+      "url": "https://www.saocarlos.pt/feed/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-feed", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_ROOT (checked — 403 Forbidden, no public WordPress REST API)",
+      "url": "https://www.saocarlos.pt/wp-json/",
+      "access": "PRIVATE",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Relicário perpétuo",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each of the 60 retained /calendar/ rows carries its own non-empty 'Display Title' text (e.g. 'Relicário perpétuo', 'Concerto inaugural', 'Carmen'), stated directly on the row itself — mechanically confirmed for 60/60 rows in evidence/offline-proof-output.txt. Value shown here is the first sampled row's own title as a representative example; see offline-proof-output.txt for the full sample.",
+      "evidence_refs": ["ev-calendar-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-11",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each of the 60 retained /calendar/ rows directly states its own Day, Month (Portuguese 3-letter abbreviation, e.g. 'Set'), and Year (4-digit, e.g. '2026') co-located on the same row — this is NOT a heading-plus-card contextual combination (DETERMINISTIC_CONTEXT); every input lives on one single retained event row. Mechanically re-parsed and re-combined into a well-formed ISO-local date/time string for all 60/60 rows in evidence/offline-proof-output.txt (e.g. day='11', month='Set', year='2026', time='21:00' -> '2026-09-11T21:00:00'). No explicit UTC offset or IANA timezone is stated anywhere in the retained HTML — Europe/Lisbon is the obvious real-world timezone but this was never promoted to a fabricated UTC instant; this remains a floating local datetime. Value shown here is the first sampled row's own date as a representative example.",
+      "evidence_refs": ["ev-calendar-body", "ev-calendar-recheck-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "21:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each of the 60 retained rows directly states its own 'Time' field (HH:MM, e.g. '21:00', '19:00', '18:30') co-located with the same row's day/month/year — mechanically confirmed 60/60 non-empty in evidence/offline-proof-output.txt. Same floating-local-time caveat as start_date (no explicit timezone stated).",
+      "evidence_refs": ["ev-calendar-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or duration field exists on the /calendar/ or /program/ listing rows themselves. One individual production detail page (Carmen) does contain a free-text 'Duração' mention ('Aprox. 2h30') inside an unstructured description paragraph, but this is explicitly approximate ('Aprox.'), inconsistently present, and embedded in prose rather than a structured per-row field like Day/Month/Time — not promoted to a claimed value here.",
+      "evidence_refs": ["ev-calendar-body", "ev-carmen-detail-body"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Teatro Nacional de São João, Porto",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each of the 60 retained rows directly states its own 'Local' (venue name) and 'City' fields, co-located with the rest of the row — mechanically confirmed 60/60 non-null in evidence/offline-proof-output.txt. CRITICAL, MATERIAL FINDING: zero of the 60 retained rows name Teatro Nacional de São Carlos itself as the venue (mechanically confirmed: 0/60 'Local' values match /carlos/i). The 17 distinct Local values found are all OTHER venues around Portugal (Teatro Camões, Centro Cultural de Belém, Coliseu Porto Ageas, Casa da Música, etc.) and one venue in Estónia (Castelo Kuressaare) — consistent with, and explained by, the site's own retained statement that the São Carlos building is currently closed for works (see identity.notes). This is architecturally acceptable under docs/ARCHITECTURE.md's Source model (a Source may be 'a publisher... or other origin' whose Observations each carry their own venue, resolved independently downstream) but is recorded here as a major, honestly-surfaced scope caveat — see collector_assessment.blockers and decision.reasons. Value shown here is the first sampled row's own venue as a representative example.",
+      "evidence_refs": ["ev-calendar-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "sTIkN5apDEzeQKdc",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each of the 60 retained rows carries its own 'data-content-id' attribute (e.g. 'sTIkN5apDEzeQKdc'), directly present in the source's own markup — distinct per calendar occurrence, not shared across the multiple dates of one production (unlike the row's own href, see event_url below). Empirically proven stable per the stable-identifier rule: two independent, separately-timed curl fetches of https://www.saocarlos.pt/calendar/ returned the exact same 60 content-ids in the exact same order (60/60 positions matching), mechanically re-confirmed in evidence/offline-proof-output.txt. Value shown here is the first sampled row's own id as a representative example.",
+      "evidence_refs": ["ev-calendar-body", "ev-calendar-recheck-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Every row carries its own href (e.g. 'program/relicario-perpetuo/'), resolving to a real, live production detail page at https://www.saocarlos.pt/. However this URL is shared across every session date of the same production (mechanically confirmed: the 60 rows resolve to only 21 unique hrefs) and carries no per-occurrence query parameter or anchor distinguishing individual dates — the detail page itself does not even expose its own per-session list server-side (see site_classification). A collector can honestly report this shared production URL as 'where this fact was read', but it must never be synthesized into a distinct per-occurrence URL — hence PARTIAL rather than PROVEN, the same honest treatment already established at fama-dalfama-lisbon-01 for a structurally similar shared-URL pattern.",
+      "evidence_refs": ["ev-calendar-body", "ev-carmen-detail-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price, ticket cost, or '€' currency symbol was found anywhere in the retained /calendar/ or /program/ pages, nor on the one retained production detail page (mechanically confirmed by regex search in evidence/offline-proof-output.txt). The site does reference a Bilheteira (box office) and reservation email addresses (reserva.bilhetes@saocarlos.pt, ajuda@bol.pt) suggesting pricing lives behind a separate box-office/ticketing flow this investigation did not fetch — using a third-party ticketing site as first-party price authority would require separate, explicit governance per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section, not assumed here.",
+      "evidence_refs": ["ev-calendar-body", "ev-program-body", "ev-carmen-detail-body", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-calendar-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The candidate was briefed as 'Teatro Nacional de São Carlos, Lisbon's state opera house' with the implicit expectation that its own published calendar describes performances AT that physical building. This investigation's own retained evidence instead shows the physical building is currently closed for requalification works (per the site's own retained news text), and that 100% of the 60 sampled future calendar rows (Sep 2026-Jul 2027) are OPART touring productions staged at OTHER venues across Portugal (Porto, Sintra, Coimbra, Vila Real, Bragança, etc.) and even abroad (Estónia) — never at São Carlos itself. Activating this source today would therefore produce zero Observations whose venue_location resolves to the São Carlos building, and the great majority of its Observations would be geographically outside Lisbon entirely. This is technically acceptable under docs/ARCHITECTURE.md's Source model (each Observation's own venue is resolved independently, downstream, from the Source's own registry identity), but is a substantial, honestly-surfaced scope departure from the original candidate brief that a human should weigh before actually activating this source under a Lisbon-city registry entry — not a technical acquisition blocker."
+      },
+      {
+        "severity": "MINOR",
+        "description": "event_url is shared across every session date of the same production (only 21 unique hrefs across 60 rows) — a collector must key primarily off the row's own data-content-id, never the href, to distinguish individual occurrences."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation observed only two closely-timed snapshots of /calendar/ (same session). The empirical id-stability proof (60/60 matching) is genuine but was not tested across a longer time gap (e.g. days apart) or across a page edit; a future re-observation should re-check stability after the underlying content is next updated."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The /program/ page's own 'Card.Sessions' entries (a partially overlapping but not identical production set to /calendar/'s 'Card.Calendar' entries) were not exhaustively cross-reconciled against /calendar/ in this investigation — a future collector should decide whether to use /calendar/ alone (simpler, already proven complete for the sampled window) or reconcile both pages for maximum coverage."
+      }
+    ]
+  },
+  "decision": {
+    "status": "HUMAN_REVIEW",
+    "reasons": [
+      "The technical acquisition path is genuinely strong and would satisfy every mechanical READY_FOR_ACTIVATION gate: identity.status is PROVEN at HIGH confidence; site_classification.acquisition_class is STATIC_HTML (a resolved, supported class) backed by a genuinely server-rendered listing page, not an empty client shell; a data_paths entry (the /calendar/ page) is access:PUBLIC and status:CONFIRMED; field_assessment.title.state and field_assessment.start_date.state are both PROVEN with basis DIRECT_SOURCE; field_assessment.source_record_id.state is PROVEN, empirically demonstrated stable across two independent fetches (60/60 matching); collector_assessment.recommended_family is a known family (STATIC_EVENT_LIST) at HIGH confidence; a DETERMINISTIC_DERIVATION evidence item (evidence/offline-proof.mjs + its captured output) mechanically reproduces every claim above; and no CRITICAL blocker exists.",
+      "However, this investigation surfaced a major, genuinely surprising scope finding that goes to the core identity of what this candidate actually is, not merely a technical detail: the physical Teatro Nacional de São Carlos building is currently closed for requalification works (per the site's own retained first-party statement), and 100% of this investigation's retained sample of 60 future calendar entries (spanning roughly a full season, Sep 2026-Jul 2027) are OPART touring productions performed at OTHER venues across Portugal and abroad — never at São Carlos itself, and the large majority not even in Lisbon.",
+      "This means activating this source today, as currently briefed and as currently entered under sources/lisbon.json, would not currently yield any Observations located at the São Carlos venue, and would predominantly yield Observations for events outside Lisbon — a substantive divergence from the 'Lisbon's state opera house calendar' premise this investigation was asked to verify. Whether this is still the source the project wants activated (e.g. as OPART's own national touring-programme publisher, correctly resolved per-event to each event's real venue downstream) or whether activation should wait until the São Carlos building itself reopens and its own on-site programme resumes, is a substantive product/registry-scope judgement this investigation is not positioned to make unilaterally — see docs/SOURCE_INVESTIGATION_POLICY.md's 'Investigation and activation are separate' section.",
+      "Per policy, this decision is a research conclusion only — it does not edit sources/lisbon.json or any registry. HUMAN_REVIEW is chosen deliberately over READY_FOR_ACTIVATION specifically because forcing activation here would gloss over the closure/scope finding rather than surface it for a deliberate human call, and deliberately over DEFER/REJECT because the technical acquisition path itself is genuinely proven and should not be discarded — a human reviewer has everything needed here (full field_assessment, full evidence, a passing offline proof) to make a fast, informed activation decision either way.",
+      "This independently supersedes, in effect (though it is a separate new record, not an edit — supersedes is left null since this is a first, freshly independent investigation of this candidate, not a formal successor to the prior loose sources/lisbon.json note), the prior loose research_notes claim 'State opera house; dated calendar confirmed through Dec 2026 at review time' — that note's own observation that a dated calendar exists through a future date is correct and independently re-confirmed here (through Jul 2027, even further than Dec 2026), but it never checked WHERE those dated events are, which is the material finding this investigation adds."
+    ],
+    "evidence_refs": ["ev-home-www-body", "ev-calendar-body", "ev-calendar-recheck-body", "ev-program-body", "ev-carmen-detail-body", "ev-feed", "ev-wpjson", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-bare",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response (headers + tiny redirect body) for the bare domain: 301 Moved Permanently, Location: https://www.saocarlos.pt/.",
+      "acquired_from": "https://saocarlos.pt",
+      "acquired_at": "2026-08-27T08:01:48Z",
+      "method": "curl -sS -D headers-home-bare.txt -o body-home-bare.html --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/headers-home-bare.txt"
+    },
+    {
+      "evidence_id": "ev-home-www-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the www homepage: <title> 'TNSC - Teatro Nacional de São Carlos', OPART producing-entity mentions, and the load-bearing 'São Carlos, por agora, na Boa Hora' news item describing the building's current closure/relocation for requalification works.",
+      "acquired_from": "https://www.saocarlos.pt/",
+      "acquired_at": "2026-08-27T07:52:47Z",
+      "method": "curl -sS -D headers-home-www.txt -o body-home-www.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-home-www.html"
+    },
+    {
+      "evidence_id": "ev-home-www-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the www homepage request: 200 OK, openresty, Cloudflare-fronted (CF-RAY present), X-Server-Name: bond-frontend.",
+      "acquired_from": "https://www.saocarlos.pt/",
+      "acquired_at": "2026-08-27T07:52:47Z",
+      "method": "curl -sS -D headers-home-www.txt (same request as ev-home-www-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/headers-home-www.txt"
+    },
+    {
+      "evidence_id": "ev-calendar-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate's /calendar/ page: 60 fully server-rendered 'Card.Calendar' event rows (data-reactroot present), each with its own Day/Month/Year/Time/Type/Local/City/Display-Title and a stable data-content-id. Zero of the 60 rows name São Carlos itself as venue.",
+      "acquired_from": "https://www.saocarlos.pt/calendar/",
+      "acquired_at": "2026-08-27T07:53:10Z",
+      "method": "curl -sS -D headers-calendar.txt -o body-calendar.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-calendar.html"
+    },
+    {
+      "evidence_id": "ev-calendar-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /calendar/ request: 200 OK, openresty, Cloudflare, X-Debug-URI: /calendar/index.html.",
+      "acquired_from": "https://www.saocarlos.pt/calendar/",
+      "acquired_at": "2026-08-27T07:53:10Z",
+      "method": "curl -sS -D headers-calendar.txt (same request as ev-calendar-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/headers-calendar.txt"
+    },
+    {
+      "evidence_id": "ev-calendar-recheck-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Second, independent raw retained HTML response body for the same /calendar/ page, fetched separately (not a copy) minutes after ev-calendar-body — used only to empirically prove data-content-id stability (60/60 positions matched, see evidence/offline-proof-output.txt), per the stable-identifier rule.",
+      "acquired_from": "https://www.saocarlos.pt/calendar/",
+      "acquired_at": "2026-08-27T08:15:00Z",
+      "method": "curl -sS -D headers-calendar-recheck.txt -o body-calendar-recheck.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, independent request)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-calendar-recheck.html"
+    },
+    {
+      "evidence_id": "ev-calendar-recheck-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the second, independent /calendar/ request.",
+      "acquired_from": "https://www.saocarlos.pt/calendar/",
+      "acquired_at": "2026-08-27T08:15:00Z",
+      "method": "curl -sS -D headers-calendar-recheck.txt (same request as ev-calendar-recheck-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/headers-calendar-recheck.txt"
+    },
+    {
+      "evidence_id": "ev-program-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate's /program/ page: a corroborating, partially overlapping listing built from 'Card.Sessions' rows (own Day/Month/Year/Hour/Local/Title fields), plus a larger carousel of production entries without inline session dates.",
+      "acquired_from": "https://www.saocarlos.pt/program/",
+      "acquired_at": "2026-08-27T07:53:08Z",
+      "method": "curl -sS -D headers-program.txt -o body-program.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-program.html"
+    },
+    {
+      "evidence_id": "ev-program-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /program/ request: 200 OK, openresty, Cloudflare.",
+      "acquired_from": "https://www.saocarlos.pt/program/",
+      "acquired_at": "2026-08-27T07:53:08Z",
+      "method": "curl -sS -D headers-program.txt (same request as ev-program-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/headers-program.txt"
+    },
+    {
+      "evidence_id": "ev-carmen-detail-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for one individual production detail page (Carmen, staged at Centro Cultural de Belém per /calendar/, not at São Carlos). Confirms 'Teatro Nacional de São Carlos' appears on this page only as a credited company (its own choir, 'Coro do Teatro Nacional de São Carlos'), never as the performance venue, and that the page's own 'Sessions Flex Layout' repeater is empty in static HTML (client-rendered).",
+      "acquired_from": "https://www.saocarlos.pt/program/carmen-1776857160664/",
+      "acquired_at": "2026-08-27T07:56:00Z",
+      "method": "curl -sS -D headers-carmen-detail.txt -o body-carmen-detail.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-carmen-detail.html"
+    },
+    {
+      "evidence_id": "ev-carmen-detail-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the production detail page request: 200 OK, openresty, Cloudflare.",
+      "acquired_from": "https://www.saocarlos.pt/program/carmen-1776857160664/",
+      "acquired_at": "2026-08-27T07:56:00Z",
+      "method": "curl -sS -D headers-carmen-detail.txt (same request as ev-carmen-detail-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/headers-carmen-detail.txt"
+    },
+    {
+      "evidence_id": "ev-feed",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response for /feed/: HTTP 404 Not Found (custom 404 page body), confirming no WordPress-style RSS feed exists — ruling out RSS as a usable data path.",
+      "acquired_from": "https://www.saocarlos.pt/feed/",
+      "acquired_at": "2026-08-27T09:01:00Z",
+      "method": "curl -sS -D headers-feed.txt -o body-feed.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-feed.txt"
+    },
+    {
+      "evidence_id": "ev-wpjson",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response for /wp-json/: HTTP 403 Forbidden, confirming no public WordPress REST API exists — ruling out PUBLIC_JSON_API via wp-json as a usable data path.",
+      "acquired_from": "https://www.saocarlos.pt/wp-json/",
+      "acquired_at": "2026-08-27T09:01:00Z",
+      "method": "curl -sS -D headers-wpjson.txt -o body-wpjson.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-wpjson.txt"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response for /robots.txt: 200 OK, disallows only archive.org bots (ia_archiver, archive.org_bot), no blanket disallow for ordinary crawling — confirms this investigation's own plain GET requests were not against the site's stated crawling policy.",
+      "acquired_from": "https://www.saocarlos.pt/robots.txt",
+      "acquired_at": "2026-08-27T09:01:00Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-parses the 60 /calendar/ rows, confirms zero name São Carlos as venue, confirms all 60 content-ids are unique and empirically stable across the two independent fetches (60/60 matching), reconstructs well-formed ISO-local datetimes from each row's own day/month/year/time, confirms no price/€ token anywhere, confirms the production detail page's own session repeater is empty (client-rendered) while the listing pages are genuinely server-rendered, and confirms the homepage's own closure/relocation statement. 25/25 checks passed, exited 0.",
+      "acquired_from": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T09:05:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/teatro-sao-carlos-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

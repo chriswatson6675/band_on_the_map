@@ -40,7 +40,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { fetchText, extractLinkHeaderUrl } from "../http/fetch.mjs";
+import { fetchText, extractLinkHeaderUrl, USER_AGENT } from "../http/fetch.mjs";
 
 import { toObservations as agendalxToObservations } from "../agendalx/observation-adapter.mjs";
 import { parseHotClubeIcsLinks } from "../hot-clube/discovery.mjs";
@@ -83,6 +83,47 @@ import { buildEventsUrl } from "../events-calendar-api/client.mjs";
 import { toObservations as ccbToObservations } from "../events-calendar-api/observation-adapter.mjs";
 import { CCB_MUSIC_CONFIG } from "../ccb/config.mjs";
 
+// PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01 — six new sources, each
+// built entirely from an already READY_FOR_ACTIVATION source investigation
+// (see research/source-investigations/<id>/). Every new collector below
+// follows this file's own existing conventions exactly: isolated in its
+// own try/catch via acquireAll(), never allowed to affect any other source.
+import { parseFamaDAlfamaAgenda } from "../fama-dalfama/discovery.mjs";
+import { toObservations as famaDAlfamaToObservations } from "../fama-dalfama/observation-adapter.mjs";
+import { parseMuseuDoFadoAgendaLinks, extractMuseuDoFadoEventFacts } from "../museu-do-fado/discovery.mjs";
+import { toObservations as museuDoFadoToObservations } from "../museu-do-fado/observation-adapter.mjs";
+import { parseGulbenkianAgendaLinks, parseGulbenkianEventDetail } from "../gulbenkian/discovery.mjs";
+import { toObservations as gulbenkianToObservations } from "../gulbenkian/observation-adapter.mjs";
+import { buildEventsQueryUrl, parseEventsResponse } from "../coliseu-porto/client.mjs";
+import { toObservations as coliseuPortoToObservations } from "../coliseu-porto/observation-adapter.mjs";
+import { parseHardClubAgendaFragment, parseHardClubEventPrice } from "../hard-club-porto/discovery.mjs";
+import { toObservations as hardClubPortoToObservations } from "../hard-club-porto/observation-adapter.mjs";
+import { parseHotFiveShows } from "../hot-five-porto/discovery.mjs";
+import { toObservations as hotFivePortoToObservations } from "../hot-five-porto/observation-adapter.mjs";
+import { parseCampoPequenoAgendaLinks, extractCampoPequenoEventFacts } from "../campo-pequeno/discovery.mjs";
+import { toObservations as campoPequenoToObservations } from "../campo-pequeno/observation-adapter.mjs";
+import { parseCcoSintraAgendaLinks, parseCcoSintraNextPageUrl, extractCcoSintraEventFacts } from "../cco-sintra/discovery.mjs";
+import { toObservations as ccoSintraToObservations } from "../cco-sintra/observation-adapter.mjs";
+import {
+  parseTeatroSaoLuizProgrammeLinks,
+  extractTeatroSaoLuizSeasonLabel,
+  extractTeatroSaoLuizEventFacts,
+} from "../teatro-sao-luiz/discovery.mjs";
+import { toObservations as teatroSaoLuizToObservations } from "../teatro-sao-luiz/observation-adapter.mjs";
+import {
+  parseCmSintraAgendaMusicRecords,
+  extractCmSintraEventFacts,
+} from "../cm-sintra-agenda-cultural/discovery.mjs";
+import { toObservation as cmSintraAgendaCulturalToObservation } from "../cm-sintra-agenda-cultural/observation-adapter.mjs";
+import {
+  parseMatosinhosMusicaListing,
+  parseMatosinhosMusicaNextPageUrl,
+  extractMatosinhosEventDetailFacts,
+} from "../cm-matosinhos-agenda-cultural/discovery.mjs";
+import { toObservations as cmMatosinhosAgendaCulturalToObservations } from "../cm-matosinhos-agenda-cultural/observation-adapter.mjs";
+import { buildFetchRequestBody, parseFetchResponse, filterConcertoRecords, FETCH_ENDPOINT, FETCH_HEADERS } from "../agenda-vila-do-conde/client.mjs";
+import { toObservations as agendaVilaDoCondeToObservations } from "../agenda-vila-do-conde/observation-adapter.mjs";
+
 import { withRetries } from "../unattended-runner/retry.mjs";
 
 import { resolveObservation } from "../venue/resolver.mjs";
@@ -115,9 +156,28 @@ export const LISBON_SOURCE_IDS = [
   "galeria-ze-dos-bois",
   "lav-lisboa-ao-vivo",
   "ccb-centro-cultural-belem",
+  // PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01
+  "fama-dalfama",
+  "museu-do-fado",
+  "gulbenkian",
+  "campo-pequeno",
+  "cco-sintra",
+  "teatro-sao-luiz",
+  "cm-sintra-agenda-cultural",
 ];
 
-export const PORTO_SOURCE_IDS = ["casa-da-musica", "teatro-municipal-do-porto", "cm-gaia-eventos", "super-bock-arena"];
+export const PORTO_SOURCE_IDS = [
+  "casa-da-musica",
+  "teatro-municipal-do-porto",
+  "cm-gaia-eventos",
+  "super-bock-arena",
+  // PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01
+  "coliseu-do-porto",
+  "hard-club-porto",
+  "hot-five-porto",
+  "cm-matosinhos-agenda-cultural-amp",
+  "agenda-vila-do-conde",
+];
 
 function parseArgs(argv) {
   const args = { from: null, to: null };
@@ -508,6 +568,428 @@ async function collectSuperBockArena() {
   };
 }
 
+// ---------------------------------------------------------------------
+// PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01 — six new collectors,
+// each built entirely from a READY_FOR_ACTIVATION source investigation
+// (see research/source-investigations/<id>/). Every function below
+// follows the exact same { rawRecordCount, observations, notes } shape
+// as every existing collector in this file.
+// ---------------------------------------------------------------------
+
+async function collectFamaDalfama() {
+  const url = "https://famadalfama.pt/agenda-de-fados-em-lisboa/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseFamaDAlfamaAgenda(res.text);
+  const observations = famaDAlfamaToObservations(records, {
+    retrievedAt: res.retrievedAt,
+    sourceUrl: url,
+    contentType: res.contentType,
+    fixturePath: null,
+  });
+  return { rawRecordCount: records.length, observations, notes: [] };
+}
+
+async function collectMuseuDoFado() {
+  const indexUrl = "https://museudofado.pt/eventos";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const eventUrls = parseMuseuDoFadoAgendaLinks(indexRes.text);
+  const factsList = [];
+  const notes = [];
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    try {
+      factsList.push({ ...extractMuseuDoFadoEventFacts(pageRes.text), event_url: eventUrl });
+    } catch (error) {
+      notes.push(`${eventUrl}: ${error.message}`);
+    }
+  }
+  const observations = museuDoFadoToObservations(factsList, {
+    retrievedAt: indexRes.retrievedAt,
+    contentType: "text/html",
+  });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+async function collectGulbenkian() {
+  const indexUrl = "https://gulbenkian.pt/musica/agenda/";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const eventUrls = parseGulbenkianAgendaLinks(indexRes.text);
+  const records = [];
+  const notes = [];
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    try {
+      records.push(parseGulbenkianEventDetail(pageRes.text));
+    } catch (error) {
+      notes.push(`${eventUrl}: ${error.message}`);
+    }
+  }
+  const observations = gulbenkianToObservations(records, {
+    retrievedAt: indexRes.retrievedAt,
+    contentType: "text/html",
+  });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+// Considerate-client bound on Coliseu Porto Ageas GraphQL pagination —
+// see ingestion/coliseu-porto/client.mjs's own doc comment. The retained
+// investigation observed totalCount=72 at review time; this bound is set
+// comfortably above that rather than tuned to it exactly, so genuine
+// catalogue growth is never silently truncated without being reported.
+const COLISEU_PORTO_PAGE_SIZE = 25;
+const COLISEU_PORTO_MAX_PAGES = 5;
+
+async function collectColiseuPorto() {
+  const notes = [];
+  const allNodes = [];
+  let offset = 0;
+  let pagesFetched = 0;
+  let lastRetrievedAt = null;
+  let totalCount = null;
+
+  while (pagesFetched < COLISEU_PORTO_MAX_PAGES) {
+    const url = buildEventsQueryUrl({ limit: COLISEU_PORTO_PAGE_SIZE, offset });
+    const res = await fetchText(url, {});
+    pagesFetched += 1;
+    if (!res.ok) {
+      if (pagesFetched === 1) throw new Error(`HTTP ${res.status} from ${url}`);
+      notes.push(`page ${pagesFetched} (offset ${offset}): HTTP ${res.status} — stopping pagination`);
+      break;
+    }
+    lastRetrievedAt = res.retrievedAt;
+    const { totalCount: total, nodes } = parseEventsResponse(res.text);
+    totalCount = total;
+    allNodes.push(...nodes);
+    offset += COLISEU_PORTO_PAGE_SIZE;
+    if (nodes.length === 0 || allNodes.length >= total) break;
+  }
+  if (totalCount !== null && allNodes.length < totalCount && pagesFetched >= COLISEU_PORTO_MAX_PAGES) {
+    notes.push(`stopped after ${COLISEU_PORTO_MAX_PAGES} pages (considerate-client bound); ${totalCount - allNodes.length} more event(s) exist`);
+  }
+
+  const observations = coliseuPortoToObservations(allNodes, {
+    retrievedAt: lastRetrievedAt,
+    sourceUrl: buildEventsQueryUrl({ limit: COLISEU_PORTO_PAGE_SIZE, offset: 0 }),
+    contentType: "application/json",
+    fixturePath: null,
+  });
+  return { rawRecordCount: allNodes.length, observations, notes };
+}
+
+async function collectHardClubPorto() {
+  const bootstrapUrl = "https://www.hardclubporto.com/PT/agenda/";
+  const bootstrapRes = await fetch(bootstrapUrl, { headers: { "User-Agent": USER_AGENT } });
+  if (!bootstrapRes.ok) throw new Error(`HTTP ${bootstrapRes.status} from ${bootstrapUrl}`);
+  await bootstrapRes.text(); // drain the body; only the session cookie is needed from this step
+  const setCookies =
+    typeof bootstrapRes.headers.getSetCookie === "function"
+      ? bootstrapRes.headers.getSetCookie()
+      : [bootstrapRes.headers.get("set-cookie")].filter(Boolean);
+  const cookieHeader = setCookies.map((c) => c.split(";")[0]).join("; ");
+  if (!cookieHeader) throw new Error(`No session cookie returned by ${bootstrapUrl} — cannot warm the AJAX list fragment`);
+
+  // The site's own AJAX endpoint requires X-Requested-With: XMLHttpRequest
+  // (confirmed live 2026-08-27 — a plain Cookie-only request returns HTTP
+  // 200 with a zero-length body; adding this header is what makes the PHP
+  // backend actually render the fragment). Referer is not required.
+  const ajaxHeaders = { Cookie: cookieHeader, "X-Requested-With": "XMLHttpRequest" };
+  const listUrl = "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&langid=1&passo=30&evento=";
+  const listRes = await fetchText(listUrl, { headers: ajaxHeaders });
+  if (!listRes.ok) throw new Error(`HTTP ${listRes.status} from ${listUrl}`);
+  const records = parseHardClubAgendaFragment(listRes.text);
+
+  const notes = [];
+  const priceBySlug = {};
+  for (const record of records) {
+    const priceUrl = `https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=${encodeURIComponent(record.source_record_id)}&type=load-agenda&index=0`;
+    const priceRes = await fetchText(priceUrl, { headers: ajaxHeaders });
+    if (!priceRes.ok) {
+      notes.push(`${record.source_record_id}: price fetch HTTP ${priceRes.status}`);
+      continue;
+    }
+    try {
+      priceBySlug[record.source_record_id] = parseHardClubEventPrice(priceRes.text);
+    } catch (error) {
+      notes.push(`${record.source_record_id}: price parse failed — ${error.message}`);
+    }
+  }
+
+  const observations = hardClubPortoToObservations(records, {
+    retrievedAt: listRes.retrievedAt,
+    sourceUrl: listUrl,
+    contentType: listRes.contentType,
+    fixturePath: null,
+    priceBySlug,
+  });
+  return { rawRecordCount: records.length, observations, notes };
+}
+
+async function collectHotFivePorto() {
+  const url = "https://hotfive.pt/shows/";
+  const res = await fetchText(url, {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const records = parseHotFiveShows(res.text);
+  const observations = hotFivePortoToObservations(records, {
+    retrievedAt: res.retrievedAt,
+    sourceUrl: url,
+    contentType: res.contentType,
+    fixturePath: null,
+  });
+  return { rawRecordCount: records.length, observations, notes: [] };
+}
+
+async function collectCampoPequeno() {
+  const indexUrl = "https://www.sagrescampopequeno.pt/pt/agenda";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const eventUrls = parseCampoPequenoAgendaLinks(indexRes.text);
+  const factsList = [];
+  const notes = [];
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    try {
+      factsList.push(extractCampoPequenoEventFacts(pageRes.text));
+    } catch (error) {
+      notes.push(`${eventUrl}: ${error.message}`);
+    }
+  }
+  const observations = campoPequenoToObservations(factsList, {
+    retrievedAt: indexRes.retrievedAt,
+    contentType: "text/html",
+  });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+// Considerate-client bound on CCO Sintra iCagenda pagination, matching
+// this file's existing precedent for other paginated sources (Casa da
+// Música, CM Gaia Eventos).
+const CCO_SINTRA_MAX_PAGES = 5;
+
+async function collectCcoSintra() {
+  const notes = [];
+  const eventUrls = [];
+  let url = "https://ccolgacadaval.pt/agenda";
+  let pagesFetched = 0;
+
+  while (url && pagesFetched < CCO_SINTRA_MAX_PAGES) {
+    const res = await fetchText(url, {});
+    pagesFetched += 1;
+    if (!res.ok) {
+      if (pagesFetched === 1) throw new Error(`HTTP ${res.status} from ${url}`);
+      notes.push(`page ${pagesFetched} (${url}): HTTP ${res.status} — stopping pagination`);
+      break;
+    }
+    eventUrls.push(...parseCcoSintraAgendaLinks(res.text));
+    url = parseCcoSintraNextPageUrl(res.text);
+  }
+  if (url && pagesFetched >= CCO_SINTRA_MAX_PAGES) {
+    notes.push(`stopped after ${CCO_SINTRA_MAX_PAGES} pages (considerate-client bound); more pages may exist`);
+  }
+
+  const records = [];
+  let lastRetrievedAt = null;
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    lastRetrievedAt = pageRes.retrievedAt;
+    try {
+      records.push(extractCcoSintraEventFacts(pageRes.text));
+    } catch (error) {
+      notes.push(`${eventUrl}: ${error.message}`);
+    }
+  }
+
+  const observations = ccoSintraToObservations(records, {
+    retrievedAt: lastRetrievedAt,
+    contentType: "text/html",
+  });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+async function collectTeatroSaoLuiz() {
+  const indexUrl = "https://www.teatrosaoluiz.pt/en/programme/";
+  const indexRes = await fetchText(indexUrl, {});
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} from ${indexUrl}`);
+  const eventUrls = parseTeatroSaoLuizProgrammeLinks(indexRes.text);
+  const seasonLabel = extractTeatroSaoLuizSeasonLabel(indexRes.text);
+
+  const factsList = [];
+  const notes = [];
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    try {
+      factsList.push(extractTeatroSaoLuizEventFacts(pageRes.text, { headersText: pageRes.linkHeader }));
+    } catch (error) {
+      notes.push(`${eventUrl}: ${error.message}`);
+    }
+  }
+
+  const observations = teatroSaoLuizToObservations(factsList, {
+    seasonLabel,
+    retrievedAt: indexRes.retrievedAt,
+    contentType: "text/html",
+  });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+async function collectCmSintraAgendaCultural() {
+  // Replicates the exact request shape the investigation itself validated
+  // (investigation.json data_paths[0].url: "?filter_from=<date>&
+  // filter_category=3") — filter_category alone was separately observed to
+  // also surface past/differently-shaped historical records (investigation
+  // evidence/body-filter-category-only.html), which is why this collector
+  // always combines it with today's own date as the lower bound, exactly
+  // like the evidenced request. This is a live query parameter (bounding
+  // which rows the server returns), never an assertion about any specific
+  // event's own date — no event field is ever derived from this value.
+  const today = new Date().toISOString().slice(0, 10);
+  const listUrl = `https://cm-sintra.pt/agenda?filter_from=${today}&filter_category=3`;
+  const listRes = await fetchText(listUrl, {});
+  if (!listRes.ok) throw new Error(`HTTP ${listRes.status} from ${listUrl}`);
+  const records = parseCmSintraAgendaMusicRecords(listRes.text);
+
+  const notes = [];
+  const observations = [];
+  for (const record of records) {
+    let priceText = null;
+    const detailRes = await fetchText(record.permalink, {});
+    if (!detailRes.ok) {
+      notes.push(`${record.permalink}: HTTP ${detailRes.status} — using list-page fields only`);
+    } else {
+      try {
+        priceText = extractCmSintraEventFacts(detailRes.text).price_text;
+      } catch (error) {
+        notes.push(`${record.permalink}: ${error.message}`);
+      }
+    }
+    observations.push(
+      cmSintraAgendaCulturalToObservation(
+        { ...record, price_text: priceText },
+        { retrievedAt: listRes.retrievedAt, contentType: "text/html" },
+      ),
+    );
+  }
+
+  return { rawRecordCount: records.length, observations, notes };
+}
+
+// Considerate-client bound on CM Matosinhos' paginated music listing,
+// matching this file's existing precedent for other paginated sources.
+const CM_MATOSINHOS_MAX_PAGES = 5;
+
+async function collectCmMatosinhosAgendaCultural() {
+  const notes = [];
+  const listingRecords = [];
+  let url = "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica";
+  let pagesFetched = 0;
+
+  while (url && pagesFetched < CM_MATOSINHOS_MAX_PAGES) {
+    const res = await fetchText(url, {});
+    pagesFetched += 1;
+    if (!res.ok) {
+      if (pagesFetched === 1) throw new Error(`HTTP ${res.status} from ${url}`);
+      notes.push(`page ${pagesFetched} (${url}): HTTP ${res.status} — stopping pagination`);
+      break;
+    }
+    listingRecords.push(...parseMatosinhosMusicaListing(res.text));
+    url = parseMatosinhosMusicaNextPageUrl(res.text);
+  }
+  const eventUrls = listingRecords.map((record) => record.event_url);
+  if (url && pagesFetched >= CM_MATOSINHOS_MAX_PAGES) {
+    notes.push(`stopped after ${CM_MATOSINHOS_MAX_PAGES} pages (considerate-client bound); more pages may exist`);
+  }
+
+  const factsList = [];
+  let lastRetrievedAt = null;
+  for (const eventUrl of eventUrls) {
+    const pageRes = await fetchText(eventUrl, {});
+    if (!pageRes.ok) {
+      notes.push(`${eventUrl}: HTTP ${pageRes.status}`);
+      continue;
+    }
+    lastRetrievedAt = pageRes.retrievedAt;
+    try {
+      factsList.push(extractMatosinhosEventDetailFacts(pageRes.text));
+    } catch (error) {
+      notes.push(`${eventUrl}: ${error.message}`);
+    }
+  }
+
+  const observations = cmMatosinhosAgendaCulturalToObservations(factsList, {
+    retrievedAt: lastRetrievedAt,
+    contentType: "text/html",
+  });
+  return { rawRecordCount: eventUrls.length, observations, notes };
+}
+
+// Considerate-client bound on Agenda Vila do Conde's repeater pagination —
+// the investigation retained 2 real pages (29 records); this leaves
+// headroom without fetching unboundedly.
+const AGENDA_VILA_DO_CONDE_MAX_PAGES = 5;
+
+async function collectAgendaVilaDoConde() {
+  const notes = [];
+  const concertoRecords = [];
+  let lastRelated = null;
+  let lastRetrievedAt = null;
+  let page = 1;
+  let totalPages = null;
+
+  while (page <= AGENDA_VILA_DO_CONDE_MAX_PAGES && (totalPages === null || page <= totalPages)) {
+    const res = await fetch(FETCH_ENDPOINT, {
+      method: "POST",
+      headers: { "User-Agent": USER_AGENT, ...FETCH_HEADERS },
+      body: JSON.stringify(buildFetchRequestBody({ page })),
+    });
+    if (!res.ok) {
+      if (page === 1) throw new Error(`HTTP ${res.status} from ${FETCH_ENDPOINT}`);
+      notes.push(`page ${page}: HTTP ${res.status} — stopping pagination`);
+      break;
+    }
+    lastRetrievedAt = new Date().toISOString();
+    const text = await res.text();
+    const { items, related, totalPages: reportedTotalPages } = parseFetchResponse(text);
+    totalPages = reportedTotalPages;
+    lastRelated = related;
+    concertoRecords.push(...filterConcertoRecords(items, related));
+    page += 1;
+  }
+  if (totalPages !== null && page <= totalPages) {
+    notes.push(`stopped after ${AGENDA_VILA_DO_CONDE_MAX_PAGES} page(s) (considerate-client bound); more pages may exist`);
+  }
+
+  const observations = agendaVilaDoCondeToObservations(concertoRecords, {
+    related: lastRelated,
+    retrievedAt: lastRetrievedAt,
+    sourceUrl: FETCH_ENDPOINT,
+    contentType: "application/json",
+    fixturePath: null,
+  });
+  return { rawRecordCount: concertoRecords.length, observations, notes };
+}
+
 const COLLECTORS = {
   agendalx: collectAgendalx,
   "hot-clube-de-portugal": collectHotClube,
@@ -523,6 +1005,19 @@ const COLLECTORS = {
   "teatro-municipal-do-porto": collectTeatroMunicipalPorto,
   "cm-gaia-eventos": collectCmGaiaEventos,
   "super-bock-arena": collectSuperBockArena,
+  // PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01
+  "fama-dalfama": collectFamaDalfama,
+  "museu-do-fado": collectMuseuDoFado,
+  gulbenkian: collectGulbenkian,
+  "campo-pequeno": collectCampoPequeno,
+  "cco-sintra": collectCcoSintra,
+  "teatro-sao-luiz": collectTeatroSaoLuiz,
+  "coliseu-do-porto": collectColiseuPorto,
+  "hard-club-porto": collectHardClubPorto,
+  "hot-five-porto": collectHotFivePorto,
+  "cm-sintra-agenda-cultural": collectCmSintraAgendaCultural,
+  "cm-matosinhos-agenda-cultural-amp": collectCmMatosinhosAgendaCultural,
+  "agenda-vila-do-conde": collectAgendaVilaDoConde,
 };
 
 // `retryPolicy` (BOTM-UNATTENDED-COLLECTION-RUNNER-01, optional — every

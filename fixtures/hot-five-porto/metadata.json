@@ -1,0 +1,48 @@
+{
+  "source_id": "hot-five-porto",
+  "investigation_id": "hot-five-porto-01",
+  "investigation_path": "research/source-investigations/hot-five-porto-01/investigation.json",
+  "fixture_kind": "TRIMMED_EXCERPT",
+  "description": "A small, deterministic, offline test fixture for the hot-five-porto collector. shows-excerpt.html is NOT a live fetch — it is a trimmed excerpt containing 6 of the 52 real event cards from the retained investigation evidence at research/source-investigations/hot-five-porto-01/evidence/body-shows.html (itself a plain curl GET of https://hotfive.pt/shows/ acquired 2026-08-25T01:31:00Z per that investigation's evidence[] entry \"ev-shows-body\"). Every card block was copied byte-for-byte (including original whitespace) from that retained file; nothing in this fixture was invented.",
+  "acquired_from_evidence": "research/source-investigations/hot-five-porto-01/evidence/body-shows.html",
+  "cards_included": [
+    {
+      "title": "All About... Blues",
+      "date_text": "02 jul",
+      "source_line_range": "313-343",
+      "notes": "normal single-button card with a lebillet.eu ticket href"
+    },
+    {
+      "title": "Amy Winehouse (Back to Amy)",
+      "date_text": "03 jul",
+      "source_line_range": "352-382",
+      "notes": "title contains an embedded <br> line break in the source markup ('Amy Winehouse<br>(Back to Amy)')"
+    },
+    {
+      "title": "The House of Gatsby",
+      "date_text": "10 & 11 jul",
+      "source_line_range": "551-592",
+      "notes": "irregular combined two-day date string with TWO ticket buttons (event/1919 and event/1922); this collector deliberately keeps only the first href/id, matching the investigation's own evidence/offline-proof.mjs behaviour and collector_assessment.blockers' recorded MINOR entry about this exact card"
+    },
+    {
+      "title": "Jam Session",
+      "date_text": "12 jul",
+      "source_line_range": "601-631",
+      "notes": "button widget present but carries role=\"button\" with no href attribute at all -- no ticketing link"
+    },
+    {
+      "title": "Exceptionally Closed!",
+      "date_text": "06 ago",
+      "source_line_range": "1161-1191",
+      "notes": "button widget text reads \"unavailable\"; role=\"button\" with no href -- no ticketing link"
+    },
+    {
+      "title": "Live Jazz",
+      "date_text": "28 ago",
+      "source_line_range": "1680-1710",
+      "notes": "the exact card independently corroborated by the investigation's retained third-party evidence (evidence/body-lebillet-1981.html), whose own <title> states the year 2026 -- retained there only as non-authoritative corroboration, never used here to populate a proven year"
+    }
+  ],
+  "not_included": "46 of the 52 real /shows/ cards were omitted only to keep this fixture small and bounded, per docs/SOURCE_INVESTIGATION_POLICY.md's bounded-evidence principle -- omission does not imply anything about those cards' content.",
+  "retrieved_at": "2026-08-25T01:31:00Z"
+}

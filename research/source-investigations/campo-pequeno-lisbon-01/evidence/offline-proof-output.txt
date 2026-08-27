@@ -1,0 +1,51 @@
+PASS: agenda list page yields 28 distinct event cards
+PASS: every event card has a unique /pt/agenda/{slug} href (no duplicate slugs)
+PASS: every card's title, local, and date are non-empty
+PASS: every card's 'local' field is exactly 'Lisboa' (city only, on the list page)
+PASS: all 4 sampled detail pages expose a non-empty <h1> title
+PASS: all 4 sampled detail pages expose a canonical URL of the form https://www.sagrescampopequeno.pt/pt/{slug}
+PASS: all 4 sampled detail pages expose a full 'DD month YYYY , weekday' date header
+PASS: all 4 sampled detail pages expose 'Lisboa - Sagres Campo Pequeno' as the location
+PASS: all 4 sampled detail pages expose both a start time and a doors time, via EITHER retained free-text pattern A or B
+NOTE (material finding, not a failure): the 'Sessões' free-text time format is INCONSISTENT across this bounded 4-event sample — pattern distribution: {"A":3,"B":1}. A collector cannot rely on a single fixed regex for this field without handling both variants; recorded honestly as field_assessment.time.state = PARTIAL, not PROVEN.
+PASS: all 4 sampled detail pages expose at least one priced admission tier (data-areaname + data-price)
+PASS: detail page date for 'alphaville' matches its own agenda-list card date
+PASS: detail page date for 'megadeth' matches its own agenda-list card date
+PASS: detail page date for 'the-nutcracker-ice-show' matches its own agenda-list card date
+PASS: detail page date for 'brandi-carlile---cancelado' matches its own agenda-list card date
+PASS: 'alphaville': source-stated weekday 'sexta-feira' for 16 outubro 2026 matches real Gregorian-calendar arithmetic ('sexta-feira')
+PASS: 'megadeth': source-stated weekday 'terça-feira' for 13 abril 2027 matches real Gregorian-calendar arithmetic ('terça-feira')
+PASS: 'the-nutcracker-ice-show': source-stated weekday 'sábado' for 14 novembro 2026 matches real Gregorian-calendar arithmetic ('sábado')
+PASS: 'brandi-carlile---cancelado': source-stated weekday 'domingo' for 1 novembro 2026 matches real Gregorian-calendar arithmetic ('domingo')
+PASS: at least 4 independent weekday cross-checks were actually performed (not zero)
+PASS: the canonical short URL (/pt/alphaville) and the agenda-relative URL (/pt/agenda/alphaville) serve the identical event (same <h1> title)
+PASS: the canonical short URL response's own <link rel=canonical> is self-consistent (points at itself)
+PASS: the canonical short URL and agenda-relative URL responses state the identical date+weekday
+PASS: retained sitemap (body-sitemap-pt.xml) independently lists https://www.sagrescampopequeno.pt/pt/alphaville
+PASS: retained sitemap (body-sitemap-pt.xml) independently lists https://www.sagrescampopequeno.pt/pt/megadeth
+PASS: retained sitemap (body-sitemap-pt.xml) independently lists https://www.sagrescampopequeno.pt/pt/the-nutcracker-ice-show
+PASS: retained sitemap (body-sitemap-pt.xml) independently lists https://www.sagrescampopequeno.pt/pt/brandi-carlile---cancelado
+PASS: the agenda list page's own JSON-LD contains no Event/MusicEvent block (BreadcrumbList only)
+PASS: the alphaville detail page's own JSON-LD contains no Event/MusicEvent block (BreadcrumbList only)
+PASS: https://sagrescampopequeno.pt redirects (301) to https://www.sagrescampopequeno.pt/
+PASS: https://sagrescampopequeno.pt/pt/agenda redirects (301) to https://www.sagrescampopequeno.pt/pt/agenda
+PASS: homepage <title> is 'Sagres Campo Pequeno'
+PASS: homepage states the venue's own street context ('Avenida da República')
+PASS: homepage footer names 'Sagres Campo Pequeno' as the site section heading
+
+--- sample of parsed agenda cards (first 5 of 28) ---
+  12 setembro 2026 | Alma Ibérica | /pt/agenda/alma-iberica
+  17 setembro 2026 | Sigur Rós THE ORCHESTRAL TOUR | /pt/agenda/sigur-ros-the-orchestral-tour
+  23 setembro 2026 | Fat Freddy's Drop Based on a True Story | /pt/agenda/fat-freddys-drop-based-on-a-true-story
+  29 setembro 2026 | Placebo 30th Anniversary Tour | /pt/agenda/placebo-30th-anniversary-tour
+  2 outubro 2026 | Simone Mendes | /pt/agenda/simone-mendes
+
+--- sampled detail-page extraction ---
+  alphaville: title="Alphaville" date="16 outubro 2026 , sexta-feira" location="Lisboa - Sagres Campo Pequeno" start=21H30 doors=20H30 prices=7 canonical="https://www.sagrescampopequeno.pt/pt/alphaville"
+  megadeth: title="Megadeth" date="13 abril 2027 , terça-feira" location="Lisboa - Sagres Campo Pequeno" start=19h30 doors=18h30 prices=5 canonical="https://www.sagrescampopequeno.pt/pt/megadeth"
+  the-nutcracker-ice-show: title="The Nutcracker Ice Show" date="14 novembro 2026 , sábado" location="Lisboa - Sagres Campo Pequeno" start=19H30 doors=18H30 prices=9 canonical="https://www.sagrescampopequeno.pt/pt/the-nutcracker-ice-show"
+  brandi-carlile---cancelado: title="Brandi Carlile - cancelado" date="1 novembro 2026 , domingo" location="Lisboa - Sagres Campo Pequeno" start=20H00 doors=19H00 prices=10 canonical="https://www.sagrescampopequeno.pt/pt/brandi-carlile---cancelado"
+
+weekday cross-checks: 4/4 matched real Gregorian-calendar arithmetic
+
+OFFLINE PROOF: PASSED (0 failing check(s))

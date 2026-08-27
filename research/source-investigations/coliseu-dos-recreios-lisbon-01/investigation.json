@@ -1,0 +1,485 @@
+{
+  "investigation_id": "coliseu-dos-recreios-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:24:45Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: plain, unauthenticated curl GETs (descriptive project User-Agent, no browser, no authentication) against the live official site https://coliseulisboa.com/. Fetched the homepage, one contacts page, robots.txt, and five 'eventos' detail pages found via homepage links, then discovered and exercised the site's own public WordPress REST API for its custom 'eventos' post type (/wp-json/wp/v2/eventos), including per-ID lookup, slug-based lookup, a custom-taxonomy ('categoriaevento') filter, and the taxonomy-terms listing. A dependency-free, no-network Node offline-proof script re-parsed every retained fixture to mechanically cross-check the homepage's server-rendered date/title/url list against the REST API's structured per-event JSON for 5 sampled events (5/5 matched), confirm empirical source_record_id (WordPress post ID) stability via two independent fetches of the same event, and confirm the categoriaevento taxonomy term-id-to-name mapping. Level 1 was SUFFICIENT for every technical/data-acquisition question; no escalation to Level 2/3/4 was attempted or needed. Separately, and NOT a probe-ladder question, this investigation's own retained robots.txt discloses a Cloudflare-managed 'Content-Signal: ai-train=no' reservation plus an explicit 'User-agent: ClaudeBot / Disallow: /' block (alongside GPTBot, Google-Extended, Bytespider, CCBot, Amazonbot, Applebot-Extended, meta-externalagent) — a material, honestly-surfaced rights/governance finding that this investigation does not resolve unilaterally; see decision below."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://coliseulisboa.com/ (BandOnTheMap-SourceInvestigation/0.1 UA) returned 200 OK with a fully server-rendered homepage containing 69 upcoming-event cards (Elementor 'Loop' widgets pulling from a WordPress custom post type, 'eventos'), each with a title, a full day+month-name+year date, and a detail-page URL. The response headers' Link header advertised the WordPress REST API root (rel=\"https://api.w.org/\"). Following that lead, a plain GET of https://coliseulisboa.com/wp-json/wp/v2/types confirmed a public, unauthenticated 'eventos' custom post type, and https://coliseulisboa.com/wp-json/wp/v2/eventos/<id> (tested against 5 sampled events found via the homepage) returned full, richly structured JSON for each event -- including a 'toolset-meta' object (the Types/Toolset plugin) with per-event start date (Unix timestamp + human-formatted date), start time, doors-open time, end date (for multi-day runs), a numeric 'codigo-evento' matching the event's own linked BOL.pt ticket URL, a venue sub-object (name, room, full address, lat/long), a price breakdown by seating sector, and a 'categoriaevento' custom-taxonomy term array. This alone answered identity, platform classification, data-path discovery, and field assessment for every mandatory field without needing to inspect any JS bundle or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted. Also note: an older, informal note in sources/lisbon.json's own acquisition_path_detail records 'Repeated HTTP 403 on automated fetch during research' for this same candidate -- every one of this investigation's ~25 own live requests today returned 200 OK; this is recorded as an honest, unresolved discrepancy with that older note (see identity.notes), not silently reconciled.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-wpjson-types",
+        "ev-rest-fischer-z",
+        "ev-rest-deva-premal",
+        "ev-rest-o-lago-dos-cisnes",
+        "ev-rest-antonio-zambujo",
+        "ev-rest-iolanda",
+        "ev-offline-proof",
+        "ev-offline-proof-output"
+      ]
+    }
+  ],
+  "source_candidate_id": "coliseu-dos-recreios-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Coliseu dos Recreios / Coliseu de Lisboa -- Rua das Portas de Santo Antão 96, 1150-269 Lisboa, Portugal. The venue's own site (coliseulisboa.com) self-identifies as \"Coliseu dos Recreios\" in page titles/branding, while its own structured event data (WordPress REST API toolset-meta.entidade.nome, and every BOL.pt ticket-purchase URL slug) consistently names the operating entity \"Coliseu de Lisboa\" -- both names refer to the same single physical venue; this investigation does not treat them as two different candidates.",
+  "official_url": "https://coliseulisboa.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-contatos", "ev-rest-fischer-z"],
+    "notes": "The retained homepage's own <title> ('Coliseu dos Recreios - www.coliseulisboa.com'), WebSite JSON-LD block, and og:site_name all self-identify as 'Coliseu dos Recreios'. The retained /contatos/ page independently states the operating company ('Ricardo Covões S.A.') and the exact physical address 'Rua das Portas de Santo Antão 96, 1150-269 Lisboa' -- an EXACT match to sources/lisbon.json's existing physical_address field for this candidate (id: coliseu-dos-recreios), confirmed independently by this investigation's own fresh evidence rather than assumed. Every sampled event's own REST API record additionally states, in structured form (toolset-meta.entidade), the operating/booking name 'Coliseu de Lisboa', room 'Sala Principal', the same postal address and postcode (1150269), and coordinates (38.716506575013, -9.140681326389) -- consistent across all 5 sampled events. BOL.pt ticket-purchase links found on every sampled event page/record use the URL-embedded venue slug 'coliseu_de_lisboa', matching the task brief's own expectation that the venue's ticketing-facing name is 'Coliseu de Lisboa'. DISCREPANCY WITH THE EXISTING REGISTRY NOTE: sources/lisbon.json's acquisition_path_detail says 'Repeated HTTP 403 on automated fetch during research'. This investigation's own ~25 live requests today (homepage, contacts page, robots.txt, 5 detail pages, 2x REST per-event lookups, slug lookup, taxonomy-term lookup, category-filtered list, types listing) ALL returned 200 OK -- no 403 was observed anywhere. Recorded honestly as a disagreement with the older note, not silently reconciled; it is possible the earlier block was transient, UA-specific, IP-specific, or has simply been relaxed/changed since. Current, independently retained evidence wins per this project's established practice (see e.g. research/source-investigations/gulbenkian-lisbon-01's own identical-pattern discrepancy note)."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress (theme 'Astra' + a child theme, Elementor Pro + PowerPack for page-building), with a custom 'eventos' post type registered via the Toolset/Types plugin (evidenced by the 'toolset-meta' object exposed on every /wp-json/wp/v2/eventos/<id> response, and by SEOPress-branded meta fields). Event content appears synced from BOL.pt's own ticketing/event-management system into this WordPress site's custom fields -- evidenced by ws.bol.pt-hosted poster images, bol.pt ticket-purchase URLs embedding the same numeric 'codigo-evento' the REST API exposes, and toolset-meta.entidade naming the booking entity 'Coliseu de Lisboa'. Fronted by Cloudflare (Server: cloudflare; CF-RAY header present). A public, unauthenticated WordPress REST API (/wp-json/wp/v2/eventos) exposes full per-event structured JSON, including a custom 'categoriaevento' taxonomy (term id 49 = 'Concerto', parent term id 47 = 'Música & Festivais') that can filter the list to genuine concert/music events, distinct from this multi-purpose venue's comedy, ballet/theatre ('Teatro & Arte'), and other programming.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-headers", "ev-wpjson-types", "ev-rest-fischer-z", "ev-rest-by-slug", "ev-rest-categoriaevento-terms", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (homepage; 69 server-rendered upcoming-event cards, Sep 2026-May 2027)",
+      "url": "https://coliseulisboa.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_EVENT_DETAIL (by numeric WordPress post id; full toolset-meta structured fields)",
+      "url": "https://coliseulisboa.com/wp-json/wp/v2/eventos/{id}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-rest-deva-premal", "ev-rest-o-lago-dos-cisnes", "ev-rest-antonio-zambujo", "ev-rest-iolanda", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_EVENT_LOOKUP_BY_SLUG (?slug={slug}; resolves a homepage href's own slug to its numeric id + categoriaevento term ids)",
+      "url": "https://coliseulisboa.com/wp-json/wp/v2/eventos?slug={slug}",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rest-by-slug"]
+    },
+    {
+      "kind": "WP_JSON_REST_EVENT_LIST_FILTERED (?categoriaevento={term_id}; proves the taxonomy can filter to music/concert events -- 239 posts under term 49 'Concerto' at time of investigation, of a 494-post total across all eventos)",
+      "url": "https://coliseulisboa.com/wp-json/wp/v2/eventos?categoriaevento=49&per_page=100",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-rest-concerto-filter"]
+    },
+    {
+      "kind": "WP_JSON_REST_TAXONOMY_TERMS (categoriaevento term-id-to-name mapping, multilingual: PT/EN/FR variants)",
+      "url": "https://coliseulisboa.com/wp-json/wp/v2/categoriaevento?per_page=100",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rest-categoriaevento-terms", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (canonical per-event page; no JSON-LD/schema.org; used only as a secondary cross-check of doors-open time and price-sector text already available structured via the REST API)",
+      "url": "https://coliseulisboa.com/eventos/{slug}/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-detail-fischer-z", "ev-detail-deva-premal", "ev-detail-o-lago-dos-cisnes", "ev-detail-antonio-zambujo", "ev-detail-iolanda"]
+    },
+    {
+      "kind": "WP_JSON_REST_EVENT_LIST_DEFAULT_ORDER (orderby=date; orders by WordPress POST-publish date, not the event's own occurrence date -- rejected as an enumeration strategy on its own; a future collector should rely on the homepage's own curated/date-sorted upcoming list, or client-side sort by toolset-meta.evento.datainicialevento, not this endpoint's default order)",
+      "url": "https://coliseulisboa.com/wp-json/wp/v2/eventos?per_page=100&orderby=date&order=desc",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-rest-list-orderby-date"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FISCHER-Z",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The REST API's own top-level 'title.rendered' and toolset-meta.evento.titulo.raw both directly state the event title; independently cross-checked against the homepage's own server-rendered <h3> card text for the same event slug (5/5 sampled events matched exactly, mechanically confirmed in evidence/offline-proof-output.txt). No combination with surrounding context is needed -- DIRECT_SOURCE. Representative value shown is for FISCHER-Z (4 Sep 2026); see offline-proof-output.txt for all 5 sampled values.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-home-body", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-04",
+      "basis": "DIRECT_SOURCE",
+      "notes": "toolset-meta.evento.datainicialevento directly states the event's calendar date as both a Unix timestamp (midnight UTC of that calendar date -- confirmed by decoding it offline; not itself a real time-of-day claim, just how the source's 'date'-type custom field serialises a date-only value) and a human-readable 'formatted' string (e.g. 'September 4, 2026'). Independently cross-checked, mechanically, against the homepage's own separately-rendered day+month-name+year text for the same event slug -- 5/5 sampled events matched exactly (evidence/offline-proof-output.txt), including both single-day events and the day-only 'start' side of two multi-day runs. This is a floating LOCAL calendar date -- no explicit IANA timezone or UTC offset is stated anywhere in the retained evidence; Europe/Lisbon is the obvious real-world venue timezone but this investigation does not fabricate a confirmed UTC instant from it. DIRECT_SOURCE, not DETERMINISTIC_CONTEXT -- the full date is stated directly by the source's own structured field, not assembled from separate context pieces.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-rest-deva-premal", "ev-rest-o-lago-dos-cisnes", "ev-rest-antonio-zambujo", "ev-rest-iolanda", "ev-home-body", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "21:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "toolset-meta.evento.horainicialeventosemsegundos directly states the performance's own start time (distinct from, and later than, the separately-labelled 'aberturaportas'/doors-open time -- e.g. FISCHER-Z: doors 20:00, start 21:00). Present and populated for all 5 sampled events. Floating LOCAL time only -- no timezone/UTC offset stated anywhere in the retained evidence, same caveat as start_date. The detail HTML page's own '<span>Abertura de Portas: HH:MM</span>' text independently corroborates the doors-time half of this (evidence/body-detail-fischer-z.html etc.) but is NOT itself the performance start time and must not be confused with it by a future collector.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-rest-deva-premal", "ev-rest-o-lago-dos-cisnes", "ev-rest-antonio-zambujo", "ev-rest-iolanda", "ev-detail-fischer-z", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "toolset-meta.evento.horafinalevento (end TIME) was empty/blank for all 5 sampled events -- no source ever states when a given performance ends. toolset-meta.evento.datafinalevento (end DATE) is populated only for the two sampled multi-day-run events (O Lago dos Cisnes: 15-16 Jan 2027; António Zambujo/Miguel Araújo: 2-6 Feb 2027) and represents the LAST DAY of the run, not a per-performance end timestamp -- and this investigation could not determine, from any retained evidence, how many individual performances occur within such a run or at what time(s) on the intermediate/final days. Recorded honestly as NOT_PRESENT (a genuine, source-side absence for the concept 'when does this performance end') rather than guessed or inferred from typical concert-length assumptions.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-rest-o-lago-dos-cisnes", "ev-rest-antonio-zambujo"],
+      "derivation": null
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Coliseu de Lisboa, Sala Principal, Rua das Portas de Santo Antão, 96, 1150-269 Lisboa, Portugal (38.716506575013, -9.140681326389)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each sampled event's own REST API record directly carries a toolset-meta.entidade sub-object with venue name, room name ('Sala Principal'), full street address, postal code, municipality/district, and precise latitude/longitude -- identical across all 5 sampled events (this is a single-venue site; every 'eventos' post is inherently this venue's own event by construction, not an inferred/shared context). This is NOT the same thing as the site's own top-level self-identification ('Coliseu dos Recreios', used in page titles/branding) -- the operating/booking name used in this per-event structured data and in every BOL.pt ticket link is 'Coliseu de Lisboa'; both names are recorded honestly (see identity.notes) as referring to the same physical venue, which is separate, later, human-authorised venues/*.json registry work, not something this investigation edits.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-rest-deva-premal", "ev-rest-o-lago-dos-cisnes", "ev-rest-antonio-zambujo", "ev-rest-iolanda", "ev-contatos", "ev-offline-proof"],
+      "derivation": null
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "7902",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The WordPress numeric post id (exposed both as the REST API's own top-level 'id' field and, independently, as the 'postid-XXXX' CSS class WordPress itself emits in the detail page's <body> tag) satisfies this policy's stable-identifier rule on two independent grounds: (1) documented by the source itself, in the technical sense that WordPress's own core software assigns a permanent, never-reused numeric post id to every published post/custom-post-type entry as a matter of platform design; and (2) proven empirically -- fischer-z (slug) was fetched TWICE, independently, several minutes apart, and both retained detail-page responses show the identical 'postid-7902' class (evidence/offline-proof-output.txt). A second, independently-populated stable identifier is also present and cross-checked: toolset-meta.evento.codigo-evento (e.g. '173585' for fischer-z), a numeric code that matches the corresponding BOL.pt ticket-purchase URL's own embedded id ('173585-fischer_z-coliseu_de_lisboa') -- consistent with this being BOL's own canonical event code, synced into WordPress. Either id is usable; the WordPress post id is recommended as primary since it is directly returned by the same REST endpoint used to fetch every other field, avoiding a second cross-reference.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-detail-fischer-z", "ev-detail-fischer-z-recheck", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://coliseulisboa.com/eventos/fischer-z/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The REST API's own top-level 'link' field gives the canonical detail-page URL directly, matching exactly the href the homepage's own event card links to (5/5 sampled events, evidence/offline-proof-output.txt) and matching the URL this investigation actually fetched for evidence/body-detail-fischer-z.html.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-home-body", "ev-detail-fischer-z", "ev-offline-proof", "ev-offline-proof-output"],
+      "derivation": null
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Multi-tier sector price list, e.g. FISCHER-Z: 25,00€-35,00€ depending on seating sector (Plateia Pé/Balcão/Galeria Pé and front boxes: 35,00€; side/2nd-tier boxes: 30,00€; rear 2nd-tier boxes: 25,00€)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "toolset-meta.preco.sectores directly states a free-text, newline-separated list mapping named seating sectors to a price each (populated for 4/5 sampled events; toolset-meta.preco.valor, a single flat-price field, was empty in every sampled event, meaning this venue's pricing is genuinely sector-based, not one number). Recorded honestly as a multi-tier text block requiring sector-name parsing, never collapsed into one fabricated single price. The detail HTML page independently renders an equivalent, differently-formatted price map for the same event, corroborating the REST value without being needed as the primary source.",
+      "evidence_refs": ["ev-rest-fischer-z", "ev-rest-deva-premal", "ev-rest-o-lago-dos-cisnes", "ev-rest-antonio-zambujo", "ev-detail-fischer-z"],
+      "derivation": null
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-rest-fischer-z", "ev-rest-by-slug", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "RIGHTS/GOVERNANCE FINDING, not a technical blocker: this investigation's own retained robots.txt (evidence/body-robots.txt) contains a Cloudflare-managed 'Content-Signal: search=yes,ai-train=no,use=reference' reservation under the generic 'User-agent: *' rule, AND, separately, an explicit 'User-agent: ClaudeBot' block with 'Disallow: /' -- alongside the same treatment for GPTBot, Google-Extended, Bytespider, CCBot, Amazonbot, Applebot-Extended, and meta-externalagent. This investigation's own HTTP requests used a distinct, honestly self-identifying project User-Agent string ('BandOnTheMap-SourceInvestigation/0.1'), not literally 'ClaudeBot', and so were not technically covered by that specific line -- but the site operator has gone out of its way to name and block Anthropic's own crawler product by name, and has separately reserved 'ai-train=no' rights generally. Per docs/DATA_RIGHTS.md ('Do not scrape or ingest a source merely because its content is publicly visible' and the GREEN/AMBER/RED rights-class framework) and docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section (rights classification is explicitly governed elsewhere, not resolved by this policy), whether an ongoing, automated Band on the Map collector may honestly and safely acquire this specific source's data given this explicit, named signal is a genuine judgement call this investigation does not resolve unilaterally. See decision.status and decision.reasons below -- this blocker is exactly why this investigation does NOT reach READY_FOR_ACTIVATION despite the acquisition mechanism itself being fully proven."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The WordPress REST API's default list ordering (orderby=date) sorts by the WordPress POST-publish date, not the event's own occurrence date (evidence/body-wpjson-eventos-list.json, evidence/headers-wpjson-eventos-list.txt shows x-wp-total: 494 posts spanning both past and future events in publish order). Reliably enumerating only current/future events in chronological occurrence order was NOT proven via the REST API alone within this investigation's bounded sample -- the homepage's own curated list (69 events, apparently already date-sorted and future-only) was used as the enumeration source instead. A future collector needs to either rely on the homepage list for enumeration, or prove a working sort/filter against toolset-meta.evento.datainicialevento server-side (untested here) or client-side (fetch-then-sort, which does not scale past a few hundred posts)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Multi-day runs (2/5 sampled events) give only a start date and an end date for the whole run, with no indication of how many individual performances occur, or their individual times, within that range -- see field_assessment.end.notes. A future collector must decide how to represent such a run as one or more Observations without inventing per-day counts or times the source does not state."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The site is multilingual (Polylang plugin evidenced by 'lang'/'translations'/'pll_sync_post' fields on every REST eventos record). This investigation sampled only the default/Portuguese-language homepage and REST responses. A future collector must decide how to avoid creating duplicate Observations from separate per-language WordPress post entries for what is physically the same event."
+      },
+      {
+        "severity": "MINOR",
+        "description": "sources/lisbon.json's existing acquisition_path_detail note for this candidate ('Repeated HTTP 403 on automated fetch during research') was NOT reproduced by any of this investigation's ~25 live requests today (all 200 OK). Recorded as an honest, unresolved discrepancy (see identity.notes) -- a future collector should still implement ordinary respectful-fetch practices (rate limiting, a real descriptive User-Agent, backoff on error) in case the earlier blocking behaviour was real and reappears under sustained/repeated automated access rather than this investigation's small, one-off bounded sample."
+      }
+    ]
+  },
+  "decision": {
+    "status": "HUMAN_REVIEW",
+    "reasons": [
+      "TECHNICALLY, this candidate is one of the strongest acquisition paths this project has investigated: identity.status is PROVEN at HIGH confidence from freshly retained evidence; site_classification.acquisition_class is PUBLIC_JSON_API, backed by a public, unauthenticated, well-structured WordPress REST API (not merely a scraped HTML page); every mandatory field_assessment key except 'end' is PROVEN with basis DIRECT_SOURCE (the source states title/date/time/venue/id/url directly in structured JSON, requiring no DETERMINISTIC_CONTEXT combination and no AI plausibility judgement anywhere); source_record_id is PROVEN under the stable-identifier rule on two independent grounds (WordPress's own permanent post-id design, and empirical repeat-fetch stability); collector_assessment.recommended_family (JSON_API) is a known, high-confidence family; and evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a genuine, passing (21/21 checks) DETERMINISTIC_DERIVATION proof that every claim above is mechanically reproducible offline against the retained fixtures, not merely asserted.",
+      "HOWEVER, this investigation's own retained robots.txt (evidence/body-robots.txt) contains an explicit, named 'User-agent: ClaudeBot / Disallow: /' directive -- naming Anthropic's own crawler product specifically -- alongside a general 'Content-Signal: ai-train=no' rights reservation under EU DSM Directive Article 4, both applied sitewide. This investigation's own fetches used a distinct, honestly self-identifying User-Agent and were technically outside the letter of that one rule, but the clear intent -- this site operator does not want AI-company crawling infrastructure, Anthropic's specifically named among others, operating against this content -- is a genuine, material finding this framework is not positioned to resolve by itself. Per docs/DATA_RIGHTS.md, publicly visible content is not automatically ingestable content, and rights classification (GREEN/AMBER/RED) is explicitly a separate, human-governed judgement.",
+      "This is exactly the kind of case docs/SOURCE_INVESTIGATION_POLICY.md's decision vocabulary distinguishes: DEFER would misrepresent the finding (the acquisition mechanism is NOT unclear or technically unreliable -- it is excellent), and READY_FOR_ACTIVATION would mean this investigation itself deciding a rights question docs/DATA_RIGHTS.md reserves for explicit human/operator review. HUMAN_REVIEW is the honest outcome: a human operator should read the retained robots.txt (evidence/body-robots.txt) and this investigation's rights framing, decide the correct rights_class and whether/how to proceed (e.g. seeking the venue's direct permission, treating this as AMBER/partnership-track rather than an unattended automated collector, or deciding the Content-Signal 'use=reference' carve-out genuinely covers Band on the Map's intended use), before any collector is built or activated.",
+      "collector_assessment.blockers contains one CRITICAL entry (the rights/robots.txt finding above) and four MINOR entries (REST default-ordering limits enumeration strategy, multi-day-run performance-count/time ambiguity, multilingual duplicate-Observation risk, and an unresolved discrepancy with the registry's older 403-blocked note) -- none of the MINOR entries are activation-blocking on their own, but the CRITICAL entry is deliberately what keeps this investigation at HUMAN_REVIEW rather than READY_FOR_ACTIVATION.",
+      "This decision is a research conclusion only. It does not edit sources/*.json, any venues/*.json registry, manual-coordinates.json, data/public/*, or any collector configuration, and it does not itself resolve the rights question it surfaces -- per 'Investigation and activation are separate' in docs/SOURCE_INVESTIGATION_POLICY.md, a separate, explicitly-authorised human step is required either way."
+    ],
+    "evidence_refs": ["ev-robots", "ev-headers-robots", "ev-rest-fischer-z", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the venue's homepage: a fully server-rendered list of 69 upcoming-event cards (Elementor Loop widget over the 'eventos' custom post type), each with title, full day+month-name+year date text, and a detail-page href, spanning 4 Sep 2026 through 7 May 2027 at time of fetch.",
+      "acquired_from": "https://coliseulisboa.com/",
+      "acquired_at": "2026-08-27T09:24:45Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the homepage fetch: 200 OK, Cloudflare-fronted, and a Link header advertising the WordPress REST API root (rel=\"https://api.w.org/\") plus a wp/v2/pages permalink -- the lead that led this investigation to discover the public REST API.",
+      "acquired_from": "https://coliseulisboa.com/",
+      "acquired_at": "2026-08-27T09:24:45Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained robots.txt: a Cloudflare-managed content-signals preamble declaring 'Content-Signal: search=yes,ai-train=no,use=reference' under the generic 'User-agent: *' rule (itself Allow: / except /wp-admin/), followed by explicit 'Disallow: /' blocks individually naming Amazonbot, Applebot-Extended, Bytespider, CCBot, ClaudeBot, CloudflareBrowserRenderingCrawler, Google-Extended, and meta-externalagent. THE central finding behind this investigation's HUMAN_REVIEW decision -- see decision.reasons and collector_assessment.blockers.",
+      "acquired_from": "https://coliseulisboa.com/robots.txt",
+      "acquired_at": "2026-08-27T09:31:25Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-headers-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the robots.txt fetch (200 OK).",
+      "acquired_from": "https://coliseulisboa.com/robots.txt",
+      "acquired_at": "2026-08-27T09:31:25Z",
+      "method": "curl -sS -D headers-robots.txt (same request as ev-robots)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/headers-robots.txt"
+    },
+    {
+      "evidence_id": "ev-contatos",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the venue's own public contacts page: states the operating company ('Ricardo Covões S.A.'), the exact physical address ('Rua das Portas de Santo Antão 96, 1150-269 Lisboa' -- an exact match to the existing sources/lisbon.json registry entry's physical_address), box-office hours, and phone numbers.",
+      "acquired_from": "https://coliseulisboa.com/contatos/",
+      "acquired_at": "2026-08-27T09:27:00Z",
+      "method": "curl -sS -D headers-contatos.txt -o body-contatos.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-contatos.html"
+    },
+    {
+      "evidence_id": "ev-wpjson-types",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON from the public WordPress REST API's post-types listing, confirming a custom, publicly-exposed 'eventos' post type (alongside 'sala' and other custom types) -- the basis for classifying acquisition_class as PUBLIC_JSON_API rather than merely WORDPRESS.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/types",
+      "acquired_at": "2026-08-27T09:28:10Z",
+      "method": "curl -sS -D headers-wpjson-types.txt -o body-wpjson-types.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-types.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-eventos-sample5",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: the first 5 records from /wp-json/wp/v2/eventos (unfiltered, default order), used to first discover the rich 'toolset-meta' per-event structured-data shape (date/time/venue/price/ticketing fields) before this investigation moved to targeted per-slug/per-id sampling of current/future events.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos?per_page=5",
+      "acquired_at": "2026-08-27T09:28:40Z",
+      "method": "curl -sS -D headers-wpjson-eventos.txt -o body-wpjson-eventos.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos.json"
+    },
+    {
+      "evidence_id": "ev-detail-fischer-z",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the FISCHER-Z event detail page (postid-7902): confirms the WordPress post id via <body class>, the 'Abertura de Portas: 20:00' doors-time text, and an inline sector-price map -- all corroborating the REST API's own structured values for the same event.",
+      "acquired_from": "https://coliseulisboa.com/eventos/fischer-z/",
+      "acquired_at": "2026-08-27T09:26:10Z",
+      "method": "curl -sS -D headers-detail-fischer-z.txt -o body-detail-fischer-z.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-detail-fischer-z.html"
+    },
+    {
+      "evidence_id": "ev-detail-fischer-z-recheck",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A SECOND, independent fetch of the same FISCHER-Z event detail page, made minutes after the first (ev-detail-fischer-z), specifically to empirically test source_record_id stability. Both fetches show the identical 'postid-7902' body class -- see evidence/offline-proof-output.txt.",
+      "acquired_from": "https://coliseulisboa.com/eventos/fischer-z/",
+      "acquired_at": "2026-08-27T09:28:50Z",
+      "method": "curl -sS -D headers-detail-fischer-z-recheck.txt -o body-detail-fischer-z-recheck.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET, independent of ev-detail-fischer-z)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-detail-fischer-z-recheck.html"
+    },
+    {
+      "evidence_id": "ev-detail-deva-premal",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'DEVA PREMAL & MITEN | SINGING OUR PRAYERS | LISBON 2026' event detail page (postid-7845): doors-time text 'Abertura de Portas: 18:30'.",
+      "acquired_from": "https://coliseulisboa.com/eventos/deva-premal-miten-singing-our-prayers-lisbon-2026/",
+      "acquired_at": "2026-08-27T09:26:20Z",
+      "method": "curl -sS -D headers-detail-deva-premal-miten-singing-our-prayers-lisbon-2026.txt -o body-detail-deva-premal-miten-singing-our-prayers-lisbon-2026.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-detail-deva-premal-miten-singing-our-prayers-lisbon-2026.html"
+    },
+    {
+      "evidence_id": "ev-detail-o-lago-dos-cisnes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'O LAGO DOS CISNES | IMPERIAL HERITAGE BALLET | CLASSIC STAGE' event detail page (postid-8224), a 2-day run (15-16 Jan 2027): doors-time text 'Abertura de Portas: 20:00'; no per-day/per-session breakdown found anywhere on the page.",
+      "acquired_from": "https://coliseulisboa.com/eventos/o-lago-dos-cisnes-imperial-heritage-ballet-classic-stage/",
+      "acquired_at": "2026-08-27T09:26:30Z",
+      "method": "curl -sS -D headers-detail-o-lago-dos-cisnes-imperial-heritage-ballet-classic-stage.txt -o body-detail-o-lago-dos-cisnes-imperial-heritage-ballet-classic-stage.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-detail-o-lago-dos-cisnes-imperial-heritage-ballet-classic-stage.html"
+    },
+    {
+      "evidence_id": "ev-detail-antonio-zambujo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'ANTÓNIO ZAMBUJO MIGUEL ARAÚJO | 10 ANOS DEPOIS' event detail page (postid-8231), a 5-day run (2-6 Feb 2027): doors-time text 'Abertura de Portas: 20:30'.",
+      "acquired_from": "https://coliseulisboa.com/eventos/antonio-zambujo-miguel-araujo-10-anos-depois/",
+      "acquired_at": "2026-08-27T09:26:40Z",
+      "method": "curl -sS -D headers-detail-antonio-zambujo-miguel-araujo-10-anos-depois.txt -o body-detail-antonio-zambujo-miguel-araujo-10-anos-depois.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-detail-antonio-zambujo-miguel-araujo-10-anos-depois.html"
+    },
+    {
+      "evidence_id": "ev-detail-iolanda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'IOLANDA' event detail page (postid-7806): doors-time text 'Abertura de Portas: 20:00'.",
+      "acquired_from": "https://coliseulisboa.com/eventos/iolanda/",
+      "acquired_at": "2026-08-27T09:26:50Z",
+      "method": "curl -sS -D headers-detail-iolanda.txt -o body-detail-iolanda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-detail-iolanda.html"
+    },
+    {
+      "evidence_id": "ev-rest-fischer-z",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: the full WordPress REST API record for FISCHER-Z (post id 7902), including toolset-meta.evento.datainicialevento (Unix ts 1788480000 / 'September 4, 2026'), horainicialeventosemsegundos ('21:00'), aberturaportas ('20:00'), codigo-evento ('173585'), categoria/subcategoria ('Música & Festivais' / 'Concerto'), and toolset-meta.entidade (venue name/address/coordinates). THE primary worked example fixture for this investigation's field_assessment values.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos/7902",
+      "acquired_at": "2026-08-27T09:29:23Z",
+      "method": "curl -sS -D headers-wpjson-eventos-7902.txt -o body-wpjson-eventos-7902.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-7902.json"
+    },
+    {
+      "evidence_id": "ev-rest-deva-premal",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: full WordPress REST API record for 'DEVA PREMAL & MITEN | SINGING OUR PRAYERS | LISBON 2026' (post id 7845): start 2026-09-12 19:30 (doors 18:30), codigo-evento 170711, category 'Música & Festivais / Concerto'.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos/7845",
+      "acquired_at": "2026-08-27T09:30:05Z",
+      "method": "curl -sS -D headers-wpjson-eventos-7845.txt -o body-wpjson-eventos-7845.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-7845.json"
+    },
+    {
+      "evidence_id": "ev-rest-o-lago-dos-cisnes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: full WordPress REST API record for 'O LAGO DOS CISNES | IMPERIAL HERITAGE BALLET | CLASSIC STAGE' (post id 8224), a 2-day run: datainicialevento 2027-01-15, datafinalevento 2027-01-16, codigo-evento 179550, category 'Teatro & Arte / Bailado' (non-music -- used as a negative example showing the categoriaevento taxonomy genuinely distinguishes concerts from other programming).",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos/8224",
+      "acquired_at": "2026-08-27T09:30:15Z",
+      "method": "curl -sS -D headers-wpjson-eventos-8224.txt -o body-wpjson-eventos-8224.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-8224.json"
+    },
+    {
+      "evidence_id": "ev-rest-antonio-zambujo",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: full WordPress REST API record for 'ANTÓNIO ZAMBUJO MIGUEL ARAÚJO | 10 ANOS DEPOIS' (post id 8231), a 5-day run: datainicialevento 2027-02-02, datafinalevento 2027-02-06, codigo-evento 176291, category 'Música & Festivais / Concerto'.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos/8231",
+      "acquired_at": "2026-08-27T09:30:25Z",
+      "method": "curl -sS -D headers-wpjson-eventos-8231.txt -o body-wpjson-eventos-8231.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-8231.json"
+    },
+    {
+      "evidence_id": "ev-rest-iolanda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: full WordPress REST API record for 'IOLANDA' (post id 7806): start 2026-12-07 21:00 (doors 20:00), codigo-evento 168837, category 'Música & Festivais / Concerto'.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos/7806",
+      "acquired_at": "2026-08-27T09:30:35Z",
+      "method": "curl -sS -D headers-wpjson-eventos-7806.txt -o body-wpjson-eventos-7806.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-7806.json"
+    },
+    {
+      "evidence_id": "ev-rest-list-orderby-date",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: 100 records from /wp-json/wp/v2/eventos?orderby=date&order=desc (WordPress post-publish-date order). X-WP-Total: 494 across 5 pages. Confirms this default order is NOT usable to enumerate current/future events chronologically by their own occurrence date -- rejected as a data_paths entry (status: REJECTED) for that specific purpose.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos?per_page=100&orderby=date&order=desc&_fields=id,slug,link,title",
+      "acquired_at": "2026-08-27T09:29:05Z",
+      "method": "curl -sS -D headers-wpjson-eventos-list.txt -o body-wpjson-eventos-list.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-list.json"
+    },
+    {
+      "evidence_id": "ev-rest-by-slug",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: /wp-json/wp/v2/eventos?slug=fischer-z resolves a homepage href's own slug directly to its numeric post id (7902) and its categoriaevento term-id array ([49, 47]) -- proves a collector can go from the homepage's own link straight to a REST lookup without needing to fetch/parse the HTML detail page at all.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos?slug=fischer-z",
+      "acquired_at": "2026-08-27T09:30:43Z",
+      "method": "curl -sS -D headers-wpjson-by-slug.txt -o body-wpjson-by-slug.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-by-slug.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-taxonomies",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: the site's full public taxonomy listing, confirming 'categoriaevento' is a real, publicly-queryable custom taxonomy (alongside standard WP taxonomies) rather than an assumption.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/taxonomies",
+      "acquired_at": "2026-08-27T09:30:50Z",
+      "method": "curl -sS --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -o body-wpjson-taxonomies.json (plain unauthenticated HTTP GET; headers not separately captured for this one supporting request)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-taxonomies.json"
+    },
+    {
+      "evidence_id": "ev-rest-categoriaevento-terms",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: the full categoriaevento taxonomy-terms listing (up to 100), confirming term id 49 = 'Concerto' (child of term id 47 = 'Música & Festivais'), plus its English/French locale duplicates (Polylang) and sibling categories (Teatro & Arte, Bailado, Stand-Up, etc.) -- the basis for distinguishing genuine music/concert events from this multi-purpose venue's wider programme.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/categoriaevento?per_page=100",
+      "acquired_at": "2026-08-27T09:31:00Z",
+      "method": "curl -sS -D headers-wpjson-categoriaevento-terms.txt -o body-wpjson-categoriaevento-terms.json --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-categoriaevento-terms.json"
+    },
+    {
+      "evidence_id": "ev-rest-concerto-filter",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON: /wp-json/wp/v2/eventos?categoriaevento=49 (the 'Concerto' term), proving the taxonomy filter works server-side -- 239 posts (X-WP-Total header) tagged 'Concerto' at time of investigation, out of 494 total 'eventos' posts.",
+      "acquired_from": "https://coliseulisboa.com/wp-json/wp/v2/eventos?categoriaevento=49&per_page=10&_fields=id,slug,link,title",
+      "acquired_at": "2026-08-27T09:31:15Z",
+      "method": "curl -sS -D headers-wpjson-eventos-concerto-filter.txt -o body-wpjson-eventos-concerto-filter.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/body-wpjson-eventos-concerto-filter.json"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that re-parses ONLY the retained fixtures above and mechanically reproduces: the homepage's 69-event extraction; 5/5 REST-vs-homepage date and title cross-checks; the fischer-z postid empirical-stability check (2 independent fetches); and the categoriaevento term-id-to-name cross-check (49='Concerto', 47='Música & Festivais').",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-08-27T09:33:00Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, 21/21 checks pass, 'OFFLINE PROOF: PASSED'. Confirms 69 homepage events extracted, all 5 sampled REST/homepage date+title pairs match exactly, the fischer-z postid is stable across two independent fetches, and the categoriaevento taxonomy term mapping is correct.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against retained fixtures only; no network access",
+      "acquired_at": "2026-08-27T09:34:00Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/coliseu-dos-recreios-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

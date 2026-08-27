@@ -2495,6 +2495,438 @@
       ],
       "created_at": "2026-08-27",
       "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "fama-dalfama",
+      "source_key_type": "VENUE_NAME",
+      "source_key": "Fama D'Alfama",
+      "venue_id": "venue-lisboa-fama-d-alfama",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: single fixed-venue source — every night's fado calendar entry belongs to this one venue, resolved by its own fixed venue_name constant (ingestion/fama-dalfama/observation-adapter.mjs).",
+      "evidence": [
+        {
+          "url": "https://famadalfama.pt/agenda-de-fados-em-lisboa/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/fama-dalfama-lisbon-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "museu-do-fado",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Museu do Fado",
+      "venue_id": "venue-lisboa-museu-do-fado",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: this source's own 'Local' field genuinely varies — most events are on-site ('Museu do Fado'), but some are hosted off-site at a different real venue (Centro Cultural de Belém, mapped separately below). Only the exact on-site string is mapped here; deliberately narrow, not conflated with the off-site records.",
+      "evidence": [
+        {
+          "url": "https://museudofado.pt/eventos",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/museu-do-fado-lisbon-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "museu-do-fado",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Centro Cultural de Belém - Grande Auditório",
+      "venue_id": "venue-lisboa-centro-cultural-de-belem-ccb",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: Museu do Fado occasionally hosts events off-site, at CCB's own Grande Auditório — a genuinely different, already-canonical physical venue (venue-lisboa-centro-cultural-de-belem-ccb, also resolved by the existing ccb-centro-cultural-belem source's own SOURCE_VENUE_ID mapping above). Mapped to the SAME real place rather than left unresolved or, worse, wrongly attributed to the museum's own building.",
+      "evidence": [
+        {
+          "url": "https://museudofado.pt/eventos",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/museu-do-fado-lisbon-01/evidence/ (a real retained detail page names this exact off-site location)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "museu-do-fado",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Centro Cultural de Belém - Pequeno Auditório",
+      "venue_id": "venue-lisboa-centro-cultural-de-belem-ccb",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: same as the Grande Auditório mapping above — CCB's smaller auditorium, same real building/canonical venue.",
+      "evidence": [
+        {
+          "url": "https://museudofado.pt/eventos",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/museu-do-fado-lisbon-01/evidence/ (a real retained detail page names this exact off-site location)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "gulbenkian",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Grande Auditório",
+      "venue_id": "venue-lisboa-fundacao-calouste-gulbenkian-grande-auditorio",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: the majority of Gulbenkian Música events are on-site at the foundation's own Grande Auditório. A minority are off-site (e.g. 'Parque Vale do Silêncio') and are deliberately left UNMAPPED here — a genuinely different real place, never conflated.",
+      "evidence": [
+        {
+          "url": "https://gulbenkian.pt/musica/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/gulbenkian-lisbon-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "coliseu-do-porto",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Sala Principal",
+      "venue_id": "venue-porto-coliseu-porto-ageas",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: the GraphQL API's own room.name field names a space within the already-identified single venue — mapped per observed room name rather than assumed exhaustive; an unmapped future room name will honestly resolve UNRESOLVED rather than guessed.",
+      "evidence": [
+        {
+          "url": "https://nest.coliseu.pt/graph/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/coliseu-ageas-porto-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "coliseu-do-porto",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Coliseu Box",
+      "venue_id": "venue-porto-coliseu-porto-ageas",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: a second real room within the same single venue as Sala Principal above.",
+      "evidence": [
+        {
+          "url": "https://nest.coliseu.pt/graph/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/coliseu-ageas-porto-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "hard-club-porto",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Sala 1",
+      "venue_id": "venue-porto-hard-club",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: the AJAX list fragment's own room label names a space within the already-identified single venue.",
+      "evidence": [
+        {
+          "url": "https://www.hardclubporto.com/PT/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/hard-club-porto-02/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "hard-club-porto",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Sala 2",
+      "venue_id": "venue-porto-hard-club",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: a second real room within the same single venue as Sala 1 above.",
+      "evidence": [
+        {
+          "url": "https://www.hardclubporto.com/PT/agenda/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/hard-club-porto-02/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "teatro-sao-luiz",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Largo do Picadeiro",
+      "venue_id": "venue-lisboa-teatro-sao-luiz",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: this adapter's own location_text carries a per-event room/venue label rather than a fixed venue name; the theatre's own street address string is one of the observed values, mapped alongside its named internal rooms below.",
+      "evidence": [
+        {
+          "url": "https://www.teatrosaoluiz.pt/en/programme/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/teatro-sao-luiz-lisbon-02/ (decision READY_FOR_ACTIVATION, supersedes -01)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "teatro-sao-luiz",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Sala Bernardo Sassetti",
+      "venue_id": "venue-lisboa-teatro-sao-luiz",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: a named internal room within the same single venue as the Largo do Picadeiro mapping above.",
+      "evidence": [
+        {
+          "url": "https://www.teatrosaoluiz.pt/en/programme/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/teatro-sao-luiz-lisbon-02/ (decision READY_FOR_ACTIVATION, supersedes -01)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "teatro-sao-luiz",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Sala Luis Miguel Cintra",
+      "venue_id": "venue-lisboa-teatro-sao-luiz",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: a named internal room within the same single venue as the Largo do Picadeiro mapping above.",
+      "evidence": [
+        {
+          "url": "https://www.teatrosaoluiz.pt/en/programme/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/teatro-sao-luiz-lisbon-02/ (decision READY_FOR_ACTIVATION, supersedes -01)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "teatro-sao-luiz",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Sala Mário Viegas",
+      "venue_id": "venue-lisboa-teatro-sao-luiz",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: a named internal room within the same single venue as the Largo do Picadeiro mapping above.",
+      "evidence": [
+        {
+          "url": "https://www.teatrosaoluiz.pt/en/programme/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/teatro-sao-luiz-lisbon-02/ (decision READY_FOR_ACTIVATION, supersedes -01)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "hot-five-porto",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "R. de Guerra Junqueiro 495, 4150-098 Porto",
+      "venue_id": "venue-porto-hot-five-jazz-blues-club",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: single fixed-venue source; the collector carries its own evidenced address as location_text (venue_name left null), so this mapping keys on that exact address string rather than a name.",
+      "evidence": [
+        {
+          "url": "https://hotfive.pt/shows/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "See research/source-investigations/hot-five-porto-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-sintra-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Centro Cultural Olga Cadaval",
+      "venue_id": "venue-sintra-centro-cultural-olga-cadaval",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the source's own verbatim venue text for the 'Evita' production.",
+      "evidence": [
+        {
+          "url": "https://cm-sintra.pt/agenda?filter_category=3",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-sintra-agenda-cultural-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-sintra-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Museu Arqueológico de São Miguel de Odrinhas",
+      "venue_id": "venue-sintra-museu-arqueologico-de-sao-miguel-de-odrinhas",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the source's own verbatim venue text for the 'Sintra celebra música e mitologia nas Noites de Orfeu' production.",
+      "evidence": [
+        {
+          "url": "https://cm-sintra.pt/agenda?filter_category=3",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-sintra-agenda-cultural-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Teatro Municipal de Matosinhos Constantino Nery",
+      "venue_id": "venue-matosinhos-teatro-municipal-de-matosinhos-constantino-nery",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from the event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Mosteiro de Leça do Balio",
+      "venue_id": "venue-matosinhos-mosteiro-de-leca-do-balio",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from the event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "agenda-vila-do-conde",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Cais da Alfândega",
+      "venue_id": "venue-vila-do-conde-cais-da-alfandega",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the source's own verbatim text_local value for the 'Ivandro' concert.",
+      "evidence": [
+        {
+          "url": "https://repeater.bondlayer.com/fetch",
+          "kind": "PUBLIC_JSON_API",
+          "note": "See research/source-investigations/agenda-vila-do-conde-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "agenda-vila-do-conde",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Mercado Municipal de Vila do Conde",
+      "venue_id": "venue-vila-do-conde-mercado-municipal-de-vila-do-conde",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the source's own verbatim text_local value, shared by 'Roda de Samba' and 'Smells Like 90's'.",
+      "evidence": [
+        {
+          "url": "https://repeater.bondlayer.com/fetch",
+          "kind": "PUBLIC_JSON_API",
+          "note": "See research/source-investigations/agenda-vila-do-conde-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "agenda-vila-do-conde",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Igreja da Misericórdia de Vila do Conde",
+      "venue_id": "venue-vila-do-conde-igreja-da-misericordia-de-vila-do-conde",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the source's own verbatim text_local value for the 'Vox Cordis | Itinerários' concert.",
+      "evidence": [
+        {
+          "url": "https://repeater.bondlayer.com/fetch",
+          "kind": "PUBLIC_JSON_API",
+          "note": "See research/source-investigations/agenda-vila-do-conde-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Jardins do Senhor do Padrão, Matosinhos",
+      "venue_id": "venue-matosinhos-jardins-do-senhor-do-padrao",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from each event's own detail page. This is the highest-yield real venue among this source's own unresolved observations at review time (10 events) — a named public park, not a generic locality name.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Jardim Basílio Teles, Matosinhos",
+      "venue_id": "venue-matosinhos-jardim-basilio-teles",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from each event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Biblioteca Municipal Florbela Espanca",
+      "venue_id": "venue-matosinhos-biblioteca-municipal-florbela-espanca",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from each event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Praça Guilhermina Suggia, Matosinhos",
+      "venue_id": "venue-matosinhos-praca-guilhermina-suggia",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from each event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Praça da Cidadania, São Mamede de Infesta",
+      "venue_id": "venue-matosinhos-praca-da-cidadania",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from each event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "source_id": "cm-matosinhos-agenda-cultural",
+      "source_key_type": "LOCATION_TEXT",
+      "source_key": "Parque das Varas, Leça do Balio",
+      "venue_id": "venue-matosinhos-parque-das-varas",
+      "method": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: venue_name is null on this adapter; location_text carries the exact 'Local:' text from each event's own detail page.",
+      "evidence": [
+        {
+          "url": "https://www.cm-matosinhos.pt/servicos/comunicacao-e-imagem/eventos/musica",
+          "kind": "OFFICIAL_MUNICIPAL_CULTURAL_PAGE",
+          "note": "See research/source-investigations/cm-matosinhos-agenda-cultural-amp-01/ (decision READY_FOR_ACTIVATION)."
+        }
+      ],
+      "created_at": "2026-08-27",
+      "retrieved_at": "2026-08-27"
     }
   ]
 }

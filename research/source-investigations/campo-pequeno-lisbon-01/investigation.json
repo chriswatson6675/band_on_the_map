@@ -1,0 +1,338 @@
+{
+  "investigation_id": "campo-pequeno-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:05:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) against the venue's own official domain: the bare https://sagrescampopequeno.pt and https://sagrescampopequeno.pt/pt/agenda (both confirmed as clean 301 redirects to the canonical https://www.sagrescampopequeno.pt host), the resulting https://www.sagrescampopequeno.pt/ homepage, the candidate https://www.sagrescampopequeno.pt/pt/agenda events page (verified as the correct, live, current agenda page), four sampled event detail pages reached from that agenda page's own links (alphaville, megadeth, the-nutcracker-ice-show, brandi-carlile---cancelado — deliberately including one already-cancelled listing to observe how the source itself signals cancellation), one additional fetch of an event's short canonical URL form to empirically cross-check slug stability across two distinct URL shapes, and the site's own publicly disclosed robots.txt + sitemap_index.xml + pt/sitemap.xml. Inspected the retained HTML for JSON-LD Event/MusicEvent data (none found anywhere — only a standard BreadcrumbList block on both list and detail pages), ICS/RSS export links (none found), and known calendar-plugin/CMS fingerprints (none found — the Server header identifies a bespoke 'nuvem server/5.0' platform, not WordPress/Squarespace/EventOn; no <meta name=\"generator\"> tag present). Found instead a plain, fully server-rendered event list (28 distinct event cards, each with title/local/date directly in the raw HTML, no JS execution needed) and plain, fully server-rendered event detail pages (each with a full date+weekday, venue name, start/doors time, and a multi-tier admission price list, all directly in the raw HTML). robots.txt discloses a 'Disallow: /api' path; per policy this was deliberately NOT probed (no reason existed to escalate past a site's own stated preference when Level 1 static HTML already fully answers every question this investigation needed to answer). A dependency-free, no-network Node offline-proof script re-parsed all retained HTML/XML files to mechanically re-derive every claim below, including a real Gregorian-calendar cross-check (year/month/day taken from each sampled event's own stated date text, never from today's real-world date) confirming all 4 sampled events' self-stated Portuguese weekday names are internally consistent, and an empirical cross-check that the same event's canonical short URL and agenda-relative URL serve identical content. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted.",
+    "notes": "The prior loose lead in sources/lisbon.json (research_notes: 'Plain HTML list with dated acts confirmed into 2027', monitoring_status READY_FOR_TECHNICAL_PROOF) was treated only as a discovery lead, not as evidence. This investigation independently re-fetched and re-verified everything from its own retained evidence; sources/lisbon.json itself was never read as authority and was never modified."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of the bare domain, the www homepage, the candidate agenda page, four sampled event detail pages, one canonical-URL-form cross-check, robots.txt, and two sitemap files all returned 200 OK (the two bare-domain requests returned clean 301 redirects to the canonical www host, which were followed). The agenda page's raw, unrendered HTML already contained ALL 28 currently-listed events as fully server-rendered cards (title + city + date, each with its own detail-page link) with no JS execution needed — confirmed by mechanically parsing all 28 cards directly from the retained static file. Each of the 4 sampled event detail pages likewise contained its own full date+weekday, exact venue name, start/doors time, and a multi-tier admission price list, all directly in the raw server-rendered HTML. No JSON-LD Event/MusicEvent data was found anywhere (only a standard BreadcrumbList block), no ICS/RSS link was found, and the Server header ('nuvem server/5.0') and absence of any generator meta tag or WordPress/Squarespace/EventOn fingerprint indicate a bespoke CMS, not a recognisable off-the-shelf calendar plugin. This already answers identity, platform classification, data-path discovery, and field assessment for a genuine forward-dated concert calendar (28 events spanning September 2026 through June 2027, matching the prior loose note's 'confirmed into 2027' claim) without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted.",
+      "evidence_refs": [
+        "ev-home-redirect",
+        "ev-agenda-redirect",
+        "ev-home-body",
+        "ev-agenda-body",
+        "ev-event-alphaville",
+        "ev-event-megadeth",
+        "ev-event-nutcracker",
+        "ev-event-cancelado",
+        "ev-canonical-check",
+        "ev-robots",
+        "ev-sitemap-index",
+        "ev-sitemap-pt",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "campo-pequeno-lisbon-01-candidate",
+  "source_id": null,
+  "venue_reference": "Campo Pequeno (Sagres Campo Pequeno) — large multi-use arena/bullring venue, Avenida da República, Campo Pequeno, Lisboa, Portugal (stated capacity 100 to 9,000 people, shared with a shopping centre in the same historic building)",
+  "official_url": "https://www.sagrescampopequeno.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-offline-proof"],
+    "notes": "Independently re-confirmed by this investigation's own retained evidence, not assumed from the prior loose registry note. The bare domain given in sources/lisbon.json (https://sagrescampopequeno.pt) 301-redirects to https://www.sagrescampopequeno.pt/, whose own retained HTML <title> is 'Sagres Campo Pequeno' and whose meta description states 'O Sagres Campo Pequeno como espaço multiusos permite receber espectáculos e eventos com a participação de 100 a 9 mil pessoas' — a first-person description of exactly the well-known real venue (the Campo Pequeno bullring/arena in Lisbon). The homepage repeatedly self-identifies as 'Sagres Campo Pequeno' (page title, meta title/description/og/twitter tags, footer section heading) and states its own street context 'com entrada principal pela Avenida da República' (main entrance via Avenida da República) — matching the registry's physical_address neighbourhood. The candidate agenda page shares the same canonical www domain and the same site-wide header/footer branding. No full postal code or a complete multi-line postal address was found in the retained evidence (only the street/avenue context and 'Campo Pequeno, Lisboa'), which is recorded honestly as a minor gap, not smoothed over — consistent with how the fama-dalfama-lisbon-01 investigation handled the same kind of partial-address situation."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "A bespoke, non-WordPress CMS (Server header 'nuvem server/5.0'; no <meta name=\"generator\"> tag; no WordPress/Squarespace/EventOn/The-Events-Calendar fingerprint found anywhere in the retained HTML). The agenda listing and every event detail page are plain, fully server-rendered HTML — no client-side rendering, no hidden data blob, no JSON-LD Event/MusicEvent structured data (only a standard BreadcrumbList JSON-LD block on both list and detail pages). robots.txt discloses a 'Disallow: /api' path and a sitemap at /sitemap_index.xml; the /api path was deliberately not probed since Level 1 static HTML already fully answered every field this investigation needed and there was no justification to escalate past a site's own stated crawl preference.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-robots", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.sagrescampopequeno.pt/pt/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (agenda-relative form, e.g. /pt/agenda/{slug})",
+      "url": "https://www.sagrescampopequeno.pt/pt/agenda/alphaville",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (canonical short form, /pt/{slug} — this is the source's own <link rel=\"canonical\"> target, and the form independently listed in its own sitemap; empirically confirmed to serve identical event content to the agenda-relative form)",
+      "url": "https://www.sagrescampopequeno.pt/pt/alphaville",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-canonical-check", "ev-event-alphaville", "ev-sitemap-pt", "ev-offline-proof"]
+    },
+    {
+      "kind": "XML_SITEMAP (corroborating evidence for canonical-slug stability only — NOT itself the primary data path; observed to contain at least one stale/no-longer-listed event slug, so it must never be treated as an authoritative 'currently on sale' list)",
+      "url": "https://www.sagrescampopequeno.pt/pt/sitemap.xml",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-sitemap-pt", "ev-sitemap-index", "ev-offline-proof"]
+    },
+    {
+      "kind": "REST_API_PATH (disclosed via robots.txt's 'Disallow: /api' line — deliberately NOT probed; Level 1 static HTML already fully answered this investigation, and there was no justification to escalate past the site's own stated crawl preference for an unneeded path)",
+      "url": "https://www.sagrescampopequeno.pt/api",
+      "access": "UNKNOWN",
+      "status": "UNKNOWN",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-robots"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Alphaville",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Representative value taken from the 'alphaville' sample event (this field's general extraction capability, not one single event, is the real finding — see evidence/offline-proof-output.txt for every other sampled value). Every event's title is stated directly and in full, twice over: once in the agenda-list card's own <h3 class=\"card-title\"> (e.g. 'Alphaville', 'Rui Veloso Trio', 'Titãs', 'MEO COMMEDIA À LA CARTE FEST'26 - REBENTA A BOLHA') and again, identically, in the detail page's own <h1> (e.g. 'Alphaville', 'Megadeth', 'The Nutcracker Ice Show', 'Brandi Carlile - cancelado'). Verified mechanically: all 28/28 agenda cards have a non-empty title, and all 4/4 sampled detail pages have a non-empty <h1> title (evidence/offline-proof-output.txt).",
+      "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-16",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Representative value taken from the 'alphaville' sample event, stated on the source as '16 outubro 2026 , sexta-feira' (day + Portuguese month name + year + weekday, all in one directly-stated string — see evidence/offline-proof-output.txt for the other 3 sampled events' values). Every event's full calendar date is stated directly and completely in one place, on both the agenda-list card (e.g. '16 outubro 2026') and the detail page's own header block, which additionally states the Portuguese weekday name — this is a single, complete, directly-stated fact, not a combination of separate context pieces, so basis is DIRECT_SOURCE rather than DETERMINISTIC_CONTEXT. Cross-checked mechanically and NOT merely trusted: for all 4 sampled detail pages, the date matches the corresponding agenda-card date exactly (evidence/offline-proof-output.txt), and evidence/offline-proof.mjs independently recomputes, using pure Gregorian calendar arithmetic (year/month/day taken from each event's OWN stated date text, never from today's real-world date or any external assumption), the real day-of-week for each of the 4 sampled dates and confirms all 4/4 match the source's own stated weekday name exactly ('16 outubro 2026' independently confirmed to be a real-world Friday). This is a floating local date — no explicit UTC offset or IANA timezone is stated anywhere in the retained HTML; Europe/Lisbon is the obvious real-world timezone but this was never promoted to a fabricated UTC instant.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Every sampled detail page's 'Sessões' tab does state both a start time ('Início de espetáculo') and a doors time ('Abertura de portas'), in free text — but the retained fixtures show this free text is NOT in a single consistent format across events: 3 of the 4 sampled events use 'Início de espetáculo: HH H MM<br/>Abertura de portas: HH H MM' (uppercase H, colon, start-then-doors order), while the 4th (megadeth) uses 'Abertura de Portas HHhMM<br/>Inicio do Espetáculo HHhMM' (lowercase h, no colon, doors-then-start order, 'Inicio' without its accent). This inconsistency was mechanically confirmed, not merely suspected: evidence/offline-proof.mjs implements both patterns and reports the exact distribution found (3 pattern-A, 1 pattern-B in this 4-event sample). A collector needs to handle at least 2 free-text variants reliably, and this bounded sample cannot rule out further variants across the other 24 unsampled events — so this is honestly recorded as PARTIAL (a value genuinely exists and is extractable per-event with enough parsing effort) rather than PROVEN (which would overclaim a single robust, source-documented format).",
+      "evidence_refs": ["ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or duration is stated anywhere in the retained agenda page or any of the 4 sampled event detail pages (the 'Sessões' tab states only a start time and a doors-opening time, never an end/finish time).",
+      "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Lisboa - Sagres Campo Pequeno",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 4 sampled event detail pages states, directly and identically, '<div class=\"location\">Lisboa - Sagres Campo Pequeno</div>' in its own header block — the full venue name, not merely the city. This is a stronger, more precise statement than the agenda-list card's own '<div class=\"local\">Lisboa</div>' (city only, mechanically confirmed present on all 28/28 cards but never more precise than the city there). Verified mechanically for all 4/4 sampled detail pages (evidence/offline-proof-output.txt). No street address, postal code, or coordinates are exposed by this data path itself — those live only in this repository's own venues/manual-coordinates registry, which this investigation did not touch.",
+      "evidence_refs": ["ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "alphaville",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Representative value: the 'alphaville' sample event's own canonical slug (see evidence/offline-proof-output.txt for the other 27 agenda-derived slugs, all distinct). The source's own URL slug (e.g. 'alphaville', 'megadeth', 'the-nutcracker-ice-show') is directly, explicitly declared as this event's canonical identifying path via its own <link rel=\"canonical\" href=\"https://www.sagrescampopequeno.pt/pt/{slug}\"> tag on every sampled detail page — exactly the stable-identifier rule's own worked example ('a permalink URL slug the source uses as its own canonical path'). This was proven three independent ways, not merely asserted: (1) all 28 agenda-list cards link to a distinct /pt/agenda/{slug} with zero duplicate slugs (evidence/offline-proof-output.txt); (2) a second, independently-fetched source-authored artifact — the site's own retained pt/sitemap.xml — separately lists the identical /pt/{slug} canonical form for all 4 sampled events, corroborating the <link rel=canonical> tag rather than merely repeating it; (3) an empirical cross-fetch of the SAME event (alphaville) via its short canonical URL (https://www.sagrescampopequeno.pt/pt/alphaville) returned the identical <h1> title and identical date+weekday text as the agenda-relative URL (https://www.sagrescampopequeno.pt/pt/agenda/alphaville) fetched separately, proving both URL shapes resolve to the same underlying record under the same stable slug. This bounded 4-event sample did not happen to include any recurring/multi-date production sharing one slug across several distinct performance dates (the edge case flagged in this repository's own coliseu-ageas-porto-01 and gulbenkian-lisbon-01 investigations) — a future, larger sample should specifically check for that before treating source_record_id as unconditionally 1:1 with a single performance instance.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-canonical-check", "ev-sitemap-pt", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.sagrescampopequeno.pt/pt/alphaville",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Representative value: the 'alphaville' sample event's own canonical detail-page URL (see evidence/offline-proof-output.txt for the other 3 sampled events' canonical URLs). Every event has its own distinct, directly-stated, working detail-page URL: the agenda card's own href (https://www.sagrescampopequeno.pt/pt/agenda/{slug}) and the detail page's own <link rel=\"canonical\"> (https://www.sagrescampopequeno.pt/pt/{slug}) — both confirmed (evidence/offline-proof-output.txt) to resolve to 200 OK and to serve the same event content for the one event (alphaville) both forms were fetched for in this investigation. Unlike fama-dalfama-lisbon-01 (where all events shared one page URL), this source gives each event a genuinely distinct, per-event permalink.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-canonical-check", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Plateia VIP: 60€ | 1ª Plateia: 55€ | 2ª Plateia: 50€ | Bancada A: 55€ | Bancada B: 50€ | Bancada C (Vis. Reduzida): 45€ | Mobilidade Condicionada: 45€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Representative value: the 'alphaville' sample event's full 7-tier price list, recorded as a single delimited string rather than a fabricated scalar (see evidence/offline-proof-output.txt for the other 3 sampled events' tier counts: megadeth 4, the-nutcracker-ice-show 9, brandi-carlile---cancelado 10, all retained pre-cancellation). Every one of the 4 sampled event detail pages states, directly, a full multi-tier admission price list in its own retained HTML: each <li data-areaname=\"...\" data-price=\"...€\"> gives a named seating/standing area and its exact euro price. Verified mechanically: all 4/4 sampled detail pages have at least one priced tier (evidence/offline-proof-output.txt). This is genuinely present and precisely stated, but it is fundamentally a STRUCTURED LIST of (area, price) pairs, not a single scalar 'the price' — a future collector/Offer model must represent multiple priced tiers per event (e.g. multiple Offer records, or an explicit min/max range), never compress it into one number without losing real information; the delimited-string value recorded here is a faithful transcription of the source's own tiers, not a synthesized single price.",
+      "evidence_refs": ["ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-event-alphaville", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The 'Sessões' tab's free-text start/doors time format is inconsistent across sampled events (2 distinct patterns found in a 4-event sample — see field_assessment.time.notes). A collector must implement and maintain multiple parsing patterns for this field, and this bounded sample cannot rule out further variants across the remaining ~24 unsampled events."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Price is exposed as a structured multi-tier list (named area + price per tier), not a single scalar. A collector/Offer model must represent multiple priced tiers per event rather than collapsing them into one number."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The source lists at least one already-cancelled event directly in its live public agenda (brandi-carlile---cancelado), signalled only by free text ('- cancelado' appended to the title; 'Evento Cancelado' inside the Sessões tab's own free text) — there is no distinct structured status/cancelled field. A collector must parse this textual convention to avoid presenting a cancelled show as an active, purchasable event; this investigation only confirmed the convention exists for this one sampled event and did not exhaustively search for other possible cancellation-signalling text variants."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The retained pt/sitemap.xml contains at least one event slug (jordan-b-peterson-an-evening-to-transform-your-life-cancelado) that is NOT present in the current /pt/agenda listing — the sitemap is useful corroborating evidence for slug stability but must never be treated as an authoritative 'currently on sale' event list; the live agenda page itself remains the authority for which events are currently listed."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation's bounded 4-event sample did not include any recurring/multi-date production sharing one canonical slug across multiple distinct performance dates. A larger future sample should specifically check for that edge case (already observed in this repository's own coliseu-ageas-porto-01/gulbenkian-lisbon-01 investigations for other venues) before fully trusting source_record_id as unconditionally 1:1 with a single performance instance."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (homepage title/meta self-identification as 'Sagres Campo Pequeno', matching the well-known real Campo Pequeno arena, plus its own stated Avenida da República street context), independently re-established rather than assumed from the prior loose registry note.",
+      "site_classification.acquisition_class is STATIC_HTML, a resolved/supported class — both the agenda list and every sampled event detail page are plain, fully server-rendered HTML, with no client-side rendering, JSON-LD Event data, or hidden data blob needed.",
+      "One data_paths entry (the agenda page) is access:PUBLIC and status:CONFIRMED as the primary data path; two further per-event detail-page URL shapes were also confirmed PUBLIC/CONFIRMED; a sitemap path was checked and retained as corroborating (not primary) evidence; a robots.txt-disclosed /api path was honestly recorded as UNKNOWN/UNKNOWN rather than probed without justification.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN with basis DIRECT_SOURCE (v1.2) — start_date is additionally backed by a genuine mechanical Gregorian-calendar self-consistency check across all 4 sampled detail pages' own stated weekday names (evidence/offline-proof-output.txt), not merely read and trusted.",
+      "field_assessment.source_record_id.state is PROVEN under the stable-identifier rule's own worked example (a permalink URL slug the source itself declares canonical via <link rel=\"canonical\">), corroborated three independent ways: zero duplicate agenda-card slugs, independent sitemap.xml confirmation, and an empirical cross-fetch proving both URL shapes serve the same record.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of the retained fixtures that mechanically reproduces every extraction/cross-check claim above, including 4/4 sampled events matching real Gregorian weekday arithmetic and 4/4 canonical-slug/sitemap corroborations.",
+      "collector_assessment.blockers contains only MINOR entries (inconsistent time-format free text, multi-tier price structure, textual-only cancellation signalling, one stale sitemap entry, and an unverified multi-date-slug edge case) — none CRITICAL.",
+      "This independently re-verifies, rather than merely repeats, the prior loose research claim that this venue has 'a plain HTML list with dated acts confirmed into 2027' — this investigation's own retained evidence confirms 28 events spanning September 2026 through June 2027, genuinely as plain server-rendered HTML, without treating the prior note itself as evidence.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-event-alphaville", "ev-event-megadeth", "ev-event-nutcracker", "ev-event-cancelado", "ev-canonical-check", "ev-sitemap-pt", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-redirect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response (301 Moved Permanently, body + headers) for the bare, non-www domain given in sources/lisbon.json's official_website field, confirming it cleanly redirects to the canonical https://www.sagrescampopequeno.pt/ host used for the rest of this investigation.",
+      "acquired_from": "https://sagrescampopequeno.pt",
+      "acquired_at": "2026-08-27T07:52:33Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-redirect",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response (301 Moved Permanently, body + headers) for the bare, non-www events_url given in sources/lisbon.json, confirming it cleanly redirects to https://www.sagrescampopequeno.pt/pt/agenda.",
+      "acquired_from": "https://sagrescampopequeno.pt/pt/agenda",
+      "acquired_at": "2026-08-27T07:52:33Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Sagres Campo Pequeno homepage (canonical www host): self-identifying <title>/meta tags, Avenida da República street context, footer branding.",
+      "acquired_from": "https://www.sagrescampopequeno.pt/",
+      "acquired_at": "2026-08-27T07:52:44Z",
+      "method": "curl -sS -D headers-home-www.txt -o body-home-www.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-home-www.html"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate agenda page: 28 fully server-rendered event cards (title, city, date, and a distinct /pt/agenda/{slug} link each), covering events from 12 September 2026 through 4 June 2027. No JSON-LD Event/MusicEvent data present (only a standard BreadcrumbList block).",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/agenda",
+      "acquired_at": "2026-08-27T07:52:44Z",
+      "method": "curl -sS -D headers-agenda-www.txt -o body-agenda-www.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-agenda-www.html"
+    },
+    {
+      "evidence_id": "ev-event-alphaville",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'Alphaville' event detail page (sampled event #1): full date+weekday ('16 outubro 2026 , sexta-feira'), venue name ('Lisboa - Sagres Campo Pequeno'), start/doors time (21H30/20H30, free-text pattern A), 7-tier admission price list (45€-60€), and its own <link rel=\"canonical\" href=\"https://www.sagrescampopequeno.pt/pt/alphaville\">.",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/agenda/alphaville",
+      "acquired_at": "2026-08-27T07:53:40Z",
+      "method": "curl -sS -D headers-event-alphaville.txt -o body-event-alphaville.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-alphaville.html"
+    },
+    {
+      "evidence_id": "ev-event-megadeth",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'Megadeth' event detail page (sampled event #2): full date+weekday ('13 abril 2027 , terça-feira'), venue name, start/doors time (19h30/18h30, free-text pattern B — DIFFERENT wording/casing/order from ev-event-alphaville, a real data-quality inconsistency), 4-tier admission price list (50€-65€).",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/agenda/megadeth",
+      "acquired_at": "2026-08-27T07:54:32Z",
+      "method": "curl -sS -D headers-event-megadeth.txt -o body-event-megadeth.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-megadeth.html"
+    },
+    {
+      "evidence_id": "ev-event-nutcracker",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'The Nutcracker Ice Show' event detail page (sampled event #3): full date+weekday ('14 novembro 2026 , sábado'), venue name, start/doors time (19H30/18H30, pattern A), 9-tier admission price list (29€-89€).",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/agenda/the-nutcracker-ice-show",
+      "acquired_at": "2026-08-27T07:54:32Z",
+      "method": "curl -sS -D headers-event-nutcracker.txt -o body-event-nutcracker.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-nutcracker.html"
+    },
+    {
+      "evidence_id": "ev-event-cancelado",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'Brandi Carlile - cancelado' event detail page (sampled event #4, deliberately chosen because it is already cancelled): full date+weekday ('1 novembro 2026 , domingo'), venue name, start/doors time (20H00/19H00, pattern A), 10-tier admission price list (31€-51€, retained from before cancellation), and free-text 'Evento Cancelado' inside the Sessões tab plus '- cancelado' appended to the <h1> title — the ONLY places this source signals cancellation; no structured status field exists.",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/agenda/brandi-carlile---cancelado",
+      "acquired_at": "2026-08-27T07:54:33Z",
+      "method": "curl -sS -D headers-event-cancelado.txt -o body-event-cancelado.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-event-cancelado.html"
+    },
+    {
+      "evidence_id": "ev-canonical-check",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the SAME 'Alphaville' event fetched via its short canonical URL form (/pt/alphaville) instead of the agenda-relative form (/pt/agenda/alphaville) used for ev-event-alphaville — an independent fetch used to empirically prove both URL shapes serve the identical event record under the same stable slug (same <h1>, same self-referential canonical tag, same date+weekday).",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/alphaville",
+      "acquired_at": "2026-08-27T07:54:53Z",
+      "method": "curl -sS -D headers-canonical-check.txt -o body-canonical-check.html --max-time 20 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-canonical-check.html"
+    },
+    {
+      "evidence_id": "ev-robots",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response for the site's own publicly-disclosed robots.txt: names a sitemap at /sitemap_index.xml and discloses (but does not itself expose the contents of) a 'Disallow: /api' path, which this investigation deliberately did not probe.",
+      "acquired_from": "https://www.sagrescampopequeno.pt/robots.txt",
+      "acquired_at": "2026-08-27T07:56:08Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-sitemap-index",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response for the site's own sitemap index, listing the pt- and en-locale sitemap files (used only to find pt/sitemap.xml below; not itself inspected for event data).",
+      "acquired_from": "https://www.sagrescampopequeno.pt/sitemap_index.xml",
+      "acquired_at": "2026-08-27T07:56:18Z",
+      "method": "curl -sS -D headers-sitemap.txt -o body-sitemap.xml --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/xml; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-sitemap.xml"
+    },
+    {
+      "evidence_id": "ev-sitemap-pt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response for the site's own pt-locale sitemap (291 <loc> entries covering the whole site, not just events): independently lists the canonical /pt/{slug} form for all 4 sampled events, corroborating the per-page <link rel=\"canonical\"> tags. Also observed to include at least one event slug (jordan-b-peterson-an-evening-to-transform-your-life-cancelado) no longer present in the current /pt/agenda listing.",
+      "acquired_from": "https://www.sagrescampopequeno.pt/pt/sitemap.xml",
+      "acquired_at": "2026-08-27T07:56:26Z",
+      "method": "curl -sS -D headers-sitemap-pt.txt -o body-sitemap-pt.xml --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/xml; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/body-sitemap-pt.xml"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-parses the agenda page's 28 event cards (confirming zero duplicate slugs), re-parses all 4 sampled detail pages (title/date/location/time/price), cross-checks each detail page's date against its own agenda-card date (4/4 matched), cross-checks each sampled event's self-stated Portuguese weekday against real Gregorian calendar arithmetic for the source's own stated year/month/day (4/4 matched), empirically confirms the canonical short URL and agenda-relative URL serve identical content for 'alphaville', confirms the sitemap independently lists all 4 sampled canonical slugs, confirms no JSON-LD Event/MusicEvent block exists anywhere, confirms the two bare-domain 301 redirects, and confirms the homepage's own self-identification text. Also surfaces (as a printed NOTE, not a failure) the genuine inconsistency in the 'Sessões' free-text time format (3 pattern-A vs 1 pattern-B in the 4-event sample). Exited 0 with all checks passing.",
+      "acquired_from": "research/source-investigations/campo-pequeno-lisbon-01/evidence/ (all body-*/headers-* files above, read locally, no network)",
+      "acquired_at": "2026-08-27T08:00:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/campo-pequeno-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

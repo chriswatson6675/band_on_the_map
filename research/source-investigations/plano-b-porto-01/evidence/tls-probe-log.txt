@@ -1,0 +1,115 @@
+TLS/transport-layer reachability probe log for planobporto.com / www.planobporto.com
+Investigation: plano-b-porto-01
+All commands run 2026-08-27, real tool invocations, verbatim captured output below.
+No output in this file has been edited, summarised, or paraphrased — each block is the
+literal stdout/stderr/error text returned by the named client for the named request.
+
+------------------------------------------------------------------------------
+PROBE 1 — curl (Windows, libcurl 8.19.0, Schannel TLS backend), plain HTTPS GET
+Command: curl -sS -D headers-home.txt -o body-home.html --max-time 25 \
+  -A "BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)" \
+  -L "https://planobporto.com" -w "\nHTTP_STATUS:%{http_code} FINAL_URL:%{url_effective}\n"
+
+Output:
+curl: (35) schannel: next InitializeSecurityContext failed: SEC_E_ILLEGAL_MESSAGE
+(0x80090326) - This error usually occurs when a fatal SSL/TLS alert is received
+(e.g. handshake failed). More detail may be available in the Windows System event log.
+
+HTTP_STATUS:000 FINAL_URL:https://planobporto.com/
+
+Result: TLS handshake failure. No HTTP response obtained. Exit code 35.
+
+------------------------------------------------------------------------------
+PROBE 2 — curl, forced TLS max 1.2, HTTP/1.1 only, verbose
+Command: curl -sS -v --tls-max 1.2 --http1.1 -D headers-home4.txt -o body-home4.html \
+  --max-time 25 -A "BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)" \
+  "https://planobporto.com" -w "\nHTTP_STATUS:%{http_code}\n"
+
+Output (verbose trace, tail):
+* Host planobporto.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 50.62.172.212
+*   Trying 50.62.172.212:443...
+* schannel: disabled automatic use of client certificate
+* ALPN: curl offers http/1.1
+* schannel: next InitializeSecurityContext failed: SEC_E_ILLEGAL_MESSAGE
+  (0x80090326) - This error usually occurs when a fatal SSL/TLS alert is received
+  (e.g. handshake failed). More detail may be available in the Windows System event log.
+* closing connection #0
+curl: (35) schannel: next InitializeSecurityContext failed: SEC_E_ILLEGAL_MESSAGE
+(0x80090326)
+
+HTTP_STATUS:000
+
+Result: DNS resolution succeeded (50.62.172.212), TCP connect to port 443 was
+attempted, but the TLS handshake itself failed at the ClientHello/ServerHello
+stage even restricted to TLS 1.2 and HTTP/1.1-only ALPN. Same failure as Probe 1
+with a narrower TLS configuration — rules out an HTTP/2 or TLS-1.3-specific
+negotiation issue on curl's side specifically.
+
+Also tried, same result (SEC_E_ILLEGAL_MESSAGE / exit 35):
+  curl -sS --tlsv1.2 ... "https://planobporto.com"
+  curl -sS -k ... "https://planobporto.com"   (certificate verification disabled —
+    the failure occurs before any certificate is even presented/checked, so -k
+    makes no difference)
+
+------------------------------------------------------------------------------
+PROBE 3 — PowerShell 5.1, System.Net.Http / .NET TLS stack (independent of curl/Schannel-CLI path — uses WinHTTP/SChannel via .NET, a different code path than libcurl's own Schannel bindings)
+Command:
+  Invoke-WebRequest -Uri "https://planobporto.com" -UserAgent "BandOnTheMap-SourceInvestigation/0.1" -TimeoutSec 25 -MaximumRedirection 5
+
+Output:
+ERROR: The request was aborted: Could not create SSL/TLS secure channel.
+
+Result: Independent TLS stack (.NET WebRequest, not libcurl) also fails to
+complete a TLS handshake against the same host/port.
+
+------------------------------------------------------------------------------
+PROBE 4 — WebFetch tool (separate, remote fetch infrastructure — not this
+machine — using an OpenSSL-based TLS client, wholly independent of both the
+local curl/Schannel and local PowerShell/.NET stacks above)
+Request: GET https://planobporto.com
+
+Output:
+error:10000410:SSL routines:OPENSSL_internal:SSLV3_ALERT_HANDSHAKE_FAILURE
+
+Result: A THIRD, wholly independent TLS client implementation (OpenSSL, on
+different infrastructure entirely, not this Windows machine) also fails with
+an explicit handshake-failure alert. Three independent TLS stacks (Schannel,
+.NET, OpenSSL), from at least two independent network vantage points (this
+local machine, and WebFetch's own remote infrastructure), all fail to
+complete a TLS handshake against planobporto.com:443. This is strong,
+multiply-corroborated evidence of a genuine server/transport-level failure,
+not a single client's misconfiguration or a single vantage point's network
+issue.
+
+------------------------------------------------------------------------------
+PROBE 5 — WebFetch tool, https://www.planobporto.com (the exact official_url
+recorded in the prior loose sources/porto.json lead)
+Request: GET https://www.planobporto.com
+
+Output:
+getaddrinfo ENOTFOUND www.planobporto.com
+
+Result: WebFetch's own independent DNS resolver also cannot resolve this
+hostname — corroborating, from a second independent resolver (this machine's
+local nslookup, see dns-lookups.txt, and now WebFetch's own remote DNS
+resolution), that www.planobporto.com is genuinely NXDOMAIN, not a
+local/ISP-specific DNS quirk.
+
+------------------------------------------------------------------------------
+SUMMARY
+- https://www.planobporto.com (the official_url on record in the prior loose
+  sources/porto.json lead): DNS NXDOMAIN, corroborated by two independent
+  resolvers (local nslookup and WebFetch's own remote resolver). No HTTP(S)
+  request could even be attempted — there is no IP address to connect to.
+- https://planobporto.com (bare domain, the only variant that resolves in
+  DNS): resolves to 50.62.172.212, but every attempted TLS handshake to port
+  443 fails, reproduced across three independent TLS client implementations
+  (curl/Schannel, PowerShell/.NET, WebFetch/OpenSSL) from at least two
+  independent network vantage points. See body-home-http.html /
+  headers-home-http.txt for the plain (unencrypted) HTTP/80 probe result,
+  which did return a response (Cloudflare edge, HTTP 409, "error code: 1001" —
+  Cloudflare's own documented code for "DNS resolution error", i.e. even
+  Cloudflare's own edge could not reach whatever origin is configured behind
+  it for this hostname).

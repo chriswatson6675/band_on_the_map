@@ -1,0 +1,374 @@
+{
+  "investigation_id": "nos-alive-lisbon-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T09:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC then Level 2 STRUCTURAL, both non-browser HTTP only: curl fetches (BandOnTheMap-SourceInvestigation/0.1 UA) of the official homepage, the 'cartaz'/lineup page, all three static 'day' pages (primeiro-dia/segundo-dia/terceiro-dia), the ticket page (bilheteira), one news-archive page (confirmacoes-palco-portico), and the site's public wp-json REST root plus its one bespoke custom-taxonomy route (/wp/v2/alive). Inspected retained HTML/JSON for schema.org JSON-LD Event markup, RSS/ICS, WordPress REST endpoints, and per-page date/lineup text, including cross-page consistency of dates across the homepage/ticket-page/day-pages/lineup-table. A dependency-free, no-network Node offline-proof script re-parsed the retained HTML fixtures deterministically to reproduce every date-derivation and cross-page-inconsistency claim below. Level 1 was INSUFFICIENT to expose a structured, reliable event-data path (no Event/MusicEvent JSON-LD, ICS, or RSS anywhere; date facts only recoverable via careful cross-page prose/heading reasoning); Level 2 (REST API discovery) was also INSUFFICIENT (the one non-core REST route found is a stage-name taxonomy, not event/date records). No browser/headless probing (Level 3+) was attempted or needed — the decision below does not depend on anything only a browser could reveal."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GETs of https://nosalive.com/ (homepage), https://nosalive.com/nosalive-cartaz/ (lineup), https://nosalive.com/primeiro-dia/, /segundo-dia/, /terceiro-dia/ (the three per-day pages), https://nosalive.com/bilheteira/ (tickets), and https://nosalive.com/confirmacoes-palco-portico/ (a news-archive page) all returned 200 OK with fully server-rendered HTML — no client-rendered shell, no auth wall. The homepage carries one schema.org JSON-LD graph (Yoast SEO plugin), but it only emits Organization/WebSite/ImageObject/WebPage/BreadcrumbList types; no page in this sample emits an Event or MusicEvent JSON-LD block, and no RSS or ICS feed was found anywhere. The only date/lineup information present anywhere in this sample is unstructured prose text, a static TablePress HTML table, and page <title>/<h1> text — several of which directly disagree with each other on the same page or across pages (see field_assessment.start_date.notes for the full, retained cross-page discrepancy and how it was mechanically resolved). Level 1 alone does not expose a structured, mechanically-reliable event-data path, so it was judged INSUFFICIENT and escalation to Level 2 (checking whether a public JSON/REST API exposes cleaner event data) was attempted.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-cartaz-body",
+        "ev-cartaz-headers",
+        "ev-primeiro-dia-body",
+        "ev-segundo-dia-body",
+        "ev-terceiro-dia-body",
+        "ev-bilheteira-body",
+        "ev-palco-portico-body",
+        "ev-offline-proof"
+      ]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "The site's own wp-json REST API root (advertised via the Level-1 homepage response's own Link header: rel=\"https://api.w.org/\") was fetched directly and its full route list inspected. Beyond the standard core WordPress routes (posts/pages/media/menus/etc., none queryable for 'upcoming festival dates' without already knowing a specific numeric post ID this investigation has no source for), the only bespoke, non-core route discovered is /wp/v2/alive, a custom taxonomy whose terms are queried and returned: stage names (e.g. 'Palco Literário', 'Heineken Stage') with parent/child term relationships describing the site's stage/day page hierarchy — not individual dated event, performance, or lineup-slot records. No public JSON/feed/API path exposing structured, per-edition or per-performance event data was found. Given this and Level 1's findings together already establish enough to reach an honest decision (see decision.reasons), escalation to Level 3 (browser observation) was not attempted — nothing a browser could observe would change the structural or data-reliability conclusions below, and per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER never requires exhausting the ladder.",
+      "evidence_refs": ["ev-wpjson-root", "ev-wpjson-alive"]
+    }
+  ],
+  "source_candidate_id": "nos-alive-lisbon-01-candidate",
+  "source_id": "nos-alive",
+  "venue_reference": "NOS Alive — annual outdoor multi-day music festival at Passeio Marítimo de Algés, Oeiras/Lisbon, Portugal. Already has a DISCOVERED-lifecycle registry entry (sources/lisbon.json, id \"nos-alive\") with official_website https://nosalive.com and a prior research_notes claim ('2026 edition confirmed 9-11 July') that this investigation's own retained evidence independently corroborates (see identity.notes and field_assessment.start_date.notes).",
+  "official_url": "https://nosalive.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body"],
+    "notes": "https://nosalive.com is confirmed as NOS Alive's own official presence by this investigation's own retained evidence, independent of the pre-existing registry entry: the homepage's own Yoast SEO JSON-LD names an Organization \"NOS Alive\" (@id https://nosalive.com/#organization) with sameAs links to the festival's own verified-looking official Facebook/Instagram/YouTube/Twitter accounts (facebook.com/NOSalivePortugal, instagram.com/nos_alive, twitter.com/nos_alive), and the same JSON-LD's WebPage node states the address \"Passeio Marítimo de Algés, Lisboa\", matching this project's own pre-existing registry entry (sources/lisbon.json, id nos-alive) for physical_address/municipality. This investigation treated the registry entry strictly as a discovery lead, not as evidence in itself, and re-confirmed identity from freshly retained material."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress (WPML multilingual, WPBakery Page Builder, Slider Revolution, TablePress for the lineup table, Yoast SEO for the one JSON-LD graph found), server-rendered/PHP (X-Powered-By: PHP/7.4.33), fronted by nginx behind what looks like a Plesk-managed host. No headless/SPA framework, no client-side rendering gate — every page in this sample was fully present in the initial HTTP response.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-wpjson-root"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_HOMEPAGE (Organization/WebSite/WebPage JSON-LD only, no Event type; states the upcoming '27-labelled edition's 3 days in prose)",
+      "url": "https://nosalive.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-home-body", "ev-home-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_TICKET_PAGE (independently corroborates the same 3 days via a ticket-vendor URL slug, 2-day-pass day-combination labels, and one linked vendor URL containing the literal year 2027)",
+      "url": "https://nosalive.com/bilheteira/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-bilheteira-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_DAY_PAGE (static per-day page; own <h1> was recently updated to the upcoming edition's date, but the same page's own <title> tag is stale/unrevised — a real, retained same-page inconsistency, not merely a cross-page one)",
+      "url": "https://nosalive.com/primeiro-dia/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-primeiro-dia-body", "ev-segundo-dia-body", "ev-terceiro-dia-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_LINEUP_TABLE_STALE_PRIOR_EDITION (TablePress HTML table, element id literally \"tablepress-2026\"; per-stage/per-time/per-act lineup for what this investigation's own retained evidence proves is the already-concluded 2026 edition, not the upcoming one)",
+      "url": "https://nosalive.com/nosalive-cartaz/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cartaz-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "WP_JSON_REST_ROOT (core WP routes only; fetched and inspected, not merely observed via header)",
+      "url": "https://nosalive.com/wp-json/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-root"]
+    },
+    {
+      "kind": "WP_JSON_CUSTOM_TAXONOMY_ROUTE (returns stage-name taxonomy terms only, not dated event/performance records — inspected and rejected as an event-data path)",
+      "url": "https://nosalive.com/wp-json/wp/v2/alive",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wpjson-alive"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "NOS Alive 2027",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The homepage's own JSON-LD Organization node names the festival \"NOS Alive\"; the same page's own meta description separately labels the upcoming edition \"NOS Alive'27\"; the ticket page links an official vendor URL containing the literal 4-digit year \"2027\" for the same festival. Combined mechanically (see derivation), this yields \"NOS Alive 2027\" as the upcoming edition's title. IMPORTANT CAVEAT: this is the title of the whole 3-day festival as a single annual entity, not of one individually-ticketed 'show' in the sense this project's Event model otherwise expects from a venue calendar (see decision.reasons for the structural mismatch).",
+      "evidence_refs": ["ev-home-body", "ev-bilheteira-body", "ev-offline-proof"],
+      "derivation": {
+        "rule": "Take the festival's own organization name from its homepage JSON-LD; take the edition label the same homepage independently states for the upcoming edition (an apostrophe plus 2-digit suffix, e.g. \"'27\"); confirm that 2-digit suffix denotes a full calendar year (not an ordinal edition count, which the source states separately and differently — e.g. \"18.ª edição\" for the already-concluded '26 edition) by finding that same 2-digit suffix's 4-digit form stated directly in an official vendor URL the source itself links from its own ticket page (\"nos-alive-festival-lisbon-2027\"); concatenate the organization name with the confirmed 4-digit year.",
+        "inputs": [
+          "Homepage JSON-LD Organization.name: \"NOS Alive\"",
+          "Homepage JSON-LD WebPage description: \"O NOS Alive'27 estará de volta...\"",
+          "Ticket page's own linked official vendor URL: \"https://www.masqueticket.com/entradas/nos-alive-festival-lisbon-2027\"",
+          "Palco Pórtico news-archive post (2026-07-09T15:03:45+00:00) captioning that date as \"o primeiro dia de NOS Alive'26\" and \"Na 18.ª edição\" — proving the apostrophe-suffix is a calendar-year label distinct from the separate ordinal edition count"
+        ]
+      }
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2027-07-08",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "REAL, RETAINED CROSS-PAGE INCONSISTENCY FOUND AND HONESTLY RESOLVED, NOT GUESSED: this site currently exposes TWO disagreeing sets of dates for what looks at first glance like the same upcoming festival. (1) The homepage's own JSON-LD description and the ticket page's own Ticketline URL slug/2-day-pass labels state the '27-labelled edition runs 8, 9, 10 July. (2) The three static 'day' pages' own <title> tags read '09 de Julho'/'10 de Julho'/'11 de Julho', and the lineup/cartaz page displays a full per-stage/per-time table for 9/10/11 July. These are NOT actually a live contradiction about the same edition once each page's own edition label is read: the cartaz table's own element id is literally 'tablepress-2026', its own JSON-LD description self-labels 'NOS Alive'26', and a linked news-archive post is timestamped 2026-07-09 and explicitly captions that as day 1 of 'NOS Alive'26' — i.e. that content is the already-concluded 2026 edition (independently matching this project's own pre-existing registry note '2026 edition confirmed 9-11 July'), not a disagreement about the upcoming one. Separately and more subtly, EACH of the three 'day' pages carries its own internal, same-page inconsistency: its <title> tag (09/10/11 de Julho, stale) disagrees with its own displayed <h1> heading (08/09/10 JUL respectively) — and the <h1> is what a visitor actually sees. All three day pages were modified 2026-08-24 (per their own retained dateModified), i.e. very recently and well after the 2026 festival had already concluded, consistent with an editor having updated the visible H1 content for the next edition without updating the separate, manually-set SEO <title> field. Combining the day-pages' own current H1 values (08/09/10 JUL, in day-1/day-2/day-3 order) with the '27 edition's own year (established the same way as field_assessment.title above) yields exactly one set of results — 2027-07-08, 2027-07-09, 2027-07-10 — matching, independently, the homepage description and the ticket page's own day-combination labels. Mechanically re-verified end-to-end in evidence/offline-proof.mjs. This field records the FIRST of the three days as start_date; see field_assessment.end for the last.",
+      "evidence_refs": ["ev-home-body", "ev-bilheteira-body", "ev-primeiro-dia-body", "ev-segundo-dia-body", "ev-terceiro-dia-body", "ev-cartaz-body", "ev-palco-portico-body", "ev-offline-proof"],
+      "derivation": {
+        "rule": "Discard any page whose own edition label (an apostrophe-suffixed 2-digit tag, e.g. '26 vs '27) does not match the upcoming edition's own label as established for field_assessment.title. Among the remaining, '27-labelled pages: read each of the three day-pages' own displayed <h1> heading (not its separate <title> tag) as that day's day-of-month; order the three day-pages by their own stated ordinal (first/second/third day); the first day-page's H1 day-of-month, combined with the confirmed year, is start_date, and the third day-page's H1 day-of-month, combined with the same year, is end. This yields exactly one result: 2027-07-08 as start, 2027-07-10 as end — independently corroborated by the homepage description's own '8, 9 e 10 de julho' and the ticket page's own day-combination pass labels.",
+        "inputs": [
+          "primeiro-dia page's own <h1>: \"8 JUL\" (dateModified 2026-08-24), vs. its own stale <title>: \"09 de Julho\"",
+          "segundo-dia page's own <h1>: \"9 JUL\" (dateModified 2026-08-24), vs. its own stale <title>: \"10 de Julho\"",
+          "terceiro-dia page's own <h1>: \"10 JUL\" (dateModified 2026-08-24), vs. its own stale <title>: \"11 de Julho\"",
+          "Homepage JSON-LD description: \"Nos dias 8, 9 e 10 de julho o encontro é no Passeio Marítimo de Algés, Lisboa.\"",
+          "Ticket page's 2-day-pass labels: \"Passe 2 dias 8 & 9 Julho\", \"8 & 10 Julho\", \"9 & 10 Julho\""
+        ]
+      }
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "This candidate is a single, whole-festival, multi-day, multi-stage event (day tickets and 2/3-day passes are sold for the festival as a whole, not per artist set), so there is no single meaningful 'event start time' distinct from dozens of individual per-act stage times. The one page that does carry per-act stage times (the cartaz/lineup TablePress table) is the already-concluded 2026 edition's own archived lineup (see start_date.notes), not current data, and was not treated as representing the upcoming edition.",
+      "evidence_refs": ["ev-cartaz-body", "ev-home-body"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2027-07-10",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The last of the festival's three days, derived by the same mechanism as start_date (see its notes and derivation) using the terceiro-dia ('third day') page's own H1 ('10 JUL') combined with the confirmed 2027 year.",
+      "evidence_refs": ["ev-terceiro-dia-body", "ev-home-body", "ev-bilheteira-body", "ev-offline-proof"],
+      "derivation": {
+        "rule": "Same combination rule as field_assessment.start_date.derivation, applied to the third ('terceiro-dia') day-page's own H1 value instead of the first.",
+        "inputs": [
+          "terceiro-dia page's own <h1>: \"10 JUL\" (dateModified 2026-08-24)",
+          "Homepage JSON-LD description: \"Nos dias 8, 9 e 10 de julho o encontro é no Passeio Marítimo de Algés, Lisboa.\""
+        ]
+      }
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Passeio Marítimo de Algés, Oeiras/Lisboa, Portugal",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Stated directly and consistently in the homepage's own JSON-LD WebPage description (\"...o encontro é no Passeio Marítimo de Algés, Lisboa.\") and matches this project's pre-existing registry entry's physical_address/municipality for this source. Unlike the date fields, no cross-page disagreement was found on the venue location.",
+      "evidence_refs": ["ev-home-body"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No stable per-edition identifier of any kind was found — no numeric event ID, no per-edition permalink slug, no JSON-LD @id naming a specific edition. The site's own page slugs for edition-specific content (primeiro-dia, segundo-dia, terceiro-dia, nosalive-cartaz, bilheteira) are static and are overwritten/reused in place every year rather than being unique per edition — this investigation's own retained evidence proves this directly, since the SAME slugs (e.g. /primeiro-dia/) currently carry a mix of already-updated 2027-edition content (the <h1>) and not-yet-updated 2026-edition content (the <title>, and the wholly separate /nosalive-cartaz/ page) side by side. An honest alternative identity strategy, if this source were ever activated, would need to be a synthesized composite key such as (festival brand + confirmed 4-digit edition year + day-of-festival), never the page URL/slug alone.",
+      "evidence_refs": ["ev-primeiro-dia-body", "ev-cartaz-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://nosalive.com/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The festival's own homepage is a stable, official, canonical URL for the festival as a whole (matches the pre-existing registry entry's official_website). No single canonical URL identifies one specific edition's day pages reliably enough to prefer over the homepage, given the source_record_id findings above.",
+      "evidence_refs": ["ev-home-body", "ev-home-headers"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The ticket page (bilheteira) lists ticket-type names (day passes, 2-day combination passes, 3-day passes, camping add-ons) and links out to third-party ticket vendors (Ticketline, Ticketmaster, MASQUETICKET, Blueticket) for actual purchase, but no price figures are present anywhere in this investigation's own retained, statically-rendered copy of the page itself.",
+      "evidence_refs": ["ev-bilheteira-body"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "LOW",
+    "evidence_refs": ["ev-home-body", "ev-cartaz-body", "ev-primeiro-dia-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "This investigation could only establish the upcoming edition's own dates by manually cross-referencing five separate pages and resolving two real, retained inconsistencies: (a) each of the three 'day' pages' own <title> tag disagreeing with its own displayed <h1> heading, and (b) distinguishing genuinely current ('27-labelled) pages from an already-concluded prior edition's stale content ('26-labelled: the lineup/cartaz table and a news-archive post) that remains live at unrelated-looking, non-obviously-dated URLs. A mechanical, unattended collector applying a fixed, reusable parsing rule cannot safely reproduce this disambiguation every year without material risk of silently ingesting a stale prior edition's dates as current — this is not a stable structural pattern any of this framework's collector families are built to trust unattended."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "NOS Alive is structurally a single annual multi-day festival — one continuous, whole-festival ticketed event across 3 consecutive days each July (day/2-day/3-day passes are sold for the festival as a whole; there is no calendar of many separately dated, separately ticketed shows through the year). Even a fully successful, reliable acquisition here would only ever yield one edition's worth of dates per year — structurally different from what this project's recurring Source -> Event/Observation model is built to repeatedly consume from a venue calendar. Per this task's own framing, this alone is a legitimate, honest basis to defer rather than force-fit an acquisition design around a single yearly announcement."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No schema.org Event/MusicEvent JSON-LD, ICS feed, RSS feed, or public per-event JSON API exists anywhere on the site. The only bespoke (non-core) public REST route discovered, /wp/v2/alive, returns stage-name taxonomy terms, not dated event/performance records."
+      },
+      {
+        "severity": "MINOR",
+        "description": "No stable per-edition source_record_id exists (see field_assessment.source_record_id.notes) — page slugs are static and reused/overwritten year over year rather than unique per edition."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Structural mismatch (the primary reason, per this task's own framing): NOS Alive is fundamentally one single annual multi-day festival, not a venue producing many separately dated/ticketed shows across the year. Forcing this into the project's recurring Source/Event/Observation model would either yield only one Event record per year (very low ongoing acquisition value for a governed collector) or would misrepresent the festival's internal day/stage/act programme as if it were separately purchasable 'events', which it is not — tickets are sold per festival-day-combination, not per act.",
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (homepage JSON-LD Organization + verified-looking official social links + matching address), independently re-established rather than assumed from the pre-existing registry entry.",
+      "Level 1 (PASSIVE_STATIC) was genuinely INSUFFICIENT to expose a structured, mechanically-reliable event-data path: no Event/MusicEvent JSON-LD, ICS, or RSS exists anywhere in the retained sample.",
+      "Level 2 (STRUCTURAL) was also genuinely INSUFFICIENT: the site's own public REST API exposes no event/date-bearing route, only a stage-name taxonomy. Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER never requires reaching or exhausting Level 3/4, and nothing a browser session could observe would change either the structural mismatch or the data-reliability findings below, so Level 3 was not attempted.",
+      "A genuine, retained, first-party data-reliability problem was found and honestly resolved rather than guessed around: the site currently mixes freshly-updated content for the upcoming ('27-labelled) edition with not-yet-updated content for the already-concluded ('26-labelled) prior edition, including a same-page <title>-vs-<h1> inconsistency on all three 'day' pages. This investigation was able to mechanically resolve this specific instance (see field_assessment.start_date/end/title, all PROVEN via DETERMINISTIC_CONTEXT and reproduced in evidence/offline-proof.mjs) — but the same disambiguation would need to be safely re-derivable by an unattended collector every single year, which this source's own current content-management pattern does not support reliably (see collector_assessment.blockers, CRITICAL).",
+      "No stable per-edition source_record_id exists; the site's own page slugs are static and get overwritten/reused year over year rather than being unique per edition.",
+      "Given both the structural mismatch and the concrete, evidenced collector-reliability blocker, DEFER (not REJECT) is the honest outcome: this candidate could plausibly be revisited later — e.g. once this project has a deliberate design for modeling single annual multi-day festivals as a distinct pattern (rather than forcing the venue-calendar Event model), and/or once the site's own edition content is next observed to be internally self-consistent — but no honest, reliably-repeatable automated acquisition exists today.",
+      "This decision is a research conclusion only. It does not edit sources/*.json, any venues/*.json registry, or any other live registry — turning any future reconsideration into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": [
+      "ev-home-body",
+      "ev-bilheteira-body",
+      "ev-primeiro-dia-body",
+      "ev-segundo-dia-body",
+      "ev-terceiro-dia-body",
+      "ev-cartaz-body",
+      "ev-palco-portico-body",
+      "ev-wpjson-root",
+      "ev-wpjson-alive",
+      "ev-offline-proof"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the NOS Alive official homepage: one Yoast SEO JSON-LD graph (Organization/WebSite/ImageObject/WebPage/BreadcrumbList — no Event type), a meta description stating the '27-labelled edition runs 8, 9 e 10 de julho at Passeio Marítimo de Algés, Lisboa, and links to the lineup/day/ticket pages.",
+      "acquired_from": "https://nosalive.com",
+      "acquired_at": "2026-08-27T09:24:40Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the same homepage request: 200 OK, nginx + PHP 7.4.33 (Plesk-managed), and a Link header advertising the WordPress REST API root.",
+      "acquired_from": "https://nosalive.com",
+      "acquired_at": "2026-08-27T09:24:40Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-cartaz-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the lineup/'cartaz' page: a TablePress HTML table with element id literally \"tablepress-2026\" giving a full per-stage/per-time/per-act schedule for 9/10/11 July, and its own JSON-LD description self-labelling as \"NOS Alive'26\" — direct proof this is the already-concluded 2026 edition's archived lineup, not the upcoming edition.",
+      "acquired_from": "https://nosalive.com/nosalive-cartaz/",
+      "acquired_at": "2026-08-27T09:25:12Z",
+      "method": "curl -sS -D headers-cartaz.txt -o body-cartaz.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-cartaz.html"
+    },
+    {
+      "evidence_id": "ev-cartaz-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the cartaz/lineup page request.",
+      "acquired_from": "https://nosalive.com/nosalive-cartaz/",
+      "acquired_at": "2026-08-27T09:25:12Z",
+      "method": "curl -sS -D headers-cartaz.txt (same request as ev-cartaz-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/headers-cartaz.txt"
+    },
+    {
+      "evidence_id": "ev-primeiro-dia-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'primeiro-dia' (first day) page: its own <title> tag reads '09 de Julho' while its own displayed <h1> reads '8 JUL' — a real, retained same-page inconsistency; dateModified 2026-08-24 (recently edited).",
+      "acquired_from": "https://nosalive.com/primeiro-dia/",
+      "acquired_at": "2026-08-27T09:25:30Z",
+      "method": "curl -sS -D headers-primeiro-dia.txt -o body-primeiro-dia.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-primeiro-dia.html"
+    },
+    {
+      "evidence_id": "ev-segundo-dia-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'segundo-dia' (second day) page: <title> reads '10 de Julho' while <h1> reads '9 JUL'; dateModified 2026-08-24.",
+      "acquired_from": "https://nosalive.com/segundo-dia/",
+      "acquired_at": "2026-08-27T09:25:40Z",
+      "method": "curl -sS -D headers-segundo-dia.txt -o body-segundo-dia.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-segundo-dia.html"
+    },
+    {
+      "evidence_id": "ev-terceiro-dia-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the 'terceiro-dia' (third day) page: <title> reads '11 de Julho' while <h1> reads '10 JUL'; dateModified 2026-08-24; page banner image references Tame Impala, consistent with a genuinely-updated, upcoming-edition confirmed-artist page.",
+      "acquired_from": "https://nosalive.com/terceiro-dia/",
+      "acquired_at": "2026-08-27T09:25:50Z",
+      "method": "curl -sS -D headers-terceiro-dia.txt -o body-terceiro-dia.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-terceiro-dia.html"
+    },
+    {
+      "evidence_id": "ev-bilheteira-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for the ticket ('bilheteira') page: a Ticketline event URL slug 'nos-alive-27-08-09-10-julho-107239', three 2-day-pass labels ('8 & 9 Julho', '8 & 10 Julho', '9 & 10 Julho'), and a linked official vendor URL 'nos-alive-festival-lisbon-2027' containing the literal 4-digit year — independently corroborating the homepage's stated 8/9/10 July dates for the '27 edition.",
+      "acquired_from": "https://nosalive.com/bilheteira/",
+      "acquired_at": "2026-08-27T09:26:05Z",
+      "method": "curl -sS -D headers-bilheteira.txt -o body-bilheteira.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-bilheteira.html"
+    },
+    {
+      "evidence_id": "ev-palco-portico-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML for a news-archive listing page (confirmacoes-palco-portico): individual news posts about stage-lineup confirmations, one with its own <time datetime=\"2026-07-09T15:03:45+00:00\"> and prose explicitly captioning that date as 'o primeiro dia de NOS Alive'26' and 'Na 18.ª edição' — direct proof that the apostrophe-year label denotes a calendar year distinct from the separately-stated ordinal edition count, and that this page's content belongs to the already-concluded 2026 edition.",
+      "acquired_from": "https://nosalive.com/confirmacoes-palco-portico/",
+      "acquired_at": "2026-08-27T09:26:20Z",
+      "method": "curl -sS -D headers-palco-portico.txt -o body-palco-portico.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-palco-portico.html"
+    },
+    {
+      "evidence_id": "ev-wpjson-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response for the site's public wp-json REST API root: full route list for every registered namespace (core wp/v2 plus WPML, Yoast, Contact Form 7, Redirection, etc.). No route exposes structured event/date data beyond the one custom taxonomy route separately retained as ev-wpjson-alive.",
+      "acquired_from": "https://nosalive.com/wp-json/",
+      "acquired_at": "2026-08-27T09:28:05Z",
+      "method": "curl -sS -D headers-wpjson-root.txt -o body-wpjson-root.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-wpjson-root.json"
+    },
+    {
+      "evidence_id": "ev-wpjson-alive",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained JSON response for the one bespoke, non-core REST route discovered (/wp/v2/alive): a custom taxonomy whose terms are stage names (e.g. 'Palco Literário') with parent/child relationships describing the site's stage/day page hierarchy — not dated event or performance records.",
+      "acquired_from": "https://nosalive.com/wp-json/wp/v2/alive?per_page=5",
+      "acquired_at": "2026-08-27T09:28:20Z",
+      "method": "curl -sS -D headers-wpjson-alive.txt -o body-wpjson-alive.json --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/json; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/body-wpjson-alive.json"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against the retained evidence files above. Mechanically re-parses each day-page's own <h1> vs <title>, the homepage/ticket-page '27-edition date statements, the cartaz/palco-portico pages' own '26-edition self-labelling, and reproduces the combined title/start_date/end derivations end-to-end. Exited 0 with all 15 checks passing.",
+      "acquired_from": "research/source-investigations/nos-alive-lisbon-01/evidence/ (all body-*.html/json files above, read locally, no network)",
+      "acquired_at": "2026-08-27T09:32:00Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/nos-alive-lisbon-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

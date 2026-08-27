@@ -1,0 +1,389 @@
+{
+  "investigation_id": "cco-sintra-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T08:00:11Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only. All retained evidence acquired via plain curl (raw HTTP, no WebFetch/AI-markdown conversion, real descriptive User-Agent) against the venue's own official domain: the homepage, the given candidate '/agenda' events page (verified as correct, page 1 of 9), a second agenda list page (?page=2, for a broader structural sample), four individual event-detail permalinks (including two different calendar dates of the SAME underlying multi-date production, to empirically stress-test the stable-identifier rule), the site's default RSS feed route, and robots.txt. Inspected retained HTML for JSON-LD Event/MusicEvent data (none found anywhere), CMS/plugin fingerprints (found: Joomla, Helix Ultimate template framework, and the 'com_icagenda' / iCagenda Joomla events-calendar extension — a genuine, identifiable off-the-shelf calendar plugin, not a bespoke page), and a fully server-rendered, paginated event list with per-event permalinks combining a numeric content-item id + slug + calendar date + time. A dependency-free, no-network Node offline-proof script re-parsed every retained HTML/XML file to mechanically re-derive every claim below, including cross-checking each retained event-detail page's own <link rel=\"canonical\"> against the exact URL it was fetched from, and empirically demonstrating that the site's bare numeric event id is NOT alone a per-occurrence-unique key (the same id serves two different calendar dates of one production) while the full permalink genuinely is. Level 1 was SUFFICIENT; no escalation to Level 2/3/4 was attempted."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "Plain curl GETs (BandOnTheMap-SourceInvestigation/0.1 UA) of https://ccolgacadaval.pt (homepage), https://ccolgacadaval.pt/agenda (the given candidate events page, page 1 of 9), https://ccolgacadaval.pt/agenda?page=2 (a second list page), four individual event-detail permalinks, https://ccolgacadaval.pt/agenda?format=feed&type=rss (the site's default RSS route), and https://ccolgacadaval.pt/robots.txt all returned real, server-rendered content on the first plain request — no client-side rendering was needed anywhere. The two retained agenda list pages already contained, verbatim, in plain HTML: 10 event rows total, each pairing a full ISO calendar date, a venue name (one of the venue's own two named auditoria), a title, a category, and a permalink combining a numeric content-item id + slug + date + time. The four retained event-detail permalinks independently confirmed per-occurrence data (each detail page's own <link rel=\"canonical\"> exactly matched the URL fetched, including for two different dates of the same underlying production id) and additionally exposed free-text price/duration information in some (not all) sampled cases, plus a full municipal postal address, email, and phone in a shared footer block. This already answers identity, platform classification (Joomla + the identifiable 'com_icagenda' calendar plugin), data-path discovery, and field assessment for every field this policy requires, without needing to inspect JS bundles or open a browser, so escalation to Level 2 (STRUCTURAL) or beyond was not attempted. The one alternative data path checked (the site's own advertised RSS route) was actively probed and found genuinely disabled (410 Gone), not merely left unchecked.",
+      "evidence_refs": [
+        "ev-home-body",
+        "ev-home-headers",
+        "ev-agenda-body",
+        "ev-agenda-headers",
+        "ev-agenda-page2-body",
+        "ev-agenda-page2-headers",
+        "ev-event-gnr-body",
+        "ev-event-gnr-headers",
+        "ev-event-evita1-body",
+        "ev-event-evita1-headers",
+        "ev-event-evita2-body",
+        "ev-event-evita2-headers",
+        "ev-event-orquestra-body",
+        "ev-event-orquestra-headers",
+        "ev-feed-body",
+        "ev-feed-headers",
+        "ev-robots-body",
+        "ev-robots-headers",
+        "ev-offline-proof"
+      ]
+    }
+  ],
+  "source_candidate_id": "cco-sintra-01-candidate",
+  "source_id": null,
+  "venue_reference": "Centro Cultural Olga Cadaval — Sintra's primary large concert venue, two auditoria (Auditório Jorge Sampaio, Auditório Acácio Barreiros), Praça Dr. Francisco Sá Carneiro, 2710-720 Sintra, Portugal; operated by Câmara Municipal de Sintra",
+  "official_url": "https://ccolgacadaval.pt",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-body", "ev-event-gnr-body", "ev-offline-proof"],
+    "notes": "Independently re-confirmed by this investigation's own retained evidence, not assumed from the prior loose sources/lisbon.json note. The homepage's own <meta name=\"keywords\"/\"description\"> both state 'Centro Cultural Olga Cadaval' directly. A retained event-detail page's shared footer contact block states, verbatim: 'MORADA / Centro Cultural Olga Cadaval / Praça Dr. Francisco Sá Carneiro / 2710-720 SINTRA', 'EMAIL / geral.ccoc@cm-sintra.pt', and 'TELEFONE / (+351 ) 21 910 71 10' — a full postal address matching the well-known real venue, plus an email on the cm-sintra.pt domain (Câmara Municipal de Sintra's own domain). The same footer's privacy-policy text explicitly names 'Câmara Municipal de Sintra' as the policy owner, and the site's own Matomo analytics snippet points at https://stats.cm-sintra.pt/ (site id 27) — independently corroborating that this is the venue's own official municipal website, not a third-party listing. Both of the venue's two named auditoria referenced in the prior loose research note ('two auditoria') were independently found in the retained event sample: 'Auditório Jorge Sampaio' and 'Auditório Acácio Barreiros' both appear as real, distinct per-event venue values across the 10-row retained sample (mechanically confirmed in evidence/offline-proof-output.txt), not merely restated from the prior note."
+  },
+  "site_classification": {
+    "acquisition_class": "KNOWN_CALENDAR_PLUGIN",
+    "platform": "Joomla (Helix Ultimate template framework — the retained homepage's own <meta name=\"generator\" content=\"HELIX_ULTIMATE_GENERATOR_TEXT\">, plus the literal string 'Joomla' found in the retained HTML) running the 'iCagenda' events-calendar extension (com_icagenda) — confirmed unambiguously via the retained agenda page's own <body> class list ('com_icagenda com-icagenda view-list ... itemid-679 ... agenda') and its component-specific asset paths (/media/com_icagenda/css/icagenda-front.css, /components/com_icagenda/themes/packs/ic_rounded/...). This is a genuine, identifiable off-the-shelf Joomla calendar plugin — not a bespoke hand-authored page (contrast with fama-dalfama-lisbon-01, where no recognisable plugin was found). No JSON-LD Event/MusicEvent data is emitted anywhere on the retained agenda list pages or any of the 4 retained event-detail pages. The site's own advertised RSS route (<link rel=\"alternate\" type=\"application/rss+xml\" href=\"/agenda?format=feed&type=rss\">, present in the retained agenda page's own <head>) was actively probed and found permanently disabled at the server level (HTTP 410 Gone), ruling out RSS as a usable data path rather than leaving it unchecked. The entire paginated event calendar (44 upcoming events across 9 pages at time of fetch) is present verbatim in plain, server-rendered HTML; no client-side rendering or hidden data path is needed to read it.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-home-body", "ev-feed-body", "ev-feed-headers", "ev-offline-proof"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE (paginated iCagenda list view)",
+      "url": "https://ccolgacadaval.pt/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-headers", "ev-agenda-page2-body", "ev-agenda-page2-headers", "ev-offline-proof"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE (per-occurrence permalink: /agenda/{content-item-id}-{slug}/{date}-{time})",
+      "url": "https://ccolgacadaval.pt/agenda/519-gnr/2026-09-11-21-00",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-gnr-body", "ev-event-gnr-headers", "ev-event-evita1-body", "ev-event-evita2-body", "ev-event-orquestra-body", "ev-offline-proof"]
+    },
+    {
+      "kind": "RSS_FEED (checked — the site's own advertised route, but HTTP 410 Gone / permanently disabled server-side)",
+      "url": "https://ccolgacadaval.pt/agenda?format=feed&type=rss",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-feed-body", "ev-feed-headers", "ev-offline-proof"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "GNR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 10 sampled event rows carries its own non-empty title, directly stated in the row's own <h2><a> anchor text (e.g. 'GNR', 'Evita, com Sofia Escobar e Diogo Morgado', 'Ricardo Ribeiro', 'Concerto inaugural | Coro Teatro Nacional S. Carlos e Orquestra Sinfónica Portuguesa'), reconfirmed on each event's own detail page <title>. Mechanically verified 10/10 non-null in evidence/offline-proof-output.txt. The representative value recorded here ('GNR') is this investigation's most fully-evidenced worked example (list row + detail page + canonical-URL cross-check); the other 9 sampled titles are recorded in the offline-proof output, not restated individually here.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-gnr-body", "ev-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-11",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 10 sampled event rows states its own full ISO calendar date (YYYY-MM-DD) directly in a dedicated <span class=\"ic-single-next\"> element — never a bare day-of-month requiring month/year context from elsewhere, so no DETERMINISTIC_CONTEXT combination was needed for this source. Mechanically verified 10/10 in evidence/offline-proof-output.txt. This is a floating local date — no explicit UTC offset or IANA timezone is stated anywhere in the retained HTML; Europe/Lisbon is the obvious real-world timezone but this was never promoted to a fabricated UTC instant. The representative value here (2026-09-11, the 'GNR' event) is this investigation's most fully-evidenced worked example; the other 9 sampled dates are recorded in the offline-proof output.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-gnr-body", "ev-offline-proof"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "9 of the 10 sampled event rows state an explicit HH:MM start time directly in a dedicated <span class=\"ic-single-starttime\"> element, matching the time embedded in that row's own permalink suffix exactly. However, exactly 1 of the 10 sampled rows (event id 551, 'Concerto inaugural...') has NO ic-single-starttime element anywhere — not on its list row, and not on its own retained detail page — even though its permalink's own date-time suffix still encodes '17-00'. This was empirically found, not assumed: mechanically confirmed in evidence/offline-proof-output.txt. Because the permalink's time suffix cannot be trusted as proof that a start time is genuinely, reliably displayed for every event on this source, this field is honestly recorded as PARTIAL (commonly, but not universally, present as a clean value) rather than PROVEN.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-page2-body", "ev-event-orquestra-body", "ev-offline-proof"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No dedicated 'end time' field exists anywhere on this source. 2 of the 4 sampled event-detail pages (GNR, Evita) contain a free-text 'Duração:' sentence embedded within the event's prose description (e.g. '75 minutos, sem intervalo' / '135 minutos, com intervalo'), from which an approximate end could be mechanically computed (demonstrated, not claimed as a field, in evidence/offline-proof.mjs: GNR's 21:00 start + retained 75-minute duration = 22:15). The other 2 of 4 sampled detail pages (Evita's second date, and the orquestra event) contain NO such duration text at all — mechanically confirmed in evidence/offline-proof-output.txt. Because this free-text block is inconsistently present, has inconsistent wording/formatting, and was never observed as a dedicated structured field, it is not promoted to PROVEN — a collector could, at most, attempt a best-effort free-text extraction, never rely on it being present.",
+      "evidence_refs": ["ev-event-gnr-body", "ev-event-orquestra-body", "ev-offline-proof"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Auditório Jorge Sampaio",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 10 sampled event rows states its own venue name directly in a dedicated 'place ic-place' element — no inheritance/derivation needed, each row carries its own explicit value. Both of the venue's two known auditoria appear in the retained sample (6/10 rows: Auditório Jorge Sampaio; 4/10 rows: Auditório Acácio Barreiros) — mechanically confirmed in evidence/offline-proof-output.txt, independently corroborating the prior loose research note describing 'two auditoria' rather than merely repeating it. No street address or geocoordinates are given per-event (the venue's own single physical address is recorded in identity.notes and belongs to this repository's own venues/manual-coordinates registry, which this investigation did not touch). The representative value here (Auditório Jorge Sampaio, the 'GNR' event) is this investigation's most fully-evidenced worked example.",
+      "evidence_refs": ["ev-agenda-body", "ev-agenda-page2-body", "ev-event-gnr-body", "ev-offline-proof"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "519-gnr/2026-09-11-21-00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The source exposes a numeric content-item id per event row (e.g. class=\"ic-event-id-543\"), embedded as the leading path segment of every permalink. THE STABLE-IDENTIFIER RULE'S NUANCE, EMPIRICALLY DEMONSTRATED (not assumed): the bare numeric id alone is NOT a per-occurrence-unique key — id 543 ('Evita, com Sofia Escobar e Diogo Morgado') appears twice in this investigation's own retained 10-row sample, once for calendar date 2026-09-03 and once for 2026-09-04, with the SAME bare id both times (mechanically confirmed in evidence/offline-proof-output.txt). However, the FULL permalink — {content-item-id}-{slug}/{date}-{time}, e.g. '519-gnr/2026-09-11-21-00' — IS proven stable and source-declared per occurrence: each of the 4 retained event-detail pages' own <link rel=\"canonical\"> exactly matches the exact URL it was fetched from (4/4, mechanically confirmed), including for the two different id-543 dates, which independently and distinctly self-declare their own canonical paths ('.../543-.../2026-09-03-21-00' vs '.../543-.../2026-09-04-21-00'). This satisfies the stable-identifier rule via 'a permalink URL slug the source uses as its own canonical path' — a future collector MUST use the full permalink (never the bare numeric id alone) as its per-occurrence key. The representative value here is the GNR event's own full permalink path segment.",
+      "evidence_refs": ["ev-agenda-body", "ev-event-gnr-body", "ev-event-evita1-body", "ev-event-evita2-body", "ev-offline-proof"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://ccolgacadaval.pt/agenda/519-gnr/2026-09-11-21-00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Every one of the 10 sampled event rows carries its own distinct, absolute-resolvable permalink (via a relative href, resolved against the retained page's own <base href=\"https://ccolgacadaval.pt/\">), and every one of the 4 retained event-detail pages independently self-declares that exact same URL as its own canonical path (<link rel=\"canonical\">) — proven, not assumed. Unlike fama-dalfama-lisbon-01 (where all occurrences shared one page URL), this source genuinely provides a distinct URL per calendar occurrence, including for two different dates of the same underlying production (id 543).",
+      "evidence_refs": ["ev-agenda-body", "ev-event-gnr-body", "ev-event-evita1-body", "ev-event-evita2-body", "ev-offline-proof"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No price field exists anywhere on the retained agenda list pages. 1 of the 4 sampled event-detail pages (GNR) contains free-text price information embedded within its prose description ('Preço:' followed by multiple named tiers, e.g. '1ª e 2ª Plateia: 25,00 €' / 'Balcão e Galerias: 20,00 €'), which is not a single clean value but a multi-tier list. The other 3 of 4 sampled detail pages (both Evita dates, and the orquestra event) contain NO price text at all — mechanically confirmed in evidence/offline-proof-output.txt. It cannot be determined from this bounded sample whether the absent cases are genuinely free-of-charge, priced-but-undocumented-on-this-page, or simply not yet filled in by the venue for that specific listing — no 'gratuito'/'entrada livre' label was found on any of the 4 sampled detail pages (the one 'gratuito' text match on the retained agenda list page referred to free parking, not event admission, and this investigation did not mistake the two). Given both the inconsistent presence and the multi-tier, unstructured nature of the price text where it does appear, this stays PARTIAL rather than PROVEN or NOT_PRESENT.",
+      "evidence_refs": ["ev-event-gnr-body", "ev-event-evita1-body", "ev-event-orquestra-body", "ev-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-body", "ev-event-gnr-body", "ev-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "A per-event start time is common but not universal: 1 of the 10 sampled rows (event id 551) had no displayed start time at all despite its own permalink suffix encoding one ('17-00'). A collector must not treat a permalink's own time suffix as ground truth and must tolerate a missing on-page time value."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The bare numeric content-item id (e.g. 543) is not unique per calendar occurrence for a multi-date production — empirically demonstrated in this investigation's own retained sample (id 543 shared by two distinct dates). A collector must key records on the full permalink (id+slug+date-time), never the bare id alone (see field_assessment.source_record_id.notes)."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Price and duration, where present at all, are unstructured free text embedded in a prose description block, with inconsistent formatting and inconsistent presence (2/4 and 2/4 respectively, of sampled detail pages). A collector could attempt best-effort text extraction but must never treat either as a reliably-present, cleanly structured field."
+      },
+      {
+        "severity": "MINOR",
+        "description": "This investigation sampled 10 of the site's 44 currently-listed upcoming events (2 of 9 list pages) plus 4 individual detail pages. Broad structural consistency (permalink pattern, date/venue directness, canonical-URL self-declaration) was demonstrated across that sample and is reasonably expected to generalise across the remaining pages given the shared iCagenda templating, but the remaining ~34 events/7 pages were not individually retained or verified by this investigation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status is PROVEN at HIGH confidence from this investigation's own retained evidence (homepage meta text, a retained event-detail page's own municipal MORADA/EMAIL/TELEFONE footer block, and the site's own cm-sintra.pt-hosted analytics), independently re-established rather than assumed from the prior loose sources/lisbon.json note — and the prior note's 'two auditoria' claim was independently corroborated (both auditoria names genuinely appear in this investigation's own retained sample).",
+      "site_classification.acquisition_class is KNOWN_CALENDAR_PLUGIN, a resolved/supported class — the retained agenda page's own body-class list and component asset paths unambiguously identify the Joomla 'com_icagenda' (iCagenda) events-calendar extension, and the entire paginated event calendar is present verbatim in plain server-rendered HTML.",
+      "Two data_paths entries (the paginated agenda list, and the per-occurrence event-detail permalink pattern) are access:PUBLIC and status:CONFIRMED against retained evidence; the source's own advertised RSS route was actively checked and honestly REJECTED (HTTP 410 Gone) rather than left unexamined.",
+      "field_assessment.title.state and field_assessment.start_date.state are both PROVEN with basis DIRECT_SOURCE (no contextual combination was needed — every sampled row states its own full title and full ISO calendar date directly), satisfying the v1.2 activation gate without requiring a DETERMINISTIC_CONTEXT offline-proof citation on either gated field.",
+      "field_assessment.source_record_id.state is PROVEN, empirically grounded in a genuine stable-identifier-rule nuance this investigation discovered and did not smooth over: the bare numeric content-item id is demonstrably NOT per-occurrence-unique (id 543 shared by two distinct dates), but the full permalink is proven stable via each sampled detail page's own self-declared <link rel=\"canonical\"> exactly matching the fetched URL, 4/4.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family, at HIGH confidence.",
+      "evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide a DETERMINISTIC_DERIVATION evidence item: a dependency-free, no-network re-parse of every retained fixture that mechanically reproduces every claim above, including the id-543 multi-date empirical stress-test, the 4/4 canonical-URL self-match, and the honest 9/10-not-10/10 time-field finding.",
+      "collector_assessment.blockers contains only MINOR entries (a non-universal time field, the bare-id-vs-full-permalink nuance, inconsistent free-text price/duration, and a bounded rather than exhaustive sample) — none CRITICAL.",
+      "This investigation independently re-verifies, and materially extends beyond, the prior loose research note's acquisition_path_detail claim ('Stable per-event permalinks combining an id/slug/date pattern') — this investigation's own retained evidence and mechanical cross-check confirm that claim was accurate, while also discovering the important stable-identifier nuance (bare id vs. full permalink) that the prior note did not surface.",
+      "This decision is a research conclusion only — it does not edit sources/*.json or any registry; turning it into an active collector is a separate, explicitly-authorised step per docs/SOURCE_INVESTIGATION_POLICY.md."
+    ],
+    "evidence_refs": ["ev-home-body", "ev-agenda-body", "ev-agenda-page2-body", "ev-event-gnr-body", "ev-event-evita1-body", "ev-event-evita2-body", "ev-event-orquestra-body", "ev-feed-body", "ev-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the Centro Cultural Olga Cadaval homepage: meta keywords/description naming 'Centro Cultural Olga Cadaval', HELIX_ULTIMATE_GENERATOR_TEXT generator tag, and Joomla platform fingerprints.",
+      "acquired_from": "https://ccolgacadaval.pt",
+      "acquired_at": "2026-08-27T07:52:46Z",
+      "method": "curl -sS -D headers-home.txt -o body-home.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-home.html"
+    },
+    {
+      "evidence_id": "ev-home-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the homepage request: 200 OK, nginx, no X-Powered-By.",
+      "acquired_from": "https://ccolgacadaval.pt",
+      "acquired_at": "2026-08-27T07:52:46Z",
+      "method": "curl -sS -D headers-home.txt (same request as ev-home-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-home.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the candidate '/agenda' events page (page 1 of 9): 5 fully server-rendered event rows ('Próximos eventos', 'Existem 44 eventos próximos'), each with its own id/title/date/time/venue/category/permalink, plus the com_icagenda/Joomla platform body-class fingerprints and the site's own advertised RSS <link>.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda",
+      "acquired_at": "2026-08-27T07:52:49Z",
+      "method": "curl -sS -D headers-agenda.txt -o body-agenda.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-agenda.html"
+    },
+    {
+      "evidence_id": "ev-agenda-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the /agenda request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda",
+      "acquired_at": "2026-08-27T07:52:49Z",
+      "method": "curl -sS -D headers-agenda.txt (same request as ev-agenda-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-agenda.txt"
+    },
+    {
+      "evidence_id": "ev-agenda-page2-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the second agenda list page (?page=2): 5 more fully server-rendered event rows, used to broaden the retained sample to 10 rows across 2 of 9 pages and to find the event id 551 row that has no displayed start time.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda?page=2",
+      "acquired_at": "2026-08-27T07:55:29Z",
+      "method": "curl -sS -D headers-agenda-page2.txt -o body-agenda-page2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-agenda-page2.html"
+    },
+    {
+      "evidence_id": "ev-agenda-page2-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the ?page=2 request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda?page=2",
+      "acquired_at": "2026-08-27T07:55:29Z",
+      "method": "curl -sS -D headers-agenda-page2.txt (same request as ev-agenda-page2-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-agenda-page2.txt"
+    },
+    {
+      "evidence_id": "ev-event-gnr-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'GNR' event-detail permalink: full ISO date + time, venue, a multi-tier free-text price block, a free-text duration sentence, a self-declared <link rel=\"canonical\"> matching the fetched URL exactly, and the shared footer MORADA/EMAIL/TELEFONE municipal contact block used for identity.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/519-gnr/2026-09-11-21-00",
+      "acquired_at": "2026-08-27T07:53:55Z",
+      "method": "curl -sS -D headers-event-gnr.txt -o body-event-gnr.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-event-gnr.html"
+    },
+    {
+      "evidence_id": "ev-event-gnr-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the GNR event-detail request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/519-gnr/2026-09-11-21-00",
+      "acquired_at": "2026-08-27T07:53:55Z",
+      "method": "curl -sS -D headers-event-gnr.txt (same request as ev-event-gnr-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-event-gnr.txt"
+    },
+    {
+      "evidence_id": "ev-event-evita1-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the FIRST of two calendar-date permalinks sharing the same underlying content-item id (543, 'Evita, com Sofia Escobar e Diogo Morgado'): its own <link rel=\"canonical\"> and its own ic-single-next date both self-state 2026-09-03, matching the exact URL fetched.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/543-ciclo-de-teatro-evita-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "acquired_at": "2026-08-27T07:54:25Z",
+      "method": "curl -sS -D headers-event-evita1.txt -o body-event-evita1.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-event-evita1.html"
+    },
+    {
+      "evidence_id": "ev-event-evita1-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the first Evita-date request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/543-ciclo-de-teatro-evita-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "acquired_at": "2026-08-27T07:54:25Z",
+      "method": "curl -sS -D headers-event-evita1.txt (same request as ev-event-evita1-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-event-evita1.txt"
+    },
+    {
+      "evidence_id": "ev-event-evita2-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the SECOND of two calendar-date permalinks sharing the same underlying content-item id (543, same production): its own <link rel=\"canonical\"> and its own ic-single-next date both self-state 2026-09-04, matching the exact URL fetched — proving the id 543 alone is not per-occurrence-unique but the full permalink is.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/543-ciclo-de-teatro-evita-com-sofia-escobar-e-diogo-morgado/2026-09-04-21-00",
+      "acquired_at": "2026-08-27T07:54:28Z",
+      "method": "curl -sS -D headers-event-evita2.txt -o body-event-evita2.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-event-evita2.html"
+    },
+    {
+      "evidence_id": "ev-event-evita2-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the second Evita-date request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/543-ciclo-de-teatro-evita-com-sofia-escobar-e-diogo-morgado/2026-09-04-21-00",
+      "acquired_at": "2026-08-27T07:54:28Z",
+      "method": "curl -sS -D headers-event-evita2.txt (same request as ev-event-evita2-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-event-evita2.txt"
+    },
+    {
+      "evidence_id": "ev-event-orquestra-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTML response body for the 'Concerto inaugural' (Orquestra Sinfónica Portuguesa) event-detail permalink (content-item id 551) — the sampled event that has NO displayed start time and NO price/duration free text at all, used to empirically demonstrate that both are inconsistently present rather than universal fields.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/551-orquestra-sinfonica-portuguesa-obras-de-mozart-e-ravel/2026-09-20-17-00",
+      "acquired_at": "2026-08-27T07:57:49Z",
+      "method": "curl -sS -D headers-event-orquestra.txt -o body-event-orquestra.html --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-event-orquestra.html"
+    },
+    {
+      "evidence_id": "ev-event-orquestra-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the orquestra event-detail request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/551-orquestra-sinfonica-portuguesa-obras-de-mozart-e-ravel/2026-09-20-17-00",
+      "acquired_at": "2026-08-27T07:57:49Z",
+      "method": "curl -sS -D headers-event-orquestra.txt (same request as ev-event-orquestra-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-event-orquestra.txt"
+    },
+    {
+      "evidence_id": "ev-feed-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body for the site's own advertised RSS route: a generic nginx 410 Gone HTML error page, not RSS/XML — confirming the feed is genuinely disabled server-side, not merely empty.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda?format=feed&type=rss",
+      "acquired_at": "2026-08-27T07:55:06Z",
+      "method": "curl -sS -D headers-feed.txt -o body-feed.xml --max-time 25 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-feed.xml"
+    },
+    {
+      "evidence_id": "ev-feed-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the RSS-route request: HTTP/1.1 410 Gone.",
+      "acquired_from": "https://ccolgacadaval.pt/agenda?format=feed&type=rss",
+      "acquired_at": "2026-08-27T07:55:06Z",
+      "method": "curl -sS -D headers-feed.txt (same request as ev-feed-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-feed.txt"
+    },
+    {
+      "evidence_id": "ev-robots-body",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained response body for robots.txt: a 60-second Crawl-delay directive and Disallow rules for administrative/system Joomla paths only — /agenda is not disallowed. This investigation's request pattern (a small, bounded number of GETs to /agenda and a handful of its own event-detail permalinks) respects the spirit of this directive; no automated high-frequency crawling was performed.",
+      "acquired_from": "https://ccolgacadaval.pt/robots.txt",
+      "acquired_at": "2026-08-27T07:58:25Z",
+      "method": "curl -sS -D headers-robots.txt -o body-robots.txt --max-time 15 -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain unauthenticated HTTP GET)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/body-robots.txt"
+    },
+    {
+      "evidence_id": "ev-robots-headers",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Raw retained HTTP response headers for the robots.txt request: 200 OK, nginx.",
+      "acquired_from": "https://ccolgacadaval.pt/robots.txt",
+      "acquired_at": "2026-08-27T07:58:25Z",
+      "method": "curl -sS -D headers-robots.txt (same request as ev-robots-body)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cco-sintra-01/evidence/headers-robots.txt"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of running evidence/offline-proof.mjs (plain `node evidence/offline-proof.mjs`, dependency-free, zero network access) against every retained evidence file above. Mechanically re-parses both retained agenda list pages' 10 event rows, cross-checks each of the 4 retained event-detail pages' own <link rel=\"canonical\"> against the exact URL it was fetched from (4/4 matched), empirically demonstrates that event id 543 is shared by two different dates while its full permalink differs, confirms 9/10 rows show a start time while 1/10 (id 551) genuinely does not, confirms price/duration free text is present on 2/4 and absent on 2/4 sampled detail pages, confirms the RSS route's 410 Gone status, and confirms the retained municipal identity/footer text and Joomla/com_icagenda platform fingerprints. Exited 0 with all 34 checks passing.",
+      "acquired_from": "research/source-investigations/cco-sintra-01/evidence/ (all retained files above, read locally, no network)",
+      "acquired_at": "2026-08-27T08:00:11Z",
+      "method": "node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1 (deterministic, no-network re-parse of retained fixtures)",
+      "content_type": "text/plain",
+      "byte_faithful": false,
+      "path": "research/source-investigations/cco-sintra-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

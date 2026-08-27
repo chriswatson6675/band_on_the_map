@@ -1,0 +1,43 @@
+--- Step 1: month/year heading(s) on the freshly fetched /agenda/ page ---
+Month/year headings found: ["Agosto 2026"]
+OK:   exactly one page-level month/year heading found ("Agosto 2026") — this fresh fetch, retained 2 days after casa-independente-lisbon-01's fetch and well into the "late August 2026" window, STILL shows only one month. The month-boundary question (does a second heading appear alongside the first once a new month begins?) remains genuinely UNOBSERVED — the source has not yet transitioned to showing September content as of this fetch. This is an honest negative result, not a resolved one.
+
+--- Step 2: per-event extraction + weekday cross-check ---
+Parsed 4 event block(s) from body-agenda.html
+OK:   found 4 event block(s) (>= 1)
+"DIDI" (DJ Set​): weekday label="SEXTA FEIRA" -> derived date=2026-08-21, computed day-of-week=5, expected from label=5, match=true, hour=23H
+OK:   "DIDI": source's own weekday label matches the actual computed day-of-week for 2026-08-21 — mechanical corroboration, not a guess
+"Jayde & Lagryma" (DJ Set): weekday label="SÁBADO" -> derived date=2026-08-22, computed day-of-week=6, expected from label=6, match=true, hour=23H
+OK:   "Jayde & Lagryma": source's own weekday label matches the actual computed day-of-week for 2026-08-22 — mechanical corroboration, not a guess
+"Patisol" (DJ Set): weekday label="SEXTA" -> derived date=2026-08-28, computed day-of-week=5, expected from label=5, match=true, hour=23H
+OK:   "Patisol": source's own weekday label matches the actual computed day-of-week for 2026-08-28 — mechanical corroboration, not a guess
+"Fatumata" (DJ Set): weekday label="SÁBADO" -> derived date=2026-08-29, computed day-of-week=6, expected from label=6, match=true, hour=23H
+OK:   "Fatumata": source's own weekday label matches the actual computed day-of-week for 2026-08-29 — mechanical corroboration, not a guess
+
+--- Step 3: cache-busted re-fetch consistency check ---
+OK:   a second, independently-fetched request (different query string, explicit Cache-Control: no-cache header, retained response headers confirm X-Cache: MISS) parses to an IDENTICAL heading set and event set as the primary fetch — this rules out a stale cache serving old content as the explanation for "still only one month".
+
+--- Step 4: comparison against the original (2026-08-25) casa-independente-lisbon-01 fixture ---
+Original (2026-08-25) headings: ["Agosto 2026"]
+Fresh    (2026-08-27) headings: ["Agosto 2026"]
+Original (2026-08-25) event count: 4
+Fresh    (2026-08-27) event count: 4
+OK:   the event-relevant content (heading text + every event block's weekday/day-month/hour/type/title) is BYTE-IDENTICAL between the original 2026-08-25 fixture and this fresh 2026-08-27 fixture. Two calendar days passed and nothing on the page changed — the source has not yet crossed into publishing September content, and this investigation genuinely could not observe the month-boundary transition it set out to observe. This is an honest, mechanically-verified negative result, not an assumption.
+
+--- Step 5: source_record_id / event_url gap re-check (fresh fixture) ---
+OK:   no per-event detail-page href found among the 18 distinct href(s) on the fresh agenda page — event_url remains genuinely NOT_PRESENT
+51 data-id attribute(s) found on the page (all are Elementor editor-authoring element ids, e.g. "32bfc0d4" — not tied to event identity, re-generated whenever a block is re-typed).
+OK:   re-confirmed: only Elementor internal element ids exist, never a stable per-event identifier — source_record_id remains genuinely NOT_PRESENT
+
+--- Step 6: contacts + about page checks (fresh fixtures) ---
+OK:   address extracted from the fresh contacts page: "Largo do Intendente 45  1100-285"
+OK:   contact email extracted from the fresh contacts page: "info@casaindependente.com"
+OK:   fresh about page states the building was "construído em 1863" — independently re-corroborates the 1863 building date
+OK:   fresh about page states Casa Independente "nasceu em 2012" — independently re-corroborates the 2012 founding date
+OK:   fresh homepage <title> still identifies the site as Casa Independente
+
+--- Step 7: venue single-location check (fresh agenda page) ---
+Street-type mentions found on the fresh agenda page: []
+OK:   the fresh agenda page names no street address or alternate venue at all — the only venue identity for this site lives on the contacts/about pages, and nothing on the agenda page contradicts or introduces a second location
+
+RESULT: all checks passed against freshly retained evidence (4 event(s) fully derived and cross-checked; cache-busted re-fetch consistent; content byte-identical to the original -01 fixture two days earlier; source_record_id/event_url gap re-confirmed; identity re-corroborated from fresh about/contacts/home fixtures).

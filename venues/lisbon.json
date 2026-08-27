@@ -206,17 +206,34 @@
       "city": "Lisboa",
       "municipality": "Lisboa",
       "address": "Rua do Terreiro do Trigo 80, Lisboa",
-      "latitude": null,
-      "longitude": null,
-      "location_status": "ADDRESS_ONLY",
+      "latitude": 38.7103206,
+      "longitude": -9.1290557,
+      "location_status": "GEOCODED",
       "evidence": [
         {
           "url": "https://famadalfama.pt",
           "kind": "OFFICIAL_VENUE_WEBSITE",
           "note": "LISBON-PORTO-VENUE-ESTATE-01: official homepage footer states 'Rua do Terreiro do Trigo 80'. No postal code was found on the fetched page within this task's bounded search, so none is fabricated here. Fado venue with a published day-by-day performer calendar; already a P1 DISCOVERED source in sources/lisbon.json (id fama-dalfama)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Rua+do+Terreiro+do+Trigo+80%2C+Lisboa&format=jsonv2&addressdetails=1&limit=5&countrycodes=pt",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own already-evidenced official address (\"Rua do Terreiro do Trigo 80, Lisboa\") — see fixtures/geocoding/nominatim/venue-lisboa-fama-d-alfama.json for the full cached response. Matched OSM feature: node/4622765871. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
         }
       ],
-      "retrieved_at": "2026-08-24"
+      "retrieved_at": "2026-08-24",
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_strategy": "ADDRESS_ONLY_QUERY",
+        "query_address": "Rua do Terreiro do Trigo 80, Lisboa",
+        "result_osm_type": "node",
+        "result_osm_id": "4622765871",
+        "result_display_name": "80, Rua do Terreiro do Trigo, Alfama, Santa Maria Maior, Madalena, Lisboa, 1100-172, Portugal",
+        "matched_postcode": "1100-172",
+        "matched_city": "Lisboa",
+        "retrieved_at": "2026-08-27T09:03:46.305Z"
+      }
     },
     {
       "venue_id": "venue-lisboa-museu-do-fado",
@@ -225,17 +242,38 @@
       "city": "Lisboa",
       "municipality": "Lisboa",
       "address": "Largo do Chafariz de Dentro, N.º 1, 1100-139 Lisboa",
-      "latitude": null,
-      "longitude": null,
-      "location_status": "ADDRESS_ONLY",
+      "latitude": 38.7110254,
+      "longitude": -9.1276597,
+      "location_status": "GEOCODED",
       "evidence": [
         {
           "url": "https://museudofado.pt",
           "kind": "OFFICIAL_VENUE_WEBSITE",
           "note": "LISBON-PORTO-VENUE-ESTATE-01: official homepage footer states 'Museu do Fado, Largo do Chafariz de Dentro, N.º 1, 1100-139 Lisboa'. Municipal museum with a dated auditorium programme; already a P1 DISCOVERED source in sources/lisbon.json (id museu-do-fado)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?amenity=Museu+do+Fado&city=Lisboa&country=Portugal&postalcode=1100-139&countrycodes=pt&format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=5&layer=poi",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-LOCATION-RESOLUTION-03: deterministically accepted Nominatim/OSM STRUCTURED search result (amenity/street/city/postalcode fields, layer=poi — not a free-text query) for this venue's own canonical name + already-evidenced official address (structured fields: {\"amenity\":\"Museu do Fado\",\"city\":\"Lisboa\",\"postalcode\":\"1100-139\"}) — see fixtures/geocoding/nominatim/venue-lisboa-museu-do-fado--structured-poi.json for the full cached response. Matched OSM feature: way/1101604733. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
         }
       ],
-      "retrieved_at": "2026-08-24"
+      "retrieved_at": "2026-08-24",
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_strategy": "STRUCTURED_POI_QUERY",
+        "query_name": "Museu do Fado",
+        "query_address": "Largo do Chafariz de Dentro, N.º 1, 1100-139 Lisboa",
+        "structured_query": {
+          "amenity": "Museu do Fado",
+          "city": "Lisboa",
+          "postalcode": "1100-139"
+        },
+        "result_osm_type": "way",
+        "result_osm_id": "1101604733",
+        "result_display_name": "Museu do Fado, 1, Largo do Chafariz de Dentro, Alfama, Santa Maria Maior, Madalena, Lisboa, 1100-139, Portugal",
+        "retrieved_at": "2026-08-27T09:04:26.417Z"
+      }
     },
     {
       "venue_id": "venue-lisboa-casa-independente",
@@ -349,6 +387,100 @@
           "note": "This venue's own /agenda/ listing embeds a first-party JSON-LD Event array; a minority of records (those naming 'LAV – Sala 1'/'LAV – Sala 2' as location.name) carry a fully-populated location.address PostalAddress: streetAddress 'Av. Marechal Gomes da Costa, 29B1', addressLocality 'Lisbon', addressRegion 'Lisboa', postalCode '1800-255', addressCountry 'Portugal' — read directly from this same source's own structured data, not a secondary listing. LISBON-PORTO-VENUE-ESTATE-01 had already found this same address via secondary (ticketing-site) sources but left it un-admitted pending first-party confirmation; this package supplies that confirmation from the source's own agenda page."
         }
       ]
+    },
+    {
+      "venue_id": "venue-lisboa-fundacao-calouste-gulbenkian-grande-auditorio",
+      "canonical_name": "Fundação Calouste Gulbenkian (Grande Auditório)",
+      "country_code": "PT",
+      "city": "Lisboa",
+      "municipality": "Lisboa",
+      "address": "Av. de Berna, 45A, 1067-001 Lisboa",
+      "latitude": 38.7372895,
+      "longitude": -9.1548013,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://gulbenkian.pt/contacte-nos/",
+          "kind": "OFFICIAL_VENUE_WEBSITE",
+          "note": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01, carried from research/source-investigations/gulbenkian-lisbon-01/: the foundation's own contacts page states its street address 'Av. de Berna, 45A, 1067-001 Lisboa'. This canonical venue represents specifically the foundation's own on-site 'Grande Auditório' concert hall, named as the location on the majority of sampled Gulbenkian Música JSON-LD event records — a genuinely distinct physical room from this same source's occasional off-site events (e.g. 'Parque Vale do Silêncio'), which are deliberately left unresolved rather than conflated into this venue."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?q=Av.+de+Berna%2C+45A%2C+1067-001+Lisboa&format=jsonv2&addressdetails=1&limit=5&countrycodes=pt",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-GEOCODING-01: deterministically accepted Nominatim/OSM search result for this venue's own already-evidenced official address (\"Av. de Berna, 45A, 1067-001 Lisboa\") — see fixtures/geocoding/nominatim/venue-lisboa-fundacao-calouste-gulbenkian-grande-auditorio.json for the full cached response. Matched OSM feature: way/39784735. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
+        }
+      ],
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_strategy": "ADDRESS_ONLY_QUERY",
+        "query_address": "Av. de Berna, 45A, 1067-001 Lisboa",
+        "result_osm_type": "way",
+        "result_osm_id": "39784735",
+        "result_display_name": "Fundação Calouste Gulbenkian, 45A, Avenida de Berna, Campo Pequeno, Avenidas Novas, Lisboa, 1067-001, Portugal",
+        "matched_postcode": "1067-001",
+        "matched_city": "Lisboa",
+        "retrieved_at": "2026-08-27T07:46:45.792Z"
+      }
+    },
+    {
+      "venue_id": "venue-sintra-centro-cultural-olga-cadaval",
+      "canonical_name": "Centro Cultural Olga Cadaval",
+      "country_code": "PT",
+      "city": "Sintra",
+      "municipality": "Sintra",
+      "address": "Praça Doutor Francisco Sá Carneiro, 2710-575 Sintra",
+      "latitude": null,
+      "longitude": null,
+      "location_status": "ADDRESS_ONLY",
+      "evidence": [
+        {
+          "url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1&namedetails=1&q=Centro%20Cultural%20Olga%20Cadaval%2C%20Sintra",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: this venue's own name+city search against Nominatim/OSM returned exactly one candidate, an amenity=theatre POI named 'Centro Cultural Olga Cadaval' (OSM way/49682515), with its own address block used as the address text here. No independent first-party (venue's own website) address citation was located within this bounded task; the address is taken directly from this single, unambiguous, POI-identity-matched OSM record. This venue is fed by the cm-sintra-agenda-cultural source (its own location_text on both retained productions reads exactly 'Centro Cultural Olga Cadaval')."
+        }
+      ],
+      "retrieved_at": "2026-08-27"
+    },
+    {
+      "venue_id": "venue-sintra-museu-arqueologico-de-sao-miguel-de-odrinhas",
+      "canonical_name": "Museu Arqueológico de São Miguel de Odrinhas",
+      "country_code": "PT",
+      "city": "Sintra",
+      "municipality": "Sintra",
+      "address": "Avenida Professor Doutor Fernando de Almeida, 2705-739 São João das Lampas, Sintra",
+      "latitude": 38.8867622,
+      "longitude": -9.3665777,
+      "location_status": "GEOCODED",
+      "evidence": [
+        {
+          "url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1&namedetails=1&q=Museu%20Arqueol%C3%B3gico%20de%20S%C3%A3o%20Miguel%20de%20Odrinhas",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01: this venue's own name search against Nominatim/OSM returned this as its top, tourism=museum-tagged candidate (OSM node/2906290610), with its own address block used as the address text here (the second candidate, a 'nature_reserve'-tagged ruins polygon at the same site, was not used). No independent first-party address citation was located within this bounded task. This venue is fed by the cm-sintra-agenda-cultural source (its own location_text for the 'Noites de Orfeu' production reads exactly this name)."
+        },
+        {
+          "url": "https://nominatim.openstreetmap.org/search?amenity=Museu+Arqueol%C3%B3gico+de+S%C3%A3o+Miguel+de+Odrinhas&city=Sintra&country=Portugal&postalcode=2705-739&countrycodes=pt&format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=5&layer=poi",
+          "kind": "GEOCODED_NOMINATIM_RESULT",
+          "note": "VENUE-LOCATION-RESOLUTION-03: deterministically accepted Nominatim/OSM STRUCTURED search result (amenity/street/city/postalcode fields, layer=poi — not a free-text query) for this venue's own canonical name + already-evidenced official address (structured fields: {\"amenity\":\"Museu Arqueológico de São Miguel de Odrinhas\",\"city\":\"Sintra\",\"postalcode\":\"2705-739\"}) — see fixtures/geocoding/nominatim/venue-sintra-museu-arqueologico-de-sao-miguel-de-odrinhas--structured-poi.json for the full cached response. Matched OSM feature: node/2906290610. This coordinate is GEOCODED, not first-party CONFIRMED — see ingestion/venue/contract.mjs's location_status contract."
+        }
+      ],
+      "retrieved_at": "2026-08-27",
+      "coordinate_provenance": {
+        "method": "GEOCODED_FROM_OFFICIAL_ADDRESS",
+        "provider": "NOMINATIM_OSM",
+        "query_strategy": "STRUCTURED_POI_QUERY",
+        "query_name": "Museu Arqueológico de São Miguel de Odrinhas",
+        "query_address": "Avenida Professor Doutor Fernando de Almeida, 2705-739 São João das Lampas, Sintra",
+        "structured_query": {
+          "amenity": "Museu Arqueológico de São Miguel de Odrinhas",
+          "city": "Sintra",
+          "postalcode": "2705-739"
+        },
+        "result_osm_type": "node",
+        "result_osm_id": "2906290610",
+        "result_display_name": "Museu Arqueológico de São Miguel de Odrinhas, Avenida Professor Doutor Fernando de Almeida, Funchal, Terrugem, São João das Lampas, Sintra, Lisboa, 2705-739, Portugal",
+        "retrieved_at": "2026-08-27T10:36:52.291Z"
+      }
     }
   ]
 }
