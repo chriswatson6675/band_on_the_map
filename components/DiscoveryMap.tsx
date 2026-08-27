@@ -30,7 +30,7 @@ setWorkerUrl(
   "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
 );
 
-export type SearchCountry = "Portugal" | "Croatia" | "Spain" | "Germany";
+export type SearchCountry = "Portugal" | "Croatia" | "Spain" | "Germany" | "France";
 
 type CountryMapView = {
   bounds: LngLatBoundsLike;
@@ -88,6 +88,23 @@ export const COUNTRY_MAP_VIEWS: Record<SearchCountry, CountryMapView> = {
     ],
     center: [13.38, 52.5],
     zoom: 10.5,
+  },
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 — France's own bucket,
+  // following the exact same "scope the box to where the real markers
+  // actually are" precedent as Spain/Germany above: every current France
+  // venue is in Paris (see ingestion/map/publication.mjs's
+  // buildFranceMarkers() doc comment), so this box comfortably fits the
+  // real Paris venue coordinates (observed lat 48.832–48.900, lon
+  // 2.279–2.394, see fixtures/map/paris-30-40-venue-population-01-live-run-proof.json)
+  // rather than a whole-country box that would leave the markers a tiny
+  // cluster in one corner.
+  France: {
+    bounds: [
+      [2.2, 48.8],
+      [2.47, 48.93],
+    ],
+    center: [2.336, 48.866],
+    zoom: 11.3,
   },
 };
 

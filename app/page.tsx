@@ -205,9 +205,18 @@ export default function Home() {
     () => (publicationArtifact.countries.Germany?.markers as MapMarker[] | undefined) ?? [],
     [publicationArtifact],
   );
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 — France's own bucket, read
+  // the same optional-chained way as Germany above: an artifact published
+  // before Paris existed legitimately has no `countries.France` key at all
+  // and must still render every other country exactly as before rather
+  // than throwing.
+  const franceMarkers = useMemo(
+    () => (publicationArtifact.countries.France?.markers as MapMarker[] | undefined) ?? [],
+    [publicationArtifact],
+  );
   const visibleMarkers = useMemo(
-    () => getMarkersForCountry(country, portugalMarkers, spainMarkers, germanyMarkers) as MapMarker[],
-    [country, portugalMarkers, spainMarkers, germanyMarkers],
+    () => getMarkersForCountry(country, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers) as MapMarker[],
+    [country, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers],
   );
 
   // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
@@ -305,6 +314,7 @@ export default function Home() {
             <span>Croatia</span>
             <span>Spain</span>
             <span>Germany</span>
+            <span>France</span>
           </div>
         </section>
 
@@ -340,6 +350,7 @@ export default function Home() {
                   <option>Croatia</option>
                   <option>Spain</option>
                   <option>Germany</option>
+                  <option>France</option>
                 </select>
               </span>
             </label>
