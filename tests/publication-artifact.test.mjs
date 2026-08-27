@@ -382,14 +382,37 @@ test("16. loading the manual-coordinate store and building publication markers n
 
 // BOTM-CCB-ACTIVATION-01 added exactly one new Lisbon source
 // (ccb-centro-cultural-belem, via the reusable Events Calendar REST API
-// collector family) — the first legitimate change to this total since
-// LISBON-PORTO-P1-SOURCE-AUTOMATION-01. 9 Lisbon + 4 Porto = 13 -> 10
-// Lisbon + 4 Porto = 14.
-test("17. the source id lists driving publication still total exactly 14 sources (10 Lisbon + 4 Porto)", () => {
-  assert.equal(LISBON_SOURCE_IDS.length, 10);
-  assert.equal(PORTO_SOURCE_IDS.length, 4);
-  assert.equal(LISBON_SOURCE_IDS.length + PORTO_SOURCE_IDS.length, 14);
+// collector family) — 9 Lisbon + 4 Porto = 13 -> 10 Lisbon + 4 Porto = 14.
+// PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01 then added five more
+// Lisbon sources (fama-dalfama, museu-do-fado, gulbenkian, campo-pequeno,
+// cco-sintra, teatro-sao-luiz) and three more Porto sources
+// (coliseu-do-porto, hard-club-porto, hot-five-porto) — 16 Lisbon + 7 Porto
+// = 23.
+test("17. the source id lists driving publication still total exactly 26 sources (17 Lisbon + 9 Porto)", () => {
+  assert.equal(LISBON_SOURCE_IDS.length, 17);
+  assert.equal(PORTO_SOURCE_IDS.length, 9);
+  assert.equal(LISBON_SOURCE_IDS.length + PORTO_SOURCE_IDS.length, 26);
   assert.ok(LISBON_SOURCE_IDS.includes("ccb-centro-cultural-belem"));
+  for (const id of [
+    "fama-dalfama",
+    "museu-do-fado",
+    "gulbenkian",
+    "campo-pequeno",
+    "cco-sintra",
+    "teatro-sao-luiz",
+    "cm-sintra-agenda-cultural",
+  ]) {
+    assert.ok(LISBON_SOURCE_IDS.includes(id), `expected LISBON_SOURCE_IDS to include ${id}`);
+  }
+  for (const id of [
+    "coliseu-do-porto",
+    "hard-club-porto",
+    "hot-five-porto",
+    "cm-matosinhos-agenda-cultural-amp",
+    "agenda-vila-do-conde",
+  ]) {
+    assert.ok(PORTO_SOURCE_IDS.includes(id), `expected PORTO_SOURCE_IDS to include ${id}`);
+  }
 });
 
 // --- catastrophic-run rule ---

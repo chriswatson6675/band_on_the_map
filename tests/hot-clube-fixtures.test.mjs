@@ -187,9 +187,9 @@ test("the registry's hot-clube-de-portugal entry reflects the proven technical p
   assert.equal(entry.acquisition_method, "ICS_CALENDAR", "acquisition_method must not change in this task");
 });
 
-test("sources/lisbon.json contains 27 entries (the original 25 plus BOTM-MULTISOURCE-LINKS-01's Capitólio addition and LISBON-PORTO-P1-SOURCE-AUTOMATION-01's LAV addition)", async () => {
+test("sources/lisbon.json contains 29 entries (the original 25 plus BOTM-MULTISOURCE-LINKS-01's Capitólio addition, LISBON-PORTO-P1-SOURCE-AUTOMATION-01's LAV addition, and PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01's Gulbenkian and Teatro São Luiz additions)", async () => {
   const registry = JSON.parse(
     await readFile(new URL("../sources/lisbon.json", import.meta.url), "utf8"),
   );
-  assert.equal(registry.entries.length, 27);
+  assert.equal(registry.entries.length, 29);
 });

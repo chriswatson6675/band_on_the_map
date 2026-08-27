@@ -175,8 +175,30 @@ test("7. every EXISTING_CANONICAL / admitted candidate's existing_canonical_venu
   }
 });
 
+// PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01 (2026-08-27) is a later,
+// separately-authorized task whose own explicit scope includes governed
+// coordinate research ("use governed coordinate mechanisms only") — unlike
+// this package, which deliberately left coordinate research closed. That
+// later task geocoded three of THIS package's twelve admitted venues
+// (Nominatim for two, a disclosed manual operator entry for the third,
+// matching the pre-existing KU Barcelona precedent) in order to make them
+// map-eligible. This is a legitimate, evidenced expansion of an earlier
+// admission by later work — not a silent regression of this package's own
+// scope — so tests 8/9 below now carve out exactly these three venue_ids by
+// name rather than asserting a blanket "never" that a later task was always
+// entitled to lift for a specific, evidenced venue. The other nine admitted
+// venues (including this package's own cand-lisboa-teatro-sao-luiz, whose
+// coordinates that later task tried and genuinely could not resolve) remain
+// exactly as this package left them: ADDRESS_ONLY, coordinate research
+// closed.
+const GEOCODED_BY_LATER_TASK = new Set([
+  "venue-lisboa-fama-d-alfama",
+  "venue-lisboa-museu-do-fado",
+  "venue-porto-hot-five-jazz-blues-club",
+]);
+
 // 8. ADDRESS_ONLY is allowed
-test("8. every venue admitted this package is ADDRESS_ONLY (never CONFIRMED/GEOCODED) — coordinate research stays closed", async () => {
+test("8. every venue admitted this package is still ADDRESS_ONLY, except the three later, separately-authorized geocoding exceptions — coordinate research otherwise stays closed", async () => {
   const estate = await loadVenueEstate();
   const canonicalVenues = await loadAllCanonicalVenues();
   const byId = new Map(canonicalVenues.map((v) => [v.venue_id, v]));
@@ -186,27 +208,35 @@ test("8. every venue admitted this package is ADDRESS_ONLY (never CONFIRMED/GEOC
   for (const v of admitted) {
     const venue = byId.get(v.existing_canonical_venue_id);
     assert.ok(venue, `${v.venue_candidate_id}: admitted venue missing from registry`);
-    assert.equal(venue.location_status, "ADDRESS_ONLY", `${v.venue_candidate_id}: must be ADDRESS_ONLY, never CONFIRMED/GEOCODED`);
-    assert.equal(venue.latitude, null);
-    assert.equal(venue.longitude, null);
+    if (GEOCODED_BY_LATER_TASK.has(v.existing_canonical_venue_id)) {
+      assert.ok(
+        venue.location_status === "GEOCODED" || venue.location_status === "ADDRESS_ONLY",
+        `${v.venue_candidate_id}: expected GEOCODED (via the later task) or still ADDRESS_ONLY (manual-coordinate exceptions keep this status), got ${venue.location_status}`,
+      );
+    } else {
+      assert.equal(venue.location_status, "ADDRESS_ONLY", `${v.venue_candidate_id}: must be ADDRESS_ONLY, never CONFIRMED/GEOCODED`);
+      assert.equal(venue.latitude, null);
+      assert.equal(venue.longitude, null);
+    }
     assert.deepEqual(validateVenue(venue), []);
   }
 });
 
-// 9. no geocoder is invoked
-test("9. this package's research files never mention a geocoder provider or coordinate_provenance", async () => {
+// 9. no geocoder is invoked BY THIS PACKAGE's OWN research dataset
+test("9. this package's own research files never mention a geocoder provider or coordinate_provenance", async () => {
   const estate = await loadVenueEstate();
   const raw = JSON.stringify(estate);
   for (const forbidden of ["nominatim", "foursquare", "geoapify", "tomtom", "coordinate_provenance"]) {
     assert.ok(!raw.toLowerCase().includes(forbidden), `research dataset must never reference ${forbidden}`);
   }
-  // And no admitted venue carries latitude/longitude (checked again here, independent of test 8).
+  // And no admitted venue OUTSIDE the later task's three named exceptions
+  // carries latitude/longitude (checked again here, independent of test 8).
   const canonicalVenues = await loadAllCanonicalVenues();
   const admittedIds = new Set(
     estate.venues.filter((v) => v.admitted_this_package).map((v) => v.existing_canonical_venue_id),
   );
   for (const venue of canonicalVenues) {
-    if (admittedIds.has(venue.venue_id)) {
+    if (admittedIds.has(venue.venue_id) && !GEOCODED_BY_LATER_TASK.has(venue.venue_id)) {
       assert.equal(venue.latitude, null);
       assert.equal(venue.longitude, null);
     }
@@ -221,10 +251,17 @@ test("9. this package's research files never mention a geocoder provider or coor
 // completed via the dashboard is correctly EXCLUDED from the outstanding
 // queue, without ever losing its ADDRESS_ONLY canonical status. This test
 // now asserts the correct, weaker-but-precise relationship: every admitted
-// venue is in exactly one of {outstanding queue, manually completed} —
-// never neither (that would mean it vanished from tracking entirely) and
-// never both (the exclusion logic must actually exclude it).
-test("10. LOCATION_STATUSES is unchanged and every newly admitted ADDRESS_ONLY venue is either still outstanding in the manual-coordinate queue or already manually completed by the operator", async () => {
+// venue is in exactly one of {outstanding queue, manually completed,
+// fully resolved by the later task's automated geocoder} — never neither
+// (that would mean it vanished from tracking entirely) and never more than
+// one (the exclusion logic must actually exclude it). The third category
+// (GEOCODED_BY_LATER_TASK) covers venue-lisboa-fama-d-alfama and
+// venue-lisboa-museu-do-fado specifically: PORTUGAL-SECOND-PASS-30-40-
+// VENUE-POPULATION-01 resolved these via the automated Nominatim pipeline,
+// not a manual operator entry, so they correctly appear in neither the
+// outstanding queue nor venues/manual-coordinates.json — that absence is
+// the honestly-resolved state, not a tracking gap.
+test("10. LOCATION_STATUSES is unchanged and every newly admitted ADDRESS_ONLY venue is either still outstanding in the manual-coordinate queue, already manually completed by the operator, or fully resolved by a later task's automated geocoder", async () => {
   const { LOCATION_STATUSES } = await import("../ingestion/venue/contract.mjs");
   assert.deepEqual([...LOCATION_STATUSES].sort(), ["ADDRESS_ONLY", "CONFIRMED", "GEOCODED", "UNRESOLVED"]);
 
@@ -236,14 +273,18 @@ test("10. LOCATION_STATUSES is unchanged and every newly admitted ADDRESS_ONLY v
   const queueIds = new Set(queue.entries.map((e) => e.venue_id));
   const estate = await loadVenueEstate();
   const admittedIds = estate.venues.filter((v) => v.admitted_this_package).map((v) => v.existing_canonical_venue_id);
+  const canonicalVenues = await loadAllCanonicalVenues();
+  const byId = new Map(canonicalVenues.map((v) => [v.venue_id, v]));
 
   for (const id of admittedIds) {
     const inQueue = queueIds.has(id);
     const manuallyCompleted = manuallyCompletedIds.has(id);
+    const geocodedByLaterTask = GEOCODED_BY_LATER_TASK.has(id) && byId.get(id)?.location_status === "GEOCODED";
     assert.ok(
-      inQueue || manuallyCompleted,
-      `${id}: newly admitted ADDRESS_ONLY venue is neither in the outstanding manual-coordinate queue nor manually completed — it has vanished from tracking`,
+      inQueue || manuallyCompleted || geocodedByLaterTask,
+      `${id}: newly admitted ADDRESS_ONLY venue is neither in the outstanding manual-coordinate queue, manually completed, nor resolved by the later task's geocoder — it has vanished from tracking`,
     );
+    if (geocodedByLaterTask) continue; // already resolved: not expected in either of the two ADDRESS_ONLY-only tracking sets
     assert.ok(
       !(inQueue && manuallyCompleted),
       `${id}: cannot be simultaneously outstanding in the queue and manually completed — the exclusion logic failed`,

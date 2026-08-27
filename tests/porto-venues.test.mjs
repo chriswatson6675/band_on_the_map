@@ -8,18 +8,45 @@ async function loadPortoVenues() {
   return registry.venues;
 }
 
-test("venues/porto.json contains exactly the six evidence-backed venues known as of LISBON-PORTO-VENUE-ESTATE-01", async () => {
+test("venues/porto.json contains exactly the evidence-backed venues known as of PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01", async () => {
   const venues = await loadPortoVenues();
-  assert.equal(venues.length, 6);
+  // PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION-01 first added two new
+  // evidence-backed Porto-city venues (Coliseu Porto Ageas, Hard Club) to
+  // the six already admitted as of LISBON-PORTO-VENUE-ESTATE-01, then added
+  // five more real venues from newly-activated Greater-Porto municipal
+  // sources (Matosinhos: Teatro Municipal de Matosinhos Constantino Nery,
+  // Mosteiro de Leça do Balio; Vila do Conde: Cais da Alfândega, Mercado
+  // Municipal de Vila do Conde, Igreja da Misericórdia de Vila do Conde),
+  // then finally six more real, named Matosinhos venues surfaced by that
+  // same cm-matosinhos-agenda-cultural-amp source's own unresolved
+  // observations (parks, a library, squares — each with ≥2 real retained
+  // events, deliberately excluding bare locality/parish names) — see
+  // research/source-investigations/coliseu-ageas-porto-01/,
+  // hard-club-porto-02/, cm-matosinhos-agenda-cultural-amp-01/, and
+  // agenda-vila-do-conde-01/.
+  assert.equal(venues.length, 19);
   assert.deepEqual(
     venues.map((v) => v.venue_id).sort(),
     [
+      "venue-matosinhos-biblioteca-municipal-florbela-espanca",
+      "venue-matosinhos-jardim-basilio-teles",
+      "venue-matosinhos-jardins-do-senhor-do-padrao",
+      "venue-matosinhos-mosteiro-de-leca-do-balio",
+      "venue-matosinhos-parque-das-varas",
+      "venue-matosinhos-praca-da-cidadania",
+      "venue-matosinhos-praca-guilhermina-suggia",
+      "venue-matosinhos-teatro-municipal-de-matosinhos-constantino-nery",
       "venue-porto-capela-incomum",
       "venue-porto-casa-da-musica",
+      "venue-porto-coliseu-porto-ageas",
+      "venue-porto-hard-club",
       "venue-porto-hot-five-jazz-blues-club",
       "venue-porto-super-bock-arena-pavilhao-rosa-mota",
       "venue-porto-teatro-campo-alegre",
       "venue-porto-teatro-rivoli",
+      "venue-vila-do-conde-cais-da-alfandega",
+      "venue-vila-do-conde-igreja-da-misericordia-de-vila-do-conde",
+      "venue-vila-do-conde-mercado-municipal-de-vila-do-conde",
     ],
   );
 });
@@ -77,11 +104,21 @@ test("Casa da Música, Teatro Rivoli, and Teatro Campo Alegre are all GEOCODED, 
   }
 });
 
-test("every venue is city Porto / municipality Porto and country PT", async () => {
+// venues/porto.json covers the whole Greater Porto metro area, the same
+// way venues/lisbon.json already hosts non-Lisboa-city venues (e.g.
+// Odivelas) — city/municipality must always agree with each other and be
+// PT, but need not literally be "Porto" once a source outside Porto city
+// itself is genuinely activated (PORTUGAL-SECOND-PASS-30-40-VENUE-
+// POPULATION-01 added the first two: Matosinhos and Vila do Conde).
+test("every venue is country PT, and every venue's city equals its own municipality", async () => {
   const venues = await loadPortoVenues();
+  const allowedMunicipalities = new Set(["Porto", "Matosinhos", "Vila do Conde"]);
   for (const venue of venues) {
     assert.equal(venue.country_code, "PT");
-    assert.equal(venue.city, "Porto");
-    assert.equal(venue.municipality, "Porto");
+    assert.equal(venue.city, venue.municipality, `${venue.venue_id}: city must equal municipality`);
+    assert.ok(
+      allowedMunicipalities.has(venue.municipality),
+      `${venue.venue_id}: unexpected municipality "${venue.municipality}"`,
+    );
   }
 });
