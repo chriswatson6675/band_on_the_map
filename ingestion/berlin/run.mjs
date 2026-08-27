@@ -40,6 +40,7 @@ import { extractEventNodes, filterMusicEventNodes, normaliseJsonLdEvent } from "
 import { toObservations as jsonLdToObservations, toObservation as jsonLdToObservation } from "../json-ld/observation-adapter.mjs";
 
 import { extractLinksMatching } from "../html-link-discovery/discovery.mjs";
+import { createDetailPageHandoff } from "../html-link-discovery/detail-page-handoff.mjs";
 
 import { extractEventCards, filterMusicEventCards, extractIcalLink } from "../per-event-ics/discovery.mjs";
 import { toObservation as perEventIcsToObservation } from "../per-event-ics/observation-adapter.mjs";
@@ -194,7 +195,8 @@ async function collectListDetailJsonLd({ sourceId, listUrl, listIsXml = false, l
     rawCount += nodes.length;
     if (nodes.length === 0) continue;
     const record = normaliseJsonLdEvent(nodes[0], { deriveId: () => lastPathSegment(detailUrl) });
-    observations.push(jsonLdToObservation(record, { source_id: sourceId }, { retrievedAt: detailRes.retrievedAt, sourceUrl: detailUrl, venueNameOverride }));
+    const detailPageHandoff = createDetailPageHandoff({ detailPageUrl: detailUrl, pageText: detailRes.text, venueNameOverride });
+    observations.push(jsonLdToObservation(record, { source_id: sourceId }, { retrievedAt: detailRes.retrievedAt, ...detailPageHandoff }));
   }
   return { rawRecordCount: rawCount, observations, notes };
 }
