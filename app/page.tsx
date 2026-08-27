@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DiscoveryMap, type MapMarker, type SearchCountry } from "@/components/DiscoveryMap";
-import { getMarkersForCountry } from "@/ingestion/map/projection.mjs";
+import { DiscoveryMap, type MapMarker, type SearchArea } from "@/components/DiscoveryMap";
+import { ALL_CITIES_AREA, getMarkersForArea } from "@/components/map-area.mjs";
 import { resolveMapData } from "@/ingestion/map/runtime-publication.mjs";
 import {
   filterMarkersByArtistId,
@@ -112,7 +112,7 @@ function ArrowIcon() {
 
 export default function Home() {
   const [view, setView] = useState<"map" | "list">("map");
-  const [country, setCountry] = useState<SearchCountry>("Portugal");
+  const [area, setArea] = useState<SearchArea>(ALL_CITIES_AREA);
   // Starts as the bundled artifact (correct for the initial server-rendered
   // HTML and for a visitor whose browser never gets a chance to run the
   // runtime fetch below) and is only ever REPLACED, never cleared, if a
@@ -215,8 +215,8 @@ export default function Home() {
     [publicationArtifact],
   );
   const visibleMarkers = useMemo(
-    () => getMarkersForCountry(country, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers) as MapMarker[],
-    [country, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers],
+    () => getMarkersForArea(area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers) as MapMarker[],
+    [area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers],
   );
 
   // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
@@ -340,12 +340,13 @@ export default function Home() {
               <span className="field-control">
                 <PinIcon />
                 <select
-                  value={country}
+                  value={area}
                   aria-label="Where"
                   onChange={(event) =>
-                    setCountry(event.target.value as SearchCountry)
+                    setArea(event.target.value as SearchArea)
                   }
                 >
+                  <option>All cities</option>
                   <option>Portugal</option>
                   <option>Croatia</option>
                   <option>Spain</option>
@@ -466,11 +467,11 @@ export default function Home() {
             </div>
           </div>
           <div className={`map-placeholder ${view === "list" ? "list-mode" : ""}`}>
-            <DiscoveryMap country={country} markers={filteredMarkers} />
+            <DiscoveryMap area={area} markers={filteredMarkers} />
             <div className={`map-status ${filteredMarkers.length > 0 ? "" : "is-empty"}`} aria-live="polite">
               {filteredMarkers.length > 0 ? (
                 <>
-                  <p className="empty-kicker">Live music in {country}</p>
+                  <p className="empty-kicker">Live music in {area}</p>
                   <p>
                     {listingCount} real source listing{listingCount === 1 ? "" : "s"} across{" "}
                     {filteredMarkers.length} venue{filteredMarkers.length === 1 ? "" : "s"}
@@ -478,11 +479,11 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <p className="empty-kicker">{country}</p>
+                  <p className="empty-kicker">{area}</p>
                   <p>
                     {selectedArtistId || selectedGenre !== "Any" || fromDate || toDate
                       ? "No listings match this search yet — try different dates, artist, or genre."
-                      : `No listings here yet — we're still gathering source data for ${country}.`}
+                      : `No listings here yet — we're still gathering source data for ${area}.`}
                   </p>
                 </>
               )}

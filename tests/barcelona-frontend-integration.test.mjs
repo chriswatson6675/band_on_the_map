@@ -105,16 +105,14 @@ test("page.tsx: the Where selector offers Spain alongside Portugal/Croatia", asy
   assert.match(src, /<option>Portugal<\/option>\s*<option>Croatia<\/option>\s*<option>Spain<\/option>/);
 });
 
-test("page.tsx: getMarkersForCountry is called with Spain's own marker bucket, not the old 2-argument call", async () => {
+test("page.tsx: area selection receives Spain's marker bucket, not an old Portugal-only call", async () => {
   const src = await readPageSource();
-  // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 additively
-  // appended a 4th `germanyMarkers` argument to this same call, and
-  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 additively appended a 5th
-  // `franceMarkers` argument.
+  // BEATMAPPED-ALL-CITIES-DEFAULT-MAP-01 keeps all four populated marker
+  // buckets explicit while adding the frontend-only area selection layer.
   assert.match(
     src,
-    /getMarkersForCountry\(country, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers\)/,
-    "the 2-argument call silently defaults spainMarkers/germanyMarkers/franceMarkers to [] regardless of `country` — see ingestion/map/projection.mjs's own doc comment",
+    /getMarkersForArea\(area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers\)/,
+    "the area selector must receive Spain, Germany, and France alongside Portugal",
   );
 });
 

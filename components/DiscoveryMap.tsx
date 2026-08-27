@@ -31,6 +31,7 @@ setWorkerUrl(
 );
 
 export type SearchCountry = "Portugal" | "Croatia" | "Spain" | "Germany" | "France";
+export type SearchArea = "All cities" | SearchCountry;
 
 type CountryMapView = {
   bounds: LngLatBoundsLike;
@@ -38,7 +39,20 @@ type CountryMapView = {
   zoom: number;
 };
 
-export const COUNTRY_MAP_VIEWS: Record<SearchCountry, CountryMapView> = {
+export const COUNTRY_MAP_VIEWS: Record<SearchArea, CountryMapView> = {
+  // BEATMAPPED-ALL-CITIES-DEFAULT-MAP-01 — deliberately scoped to the
+  // current BeatMapped footprint: Lisbon/Porto, Barcelona, Paris, and
+  // Berlin. This frames western/central Europe without falling back to a
+  // low-information whole-world view. Individual country views below are
+  // unchanged.
+  "All cities": {
+    bounds: [
+      [-10.0, 37.0],
+      [14.0, 53.0],
+    ],
+    center: [2.0, 45.0],
+    zoom: 4.2,
+  },
   Portugal: {
     bounds: [
       [-9.85, 36.8],
@@ -209,7 +223,7 @@ export type MapMarker = {
 };
 
 type DiscoveryMapProps = {
-  country: SearchCountry;
+  area: SearchArea;
   markers: MapMarker[];
 };
 
@@ -472,11 +486,11 @@ function VenuePanel({ marker, onClose }: { marker: MapMarker; onClose: () => voi
   );
 }
 
-export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
+export function DiscoveryMap({ area, markers }: DiscoveryMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
-  const initialCountryRef = useRef(country);
-  // Snapshot of `markers` at mount time only, mirroring initialCountryRef
+  const initialAreaRef = useRef(area);
+  // Snapshot of `markers` at mount time only, mirroring initialAreaRef
   // above — the cluster source is seeded with this once when the map
   // first loads; the separate `[markers]` effect below keeps it in sync
   // afterwards, so this ref deliberately never needs to be re-read.
@@ -525,7 +539,7 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     // panel for a venue whose visible pin count had already updated.
     const markerDataByVenueId = new globalThis.Map<string, MapMarker>();
 
-    const initialView = COUNTRY_MAP_VIEWS[initialCountryRef.current];
+    const initialView = COUNTRY_MAP_VIEWS[initialAreaRef.current];
     const map = new Map({
       container: containerRef.current,
       style: MAP_STYLE_URL,
@@ -781,12 +795,12 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
       return;
     }
 
-    map.fitBounds(COUNTRY_MAP_VIEWS[country].bounds, {
+    map.fitBounds(COUNTRY_MAP_VIEWS[area].bounds, {
       padding: 42,
       duration: 1000,
       essential: true,
     });
-  }, [country]);
+  }, [area]);
 
   // Keeps the clustered GeoJSON source in sync when the visible marker
   // set changes (e.g. a genre/date/price filter narrows `markers`) —
@@ -809,7 +823,7 @@ export function DiscoveryMap({ country, markers }: DiscoveryMapProps) {
     <div
       className="discovery-map"
       role="region"
-      aria-label={`Interactive map showing ${country}`}
+      aria-label={`Interactive map showing ${area}`}
     >
       <div ref={containerRef} className="discovery-map-inner" />
       <div ref={clusterTooltipRef} className="botm-cluster-tooltip" aria-hidden="true" />
