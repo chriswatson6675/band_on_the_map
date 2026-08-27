@@ -111,7 +111,7 @@ export function bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, s
   const sourceEntry = (previousArtifact.source_report?.sources ?? []).find((entry) => entry?.source_id === sourceId);
   if (!sourceEntry || sourceEntry.success !== true) return null;
 
-  const hasRealListing = ["Portugal", "Spain", "Germany"].some((country) =>
+  const hasRealListing = ["Portugal", "Spain", "Germany", "France"].some((country) =>
     (previousArtifact.countries?.[country]?.markers ?? []).some((marker) =>
       (marker.display_listings ?? []).some((listing) => listing?.kind === "SINGLE" && listing.source_id === sourceId),
     ),
@@ -168,7 +168,7 @@ export function annotateSourceProvenance({ sourceResults, previousSourceReportSo
 
 /**
  * Extract every SINGLE-kind display listing attributable to `sourceId`
- * from `previousArtifact`'s Portugal+Spain markers, grouped by venue_id.
+ * from `previousArtifact`'s supported-country markers, grouped by venue_id.
  * Each returned venue carries its own venue_id/canonical_name/latitude/
  * longitude/address exactly as previously published (already schema-
  * valid — never re-derived, never re-geocoded).
@@ -206,7 +206,7 @@ export function annotateSourceProvenance({ sourceResults, previousSourceReportSo
 export function extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString, retainedSince = null }) {
   const retainedByVenueId = new Map();
 
-  for (const country of ["Portugal", "Spain", "Germany"]) {
+  for (const country of ["Portugal", "Spain", "Germany", "France"]) {
     const markers = previousArtifact?.countries?.[country]?.markers ?? [];
     for (const marker of markers) {
       const retainedListings = (marker.display_listings ?? [])
