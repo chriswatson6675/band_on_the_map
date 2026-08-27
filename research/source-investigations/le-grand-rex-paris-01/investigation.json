@@ -1,0 +1,148 @@
+{
+  "investigation_id": "le-grand-rex-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T18:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official 'Spectacles & Concerts' events page. Every listed show is one repeated static HTML row whose own `class` attribute directly embeds the full calendar date(s) (e.g. `date-2026-09-19`) and whose own visible text (title/date/time/price) is present verbatim in the plain HTML response — no JS execution or escalation needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.legrandrex.com/evenement immediately exposed 48 real, current, repeated static-HTML event rows, each with a title, a French-language date/time text stating the full date (day+month+year, always) directly, a price range, a stable numeric permalink, and a self-tagged category (including a literal `concerts` class token distinguishing concerts from other stage-show categories the same 'Concerts & Spectacles' page also lists, e.g. ballet/conference/comedy). No further escalation was needed; Level 1 fully answered the investigation question.",
+      "evidence_refs": ["ev-evenement-listing"]
+    }
+  ],
+  "source_candidate_id": "le-grand-rex-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Grand Rex — historic single-screen cinema/concert hall, 1 Boulevard Poissonnière, 75002 Paris. A separate basement nightclub, 'Rex Club', is a DIFFERENT venue/source, investigated separately (research/source-investigations/rex-club-paris-01/) and out of scope here.",
+  "official_url": "https://www.legrandrex.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-evenement-listing"],
+    "notes": "The retained page's own <title> reads 'Spectacles & Concerts - Le Grand Rex' at the venue's own domain legrandrex.com. The page's own body text directly self-identifies its full name and address in a data-protection/legal notice: 'LE GRAND REX PARIS – 1, Boulevard Poissonnière 75002 PARIS' — matching the assigned venue reference exactly, a self-consistent first-party artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom/bespoke CMS (no WordPress/wp-content/wp-json signal detected). Every event is one repeated `<div class='row row-fe row-event ...'>` block in the plain HTML response; the row's own `class` attribute embeds the full date(s) directly (e.g. `date-2026-09-19`, or two tokens for a multi-day run) and its own visible `<h5 class='date-tout'>` text restates the same full date in French. Third-party ticketing platforms (Weezevent, TAL Ticket) are referenced only as booking links / legal-notice text on this page — never as the source of the event facts themselves, which are this venue's own first-party static markup.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-evenement-listing"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.legrandrex.com/evenement",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-evenement-listing"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "NARUTO SYMPHONIC EXPERIENCE",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each row's own `<h3 class='title-movie-tout'>` link text, stated directly.",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-19",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each row's own `class` attribute directly embeds the full date (`date-2026-09-19`), AND its own visible `<h5 class='date-tout'>` text independently restates the same full date in French ('Le 19 Septembre 2026 à 15:00') — the complete day+month+year fact is always stated directly in a single field, never assembled from a separate heading/context fragment, so this is DIRECT_SOURCE, not DETERMINISTIC_CONTEXT.",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "15:00 (Europe/Paris, floating local — no explicit UTC offset stated anywhere on this source's own page)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each row's own `<h5 class='date-tout'>` text directly states a time-of-day suffix ('à 15:00', or occasionally an hour-only form 'à 20h') for most rows; a minority of rows state a date with no time at all (verified honestly, not upgraded).",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "For a multi-day run, this source's own row text directly states a second, distinct full date (e.g. 'Du 9 Janvier 2027 au 10 Janvier 2027' -> end 2027-01-10, DIRECT_SOURCE) — genuinely PROVEN for those specific rows. The clear majority of rows (single-day shows) state no distinct end date/time at all. Because presence is genuinely conditional on the source's own row shape rather than universal, this is honestly recorded PARTIAL at the field-assessment level (no single value can represent the field as a whole); tests/le-grand-rex.test.mjs proves both the multi-day-PROVEN case and the single-day-absent case deterministically.",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-event-row as a discrete field (no address/venue-name block repeated on any individual row). This source represents exactly one physical venue (Le Grand Rex, 1 Boulevard Poissonnière) — consistent with this project's existing single-venue-per-source precedent (badehaus-berlin-01, zenner-berlin-01), venue identity is intended to resolve via source_id at activation time, not by claiming a per-record field this source's own row markup does not actually carry.",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "1776",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source's own permalink scheme, `/evenement/{numeric_id}`, is this venue's own canonical, self-consistent path for every listed show (e.g. https://www.legrandrex.com/evenement/1776) — the same documented judgement already established for badehaus-berlin-01/tempodrom-berlin-01 (a source's own permalink identity is a proven stable identifier, per the policy's 'stable identifier rule').",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.legrandrex.com/evenement/1776",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each row's own permalink href, stated directly, is this venue's own first-party event page (never a third-party ticketing URL).",
+      "evidence_refs": ["ev-evenement-listing"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Most rows carry a real `<span class='price'>` price-range text directly (e.g. 'De 25€ à 85€'), but a minority of sampled rows (e.g. 'MANIA THE ABBA TRIBUTE') leave this span empty on this source's own page — genuinely conditional presence, honestly recorded PARTIAL rather than claiming a single universal value. price is this project's one optional field and does not gate activation regardless.",
+      "evidence_refs": ["ev-evenement-listing"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-evenement-listing", "le-grand-rex-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, and the page's own legal-notice text directly stating the venue's full name and address).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: one request exposing 48 real, current event rows at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own numeric permalink, following the documented badehaus-berlin-01/tempodrom-berlin-01 precedent.",
+      "This venue's own row markup carries a real, self-stated `concerts` class token distinguishing concerts from other stage-show categories the same page also lists (ballet, conference, comedy-adjacent shows) — isConcertCard() in ingestion/le-grand-rex/observation-adapter.mjs implements this as an explicit, never-silent filter, matching this project's filterMusicEventNodes() convention.",
+      "PARIS_BESPOKE: no existing collector family in this project matches this exact class-attribute-embedded-date HTML shape; a new, small, bespoke module was written (ingestion/le-grand-rex/observation-adapter.mjs) mirroring ingestion/badehaus/observation-adapter.mjs's convention.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/le-grand-rex.test.mjs, 6 passing assertions re-parsing the retained fixture deterministically, including both the single-day and multi-day date shapes) — gate 9/v1.2 satisfied.",
+      "No unresolved CRITICAL blocker."
+    ],
+    "evidence_refs": ["ev-evenement-listing", "le-grand-rex-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-evenement-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official 'Spectacles & Concerts' events listing page, byte-retained in full (227,704 bytes): 48 real, current event rows, each with title/date-text/price/permalink/category classes.",
+      "acquired_from": "https://www.legrandrex.com/evenement",
+      "acquired_at": "2026-08-26T17:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-grand-rex-paris-01/evidence/evenement-listing.html"
+    },
+    {
+      "evidence_id": "le-grand-rex-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/le-grand-rex.test.mjs, 6 passing tests) re-parsing this investigation's own retained fixture (fixtures/le-grand-rex-paris/evenement-listing.html, byte-identical to the evidence above) via ingestion/le-grand-rex/observation-adapter.mjs and reproducing the exact claimed field values deterministically, for both single-day and multi-day date shapes.",
+      "acquired_from": "tests/le-grand-rex.test.mjs",
+      "acquired_at": "2026-08-26T19:15:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/le-grand-rex-paris-01/evidence/evenement-listing.html"
+    }
+  ],
+  "supersedes": null
+}

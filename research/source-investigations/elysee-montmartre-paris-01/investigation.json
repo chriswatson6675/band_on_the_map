@@ -1,0 +1,159 @@
+{
+  "investigation_id": "elysee-montmartre-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:38:30Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/fr/programmation/' page. The static HTML directly carries this venue's own full events archive as repeated 'bloc_extrait evenement' cards — the SAME WordPress theme/markup shape independently confirmed at co-managed Le Trianon (research/source-investigations/le-trianon-paris-01/), here in its French-locale variant — no escalation needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.elyseemontmartre.com/fr/programmation/ returned this venue's own WordPress custom-post-type 'evenement' archive page (body class 'post-type-archive-evenement', child theme 'vkdchild_elysee'), containing 54 static 'bloc_extrait evenement' event cards (49 cleanly parsed by this investigation's own extraction regex), each stating its own title, WordPress post ID (data-id), first-party detail-page URL, and a complete French 'weekday DD month YYYY' date string (e.g. 'mardi 01 septembre 2026') directly on the card. This fully answered the investigation question at Level 1; no escalation was needed.",
+      "evidence_refs": ["ev-programmation-html"]
+    }
+  ],
+  "source_candidate_id": "elysee-montmartre-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Élysée Montmartre (concert hall, 72 Boulevard Rochechouart, 75018 Paris; co-managed with Le Trianon)",
+  "official_url": "https://www.elyseemontmartre.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html"],
+    "notes": "The retained page's own <title> reads 'Programmation - Elysée Montmartre' at the venue's own domain elyseemontmartre.com. The same retained page's own footer directly states the venue's own address: '72 Boulevard de Rochechouart' / '75018 PARIS' — matching the assigned venue address exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress, custom post type 'evenement' (theme 'vkd_tem', child theme 'vkdchild_elysee') — the SAME theme family confirmed live at co-managed Le Trianon. Every event is fully represented as a static, repeated HTML card on the archive page itself. Ticket purchase redirects to a first-party 'billetterie.elyseemontmartre.com' checkout subdomain (confirmed on a per-event detail page), unlike Le Trianon's own third-party Hubber checkout domain — never used as this collector's data path either way.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.elyseemontmartre.com/fr/programmation/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-programmation-html"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "CURRENT JOYS",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own 'title' attribute (and identically its own '.titre' div text), stated directly.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-01",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own '.date' div directly states a complete French weekday + day + month-name + FULL YEAR string (e.g. 'mardi 01 septembre 2026') — a single piece of retained evidence already carrying the complete date, mechanically parsed, so recorded as DIRECT_SOURCE rather than DETERMINISTIC_CONTEXT.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Not present on the list/archive card itself. Confirmed present on this source's own per-event detail page (e.g. https://www.elyseemontmartre.com/fr/programmation/current-joys/ states 'Mardi 01 septembre 2026, à 20h00' plus an informal door-time note 'Ouverture des portes 1h avant') — genuinely resolvable, but only via an additional per-event fetch this investigation's recommended list-only collector does not perform. Left honestly PARTIAL rather than fabricated or silently fetched beyond the confirmed data path.",
+      "evidence_refs": ["ev-detail-current-joys-html"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end-time or end-date is stated anywhere on either the list card or the sampled detail page.",
+      "evidence_refs": ["ev-programmation-html", "ev-detail-current-joys-html"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Élysée Montmartre, 72 Boulevard Rochechouart, 75018 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source. The retained page's own footer directly states the full address.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "8341",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own root element carries 'data-id=\"8341\"' — this theme's own WordPress post ID, a standard structural convention of the CMS itself, directly exposed on every card.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.elyseemontmartre.com/fr/programmation/current-joys/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own anchor 'href', stated directly — this venue's own first-party detail page.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is shown on the list card or the sampled detail page. Ticket purchase redirects to a first-party billetterie.elyseemontmartre.com checkout page, but no price is exposed on the retained '/fr/programmation/current-joys/' detail page itself.",
+      "evidence_refs": ["ev-detail-current-joys-html"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html", "elysee-montmartre-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, footer address matching the assigned venue address exactly).",
+      "acquisition_class WORDPRESS, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED PUBLIC data path retained: a single request exposing (cleanly, 49 of) this venue's full archive of upcoming event cards at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — every card's own date text already includes a full day/month/year (French locale), no contextual derivation required.",
+      "source_record_id PROVEN via this theme's own structural WordPress post-ID convention (data-id), directly exposed on every card.",
+      "venue_location PROVEN with basis DIRECT_SOURCE.",
+      "recommended_family STATIC_EVENT_LIST, an existing COLLECTOR_FAMILIES member — genuinely reusable: the SAME parser (ingestion/wp-evenement-cards/) is proven to work unchanged on co-managed Le Trianon's own English-locale '/en/event/' page (research/source-investigations/le-trianon-paris-01/) — a real, evidenced ≥2-venue reuse (both this project's own venues), not merely a plausible one, resolving this task's own explicit prompt to check whether the shared theme was a reusable pattern.",
+      "No unresolved CRITICAL blocker. 'time' and 'price' are honestly PARTIAL/NOT_PRESENT — neither is gated for READY_FOR_ACTIVATION.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/elysee-montmartre.test.mjs, run via `node --test`, passing) against a real, byte-faithful excerpt fixture of this same retained page — gate 9 satisfied."
+    ],
+    "evidence_refs": ["ev-programmation-html", "elysee-montmartre-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programmation-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/fr/programmation/' events archive page, retrieved via plain curl GET with a descriptive User-Agent, retained byte-faithfully in full (108,129 bytes) — 54 static event cards, each with title/date/id/detail-URL.",
+      "acquired_from": "https://www.elyseemontmartre.com/fr/programmation/",
+      "acquired_at": "2026-08-26T22:38:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/elysee-montmartre-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-current-joys-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled per-event detail page (CURRENT JOYS), retrieved to honestly assess whether 'time' and 'price' are available beyond the list page — retained byte-faithfully in full (30,844 bytes). Confirms a local time-of-day IS present on the detail page (not the list card), and that ticket purchase redirects to a first-party billetterie.elyseemontmartre.com checkout page with no price shown on this page itself.",
+      "acquired_from": "https://www.elyseemontmartre.com/fr/programmation/current-joys/",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/elysee-montmartre-paris-01/evidence/detail-current-joys-raw.html"
+    },
+    {
+      "evidence_id": "elysee-montmartre-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/elysee-montmartre.test.mjs) re-parsing a real, byte-faithful excerpt of this investigation's own retained page (fixtures/elysee-montmartre-paris/events-page-sample.html, four real cards cut verbatim from ev-programmation-html) via the SAME shared ingestion/wp-evenement-cards/ family Le Trianon uses, and reproducing the exact claimed field values deterministically (title/date/id/url for CURRENT JOYS, EARL SWEATSHIRT & MIKE, ZEYNE, and THE DRESDEN DOLLS).",
+      "acquired_from": "tests/elysee-montmartre.test.mjs",
+      "acquired_at": "2026-08-26T23:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/elysee-montmartre-paris-01/evidence/programmation-raw.html"
+    }
+  ],
+  "supersedes": null
+}

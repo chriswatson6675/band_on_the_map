@@ -1,0 +1,167 @@
+{
+  "investigation_id": "accor-arena-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T21:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official events-and-tickets page. This is an Angular Universal (server-side-rendered) application: every visible event card (title, an English-language date string, an event detail link, and — when shown — an indicative 'From : €X' price) is already fully rendered in the plain HTTP response, requiring no client-side JS execution to read."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.accorarena.com/en/events-and-tickets immediately exposed 6 fully-rendered `<article class=\"card\">` event blocks, each with a title, a plain-English date, a detail-page link, and (for most) a price — everything this investigation's field_assessment needed. No escalation was required; Level 1 fully answered the investigation question.",
+      "evidence_refs": ["ev-cards"]
+    }
+  ],
+  "source_candidate_id": "accor-arena-paris-candidate",
+  "source_id": null,
+  "venue_reference": "Accor Arena — 8 Boulevard de Bercy, 75012 Paris (large multi-purpose arena, Bercy, Paris 12e)",
+  "official_url": "https://www.accorarena.com/en/events-and-tickets",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards", "ev-state-blob"],
+    "notes": "The retained page's own <title> reads 'Events - Accor Arena' at the venue's own domain accorarena.com. The venue's own embedded Angular TransferState JSON (supplementary evidence ev-state-blob, genuinely retained from the same plain curl response) directly states room.full_name 'Accor Arena' and room.slug 'accor-arena' for a sampled event, and every asset/ticketing URL is self-hosted under accorarena.com / billetterie.accorarena.com — a self-consistent, first-party retained artifact matching the well-known Bercy arena."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Angular Universal (server-side rendered) custom application, no WordPress/known-plugin signal. The plain HTTP response fully renders every visible event card as static markup; a separate, deeply nested Angular TransferState JSON blob (a normalized NgRx-style store, HTML-entity-escaped) is also present in the page but was NOT used as the acquisition path for this investigation's collector, since the same information is already available, more simply and robustly, in the rendered card markup itself.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.accorarena.com/en/events-and-tickets",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-cards"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "KATSEYE - THE WILDWORLD TOUR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <h2 class=\"card__label\"> text, stated directly.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-09",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <aa-sessions-dates> text (e.g. '09 September 2026'), a plain English day/month-name/year, stated directly and unambiguously — no combination with any other page context was needed.",
+      "evidence_refs": ["ev-cards", "accor-arena-paris-01-offline-proof"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No time-of-day is shown anywhere on this list-card view for any sampled event — a calendar date only.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end date/time is shown anywhere on this list-card view.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Accor Arena",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The retained page's own <title> ('Events - Accor Arena') and the supplementary TransferState evidence's own room.full_name ('Accor Arena') both directly state the venue name; this is a single-venue source (every card is this one venue), so every Observation is resolved to it by source_id, not per-record text.",
+      "evidence_refs": ["ev-cards", "ev-state-blob"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "katseye-the-wildworld-tour--e0745",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source exposes no separate numeric event id on the card itself; each card's own '/en/events-and-tickets/{slug}' href is this source's own permanent permalink, so the slug is used as source_record_id — the same documented judgement already established for tempodrom-berlin-01/moog-barcelona-01/badehaus-berlin-01 (a site's own URL-slug permalink as its stable identity).",
+      "evidence_refs": ["ev-cards"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.accorarena.com/en/events-and-tickets/katseye-the-wildworld-tour--e0745",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own href, stated directly, resolved against the venue's own domain.",
+      "evidence_refs": ["ev-cards"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "4 of 6 sampled cards show an indicative 'From : €X' price (e.g. '€73.00' for Lauryn Hill); 2 do not (UFC Fight Night shows no price at all, and KATSEYE shows none because it is sold out). Genuinely present for most, but not all, events — recorded PARTIAL rather than PROVEN or NOT_PRESENT; a real collector must treat this as optional per-record, never fabricated when absent.",
+      "evidence_refs": ["ev-cards"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-cards", "accor-arena-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This one plain fetch returned only 6 event cards. The page's own 'view=calendar' link (?view=calendar) suggests a fuller/alternative browsing view may exist; this bounded investigation did not confirm whether the plain list view already represents the venue's complete near-term calendar or only a bounded subset. A production collector should re-check this before assuming completeness."
+      },
+      {
+        "severity": "MINOR",
+        "description": "One sampled card (French national basketball team qualifying match) is a sports fixture, not music — excluded via a bounded, documented keyword filter (ingestion/accor-arena/discovery.mjs's filterMusicEventCards()), not a machine-readable category field this source exposes on the list page itself."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, TransferState room.full_name/slug, self-hosted asset/ticketing domains).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: a single plain fetch exposing every currently-listed event card at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following documented precedent (tempodrom-berlin-01, badehaus-berlin-01).",
+      "recommended_family STATIC_EVENT_LIST, requiring a small, genuinely bespoke card parser (no existing collector family in this repository already matches this exact markup) — see ingestion/accor-arena/.",
+      "No unresolved CRITICAL blocker — both blockers are MINOR and documented.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/accor-arena.test.mjs, 5/5 passing) re-parsing this investigation's own retained fixture and reproducing every claimed field value deterministically."
+    ],
+    "evidence_refs": ["ev-cards", "accor-arena-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-cards",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official events-and-tickets page — the full raw response was 317,000 bytes, dominated by Angular SSR navigation/CSS/inline-state markup carrying no per-event display data on its own. This file retains ALL 6 real `<article class=\"card\">...</article>` event-card blocks found in that one response, extracted verbatim (byte-for-byte substrings, concatenated with a newline between each — nothing inside any one card was edited or re-serialized). Byte-faithful for each retained card block; the surrounding page bytes were dropped, disclosed here.",
+      "acquired_from": "https://www.accorarena.com/en/events-and-tickets",
+      "acquired_at": "2026-08-26T20:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then filtered to only its <article class=\"card\"> blocks plus the page's own <title>, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/accor-arena-paris-01/evidence/events-and-tickets-cards-raw.html"
+    },
+    {
+      "evidence_id": "ev-state-blob",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Supplementary evidence only (not the acquisition path this investigation's collector actually uses): a bounded, disclosed excerpt of the SAME page's own embedded Angular TransferState JSON blob (<script id=\"serverApp-state\" type=\"application/json\">), retained verbatim (byte-for-byte, HTML-entity-escaped exactly as served) as a contiguous substring. Retained only to corroborate venue identity (room.full_name 'Accor Arena', room.slug 'accor-arena') and to document that a deeper, normalized JSON store exists on this platform, for any future investigator's benefit — not parsed by ingestion/accor-arena/.",
+      "acquired_from": "https://www.accorarena.com/en/events-and-tickets",
+      "acquired_at": "2026-08-26T20:35:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title+a bounded slice of the state script, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/accor-arena-paris-01/evidence/events-and-tickets-raw.html"
+    },
+    {
+      "evidence_id": "accor-arena-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/accor-arena.test.mjs) re-parsing this investigation's own retained fixture (fixtures/accor-arena-paris/events-and-tickets-cards.html, a copy of ev-cards) via ingestion/accor-arena/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically (5/5 tests passing).",
+      "acquired_from": "tests/accor-arena.test.mjs",
+      "acquired_at": "2026-08-26T21:05:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/accor-arena-paris-01/evidence/events-and-tickets-cards-raw.html"
+    }
+  ],
+  "supersedes": null
+}

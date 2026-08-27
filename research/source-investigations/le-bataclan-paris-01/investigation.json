@@ -1,0 +1,166 @@
+{
+  "investigation_id": "le-bataclan-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:52:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/programmation/' page — found only a client-hydrated Nuxt 3 shell with no event data in the static HTML. Level 2 STRUCTURAL: the same retained page's own <script data-src=\"/programmation/_payload.json?...\"> tag publicly references this SPA's own build-time data endpoint; a further plain GET (no query string needed) against that endpoint returned this venue's full, real event list (114 records) as a Nuxt/devalue-encoded JSON payload."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://www.bataclan.fr/programmation/ returned a 280,251-byte Nuxt 3 SSR shell. Its own inline <script id=\"__NUXT_DATA__\"> block decodes to only app/UI state (locale, scroll position, modal flags) — no event records at all. No JSON-LD, ICS, or WordPress/Events-Calendar signal was found anywhere on the page.",
+      "evidence_refs": ["ev-programmation-html"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "The same retained page's own markup carries <script type=\"application/json\" data-nuxt-data=\"nuxt-app\" data-ssr=\"true\" id=\"__NUXT_DATA__\" data-src=\"/programmation/_payload.json?...\">, a publicly referenced (not private/undocumented) Nuxt build data endpoint. A plain GET of that same path (confirmed to also work without its query-string build hash) returned a 929,421-byte JSON body containing this venue's full, real 114-event schedule with title/date/venue/price/ticketing-url per event. This fully answered the investigation question; no further escalation was needed.",
+      "evidence_refs": ["ev-payload-json"]
+    }
+  ],
+  "source_candidate_id": "le-bataclan-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Bataclan (concert hall, 50 Boulevard Voltaire, 75011 Paris)",
+  "official_url": "https://www.bataclan.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html"],
+    "notes": "The retained page's own <title> reads 'La programmation | Bataclan - Bataclan' at the venue's own domain bataclan.fr. The same retained page's own footer states the venue's own address directly: '50 Boulevard Voltaire' / '75011 Paris' — matching the assigned venue address exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "SPA_API_DISCOVERABLE",
+    "platform": "Nuxt 3 (SSR/hydrated SPA), custom back-office (CMS record ids/uids resembling Strapi), ticketing via a first-party 'billetterie.bataclan.fr' subdomain ('Hubber'-style checkout, referenced directly on each record's own ticketingUrl). The static HTML shell carries no event data itself, but publicly references a static, discoverable '_payload.json' data endpoint that does.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-programmation-html", "ev-payload-json"]
+  },
+  "data_paths": [
+    {
+      "kind": "NUXT_PAYLOAD_JSON",
+      "url": "https://www.bataclan.fr/programmation/_payload.json",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-payload-json"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "SPORT & YOGA + METAL - PASS 2 SEANCES",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each decoded record's own 'attributes.title', stated directly.",
+      "evidence_refs": ["ev-payload-json"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-15",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each decoded record's own 'attributes.date' is a full ISO-8601 UTC instant (e.g. '2026-09-15T17:00:00.000Z'), stated directly. Cross-checked against this same record's own free-text description ('mardi 15 septembre 2026' / '19h' cross-training start) — 17:00 UTC = 19:00 Europe/Paris (CEST, UTC+2) in September, consistent.",
+      "evidence_refs": ["ev-payload-json"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "17:00:00Z (= 19:00 Europe/Paris local, CEST) — a genuine UTC instant, not merely a floating local time",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same 'attributes.date' field directly carries a full UTC instant with an explicit 'Z' suffix on every sampled record — not a floating local time requiring separate timezone resolution.",
+      "evidence_refs": ["ev-payload-json"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "A parallel 'attributes.dateEnd' field is present but was found — by sampling across the retained 114-record dataset — to be identical to 'attributes.date' for 107 of 114 records and to differ for only 7, with no retained evidence proving what that difference represents (a true performance end-time vs. some other CMS bookkeeping field, as previously found for Tempodrom Berlin's own analogous 'endDate' field — see research/source-investigations/tempodrom-berlin-01/). Honestly recorded NOT_PRESENT rather than promoted to a claimed performance end-time.",
+      "evidence_refs": ["ev-payload-json"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Bataclan, 50 Boulevard Voltaire, 75011 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This is a single-venue source. Each record's own 'attributes.meetings[].venue' field directly states 'Bataclan' (confirmed identical across every sampled record); the retained page's own footer directly states the full address.",
+      "evidence_refs": ["ev-programmation-html", "ev-payload-json"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "5776",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'id' field is this source's own CMS record primary key, directly exposed on every record (not a derived/guessed value) — the same class of documented, source-owned identifier already accepted for other WordPress-post-ID- and CMS-record-ID-based sources in this project (e.g. ingestion/badehaus/, ingestion/zenner/).",
+      "evidence_refs": ["ev-payload-json"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://billetterie.bataclan.fr/fr/manifestation/189/nai_barghouti",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own 'attributes.ticketingUrl' field, stated directly. This is a first-party subdomain of the venue's own official domain (billetterie.bataclan.fr under bataclan.fr) — not a third-party aggregator.",
+      "evidence_refs": ["ev-payload-json"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "39.00-78.00 EUR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each record's own first 'attributes.meetings[0].price_min'/'price_max' fields are stated directly as plain decimal numbers. Currency (EUR) is not a separate dedicated field on this record, but is corroborated directly by this SAME record's own free-text 'description' field, which repeats the identical numeric amounts immediately next to a '€' symbol (e.g. 'Prix unique ... : 39 €', '... : 78 €') — a genuine corroboration within one record, not a separate contextual combination, so recorded as DIRECT_SOURCE rather than DETERMINISTIC_CONTEXT.",
+      "evidence_refs": ["ev-payload-json"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-payload-json", "le-bataclan-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, footer address matching the assigned venue address exactly).",
+      "acquisition_class SPA_API_DISCOVERABLE, a resolved supported class, reached at Level 2 STRUCTURAL after a genuinely INSUFFICIENT Level 1 attempt.",
+      "A CONFIRMED PUBLIC data path retained: a single request exposing the venue's full 114-event schedule at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE (a genuine UTC-instant timestamp, not a floating local time).",
+      "source_record_id PROVEN via the source's own CMS record primary key, directly exposed on every record.",
+      "venue_location and price additionally PROVEN with basis DIRECT_SOURCE.",
+      "recommended_family NEW_FAMILY_REQUIRED — this Nuxt-payload acquisition shape (list-page shell + publicly-referenced devalue-encoded data endpoint) does not match any existing COLLECTOR_FAMILIES member. The low-level devalue-array index-resolution step itself reuses the EXISTING, unmodified ingestion/sveltekit-data/decode.mjs resolveDevalueRef() primitive (already proven generic/source-agnostic); only the Nuxt-specific envelope navigation and field-mapping (ingestion/le-bataclan/) are new, bespoke code.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/le-bataclan.test.mjs, run via `node --test`, passing) against the FULL real retained payload fixture (fixtures/le-bataclan-paris/payload-sample.json, byte-identical to research/source-investigations/le-bataclan-paris-01/evidence/payload-raw.json) — gate 9 satisfied."
+    ],
+    "evidence_refs": ["ev-payload-json", "le-bataclan-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-programmation-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/programmation/' page, retrieved via plain curl GET with a descriptive User-Agent, retained byte-faithfully in full (280,251 bytes) — a Nuxt 3 SSR shell whose static HTML carries no event data itself but whose own <script data-src> tag publicly references this source's real data endpoint.",
+      "acquired_from": "https://www.bataclan.fr/programmation/",
+      "acquired_at": "2026-08-26T22:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-bataclan-paris-01/evidence/programmation-raw.html"
+    },
+    {
+      "evidence_id": "ev-payload-json",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own publicly-referenced Nuxt data endpoint, retrieved via plain curl GET, retained byte-faithfully in full (929,421 bytes) — a devalue-encoded flat array decoding to this venue's full 114-event schedule (title, UTC-instant start, venue, price, first-party ticketing URL per event).",
+      "acquired_from": "https://www.bataclan.fr/programmation/_payload.json",
+      "acquired_at": "2026-08-26T22:48:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-bataclan-paris-01/evidence/payload-raw.json"
+    },
+    {
+      "evidence_id": "le-bataclan-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/le-bataclan.test.mjs) re-decoding this investigation's own retained fixture (a byte-identical copy of ev-payload-json under fixtures/le-bataclan-paris/payload-sample.json) via ingestion/le-bataclan/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically (verified: 114 records decoded; NAI BARGHOUTI's title/uid/date/ticketingUrl; SPORT & YOGA's date/price/event_url).",
+      "acquired_from": "tests/le-bataclan.test.mjs",
+      "acquired_at": "2026-08-26T23:10:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/le-bataclan-paris-01/evidence/payload-raw.json"
+    }
+  ],
+  "supersedes": null
+}

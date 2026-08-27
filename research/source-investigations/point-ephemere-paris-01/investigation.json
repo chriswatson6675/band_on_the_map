@@ -1,0 +1,229 @@
+{
+  "investigation_id": "point-ephemere-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:10:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own homepage and its /agenda page. Level 2 STRUCTURAL: inspection of a Prismic CDN API reference embedded in the homepage's own Next.js bootstrap payload, followed by direct, unauthenticated GET requests against that public Prismic Content API v2 endpoint (repository 'pointf')."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Plain curl GETs of the homepage (https://www.pointephemere.org/) and its /agenda page exposed no <script type=\"application/ld+json\"> Event/MusicEvent data and no static HTML event cards with directly parseable structured fields. Programme content is rendered via a Next.js React Server Components bootstrap stream (self.__next_f.push(...)), not plain static markup a Level 1 reading can reliably parse as structured event data — only one example event object (the homepage's own featured 'homepage_event') was directly visible, embedded inside that proprietary stream format, not a usable general listing.",
+      "evidence_refs": ["ev-homepage", "ev-agenda-excerpt"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Inspecting the homepage's own embedded Next.js bootstrap payload revealed a literal, publicly-referenced endpoint: pointf.cdn.prismic.io/api/v2/documents/search?ref=... — confirming the site is built on Prismic (a headless CMS) with its own dedicated repository named 'pointf' (independently corroborated by every images.prismic.io/pointf/... asset URL on the site). A plain GET of that repository's API v2 root (https://pointf.cdn.prismic.io/api/v2) returned Prismic's own public, unauthenticated API-discovery document (refs/types/forms — no access_token required, no CAPTCHA, no login), and a subsequent GET against its own documented documents/search endpoint, filtered to document.type=\"event\", returned clean, structured, fully-paginated JSON event records (name/start_date/end_date/display_date/time/prix/ticket_link/category, one Prismic document per event) — fully answering the investigation question with no further escalation needed.",
+      "evidence_refs": ["ev-agenda-excerpt", "ev-prismic-api-root", "ev-prismic-event-sample", "ev-prismic-event-future-sample"]
+    }
+  ],
+  "source_candidate_id": "point-ephemere-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Point Éphémère (concert venue / cultural space, Canal Saint-Martin, Paris 10e)",
+  "official_url": "https://www.pointephemere.org/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-agenda-excerpt"],
+    "notes": "The retained homepage is served at the venue's own domain pointephemere.org. The address '200 Quai de Valmy, 75010 Paris' is directly stated, verbatim, multiple times within different sampled events' own body text on the site's own /agenda page — matching this investigation's assigned address exactly. Every image asset on the site is self-hosted under images.prismic.io/pointf/ — this venue's own dedicated Prismic repository, a self-consistent first-party artifact."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Next.js frontend backed by Prismic (headless CMS), repository 'pointf', queried via Prismic's own public, unauthenticated Content API v2 (documents/search).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prismic-api-root", "ev-prismic-event-sample", "ev-prismic-event-future-sample"]
+  },
+  "data_paths": [
+    {
+      "kind": "PRISMIC_CONTENT_API_V2_DOCUMENTS_SEARCH",
+      "url": "https://pointf.cdn.prismic.io/api/v2/documents/search?ref=ao8RoxIAAC4A-spV&q=%5B%5Bat%28document.type%2C%22event%22%29%5D%5D&orderings=%5Bmy.event.start_date%5D",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-prismic-event-sample", "ev-prismic-event-future-sample"]
+    },
+    {
+      "kind": "PRISMIC_CONTENT_API_V2_ROOT",
+      "url": "https://pointf.cdn.prismic.io/api/v2",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-prismic-api-root"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "distraction4ever + Sad Madona",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each Prismic 'event' document's own data.name field, stated directly.",
+      "evidence_refs": ["ev-prismic-event-future-sample", "point-ephemere-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each document's own data.start_date field, a plain ISO 'YYYY-MM-DD' date, stated directly (not derived from any other field).",
+      "evidence_refs": ["ev-prismic-event-future-sample", "point-ephemere-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20h (Europe/Paris, floating local — no explicit UTC offset stated anywhere on this source)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each document's own data.time free-text field (e.g. '20h', '19h30', '22H - 03H'), stated directly. This project's adapter parses the leading hour[:minute] token from that one field's own text — a straightforward format parse of a single retained field, not a DETERMINISTIC_CONTEXT combination of two separate pieces of context.",
+      "evidence_refs": ["ev-prismic-event-future-sample"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "data.end_date exists on the schema but is null on every sampled record; no performance end-time field exists on this source at all.",
+      "evidence_refs": ["ev-prismic-event-future-sample"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Point Éphémère, 200 Quai de Valmy, 75010 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue Prismic repository — every 'event' document belongs to Point Éphémère's own dedicated repository ('pointf'), matching ingestion/badehaus/observation-adapter.mjs's and ingestion/zenner/observation-adapter.mjs's own single-venue-source precedent (resolved by source_id, no per-record venue field needed). The address is additionally directly stated, verbatim, within multiple sampled events' own retained body text.",
+      "evidence_refs": ["ev-agenda-excerpt", "ev-homepage"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "akJQmRIAACkAtp-r",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each document's own Prismic 'id' — documented by the Prismic platform itself as a permanent, immutable per-document content identifier, distinct from 'uid' (an editable slug field that CAN change on republish) — satisfies docs/SOURCE_INVESTIGATION_POLICY.md's stable identifier rule via 'documented by the source [platform] itself'.",
+      "evidence_refs": ["ev-prismic-event-future-sample"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No confirmed first-party pointephemere.org permalink was found for an individual event within this bounded investigation — this venue's own /agenda page appears to be a single listing/modal-style page, not one canonical URL per event. Each document's own optional data.ticket_link.url, when present, points to a third-party ticketing platform (DICE) and is used as this Observation's event_url as the closest available per-event link this source directly supplies — honestly a second-best, not a confirmed first-party page, so left PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-prismic-event-future-sample"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "10€ / 12€",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each document's own data.prix free-text field, stated directly (also 'ENTRÉE LIBRE'/'entrée libre' for free events, and bare amounts like '5€' for others) — genuinely absent only when the source itself states free entry or omits the field, never fabricated.",
+      "evidence_refs": ["ev-prismic-event-future-sample"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prismic-api-root", "ev-prismic-event-sample", "point-ephemere-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (domain, self-hosted Prismic asset paths, and the assigned address stated verbatim within multiple sampled events).",
+      "acquisition_class PUBLIC_JSON_API, a resolved supported class, reached via a genuine, retained Level 1 (INSUFFICIENT) -> Level 2 (SUFFICIENT) escalation — Prismic's own public Content API v2 requires no access_token, no CAPTCHA bypass, no private/session credentials.",
+      "A CONFIRMED public data path retained: the documents/search endpoint, filtered to document.type=\"event\", ordered by the source's own start_date field.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, each field stated directly by one retained Prismic document — no contextual derivation needed for either gated field.",
+      "source_record_id PROVEN via Prismic's own documented immutable per-document 'id' — a platform-documented stable identifier, not assumed from appearance.",
+      "recommended_family NEW_FAMILY_REQUIRED: this is the first source in the project built on Prismic. A genuinely new, reusable collector family was built (ingestion/prismic-api/client.mjs, generic across any future Prismic-backed source) plus this venue's own discovery/observation-adapter (ingestion/point-ephemere/).",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/point-ephemere.test.mjs, passing against fixtures/point-ephemere-paris/prismic-events-sample.json) — gate 9/v1.2 satisfied.",
+      "event_url and end honestly left PARTIAL/NOT_PRESENT rather than fabricated — neither blocks activation (only title/start_date are gated fields)."
+    ],
+    "evidence_refs": ["ev-prismic-api-root", "ev-prismic-event-future-sample", "point-ephemere-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, full raw response, retained byte-for-byte (107,670 bytes) — small enough to retain in full.",
+      "acquired_from": "https://www.pointephemere.org/",
+      "acquired_at": "2026-08-26T22:39:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-salle-de-concert",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own '/les-espaces/salle-de-concert' page, full raw response, retained byte-for-byte (26,272 bytes).",
+      "acquired_from": "https://www.pointephemere.org/les-espaces/salle-de-concert",
+      "acquired_at": "2026-08-26T22:39:20Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/salle-de-concert-raw.html"
+    },
+    {
+      "evidence_id": "ev-agenda-excerpt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own '/agenda' page — the full raw response was originally 395,600 bytes; this file retains a bounded, disclosed excerpt: the <title>, one occurrence of the venue's own directly-stated address text, and the Prismic CDN API reference string embedded in this page's own Next.js bootstrap payload. Non-byte-faithful overall (most of the original page was dropped), but the retained substrings themselves are copied byte-for-byte.",
+      "acquired_from": "https://www.pointephemere.org/agenda",
+      "acquired_at": "2026-08-26T22:44:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then bounded to a disclosed excerpt",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-prismic-api-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Prismic's own public, unauthenticated API v2 discovery document for repository 'pointf' (refs/types/forms) — full raw response, byte-for-byte (1,633 bytes).",
+      "acquired_from": "https://pointf.cdn.prismic.io/api/v2",
+      "acquired_at": "2026-08-26T22:43:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/prismic-api-root.json"
+    },
+    {
+      "evidence_id": "ev-prismic-event-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A first, unbounded-date-window sample query (document.type=\"event\", pageSize=3) against Prismic's own documents/search endpoint — full raw response, byte-for-byte (10,323 bytes). Confirms 1,042 total 'event' documents exist (this repository's full historical archive, not just future events).",
+      "acquired_from": "https://pointf.cdn.prismic.io/api/v2/documents/search?ref=ao8RoxIAAC4A-spV&q=%5B%5Bat%28document.type%2C%22event%22%29%5D%5D&pageSize=3",
+      "acquired_at": "2026-08-26T22:59:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/prismic-event-sample.json"
+    },
+    {
+      "evidence_id": "ev-prismic-event-future-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A bounded, future-only, ordered sample query (document.type=\"event\" AND date.after(my.event.start_date,\"2026-08-26\"), orderings=[my.event.start_date], pageSize=5) — full raw response, byte-for-byte (11,539 bytes). Confirms 66 genuinely future events exist as of retrieval, and demonstrates the full per-record field shape (name/start_date/end_date/display_date/time/prix/ticket_link/category) used for this investigation's field_assessment and this venue's offline test fixture.",
+      "acquired_from": "https://pointf.cdn.prismic.io/api/v2/documents/search?ref=ao8RoxIAAC4A-spV&q=%5B%5Bat%28document.type%2C%22event%22%29%5D%5Bdate.after%28my.event.start_date%2C+%222026-08-26%22%29%5D%5D&orderings=%5Bmy.event.start_date%5D&pageSize=5",
+      "acquired_at": "2026-08-26T23:00:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/prismic-event-future-sample.json"
+    },
+    {
+      "evidence_id": "ev-nominatim-geocode",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A single, rate-limited, live Nominatim query for 'Point Éphémère, 200 Quai de Valmy, 75010 Paris' (countrycodes=fr), via ingestion/geocoding/nominatim.mjs's existing searchNominatimLive() export — full raw response, byte-for-byte. Two near-identical candidates returned (an amenity=pub node and an amenity=arts_centre node, ~15m apart), both named 'Le Point Ephémère' at house_number 200 / Quai de Valmy / postcode 75010 — a confident match; the first (higher-importance) candidate's coordinate was used.",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=Point+%C3%89ph%C3%A9m%C3%A8re%2C+200+Quai+de+Valmy%2C+75010+Paris&format=jsonv2&addressdetails=1&limit=3&countrycodes=fr",
+      "acquired_at": "2026-08-26T23:04:16Z",
+      "method": "ingestion/geocoding/nominatim.mjs's searchNominatimLive() (one-off node -e invocation, no permanent script)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/nominatim-geocode.json"
+    },
+    {
+      "evidence_id": "point-ephemere-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/point-ephemere.test.mjs) re-parsing this investigation's own retained fixture (fixtures/point-ephemere-paris/prismic-events-sample.json, copied verbatim from ev-prismic-event-future-sample) via the new ingestion/prismic-api/client.mjs + ingestion/point-ephemere/{discovery,observation-adapter}.mjs and reproducing the exact claimed field values deterministically. Run via `node --test tests/point-ephemere.test.mjs`: 5/5 passing.",
+      "acquired_from": "tests/point-ephemere.test.mjs",
+      "acquired_at": "2026-08-26T23:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/point-ephemere-paris-01/evidence/prismic-event-future-sample.json"
+    }
+  ],
+  "supersedes": null
+}

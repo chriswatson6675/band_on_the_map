@@ -1,0 +1,169 @@
+{
+  "investigation_id": "gaite-lyrique-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:50:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official /agenda/ page, then its own /agenda/concerts/ ('Musique') category-filtered page discovered via a static <a href> link on that same page. Every event card on both pages is static HTML carrying schema.org microdata attributes (itemprop=name/url, <meta itemprop=startDate>/<meta itemprop=endDate>) directly in the markup — no script execution needed to see any of it."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the venue's official agenda page (https://www.gaite-lyrique.net/agenda/) returned 29 static event cards, each carrying schema.org microdata (itemprop=name/url on the title link, <meta itemprop=startDate>/<meta itemprop=endDate>, an itemprop=location Place block for room-level events) directly in the HTML — no JSON-LD, Nuxt/Next payload, or wp-json endpoint was present or needed. The same page also links to a dedicated 'Musique' (/agenda/concerts/) category filter, fetched with the same method and found to expose 15 concert-tagged cards in the identical structured shape. Level 1 fully answered the investigation question; no escalation was needed.",
+      "evidence_refs": [
+        "ev-agenda-full",
+        "ev-agenda-concerts"
+      ]
+    }
+  ],
+  "source_candidate_id": "gaite-lyrique-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "La Gaîté Lyrique (multidisciplinary digital-culture/music venue, 3 bis rue Papin, 75003 Paris)",
+  "official_url": "https://www.gaite-lyrique.net/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-full"],
+    "notes": "The retained agenda page's own <title> reads 'Agenda | Gaîté Lyrique' at the venue's own domain gaite-lyrique.net (the task-given official site). No separate address microdata was found on the agenda listing itself, but the domain, branding, and content (Paris cultural/digital-arts programming) are self-consistent with the task-given identity; no third-party domain is involved."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom CMS (no WordPress/wp-json, Nuxt/__NUXT__, or Next/__NEXT_DATA__ signal detected anywhere in the retained pages). Event cards use schema.org MICRODATA (itemprop attributes) embedded directly in static server-rendered HTML, not JSON-LD script blocks — a different but equally structured, equally parseable pattern.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-full", "ev-agenda-concerts"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_MICRODATA",
+      "url": "https://www.gaite-lyrique.net/agenda/concerts/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_MICRODATA",
+      "url": "https://www.gaite-lyrique.net/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-full"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Wolfgang Voigt présente GAS Live",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's <h2 class=event-title itemprop=name><a ...>{title}</a></h2>, stated directly.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-23",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own <meta itemprop=startDate content=\"2026-09-23T19:30\">, stated directly.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30 (Europe/Paris, floating local — no explicit UTC offset on itemprop=startDate)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The same <meta itemprop=startDate> value carries a time-of-day but no timezone offset anywhere on the page — recorded honestly as FLOATING_LOCAL, matching the same certainty model already applied to other sources with unqualified local datetimes (e.g. Badehaus Berlin).",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Most concert cards' own <meta itemprop=endDate> repeats only the same calendar day as startDate with no time-of-day (e.g. startDate '2026-09-23T19:30', endDate '2026-09-23') — a date-only value, not a genuine performance end-time, the same honest distinction already drawn for Tempodrom Berlin's JSON-LD endDate. One sampled card ('Kiss Facility') does carry a genuine same-day end time (endDate '2026-10-07T23:30'), so this field is not uniformly NOT_PRESENT across the source — recorded PARTIAL rather than either extreme.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "La Gaîté Lyrique, 3 bis rue Papin, 75003 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This is a single-venue source: the entire retained page is this venue's own official agenda, and every listed event is this venue's own programme (the same 'resolve by source_id, not per-card restatement' judgement already documented for Badehaus Berlin/ingestion/badehaus/observation-adapter.mjs). Several cards additionally carry a per-room itemprop=location Place (e.g. 'Grande Salle', 'Grande galerie') naming a specific room WITHIN this same venue — retained as supplementary detail, not a different venue.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "wolfang-voigt-1",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric ID is exposed on the card; each event's own itemprop=url link is this source's own permanent '/agenda/2026/{slug}/' page, so the slug is used as source_record_id — the same documented judgement already established for moog-barcelona-01/LAV, tempodrom-berlin-01, and truskel-paris-01.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.gaite-lyrique.net/agenda/2026/wolfang-voigt-1/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own itemprop=url attribute on the title <a>, stated directly as an absolute URL.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price/tarif/€ text was found on any sampled concert card on the listing page itself; a per-event detail page fetch (wolfang-voigt-1) also showed none in the retained excerpt. Not ruled out on other individual event pages not sampled, but honestly NOT_PRESENT on this source's own list-page data path.",
+      "evidence_refs": ["ev-agenda-concerts"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-agenda-concerts", "gaite-lyrique-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity established at HIGH confidence from a self-consistent retained artifact (page title, official domain, content).",
+      "acquisition_class STATIC_HTML (schema.org microdata cards), a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED public data path retained: the venue's own /agenda/concerts/ ('Musique') category filter, exposing 15 concert cards directly in static HTML.",
+      "title, start_date, time, venue_location, source_record_id, and event_url all PROVEN with basis DIRECT_SOURCE.",
+      "end is honestly PARTIAL (most cards' endDate encodes only a calendar day, not a real end-time; one sampled card is a genuine exception) and price is honestly NOT_PRESENT on this data path — neither fabricated.",
+      "No existing collector family in this repository parses schema.org MICRODATA (itemprop attributes) directly embedded in static HTML — every existing family targets JSON-LD, ICS, RSS, or a JSON/REST API. recommended_family is therefore NEW_FAMILY_REQUIRED, distinct from (but structurally similar in spirit to) the existing JSON-LD family.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence now retained (tests/gaite-lyrique-paris.test.mjs), re-parsing the retained fixture via a new, small, source-agnostic microdata-card parser (ingestion/gaite-lyrique-paris/discovery.mjs) and reproducing the exact claimed field values deterministically.",
+      "No unresolved CRITICAL blocker. READY_FOR_ACTIVATION was deliberately not claimed; turning this into an enabled source is a separate, later, explicitly-authorised step outside this investigation's scope."
+    ],
+    "evidence_refs": ["ev-agenda-concerts", "gaite-lyrique-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-full",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's full official agenda page (https://www.gaite-lyrique.net/agenda/), retained byte-faithfully in full (126,283 bytes) — 29 static event cards spanning every programme category, plus the page's own seasonal closure notice ('Fermeture : Du lun. 03.08 au lun. 31.08', i.e. a routine annual August closure covering part of today's date, 2026-08-26 — no evidence anywhere on this or the concerts-filtered page of any longer 2025 closure or January 2026 reopening was found; only this routine seasonal closure is retained/evidenced).",
+      "acquired_from": "https://www.gaite-lyrique.net/agenda/",
+      "acquired_at": "2026-08-26T22:40:11Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gaite-lyrique-paris-01/evidence/agenda-full-raw.html"
+    },
+    {
+      "evidence_id": "ev-agenda-concerts",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own 'Musique' category-filtered agenda page (https://www.gaite-lyrique.net/agenda/concerts/), retained byte-faithfully in full (61,593 bytes) — 15 concert/DJ-set event cards, each with itemprop=name/url/startDate/endDate/location microdata.",
+      "acquired_from": "https://www.gaite-lyrique.net/agenda/concerts/",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/gaite-lyrique-paris-01/evidence/agenda-concerts-raw.html"
+    },
+    {
+      "evidence_id": "gaite-lyrique-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/gaite-lyrique-paris.test.mjs) re-parsing this investigation's own retained fixture via a new microdata-card parser (ingestion/gaite-lyrique-paris/discovery.mjs) and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/gaite-lyrique-paris.test.mjs",
+      "acquired_at": "2026-08-26T23:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/gaite-lyrique-paris-01/evidence/agenda-concerts-raw.html"
+    }
+  ],
+  "supersedes": null
+}

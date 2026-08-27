@@ -1,0 +1,217 @@
+{
+  "investigation_id": "badaboum-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:40:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official /agenda/ page, its homepage, two individual event detail pages, and (as a further passive check of a link the site's own head markup advertises) the site's public WordPress REST API single-post endpoint. The listing page carries no Event JSON-LD; each detail page embeds a genuinely structured, machine-readable 'google-event' data-attribute block (date+time, both start and end) that powers the page's own 'Add to Google Calendar' feature."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the official agenda page (https://badaboum.paris/agenda/) found a WordPress site with a custom 'evenement' post type, no calendar plugin, and no schema.org Event JSON-LD (its single JSON-LD block is Yoast SEO boilerplate: WebPage/BreadcrumbList/WebSite/Organization only). The page's own repeated static card markup states 39 real events with title, category tag, own detail-page URL, and a full French-language date (day+month+4-digit year) directly. Fetching two of those detail pages directly then each stated a genuinely structured, machine-readable calendar-data block (<div class=\"google-event\" data-date-start=... data-h-start=... data-date-end=... data-h-end=...>) giving an exact start+end date AND time-of-day — a strictly better data path than the list page's own date-only text. As a further passive check, the page's own <link rel='https://api.w.org/post'> head markup advertises a public WordPress REST API endpoint (wp-json/wp/v2/evenement/{id}); fetching it (still a plain, unauthenticated GET) showed it carries only WordPress's own post-management date/modified timestamps and a free-text 'content.rendered' blob — genuinely useful as corroborating text, but NOT a structured event date/time field, so it was inspected and explicitly rejected as this source's own primary data path (see data_paths). This fully answers the investigation question at Level 1; no structural/browser escalation was needed.",
+      "evidence_refs": ["ev-agenda", "ev-detail-summer-playground", "ev-detail-chick", "ev-homepage", "ev-wp-rest-single-event"]
+    }
+  ],
+  "source_candidate_id": "badaboum-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Badaboum (concert/club venue, 2 rue des Taillandiers, 75011 Paris)",
+  "official_url": "https://badaboum.paris/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda", "ev-homepage"],
+    "notes": "The retained agenda page's own JSON-LD 'Organization' block states name 'Badaboum' at the venue's own domain badaboum.paris. The retained homepage's own text directly states '2 Rue des Taillandiers 75011 Paris' — matching this task's assigned arrondissement/postcode. See venue_location below for an honest note on the exact house-number text ('2' vs. this task's '2 bis')."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress with a custom 'evenement' post type (confirmed via the page's own linked wp-json/wp/v2/evenement/{id} REST route). No calendar plugin, no schema.org Event JSON-LD (only Yoast SEO boilerplate). The list page states title+category+date-only text; each event's own detail page additionally embeds a genuinely structured, machine-readable <div class=\"google-event\" data-date-start data-date-end data-h-start data-h-end> block (used by the page's own front-end JS to power an 'Add to Google Calendar' link) — a real, complete, first-party start+end instant, not merely prose text. The site's own public REST API (wp-json/wp/v2/evenement/{id}) was inspected and found NOT to expose this structured date/time at all (only post-management date/modified timestamps and free-text content), so it is not used as this source's data path.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda", "ev-detail-summer-playground", "ev-wp-rest-single-event"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LISTING_PAGE",
+      "url": "https://badaboum.paris/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_STRUCTURED_CALENDAR_DATA",
+      "url": "https://badaboum.paris/evenement/club-summer-playground-18/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-summer-playground"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API",
+      "url": "https://badaboum.paris/wp-json/wp/v2/evenement/1712",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wp-rest-single-event"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Club — Area: Ocean b2b how2fly, Shake Daddy, dj try, Sensu",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each detail page's own <h1>, stated directly (corroborated by the list page's own <h2> card title).",
+      "evidence_refs": ["ev-detail-summer-playground", "ev-agenda"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-28",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each detail page's own machine-readable 'google-event' data-date-start attribute ('20260828'), stated directly — the same exact date is independently corroborated by the list page's own French-language card text ('28 août 2026').",
+      "evidence_refs": ["ev-detail-summer-playground", "ev-agenda"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "23:30 (floating local — no explicit UTC offset/timezone stated anywhere on the page)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each detail page's own 'google-event' data-h-start attribute ('233000'), stated directly. No timezone offset is stated anywhere sampled — recorded honestly as FLOATING_LOCAL.",
+      "evidence_refs": ["ev-detail-summer-playground"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-29T07:00 (floating local, next calendar day — a genuine overnight club-night end time, corroborated by the human-readable 'heure' text '23h30 - 07h00')",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each detail page's own 'google-event' data-date-end ('20260829') and data-h-end ('070000') attributes, stated directly — a genuinely complete end instant, unlike sources whose only 'end' field is an ambiguous last-calendar-day marker.",
+      "evidence_refs": ["ev-detail-summer-playground"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Badaboum, 2 Rue des Taillandiers, 75011 Paris",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Single-venue source. The venue's own retained homepage AND both sampled event detail pages' own rendered content consistently state '2 Rue des Taillandiers — 75011 Paris' (NO 'bis'). This investigation records the address EXACTLY as the source itself states it, honestly noting a discrepancy with this task's own assigned address ('2 bis rue des Taillandiers') — the source's own first-party text is treated as the governing fact here, per policy ('existing canonical/public data must not be mutated... merely to make parsing easier' cuts the other way too: an investigation must not silently reconcile a discrepancy by preferring an external brief over the source's own retained statement).",
+      "evidence_refs": ["ev-homepage", "ev-detail-summer-playground", "ev-detail-chick"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "club-summer-playground-18",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "No numeric id is exposed on the card itself (the WordPress post id, e.g. 1712, is only visible via the site's own linked REST API — see data_paths — not on the public-facing pages). Each card's own href is this source's own permanent '/evenement/{slug}/' WordPress permalink page, so the slug is used as source_record_id — the same documented judgement already accepted for badehaus-berlin/tempodrom-berlin/cafe-de-la-danse-paris/backstage-btm-paris.",
+      "evidence_refs": ["ev-agenda"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://badaboum.paris/evenement/club-summer-playground-18/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each card's own href, stated directly.",
+      "evidence_refs": ["ev-agenda"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No price value is ever printed on a card or its own detail page — only a booking link out to a third-party platform (Shotgun, confirmed on both sampled pages). No first-party price text exists to record (the WP REST API's own rendered content text separately states 'FREE ENTRANCE FROM 4:30AM' for this specific sampled event, a genuinely interesting first-party fact, but it is a conditional/partial free-entry window rather than a general price statement, and was not observed consistently formatted across other sampled events, so it is not promoted to a generalised PROVEN price field here).",
+      "evidence_refs": ["ev-detail-summer-playground", "ev-wp-rest-single-event"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda", "ev-detail-summer-playground", "badaboum-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (JSON-LD Organization name at the venue's own domain, homepage's own stated address matching this task's assigned arrondissement/postcode).",
+      "acquisition_class STATIC_HTML, a resolved/supported class, reached at Level 1 with no escalation needed.",
+      "CONFIRMED public data paths retained: the list page (39 real events) and detail pages (structured google-event calendar-data block for a genuinely complete start+end instant).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following the documented badehaus-berlin/tempodrom-berlin precedent.",
+      "end additionally PROVEN with basis DIRECT_SOURCE — a genuinely rare, complete first-party end-instant (both date and time), not merely a last-calendar-day placeholder.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, a known collector family in this project's vocabulary.",
+      "No unresolved CRITICAL or MINOR blocker — the site's own REST API was inspected, found not to carry structured date/time, and honestly rejected as a data path rather than silently ignored.",
+      "One honest discrepancy recorded, not silently resolved: the source's own retained text consistently states '2 Rue des Taillandiers' (no 'bis'), differing from this task's assigned '2 bis rue des Taillandiers' — the source's own first-party statement is used as the governing venue_location fact.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/badaboum.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline, including both the start AND end instant from the structured google-event block — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-agenda", "ev-detail-summer-playground", "badaboum-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official agenda listing page, full raw HTTP response body, byte-faithful.",
+      "acquired_from": "https://badaboum.paris/agenda/",
+      "acquired_at": "2026-08-26T23:25:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badaboum-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, full raw HTTP response body, byte-faithful — its own footer text directly states the venue's full postal address.",
+      "acquired_from": "https://badaboum.paris/",
+      "acquired_at": "2026-08-26T23:54:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badaboum-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-summer-playground",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled event detail page (Club Summer Playground 18), full raw HTTP response body, byte-faithful — the source of the structured google-event calendar-data block.",
+      "acquired_from": "https://badaboum.paris/evenement/club-summer-playground-18/",
+      "acquired_at": "2026-08-26T23:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badaboum-paris-01/evidence/detail-club-summer-playground-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-chick",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second sampled event detail page (Club LA CH!CK: 2006 · 2016 · 2026), full raw HTTP response body, byte-faithful — confirms the google-event markup pattern generalises across events.",
+      "acquired_from": "https://badaboum.paris/evenement/club-la-chck-2006-%c2%b7-2016-%c2%b7-2026/",
+      "acquired_at": "2026-08-26T23:57:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badaboum-paris-01/evidence/detail-chick-raw.html"
+    },
+    {
+      "evidence_id": "ev-wp-rest-single-event",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own linked public WordPress REST API single-post endpoint for the Club Summer Playground 18 event, full raw HTTP response body, byte-faithful — inspected and found to carry only post-management date/modified timestamps and free-text content, NOT a structured event date/time field; retained as evidence for the honest REJECTED data_paths entry.",
+      "acquired_from": "https://badaboum.paris/wp-json/wp/v2/evenement/1712",
+      "acquired_at": "2026-08-26T23:53:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, Accept: application/json, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/badaboum-paris-01/evidence/wp-rest-single-event.json"
+    },
+    {
+      "evidence_id": "badaboum-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/badaboum.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/badaboum-paris/) via the new bespoke ingestion/badaboum-paris/discovery.mjs + observation-adapter.mjs and reproducing every claimed field value deterministically, across two independent sampled detail pages.",
+      "acquired_from": "tests/badaboum.test.mjs",
+      "acquired_at": "2026-08-27T00:10:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/badaboum-paris-01/evidence/agenda-raw.html"
+    }
+  ],
+  "supersedes": null
+}

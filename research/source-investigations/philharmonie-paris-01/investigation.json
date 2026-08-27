@@ -1,0 +1,235 @@
+{
+  "investigation_id": "philharmonie-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official 'Next events in the Grande salle Pierre Boulez' calendar page found NO event data server-rendered at all — only hidden form inputs and a loading spinner around an empty '#agenda-events' container. Level 2 STRUCTURAL: identified the platform as Drupal with its JSON:API module enabled, enumerated every JSON:API resource type (no event/concert/seance resource exists among them), then inspected the page's own publicly-referenced Drupal-aggregated JS bundles and found the actual client-side AJAX call target ('/{lang}/agenda-ajax') and its 'place_i' venue-filter query parameter, cross-referenced against the calendar page's own JSON:API node representation (field_agd_places: ['45']). Querying that discovered endpoint directly (plain curl, no browser) returned real, correctly-scoped event data, and each event's own detail-page link carried a complete schema.org MusicEvent JSON-LD block."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://philharmoniedeparis.fr/en/calendar-selection/next-events-grande-salle-pierre-boulez returned a fully-formed page shell, but the actual event-list container is empty in the raw HTML (only hidden inputs like last_date/last_group/playlist and a spinner.gif) — the concert schedule is genuinely not present anywhere in the server-rendered response; it is injected by client-side JavaScript after page load.",
+      "evidence_refs": ["ev-calendar-page"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Identified the platform as Drupal (drupal-settings-json script, pdp_theme). Queried the site's own public JSON:API entrypoint (/jsonapi) and enumerated every exposed resource type: no event/concert/seance/programme content-type resource exists among them, and the one node type this page itself is built from ('node--filtered_agenda', id 982) has an empty 'field_agd_events' relationship — the actual concert schedule is not modelled as a JSON:API-exposed entity at all. Inspected this page's own publicly-referenced Drupal-aggregated JS bundles (linked directly from the page's own <script src>) and found the real client-side AJAX call: callbackURL = '/' + lang + '/agenda-ajax', with a 'place_i' query parameter built from checked '.filter-places' checkboxes. Cross-referencing the SAME node's own JSON:API 'field_agd_places' value (['45']) as a reasoned candidate for this exact page's own place filter, then issuing a direct, single curl GET of https://philharmoniedeparis.fr/en/agenda-ajax?place_i=45, returned a JSON response whose own '.content' HTML fragment contains dozens of real EventCard entries, 60/60 sampled venue-name mentions reading exactly 'Grande salle Pierre Boulez - Philharmonie' — confirming the parameter value. Each EventCard's own detail-page link (/en/activite/{eventId}?itemId={performanceId}) was then fetched directly and found to carry one complete, well-formed schema.org MusicEvent JSON-LD block (title, full ISO start/end instants with explicit UTC offsets, venue name+address, and priced ticket offers) — fully answering the investigation question with no browser/headless observation needed at any point.",
+      "evidence_refs": ["ev-jsonapi-root", "ev-node-982-filtered-agenda", "ev-js-bundle-agenda-ajax", "ev-agenda-ajax-place45", "ev-detail-gogopenguin"]
+    }
+  ],
+  "source_candidate_id": "philharmonie-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Philharmonie de Paris — Grande Salle Pierre Boulez, 221 Avenue Jean-Jaurès, 75019 Paris",
+  "official_url": "https://philharmoniedeparis.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-calendar-page", "ev-detail-gogopenguin"],
+    "notes": "The retained calendar page's own <title> reads 'Next events in the Grande salle Pierre Boulez | Philharmonie de Paris' at the venue's own domain philharmoniedeparis.fr. The detail page's own JSON-LD 'organizer' field directly states name 'Cité de la musique – Philharmonie de Paris', url 'https://philharmoniedeparis.fr', and a PostalAddress ('221, avenue Jean-Jaurès', 75019, Paris) matching the given venue address exactly; the same JSON-LD's own 'location' (MusicVenue) states name 'Grande salle Pierre Boulez - Philharmonie' with the identical street address."
+  },
+  "site_classification": {
+    "acquisition_class": "SPA_API_DISCOVERABLE",
+    "platform": "Drupal (JSON:API module enabled, but no event/concert/seance content-type resource is exposed through it — the actual schedule is fetched client-side via a bespoke, non-JSON:API controller endpoint, '/{lang}/agenda-ajax', discovered via the site's own public Drupal-aggregated JS bundle rather than any documented API). That endpoint returns a JSON wrapper whose own '.content' field is an HTML fragment of EventCard entries, each carrying a stable numeric event/performance id pair (data-event-eid/data-performance-eid) and a Unix-epoch start timestamp (data-timestamp) directly as HTML attributes; each EventCard's own detail-page link then carries a complete, well-formed schema.org MusicEvent JSON-LD block.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-js-bundle-agenda-ajax", "ev-agenda-ajax-place45", "ev-detail-gogopenguin"]
+  },
+  "data_paths": [
+    {
+      "kind": "AGENDA_AJAX_JSON_HTML_FRAGMENT_ENDPOINT",
+      "url": "https://philharmoniedeparis.fr/en/agenda-ajax?place_i=45",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-js-bundle-agenda-ajax", "ev-agenda-ajax-place45"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://philharmoniedeparis.fr/en/activite/30097?itemId=149058",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-gogopenguin"]
+    },
+    {
+      "kind": "JSONAPI_ENTRYPOINT",
+      "url": "https://philharmoniedeparis.fr/jsonapi",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-jsonapi-root", "ev-node-982-filtered-agenda"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "GoGo Penguin",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own JSON-LD MusicEvent 'name' field, stated directly, cross-checked identical against the same event's own 'EventCard-title' text in the agenda-ajax response.",
+      "evidence_refs": ["ev-detail-gogopenguin", "ev-agenda-ajax-place45"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-30",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own JSON-LD MusicEvent 'startDate' field ('2026-08-30T19:00:00+02:00'), stated directly. Cross-checked against the SAME event's own 'data-timestamp' HTML attribute in the agenda-ajax response (1788109200 Unix epoch seconds), which converts to the identical instant (2026-08-30T17:00:00Z = 2026-08-30T19:00:00+02:00) — two independently-retained first-party representations agreeing exactly.",
+      "evidence_refs": ["ev-detail-gogopenguin", "ev-agenda-ajax-place45"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00+02:00 (explicit UTC offset present on the source's own JSON-LD field)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Same JSON-LD 'startDate' field as start_date — a full ISO 8601 instant with an explicit numeric UTC offset.",
+      "evidence_refs": ["ev-detail-gogopenguin"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-30T21:45:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own JSON-LD MusicEvent 'endDate' field, stated directly as a full ISO 8601 instant with explicit UTC offset — a genuine performance-end instant (2h45 after the 19:00 start), unlike Tempodrom Berlin's own JSON-LD 'endDate' (which meant 'last calendar day of a possibly multi-day run').",
+      "evidence_refs": ["ev-detail-gogopenguin"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Grande salle Pierre Boulez - Philharmonie, 221 avenue Jean-Jaurès, 75019 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own JSON-LD MusicEvent 'location' (MusicVenue) field states both name and full street address directly, cross-checked identical against the agenda-ajax EventCard's own 'EventCard-place' text ('Grande salle Pierre Boulez - Philharmonie').",
+      "evidence_refs": ["ev-detail-gogopenguin", "ev-agenda-ajax-place45"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "event-eid:30097/performance-eid:149058",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The agenda-ajax EventCard's own '<article data-event-eid=\"30097\" data-performance-eid=\"149058\">' HTML attributes, stated directly. The performance-eid distinguishes this specific scheduled performance from other performances of the same production (data-event-eid), matching the same per-occurrence-identity judgement already established for theatre-de-la-ville-paris-01's own event_dates split.",
+      "evidence_refs": ["ev-agenda-ajax-place45"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://philharmoniedeparis.fr/en/activite/30097?itemId=149058",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The agenda-ajax EventCard's own detail-page href ('/en/activite/30097?itemId=149058'), stated directly, resolved against the site's own known base origin.",
+      "evidence_refs": ["ev-agenda-ajax-place45"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "45.00 EUR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own JSON-LD MusicEvent 'offers' array (4 Offer entries: 45.00/35.00/30.00/45.00 EUR across different availability/category tiers) directly states a price on its first entry. This investigation records the FIRST directly-stated offer price (matching the existing, unmodified ingestion/json-ld/observation-adapter.mjs's own offerPriceText() behaviour, reused unchanged for this source) rather than computing a min/max range, so the claimed value exactly matches what the recommended collector family actually produces.",
+      "evidence_refs": ["ev-detail-gogopenguin"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-detail-gogopenguin", "philharmonie-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This source's own real detail-page JSON-LD contains literal, unescaped C0 control characters (raw newlines) inside string values (observed inside the MusicEvent's own multi-paragraph 'description' field) — valid-LOOKING JSON-LD, but not valid per the JSON spec, so the EXISTING ingestion/json-ld/parse.mjs's extractJsonLdNodes() (which calls JSON.parse(raw) directly) silently fails to parse it (0 nodes extracted, not an error, since that function already tolerates per-block parse failures by design). The exact, minimal, backward-compatible fix needed in that SHARED module (not made here, per this project's convention that an investigation must not edit shared generic collector modules itself): before JSON.parse(raw), strip/replace characters in the U+0000-U+001F control range from `raw`. This is strictly additive — no currently-passing JSON-LD source in this repository is known to contain literal control characters inside its own JSON-LD, so no existing behaviour changes. Until that shared fix lands, ingestion/philharmonie-paris/discovery.mjs carries its OWN local sanitizing wrapper (sanitiseJsonLdControlCharacters()) that pre-cleans retained HTML before delegating to the UNMODIFIED shared extractEventNodes()/normaliseJsonLdEvent()."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The 'place_i=45' query-parameter value for Grande Salle Pierre Boulez was established by cross-referencing this exact calendar page's own JSON:API 'field_agd_places' value against the query-parameter name discovered in the site's own JS bundle, then confirming empirically (60/60 sampled venue-name mentions in the response body read 'Grande salle Pierre Boulez - Philharmonie', 0 mismatches) — not from any documented site mapping. A future internal id change by the operator could silently break this without any public notice; worth monitoring in a live collector (e.g. asserting the returned venue-name text still matches on every run), not a blocker to activation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status PROVEN from a self-consistent retained artifact (calendar page title, detail page's own JSON-LD organizer/location matching the given venue address exactly).",
+      "acquisition_class SPA_API_DISCOVERABLE, a resolved supported class, reached at Level 2 (STRUCTURAL) after Level 1 was genuinely retained as INSUFFICIENT (the calendar page's raw HTML server-renders no event data at all).",
+      "CONFIRMED public data paths retained for the discovered agenda-ajax endpoint (correctly scoped to this exact hall) and a detail page carrying complete JSON-LD.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, independently cross-checked between the JSON-LD detail page and the agenda-ajax EventCard's own Unix-epoch timestamp attribute.",
+      "source_record_id PROVEN via the site's own stable event-id/performance-id attribute pair, directly present on every EventCard.",
+      "end, venue_location, event_url, and price all additionally PROVEN — a genuinely complete field set from a single, well-formed schema.org MusicEvent JSON-LD block per event.",
+      "recommended_family JSON_LD, reusing TWO existing generic families unchanged (ingestion/html-link-discovery/'s extractLinksMatching() to discover detail links inside the agenda-ajax response's own HTML fragment, and ingestion/json-ld/'s extractEventNodes()/normaliseJsonLdEvent()/toObservation() to parse each detail page) behind one small, local, non-shared sanitisation step for this source's own literal-control-character JSON-LD — classified PARIS_EXISTING_FAMILY_WITH_SMALL_FIX (see collector_assessment.blockers for the exact shared-module fix this recommends, not made here).",
+      "No unresolved CRITICAL blocker (two MINOR notes recorded: the shared-parser control-character tolerance this source needs, and the empirically-confirmed-but-undocumented place_i mapping).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/philharmonie-paris.test.mjs, run offline against the retained ev-agenda-ajax-place45-bounded.json / ev-detail-gogopenguin-excerpt.html fixtures) — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-detail-gogopenguin", "ev-agenda-ajax-place45", "philharmonie-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-calendar-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official 'Next events in the Grande salle Pierre Boulez' calendar page. Original response was 63,815 bytes; this file retains a bounded, disclosed excerpt: the <title>, the page's own drupal-settings-json script (proves node/982, Drupal, pdp_theme), the block of hidden form inputs around the empty client-rendered event-list container (proves no event data is server-rendered), and the list of Drupal-aggregated JS bundle <script src> URLs the page itself references.",
+      "acquired_from": "https://philharmoniedeparis.fr/en/calendar-selection/next-events-grande-salle-pierre-boulez",
+      "acquired_at": "2026-08-26T22:44:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain HTTP GET, no authentication, no browser); response then bounded to the fields described above, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-calendar-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-jsonapi-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the Drupal JSON:API entrypoint document, retaining its own 'jsonapi' meta block plus the FULL, deduplicated, sorted list of every resource-type link it exposes (originally 55,412 bytes of link objects; every resource TYPE NAME is retained, only the repeated boilerplate link-object wrapper around each is dropped) — used to prove no event/concert/seance/programme content-type resource exists among them.",
+      "acquired_from": "https://philharmoniedeparis.fr/jsonapi",
+      "acquired_at": "2026-08-26T22:43:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then reduced to the resource-type name list, disclosed in this description",
+      "content_type": "application/vnd.api+json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-jsonapi-root-bounded.json"
+    },
+    {
+      "evidence_id": "ev-node-982-filtered-agenda",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full, unabridged JSON:API representation of node 982 (the exact 'filtered_agenda' page this investigation targets), retrieved by filtering the public node--filtered_agenda collection on drupal_internal__nid=982. Shows 'field_agd_places': ['45'] (the place-filter value this investigation cross-referenced against the JS bundle's own 'place_i' parameter) and an EMPTY 'field_agd_events' relationship (proving the actual schedule is not stored as node-referenced content on this page).",
+      "acquired_from": "https://philharmoniedeparis.fr/jsonapi/node/filtered_agenda?filter[drupal_internal__nid]=982",
+      "acquired_at": "2026-08-26T22:48:00Z",
+      "method": "curl -sL -g -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/vnd.api+json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-node-982-filtered-agenda.json"
+    },
+    {
+      "evidence_id": "ev-js-bundle-agenda-ajax",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of a Drupal-aggregated JS bundle DIRECTLY referenced by ev-calendar-page's own <script src>: the loadEvents() function body (constructs callbackURL = '/' + lang + '/agenda-ajax', then $.get(callbackURL+urls.urlAjax, ...) and injects the JSON response's own '.content' HTML fragment into #agenda-events) and the '.filter-places' checkbox-to-query-parameter construction snippet (push('place_i='+place)) — this is the exact retained evidence the 'place_i' parameter name and the '/agenda-ajax' endpoint path were discovered from. Original file is 134,874 bytes, minified, containing many unrelated Drupal behaviors.",
+      "acquired_from": "https://philharmoniedeparis.fr/sites/default/files/js/js_t7MsB2NZ9hExy_TUlDDhWF8lFW7CSzvpY6fjd5rM4lE.js",
+      "acquired_at": "2026-08-26T22:47:00Z",
+      "method": "curl -s -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then bounded to the two functions described above, disclosed in this description",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-js-bundle-agenda-ajax-excerpt.js"
+    },
+    {
+      "evidence_id": "ev-agenda-ajax-place45",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the discovered endpoint's own live response: the JSON wrapper's top-level keys/counts retained whole (nbEvents: '209 results' for this hall across the full future window sampled), plus the FIRST 4 raw <article> EventCard blocks from its own '.content' HTML fragment, verbatim — demonstrating the exact retained field shape (data-event-eid, data-performance-eid, data-timestamp Unix epoch seconds, EventCard-title, EventCard-place, and the /en/activite/{eventId}?itemId={performanceId} detail link). Original response was 405,759 bytes covering ~50 EventCard blocks per page (paginated).",
+      "acquired_from": "https://philharmoniedeparis.fr/en/agenda-ajax?place_i=45",
+      "acquired_at": "2026-08-26T22:49:45Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" -H \"X-Requested-With: XMLHttpRequest\"; response then bounded to the fields described above, disclosed in this description",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-agenda-ajax-place45-bounded.json"
+    },
+    {
+      "evidence_id": "ev-detail-gogopenguin",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The detail page for the first EventCard discovered above (GoGo Penguin, event-eid 30097, performance-eid 149058). Original response was 86,196 bytes; this file retains a bounded, disclosed excerpt: the <title> and the page's own single <script type=application/ld+json> block, RAW/VERBATIM including its literal, unescaped control characters inside string values (the exact byte sequence documented in collector_assessment.blockers) — a complete schema.org MusicEvent with startDate/endDate/location/offers/performer/organizer.",
+      "acquired_from": "https://philharmoniedeparis.fr/en/activite/30097?itemId=149058",
+      "acquired_at": "2026-08-26T22:52:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then bounded to <title> + the JSON-LD block, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-detail-gogopenguin-excerpt.html"
+    },
+    {
+      "evidence_id": "philharmonie-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/philharmonie-paris.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/philharmonie-paris/) via ingestion/philharmonie-paris/discovery.mjs + observation-adapter.mjs — which itself reuses the EXISTING, UNMODIFIED ingestion/html-link-discovery/ and ingestion/json-ld/ families behind one local, non-shared control-character sanitisation step — and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/philharmonie-paris.test.mjs",
+      "acquired_at": "2026-08-26T23:25:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/philharmonie-paris-01/evidence/ev-detail-gogopenguin-excerpt.html"
+    }
+  ],
+  "supersedes": null
+}

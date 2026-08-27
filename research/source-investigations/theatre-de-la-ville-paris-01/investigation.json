@@ -1,0 +1,247 @@
+{
+  "investigation_id": "theatre-de-la-ville-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (curl, descriptive User-Agent, no authentication, no browser/JS) against the venue's own official homepage found only schema.org Article JSON-LD (blog/interview posts), no Event/MusicEvent data. Level 2 STRUCTURAL: the response's own X-Powered-By header named 'Roadiz CMS' and its Content-Security-Policy header referenced 'theatredelaville-paris.notre-billetterie.com'; a direct, reasoned probe of api.theatredelaville-paris.com (the operator's own API subdomain, a documented Roadiz/API-Platform convention) returned a Hydra JSON-LD API entrypoint document listing '/events', '/event_dates', '/seasons', and '/taxons' collections — all public, unauthenticated, plain HTTP GET."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://www.theatredelaville-paris.com/fr returned 4 <script type=\"application/ld+json\"> blocks, but every one is schema.org 'Article' (blog/interview posts under 'Théâtre sans frontières'), not Event/MusicEvent — no structured event data is exposed on the homepage itself.",
+      "evidence_refs": ["ev-homepage"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "The homepage's own response headers (X-Powered-By: Roadiz CMS; CSP referencing theatredelaville-paris.notre-billetterie.com) identified the platform. A direct probe of api.theatredelaville-paris.com (the operator's own separately-hosted API subdomain) returned a Hydra/API-Platform JSON-LD entrypoint document exposing public, unauthenticated '/events', '/event_dates', '/seasons', and '/taxons' collections. Querying these directly (GET /events?mainCategory=/taxons/63 for the site's own 'Musiques' taxonomy, GET /event_dates?event=/events/2449 for one specific music event) returned complete, first-party event records: title, full ISO start/end instants with explicit UTC offsets, venue/hall name, price range, and a stable per-performance resource ID — fully answering the investigation question with no further escalation needed.",
+      "evidence_refs": ["ev-api-root", "ev-api-event-abdullah", "ev-api-eventdates-abdullah", "ev-api-taxons"]
+    }
+  ],
+  "source_candidate_id": "theatre-de-la-ville-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Théâtre de la Ville — Sarah Bernhardt hall, 2 place du Châtelet, 75004 Paris, and its sister hall Théâtre des Abbesses, 31 rue des Abbesses, 75018 Paris — same operator, treated as one Venue entity for this pass (see identity.notes)",
+  "official_url": "https://www.theatredelaville-paris.com/fr",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-api-event-abdullah", "ev-api-eventdates-abdullah"],
+    "notes": "The retained homepage's own <title> reads 'Théâtre de la Ville, Théâtre des Abbesses - Paris' at the venue's own domain theatredelaville-paris.com, explicitly naming BOTH halls as one operator. The API's own event_dates record for a sampled event states place.name 'TDV-Sarah Bernhardt_Grande salle' (place slug 'tdv-sarah-bernhardt-grande-salle') — the API's own place-entity naming convention prefixes every place with 'TDV-' (Théâtre de la Ville), confirming both the Sarah Bernhardt hall and the Abbesses hall are modeled as places WITHIN one single operator/API instance, not two separate sources. This pass treats them as one canonical Venue entity per the task brief; no evidence was found requiring two separate Venue records."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "Roadiz CMS (public-facing site) backed by a separate api.theatredelaville-paris.com API-Platform (Symfony) instance exposing a Hydra/JSON-LD REST API — NOT the same thing as embedded <script type=application/ld+json> markup on an HTML page (ingestion/json-ld/'s existing family); this is a genuine, documented, paginated JSON REST API with its own /events, /event_dates, /seasons, /taxons collections.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-api-root", "ev-api-event-abdullah", "ev-api-eventdates-abdullah", "ev-api-taxons"]
+  },
+  "data_paths": [
+    {
+      "kind": "EVENTS_COLLECTION_JSON_API",
+      "url": "https://api.theatredelaville-paris.com/events?mainCategory=%2Ftaxons%2F63",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-events-music-listing"]
+    },
+    {
+      "kind": "EVENT_DATES_COLLECTION_JSON_API",
+      "url": "https://api.theatredelaville-paris.com/event_dates?event=%2Fevents%2F2449",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-eventdates-abdullah"]
+    },
+    {
+      "kind": "TAXONOMY_COLLECTION_JSON_API",
+      "url": "https://api.theatredelaville-paris.com/taxons",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-api-taxons"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "ABDULLAH MINIAWY",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The API's own /events/{id}.name field, stated directly, cross-checked identical on the /event_dates record for the same event.",
+      "evidence_refs": ["ev-api-event-abdullah", "ev-api-eventdates-abdullah"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-04",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The API's own /event_dates/{id}.doorTime field ('2026-10-04T15:00:00+02:00'), stated directly. Naming caveat (honesty, not fabrication): the field is literally named 'doorTime', but cross-checking the SAME record's own 'arrayDates' ([\"2026-10-04T15:00:00+02:00\"]), 'sortingDateTime' (identical value), and 'humanHours' (['15:00']) confirms this source's own 'doorTime' field is actually used as the performance start instant for this event, not a separate earlier door-opening time — this source does not appear to model door-time and performance-start as genuinely distinct concepts on this record.",
+      "evidence_refs": ["ev-api-eventdates-abdullah"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "15:00+02:00 (explicit UTC offset present on the source's own field)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Same field as start_date ('doorTime': '2026-10-04T15:00:00+02:00') — a full ISO 8601 instant with an explicit numeric UTC offset, not a floating local value.",
+      "evidence_refs": ["ev-api-eventdates-abdullah"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-10-04T16:30:00+02:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The API's own /event_dates/{id}.endDate field, stated directly as a full ISO 8601 instant with explicit UTC offset. Cross-checked consistent with the same record's own 'duration' field ('01:30:00') and the parent event's own 'duration' ('01:30'): 15:00 + 1h30 = 16:30. Unlike Tempodrom Berlin's own JSON-LD 'endDate' (which was found to mean 'last calendar day of a possibly multi-day run', not a performance end-time), this source's 'event_dates.endDate' is a genuine performance-end instant.",
+      "evidence_refs": ["ev-api-eventdates-abdullah"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "TDV-Sarah Bernhardt_Grande salle (Théâtre de la Ville, Sarah Bernhardt hall)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The API's own /event_dates/{id}.place.name field, stated directly ('TDV-Sarah Bernhardt_Grande salle', slug 'tdv-sarah-bernhardt-grande-salle'). This is a distinguishing per-hall place entity within the single operator's own API — a future collector run against the Abbesses hall would see a differently-named/slugged place entity from the SAME API instance, not a separate source.",
+      "evidence_refs": ["ev-api-eventdates-abdullah"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "/event_dates/9332",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The API's own Hydra '@id' for this specific performance-instance resource ('/event_dates/9332'), a persistent API-Platform database entity identifier — distinct from the parent production's own '/events/2449' id, which would be shared across multiple performance dates of the same production. This is the correct per-occurrence identifier (an /events id alone would not distinguish repeated performances of the same production).",
+      "evidence_refs": ["ev-api-eventdates-abdullah"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.theatredelaville-paris.com/fr/spectacles/saison-26-27/musiques/abdullah-miniawy-1",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The API itself returns no 'url' field on the event/event_date record. The venue's own rendered HTML navigation was separately retained (ev-musiques-season-2627-links.txt) and contains the exact relative href '/fr/spectacles/saison-26-27/musiques/abdullah-miniawy-1' for this same event (matched by its own 'slug' field, 'abdullah-miniawy-1', which IS directly returned by the API). Resolving that retained relative href against the site's own known base origin (https://www.theatredelaville-paris.com, from ev-homepage) is standard, mechanical URL resolution, not inference.",
+      "evidence_refs": ["ev-musiques-season-2627-links.txt", "ev-homepage"],
+      "derivation": {
+        "rule": "absolute event_url = base origin + relative href, via standard URL relative-resolution; the relative href is the site's own rendered navigation link for this exact event (matched by the API's own 'slug' field)",
+        "inputs": ["https://www.theatredelaville-paris.com", "/fr/spectacles/saison-26-27/musiques/abdullah-miniawy-1"]
+      }
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "De 5 € à 25 €",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The API's own /events/{id}.priceRange field, stated directly.",
+      "evidence_refs": ["ev-api-event-abdullah"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-api-event-abdullah", "ev-api-eventdates-abdullah", "theatre-de-la-ville-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "A production run must paginate the full /events?mainCategory=/taxons/63 collection (19 pages as of this investigation) and issue one further /event_dates?event=/events/{id} request per music event to obtain actual performance instances/dates — no single request returns the full upcoming music schedule at once, unlike e.g. tempodrom-berlin-01's single-page JSON-LD array. Not a blocker to activation, but material to the collector's own request-volume design (rate/backoff, and skipping cancelled=true event_dates)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "identity.status PROVEN from a self-consistent retained artifact (homepage title naming both halls, API place-entity naming convention).",
+      "acquisition_class PUBLIC_JSON_API, a resolved supported class, reached at Level 2 (STRUCTURAL) after Level 1 was genuinely retained as INSUFFICIENT.",
+      "A CONFIRMED public data path retained for events, event_dates, and taxons collections.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the API's own persistent per-performance Hydra resource ID.",
+      "end, venue_location, event_url, and price all additionally PROVEN — a genuinely complete field set, including a real performance end-time (unlike most JSON-LD-only sources already investigated in prior trials).",
+      "recommended_family JSON_API with bespoke per-venue discovery/adapter code (ingestion/theatre-de-la-ville/), since no existing generic module in this repository models this Hydra events+event_dates split-entity shape — classified PARIS_BESPOKE.",
+      "No unresolved CRITICAL blocker (one MINOR note recorded about pagination/request volume).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/theatre-de-la-ville.test.mjs, run offline against the retained ev-api-event-abdullah-miniawy.json / ev-api-eventdates-abdullah-miniawy.json fixtures) — gate 9/v1.2 satisfied.",
+      "The Musiques taxonomy (id 63) alone carries 279 events across this source's full history and at least 13 distinct works already listed for the current 2026-27 season (ev-musiques-season-2627-links.txt) — this is a genuine, substantive, recurring world/chamber/contemporary-music programme (Abdullah Miniawy, Ballaké Sissoko, Marja Mortensson, Jennifer Walshe/Ensemble Contrechamps, Le Sankyoku, etc.), not a generalist theatre with one incidental concert."
+    ],
+    "evidence_refs": ["ev-api-event-abdullah", "ev-api-eventdates-abdullah", "ev-musiques-season-2627-links.txt", "theatre-de-la-ville-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage. Original response was 325,833 bytes (nav/CSS/hundreds of programme links); this file retains a bounded, disclosed excerpt: the <title>, all 4 <script type=application/ld+json> blocks (all schema.org Article, not Event), and every distinct programme/season/spectacle-relevant href discovered on the page.",
+      "acquired_from": "https://www.theatredelaville-paris.com/fr",
+      "acquired_at": "2026-08-26T22:38:40Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\" (plain HTTP GET, no authentication, no browser); response then bounded to the fields described above, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-homepage-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-api-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The API's own Hydra entrypoint document (444 bytes, retained whole), listing every public collection this API-Platform instance exposes, including 'event', 'eventDate', 'season', 'taxon'.",
+      "acquired_from": "https://api.theatredelaville-paris.com/",
+      "acquired_at": "2026-08-26T22:43:36Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/ld+json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-api-root.json"
+    },
+    {
+      "evidence_id": "ev-api-event-abdullah",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One complete, unabridged /events/{id} record for a real, currently-listed music event (ABDULLAH MINIAWY, saison-26-27, mainCategory Musiques), retrieved by filtering the public collection on this event's own slug.",
+      "acquired_from": "https://api.theatredelaville-paris.com/events?slug=abdullah-miniawy-1",
+      "acquired_at": "2026-08-26T22:45:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/ld+json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-api-event-abdullah-miniawy.json"
+    },
+    {
+      "evidence_id": "ev-api-eventdates-abdullah",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One complete, unabridged /event_dates record for the same event's single performance instance — doorTime/endDate/place/offerUrl/duration all directly present.",
+      "acquired_from": "https://api.theatredelaville-paris.com/event_dates?event=%2Fevents%2F2449",
+      "acquired_at": "2026-08-26T22:46:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/ld+json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-api-eventdates-abdullah-miniawy.json"
+    },
+    {
+      "evidence_id": "ev-api-taxons",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The full first page of the public /taxons collection (retained whole), confirming a 'Musiques' (slug 'musiques', id 63) top-level category exists alongside Théâtre/Danse/Rencontre, plus a sub-taxon 'Musique du monde' — used to build the events?mainCategory= query.",
+      "acquired_from": "https://api.theatredelaville-paris.com/taxons?page=1",
+      "acquired_at": "2026-08-26T22:44:30Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"",
+      "content_type": "application/ld+json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-api-taxons.json"
+    },
+    {
+      "evidence_id": "ev-api-events-music-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded excerpt of the public /events?mainCategory=/taxons/63&page=1 collection response: full hydra:totalItems (279)/hydra:view metadata retained verbatim, plus a reduced per-record summary (slug/name/season/humanDates/humanHours/priceRange/cancelled) for the 15 records on this page — used to establish that Musiques is a genuine, substantial recurring category, not a one-off. See ev-api-event-abdullah-miniawy.json for one complete, unabridged member object from a filtered query.",
+      "acquired_from": "https://api.theatredelaville-paris.com/events?mainCategory=%2Ftaxons%2F63&page=1",
+      "acquired_at": "2026-08-26T22:47:30Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; response then reduced to the fields described above, disclosed in this description",
+      "content_type": "application/ld+json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-api-events-music-listing.json"
+    },
+    {
+      "evidence_id": "ev-musiques-season-2627-links.txt",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Every distinct /fr/spectacles/saison-26-27/musiques/{slug} href discovered on the venue's own rendered 'Musiques' season-programme HTML page (13 distinct works currently listed for the 2026-27 season) — used both to prove the Musiques season programme is genuinely populated, and as the retained first-party artifact event_url's DETERMINISTIC_CONTEXT derivation cites.",
+      "acquired_from": "https://www.theatredelaville-paris.com/fr/spectacles/saison-26-27/musiques",
+      "acquired_at": "2026-08-26T22:41:00Z",
+      "method": "curl -sL -A \"BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)\"; hrefs extracted and deduplicated, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-musiques-season-2627-links.txt"
+    },
+    {
+      "evidence_id": "theatre-de-la-ville-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/theatre-de-la-ville.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/theatre-de-la-ville-paris/) via ingestion/theatre-de-la-ville/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/theatre-de-la-ville.test.mjs",
+      "acquired_at": "2026-08-26T23:05:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/theatre-de-la-ville-paris-01/evidence/ev-api-eventdates-abdullah-miniawy.json"
+    }
+  ],
+  "supersedes": null
+}

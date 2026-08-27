@@ -1,0 +1,167 @@
+{
+  "investigation_id": "alhambra-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T14:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own homepage (which structurally serves as the full programmation listing — the nav's 'Programmation' link resolves to a same-page anchor, not a separate URL) and one linked event detail page."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.alhambra-paris.com/ immediately exposed 45 individual event links directly in the homepage markup (each 'TITLE-lo<numeric-id>.html' — a custom/proprietary platform, confirmed by '?goreservation=rodrigue' query params elsewhere on the page, i.e. the 'Rodrigue' French venue box-office/reservation system — not a recognised off-the-shelf CMS). A second plain GET of one linked detail page (kaarija-lo4380.html) confirmed title, a full unambiguous date ('VENDREDI 16 OCTOBRE 2026'), a start time, a venue name, and a price, all directly in static HTML text — no escalation needed.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail"]
+    }
+  ],
+  "source_candidate_id": "alhambra-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Alhambra (Théâtre Music-Hall, 21 rue Yves Toudic, 75010 Paris)",
+  "official_url": "https://www.alhambra-paris.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-detail"],
+    "notes": "Retained homepage's own <title> reads 'Spectacles & Concerts à l'Alhambra' at the venue's own domain alhambra-paris.com. The event detail page's own header block states 'Alhambra / Théâtre Music-Hall / 21 rue Yves Toudic / 75010 PARIS / 01 40 20 40 25', matching the venue's known address, and every asset is self-hosted under /files/125/. The homepage itself displays a banner stating a new site is in preparation ('Notre nouveau site est en préparation. À très bientôt.') — noted honestly as an operational-durability caveat, not an identity concern."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom/proprietary legacy platform — no WordPress/Webflow/wp-json/wp-content signal detected anywhere sampled. Individual event pages follow the site's own '<slug>-lo<numeric-id>.html' scheme and category listing pages follow '<category>-loc<numeric-id>.html'; ticketing/reservation is integrated via the 'Rodrigue' box-office system ('?goreservation=rodrigue' query parameters observed on the homepage). No schema.org JSON-LD is present anywhere sampled; all data is plain static HTML.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.alhambra-paris.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-homepage"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.alhambra-paris.com/kaarija-lo4380.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "KÄÄRIJÄ",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The homepage's own <a href='kaarija-lo4380.html'>KÄÄRIJÄ</a> link text (title and href co-occur inside the same anchor tag, so this pairing carries none of the ordering hazard described under start_date below), confirmed identical on the event's own detail page heading.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-16",
+      "basis": "DIRECT_SOURCE",
+      "notes": "IMPORTANT STRUCTURAL HAZARD FOUND AND RETAINED: this value is taken from the event's OWN detail page only ('VENDREDI 16 OCTOBRE 2026' in the hero badge, plus body text 'le 16 octobre 2026' — both first-party and mutually consistent), NOT from the homepage's own linear card ordering. A naive extraction of the homepage alone would pair each <strong>WEEKDAY DD MONTH YYYY</strong> paragraph with the NEXT event link that follows it in raw document order, because each card's date/status footer is emitted after its own title+image but before the following card's title begins — this was empirically caught: a naive homepage-only extraction paired 'MERCREDI 14 OCTOBRE 2026' with Kaarija, which contradicts Kaarija's own detail page ('VENDREDI 16 OCTOBRE 2026'). A mechanical calendar-weekday check (a fixed, reproducible Gregorian weekday computation, not model judgement) confirms 2026-10-16 is genuinely a Friday (matching 'VENDREDI') while 2026-10-14 is a Wednesday (matching 'MERCREDI', but for a DIFFERENT event's own true date, not Kaarija's) — consistent with each date paragraph actually describing the PRECEDING card, not the following one, in this theme's markup order. Because of this demonstrated hazard, this investigation treats the homepage as reliable ONLY for title+href link discovery, and treats each event's own detail page as the sole authority for start_date.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00 concert start (Europe/Paris floating local); doors open 1 hour earlier per the same source sentence",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page directly states 'Ouverture des portes au public une heure avant le début du concert (19h)' — both the door-opening rule and the explicit 19h start are stated in the same sentence. No UTC offset or IANA timezone is stated anywhere, so this stays FLOATING_LOCAL, never upgraded to a UTC instant.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is stated anywhere on either sampled page.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Alhambra, 21 rue Yves Toudic, 75010 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own detail page states 'ALHAMBRA' directly inside its per-event ticket-info block (immediately above the event's own date badge), and the same page's persistent header block states the full address 'Alhambra / Théâtre Music-Hall / 21 rue Yves Toudic / 75010 PARIS' — no cross-card ambiguity risk here since both are scoped to the one detail page being read.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "4380",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The numeric ID embedded in the event's own canonical URL filename ('kaarija-lo4380.html') — this platform's own permanent per-object identifier scheme (the same 'lo<id>' numbering appears consistently across all 45 sampled homepage links, e.g. 'lo4375', 'lo4509', 'lo4650'), used as this source's own canonical path per the stable-identifier rule (a URL-embedded ID the source itself uses as its own permalink).",
+      "evidence_refs": ["ev-homepage", "ev-event-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.alhambra-paris.com/kaarija-lo4380.html",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The homepage's own href, confirmed to resolve to the detail page sampled.",
+      "evidence_refs": ["ev-homepage", "ev-event-detail"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "30.65 EUR (Tarif Unique — single flat price, standing/seated placement not guaranteed)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page directly states '30,65€ Tarif Unique' in its ticket-info block — unlike le-trabendo-paris-01 and la-machine-du-moulin-rouge-paris-01, this venue's own site states its own price directly rather than delegating pricing entirely to a third party.",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-event-detail", "alhambra-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (homepage title, detail page's own header address block, self-hosted assets).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the homepage (45 real event links) and one event's own detail page.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — start_date specifically sourced from each event's OWN detail page after a genuine, evidenced homepage-ordering hazard was discovered and documented (a naive homepage-only extraction would have misattributed dates to the wrong titles).",
+      "time and price additionally PROVEN with basis DIRECT_SOURCE — this venue's own site states its own flat ticket price directly, unlike the other three Paris venues investigated in this same batch.",
+      "source_record_id PROVEN via the platform's own URL-embedded numeric object ID.",
+      "recommended_family STATIC_EVENT_LIST; the link-discovery step reuses the EXISTING, unmodified ingestion/html-link-discovery/discovery.mjs (zero new code for that step), and only the per-event detail-page field parser (ingestion/alhambra/) is genuinely bespoke.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/alhambra.test.mjs), reproducing this investigation's own retained fixtures deterministically and offline, including a regression test proving the homepage-ordering hazard is correctly avoided by the built collector — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-homepage", "ev-event-detail", "alhambra-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage (which structurally serves as the full programmation listing), retained verbatim in full (49,496 bytes) — 45 real, current event links.",
+      "acquired_from": "https://www.alhambra-paris.com/",
+      "acquired_at": "2026-08-26T13:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/alhambra-paris-01/evidence/homepage.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One linked event's own detail page (KÄÄRIJÄ), retained verbatim in full (19,697 bytes).",
+      "acquired_from": "https://www.alhambra-paris.com/kaarija-lo4380.html",
+      "acquired_at": "2026-08-26T13:58:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/alhambra-paris-01/evidence/event-kaarija.html"
+    },
+    {
+      "evidence_id": "alhambra-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/alhambra.test.mjs) re-parsing this investigation's own retained fixtures (fixtures/alhambra-paris/) via the EXISTING ingestion/html-link-discovery/discovery.mjs (link harvesting) plus the bespoke ingestion/alhambra/observation-adapter.mjs (per-event detail-page field extraction), reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/alhambra.test.mjs",
+      "acquired_at": "2026-08-26T16:20:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/alhambra-paris-01/evidence/homepage.html"
+    }
+  ],
+  "supersedes": null
+}

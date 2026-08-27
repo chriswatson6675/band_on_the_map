@@ -1,0 +1,159 @@
+{
+  "investigation_id": "le-trianon-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:37:34Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/en/event/' events archive page (verified directly, not the '/practical-information' history page a prior pass mistakenly checked). The static HTML itself carries the venue's own full events archive as repeated 'bloc_extrait evenement' cards, each with a complete day-name + day + month-name + FULL YEAR date string directly on the card — no escalation needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.letrianon.fr/en/event/ returned this venue's own WordPress custom-post-type 'evenement' archive page (body class 'post-type-archive-evenement'), containing 35 static 'bloc_extrait evenement' event cards (33 cleanly parsed by this investigation's own extraction regex — 2 titles contain characters the bounded sampling regex did not match, not a data-availability gap), each stating its own title, WordPress post ID (data-id), first-party detail-page URL, and a complete 'Weekday DD Month YYYY' date string (e.g. 'Sunday 30 August 2026') directly on the card. This fully answered the investigation question at Level 1; no escalation was needed.",
+      "evidence_refs": ["ev-event-html"]
+    }
+  ],
+  "source_candidate_id": "le-trianon-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Trianon (concert hall, 80 Boulevard Rochechouart, 75018 Paris; co-managed with Élysée Montmartre)",
+  "official_url": "https://www.letrianon.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-event-html"],
+    "notes": "The retained page's own <title> reads 'Events - Trianon' at the venue's own domain letrianon.fr. The same retained page's own footer directly states the venue's own address: '80 BD DE ROCHECHOUART' / '75018 PARIS' — matching the assigned venue address exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress, custom post type 'evenement' (theme 'vkd_tem', child theme 'vkdchild_trianon'), post-type-archive page. Every event is fully represented as a static, repeated HTML card on the archive page itself — no client-side rendering or AJAX pagination was needed to see the full listing. Ticket purchase happens on a first-party 'billetterie'-less flow that redirects to the third-party 'Hubber' checkout domain (trianon8-prod.mutu.hubber.fr), confirmed only on a per-event detail page, never used as this collector's data path.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-event-html"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.letrianon.fr/en/event/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-html"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "EARTHEATER",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own 'title' attribute (and identically its own '.titre' div text), stated directly.",
+      "evidence_refs": ["ev-event-html"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-30",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own '.date' div directly states a complete day-name + day + month-name + FULL YEAR string (e.g. 'Sunday 30 August 2026') — a single piece of retained evidence already carrying the complete date, mechanically parsed (not combined from a separate page/section heading), so recorded as DIRECT_SOURCE rather than DETERMINISTIC_CONTEXT.",
+      "evidence_refs": ["ev-event-html"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Not present on the list/archive card itself. Confirmed present on this source's own per-event detail page (e.g. https://www.letrianon.fr/en/event/eartheater/ states '2026 August 30, Sunday at 20h00' plus an informal door-time note '18h30 – Ouverture des portes' in free text) — genuinely resolvable, but only via an additional per-event fetch this investigation's recommended list-only collector does not perform. Left honestly PARTIAL rather than fabricated or silently fetched beyond the confirmed data path.",
+      "evidence_refs": ["ev-detail-eartheater-html"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end-time or end-date is stated anywhere on either the list card or the sampled detail page.",
+      "evidence_refs": ["ev-event-html", "ev-detail-eartheater-html"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Le Trianon, 80 Boulevard Rochechouart, 75018 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source. The retained page's own footer directly states the full address.",
+      "evidence_refs": ["ev-event-html"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "13452",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own root element carries 'data-id=\"13452\"' — this theme's own WordPress post ID, a standard structural convention of the CMS itself (not this investigation's invention), directly exposed on every card.",
+      "evidence_refs": ["ev-event-html"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.letrianon.fr/en/event/eartheater/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own anchor 'href', stated directly — this venue's own first-party detail page.",
+      "evidence_refs": ["ev-event-html"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is shown on the list card or the sampled detail page. Ticket purchase redirects to the third-party Hubber checkout domain (trianon8-prod.mutu.hubber.fr), which this policy does not treat as first-party price authority.",
+      "evidence_refs": ["ev-detail-eartheater-html"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-event-html", "le-trianon-paris-01-offline-proof"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, footer address matching the assigned venue address exactly).",
+      "acquisition_class WORDPRESS, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "A CONFIRMED PUBLIC data path retained: a single request exposing (cleanly, 33 of) this venue's full archive of upcoming event cards at once.",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE — every card's own date text already includes a full day/month/year, no contextual derivation required.",
+      "source_record_id PROVEN via this theme's own structural WordPress post-ID convention (data-id), directly exposed on every card.",
+      "venue_location PROVEN with basis DIRECT_SOURCE.",
+      "recommended_family STATIC_EVENT_LIST, an existing COLLECTOR_FAMILIES member — genuinely reusable: this SAME theme/markup shape and parser (ingestion/wp-evenement-cards/) is proven to work unchanged, in both English and French locale variants, on Élysée Montmartre's own '/fr/programmation/' page too (see research/source-investigations/elysee-montmartre-paris-01/) — a real, evidenced ≥2-venue reuse, not merely a plausible one.",
+      "No unresolved CRITICAL blocker. 'time' and 'price' are honestly PARTIAL/NOT_PRESENT — neither is gated for READY_FOR_ACTIVATION.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/le-trianon.test.mjs, run via `node --test`, passing) against a real, byte-faithful excerpt fixture of this same retained page — gate 9 satisfied."
+    ],
+    "evidence_refs": ["ev-event-html", "le-trianon-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-event-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/en/event/' events archive page, retrieved via plain curl GET with a descriptive User-Agent, retained byte-faithfully in full (73,570 bytes) — 35 static event cards, each with title/date/id/detail-URL.",
+      "acquired_from": "https://www.letrianon.fr/en/event/",
+      "acquired_at": "2026-08-26T22:37:34Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-trianon-paris-01/evidence/event-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-eartheater-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled per-event detail page (EARTHEATER), retrieved to honestly assess whether 'time' and 'price' are available beyond the list page — retained byte-faithfully in full (31,658 bytes). Confirms a local time-of-day IS present on the detail page (not the list card), and that ticket purchase redirects to the third-party Hubber checkout domain with no first-party price shown.",
+      "acquired_from": "https://www.letrianon.fr/en/event/eartheater/",
+      "acquired_at": "2026-08-26T22:55:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-trianon-paris-01/evidence/detail-eartheater-raw.html"
+    },
+    {
+      "evidence_id": "le-trianon-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/le-trianon.test.mjs) re-parsing a real, byte-faithful excerpt of this investigation's own retained page (fixtures/le-trianon-paris/events-page-sample.html, four real cards cut verbatim from ev-event-html) via the shared ingestion/wp-evenement-cards/ family and reproducing the exact claimed field values deterministically (title/date/id/url/sold-out status for EARTHEATER, KHAMARI, YEBBA, and 'TRANSFERT – LES 10ANS !').",
+      "acquired_from": "tests/le-trianon.test.mjs",
+      "acquired_at": "2026-08-26T23:15:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/le-trianon-paris-01/evidence/event-raw.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -149,6 +149,36 @@ export function buildGermanyMarkers({
 }
 
 /**
+ * BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: the France/Paris sibling of
+ * buildPortugalMarkers()/buildSpainMarkers()/buildGermanyMarkers() above —
+ * same projectObservationsToDisplayMarkers() machinery, same manual
+ * -coordinate composition, same artist-genre attachment, so Paris is never
+ * a second, independently-drifting projection path. `associations` defaults
+ * to `[]` (no hand-authored cross-source association pairs exist for Paris
+ * yet, matching Spain/Germany's own precedent) — a future Paris duplicate
+ * -listing case would need its own explicit, evidence-backed association
+ * module, following the Hot Clube/Capitólio precedent exactly.
+ */
+export function buildFranceMarkers({
+  parisObservations,
+  parisVenues,
+  parisSourceRegistry,
+  associations = [],
+  manualCoordinatesByVenueId,
+  artistRegistry = [],
+  artistLinks = [],
+}) {
+  const markers = projectObservationsToDisplayMarkers(parisObservations ?? [], {
+    venues: parisVenues ?? [],
+    sourceRegistry: parisSourceRegistry ?? [],
+    associations,
+    manualCoordinatesByVenueId,
+  });
+
+  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
+}
+
+/**
  * Trim one full display marker (as produced by
  * projectObservationsToDisplayMarkers, which also carries the raw,
  * ungrouped `listings` array used only for internal proof/debug
@@ -253,6 +283,14 @@ export function buildArtistIndex(publicationMarkers, artistRegistry, asOfDate) {
  * gets back exactly the counts it always has (adding zero markers changes
  * nothing), and a caller that does gets an honest combined total rather
  * than a silently Portugal-only one.
+ *
+ * `franceMarkers` (BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01, optional,
+ * defaults to `[]`): Paris's own display markers (buildFranceMarkers()
+ * above), published as a new `countries.France` bucket alongside the
+ * existing Portugal/Spain/Germany ones — the SAME artifact, the SAME
+ * publication function, never a second/parallel publication path. Every
+ * count below is the TOTAL across every published country, matching the
+ * exact precedent Germany set relative to Spain.
  */
 export function buildPublicationArtifact({
   generatedAt,
@@ -261,6 +299,7 @@ export function buildPublicationArtifact({
   portugalMarkers,
   spainMarkers = [],
   germanyMarkers = [],
+  franceMarkers = [],
   sourceResults,
   observationCount,
   artistRegistry = [],
@@ -268,7 +307,13 @@ export function buildPublicationArtifact({
   const publicationPortugalMarkers = (portugalMarkers ?? []).map(toPublicationMarker);
   const publicationSpainMarkers = (spainMarkers ?? []).map(toPublicationMarker);
   const publicationGermanyMarkers = (germanyMarkers ?? []).map(toPublicationMarker);
-  const allPublicationMarkers = [...publicationPortugalMarkers, ...publicationSpainMarkers, ...publicationGermanyMarkers];
+  const publicationFranceMarkers = (franceMarkers ?? []).map(toPublicationMarker);
+  const allPublicationMarkers = [
+    ...publicationPortugalMarkers,
+    ...publicationSpainMarkers,
+    ...publicationGermanyMarkers,
+    ...publicationFranceMarkers,
+  ];
   const displayListingCount = allPublicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
   const successCount = (sourceResults ?? []).filter((result) => result.success).length;
   const failureCount = (sourceResults ?? []).length - successCount;
@@ -350,6 +395,7 @@ export function buildPublicationArtifact({
       Croatia: { markers: [] },
       Spain: { markers: publicationSpainMarkers },
       Germany: { markers: publicationGermanyMarkers },
+      France: { markers: publicationFranceMarkers },
     },
     artists: buildArtistIndex(allPublicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
   };
@@ -474,10 +520,24 @@ export function validatePublicationArtifact(artifact) {
     }
   }
 
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: "France" joins "Germany" as
+  // another OPTIONAL country bucket, for the exact same reason Germany was
+  // optional relative to Spain/Portugal/Croatia — every artifact built
+  // before Paris existed legitimately has no `countries.France` key at all.
+  // Its markers join the SAME global cross-checks below
+  // (map_marker_count/display_listing_count/venue_id uniqueness are the
+  // TOTAL across every published country).
+  if (artifact.countries.France !== undefined) {
+    if (!artifact.countries.France || !Array.isArray(artifact.countries.France.markers)) {
+      errors.push("countries.France.markers must be an array when present");
+    }
+  }
+
   const portugalMarkers = Array.isArray(artifact.countries.Portugal?.markers) ? artifact.countries.Portugal.markers : null;
   const spainMarkers = Array.isArray(artifact.countries.Spain?.markers) ? artifact.countries.Spain.markers : [];
   const germanyMarkers = Array.isArray(artifact.countries.Germany?.markers) ? artifact.countries.Germany.markers : [];
-  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers, ...germanyMarkers] : null;
+  const franceMarkers = Array.isArray(artifact.countries.France?.markers) ? artifact.countries.France.markers : [];
+  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers, ...germanyMarkers, ...franceMarkers] : null;
 
   if (allCountryMarkers) {
     let listingSum = 0;
@@ -531,7 +591,7 @@ export function validatePublicationArtifact(artifact) {
     } else {
       if (artifact.counts.map_marker_count !== allCountryMarkers.length) {
         errors.push(
-          `counts.map_marker_count (${artifact.counts.map_marker_count}) does not match the total marker count across countries.Portugal + countries.Spain (${allCountryMarkers.length}) — no independently-computed drifting totals allowed`,
+          `counts.map_marker_count (${artifact.counts.map_marker_count}) does not match the total marker count across countries.Portugal + countries.Spain + countries.Germany + countries.France (${allCountryMarkers.length}) — no independently-computed drifting totals allowed`,
         );
       }
       if (artifact.counts.display_listing_count !== listingSum) {
@@ -642,12 +702,17 @@ export function validatePublicationArtifact(artifact) {
  * caller that omits `spainMarkerCount` (ingestion/unattended-runner/run.mjs)
  * keeps EXACTLY today's behaviour: `spainMarkerCount` defaults to `0`, so
  * rule (b) reduces to the original `portugalMarkerCount === 0` check.
+ *
+ * BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: `franceMarkerCount` joins
+ * `germanyMarkerCount`/`spainMarkerCount` the exact same way, defaulting to
+ * `0` so every existing caller that omits it keeps today's exact behaviour.
  */
 export function isCatastrophicPublicationRun({
   sourceSuccessCount,
   portugalMarkerCount,
   spainMarkerCount = 0,
   germanyMarkerCount = 0,
+  franceMarkerCount = 0,
 }) {
-  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount + germanyMarkerCount === 0;
+  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount + germanyMarkerCount + franceMarkerCount === 0;
 }

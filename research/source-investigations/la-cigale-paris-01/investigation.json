@@ -1,0 +1,164 @@
+{
+  "investigation_id": "la-cigale-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (curl, plain HTTP GET) against the venue's official 'Line-up' page found a genuinely client-rendered, empty event list. Level 2 STRUCTURAL escalation — requesting the site's own WordPress REST API root as a plain HTTP GET, and inspecting the one custom-plugin JS file the page itself references — found the REST API is explicitly gated behind authentication (401) and the referenced JS is only a vendored library with no endpoint-construction code of its own. No Level 3/4 (browser/headless) escalation was attempted, per this investigation's own operating scope."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://lacigale.fr/en/lineup/ returns real static HTML for the page shell, but the actual event list container is genuinely empty in the retained response: `<ul class=\"artiste-event artiste-event--prog\"></ul>`, with only a CSS-hidden fallback message ('No events match the applied filters.') present nearby — client-side jQuery filtering populates the list after load, never present in the static bytes. The page's own single JSON-LD block (Yoast SEO) contains only WebPage/BreadcrumbList/WebSite/Organization schema — no Event or MusicEvent nodes at all.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "BLOCKED",
+      "reason": "Requested this site's own WordPress REST API root (https://lacigale.fr/wp-json/) directly as a plain HTTP GET, expecting to enumerate any custom event-related route (the same technique that succeeded for olympia-paris-01). The response is an explicit, deliberate access control: HTTP 401 `{\"code\":\"rest_cannot_access\",\"message\":\"DRA: Only authenticated users can access the REST API.\"}` — a security plugin ('DRA') blocking the ENTIRE REST API surface, not merely one route. The one custom-plugin JS file the page itself references (wp-content/plugins/sedona-shortcodes/programmation/moment.min.js) was also fetched and found to be only a vendored, unmodified copy of the general-purpose moment.js date library — no endpoint-construction code of its own, unlike olympia-paris-01's bundle. Per this project's own policy, an explicit BLOCKED access control is never bypassed/defeated (no credential-guessing, no authentication bypass); BLOCKED terminates escalation.",
+      "evidence_refs": ["ev-wp-json-401"]
+    }
+  ],
+  "source_candidate_id": "la-cigale-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "La Cigale, 120 Boulevard de Rochechouart, 75018 Paris",
+  "official_url": "https://lacigale.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-lineup-page"],
+    "notes": "The retained page's own Yoast SEO JSON-LD 'Organization'/'MusicVenue'/'PerformingArtsTheater' node directly states name 'La Cigale', address ('120 boulevard Marguerite de Rochechouart, 75018 Paris, FR' — the source's own fuller street name for the assigned 'Boulevard de Rochechouart' reference), and geo coordinates (latitude 48.8822, longitude 2.3403) at the venue's own domain lacigale.fr. Identity itself is solidly PROVEN even though no actual event records could be acquired (see site_classification/decision below) — these are two genuinely separate questions."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "WordPress (Elementor + Elementor Pro page builder, a bespoke 'sedona-shortcodes' plugin for the programming module) with its entire REST API surface deliberately gated behind authentication by a security plugin identifying itself as 'DRA'. The venue's own official lineup page ships zero event records in its static HTML; the event list is populated by client-side JS after load with no discoverable public data path.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-lineup-page", "ev-wp-json-401"]
+  },
+  "data_paths": [
+    {
+      "kind": "CLIENT_RENDERED_HTML_PAGE",
+      "url": "https://lacigale.fr/en/lineup/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    {
+      "kind": "WORDPRESS_REST_API_ROOT",
+      "url": "https://lacigale.fr/wp-json/",
+      "access": "PRIVATE",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wp-json-401"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No event record was ever exposed by either probed path — zero events retained to assess a title field against.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "Same as title — no event record was ever exposed.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "Same as title — no event record was ever exposed.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "Same as title — no event record was ever exposed.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "The venue's own site-level identity (name/address/coordinates) is PROVEN (see identity.notes above), but that is a site-level fact, not a per-event field — no per-event record was ever exposed to assess this field against.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No event record was ever exposed by either probed path.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No event record was ever exposed by either probed path.",
+      "evidence_refs": ["ev-lineup-page"]
+    },
+    "price": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "notes": "No event record was ever exposed by either probed path.",
+      "evidence_refs": ["ev-lineup-page"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "LOW",
+    "evidence_refs": ["ev-lineup-page", "ev-wp-json-401"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No public acquisition path could be established at Level 1 or Level 2: the venue's official events page is entirely client-rendered (zero event records in the static HTML — an empty `<ul>` populated only after client-side JS runs), and this site's own WordPress REST API is explicitly gated behind authentication (401 'DRA' access control) across its ENTIRE surface, not merely one route. Level 3 (browser observation) might reveal an underlying AJAX/data endpoint the client-side JS itself calls, but is out of this investigation's own operating scope (Level 1/2 only, per this task's instructions)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Level 1 genuinely insufficient: the retained static HTML carries zero event records — a real, honest probe result, not a shortcut.",
+      "Level 2 genuinely BLOCKED: the site's own REST API explicitly refuses unauthenticated access across its entire surface (401 'DRA: Only authenticated users can access the REST API'), and the one custom-plugin JS file referenced by the page is only a vendored library with no endpoint-construction code — unlike olympia-paris-01, no alternative public JSON path was discoverable this way.",
+      "Per policy, BLOCKED terminates escalation — this project never attempts to bypass an explicit access control, and this investigation's own operating scope does not extend to Level 3/4 (browser/headless) work regardless.",
+      "Identity is honestly PROVEN (this venue's own JSON-LD directly states its own name/address/coordinates) even though no event data acquisition path exists — DEFER on the acquisition question does not retroactively unprove identity.",
+      "DEFER is a valid, complete investigation outcome for a genuinely blocked/insufficient source — no fabricated data path or invented field value was substituted."
+    ],
+    "evidence_refs": ["ev-lineup-page", "ev-wp-json-401"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-lineup-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own official English 'Line-up' page, byte-retained in full (226,952 bytes): confirms an empty `artiste-event--prog` list container, a hidden 'No events match the applied filters.' fallback message, and a single Yoast SEO JSON-LD block (WebPage/BreadcrumbList/WebSite/Organization only — no Event/MusicEvent nodes), including the venue's own directly-stated name/address/geo-coordinates.",
+      "acquired_from": "https://lacigale.fr/en/lineup/",
+      "acquired_at": "2026-08-26T21:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-cigale-paris-01/evidence/lineup-page.html"
+    },
+    {
+      "evidence_id": "ev-wp-json-401",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-retained raw response (118 bytes) of a direct probe against this site's own WordPress REST API root, confirming an explicit, deliberate authentication requirement across the entire REST surface.",
+      "acquired_from": "https://lacigale.fr/wp-json/",
+      "acquired_at": "2026-08-26T21:35:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/la-cigale-paris-01/evidence/wp-json-root-401.json"
+    }
+  ],
+  "supersedes": null
+}

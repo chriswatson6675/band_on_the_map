@@ -1,0 +1,172 @@
+{
+  "investigation_id": "le-divan-du-monde-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:55:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the candidate's own official domain (divandumonde.com) and its /fr, /en subpaths, plus a follow-up probe of the domain that site's own 'RÉSERVATION' button links to. This settled a genuine identity question at Level 1 — no escalation was needed or would have helped."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.divandumonde.com/ returned a page carrying essentially zero real content beyond a page title ('Divan du monde - Madame Arthur'), a logo, and a stale '© 2023 Divan du monde - Madame Arthur' footer notice — no events, agenda, or programme content of any kind. The page's own single 'RÉSERVATION' button links out to https://club.madamearthur.fr/, a domain that does not resolve at all (DNS failure). The site's own /en subpath separately failed (an HTTP 500 on one attempt, a connection timeout on a second attempt minutes later) and /fr silently redirects back to the same near-empty home page. This fully and sufficiently answered the investigation question at Level 1: divandumonde.com is a stale, effectively abandoned placeholder with no first-party event data and a broken outbound link — no amount of further static or structural probing of THIS domain would change that finding, so no escalation was attempted.",
+      "evidence_refs": ["ev-home-html", "ev-home-fr-html", "ev-club-madamearthur-probe"]
+    }
+  ],
+  "source_candidate_id": "le-divan-du-monde-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Divan du Monde (assigned candidate: concert hall, 75 Boulevard de Rochechouart, 75018 Paris)",
+  "official_url": "https://www.divandumonde.com/",
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-html", "ev-madamearthur-html"],
+    "notes": "divandumonde.com IS this project's assigned candidate's own registered domain (its JSON-LD Organization block directly states 'name':'Divan du Monde', logo, and Facebook/Instagram 'sameAs' links matching the venue), but it carries no active first-party event content — a stale placeholder, not a maintained official presence. The physical location's actual currently-operating brand is a SEPARATE, distinct first-party site: madamearthur.fr ('Madame Arthur - Cabaret Club'), whose own retained 'notre histoire' text directly states: 'En 2015, Madame Arthur et le Divan fusionnent pour créer le Cabaret-Club que l'on connait aujourd'hui' ('In 2015, Madame Arthur and the Divan merged to create the Cabaret-Club we know today'). This is a genuine identity-merger finding, not an assumption: the assigned candidate 'Le Divan du Monde', as an independent brand/identity with its own maintained official presence, does not currently exist. Continuing this investigation under the 'Le Divan du Monde' identity, or silently substituting 'Madame Arthur' as if it were the same assigned candidate, would both misrepresent what was actually found."
+  },
+  "site_classification": {
+    "acquisition_class": "UNSUPPORTED",
+    "platform": "WordPress (divandumonde.com itself: WordPress 6.2.2, qTranslate-X, Visual Composer) — but the site is a stale, minimal placeholder, not a maintained events source. Its own single call-to-action button ('RÉSERVATION') links to https://club.madamearthur.fr/, a domain that does not resolve (DNS failure) — a broken outbound link on the candidate's own page, further evidencing abandonment.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-html", "ev-club-madamearthur-probe"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_PAGE",
+      "url": "https://www.divandumonde.com/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-home-html"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "start_date": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "divandumonde.com's own retained page states no address text at all (it was checked explicitly and found absent) — a further sign of an unmaintained placeholder, not evidence this candidate's assigned address is wrong.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No event content of any kind exists on divandumonde.com to assess.",
+      "evidence_refs": ["ev-home-html"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home-html", "ev-club-madamearthur-probe"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The assigned candidate's own official domain carries no maintained first-party event content and its one outbound action button points at a non-resolving domain. There is no honest acquisition path to build a collector against under this candidate's own assigned identity."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "divandumonde.com — this candidate's own official domain — carries no maintained first-party event content: a stale '© 2023' placeholder page with no agenda, programme, or events listing of any kind.",
+      "The page's own single call-to-action ('RÉSERVATION') links to https://club.madamearthur.fr/, which does not resolve at all (DNS failure) — a broken link on the candidate's own official page, not merely an inconvenient one.",
+      "The candidate's own '/en' subpath independently failed on two separate attempts (an HTTP 500, then a connection timeout minutes later) and '/fr' silently redirects back to the same near-empty home page.",
+      "This project's own retained evidence (madamearthur.fr's own 'notre histoire' text) directly states that 'Le Divan du Monde' merged into a different, separately-branded entity ('Madame Arthur') in 2015 — the assigned candidate, as an independent identity, genuinely no longer maintains its own official presence.",
+      "Per policy, an investigation must not invent or silently substitute a venue identity: continuing under 'Le Divan du Monde' as if it still had a live official site, or quietly investigating 'Madame Arthur' instead as though it were the same assignment, would both misrepresent what was actually found. REJECT is the honest outcome for the assigned candidate as such; a future, separately-scoped investigation of 'Madame Arthur' (its own distinct identity, primarily a cabaret/drag/DJ-club format rather than a live-music concert hall) would need its own investigation_id if this project wants coverage of the physical venue at this address.",
+      "No fabricated fact was used to reach this decision — every claim above is cited to retained evidence."
+    ],
+    "evidence_refs": ["ev-home-html", "ev-home-fr-html", "ev-club-madamearthur-probe", "ev-madamearthur-html"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The assigned candidate's own official home page — the full, byte-faithful raw response (95,800 bytes), retained in full. Its visible text content, after stripping style/script markup, is essentially just 'Divan du monde - Madame Arthur ... logo FR EN RÉSERVATION logo © 2023 Divan du monde - Madame Arthur.' — no event content of any kind.",
+      "acquired_from": "https://www.divandumonde.com/",
+      "acquired_at": "2026-08-26T23:30:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-divan-du-monde-paris-01/evidence/home-raw.html"
+    },
+    {
+      "evidence_id": "ev-home-fr-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A fetch of the site's own '/fr' subpath (linked from the home page's own language switcher), byte-identical to the home page (95,800 bytes) — confirming '/fr' is not a separate, more complete page.",
+      "acquired_from": "https://www.divandumonde.com/fr",
+      "acquired_at": "2026-08-26T23:31:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-divan-du-monde-paris-01/evidence/home-fr-raw.html"
+    },
+    {
+      "evidence_id": "ev-club-madamearthur-probe",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained curl output (stdout+stderr) for two follow-up probes: (1) the home page's own 'RÉSERVATION' button target, https://club.madamearthur.fr/, which fails outright with a DNS resolution error; (2) the candidate's own '/en' subpath, which failed with an HTTP 500 on the first attempt and a connection timeout on a second, independent attempt minutes later.",
+      "acquired_from": "https://club.madamearthur.fr/ and https://www.divandumonde.com/en",
+      "acquired_at": "2026-08-26T23:50:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-divan-du-monde-paris-01/evidence/club-madamearthur-probe.txt"
+    },
+    {
+      "evidence_id": "ev-madamearthur-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The physical venue's actual currently-operating brand's own official page (madamearthur.fr), retained in full (194,252 bytes), used ONLY to establish the identity-merger finding above (its own 'notre histoire' text) — never treated as this investigation's assigned candidate, and no event/field assessment was performed against it.",
+      "acquired_from": "https://madamearthur.fr/",
+      "acquired_at": "2026-08-26T23:33:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/le-divan-du-monde-paris-01/evidence/madamearthur-raw.html"
+    }
+  ],
+  "supersedes": null
+}

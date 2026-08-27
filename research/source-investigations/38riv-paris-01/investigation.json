@@ -1,0 +1,183 @@
+{
+  "investigation_id": "38riv-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:00:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own official '/en/concerts' listing page, then one of its own real, statically-linked per-event detail pages. The listing page is real static HTML with per-card data-day/data-month/data-year attributes (no JSON-LD); each event's own detail page additionally embeds a full schema.org JSON-LD 'EventSeries' block with startDate/endDate/location/offers."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://38riv.com/en/concerts exposed 24 real, statically-rendered event cards (each linking a real '/en/concerts/{slug}' detail page). A second plain curl GET of one such detail page (still Level 1 — a plain unauthenticated GET, no JS execution) exposed a complete schema.org JSON-LD 'EventSeries' block with a UTC-offset startDate/endDate, full venue address, and structured Offer pricing nested in its own 'subEvent' array. No escalation beyond Level 1 was needed for either page.",
+      "evidence_refs": ["ev-concerts-listing", "ev-detail-hermon-mehari"]
+    }
+  ],
+  "source_candidate_id": "38riv-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "38Riv (38Riv Jazz Club & Bar), 38 rue de Rivoli, 75004 Paris",
+  "official_url": "https://38riv.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-concerts-listing", "ev-detail-hermon-mehari"],
+    "notes": "The retained listing page's own <title> reads 'Jazz Concerts in Paris | Programme & Bookings – 38Riv' at the venue's own domain 38riv.com. The retained detail page's own JSON-LD 'location' object directly states name '38Riv' and address '38 Rue de Rivoli, 75004 Paris, FR' — an exact match to the address given for this investigation, self-consistent with the domain and page branding."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Drupal (page classes include 'page-node-type-page', 'current-alias-en-concerts'; a custom booking/ticketing module — URL/asset patterns 'import_billetterie', '?show_session=NNNN', organizer 'ITABUNA' — not the generic wp-json/Tribe Events pattern seen elsewhere in this project).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-concerts-listing", "ev-detail-hermon-mehari"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://38riv.com/en/concerts",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-concerts-listing"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://38riv.com/en/concerts/carte-blanche-hermon-mehari-1",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Carte blanche to Hermon Mehari",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own JSON-LD 'EventSeries.name', stated directly.",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The date portion of the JSON-LD 'EventSeries.startDate' ('2026-08-27T19:30:00+02:00'), stated directly.",
+      "evidence_refs": ["ev-detail-hermon-mehari", "38riv-paris-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30 Europe/Paris (explicit +02:00 UTC offset stated directly)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Unlike most sources already investigated in this project, this source's own JSON-LD startDate carries a genuine, explicit UTC offset ('+02:00') rather than a floating local value — a real UTC-resolvable instant, not merely a local clock time.",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "21:30 Europe/Paris (2026-08-27T21:30:00+02:00)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The JSON-LD 'EventSeries.endDate', stated directly, same calendar day as startDate — a genuine performance end time here (unlike Tempodrom Berlin's endDate, which this project separately found to represent only the last calendar day of a multi-day run), consistent with this being a single-evening series.",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "38Riv, 38 Rue de Rivoli, 75004 Paris, FR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The JSON-LD 'location.name'/'location.address' fields, stated directly.",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "carte-blanche-hermon-mehari-1",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source's own permalink URL slug ('/en/concerts/{slug}'), the site's own canonical path for this event — the same documented judgement already established for tempodrom-berlin-01/badehaus-berlin-01.",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://38riv.com/en/concerts/carte-blanche-hermon-mehari-1",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own canonical URL, stated directly in its JSON-LD 'url' field.",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Real, structured Offer pricing (multiple price tiers, EUR) genuinely exists in the retained evidence, but ONLY nested inside the JSON-LD 'EventSeries.subEvent[].offers' array — the top-level 'EventSeries' node itself carries no top-level 'offers' field, so this project's EXISTING, unmodified ingestion/json-ld/parse.mjs normaliseJsonLdEvent() (which only reads node.offers) does not reach it via the zero-code path proven in evidence/offline-proof.mjs. A small, generic addition (flattening 'subEvent' the same way extractJsonLdNodes() already flattens '@graph'/ItemList) would resolve this — see this investigation's own README.md and the final report for the exact change needed. Not required for activation (price is the one optional field_assessment key).",
+      "evidence_refs": ["ev-detail-hermon-mehari"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-concerts-listing", "ev-detail-hermon-mehari", "38riv-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Price is only reachable via a subEvent[]-nested 'offers' array, not the generic top-level flatten path — see field_assessment.price. Does not block activation (price is optional); a small, generic subEvent-flattening addition to ingestion/json-ld/parse.mjs (not built by this investigation) would resolve it for a future build phase."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, JSON-LD's own location/address matching the given venue address exactly).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, reached entirely at Level 1 (two plain, unauthenticated GETs — no JS/browser execution) with no escalation needed.",
+      "Two CONFIRMED PUBLIC data paths retained: the listing page (link discovery) and a real detail page (JSON-LD extraction).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE, plus time/end/venue_location also PROVEN DIRECT_SOURCE — genuinely rich, UTC-offset-qualified field coverage, better than most sources already investigated in this project.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following the existing tempodrom-berlin-01/badehaus-berlin-01 precedent.",
+      "recommended_family JSON_LD (title/start_date/end/venue/url all reached with this project's EXISTING, entirely unmodified ingestion/html-link-discovery/ + ingestion/json-ld/ families — only a caller-side widening of extractEventNodes()'s own already-exposed 'types' option, from the default {Event, MusicEvent} to include this source's own 'EventSeries' type, was needed; neither shared module's code was edited).",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (evidence/offline-proof.mjs + evidence/offline-proof-output.txt), reproducing every claimed field value offline against the retained fixtures using the existing, unedited shared modules.",
+      "No unresolved CRITICAL blocker — the one documented MINOR blocker (price nesting) does not block activation, since price is this project's one optional field.",
+      "Production wiring (actually registering this source and building any small caller-side configuration) is separate, later, explicitly-authorised work — this investigation only establishes and proves the acquisition path."
+    ],
+    "evidence_refs": ["ev-concerts-listing", "ev-detail-hermon-mehari", "38riv-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-concerts-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/en/concerts' listing page — full raw HTTP response, byte-identical, containing 24 real static event cards with data-day/data-month/data-year attributes and '/en/concerts/{slug}' detail links.",
+      "acquired_from": "https://38riv.com/en/concerts",
+      "acquired_at": "2026-08-26T21:40:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/38riv-paris-01/evidence/concerts-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-hermon-mehari",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real event detail page sampled from the listing above — full raw HTTP response, byte-identical, containing a complete schema.org JSON-LD 'EventSeries' block (startDate/endDate with UTC offset, full venue address, subEvent[]-nested structured Offer pricing).",
+      "acquired_from": "https://38riv.com/en/concerts/carte-blanche-hermon-mehari-1",
+      "acquired_at": "2026-08-26T21:41:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/38riv-paris-01/evidence/detail-carte-blanche-hermon-mehari-1-raw.html"
+    },
+    {
+      "evidence_id": "ev-nominatim-38riv",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Live Nominatim geocoding result for this venue's own retained address ('38 Rue de Rivoli, 75004 Paris'). Top candidate is an exact house-number/street/postcode match with no separately-named POI returned (an address-level node only) — following this project's existing 'exact address match, no separately-named POI' precedent (Zig Zag Jazz Club Berlin).",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=38+Rue+de+Rivoli%2C+75004+Paris&format=jsonv2&addressdetails=1&limit=3&countrycodes=fr",
+      "acquired_at": "2026-08-26T22:48:55Z",
+      "method": "ingestion/geocoding/nominatim.mjs searchNominatimLive() — one single, rate-limited live request",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/38riv-paris-01/evidence/nominatim-result.json"
+    },
+    {
+      "evidence_id": "38riv-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline proof script (evidence/offline-proof.mjs) that imports this project's EXISTING, entirely unmodified ingestion/html-link-discovery/discovery.mjs and ingestion/json-ld/parse.mjs, re-parses ONLY this investigation's own retained fixtures, and reproduces every claimed field value deterministically (24 discovered links including the sampled one; title/start/end/venue/event_url/source_record_id all matching field_assessment above exactly). Documents honestly that price_text is null via this exact zero-code path (see field_assessment.price).",
+      "acquired_from": "research/source-investigations/38riv-paris-01/evidence/offline-proof.mjs",
+      "acquired_at": "2026-08-26T23:10:00Z",
+      "method": "node research/source-investigations/38riv-paris-01/evidence/offline-proof.mjs",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/38riv-paris-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -57,9 +57,10 @@ import { fileURLToPath } from "node:url";
 import { acquireLisbonPorto } from "../lisbon-porto/run.mjs";
 import { acquireBarcelona } from "../barcelona/run.mjs";
 import { acquireBerlin } from "../berlin/run.mjs";
+import { acquireParis } from "../paris/run.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
-import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
+import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildFranceMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
 import { writePublicationArtifactAtomic, resolvePublicationArtifactPath } from "../map/publish-artifact-io.mjs";
 import { loadValidatedArtifact } from "../publication-server/run.mjs";
 import {
@@ -129,6 +130,9 @@ async function main() {
   // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01: read-only,
   // same convention as the Lisbon/Porto/Barcelona registries above.
   const berlinVenues = JSON.parse(await readFile(resolve(ROOT, "venues/berlin.json"), "utf8"));
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: read-only, same convention
+  // as the Lisbon/Porto/Barcelona/Berlin registries above.
+  const parisVenues = JSON.parse(await readFile(resolve(ROOT, "venues/paris.json"), "utf8"));
 
   // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
   // venue registries above — this script never writes artists/*.json.
@@ -163,8 +167,14 @@ async function main() {
   // independently-drifting acquisition path.
   const { berlinRegistry, berlinResults, berlinObservations } = await acquireBerlin();
 
-  const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults];
-  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length;
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: Paris's own acquisition,
+  // reusing acquireParis() (ingestion/paris/run.mjs) exactly as proven by
+  // `npm run ingest:paris` — never a second, independently-drifting
+  // acquisition path.
+  const { parisRegistry, parisResults, parisObservations } = await acquireParis();
+
+  const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults, ...parisResults];
+  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length + parisObservations.length;
   const successCount = rawSourceResults.filter((result) => result.success).length;
   const failureCount = rawSourceResults.length - successCount;
 
@@ -221,6 +231,15 @@ async function main() {
     artistLinks: artistLinks.links,
   });
 
+  const franceMarkers = buildFranceMarkers({
+    parisObservations,
+    parisVenues: parisVenues.venues,
+    parisSourceRegistry: parisRegistry.entries,
+    manualCoordinatesByVenueId,
+    artistRegistry: artistRegistry.artists,
+    artistLinks: artistLinks.links,
+  });
+
   // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:
   // fill in eligible last-known-good venues for every source that FAILED
   // this run but is still within its 24-hour grace — see
@@ -247,9 +266,11 @@ async function main() {
   const retainedPortugalVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Portugal"));
   const retainedSpainVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Spain"));
   const retainedGermanyVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "Germany"));
+  const retainedFranceVenues = new Map([...combinedRetainedVenues].filter(([, venue]) => venue.country === "France"));
   const mergedPortugalMarkers = mergeRetainedMarkers(portugalMarkers, retainedPortugalVenues);
   const mergedSpainMarkers = mergeRetainedMarkers(spainMarkers, retainedSpainVenues);
   const mergedGermanyMarkers = mergeRetainedMarkers(germanyMarkers, retainedGermanyVenues);
+  const mergedFranceMarkers = mergeRetainedMarkers(franceMarkers, retainedFranceVenues);
 
   console.log(`\n=== Acquisition summary ===`);
   for (const result of sourceResults) {
@@ -263,6 +284,7 @@ async function main() {
   console.log(`  Portugal map markers: ${mergedPortugalMarkers.length}`);
   console.log(`  Spain map markers: ${mergedSpainMarkers.length}`);
   console.log(`  Germany map markers: ${mergedGermanyMarkers.length}`);
+  console.log(`  Paris map markers: ${mergedFranceMarkers.length}`);
 
   if (
     isCatastrophicPublicationRun({
@@ -270,10 +292,11 @@ async function main() {
       portugalMarkerCount: mergedPortugalMarkers.length,
       spainMarkerCount: mergedSpainMarkers.length,
       germanyMarkerCount: mergedGermanyMarkers.length,
+      franceMarkerCount: mergedFranceMarkers.length,
     })
   ) {
     console.error(
-      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain + ${mergedGermanyMarkers.length} Germany map markers produced. ` +
+      `\nCATASTROPHIC RUN: ${successCount}/${sourceResults.length} sources succeeded, ${mergedPortugalMarkers.length} Portugal + ${mergedSpainMarkers.length} Spain + ${mergedGermanyMarkers.length} Germany + ${mergedFranceMarkers.length} France map markers produced. ` +
         `Refusing to replace the last known good publication artifact at ${resolvePublicationArtifactPath()}.`,
     );
     process.exitCode = 1;
@@ -287,6 +310,7 @@ async function main() {
     portugalMarkers: mergedPortugalMarkers,
     spainMarkers: mergedSpainMarkers,
     germanyMarkers: mergedGermanyMarkers,
+    franceMarkers: mergedFranceMarkers,
     sourceResults,
     observationCount,
     artistRegistry: artistRegistry.artists,

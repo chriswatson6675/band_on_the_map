@@ -179,8 +179,14 @@ export function projectObservationsToMapMarkers(observations, { venues, sourceRe
  * buildGermanyMarkers()) — added the same additive way as `spainMarkers`,
  * so every existing 2/3-argument call site keeps its exact prior
  * behaviour unchanged.
+ *
+ * BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: `franceMarkers` is a new,
+ * optional fifth parameter (defaults to `[]`) carrying Paris's own display
+ * markers (ingestion/map/publication.mjs's buildFranceMarkers()) — added
+ * the same additive way as `germanyMarkers`, so every existing
+ * 2/3/4-argument call site keeps its exact prior behaviour unchanged.
  */
-export function getMarkersForCountry(country, portugalMarkers, spainMarkers = [], germanyMarkers = []) {
+export function getMarkersForCountry(country, portugalMarkers, spainMarkers = [], germanyMarkers = [], franceMarkers = []) {
   if (country === "Portugal") {
     return portugalMarkers ?? [];
   }
@@ -189,6 +195,9 @@ export function getMarkersForCountry(country, portugalMarkers, spainMarkers = []
   }
   if (country === "Germany") {
     return germanyMarkers ?? [];
+  }
+  if (country === "France") {
+    return franceMarkers ?? [];
   }
   return [];
 }

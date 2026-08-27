@@ -1,0 +1,172 @@
+{
+  "investigation_id": "rex-club-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:50:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (curl, descriptive User-Agent, no authentication/browser) against the venue's official 'Billetterie' page, then Level 2 STRUCTURAL (WordPress REST API route/post-type enumeration) against the same domain. A supplementary, non-escalating check of the third-party ticketing platform (Shotgun.live) the venue's own page embeds was also attempted at Level 1 and returned an explicit bot/rate-limit challenge, honestly recorded as a rejected data_paths candidate rather than a probe_history entry (Rex Club's own official domain, not Shotgun.live, is this investigation's candidate)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://rexclub.com/billetterie/ (the site's own 'Programmation' menu item links directly to this same URL — there is no separate programmation page) returned a real WordPress page, but its entire content is a Contact Form 7 form ('Formulaire de contact') plus a client-rendered <iframe data-lazy-src=\"https://shotgun.live/fr/venues/rex-club?noBack=true&embedded=true\"> placeholder. No dated event data, JSON-LD, ICS link, or calendar markup of any kind is present in the static response. The homepage (https://rexclub.com/) was also fetched and confirms genuine venue identity but carries no event listing either.",
+      "evidence_refs": ["ev-billetterie", "ev-homepage"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Enumerated this WordPress site's own REST API (wp-json root: registered namespaces oembed/aiarc/akismet/contact-form-7/loginpress/rankmath/complianz/wp-rocket/google-site-kit/aios/mcp/wp-v2/wp-site-health/wp-block-editor/wp-abilities — no calendar/events/Tribe namespace) and its registered post types (wp/v2/types: post, page, attachment, nav_menu_item, wp_block, wp_template*, wp_global_styles, wp_navigation, wp_font_family, wp_font_face, resident, rm_content_editor). The one non-standard type, 'resident', was sampled directly and confirmed to hold DJ-residency bio pages (e.g. 'GREG' / 'GREG RESIDENCY'), not dated events. No queryable events/calendar route exists anywhere on this domain.",
+      "evidence_refs": ["ev-wp-json-root", "ev-wp-json-types", "ev-wp-json-resident-sample"]
+    }
+  ],
+  "source_candidate_id": "rex-club-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Rex Club (electronic music club), 5 Boulevard Poissonnière, 75002 Paris",
+  "official_url": "https://rexclub.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-billetterie"],
+    "notes": "The retained homepage's own <title> reads 'Accueil - Rex Club Paris' and the billetterie page's own <title> reads 'Billetterie - Rex Club Paris', both at the venue's own self-hosted domain rexclub.com (WordPress, own wp-json root self-identifies name 'Rex Club Paris', timezone Europe/Paris) — a self-consistent, first-party retained artifact matching the known Rex Club Paris venue."
+  },
+  "site_classification": {
+    "acquisition_class": "TICKETING_ONLY",
+    "platform": "WordPress (no calendar/events plugin). The venue's own domain carries no independently-parseable event data of its own — its 'Billetterie'/'Programmation' page is a contact form plus a client-rendered iframe embed pointing at a third-party ticketing platform (Shotgun.live). All actual programme data, if it exists at all in machine-readable form, lives entirely on shotgun.live, not on rexclub.com.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-billetterie", "ev-wp-json-types"]
+  },
+  "data_paths": [
+    {
+      "kind": "IFRAME_EMBED_THIRD_PARTY_WIDGET",
+      "url": "https://shotgun.live/fr/venues/rex-club?noBack=true&embedded=true",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-billetterie"]
+    },
+    {
+      "kind": "THIRD_PARTY_VENUE_PAGE",
+      "url": "https://shotgun.live/en/venues/rex-club",
+      "access": "UNKNOWN",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-shotgun-venue"]
+    },
+    {
+      "kind": "WORDPRESS_REST_API_ROOT",
+      "url": "https://rexclub.com/wp-json/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wp-json-root", "ev-wp-json-types", "ev-wp-json-resident-sample"]
+    }
+  ],
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No event data was retrievable at all within Level 1/2 on either the venue's own domain (no calendar data of any kind) or the third-party ticketing platform it embeds (Shotgun.live returned an explicit bot/rate-limit challenge, not usable content). Genuinely unresolved, not asserted absent.", "evidence_refs": ["ev-billetterie", "ev-shotgun-venue"] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "Same reason as title.", "evidence_refs": ["ev-billetterie", "ev-shotgun-venue"] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "Same reason as title.", "evidence_refs": ["ev-billetterie", "ev-shotgun-venue"] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "Same reason as title.", "evidence_refs": ["ev-billetterie", "ev-shotgun-venue"] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "The venue's own physical address (5 Boulevard Poissonnière, 75002 Paris) is known from this task's brief, but was not independently re-confirmed by any retained first-party page content in this bounded investigation (the homepage/billetterie page carry no address text) — recorded UNKNOWN rather than asserted from an unretained source.", "evidence_refs": [] },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "No records were ever retrieved to derive a stable-identifier strategy from.", "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "Same reason as title.", "evidence_refs": ["ev-billetterie", "ev-shotgun-venue"] },
+    "price": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "Same reason as title.", "evidence_refs": ["ev-billetterie", "ev-shotgun-venue"] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": ["ev-billetterie", "ev-wp-json-types", "ev-shotgun-venue"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Rex Club's own official domain (rexclub.com) exposes no independently-parseable event data at Level 1 or Level 2 — its programme lives entirely on a third-party platform, Shotgun.live, embedded only as a client-rendered iframe widget. Shotgun.live itself, probed directly and honestly at Level 1 (a single plain GET, no bypass attempted), returned an explicit HTTP 429 'Vercel Security Checkpoint' response carrying an 'X-Vercel-Mitigated: challenge' header — a genuine, explicit access control this policy prohibits attempting to defeat (see docs/SOURCE_INVESTIGATION_POLICY.md's 'What may AI NOT infer?': never defeat a CAPTCHA/challenge or bypass explicit access controls). No stable public JSON/API path for Shotgun could be confirmed as a result; per this task's brief this was the one alternative path worth checking, and it is genuinely BLOCKED, not merely unexplored."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "Even setting the Shotgun.live challenge aside, actually acquiring this venue's programme would require a client-side-rendered widget to be observed via browser/headless automation (Level 3+) — explicitly out of scope for this investigation per its brief ('Only Level 1 (PASSIVE_STATIC) and Level 2 (STRUCTURAL) — no browser automation')."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Level 1 (rexclub.com's own 'Billetterie'/'Programmation' page): INSUFFICIENT — a contact form plus a client-rendered third-party iframe, no dated events, no JSON-LD/ICS/calendar markup.",
+      "Level 2 (rexclub.com's own WordPress REST API): INSUFFICIENT — no calendar/events namespace or post type exists; the one non-standard post type ('resident') is DJ bios, not events.",
+      "The one credible alternative path this task's brief specifically asked to check — Shotgun.live, the third-party platform Rex Club's own site embeds — returned an explicit, header-confirmed bot/rate-limit challenge (HTTP 429, X-Vercel-Mitigated: challenge) when probed honestly at Level 1. This is a genuine BLOCKED finding, not an unexplored option; per policy, BLOCKED terminates escalation and must never be bypassed.",
+      "No usable public acquisition path was found for this candidate within the levels this investigation is authorised to use. DEFER is the honest, policy-correct outcome — not every investigation must reach activation, and this one genuinely cannot without either defeating an explicit access control or introducing browser automation, both out of scope here.",
+      "No fields were fabricated: every field_assessment entry above is honestly UNKNOWN, never asserted from data that was not actually retrieved."
+    ],
+    "evidence_refs": ["ev-billetterie", "ev-wp-json-types", "ev-shotgun-venue"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, fetched byte-for-byte via curl.",
+      "acquired_from": "https://rexclub.com/",
+      "acquired_at": "2026-08-26T22:39:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rex-club-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-billetterie",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official 'Billetterie' page (the site's own 'Programmation' menu item links to this same URL) — a Contact Form 7 form plus a client-rendered iframe embed of shotgun.live, fetched byte-for-byte via curl.",
+      "acquired_from": "https://rexclub.com/billetterie/",
+      "acquired_at": "2026-08-26T22:39:48Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rex-club-paris-01/evidence/billetterie-raw.html"
+    },
+    {
+      "evidence_id": "ev-wp-json-root",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own WordPress REST API root document. Bounded/disclosed excerpt: the original response was 302,831 bytes, dominated by the full REST route-schema index (hundreds of endpoints carrying no event data); only name/description/namespaces (the material fact — which plugin namespaces exist, confirming no calendar/events plugin is installed) are retained, re-parsed and re-serialized (not byte-faithful).",
+      "acquired_from": "https://rexclub.com/wp-json/",
+      "acquired_at": "2026-08-26T22:46:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then bounded to name/description/namespaces only, disclosed in this description",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/rex-club-paris-01/evidence/wp-json-root-raw.json"
+    },
+    {
+      "evidence_id": "ev-wp-json-types",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The site's own registered WordPress post types (wp/v2/types), fetched byte-for-byte via curl. Confirms the only non-standard post type is 'resident' — no 'event'/'tribe_events' type exists.",
+      "acquired_from": "https://rexclub.com/wp-json/wp/v2/types",
+      "acquired_at": "2026-08-26T22:46:10Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rex-club-paris-01/evidence/wp-json-types-raw.json"
+    },
+    {
+      "evidence_id": "ev-wp-json-resident-sample",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A 3-record sample of the site's own 'resident' custom post type, fetched byte-for-byte via curl, confirming these are DJ-residency bio pages (e.g. 'GREG' / 'GREG RESIDENCY'), not dated events.",
+      "acquired_from": "https://rexclub.com/wp-json/wp/v2/resident?per_page=3",
+      "acquired_at": "2026-08-26T22:46:20Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rex-club-paris-01/evidence/wp-json-resident-sample-raw.json"
+    },
+    {
+      "evidence_id": "ev-shotgun-venue",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A single, honest, non-bypassing Level 1 GET of Shotgun.live's own Rex Club venue page, fetched byte-for-byte via curl. The response is an HTTP 429 'Vercel Security Checkpoint' page, and its own retained headers (research/source-investigations/rex-club-paris-01/evidence/shotgun-venue-headers.txt) explicitly carry 'X-Vercel-Mitigated: challenge' — confirming this is a genuine bot/rate-limit access control, not a parsing failure. No attempt was made to defeat or retry past this challenge, per policy.",
+      "acquired_from": "https://shotgun.live/en/venues/rex-club",
+      "acquired_at": "2026-08-26T22:46:03Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/rex-club-paris-01/evidence/shotgun-venue-raw.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,211 @@
+{
+  "investigation_id": "petit-bain-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T23:35:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC (curl, plain HTTP GET, descriptive User-Agent, no authentication/browser) against the venue's own official '/agenda/' page and one per-event detail page, followed by a genuine Level 2 STRUCTURAL check of this WordPress site's own /wp-json/ REST route index once Level 1 left the full event date (day+month, but never a year) unresolved."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A plain curl GET of https://petitbain.org/agenda/ returned this venue's own bespoke WordPress theme ('petitbain') custom-post-type 'evenement' archive, containing 59 static event cards (all 59 cleanly parsed by this investigation's own extraction across both of this theme's card sub-templates). Each card states its own WordPress post ID, first-party detail-page URL, title(s), and a 'weekday day month-name' date string — but NEITHER the agenda list NOR a sampled per-event detail page (https://petitbain.org/evenement/boris/) ever states a year anywhere in first-party page content. The venue's own page-level JSON-LD (WebPage/BreadcrumbList/WebSite) carries no Event data and no year context either. Escalated to Level 2 to check whether a structured JSON path might expose the missing year (and price/time).",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Fetched this WordPress site's own /wp-json/ REST route index (238 registered routes). No 'wp/v2/evenement' custom-post-type REST route is registered (direct request to /wp-json/wp/v2/evenement returned HTTP 404 — confirmed live, not merely absent from the index). The only event-adjacent registered namespace, '/pys-facebook/v1/event', is a POST-only Facebook-Pixel conversion-tracking endpoint (PixelYourSite plugin: args are event/data/ids/eventID/woo_order/order_key/referrer_url — a client-side analytics callback, not an event-data feed) — confirmed by a direct GET (HTTP 404, correctly rejecting the wrong method) and by its own documented args in the route index. No better structured data path exists; the static agenda page itself remains the only public event-data path, and it never states a year.",
+      "evidence_refs": ["ev-wp-json-index", "ev-wp-json-pys-facebook-404", "ev-wp-json-evenement-404"]
+    }
+  ],
+  "source_candidate_id": "petit-bain-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Petit Bain (floating venue/barge moored at 7 Port de la Gare, 75013 Paris, near the Bibliothèque François Mitterrand)",
+  "official_url": "https://petitbain.org/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html"],
+    "notes": "The retained agenda page's own <title> reads 'Agenda | Petit Bain – Équipement culturel flottant' ('floating cultural facility') at the venue's own domain petitbain.org. The retained page's own footer directly states the venue's own address: '7 Port de la gare - 75013 Paris' — matching the assigned venue address exactly. Every image asset is self-hosted under petitbain.org/wp-content/."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress, bespoke theme 'petitbain' (wp-content/themes/petitbain/), custom post type 'evenement', NOT exposed via wp-json REST. Every event is a static, repeated HTML card ('unevt post-{ID} evenement ...') directly on the agenda archive page itself — no client-side rendering or pagination needed to see the full (currently 59-event) listing. Ticket purchase, where present, redirects to a third-party ticketing domain (billetterie.seetickets.fr) whose own outbound URL slug happens to include a full date with year (e.g. '20-octobre-2026') — noted for transparency, but this policy treats a third-party domain as a discovery lead, not first-party fact authority, so it is NOT used to complete this source's own date field.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-html"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://petitbain.org/agenda/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    {
+      "kind": "WP_JSON_REST_INDEX",
+      "url": "https://petitbain.org/wp-json/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-wp-json-index", "ev-wp-json-evenement-404"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Boris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own first '<span class=\"titartprog\">' (concert-template cards) or '<div id=\"nomsoiree\">' (soirée/club-template cards) text, stated directly.",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Each card's own '#ladatevtmin' div directly states a weekday abbreviation + day + French month name (e.g. 'mar 20 octobre') — but genuinely NEVER a year, on the agenda list OR on the sampled per-event detail page (https://petitbain.org/evenement/boris/, checked explicitly). No page/section heading anywhere on either retained page states a year either (the page's own JSON-LD 'datePublished'/'dateModified' metadata fields are page-authoring timestamps, not event dates, and were not used). A year could only be produced here by AI plausibility reasoning (e.g. 'today is August 2026, so a card showing October is probably this October') — exactly the AI_INFERENCE the policy prohibits from ever reaching PROVEN — so this stays honestly PARTIAL with no claimed value, never fabricated.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html"]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No time-of-day is stated anywhere on the list card or the sampled detail page.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end-time or end-date is stated anywhere on either the list card or the sampled detail page.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Petit Bain, 7 Port de la Gare, 75013 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source. The retained page's own footer directly states the full address ('7 Port de la gare - 75013 Paris').",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "10537",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own root element class attribute carries 'post-{ID}' (e.g. 'post-10537') — this theme's own WordPress post ID, a standard structural convention of the CMS itself, directly exposed on every card, the same class of documented CMS-ID convention already accepted for Le Trianon's data-id.",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://petitbain.org/evenement/boris/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each card's own anchor 'href', stated directly — this venue's own first-party detail page.",
+      "evidence_refs": ["ev-agenda-html"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price is shown on the list card or the sampled detail page. Where ticketing exists at all it redirects to the third-party billetterie.seetickets.fr checkout domain (and is entirely absent — the outbound link is HTML-commented-out — for sold-out shows), which this policy does not treat as first-party price authority.",
+      "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "NEW_FAMILY_REQUIRED",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-html", "petit-bain-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "start_date can only ever reach PARTIAL (day+month, no year) from this source's own first-party pages. This is a genuine, honest limitation of the source itself, not a parsing gap — no first-party page anywhere states a year. Downstream Event resolution will need its own policy for handling a day/month-only Observation (e.g. combining with a separately-governed external signal) rather than this collector ever inventing one."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (page title, footer address, self-hosted asset URLs).",
+      "acquisition_class WORDPRESS (bespoke theme, not REST-exposed) reached via a genuine Level 1 -> Level 2 escalation: Level 1 found real, complete card data but never a year; Level 2 confirmed no structured JSON path exists that improves on this.",
+      "A CONFIRMED public data path retained: the agenda archive page itself, exposing all 59 currently-listed events at once.",
+      "title, venue_location, source_record_id, and event_url are all PROVEN with basis DIRECT_SOURCE.",
+      "start_date is honestly PARTIAL (not fabricated to PROVEN) because this source's own first-party pages never state a year anywhere — recording this honestly, per policy, means READY_FOR_ACTIVATION's activation gates are not attempted here even though they would technically not be blocked by a PARTIAL start_date; READY_FOR_OFFLINE_PROOF is the honest, calibrated next step instead.",
+      "A bespoke collector family is required (NEW_FAMILY_REQUIRED): this theme's own card markup ('unevt'/'ladatevtmin'/'titevtprog'/'titartprog'/'nomsoiree') does not match any existing reusable family, including the superficially similar ingestion/wp-evenement-cards/ (Le Trianon/Élysée Montmartre), whose cards always state a full day+month+YEAR string.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/petit-bain.test.mjs, 6/6 passing) proving the bespoke ingestion/petit-bain-paris/ adapter reproduces every claimed field deterministically against the retained fixture, and proving it never promotes start.date past null/TEXT_ONLY when no year is present.",
+      "No unresolved CRITICAL blocker (one MODERATE blocker recorded honestly: the source-wide missing-year limitation)."
+    ],
+    "evidence_refs": ["ev-agenda-html", "ev-detail-boris-html", "petit-bain-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/agenda/' page — the full, byte-faithful raw response (214,180 bytes), retained in full (not truncated) since it is a single bounded page fetch.",
+      "acquired_from": "https://petitbain.org/agenda/",
+      "acquired_at": "2026-08-26T23:10:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/petit-bain-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail-boris-html",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One sampled per-event detail page (the 'Boris' show), retained in full (117,948 bytes) to confirm honestly that no year, time, or price is stated at the detail-page level either.",
+      "acquired_from": "https://petitbain.org/evenement/boris/",
+      "acquired_at": "2026-08-26T23:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/petit-bain-paris-01/evidence/detail-boris-raw.html"
+    },
+    {
+      "evidence_id": "ev-wp-json-index",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "This WordPress site's own /wp-json/ REST route index (238 registered routes), retained in full, used to confirm no 'wp/v2/evenement' route is registered and to identify the one event-adjacent namespace actually present ('pys-facebook/v1/event').",
+      "acquired_from": "https://petitbain.org/wp-json/",
+      "acquired_at": "2026-08-26T23:20:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/petit-bain-paris-01/evidence/wp-json-index-raw.json"
+    },
+    {
+      "evidence_id": "ev-wp-json-pys-facebook-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A direct GET of the one event-adjacent registered REST route confirms it is a POST-only Facebook-Pixel conversion-tracking callback, not an event-data feed (HTTP 404 on GET, correctly rejecting the wrong method).",
+      "acquired_from": "https://petitbain.org/wp-json/pys-facebook/v1/event",
+      "acquired_at": "2026-08-26T23:21:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/petit-bain-paris-01/evidence/wp-json-pys-facebook-raw.json"
+    },
+    {
+      "evidence_id": "ev-wp-json-evenement-404",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A direct GET confirms no REST route is registered for the 'evenement' custom post type (HTTP 404), settling that no structured JSON path exists beyond the static HTML agenda page.",
+      "acquired_from": "https://petitbain.org/wp-json/wp/v2/evenement?per_page=5",
+      "acquired_at": "2026-08-26T23:21:30Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/petit-bain-paris-01/evidence/wp-json-evenement-raw.json"
+    },
+    {
+      "evidence_id": "petit-bain-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/petit-bain.test.mjs, 6 tests) re-parsing this investigation's own retained fixture (fixtures/petit-bain-paris/agenda-page-sample.html, a byte-faithful excerpt covering both of this theme's card sub-templates) through the bespoke ingestion/petit-bain-paris/ collector and reproducing every claimed field value deterministically — including proving start.date is never fabricated past null when no year is present.",
+      "acquired_from": "tests/petit-bain.test.mjs",
+      "acquired_at": "2026-08-26T23:45:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/petit-bain-paris-01/evidence/agenda-raw.html"
+    }
+  ],
+  "supersedes": null
+}

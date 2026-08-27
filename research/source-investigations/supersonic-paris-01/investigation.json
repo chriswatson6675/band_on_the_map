@@ -1,0 +1,191 @@
+{
+  "investigation_id": "supersonic-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:47:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official /events/ page, then against the WordPress REST API endpoint that page's own HTML directly links to (wp-json/tribe/events/v1/events) — both plain unauthenticated GETs, no escalation. The /events/ page's own <script type=application/ld+json> block already carries full schema.org Event data for the current week; the linked REST API (The Events Calendar / Events Calendar Pro plugin, the SAME generic family already proven for ccb-lisbon-01 and yaam-berlin-01) returns the venue's full 95-event schedule across 2 pages."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the official events page (https://supersonic-club.fr/events/) found a WordPress site running The Events Calendar / Events Calendar Pro (confirmed: 'tribe-events'/'tribe_events'/'wp-json/tribe/events/v1/' markup throughout) whose own <script type=application/ld+json> block already carries 7 full schema.org Event records (name/startDate/endDate/location/offers) for the current week. The same page's own static <a href> links (an 'Add to calendar' feature) directly advertise the plugin's own public REST API endpoint (https://supersonic-club.fr/wp-json/tribe/events/v1/events) — a further plain, unauthenticated GET of that SAME publicly-linked endpoint returned the venue's full 95-event schedule across 2 pages, each event carrying id/title/start_date/utc_start_date/venue/cost/url directly. This fully answers the investigation question at Level 1 (a plain request, following the page's own advertised link, with no browser/JS/authentication); no structural/browser escalation was needed.",
+      "evidence_refs": ["ev-events-page", "ev-tribe-api-p1", "ev-tribe-api-p2"]
+    }
+  ],
+  "source_candidate_id": "supersonic-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Supersonic (concert/club venue, 9 rue Biscornet, 75012 Paris — includes its sister room 'Supersonic Records', same operator, same address)",
+  "official_url": "https://supersonic-club.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page", "ev-tribe-api-p1"],
+    "notes": "The retained events page's own JSON-LD 'location.name' states 'SUPERSONIC' directly, with a full postal address ('9 Rue Biscornet, Paris, 75012, France') and telephone matching this task's assigned address exactly, at the venue's own domain supersonic-club.fr. The REST API's own per-event 'venue' object independently confirms the same address for BOTH 'SUPERSONIC' and 'Supersonic Records' — a first-party confirmation that these are the same operator/building, per this task's own note, not two separate venues."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress running The Events Calendar + Events Calendar Pro (confirmed: 'tribe-events-c-*' CSS classes, 'tribe_events' post-type-archive class, 'wp-json/tribe/events/v1/' and 'wp-json/tribe/views/v2/html' links, webcal:// ICS export links). The plugin's own bundled REST API v1 (https://supersonic-club.fr/wp-json/tribe/events/v1/events) is public, unauthenticated, and directly linked from the plugin's own rendered HTML — the SAME generic family and acquisition path already proven for ccb-lisbon-01 (Lisbon) and yaam-berlin-01 (Berlin), requiring ZERO new collector code (ingestion/events-calendar-api/ + ingestion/events-calendar-api/observation-adapter.mjs, unmodified). The /events/ listing page's own JSON-LD is corroborating evidence, not the primary data path (it only exposes the current week's ~7 events, a date-windowed view; the REST API exposes the full 95-event schedule across 2 pages of 50).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page", "ev-tribe-api-p1", "ev-tribe-api-p2"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_JSONLD",
+      "url": "https://supersonic-club.fr/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-page"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API",
+      "url": "https://supersonic-club.fr/wp-json/tribe/events/v1/events?per_page=50",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-tribe-api-p1", "ev-tribe-api-p2"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Greg Freeman • Twine • Jobie",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own 'title' field (and the JSON-LD's own 'name' field, independently corroborating), stated directly.",
+      "evidence_refs": ["ev-tribe-api-p1", "ev-events-page"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-27",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own 'start_date' local field ('2026-08-27 19:00:00'), stated directly. IMPORTANT HONEST CAVEAT: this record ALSO carries a 'utc_start_date' field ('2026-08-27 18:00:00', a fixed 1-hour delta from local) and the JSON-LD's own 'startDate' states an explicit '+01:00' offset — but France observes Central European SUMMER Time (CEST, UTC+2) from late March to late October, so the TRUE correct UTC offset for a late-August date is +02:00, not +01:00. This source's own 'UTC'/offset computation therefore appears to use a FIXED, non-DST-aware offset rather than genuinely resolving 'Europe/Paris' with its seasonal rule — see collector_assessment.blockers. The calendar-DATE portion ('2026-08-27') is unaffected by this and remains fully PROVEN either way.",
+      "evidence_refs": ["ev-tribe-api-p1", "ev-events-page"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00 (Europe/Paris local wall-clock time, as directly stated by the source's own 'start_date' field)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Stated directly by the source's own local 'start_date' field. Recorded as the local wall-clock value, NOT as a confirmed UTC instant — see start_date's notes on this source's own apparently DST-unaware 'utc_start_date'/JSON-LD offset fields.",
+      "evidence_refs": ["ev-tribe-api-p1"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-08-27T23:00 (same calendar day, local)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own 'end_date' field ('2026-08-27 23:00:00') and the JSON-LD's own 'endDate' ('2026-08-27T23:00:00+01:00') both directly state a same-day, 4-hour-later end time — a genuine performance end-time, not a Tempodrom-style 'last calendar day of a multi-day run' placeholder (confirmed across every sampled record: every end_date shares the same calendar day as its own start_date).",
+      "evidence_refs": ["ev-tribe-api-p1", "ev-events-page"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "SUPERSONIC / Supersonic Records, 9 Rue Biscornet, Paris, 75012, France",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own per-event 'venue' object directly states BOTH 'SUPERSONIC' and 'Supersonic Records' as venue names across the sampled 95-event schedule, but with the IDENTICAL address ('9 Rue Biscornet Paris 75012 France') in every case — confirming this task's own note that these are one operator/building sharing the same room, not two separate venues. Treated as a single canonical venue entity.",
+      "evidence_refs": ["ev-tribe-api-p1"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "the record's own numeric WordPress post 'id'",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own numeric 'id' field, the platform's own permanent primary-key identifier for its REST resource — a documented, stable platform convention (the same judgement already accepted for yaam-berlin-01). Not independently re-verified by a second fetch of the identical event within this investigation's bounded scope, but WordPress post IDs are a well-established stable platform identifier by design, not a value this investigation invented.",
+      "evidence_refs": ["ev-tribe-api-p1"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://supersonic-club.fr/event/greg-freeman-twine/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own 'url' field (and the JSON-LD's own 'url' field, independently corroborating), stated directly.",
+      "evidence_refs": ["ev-tribe-api-p1", "ev-events-page"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Gratuit (free) for the sampled record; other sampled records state e.g. '10€'",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The REST API's own 'cost' field is genuinely populated per-event (unlike most other WordPress-based sources this project has investigated, e.g. ccb-lisbon-01, where it is empty) — a real, complete, first-party price/free-entry statement.",
+      "evidence_refs": ["ev-tribe-api-p1"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-tribe-api-p1", "ev-tribe-api-p2", "supersonic-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "This source's own 'utc_start_date'/'utc_end_date' fields (and the corresponding JSON-LD '+01:00' offset) do not appear to account for French Summer Time (CEST, UTC+2, in effect for this event's own late-August date) — comparing the same record's local 'start_date' ('2026-08-27 19:00:00') against its own 'utc_start_date' ('2026-08-27 18:00:00') shows a fixed 1-hour delta, i.e. this WordPress install's own timezone/UTC computation appears pinned to a fixed UTC+1 offset rather than genuinely resolving 'Europe/Paris' with its seasonal DST rule. Using this source's own utc fields as a genuinely confirmed UTC_INSTANT (the EXISTING ingestion/events-calendar-api/observation-adapter.mjs's default behaviour, already proven correct for ccb-lisbon-01/yaam-berlin-01) would silently misattribute a 1-hour error during DST months for THIS specific source. NOT CRITICAL — the local start_date/end_date fields remain fully reliable; the mitigation (documented, not applied, per this task's instruction not to edit shared generic modules) is for the eventual Paris wiring layer to omit/null this source's own utc_start_date/utc_end_date fields before calling the existing generic adapter (yielding FLOATING_LOCAL certainty from the local fields alone, which is correct) rather than trusting this source's own apparently-incorrect UTC arithmetic."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (JSON-LD's own venue name+address at the venue's own domain, independently corroborated by the REST API's own venue object for both room names).",
+      "acquisition_class PUBLIC_JSON_API, a resolved/supported class, reached at Level 1 (a plain GET of a link the site's own HTML already advertises) with no escalation needed.",
+      "Multiple CONFIRMED public data paths retained: the JSON-LD listing page (current week) and the full 95-event REST API (2 pages of 50).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the platform's own stable numeric post id, following the documented yaam-berlin-01 precedent.",
+      "collector_assessment.recommended_family is JSON_API, this project's own existing, fully generic, already-proven collector family (ingestion/events-calendar-api/) — ZERO new collector code required (PARIS_ZERO_CODE).",
+      "venue_location and price both additionally PROVEN with basis DIRECT_SOURCE.",
+      "No unresolved CRITICAL blocker — the one MINOR blocker (this source's own apparently DST-unaware UTC field) is a documented wiring-time caveat, not a data-availability gap, and does not affect the plain local date/time fields' own reliability.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/supersonic-paris.test.mjs), reproducing every claimed field value deterministically and offline via the EXISTING, unmodified ingestion/events-calendar-api/ and ingestion/json-ld/ families against this investigation's own retained fixtures — gate 9/v1.2 satisfied."
+    ],
+    "evidence_refs": ["ev-events-page", "ev-tribe-api-p1", "supersonic-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official events listing page, full raw HTTP response body, byte-faithful — its own <script type=application/ld+json> block carries 7 full schema.org Event records for the current week, and its own static markup links to the REST API endpoint used below.",
+      "acquired_from": "https://supersonic-club.fr/events/",
+      "acquired_at": "2026-08-26T22:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/supersonic-paris-01/evidence/events-raw.html"
+    },
+    {
+      "evidence_id": "ev-tribe-api-p1",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public REST API v1 events endpoint, page 1 of 2 (50 of 95 total events), full raw HTTP response body, byte-faithful.",
+      "acquired_from": "https://supersonic-club.fr/wp-json/tribe/events/v1/events?per_page=50",
+      "acquired_at": "2026-08-26T22:47:15Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, Accept: application/json, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/supersonic-paris-01/evidence/tribe-events-api.json"
+    },
+    {
+      "evidence_id": "ev-tribe-api-p2",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own public REST API v1 events endpoint, page 2 of 2 (remaining 45 of 95 total events), full raw HTTP response body, byte-faithful.",
+      "acquired_from": "https://supersonic-club.fr/wp-json/tribe/events/v1/events?per_page=50&page=2",
+      "acquired_at": "2026-08-26T22:47:50Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, Accept: application/json, no authentication, no browser)",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/supersonic-paris-01/evidence/tribe-events-api-page2.json"
+    },
+    {
+      "evidence_id": "supersonic-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/supersonic-paris.test.mjs) re-parsing this investigation's own retained fixtures via the EXISTING, unmodified ingestion/events-calendar-api/ and ingestion/json-ld/ generic families, reproducing every claimed field value deterministically — including an explicit test proving the utc_start_date DST-inconsistency caveat is real and reproducible, not a one-off misreading.",
+      "acquired_from": "tests/supersonic-paris.test.mjs",
+      "acquired_at": "2026-08-26T23:59:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/supersonic-paris-01/evidence/tribe-events-api.json"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,169 @@
+{
+  "investigation_id": "cabaret-sauvage-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T14:45:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's official '/agenda' listing page (Webflow) and one linked event detail page."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.cabaretsauvage.com/agenda immediately exposed a Webflow CMS Collection List (class=\"w-dyn-list\"/\"w-dyn-item\") rendered as plain static HTML, with ~120 dated cards (class=\"post-date\") each carrying a weekday+date badge, a title, a category, and its own canonical URL. A second plain GET of one linked detail page (Tony Vega) confirmed title/date/price/door-time directly, but also surfaced a genuine internal date inconsistency (see field_assessment.start_date) — sufficient to complete the investigation without further escalation, though not sufficient to establish start_date as a trustworthy PROVEN fact for this source.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    }
+  ],
+  "source_candidate_id": "cabaret-sauvage-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Cabaret Sauvage (concert/club/festival venue, 59 Boulevard Macdonald, 75019 Paris — Parc de la Villette)",
+  "official_url": "https://www.cabaretsauvage.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page"],
+    "notes": "Retained page's own <title> reads 'Cabaret Sauvage | Agenda' at the venue's own domain cabaretsauvage.com. The sitewide footer states '59 Bd Macdonald / 75019 Paris', matching the venue's known address, and all media assets are self-hosted under Webflow's own CDN (cdn.prod.website-files.com) for this one site."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Webflow — event cards are rendered server-side/statically as CMS Collection List items ('w-dyn-item'/'w-dyn-list'), not fetched client-side; no schema.org JSON-LD is present anywhere sampled. Ticketing is delegated to an informal Linktree ('linktr.ee/cabaretsauvagebilletterie') rather than a dedicated ticketing-platform integration, and at least one individual event's own 'Points de vente' field names a ticket-reseller domain ('Ticketmas.com') that does not match any recognised, canonical ticketing brand — noted honestly as a further data-quality concern, not verified further (out of scope, and no claim is made about that domain's legitimacy either way).",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://www.cabaretsauvage.com/agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-page"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.cabaretsauvage.com/work/tony-vega",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Tony Vega",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The listing card's own work-title text, confirmed identical on the event's own detail page heading (h1.heading-4).",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "start_date": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "notes": "A genuine, retained, first-party CONTRADICTION was found on this event's own official detail page, not merely a missing-context gap: the page's own hero badge states 'MER 04.11.26' (matching the listing card's own 'post-date' badge, also 'MER 04.11.26', and the page's own body sentence 'mercredi 4 novembre' — three mutually consistent DIRECT statements), while a separately-labelled 'Date :' field on the SAME page states '11/5/2026' in an unstated numeric format. A mechanical Gregorian weekday check (not model judgement) shows neither reading of '11/5/2026' resolves the conflict in the majority's favour: 5 November 2026 falls on a Thursday and 11 May 2026 falls on a Monday, and NEITHER is the Wednesday ('MER') the other three signals agree on and independently verify. Because this is a direct contradiction between two first-party fields (not a gap DETERMINISTIC_CONTEXT could fill), and resolving it in favour of the majority would require a plausibility judgement this policy classifies as AI_INFERENCE, start_date is recorded honestly as AMBIGUOUS rather than PROVEN for this sampled record. This also raises a broader per-record data-quality concern about this source that a future collector would need to handle explicitly (e.g. flagging or discarding records with internally conflicting date fields) rather than silently trusting either value at scale.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "A door-opening time ('Ouverture des portes : 19:00') is stated on the detail page, but since the very date this time would attach to is itself unresolved (AMBIGUOUS, see start_date) for this sampled record, and this is a door time rather than a confirmed performance start time, it stays PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No end time or end date is stated anywhere on either sampled page.",
+      "evidence_refs": ["ev-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Cabaret Sauvage, 59 Boulevard Macdonald, 75019 Paris (Parc de la Villette)",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "Neither sampled page repeats a full venue name+address directly beside the event card itself, but this is mechanically determinable: the site is a dedicated single-venue domain with no other venue ever named, and its sitewide footer states the address directly, unchanged across both sampled pages.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"],
+      "derivation": {
+        "rule": "every event card and detail page on this dedicated single-venue domain belongs to the one venue named in that domain's own sitewide footer; concatenate the site's own footer address with that implied venue identity to get each event's venue_location",
+        "inputs": [
+          "site is a single-venue dedicated domain (cabaretsauvage.com) with no other venue referenced anywhere sampled",
+          "sitewide footer states '59 Bd Macdonald / 75019 Paris' identically on the listing and detail page"
+        ]
+      }
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "tony-vega",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The event's own Webflow CMS slug ('/work/tony-vega'), used as this source's own canonical path — the same documented judgement as tempodrom-berlin-01/le-trabendo-paris-01. This is independent of the start_date ambiguity above; the slug itself is unambiguous.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.cabaretsauvage.com/work/tony-vega",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The card's own href, confirmed to resolve to the detail page sampled.",
+      "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "55 EUR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page directly states 'Tarifs : 55€'. This value is independent of, and unaffected by, the start_date ambiguity above.",
+      "evidence_refs": ["ev-event-detail"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-agenda-page", "ev-event-detail"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "At least one sampled record (Tony Vega) carries two directly-stated, mutually-inconsistent date values on its own official detail page (a weekday-consistent hero/list badge vs. a differently-formatted 'Date:' field), with no source-declared rule resolving the conflict. A collector cannot safely trust either the list-page badge or the detail-page 'Date:' field for every record without per-record human verification or a validated cross-check rule, undermining reliable automated start_date acquisition at scale for this source specifically."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Ticketing is delegated to an informal Linktree link rather than a dedicated ticketing platform, and at least one sampled record names a ticket-reseller domain ('Ticketmas.com') that does not match any recognised canonical ticketing brand — a further signal of lighter editorial/technical quality control on this venue's own site relative to the other three Paris venues investigated in this same batch."
+      }
+    ]
+  },
+  "decision": {
+    "status": "HUMAN_REVIEW",
+    "reasons": [
+      "Identity PROVEN and a genuine public STATIC_HTML acquisition path exists (Webflow CMS Collection List, CONFIRMED public data paths on both the listing and one detail page).",
+      "title, source_record_id, event_url, and price all PROVEN with basis DIRECT_SOURCE — these facts are independently reliable.",
+      "However, start_date — one of the two fields this policy treats as essential for activation — could only be assessed as AMBIGUOUS, not PROVEN, because the one sampled event's own official detail page contains two directly-stated, mutually-contradictory date values, cross-checked mechanically (Gregorian weekday computation) against a third, independently-consistent signal (the listing card's own badge). Resolving this in favour of the majority would require a plausibility judgement this policy classifies as AI_INFERENCE, which can never be the basis of a PROVEN field.",
+      "This is a genuine, retained, first-party data-quality problem specific to this source (not a technical acquisition blocker) — it needs a human decision about whether/how to handle per-record date conflicts (e.g. discarding conflicting records, requiring manual confirmation, or determining whether this is rare or systematic across the venue's ~120 listed events) before any collector is built or any activation is considered, rather than an AI investigator unilaterally picking a side or discarding an otherwise largely-usable source.",
+      "Combined with the informal Linktree ticketing delegation and one observed non-canonical-looking ticket-reseller domain, this venue's overall data-provenance profile is honestly weaker than the other three Paris venues investigated in this same batch, matching the concern flagged at task assignment.",
+      "No collector code was written for this investigation, per this project's own instruction to only proceed with ingestion work when a decision reaches READY_FOR_OFFLINE_PROOF or READY_FOR_ACTIVATION."
+    ],
+    "evidence_refs": ["ev-agenda-page", "ev-event-detail"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-agenda-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official '/agenda' listing page, retained verbatim in full (181,559 bytes) — a Webflow CMS Collection List with roughly 120 real, current dated event cards.",
+      "acquired_from": "https://www.cabaretsauvage.com/agenda",
+      "acquired_at": "2026-08-26T13:38:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cabaret-sauvage-paris-01/evidence/agenda-page.html"
+    },
+    {
+      "evidence_id": "ev-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One linked event's own detail page (Tony Vega), retained verbatim in full (172,990 bytes) — the page containing the internally-contradictory date fields documented in field_assessment.start_date.",
+      "acquired_from": "https://www.cabaretsauvage.com/work/tony-vega",
+      "acquired_at": "2026-08-26T14:05:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/cabaret-sauvage-paris-01/evidence/event-tony-vega.html"
+    }
+  ],
+  "supersedes": null
+}

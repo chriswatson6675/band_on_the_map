@@ -1,0 +1,196 @@
+{
+  "investigation_id": "les-trois-baudets-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T14:20:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own homepage, its full /l-agenda listing page, and two of the individual event detail pages linked from it. The list pages themselves carry only plain static <a href> links (no JSON-LD); each individual /l-agenda/{slug} detail page directly embeds its own single schema.org 'Event' JSON-LD block with a full startDate/endDate/location/offers/performer — the same 'list page supplies URLs, detail page supplies JSON-LD' pattern already documented for konzerthaus-berlin-01/lido-berlin-01/b-flat-berlin-01, answered fully at Level 1 with no escalation needed."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of the homepage (https://lestroisbaudets.com/) found a Drupal site (confirmed by /sites/all/themes/t_ltb/ theme paths and 'Drupal' markup) whose homepage's own JSON-LD block is only a generic 'Article' schema (no event data) but whose static markup links to individual /l-agenda/{slug} event pages. The full /l-agenda listing page (still a plain static fetch) exposed 34 such links. Fetching two of those detail pages directly then each returned one clean <script type=\"application/ld+json\"> 'Event' block with name/startDate/endDate/location/offers/performer — fully answering the investigation question at Level 1, with no structural/browser escalation needed.",
+      "evidence_refs": ["ev-homepage", "ev-agenda-listing", "ev-event-jacob-alon", "ev-event-les-nuits-d-ete"]
+    }
+  ],
+  "source_candidate_id": "les-trois-baudets-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Les Trois Baudets (concert venue/cabaret, 64 boulevard de Clichy, 75018 Paris)",
+  "official_url": "https://lestroisbaudets.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage"],
+    "notes": "The retained homepage's own JSON-LD 'Article' block states publisher.name 'Les Trois Baudets' at the venue's own domain lestroisbaudets.com, and the homepage's own footer/contact text states '64 Boulevard de Clichy, 75018' — a first-party match to this investigation's assigned venue address. Each sampled event detail page's own JSON-LD 'location.name' also states 'Les Trois Baudets' directly."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Drupal (confirmed: /sites/all/themes/t_ltb/ theme asset paths and 'Drupal' generator/markup signatures throughout). The homepage and /l-agenda listing pages themselves carry no JSON-LD event data, only plain static <a href='/l-agenda/{slug}'> links; each individual event detail page embeds its own single schema.org 'Event' JSON-LD block directly.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-homepage", "ev-agenda-listing", "ev-event-jacob-alon", "ev-event-les-nuits-d-ete"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE",
+      "url": "https://lestroisbaudets.com/l-agenda",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-agenda-listing"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE_WITH_JSONLD",
+      "url": "https://lestroisbaudets.com/l-agenda/jacob-alon",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Jacob Alon",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event detail page's own JSON-LD 'name' field, stated directly.",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-03",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event detail page's own JSON-LD 'startDate' date portion (e.g. '2026-09-03T20:00'), stated directly. Note: the /l-agenda list page's own card markup ('evt-date-num'/'evt-date-mois') shows only day+month abbreviation with NO year anywhere on the list page itself — the year is only recoverable from each event's own detail-page JSON-LD, not from the list page alone.",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00 (floating local — no explicit UTC offset suffix on 'startDate')",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event detail page's own JSON-LD 'startDate' time-of-day portion is stated directly and unambiguously (e.g. '2026-09-03T20:00'), so the SOURCE FACT is PROVEN. IMPORTANT IMPLEMENTATION CAVEAT (see collector_assessment.blockers): this source's own 'startDate'/'endDate' omit a seconds component (\"...T20:00\", not \"...T20:00:00\"), and the EXISTING, unmodified ingestion/json-ld/observation-adapter.mjs's ISO_NO_OFFSET_RE currently REQUIRES seconds — so today's shared module actually falls back to certainty TEXT_ONLY (raw string preserved, but date/time not extracted) for this exact source shape, not DATE_ONLY/FLOATING_LOCAL. This is a small, described, NOT-YET-APPLIED fix to the shared module (see blockers below), not a fabricated field value — the field_assessment above reflects what the source states, proven by direct reading of the retained evidence.",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-03T23:00 (floating local)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each sampled event's own JSON-LD 'endDate' carries a genuine time-of-day distinct from 'startDate' (both sampled events: exactly 3 hours after start, e.g. Jacob Alon 20:00->23:00, Les Nuits d'Été 20:00->23:00) — unlike Tempodrom Berlin's own 'endDate' (a same-day date-only placeholder with no time component), this looks like a genuine performance end-time estimate, not a last-calendar-day marker. Only 2 records sampled within this investigation's bounded scope; a genuine multi-day event was not observed to confirm this holds at scale. Same seconds-omitted implementation caveat as 'time' above applies to the EXISTING shared adapter's current TEXT_ONLY fallback.",
+      "evidence_refs": ["ev-event-jacob-alon", "ev-event-les-nuits-d-ete"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Les Trois Baudets, 64 Boulevard de Clichy, 75018 Paris",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Single-venue source: every event belongs to this one venue. Each event detail page's own JSON-LD 'location.name' states 'Les Trois Baudets' directly (its 'address' field is not a full postal address, only repeats the name); the full postal address is the venue's own homepage-stated address (see identity above), following this project's existing single-venue-source convention (e.g. Badehaus Berlin).",
+      "evidence_refs": ["ev-homepage", "ev-event-jacob-alon"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "jacob-alon",
+      "basis": "DIRECT_SOURCE",
+      "notes": "No numeric id is exposed on the JSON-LD Event node itself. This source's own Event node also carries no top-level 'url' field at all (unlike e.g. Tempodrom Berlin); its own canonical detail-page URL is instead stated identically on 'offers.url' ('https://lestroisbaudets.com/l-agenda/jacob-alon'), so the slug (last path segment of offers.url) is used as source_record_id — the same documented judgement already established for tempodrom-berlin-01/moog-barcelona-01 (ingestion/lav/discovery.mjs), applied to the field that actually carries the permalink on this source.",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://lestroisbaudets.com/l-agenda/jacob-alon",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event detail page's own JSON-LD 'offers.url' field states this page's own canonical path directly (the Event node itself has no separate top-level 'url'); ingestion/json-ld/observation-adapter.mjs's own existing event_url fallback chain (record.event_url ?? record.ticket_url) already resolves this correctly with no code change.",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "21 EUR (AggregateOffer-style single Offer: préveinte 18€ / sur place 21€, offers.price=21)",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each event detail page's own JSON-LD 'offers.price'/'offers.priceCurrency' fields, stated directly, with a human-readable 'offers.description' distinguishing 'Prévente 18€' from 'Sur place 21€'.",
+      "evidence_refs": ["ev-event-jacob-alon"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_LD",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-event-jacob-alon", "ev-event-les-nuits-d-ete", "les-trois-baudets-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Unlike a single-page bulk JSON-LD array (e.g. Tempodrom Berlin), this source exposes JSON-LD only per individual event detail page — the /l-agenda list page itself carries no JSON-LD, only plain <a href> links. A collector needs a first crawl step (enumerate event detail URLs from the /l-agenda list page, e.g. via the EXISTING ingestion/html-link-discovery/ module) before applying the EXISTING generic ingestion/json-ld/parse.mjs parser per event page — real but modest additional wiring, not a new collector family; both modules already exist unchanged in this repository (see ingestion/berlin/run.mjs's collectListDetailJsonLd() for the exact same pattern already wired for Konzerthaus/Lido/b-flat/SO36/etc.)."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "PARIS_EXISTING_FAMILY_WITH_SMALL_FIX (not applied by this investigation, per this task's 'do not edit shared generic modules yourself' instruction): this source's own 'startDate'/'endDate' values omit a seconds component (e.g. '2026-09-03T20:00', not '...T20:00:00'). ingestion/json-ld/observation-adapter.mjs's own ISO_NO_OFFSET_RE (and ISO_WITH_OFFSET_RE) currently REQUIRE an explicit ':SS' seconds group, so today's unmodified shared module falls back to certainty TEXT_ONLY (raw string preserved, but no date/time extracted — see tests/les-trois-baudets.test.mjs, which asserts this REAL current behaviour) for this source, rather than DATE_ONLY/FLOATING_LOCAL. EXACT FIX NEEDED: widen both regexes' seconds group from mandatory ':\\d{2}' to optional '(?::\\d{2})?' (defaulting a missing seconds group to ':00' before constructing the Date), a small, backward-compatible widening in the same spirit as this project's own existing precedent (ingestion/json-ld/parse.mjs's unquoted-<script>-type-attribute widening made for tempodrom-berlin-01). Until that shared-module fix lands, a live collector for this source would honestly record TEXT_ONLY dates (raw string preserved, safe, never fabricated) rather than DATE_ONLY/FLOATING_LOCAL ones."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (homepage's own JSON-LD publisher name + stated address, matching the assigned venue address; each event page's own JSON-LD location.name also states the venue name directly).",
+      "acquisition_class JSON_LD_EVENT, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "CONFIRMED public data paths retained: the /l-agenda list page (34 event links) plus a sampled event detail page's own full JSON-LD Event block.",
+      "title, start_date, time, end, venue_location, source_record_id, event_url, and price are ALL PROVEN with basis DIRECT_SOURCE as SOURCE FACTS — an unusually complete field set for this Paris cohort.",
+      "recommended_family JSON_LD, this project's own existing, fully generic, already-proven collector family (ingestion/json-ld/parse.mjs), combined with the existing ingestion/html-link-discovery/ module for the list->detail crawl step.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/les-trois-baudets.test.mjs) — but this proof HONESTLY shows the EXISTING, unmodified ingestion/json-ld/observation-adapter.mjs currently normalises this source's own no-seconds ISO date/time strings to certainty TEXT_ONLY (date extraction lost), not the DATE_ONLY/FLOATING_LOCAL richness the raw source data actually supports (see collector_assessment.blockers, MAJOR).",
+      "Decision intentionally stops at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION: no CRITICAL blocker exists, but going live today with the unmodified shared module would silently under-deliver on start_date/end/time richness for this specific source. Per this task's explicit 'do not edit shared generic modules yourself — describe the exact change needed' instruction, the described small regex-widening fix (see blockers) is left for a separate, explicitly-approved change to ingestion/json-ld/observation-adapter.mjs; once applied, this investigation's own PROVEN field values already support READY_FOR_ACTIVATION with zero further new code."
+    ],
+    "evidence_refs": ["ev-event-jacob-alon", "ev-event-les-nuits-d-ete", "les-trois-baudets-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage, full raw response, byte-identical.",
+      "acquired_from": "https://lestroisbaudets.com/",
+      "acquired_at": "2026-08-26T13:45:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/les-trois-baudets-paris-01/evidence/homepage-raw.html"
+    },
+    {
+      "evidence_id": "ev-agenda-listing",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's full /l-agenda listing page (34 event detail links discovered), full raw response, byte-identical.",
+      "acquired_from": "https://lestroisbaudets.com/l-agenda",
+      "acquired_at": "2026-08-26T13:50:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/les-trois-baudets-paris-01/evidence/agenda-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-jacob-alon",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One event's own detail page, embedding a complete schema.org Event JSON-LD block (name/startDate/endDate/location/offers/performer). Full raw response, byte-identical.",
+      "acquired_from": "https://lestroisbaudets.com/l-agenda/jacob-alon",
+      "acquired_at": "2026-08-26T13:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/les-trois-baudets-paris-01/evidence/event-detail-jacob-alon-raw.html"
+    },
+    {
+      "evidence_id": "ev-event-les-nuits-d-ete",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "A second, distinct event's own detail page, sampled to confirm the JSON-LD pattern is consistent across events, not a one-off. Full raw response, byte-identical.",
+      "acquired_from": "https://lestroisbaudets.com/l-agenda/les-nuits-d-ete",
+      "acquired_at": "2026-08-26T13:54:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/les-trois-baudets-paris-01/evidence/event-detail-les-nuits-d-ete-raw.html"
+    },
+    {
+      "evidence_id": "les-trois-baudets-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test (tests/les-trois-baudets.test.mjs) re-parsing this investigation's own retained event-detail fixtures via the EXISTING, UNCHANGED ingestion/json-ld/ and ingestion/html-link-discovery/ modules and reproducing the exact claimed field values deterministically.",
+      "acquired_from": "tests/les-trois-baudets.test.mjs",
+      "acquired_at": "2026-08-26T15:10:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/les-trois-baudets-paris-01/evidence/event-detail-jacob-alon-raw.html"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,205 @@
+{
+  "investigation_id": "caveau-de-la-huchette-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T22:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser/JS execution) against the venue's own homepage (to discover its own month-by-month nav links) and one real month page (September 2026). A prior pass reported this month-page content as empty; re-verified directly and thoroughly in this investigation — it is NOT empty: it is real, static, server-rendered French free text (band residencies per date range), fully present in the plain HTTP response body."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.caveaudelahuchette.fr/1/concerts_septembre_2026_1483451.html immediately exposed a real, complete, plain-text French listing of all 16 September 2026 bookings (act name + date phrase), directly in the static HTML response body — genuinely present, not a client-rendered empty shell as a prior pass had found. No escalation was needed to establish the acquisition path or field coverage; a secondary check of this page's own linked RSS feed (see data_paths) confirmed it is empty and not a better path, but this was exploratory follow-up after Level 1 had already fully answered the investigation, not an escalation the investigation depended on.",
+      "evidence_refs": ["ev-month-september"]
+    }
+  ],
+  "source_candidate_id": "caveau-de-la-huchette-paris-01-candidate",
+  "source_id": null,
+  "venue_reference": "Le Caveau de la Huchette, 5 rue de la Huchette, 75005 Paris",
+  "official_url": "https://www.caveaudelahuchette.fr/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-month-september"],
+    "notes": "The retained homepage's own <title> reads 'CAVEAU DE LA HUCHETTE' at the venue's own domain caveaudelahuchette.fr; the retained month page's own <title> reads 'Concerts septembre 2026 | CAVEAU DE LA HUCHETTE'. The given street address (5 rue de la Huchette, 75005 Paris) is independently corroborated by a live Nominatim geocoding match naming this exact venue at this exact address (see ev-nominatim-caveau) — the page itself does not restate its own street address."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "'simply-website.net'-hosted small-business site builder (footer disclaimer link '//simply-website.net/fr/disclaimer.html'; no WordPress/Drupal/wp-json signal). Each month is its own static page (/1/concerts_{month}_{year}_{id}.html), discoverable from the homepage's own real nav links, and also exposes a per-page RSS URL that is genuinely empty (see data_paths) — a page-template default, not a usable feed.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-home", "ev-month-september"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_MONTH_LIST_PAGE",
+      "url": "https://www.caveaudelahuchette.fr/1/concerts_septembre_2026_1483451.html",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-month-september"]
+    },
+    {
+      "kind": "HTML_HOMEPAGE_MONTH_NAV",
+      "url": "https://www.caveaudelahuchette.fr/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-home"]
+    },
+    {
+      "kind": "RSS",
+      "url": "https://www.caveaudelahuchette.fr/1/rss/1483451.xml",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rss-september"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Leigh Barker Swing Band",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Each booking's own act name, stated directly after the date phrase and a ':' separator in the page's own single summary paragraph.",
+      "evidence_refs": ["ev-month-september", "caveau-de-la-huchette-paris-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-01",
+      "basis": "DETERMINISTIC_CONTEXT",
+      "notes": "The page states its own month/year exactly once ('Septembre 2026'). Each booking line states a French date phrase (a single day, an 'et'-joined pair, or a '(Du) ... au ...' range) that MOSTLY but not always repeats the month name itself (e.g. 'Dimanche 13' states no month at all) — the page's own single month/year heading mechanically governs every line beneath it when the line omits it. All 16 real September 2026 bookings parse deterministically via this one fixed rule with zero unparsed lines, reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-month-september", "caveau-de-la-huchette-paris-01-offline-proof"],
+      "derivation": {
+        "rule": "The page's own single 'Month YYYY' heading supplies the month/year for any date phrase that does not itself state a month. Parse the phrase's first day-number as the start date; concatenate with the resolved month/year as YYYY-MM-DD.",
+        "inputs": ["Septembre 2026 (page's own month/year heading)", "Mardi 1er et mercredi 2 septembre (booking's own date phrase)"]
+      }
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No booking states its own time. The page separately states one generic, page-wide recurring set-time schedule that differs by weekday vs. weekend ('Semaine: 1er set 21h30-22h30 / ... ; Week-end: 1er set 21h30-22h30 / ...'), retained verbatim, but promoting it to a precise per-booking value would require computing each booking's own day-of-week and selecting the matching weekday/weekend branch — a real, mechanical derivation this investigation did not build (kept the investigation bounded), so it stays PARTIAL rather than PROVEN.",
+      "evidence_refs": ["ev-month-september"]
+    },
+    "end": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "Present and PROVEN-quality (via the SAME DETERMINISTIC_CONTEXT derivation as start_date, using the date phrase's own second day-number) only for the residency bookings that genuinely span more than one night (e.g. 'Du lundi 21 au jeudi 24 septembre' -> end 2026-09-24, reproduced offline); genuinely absent for the 9 of 16 single-night bookings. Recorded PARTIAL rather than PROVEN because this single field entry cannot honestly represent 'present for some records, absent for others' as one value.",
+      "evidence_refs": ["ev-month-september", "caveau-de-la-huchette-paris-01-offline-proof"]
+    },
+    "venue_location": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "Not stated per-booking or page-wide as a discrete, structurally-provable field. This source represents exactly one physical venue, consistent with this project's existing single-venue-per-source precedent (badehaus-berlin-01) — venue identity is intended to resolve via source_id at activation time.",
+      "evidence_refs": ["ev-month-september"]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "This source declares NO identifier for a booking at all — no per-booking permalink, no data attribute, nothing this project's stable-identifier rule can call source-declared or empirically proven stable. An explicit alternative identity strategy is used instead and documented here (per the activation-gate exception for this exact case): a deterministic slug of the act's own stated name combined with its own (DETERMINISTIC_CONTEXT-derived) start date, e.g. 'panama-swing-2026-09-05'. Not marked PROVEN because the identifier scheme is this investigation's own construction, not the source's.",
+      "evidence_refs": ["ev-month-september", "caveau-de-la-huchette-paris-01-offline-proof"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "notes": "No per-booking detail URL exists on this source at all — the only URL available for any booking is the shared month page itself (e.g. 'https://www.caveaudelahuchette.fr/1/concerts_septembre_2026_1483451.html'), identical across every booking in that month. Recorded PARTIAL rather than PROVEN since this is not a genuinely per-event URL.",
+      "evidence_refs": ["ev-month-september"]
+    },
+    "price": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "No price/tarif/'gratuit'/euro text appears anywhere on this page.",
+      "evidence_refs": ["ev-month-september"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-month-september", "caveau-de-la-huchette-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "No source-declared per-booking identifier or per-booking URL exists at all — both source_record_id and event_url rely on documented alternative strategies (see field_assessment) rather than a source-stated value. Does not block activation (gate 6 explicitly allows a documented alternative strategy; event_url is not a hard activation gate)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from self-consistent domain/title branding, independently corroborated by an exact-match live Nominatim geocoding result naming this exact venue at the given address.",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed — this venue's own month page is genuinely NOT a client-rendered empty shell (re-verified directly, contradicting a prior pass's finding).",
+      "A CONFIRMED PUBLIC data path retained: the September 2026 month page, exposing all 16 real bookings for that month with zero unparsed lines.",
+      "title PROVEN DIRECT_SOURCE; start_date PROVEN DETERMINISTIC_CONTEXT with an explicit derivation object, mechanically reproduced offline against every one of 16 real bookings, including the lines that omit the month entirely.",
+      "source_record_id has an explicit, documented alternative identity strategy (gate 6's own stated exception) rather than a fabricated ID.",
+      "A genuinely bespoke collector was built and proven offline: ingestion/caveau-de-la-huchette/discovery.mjs + observation-adapter.mjs, fixture fixtures/caveau-de-la-huchette-paris/month-septembre-2026-raw.html, and tests/caveau-de-la-huchette.test.mjs (5/5 passing, node:test, zero network calls) — including a dedicated multi-night-vs-single-night end-date test.",
+      "No unresolved CRITICAL blocker.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (captured `node --test tests/caveau-de-la-huchette.test.mjs` output), satisfying gate 9 and the v1.2 gate 4/5 refinement for the DETERMINISTIC_CONTEXT-basis start_date field."
+    ],
+    "evidence_refs": ["ev-month-september", "caveau-de-la-huchette-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official homepage — full raw HTTP response, byte-identical, containing real nav links to /1/concerts_aout_2026_1483431.html, /1/concerts_septembre_2026_1483451.html, and /1/concerts_octobre_2026_1483452.html.",
+      "acquired_from": "https://www.caveaudelahuchette.fr/",
+      "acquired_at": "2026-08-26T21:43:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/caveau-de-la-huchette-paris-01/evidence/home-raw.html"
+    },
+    {
+      "evidence_id": "ev-month-september",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's own September 2026 month page — full raw HTTP response, byte-identical, containing the page's own month/year heading and a full, real, static-HTML summary paragraph listing all 16 September 2026 bookings.",
+      "acquired_from": "https://www.caveaudelahuchette.fr/1/concerts_septembre_2026_1483451.html",
+      "acquired_at": "2026-08-26T21:44:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/caveau-de-la-huchette-paris-01/evidence/month-septembre-2026-raw.html"
+    },
+    {
+      "evidence_id": "ev-rss-september",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "This page's own linked RSS feed — full raw HTTP response, byte-identical. Contains only empty <channel> metadata (title/link/language), zero <item> elements — a page-template default, not a usable event feed, confirming the free-text HTML page (not this RSS URL) is the real acquisition path.",
+      "acquired_from": "https://www.caveaudelahuchette.fr/1/rss/1483451.xml",
+      "acquired_at": "2026-08-26T22:15:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser)",
+      "content_type": "application/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/caveau-de-la-huchette-paris-01/evidence/rss-septembre-2026-raw.xml"
+    },
+    {
+      "evidence_id": "ev-nominatim-caveau",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Live Nominatim geocoding result for this venue's own given address ('5 rue de la Huchette, 75005 Paris'). Top candidate is named exactly 'Caveau de la Huchette' at this exact address.",
+      "acquired_from": "https://nominatim.openstreetmap.org/search?q=5+rue+de+la+Huchette%2C+75005+Paris&format=jsonv2&addressdetails=1&limit=3&countrycodes=fr",
+      "acquired_at": "2026-08-26T22:48:49Z",
+      "method": "ingestion/geocoding/nominatim.mjs searchNominatimLive() — one single, rate-limited live request",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/caveau-de-la-huchette-paris-01/evidence/nominatim-result.json"
+    },
+    {
+      "evidence_id": "caveau-de-la-huchette-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured output of `node --test tests/caveau-de-la-huchette.test.mjs`: 5/5 tests passing, re-parsing ONLY the retained fixture (fixtures/caveau-de-la-huchette-paris/month-septembre-2026-raw.html) via the real ingestion/caveau-de-la-huchette/ discovery+adapter modules, offline, with zero network calls, reproducing all 16 real bookings and every claimed field value (including the DETERMINISTIC_CONTEXT date derivations and the single-night-vs-multi-night end-date distinction) exactly.",
+      "acquired_from": "tests/caveau-de-la-huchette.test.mjs",
+      "acquired_at": "2026-08-26T23:15:00Z",
+      "method": "node --test tests/caveau-de-la-huchette.test.mjs",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/caveau-de-la-huchette-paris-01/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,175 @@
+{
+  "investigation_id": "salle-pleyel-paris-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-26T21:30:00Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 1 PASSIVE_STATIC only: curl (plain HTTP GET, descriptive User-Agent 'BandOnTheMap-SourceInvestigation/0.1 (+https://github.com/chriswatson6675/band_on_the_map)', no authentication, no browser/JS execution) against the venue's own official 'Concerts & Spectacles' list page, then against ONE real per-event detail page discovered from that list (/evenement/fkj/)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A plain curl GET of https://www.sallepleyel.com/concerts-spectacles/ exposed a WordPress event list (event titles + permalinks to /evenement/{slug}/, paginated up to ?paged=5) but no date/price data on the list page itself. A second plain curl GET of one real linked detail page (https://www.sallepleyel.com/evenement/fkj/) then exposed the actual date/time/price data via the page's own schema.org MICRODATA (not JSON-LD — this page's own <script type=\"application/ld+json\"> is WebPage/BreadcrumbList/WebSite/Organization only, with no Event type at all). Both fetches together fully answered the investigation question at Level 1; no browser/JS execution or further escalation was needed.",
+      "evidence_refs": ["ev-list", "ev-detail"]
+    }
+  ],
+  "source_candidate_id": "salle-pleyel-paris-candidate",
+  "source_id": null,
+  "venue_reference": "Salle Pleyel — 252 Rue du Faubourg Saint-Honoré, 75008 Paris (concert hall, 8th arrondissement)",
+  "official_url": "https://www.sallepleyel.com/concerts-spectacles/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list", "ev-detail"],
+    "notes": "The list page's own event permalinks and the detail page's own retained JSON-LD Organization block ('name':'Salle Pleyel', 'url':'https://www.sallepleyel.com/') both directly confirm identity at the venue's own domain sallepleyel.com, matching the well-known concert hall on Rue du Faubourg Saint-Honoré. The venue's own first-party ticketing subdomain (tickets.sallepleyel.com) is also directly referenced from the detail page, reinforcing this is the venue's own official presence."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (wp-json/oembed and wp-json/wp/v2/pages endpoints observed, but no queryable Events REST route was found — this source's actual event fields live in each event page's own rendered HTML microdata, not a JSON API). The list page's own <script type=\"application/ld+json\"> block is present but is WebPage/BreadcrumbList/WebSite/Organization schema only — it does NOT itself carry a schema.org Event/startDate — so this project's existing ingestion/json-ld/ family does not apply here; the real date/time/price data instead lives in schema.org itemprop microdata attributes plus plain HTML (a <time datetime=\"YYYY-MM-DDUTC HH:MM\"> element and a price-tier <table>) on each event's own detail page.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list", "ev-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "HTML_EVENT_LIST_PAGE_WITH_DETAIL_PAGES",
+      "url": "https://www.sallepleyel.com/concerts-spectacles/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-list"]
+    },
+    {
+      "kind": "HTML_EVENT_DETAIL_PAGE",
+      "url": "https://www.sallepleyel.com/evenement/fkj/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "FKJ",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own retained JSON-LD BreadcrumbList states a clean artist/event name directly ('name':'FKJ' at position 2) — used in preference to the page's own long SEO-sentence <title> ('FKJ en concert à la Salle Pleyel le 16 octobre 2026'), which is also retained but is prose, not a clean title field.",
+      "evidence_refs": ["ev-detail", "salle-pleyel-paris-01-offline-proof"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-10-16",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own schedule <time datetime=\"2026-10-16UTC20:00\"> attribute, a directly machine-readable (if non-standard) date+time concatenation, stated directly.",
+      "evidence_refs": ["ev-detail", "salle-pleyel-paris-01-offline-proof"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:00",
+      "basis": "DIRECT_SOURCE",
+      "notes": "Same <time datetime=\"2026-10-16UTC20:00\"> attribute as start_date, its time-of-day portion. The attribute's own literal 'UTC' text was NOT independently confirmed to be a genuine UTC offset within this bounded investigation — a 20:00 Paris concert start is far more consistent with Europe/Paris local time than true UTC — so this is honestly recorded as FLOATING_LOCAL by the observation adapter, not upgraded to a confirmed UTC instant, matching this project's own documented precedent for exactly this kind of source-side offset/label quirk (see docs/OBSERVATION_PIPELINE.md and the Berlin trial's Lido JSON-LD offset-bug finding).",
+      "evidence_refs": ["ev-detail", "salle-pleyel-paris-01-offline-proof"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "notes": "The page's own itemprop=\"endDate\" microdata element is present but, per this page's own explicit 'First and last date of the event' comment and its identical value to the schedule start time, represents the single-date event's own date again (a single-day-run convention), not a distinct performance end-time — honestly recorded NOT_PRESENT rather than misread as a proven separate fact, mirroring this project's own tempodrom-berlin-01 precedent for a structurally similar 'endDate actually means something else' finding.",
+      "evidence_refs": ["ev-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Salle Pleyel",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own retained JSON-LD Organization block directly states 'name':'Salle Pleyel'; this is a single-venue source (every event is this one venue), so every Observation is resolved to it by source_id, not per-record text.",
+      "evidence_refs": ["ev-detail"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "fkj",
+      "basis": "DIRECT_SOURCE",
+      "notes": "This source exposes no separate numeric event id; each event's own '/evenement/{slug}/' URL is this source's own WordPress permalink, so the slug is used as source_record_id — the same documented judgement already established for badehaus-berlin-01/tempodrom-berlin-01 (a site's own URL-slug permalink as its stable identity).",
+      "evidence_refs": ["ev-detail"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.sallepleyel.com/evenement/fkj/",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The venue's own canonical detail-page URL, stated directly (discovered from the list page's own permalink and confirmed live).",
+      "evidence_refs": ["ev-list", "ev-detail"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "25-85 EUR",
+      "basis": "DIRECT_SOURCE",
+      "notes": "The detail page's own schema.org AggregateOffer microdata directly states itemprop=\"lowPrice\" (25), itemprop=\"highPrice\" (85), and itemprop=\"priceCurrency\" (EURO) — a genuinely complete price range. A separate, more granular price-tier <table> (Cat 1-4, Debout) is also present, retained as supplementary context but not required for this field's PROVEN status.",
+      "evidence_refs": ["ev-detail", "salle-pleyel-paris-01-offline-proof"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STABLE_EVENT_PAGE",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-list", "ev-detail", "salle-pleyel-paris-01-offline-proof"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The list page itself is paginated (?paged=1 through ?paged=5 observed); this bounded investigation confirmed one real detail page (FKJ) end-to-end but did not fetch every list page or every one of the ~40-50 linked detail pages. Discovering ALL detail-page links (list->detail) can reuse the EXISTING, unmodified ingestion/html-link-discovery/discovery.mjs (a genuinely zero-code-change reuse for that half of acquisition), configured with the pattern `href=\"(https://www.sallepleyel.com/evenement/[a-z0-9-]+/)\"` across all 5 pages — not itself proven end-to-end across every page within this bounded investigation."
+      },
+      {
+        "severity": "MINOR",
+        "description": "Only ONE detail page (FKJ) was sampled; other events could plausibly differ in microdata completeness (e.g. a free/complimentary event might omit the AggregateOffer block entirely) — a production collector should treat every microdata field as genuinely optional per-record, never assumed present."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity PROVEN from a self-consistent retained artifact (JSON-LD Organization name, first-party ticketing subdomain).",
+      "acquisition_class STATIC_HTML, a resolved supported class, reached at Level 1 with no escalation needed.",
+      "Two CONFIRMED public data paths retained: the list page (discovery) and one real detail page (fields).",
+      "title and start_date both PROVEN with basis DIRECT_SOURCE.",
+      "source_record_id PROVEN via the site's own URL-slug permalink, following documented precedent.",
+      "recommended_family STABLE_EVENT_PAGE: list->detail discovery reuses the EXISTING ingestion/html-link-discovery/ module unmodified; the actual field-extraction parser (ingestion/salle-pleyel/discovery.mjs) is genuinely new, since this source's own JSON-LD carries no Event data and the real fields live in bespoke schema.org microdata this project's existing ingestion/json-ld/ family does not read.",
+      "No unresolved CRITICAL blocker — both blockers are MINOR and documented.",
+      "DETERMINISTIC_DERIVATION offline-proof evidence retained (tests/salle-pleyel.test.mjs, 5/5 passing)."
+    ],
+    "evidence_refs": ["ev-list", "ev-detail", "salle-pleyel-paris-01-offline-proof"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The venue's official concerts-spectacles list page — the full raw response was 182,426 bytes, dominated by navigation/CSS/theme markup carrying no date/price data. This file retains the page's own <title> plus a contiguous run of real event list-card entries (byte-for-byte substring) — each an `.eventTitle`/`.eventStatus` pair linking to the venue's own `/evenement/{slug}/` permalink. No JSON-LD Event block and no date/price information is present on this list page itself, disclosed here.",
+      "acquired_from": "https://www.sallepleyel.com/concerts-spectacles/",
+      "acquired_at": "2026-08-26T20:50:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to title + a contiguous run of event-card links, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/salle-pleyel-paris-01/evidence/concerts-spectacles-list-raw.html"
+    },
+    {
+      "evidence_id": "ev-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "One real per-event detail page linked from ev-list — the full raw response was 91,864/91,698 bytes. This file retains TWO real, disjoint, byte-for-byte substrings of that one response: (1) the page's own full <script type=\"application/ld+json\"> block (a WebPage/BreadcrumbList/WebSite/Organization graph — retained to show what this source's JSON-LD actually is and is not: it carries NO schema.org Event/startDate), and (2) the page's own schema.org MICRODATA block (itemprop=\"startDate\"/\"endDate\"/AggregateOffer price fields, both machine-readable datetime/itemprop attributes and human-readable French text) plus the venue's own tarifs price-tier table and its own first-party ticketing-platform link.",
+      "acquired_from": "https://www.sallepleyel.com/evenement/fkj/",
+      "acquired_at": "2026-08-26T20:52:00Z",
+      "method": "curl (plain HTTP GET, descriptive User-Agent, no authentication, no browser); response then truncated to the JSON-LD block plus a bounded slice of the date/time/price microdata block, disclosed in this description",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/salle-pleyel-paris-01/evidence/evenement-fkj-detail-raw.html"
+    },
+    {
+      "evidence_id": "salle-pleyel-paris-01-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "A real, dependency-free, no-network offline test suite (tests/salle-pleyel.test.mjs) re-parsing this investigation's own retained fixture (fixtures/salle-pleyel-paris/evenement-fkj-detail.html, a copy of ev-detail) via ingestion/salle-pleyel/discovery.mjs + observation-adapter.mjs and reproducing the exact claimed field values deterministically (5/5 tests passing).",
+      "acquired_from": "tests/salle-pleyel.test.mjs",
+      "acquired_at": "2026-08-26T21:35:00Z",
+      "method": "node --test (this repository's existing test runner)",
+      "content_type": "text/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/salle-pleyel-paris-01/evidence/evenement-fkj-detail-raw.html"
+    }
+  ],
+  "supersedes": null
+}
