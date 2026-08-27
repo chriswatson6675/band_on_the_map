@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { X509Certificate } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { fetchAuditoriEvents, filterAuditoriMusicEvents, normaliseAuditoriRecord, AUDITORI_OWN_HALLS } from "../ingestion/auditori-barcelona/discovery.mjs";
+import { fetchAuditoriEvents, fetchAuditoriText, filterAuditoriMusicEvents, normaliseAuditoriRecord, AUDITORI_OWN_HALLS } from "../ingestion/auditori-barcelona/discovery.mjs";
 import { toObservation, toObservations } from "../ingestion/auditori-barcelona/observation-adapter.mjs";
 
 const EVIDENCE_DIR = "../research/source-investigations/l-auditori-barcelona-01/evidence";
@@ -12,6 +13,31 @@ async function loadFixture(name) {
 async function loadFixtureJson(name) {
   return JSON.parse(await loadFixture(name));
 }
+
+test("the source-scoped TLS intermediate is the retained Sectigo CA, not a disabled-verification workaround", async () => {
+  const pem = await readFile(new URL("../ingestion/auditori-barcelona/sectigo-public-server-authentication-ca-ov-r36.crt", import.meta.url), "utf8");
+  const certificate = new X509Certificate(pem);
+  assert.equal(certificate.ca, true);
+  assert.match(certificate.subject, /CN=Sectigo Public Server Authentication CA OV R36/);
+  assert.match(certificate.issuer, /CN=Sectigo Public Server Authentication Root R46/);
+  assert.equal(certificate.fingerprint, "32:1C:A0:56:E4:E4:8D:57:F1:79:A3:BD:DE:CB:C5:21:3B:99:16:C0");
+});
+
+test("the source-scoped TLS root is the retained self-signed Sectigo R46 root", async () => {
+  const pem = await readFile(new URL("../ingestion/auditori-barcelona/sectigo-public-server-authentication-root-r46.crt", import.meta.url), "utf8");
+  const certificate = new X509Certificate(pem);
+  assert.equal(certificate.ca, true);
+  assert.match(certificate.subject, /CN=Sectigo Public Server Authentication Root R46/);
+  assert.equal(certificate.subject, certificate.issuer);
+  assert.equal(certificate.fingerprint, "AD:98:F9:F3:E4:7D:75:3B:65:D4:82:B3:A4:52:17:BB:6E:F5:E4:38");
+});
+
+test("fetchAuditoriText preserves a bounded timeout and fails closed on transport errors", async () => {
+  await assert.rejects(
+    () => fetchAuditoriText("https://127.0.0.1:1/", { timeoutMs: 100 }),
+    /ECONNREFUSED|timed out/,
+  );
+});
 
 test("fetchAuditoriEvents follows the site's own real from_date cursor pagination, deduplicated, offline (mocked fetchImpl over 2 real retained batches)", async () => {
   const batch1 = await loadFixtureJson("batch-1.json");

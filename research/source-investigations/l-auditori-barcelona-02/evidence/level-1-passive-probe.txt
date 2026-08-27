@@ -1,0 +1,80 @@
+BEATMAPPED-L-AUDITORI-SOURCE-RECOVERY-AND-REPUBLISH-01
+Governed Level 1 PASSIVE_STATIC probe
+Acquired at: 2026-08-27T16:44:23Z through 2026-08-27T16:44:34Z
+No authentication, browser, challenge bypass, or source-side mutation was used.
+
+1. Official events page, ordinary curl GET
+
+Requested URL: https://www.auditori.cat/en/events/
+Final URL: https://www.auditori.cat/en/events/
+Status: 200
+Redirects: 0
+Content-Type: text/html; charset=UTF-8
+Downloaded bytes: 271106
+Elapsed: 3.008553 seconds
+Relevant response headers:
+  Server: Caddy
+  Server: Apache
+  Strict-Transport-Security: max-age=15552000; includeSubDomains
+  Link: <https://www.auditori.cat/en/api/>; rel="https://api.w.org/"
+
+2. Existing AJAX URL, ordinary curl GET matching collector headers
+
+Requested/final URL: https://www.auditori.cat/wp-admin/admin-ajax.php?action=get_auditori_events_query&page=1&limit=30&output_profile=basic_card
+Request headers:
+  X-Requested-With: XMLHttpRequest
+  Referer: https://www.auditori.cat/en/events/
+  Accept: application/json
+Status: 200
+Redirects: 0
+Content-Type: text/html; charset=UTF-8
+Downloaded bytes: 46882
+Elapsed: 2.651764 seconds
+The body parses as a JSON array containing 30 records despite the inaccurate text/html response Content-Type.
+
+3. Exact current collector transport path (Node v24.15.0 / OpenSSL 3.5.5)
+
+Result after 220 ms:
+{
+  "kind": "error",
+  "chain": [
+    {
+      "name": "TypeError",
+      "message": "fetch failed"
+    },
+    {
+      "name": "Error",
+      "message": "unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca",
+      "code": "UNABLE_TO_VERIFY_LEAF_SIGNATURE"
+    }
+  ]
+}
+
+4. Same fetchText call under Node's --use-system-ca mode
+
+{
+  "kind": "result",
+  "elapsed_ms": 892,
+  "status": 200,
+  "ok": true,
+  "content_type": "text/html; charset=UTF-8",
+  "body_bytes": 46882,
+  "json_array": true,
+  "record_count": 30,
+  "first_record": {
+    "id": 116317,
+    "title": "Un mat\u00ed d'orquestra",
+    "event_next_date": "",
+    "hall": "Sala 1 Pau Casals"
+  }
+}
+
+This file is a bounded, manually retained transcript of the direct probe results. It omits transient Set-Cookie values and is therefore byte_faithful=false.
+
+5. Exact validated certificate-chain diagnosis and corrected live proof
+
+See tls-chain-diagnosis.txt, the retained OV R36 intermediate and R46 root,
+and live-acquisition-and-projection.txt. The initial generic error was caused
+by Node being unable to build L'Auditori's OV R36 -> R46 trust path from the
+connection plus its bundled roots. The final source-scoped transport retains
+that exact public chain while leaving certificate and hostname verification on.

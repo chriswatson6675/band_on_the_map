@@ -1,0 +1,20 @@
+Offline proof command:
+  node --test tests/auditori-barcelona.test.mjs
+
+Result on 2026-08-27 after the final OV R36 / R46 correction:
+  tests: 14
+  passed: 14
+  failed: 0
+
+Covered behavior:
+  - retained intermediate is a CA with subject OV R36, issuer R46, and SHA-1 321CA056E4E48D57F179A3BDDECBC5213B9916C0
+  - retained root is a self-signed CA R46 with SHA-1 AD98F9F3E47D753B65D482B3A45217BB6EF5E438
+  - source-scoped transport has a bounded timeout and fails closed
+  - real retained from_date cursor pagination and deduplication
+  - non-2xx rejection
+  - existing music-category inclusion/exclusion behavior
+  - normalization, hall preservation, UTC_INSTANT derivation, TEXT_ONLY fallback, and Observation conversion
+
+The test suite uses the collector code and retained fixtures. It performs no
+live network access. This is a bounded test-output summary and is therefore
+byte_faithful=false.
