@@ -41,10 +41,12 @@ async function readPageSource() {
 test("DiscoveryMap.tsx: SearchCountry includes Spain alongside Portugal/Croatia", async () => {
   const src = await readDiscoveryMapSource();
   // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 additively
-  // appended "Germany" to this same union — this test's own name predates
-  // that and still asserts Spain's presence correctly; the trailing
-  // `| "Germany"` is asserted by its own Berlin-named test below.
-  assert.match(src, /export type SearchCountry = "Portugal" \| "Croatia" \| "Spain" \| "Germany";/);
+  // appended "Germany" to this same union, and
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 additively appended
+  // "France" — this test's own name predates both and still asserts
+  // Spain's presence correctly; the trailing `| "Germany" | "France"` is
+  // asserted by its own Berlin/Paris-named tests below.
+  assert.match(src, /export type SearchCountry = "Portugal" \| "Croatia" \| "Spain" \| "Germany" \| "France";/);
 });
 
 test("DiscoveryMap.tsx: COUNTRY_MAP_VIEWS has a Spain entry with real bounds/center/zoom", async () => {
@@ -106,11 +108,13 @@ test("page.tsx: the Where selector offers Spain alongside Portugal/Croatia", asy
 test("page.tsx: getMarkersForCountry is called with Spain's own marker bucket, not the old 2-argument call", async () => {
   const src = await readPageSource();
   // BEATMAPPED-BERLIN-30-40-VENUE-COLLECTOR-REUSE-TRIAL-01 additively
-  // appended a 4th `germanyMarkers` argument to this same call.
+  // appended a 4th `germanyMarkers` argument to this same call, and
+  // BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01 additively appended a 5th
+  // `franceMarkers` argument.
   assert.match(
     src,
-    /getMarkersForCountry\(country, portugalMarkers, spainMarkers, germanyMarkers\)/,
-    "the 2-argument call silently defaults spainMarkers/germanyMarkers to [] regardless of `country` — see ingestion/map/projection.mjs's own doc comment",
+    /getMarkersForCountry\(country, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers\)/,
+    "the 2-argument call silently defaults spainMarkers/germanyMarkers/franceMarkers to [] regardless of `country` — see ingestion/map/projection.mjs's own doc comment",
   );
 });
 
