@@ -1,0 +1,203 @@
+name: Run BeatMapped Research Proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: "Approved full 40-character candidate commit SHA"
+        required: true
+        type: string
+      research_job:
+        description: "Allowlisted repository-owned research job"
+        required: true
+        type: choice
+        options:
+          - berlin-browser-proof
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beatmapped-remote-research
+  cancel-in-progress: false
+
+jobs:
+  validate-request:
+    name: Validate exact candidate and capability
+    runs-on: ubuntu-latest
+    outputs:
+      candidate_sha: ${{ steps.request.outputs.candidate_sha }}
+      research_job: ${{ steps.request.outputs.research_job }}
+    env:
+      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      RESEARCH_JOB: ${{ inputs.research_job }}
+    steps:
+      - name: Checkout the repository-owned workflow controller
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Reject non-SHA and non-allowlisted input before any SSH access
+        id: request
+        run: |
+          set -euo pipefail
+          node remote-research/validate-request.mjs "$CANDIDATE_SHA" "$RESEARCH_JOB"
+          git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'
+          git fetch --no-tags origin "$CANDIDATE_SHA"
+          git cat-file -e "${CANDIDATE_SHA}^{commit}"
+          CONTAINING_REFS="$(git for-each-ref --format='%(refname)' --contains "$CANDIDATE_SHA" refs/remotes/origin)"
+          test -n "$CONTAINING_REFS"
+          printf 'Candidate is reachable from repository ref(s):\n%s\n' "$CONTAINING_REFS"
+          echo "candidate_sha=$CANDIDATE_SHA" >> "$GITHUB_OUTPUT"
+          echo "research_job=$RESEARCH_JOB" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the exact detached candidate for capability validation
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.candidate_sha }}
+          path: candidate
+
+      - name: Require the versioned controlled-browser capability
+        run: |
+          set -euo pipefail
+          test "$(git -C candidate rev-parse HEAD)" = "$CANDIDATE_SHA"
+          node remote-research/validate-request.mjs "$CANDIDATE_SHA" "$RESEARCH_JOB" candidate
+          {
+            echo "### Run BeatMapped Research Proof"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Job | \`$RESEARCH_JOB\` |"
+            echo "| Exact candidate | \`$CANDIDATE_SHA\` |"
+            echo "| Candidate capability | ✅ PASS |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  research:
+    name: Run isolated read-only proof
+    needs: validate-request
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    environment: beatmapped-collector-production
+    env:
+      CANDIDATE_SHA: ${{ needs.validate-request.outputs.candidate_sha }}
+      RESEARCH_JOB: ${{ needs.validate-request.outputs.research_job }}
+      RUN_TOKEN: gh-${{ github.run_id }}-${{ github.run_attempt }}
+      REMOTE_ROOT: /tmp/beatmapped-research/gh-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout the repository-owned workflow controller
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Configure pinned SSH access
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_KEY }}" > ~/.ssh/research_key
+          chmod 600 ~/.ssh/research_key
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Create the isolated run root and transfer the versioned controller
+        run: |
+          set -euo pipefail
+          node remote-research/validate-paths.mjs /opt/band-on-the-map "$REMOTE_ROOT" /opt/band-on-the-map/data/public
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/research_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "umask 077 && mkdir -p -- '$REMOTE_ROOT/controller'"
+          scp -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/research_key" -r remote-research/. \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}:$REMOTE_ROOT/controller/"
+
+      - name: Run the allowlisted proof without deployment or publication
+        id: remote-proof
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/research_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "chmod 700 -- '$REMOTE_ROOT/controller/remote-run.sh' '$REMOTE_ROOT/controller/remote-cleanup.sh' && bash '$REMOTE_ROOT/controller/remote-run.sh' '$CANDIDATE_SHA' '$RESEARCH_JOB' '$RUN_TOKEN'"
+
+      - name: Retrieve bounded sanitized research artifacts
+        if: always()
+        id: retrieve
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p research-artifacts
+          scp -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/research_key" -r \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}:$REMOTE_ROOT/artifacts/." research-artifacts/
+          node remote-research/sanitize-artifacts.mjs research-artifacts
+
+      - name: Remove only this workflow-owned remote process tree and temporary root
+        if: always()
+        id: cleanup
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/research_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "bash '$REMOTE_ROOT/controller/remote-cleanup.sh' '$RUN_TOKEN'"
+
+      - name: Remove local SSH material
+        if: always()
+        run: |
+          rm -f -- "$HOME/.ssh/research_key" "$HOME/.ssh/known_hosts"
+
+      - name: Upload bounded proof artifacts
+        if: always() && steps.retrieve.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: beatmapped-${{ needs.validate-request.outputs.research_job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: research-artifacts/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Write the founder-facing proof summary
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from "node:fs/promises";
+          const readJson = async (name) => { try { return JSON.parse(await readFile(`research-artifacts/${name}`, "utf8")); } catch { return null; } };
+          const audit = await readJson("runtime-audit.json");
+          const proof = await readJson("live-browser-results.json");
+          const isolation = await readJson("production-isolation.json");
+          const outcome = await readJson("run-outcome.json");
+          const lines = [
+            "### Run BeatMapped Research Proof",
+            "",
+            "| Field | Value |",
+            "|---|---|",
+            `| Job | \`${process.env.RESEARCH_JOB}\` |`,
+            `| Exact candidate | \`${process.env.CANDIDATE_SHA}\` |`,
+            `| Browser runtime | \`${audit?.classification ?? "AUDIT_UNAVAILABLE"}\` |`,
+            `| Corpus / attempted | ${proof?.corpus?.count ?? 0} / ${proof?.counts?.attempted ?? 0} |`,
+            `| Successful / technical failures | ${proof?.counts?.successful_browser_probes ?? 0} / ${proof?.counts?.technical_probe_failures ?? 0} |`,
+            `| Production isolation | ${isolation?.unchanged ? "✅ PASS" : "❌ FAIL OR UNAVAILABLE"} |`,
+            `| Credential audit | ${outcome?.credential_audit === "PASS" ? "✅ PASS" : "❌ FAIL OR UNAVAILABLE"} |`,
+            `| Remote cleanup | ${process.env.CLEANUP_OUTCOME === "success" ? "✅ PASS" : "❌ FAIL"} |`,
+            `| Artifact | \`beatmapped-${process.env.RESEARCH_JOB}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}\` |`,
+          ];
+          await import("node:fs/promises").then(({ appendFile }) => appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`));
+          NODE
+        env:
+          CLEANUP_OUTCOME: ${{ steps.cleanup.outcome }}
+
+      - name: Enforce proof, artifact, isolation, and cleanup success
+        if: always()
+        env:
+          REMOTE_OUTCOME: ${{ steps.remote-proof.outcome }}
+          RETRIEVE_OUTCOME: ${{ steps.retrieve.outcome }}
+          CLEANUP_OUTCOME: ${{ steps.cleanup.outcome }}
+        run: |
+          set -euo pipefail
+          test "$RETRIEVE_OUTCOME" = success
+          test "$CLEANUP_OUTCOME" = success
+          node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('research-artifacts/run-outcome.json'));if(x.production_isolation!=='PASS'||x.credential_audit!=='PASS'||x.exit_code!==0)process.exit(1)"
+          test "$REMOTE_OUTCOME" = success
