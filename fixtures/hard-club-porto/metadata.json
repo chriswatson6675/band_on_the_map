@@ -1,0 +1,44 @@
+{
+  "source_id": "hard-club-porto",
+  "investigation_id": "hard-club-porto-02",
+  "investigation_path": "research/source-investigations/hard-club-porto-02/",
+  "investigation_decision_status": "READY_FOR_ACTIVATION",
+  "note": "Every fixture in this directory is a byte-faithful excerpt extracted directly from retained investigation evidence (research/source-investigations/hard-club-porto-02/evidence/) — nothing here is invented or synthesized. No live fetch was performed to build these fixtures or the tests that use them.",
+  "acquisition_shape": "TWO_STEP_SESSION_BOOTSTRAP_THEN_AJAX_LIST_FRAGMENT_PLUS_PER_EVENT_LOADEVENT_FRAGMENT",
+  "files": [
+    {
+      "path": "fixtures/hard-club-porto/agenda-warm-excerpt.html",
+      "derived_from": "research/source-investigations/hard-club-porto-02/evidence/ajax-agenda-warm.html",
+      "derived_from_url": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-agenda&start=0&langid=1&passo=30&evento=",
+      "description": "5 of the real 22 <li class=\"items\">...</li> event blocks, extracted byte-identically (each block cut exactly at its own opening <li> and closing </li>, nothing else altered) and concatenated in their original document order. Chosen to cover: a subtitle-bearing multi-line title (+351 Festival Urbano), the investigation's own representative worked example (Johnny Hooker, 2026-09-12), a bare single-line title with no subtitle (Moonspell Invicta Halloween), and BOTH real 2027-slug events from the retained evidence (U.D.O., whose <h3> title itself spans a real embedded newline in the source's own markup, and Fresno) — so date derivation is exercised across the genuine 2026/2027 year boundary using only real events, not synthetic ones.",
+      "slugs_included": [
+        "351-festival-urbano-11-e-12-de-setembro-2026",
+        "johnny-hooker-euro-tour-2026-2026",
+        "moonspell-invicta-halloween-2026",
+        "u-d-o-porto-hard-club-2027",
+        "fresno-eurotour-2027-carta-de-adeus-2027"
+      ]
+    },
+    {
+      "path": "fixtures/hard-club-porto/archive-anomaly-excerpt.html",
+      "derived_from": "research/source-investigations/hard-club-porto-02/evidence/arquivo-boundary-excerpt.html",
+      "derived_from_url": "https://www.hardclubporto.com/include/ajax_functions.php?action=load-arquivo&start=0&langid=1&passo=15&evento=",
+      "description": "The single genuine anomalous record investigation.json's offline-proof.mjs used as its own negative control (Step 6): slug literally \"2020\" (no hyphen-prefixed -YYYY segment), blank title, dated \"17 Out\". Extracted byte-identically from the retained archive excerpt. Used to prove parseHardClubAgendaFragment()/deriveDateFromSlugYearAndDayMonth() correctly REFUSE to resolve this record rather than guessing a year from its bare slug — matching the investigation's own documented finding.",
+      "slugs_included": ["2020"]
+    },
+    {
+      "path": "fixtures/hard-club-porto/loadevent-johnny-hooker-euro-tour-2026-2026.html",
+      "derived_from": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-johnny-hooker-euro-tour-2026-2026.html",
+      "derived_from_url": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=johnny-hooker-euro-tour-2026-2026&type=load-agenda&index=2",
+      "description": "Unmodified copy of the real per-event loadevent AJAX price/description/ticket-link fragment for Johnny Hooker. price_text \"25€- 55€\".",
+      "byte_faithful": true
+    },
+    {
+      "path": "fixtures/hard-club-porto/loadevent-fresno-eurotour-2027-carta-de-adeus-2027.html",
+      "derived_from": "research/source-investigations/hard-club-porto-02/evidence/ajax-loadevent-fresno-eurotour-2027-carta-de-adeus-2027.html",
+      "derived_from_url": "https://www.hardclubporto.com/include/ajax_functions.php?action=loadevent&langid=1&id=fresno-eurotour-2027-carta-de-adeus-2027&type=load-agenda&index=22",
+      "description": "Unmodified copy of the real per-event loadevent AJAX price/description/ticket-link fragment for Fresno (a real 2027-slug event). price_text \"30€-120€\".",
+      "byte_faithful": true
+    }
+  ]
+}

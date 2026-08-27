@@ -1,0 +1,69 @@
+{
+  "source_id": "teatro-sao-luiz",
+  "based_on_investigation": "research/source-investigations/teatro-sao-luiz-lisbon-02/investigation.json",
+  "supersedes_investigation": "research/source-investigations/teatro-sao-luiz-lisbon-01/ (see investigation.json's own \"supersedes\" field)",
+  "venue_reference": "Teatro São Luiz (officially 'São Luiz Teatro Municipal') -- Lisbon, Portugal, EGEAC-managed municipal theatre in Chiado.",
+  "fixture_derivation": "Every fixture file in this directory is a genuinely byte-derived EXCERPT of retained evidence already committed at research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/ -- no field, tag, id, or text was invented, retyped from memory, or fetched live. Excerpting only trims surrounding bulk (nav chrome, footer, <script> bundles, the unrelated 'SEE ALSO' carousel of other events' own cards, page CSS) around the specific blocks these tests exercise; every byte kept inside a fixture is copied verbatim from its named source evidence file.",
+  "season_label_note": "The EN programme page's own <body data-temporada-actual=\"2026-2027-en\"> attribute carries a '-en' language suffix after the two-year label -- genuinely present in the retained evidence (see research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-programme-en.html line 137). extractTeatroSaoLuizSeasonLabel() strips this suffix mechanically (matching the same regex shape offline-proof.mjs already uses: /data-temporada-actual=\"([0-9]{4})-([0-9]{4})/, which stops before any trailing suffix) rather than assuming the attribute is always exactly 'YYYY-YYYY'.",
+  "files": [
+    {
+      "path": "fixtures/teatro-sao-luiz/list-page-excerpt.html",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-programme-en.html",
+      "derivation": "The retained page's own <body data-temporada-actual=\"2026-2027-en\"> tag, plus 5 of its 26 real <div class='card event-item'> blocks (indices 0, 1, 9, 23, 24 in document order), each copied byte-for-byte. Selected to cover: a single-day event on each side of the Aug-Dec/Jan-Jul season-year boundary (Batucadeiras das Olaias, 9 September; André Rosinha Trio, 14 January), and a multi-day range event on each side (PICADEIRO FEST 2026, 9-13 September; O PAI, 16-27 September; VÁCUO, 28-31 January)."
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-batucadeiras.html",
+      "event": "Batucadeiras das Olaias (PT)",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-batucadeiras.html",
+      "expected_day_month_text": "9 September",
+      "expected_season_side": "month 9 (September) -> season START year (2026) per the theme-JS rule",
+      "wp_shortlink_post_id": "35378 (from the paired headers file below; matches investigation.json field_assessment.source_record_id, independently re-proven twice within -02 and once more against the superseded -01)"
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-batucadeiras-headers.txt",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/headers-detail-batucadeiras.txt",
+      "derivation": "Retained verbatim (unmodified) -- carries the standard WordPress 'Link: <...?p=35378>; rel=shortlink' response header this is the only place the stable numeric id appears (never in the HTML body itself, confirmed by grep against the full retained evidence body)."
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-andre-rosinha.html",
+      "event": "André Rosinha Trio",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-andre-rosinha.html",
+      "expected_day_month_text": "14 January",
+      "expected_season_side": "month 1 (January) -> season END year (2027) per the theme-JS rule",
+      "wp_shortlink_post_id": "35376"
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-andre-rosinha-headers.txt",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/headers-detail-andre-rosinha.txt",
+      "derivation": "Retained verbatim."
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-o-pai.html",
+      "event": "O PAI (The Father)",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-o-pai.html",
+      "expected_day_month_text": "16 to 27 September",
+      "expected_season_side": "month 9 (September) -> season START year (2026) per the theme-JS rule",
+      "wp_shortlink_post_id": "35368",
+      "notes": "Multi-day run with weekday-conditional showtimes ('Wednesday to Saturday, 8.00 pm; Sunday, 5.30 pm') and a SECOND, differently-dated audio-description sub-schedule under 'Accessibility' (25 and 27 September) -- retained to prove the parser correctly anchors on the 'Dates and Schedules' label specifically and does not pick up the unrelated Accessibility paragraph."
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-o-pai-headers.txt",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/headers-detail-o-pai.txt",
+      "derivation": "Retained verbatim."
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-vacuo.html",
+      "event": "VÁCUO",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/body-detail-vacuo.html",
+      "expected_day_month_text": "28 to 31 January",
+      "expected_season_side": "month 1 (January) -> season END year (2027) per the theme-JS rule",
+      "wp_shortlink_post_id": "35306"
+    },
+    {
+      "path": "fixtures/teatro-sao-luiz/detail-vacuo-headers.txt",
+      "derived_from": "research/source-investigations/teatro-sao-luiz-lisbon-02/evidence/headers-detail-vacuo.txt",
+      "derivation": "Retained verbatim."
+    }
+  ],
+  "unused_but_relevant_finding": "Every one of these 4 detail pages' own breadcrumb block ALSO carries a static '<span class=\"subtitle darkblue show-year\">YYYY</span>' immediately before the day+abbreviated-month text (e.g. '2026' for Batucadeiras, '2027' for André Rosinha Trio) -- present in the retained HTML body itself, not merely in the derived output. This value happens to agree with the DETERMINISTIC_CONTEXT derivation for all 4 sampled events, but it was NOT identified or evaluated by the governed teatro-sao-luiz-lisbon-02 investigation (its own field_assessment.start_date and probe_history never mention it), so per docs/SOURCE_INVESTIGATION_POLICY.md this collector does NOT use it as a basis for start.date -- doing so would mean promoting an un-investigated field to PROVEN outside the governed escalation ladder. It is recorded here only as a candidate lead for a future, separate, explicitly-scoped investigation (e.g. a teatro-sao-luiz-lisbon-03) to evaluate on its own merits."
+}

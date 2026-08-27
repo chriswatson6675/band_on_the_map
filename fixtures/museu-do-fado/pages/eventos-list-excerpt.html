@@ -1,0 +1,212 @@
+        <section class="section-filters">
+            <div class="container">
+                <div class="row">
+                    <form method="GET" class="filter col-12" @submit="runLoading()">
+                        <div class="row">
+                            <div class="form-group search col-lg-4 col order-1">
+                                <input type="text" name="search" value="" placeholder="pesquisar eventos">
+                            </div>
+                            <div class="col-lg order-lg-2  col-md-12 order-md-4  d-none d-md-block">
+                                <div class="row">
+                                    <div class="form-group select col">
+                                        <select name="type">
+                                            <option value="" disabled selected hidden> Tipo de Evento </option>
+                                                                                        <option  value="104"> Apresentação </option>
+                                                                                        <option  value="101"> Concerto </option>
+                                                                                        <option  value="113"> Programação Online </option>
+                                                                                        <option  value="115"> Teatro </option>
+                                                                                        <option  value="102"> Tertúlia </option>
+                                                                                        <option  value="105"> Vários </option>
+                                                                                        <option  value="103"> Visitas </option>
+                                                                                        <option  value="106"> Workshop </option>
+                                                                                    </select>
+                                    </div>
+                                    <div class="form-group select col-3">
+                                        <select name="year">
+                                            <option value="" selected hidden> Ano </option>
+                                                                                        <option  value="2009">2009</option>
+                                                                                        <option  value="2010">2010</option>
+                                                                                        <option  value="2011">2011</option>
+                                                                                        <option  value="2012">2012</option>
+                                                                                        <option  value="2013">2013</option>
+                                                                                        <option  value="2014">2014</option>
+                                                                                        <option  value="2015">2015</option>
+                                                                                        <option  value="2016">2016</option>
+                                                                                        <option  value="2017">2017</option>
+                                                                                        <option  value="2018">2018</option>
+                                                                                        <option  value="2019">2019</option>
+                                                                                        <option  value="2020">2020</option>
+                                                                                        <option  value="2021">2021</option>
+                                                                                        <option  value="2022">2022</option>
+                                                                                        <option  value="2023">2023</option>
+                                                                                        <option  value="2024">2024</option>
+                                                                                        <option  value="2025">2025</option>
+                                                                                        <option  value="2026">2026</option>
+                                                                                    </select>
+                                    </div>
+                                    <div class="form-group select col-4">
+                                        <select name="month">
+                                            <option value="" disabled selected hidden> Mês </option>
+                                                                                        <option  value="1">Janeiro</option>
+                                                                                        <option  value="2">Fevereiro</option>
+                                                                                        <option  value="3">Março</option>
+                                                                                        <option  value="4">Abril</option>
+                                                                                        <option  value="5">Maio</option>
+                                                                                        <option  value="6">Junho</option>
+                                                                                        <option  value="7">Julho</option>
+                                                                                        <option  value="8">Agosto</option>
+                                                                                        <option  value="9">Setembro</option>
+                                                                                        <option  value="10">Outubro</option>
+                                                                                        <option  value="11">Novembro</option>
+                                                                                        <option  value="12">Dezembro</option>
+                                                                                    </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group select col-auto order-3">
+                                <button class="btn right" type="submit" :class="{loading: onloading, disabled: !disableBtn || onloading}" :disabled="!disableBtn || onloading"> Pesquisar </button>
+                            </div>
+                        </div>
+                        <span class="btn-clear" v-if="clearBtn" @click="clearFilter()"> limpar <icon class="cancel"></icon> </span>
+                    </form>
+                </div>
+                <div class="block-text auto center">
+                                        <h3>Use a caixa de pesquisa ou selecione os filtros para explorar a listagem de eventos.</h3>
+                                    </div>
+            </div>
+        </section>
+
+
+        <section class="section-thumb">
+            <div class="container">
+                <div class="row">
+                                        <div class="highlight">
+                        <a class="frame" href="https://museudofado.pt/evento/o-fado-sou-eu">
+                            <div class="col-md-4 col-12 wrapp-info order-md-1 order-2">
+                                <div class="info">
+                                    <div class="title">O Fado Sou Eu!</div>
+                                    <div class="local">Museu do Fado</div>
+                                </div>
+                                <div class="btn right d-none d-md-flex"> Ver Mais </div>
+                            </div>
+                            <div class="col-md-8 col-12 wrapp-imag border square-box sq-50 order-md-2 order-1">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2026/7/jose-frade-24-10-25-01944-baixa-resolucao_700_1053.jpeg)"> </div>
+                                <div class="btn right d-flex d-md-none"> Ver Mais </div>
+                            </div>
+                        </a>
+                    </div>
+                                                            <div class="col-lg-6 col-12">
+                        <a href="https://museudofado.pt/evento/marco-rodrigues-canta-carlos-do-carmo" class="thumbnail line border">
+                            <div class="wrapp-imag square-box sq-50">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2025/7/marco-r-oficial-ccb-2026-simao-pernas-destaque_343_146.jpeg)"> </div>
+                            </div>
+                            <div class="wrapp-info grow-data">
+                                <h6 class="gry">Marco Rodrigues canta Carlos do Carmo</h6>
+
+                                <h3 class="event-list-category">
+                                                                        Concerto
+                                                                                                        </h3>
+
+
+                                                                <h4 class="event-list-category">Centro Cultural de Belém - Grande Auditório</h4>
+                                                                <h5 class="data">7 novembro, 2026</h5>
+                            </div>
+                        </a>
+                    </div>
+                                        <div class="col-lg-6 col-12">
+                        <a href="https://museudofado.pt/evento/sul" class="thumbnail line border">
+                            <div class="wrapp-imag square-box sq-50">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2025/7/sul-cores-marcia-lessa-destaque_343_172.png)"> </div>
+                            </div>
+                            <div class="wrapp-info grow-data">
+                                <h6 class="gry">SUL</h6>
+
+                                <h3 class="event-list-category">
+                                                                        Concerto
+                                                                                                        </h3>
+
+
+                                                                <h4 class="event-list-category">Centro Cultural de Belém - Pequeno Auditório</h4>
+                                                                <h5 class="data">30 outubro, 2026</h5>
+                            </div>
+                        </a>
+                    </div>
+                                        <div class="col-lg-6 col-12">
+                        <a href="https://museudofado.pt/evento/pop-up-fado-4" class="thumbnail line border">
+                            <div class="wrapp-imag square-box sq-50">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2026/7/popup-ig_343_327.png)"> </div>
+                            </div>
+                            <div class="wrapp-info grow-data">
+                                <h6 class="gry">Pop-Up Fado</h6>
+
+                                <h3 class="event-list-category">
+                                                                        Workshop
+                                                                                                        </h3>
+
+
+                                                                <h4 class="event-list-category">Museu do Fado</h4>
+                                                                <h5 class="data">3 setembro, 2026</h5>
+                            </div>
+                        </a>
+                    </div>
+                                        <div class="col-lg-6 col-12">
+                        <a href="https://museudofado.pt/evento/a-descoberta-do-fado" class="thumbnail line border">
+                            <div class="wrapp-imag square-box sq-50">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2024/7/4---jose-frade-12-07-24-0631_343_422.jpeg)"> </div>
+                            </div>
+                            <div class="wrapp-info grow-data">
+                                <h6 class="gry">À Descoberta do Fado</h6>
+
+                                <h3 class="event-list-category">
+                                                                        Workshop
+                                                                                                            <label class="event-list-past-label">Arquivo</label>
+                                                                    </h3>
+
+
+                                                                <h4 class="event-list-category">Museu do Fado</h4>
+                                                                <h5 class="data">6 agosto, 2026</h5>
+                            </div>
+                        </a>
+                    </div>
+                                        <div class="col-lg-6 col-12">
+                        <a href="https://museudofado.pt/evento/visitas-cantadas-8" class="thumbnail line border">
+                            <div class="wrapp-imag square-box sq-50">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2026/7/jose-frade-31-08-25-visita-cantada-leve_343_229.jpeg)"> </div>
+                            </div>
+                            <div class="wrapp-info grow-data">
+                                <h6 class="gry">Visitas Cantadas</h6>
+
+                                <h3 class="event-list-category">
+                                                                        Visitas
+                                                                                                        </h3>
+
+
+                                                                <h4 class="event-list-category">Museu do Fado</h4>
+                                                                <h5 class="data">25 julho - 5 setembro, 2026</h5>
+                            </div>
+                        </a>
+                    </div>
+                                        <div class="col-lg-6 col-12">
+                        <a href="https://museudofado.pt/evento/a-todas-as-mulheres" class="thumbnail line border">
+                            <div class="wrapp-imag square-box sq-50">
+                                <div class="imag" style="background-image:url(https://museudofado.pt//media/2026/6/fotografia-limpa-c-ana-rocha-nene_343_229.jpeg)"> </div>
+                            </div>
+                            <div class="wrapp-info grow-data">
+                                <h6 class="gry">A Todas as Mulheres</h6>
+
+                                <h3 class="event-list-category">
+                                                                        Concerto
+                                                                                                            <label class="event-list-past-label">Arquivo</label>
+                                                                    </h3>
+
+
+                                                                <h4 class="event-list-category">Teatro Camões</h4>
+                                                                <h5 class="data">24 julho, 2026</h5>
+                            </div>
+                        </a>
+                    </div>
+                    
+
+                </div>
+            </div>
+        </section>

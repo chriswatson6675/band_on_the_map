@@ -1,0 +1,54 @@
+{
+  "source_id": "cco-sintra",
+  "investigation_id": "cco-sintra-01",
+  "investigation_path": "research/source-investigations/cco-sintra-01/investigation.json",
+  "task": "PORTUGAL-SECOND-PASS-30-40-VENUE-POPULATION (build governed collector from cco-sintra-01)",
+  "official_url": "https://ccolgacadaval.pt",
+  "agenda_url": "https://ccolgacadaval.pt/agenda",
+  "acquisition_shape": "PAGINATED_SERVER_RENDERED_JOOMLA_ICAGENDA_LIST_WITH_PER_OCCURRENCE_DETAIL_PERMALINKS",
+  "note": "Every fixture file below is a bounded excerpt genuinely derived from research/source-investigations/cco-sintra-01/evidence/ — the retained portions are kept byte-exact from that retained evidence; only unrelated <head> CSS/JS asset tags and body nav/menu/footer chrome are omitted (each omission is marked in-file with a BOTM fixture note comment). No text was invented or altered.",
+  "files": [
+    {
+      "path": "fixtures/cco-sintra/agenda-page-1-excerpt.html",
+      "derived_from": "research/source-investigations/cco-sintra-01/evidence/body-agenda.html (lines 503-878)",
+      "acquired_from": "https://ccolgacadaval.pt/agenda",
+      "purpose": "list-page discovery input: page 1 of 9, 5 event rows including BOTH calendar dates of the shared-id-543 Evita production (2026-09-03 and 2026-09-04) plus a rel=\"next\" link to page 2"
+    },
+    {
+      "path": "fixtures/cco-sintra/agenda-page-2-excerpt.html",
+      "derived_from": "research/source-investigations/cco-sintra-01/evidence/body-agenda-page2.html (lines 503-878)",
+      "acquired_from": "https://ccolgacadaval.pt/agenda?page=2",
+      "purpose": "list-page discovery input: page 2 of 9, 5 event rows including event id 551 (no displayed start time) plus a rel=\"next\" link to page 3 — used for the pagination-following test"
+    },
+    {
+      "path": "fixtures/cco-sintra/event-gnr.html",
+      "derived_from": "research/source-investigations/cco-sintra-01/evidence/body-event-gnr.html (lines 1-13 head + 536-601 body)",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/519-gnr/2026-09-11-21-00",
+      "purpose": "detail-page extraction input: full start time present, free-text Duração + multi-tier Preço present"
+    },
+    {
+      "path": "fixtures/cco-sintra/event-evita1.html",
+      "derived_from": "research/source-investigations/cco-sintra-01/evidence/body-event-evita1.html (lines 1-13 head + 536-601 body)",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/543-ciclo-de-teatro-evita-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "purpose": "detail-page extraction input: content-item id 543, date 2026-09-03 — first of the two shared-id Evita dates"
+    },
+    {
+      "path": "fixtures/cco-sintra/event-evita2.html",
+      "derived_from": "research/source-investigations/cco-sintra-01/evidence/body-event-evita2.html (lines 1-13 head + 536-601 body)",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/543-ciclo-de-teatro-evita-com-sofia-escobar-e-diogo-morgado/2026-09-04-21-00",
+      "purpose": "detail-page extraction input: content-item id 543 (SAME bare id as event-evita1.html), date 2026-09-04 — proves the full permalink, never the bare id, must be used as source_record_id"
+    },
+    {
+      "path": "fixtures/cco-sintra/event-orquestra.html",
+      "derived_from": "research/source-investigations/cco-sintra-01/evidence/body-event-orquestra.html (lines 1-13 head + 536-591 body)",
+      "acquired_from": "https://ccolgacadaval.pt/agenda/551-orquestra-sinfonica-portuguesa-obras-de-mozart-e-ravel/2026-09-20-17-00",
+      "purpose": "detail-page extraction input: content-item id 551 — no ic-single-starttime span at all, and no Duração/Preço free text at all, proving both are honestly optional rather than universal fields"
+    }
+  ],
+  "field_notes": {
+    "source_record_id": "Derived from the full canonical permalink path after '/agenda/' (id+slug+date+time), never the bare numeric content-item id alone — see field_assessment.source_record_id.notes in investigation.json and ingestion/cco-sintra/observation-adapter.mjs's deriveSourceRecordId().",
+    "start_date": "PROVEN / DIRECT_SOURCE per investigation.json field_assessment.start_date — every sampled event states its own full ISO date directly in ic-single-next, no DETERMINISTIC_CONTEXT combination needed. certainty recorded as DATE_ONLY (no UTC offset or IANA timezone is ever stated on this source).",
+    "time_text": "PARTIAL per investigation.json field_assessment.time — present on 9 of 10 sampled rows (ic-single-starttime), genuinely absent for event id 551 on both its list row and its own detail page. Never fabricated from the permalink's own time suffix.",
+    "price_text": "PARTIAL per investigation.json field_assessment.price — free-text 'Preço:' block, present on 1 of 4 sampled detail pages (GNR), absent on the other 3 (both Evita dates, orquestra)."
+  }
+}

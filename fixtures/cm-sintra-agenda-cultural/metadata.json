@@ -1,0 +1,39 @@
+{
+  "source_id": "cm-sintra-agenda-cultural",
+  "investigation_id": "cm-sintra-agenda-cultural-01",
+  "investigation_path": "research/source-investigations/cm-sintra-agenda-cultural-01/investigation.json",
+  "task": "PORTUGAL-SECOND-PASS collector build from cm-sintra-agenda-cultural-01",
+  "official_url": "https://cm-sintra.pt",
+  "agenda_url": "https://cm-sintra.pt/agenda",
+  "music_filter_url": "https://cm-sintra.pt/agenda?filter_from=2026-08-27&filter_category=3",
+  "acquisition_shape": "SERVER_SIDE_CATEGORY_AND_DATE_FILTERED_JOOMLA_ICAGENDA_LIST_WITH_PER_OCCURRENCE_DETAIL_PERMALINKS",
+  "note": "Every fixture file below is a bounded excerpt genuinely derived from research/source-investigations/cm-sintra-agenda-cultural-01/evidence/ — the retained portions are kept byte-exact from that retained evidence; only unrelated <head> CSS/JS asset tags and body nav/menu/calendar-widget/footer chrome are omitted (each omission is marked in-file with a BOTM fixture note comment). No text was invented or altered. Unlike the sibling cco-sintra source, this platform's list rows already carry full title/date/time/venue/permalink directly (investigation.json field_assessment: DIRECT_SOURCE throughout) — this collector's discovery module therefore treats the list-row parse as the primary raw-record source, and per-event detail-page extraction as the supplementary step needed for full field fidelity on the one field the list rows do not carry: price.",
+  "files": [
+    {
+      "path": "fixtures/cm-sintra-agenda-cultural/agenda-musica-upcoming-excerpt.html",
+      "derived_from": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-agenda-musica-upcoming.html (lines 1179-1435)",
+      "acquired_from": "https://cm-sintra.pt/agenda?filter_from=2026-08-27&filter_category=3",
+      "purpose": "list-page discovery input: the source's own combined category+date filter result, 3 event rows total, including BOTH calendar dates of the shared-internal-id-148 Evita production (2026-09-03 and 2026-09-04) plus the single Orfeu occurrence (2026-10-17). No pagination markup exists in the retained source for this filtered result — used for the primary discovery test and the shared-id-but-distinct-occurrence regression test."
+    },
+    {
+      "path": "fixtures/cm-sintra-agenda-cultural/event-evita.html",
+      "derived_from": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-event-evita.html (head lines 1-12 + 357-364, body lines 1214-1279)",
+      "acquired_from": "https://cm-sintra.pt/agenda/evita-no-olga-cadaval-com-sofia-escobar-e-diogo-morgado/2026-09-03-21-00",
+      "purpose": "detail-page extraction input: og:url self-match (this platform emits no <link rel=\"canonical\"> at all, confirmed absent), full date/time, venue, and a 'Todas as datas' block confirming the 2026-09-04 second date shares this same production but is a distinct occurrence. No 'Preço:'-labelled price text is present (only an external Ticketline link) — price_text is honestly null."
+    },
+    {
+      "path": "fixtures/cm-sintra-agenda-cultural/event-orfeu.html",
+      "derived_from": "research/source-investigations/cm-sintra-agenda-cultural-01/evidence/body-event-orfeu.html (head lines 1-12 + 357-364, body lines 1214-1285)",
+      "acquired_from": "https://cm-sintra.pt/agenda/sintra-celebra-musica-e-mitologia-nas-noites-de-orfeu/2026-10-17-21-00",
+      "purpose": "detail-page extraction input: og:url self-match, a distinct venue (Museu Arqueológico de São Miguel de Odrinhas), and a genuine free-admission self-description ('proposta cultural gratuita') embedded in free prose rather than behind a 'Preço:' label — price_text is honestly null here too, proving this module's price extraction is not fooled into inventing a confirmed-zero price from unstructured prose."
+    }
+  ],
+  "field_notes": {
+    "source_record_id": "Derived from the full permalink path after '/agenda/' (slug+date+time — this source's URLs carry no numeric id prefix at all, unlike cco-sintra), never the internal numeric event id found only in the row's own 'ic-event-id-N' class attribute — see field_assessment.source_record_id.notes in investigation.json and ingestion/cm-sintra-agenda-cultural/observation-adapter.mjs's deriveSourceRecordId(). Internal id 148 is shared by both Evita dates but the two permalinks (and therefore the two source_record_id values) differ.",
+    "start_date": "PROVEN / DIRECT_SOURCE per investigation.json field_assessment.start_date — every sampled Música row states its own full ISO date directly in ic-single-next, on the list row itself, no DETERMINISTIC_CONTEXT combination needed. certainty recorded as DATE_ONLY (no UTC offset or IANA timezone is ever stated on this source).",
+    "time_text": "PROVEN per investigation.json field_assessment.time for this source's bounded 3-row Música sample — present on every sampled row (ic-single-starttime). Never fabricated from the permalink's own time suffix.",
+    "end": "NOT_PRESENT per investigation.json field_assessment.end — no end-time, duration, or 'Duração:' field of any kind was found anywhere on either retained detail page. This collector never attempts to extract or infer one.",
+    "venue_location": "PROVEN / DIRECT_SOURCE — each row/detail page states its own venue name directly ('place ic-place' on the list row, the iCicon-location paragraph on the detail page). Retained verbatim as location_text; venue_name is left null (canonical Venue resolution is out of scope for this adapter).",
+    "price_text": "PARTIAL per investigation.json field_assessment.price — no dedicated price field exists anywhere in the retained sample; where price-adjacent text exists at all it is either an external ticketing link (Evita) or unstructured free prose (Orfeu's 'proposta cultural gratuita'), and a naive whole-page 'gratuit*' text match would be actively wrong (an UNRELATED footer news-slider item on the Evita page also contains the word 'gratuita', about a different venue's free exhibition). This module's price extraction is scoped strictly to a 'Preço:'-labelled paragraph inside ic-full-description, matching neither retained fixture — both honestly resolve to null."
+  }
+}
