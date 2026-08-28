@@ -45,6 +45,7 @@ const DEFAULT_CONTENT_TYPE = "application/ld+json";
 // already matched (with explicit seconds) still matches identically,
 // since `(?::\d{2})?` is satisfied either way.
 const ISO_WITH_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const ISO_WITH_BASIC_OFFSET_RE = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)([+-]\d{2})(\d{2})$/;
 const ISO_NO_OFFSET_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?$/;
 const DATE_ONLY_RE = /^(\d{4}-\d{2}-\d{2})$/;
 const NAMED_CET_OFFSET_RE = /^(\d{4}-\d{2}-\d{2}) (CEST|CET) (\d{2}:\d{2})$/;
@@ -116,6 +117,20 @@ export function deriveDateTimeFromIso(rawValue) {
     }
   }
 
+  const withBasicOffset = ISO_WITH_BASIC_OFFSET_RE.exec(rawValue);
+  if (withBasicOffset) {
+    const rewritten = `${withBasicOffset[1]}${withBasicOffset[2]}:${withBasicOffset[3]}`;
+    const parsed = new Date(rewritten);
+    if (!Number.isNaN(parsed.getTime())) {
+      const iso = parsed.toISOString();
+      dt.iso = iso;
+      dt.is_utc = true;
+      dt.date = iso.slice(0, 10);
+      dt.certainty = "UTC_INSTANT";
+      return dt;
+    }
+  }
+
   const loosePadded = normaliseLooseIsoOffset(rawValue);
   if (loosePadded) {
     const parsed = new Date(loosePadded);
@@ -160,8 +175,9 @@ function addressToText(address) {
  * Convert one normalised JSON-LD Event record into an Observation.
  *
  * `config` — `{ source_id }` at minimum.
- * `options` — `{ retrievedAt, sourceUrl, contentType, fixturePath,
- * venueNameOverride }`, matching every other observation-adapter's
+ * `options` — `{ retrievedAt, sourceUrl, eventDetailUrl, contentType,
+ * fixturePath, venueNameOverride, venueRelocationNoticeDetected }`,
+ * matching every other observation-adapter's
  * convention in this project. `venueNameOverride` lets a single-venue
  * source (the common case — a venue's own site JSON-LD often omits its
  * own name from `location`, or names a room rather than the venue) supply
@@ -199,7 +215,11 @@ export function toObservation(record, config, options = {}) {
     location_text: addressToText(record.location_address),
 
     price_text: record.price_text ?? null,
-    event_url: record.event_url ?? record.ticket_url ?? null,
+    // Outbound-link precedence is explicit source event URL, then the
+    // adapter's existing ticket/event URL semantics, then an explicitly
+    // identified individual detail page. `sourceUrl` is intentionally not
+    // a fallback: it may be a list page, API endpoint, feed, or search URL.
+    event_url: record.event_url ?? record.ticket_url ?? options.eventDetailUrl ?? null,
 
     source_fields: {
       types: record.types ?? [],
@@ -208,6 +228,8 @@ export function toObservation(record, config, options = {}) {
       event_status: record.event_status ?? null,
       event_attendance_mode: record.event_attendance_mode ?? null,
       location_address: record.location_address ?? null,
+      event_detail_url: options.eventDetailUrl ?? null,
+      venue_relocation_notice_detected: options.venueRelocationNoticeDetected ?? false,
     },
 
     raw_evidence: {
