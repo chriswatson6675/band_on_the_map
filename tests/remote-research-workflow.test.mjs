@@ -51,6 +51,7 @@ test("candidate checkout and output stay under the isolated run root", async () 
 test("cleanup targets only the exact run-owned session and never uses broad pkill", async () => {
   const script = executable(await read(CLEANUP));
   assert.doesNotMatch(script, /pkill|killall/);
+  assert.match(script, /\[\[ ! "\$\{RUN_TOKEN\}" =~ \^gh-\[1-9\]\[0-9\]\*-\[1-9\]\[0-9\]\*\$ \]\]/);
   assert.match(script, /SESSION_ID.*PROOF_PID/);
   assert.match(script, /COMMAND.*RESEARCH_ROOT/);
   assert.match(script, /kill -TERM -- "-\$\{PROOF_PID\}"/);
