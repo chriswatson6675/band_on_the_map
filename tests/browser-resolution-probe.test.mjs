@@ -76,3 +76,24 @@ test("credentials are redacted before endpoint evidence is retained", async () =
   assert.doesNotMatch(JSON.stringify(result), /AIza/);
   assert.match(result.discovered_endpoints[0].url, /REDACTED_CREDENTIAL/);
 });
+
+test("rendered JSON-LD survives as five-or-fewer sanitized event tuples", async () => {
+  const nodes = Array.from({ length: 7 }, (_, index) => ({ "@type": "Event", "@id": `https://venue.example/events/${index}`, name: `Event ${index}`, startDate: `2026-09-${String(index + 1).padStart(2, "0")}T20:00:00+02:00`, url: `/events/${index}` }));
+  const snapshot = { html: `<script type="application/ld+json">${JSON.stringify(nodes)}</script>`, text: "", links: [] };
+  const result = await runControlledBrowserProbe({ url: "https://venue.example/programme", options: { waitAfterLoadMs: 0 } }, { sessionFactory: fakeFactory({ snapshot }) });
+  assert.equal(result.event_tuples.length, 5);
+  assert.equal(result.event_tuples[0].mechanism, "JSON_LD");
+  assert.equal(result.event_tuples[0].title, "Event 0");
+  assert.equal(result.event_tuples[0].event_url, "https://venue.example/events/0");
+});
+
+test("tuple evidence remains fail-closed for credentials and oversized strings", async () => {
+  const secret = `Bearer ${"x".repeat(800)}`;
+  const snapshot = { html: `<script type="application/ld+json">${JSON.stringify({ "@type": "Event", name: "Safe event", description: secret, startDate: "2026-09-03", url: "/events/3?token=secret" })}</script>`, text: "", links: [] };
+  const result = await runControlledBrowserProbe({ url: "https://venue.example/programme", options: { waitAfterLoadMs: 0 } }, { sessionFactory: fakeFactory({ snapshot }) });
+  assert.doesNotMatch(JSON.stringify(result.event_tuples), /Bearer|secret/);
+  assert.ok(result.event_tuples.length <= 1);
+  // If sanitizing a sensitive source record makes it malformed, omitting it
+  // is the intended fail-closed outcome; no event tuple may retain the value.
+  if (result.event_tuples[0]) assert.ok(Buffer.byteLength(result.event_tuples[0].title) <= 512);
+});

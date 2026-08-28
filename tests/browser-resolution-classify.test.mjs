@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { classifyNetworkResponse, classifyRenderedDom, extractEmbeddedState, inspectStructuredValue } from "../ingestion/browser-resolution/classify.mjs";
+import { tuplesFromJsonLd, tuplesFromRenderedCards } from "../ingestion/browser-resolution/event-tuples.mjs";
 
 const event = (id) => ({ id, name: `Artist ${id}`, startDate: `2026-09-${id.padStart(2, "0")}`, url: `https://example.test/events/${id}` });
 
@@ -50,4 +51,25 @@ test("rendered DOM fallback requires repeated date and event-link structure", ()
   const result = classifyRenderedDom({ text: "September 12  September 13", links: [{ text: "Event one", url: "https://example.test/events/1" }, { text: "Concert two", url: "https://example.test/events/2" }], initialText: "Loading" });
   assert.equal(result.state, "RENDERED_DOM_PROGRAMME_ONLY");
   assert.equal(result.hydrated_change_observed, true);
+});
+
+test("JSON-LD Event tuples retain bounded associated fields from rendered evidence", () => {
+  const html = `<script type="application/ld+json">${JSON.stringify({ "@type": "Event", "@id": "https://example.test/events/1", name: "Correct title", startDate: "2026-09-01T20:00:00+02:00", endDate: "2026-09-01T22:00:00+02:00", url: "/events/1", offers: { url: "/tickets/1" } })}</script>`;
+  const [tuple] = tuplesFromJsonLd(html, { sourcePageUrl: "https://example.test/programme" });
+  assert.equal(tuple.title, "Correct title");
+  assert.equal(tuple.start_raw, "2026-09-01T20:00:00+02:00");
+  assert.equal(tuple.source_record_id, "https://example.test/events/1");
+  assert.equal(tuple.event_url, "https://example.test/events/1");
+  assert.equal(tuple.ticket_url, "https://example.test/tickets/1");
+  assert.equal(tuple.provenance.title, "JSON_LD.name");
+});
+
+test("rendered-card tuples never combine fields from separate cards or invent IDs", () => {
+  const tuples = tuplesFromRenderedCards([
+    { name: "Title only", startDate: "", url: "https://example.test/events/1", id: "" },
+    { name: "Correct event", startDate: "2026-09-02", url: "https://example.test/events/2", id: "" },
+  ], { sourcePageUrl: "https://example.test/programme" });
+  assert.equal(tuples.length, 1);
+  assert.equal(tuples[0].title, "Correct event");
+  assert.equal(tuples[0].source_record_id, undefined);
 });

@@ -26,6 +26,8 @@ export function safeResponseMetadata(response = {}) {
 }
 
 export function sanitizeEvidenceText(value, maxBytes) {
-  const redacted = redactSensitiveText(String(value ?? ""));
+  const redacted = redactSensitiveText(String(value ?? ""))
+    .replace(/\b(?:bearer|basic)\s+[a-z0-9._~+\/-]{16,}\b/gi, "[REDACTED_CREDENTIAL]")
+    .replace(/\b(?:token|secret|api[_-]?key|authorization|cookie)\s*[:=]\s*[^\s,;]+/gi, "[REDACTED_CREDENTIAL]");
   return Buffer.from(redacted, "utf8").subarray(0, maxBytes).toString("utf8");
 }

@@ -1,6 +1,7 @@
 import { classifyNetworkResponse, classifyRenderedDom, extractEmbeddedState } from "./classify.mjs";
 import { normalizeBrowserProbeOptions } from "./contract.mjs";
 import { sanitizeEvidenceText, sanitizeEvidenceUrl } from "./safety.mjs";
+import { MAX_EVENT_TUPLES_PER_VENUE, tuplesFromJsonLd, tuplesFromRenderedCards } from "./event-tuples.mjs";
 
 function relationship(url, pageUrl) {
   try { return new URL(url).origin === new URL(pageUrl).origin ? "SAME_ORIGIN" : "EXTERNAL_FIRST_PARTY_RELATIONSHIP_UNVERIFIED"; }
@@ -75,15 +76,24 @@ export async function runControlledBrowserProbe(input, dependencies = {}) {
 
   try {
     const { navigation, snapshot } = await Promise.race([work, timeout]);
-    const networkEvidence = responses.map((response) => classifyNetworkResponse(response, options));
+    const networkEvidence = responses.map((response) => classifyNetworkResponse(response, { ...options, sourcePageUrl: url }));
     const safeHtml = sanitizeEvidenceText(snapshot.html, options.maxResponseBytes);
-    const embedded = extractEmbeddedState(safeHtml, options);
+    const embedded = extractEmbeddedState(safeHtml, { ...options, sourcePageUrl: url });
     const dom = classifyRenderedDom({
       html: safeHtml,
       text: sanitizeEvidenceText(snapshot.text, options.maxResponseBytes),
       initialText: sanitizeEvidenceText(snapshot.initialText, options.maxResponseBytes),
       links: (snapshot.links ?? []).slice(0, 100).map((link) => ({ text: sanitizeEvidenceText(link.text, 512), url: sanitizeEvidenceUrl(link.url) })),
     });
+    // JSON-LD is extracted from the rendered browser HTML, rather than the
+    // pre-render response. This is the exact loss boundary in the former
+    // pipeline: classifiers counted these records but did not retain them.
+    const eventTuples = [
+      ...tuplesFromJsonLd(safeHtml, { sourcePageUrl: url }),
+      ...(snapshot.semantic_event_cards ? tuplesFromRenderedCards(snapshot.semantic_event_cards, { sourcePageUrl: url }) : []),
+      ...embedded.flatMap((item) => item.event_tuples ?? []),
+      ...networkEvidence.flatMap((item) => item.event_tuples ?? []),
+    ].filter((tuple, index, all) => index === all.findIndex((other) => JSON.stringify(other) === JSON.stringify(tuple))).slice(0, MAX_EVENT_TUPLES_PER_VENUE);
     const summary = summarize({ networks: networkEvidence, embedded, dom, limitReached, navigationStatus: navigation?.status ?? null });
     const endpoints = summary.provenNetwork.map((item) => ({
       url: item.url,
@@ -106,6 +116,7 @@ export async function runControlledBrowserProbe(input, dependencies = {}) {
       embedded_state: embedded,
       rendered_dom: dom,
       network_evidence: networkEvidence,
+      event_tuples: eventTuples,
       collector_fit: endpoints.some((item) => item.deterministic_collector_candidate !== "NEW_FAMILY_REQUIRED") ? "EXISTING_COLLECTOR_ZERO_CODE" : summary.primaryResult === "NEW_GENERIC_CAPABILITY_REQUIRED" ? "NEW_REUSABLE_COLLECTOR_FAMILY" : "NEEDS_DEEPER_INVESTIGATION",
       browser_required_for_refresh: endpoints.length === 0 && summary.primaryResult === "RENDERED_DOM_PROGRAMME_DISCOVERED",
       revalidation_recommendation: endpoints.length ? "Verify the stored endpoint deterministically before returning to browser resolution." : "Repeat browser resolution only after the configured retry/revalidation interval.",

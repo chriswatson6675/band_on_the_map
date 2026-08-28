@@ -1,5 +1,6 @@
 import { extractEventNodes } from "../json-ld/parse.mjs";
 import { sanitizeEvidenceText, safeResponseMetadata } from "./safety.mjs";
+import { tuplesFromJsonLd, tuplesFromStructuredValue } from "./event-tuples.mjs";
 
 const TITLE_KEYS = /^(?:title|name|eventName|event_title|headline)$/i;
 const DATE_KEYS = /^(?:startDate|start_date|startTime|start_time|date|datetime|beginsAt|begins_at)$/i;
@@ -54,7 +55,7 @@ export function inspectStructuredValue(root, { maxNodes = 2_000, maxDepth = 12 }
   };
 }
 
-export function classifyNetworkResponse(response, { maxResponseBytes }) {
+export function classifyNetworkResponse(response, { maxResponseBytes, maxEventTuples = 5, sourcePageUrl } = {}) {
   const metadata = safeResponseMetadata(response);
   if ([401, 403, 429].includes(metadata.status)) return { ...metadata, state: "ACCESS_BLOCKED", evidence: ["public response returned an access-limiting status"] };
   if (response.body_skipped === true) return { ...metadata, state: "PROBE_LIMIT_REACHED", evidence: [response.skip_reason ?? "response body exceeded or lacked a safe inspection bound"] };
@@ -69,13 +70,13 @@ export function classifyNetworkResponse(response, { maxResponseBytes }) {
     const parsed = JSON.parse(body);
     const structural = inspectStructuredValue(parsed);
     const mechanism = /graphql/i.test(`${metadata.url} ${metadata.content_type}`) || (parsed?.data && parsed?.errors !== undefined) ? "PUBLIC_GRAPHQL" : "PUBLIC_REST_JSON";
-    return { ...metadata, ...structural, mechanism, evidence: structural.event_like_record_count ? [`${structural.event_like_record_count} event-like record(s) have title, date, and identity/location structure`] : ["JSON parsed but no event-like record structure was established"] };
+    return { ...metadata, ...structural, mechanism, event_tuples: tuplesFromStructuredValue(parsed, { sourcePageUrl: sourcePageUrl ?? metadata.url, mechanism: "NETWORK_JSON", max: maxEventTuples }), evidence: structural.event_like_record_count ? [`${structural.event_like_record_count} event-like record(s) have title, date, and identity/location structure`] : ["JSON parsed but no event-like record structure was established"] };
   } catch {
     return { ...metadata, state: "STRUCTURED_RESPONSE_NOT_PROGRAMME", evidence: ["structured content type did not contain valid bounded JSON"] };
   }
 }
 
-export function extractEmbeddedState(html, { maxBlocks = 30, maxResponseBytes = 256 * 1024 } = {}) {
+export function extractEmbeddedState(html, { maxBlocks = 30, maxResponseBytes = 256 * 1024, maxEventTuples = 5, sourcePageUrl } = {}) {
   const results = [];
   const scripts = String(html ?? "").matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi);
   for (const match of scripts) {
@@ -94,7 +95,7 @@ export function extractEmbeddedState(html, { maxBlocks = 30, maxResponseBytes = 
     if (/ld\+json/i.test(type ?? "")) {
       try {
         const eventCount = extractEventNodes(`<script type="application/ld+json">${body}</script>`).length;
-        if (eventCount) results.push({ id, type, state: "EMBEDDED_PROGRAMME_STATE_PROVEN", mechanism: "JSON_LD_EVENT", event_like_record_count: eventCount, evidence: [`${eventCount} schema.org Event node(s) found`] });
+        if (eventCount) results.push({ id, type, state: "EMBEDDED_PROGRAMME_STATE_PROVEN", mechanism: "JSON_LD_EVENT", event_like_record_count: eventCount, event_tuples: tuplesFromJsonLd(`<script type="application/ld+json">${body}</script>`, { sourcePageUrl, max: maxEventTuples }), evidence: [`${eventCount} schema.org Event node(s) found`] });
       } catch { /* malformed JSON-LD is not a proven state */ }
       continue;
     }
@@ -102,7 +103,7 @@ export function extractEmbeddedState(html, { maxBlocks = 30, maxResponseBytes = 
       const parsed = JSON.parse(body);
       const structural = inspectStructuredValue(parsed);
       const mechanism = /__NEXT_DATA__/i.test(id ?? "") ? "EMBEDDED_NEXT_DATA" : /__NUXT__/i.test(`${id} ${attributes}`) ? "EMBEDDED_NUXT_STATE" : /svelte/i.test(`${id} ${attributes}`) ? "EMBEDDED_SVELTEKIT_DATA" : "OTHER_EMBEDDED_APP_STATE";
-      results.push({ id, type, ...structural, state: structural.state === "PROGRAMME_ENDPOINT_PROVEN" ? "EMBEDDED_PROGRAMME_STATE_PROVEN" : structural.state, mechanism, evidence: structural.event_like_record_count ? [`${structural.event_like_record_count} event-like embedded record(s) found`] : ["embedded JSON parsed without proven programme records"] });
+      results.push({ id, type, ...structural, state: structural.state === "PROGRAMME_ENDPOINT_PROVEN" ? "EMBEDDED_PROGRAMME_STATE_PROVEN" : structural.state, mechanism, event_tuples: tuplesFromStructuredValue(parsed, { sourcePageUrl, mechanism: "EMBEDDED_STATE", max: maxEventTuples }), evidence: structural.event_like_record_count ? [`${structural.event_like_record_count} event-like embedded record(s) found`] : ["embedded JSON parsed without proven programme records"] });
     } catch { /* non-JSON script blocks are ignored */ }
   }
   return results;
