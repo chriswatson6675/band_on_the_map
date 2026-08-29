@@ -60,6 +60,13 @@ test("a non-zero-padded ISO offset with a double-digit day still parses correctl
   assert.equal(dt.date, "2026-08-09");
 });
 
+test("an ISO basic numeric offset is normalized without inferring a timezone", () => {
+  const dt = deriveDateTimeFromIso("2026-09-25T21:00:00+0200");
+  assert.equal(dt.certainty, "UTC_INSTANT");
+  assert.equal(dt.iso, "2026-09-25T19:00:00.000Z");
+  assert.equal(dt.date, "2026-09-25");
+});
+
 test("a datetime with no offset at all is honestly FLOATING_LOCAL, never guessed into UTC", () => {
   const dt = deriveDateTimeFromIso("2026-09-17T21:00:00");
   assert.equal(dt.certainty, "FLOATING_LOCAL");
@@ -120,6 +127,41 @@ test("event_url falls back to ticket_url only when the record has no own event_u
     { retrievedAt: "2026-08-26T00:00:00.000Z" },
   );
   assert.equal(observation.event_url, "https://tickets.example.cat/x");
+});
+
+test("a known detail-page URL fills a missing event URL without overriding better explicit URLs", () => {
+  const options = {
+    retrievedAt: "2026-08-26T00:00:00.000Z",
+    sourceUrl: "https://example.cat/events/test-1",
+    eventDetailUrl: "https://example.cat/events/test-1",
+  };
+  const fallback = toObservation(baseRecord({ event_url: null, ticket_url: null }), { source_id: "s" }, options);
+  assert.equal(fallback.event_url, options.eventDetailUrl);
+  assert.equal(fallback.source_fields.event_detail_url, options.eventDetailUrl);
+
+  const explicit = toObservation(baseRecord({ event_url: "https://canonical.example/event/1" }), { source_id: "s" }, options);
+  assert.equal(explicit.event_url, "https://canonical.example/event/1");
+
+  const ticket = toObservation(baseRecord({ event_url: null, ticket_url: "https://tickets.example/event/1" }), { source_id: "s" }, options);
+  assert.equal(ticket.event_url, "https://tickets.example/event/1");
+});
+
+test("programme, API, feed, and search source URLs are provenance only", () => {
+  for (const sourceUrl of [
+    "https://example.cat/programme",
+    "https://example.cat/api/events",
+    "https://example.cat/calendar.ics",
+    "https://example.cat/search?q=music",
+  ]) {
+    const observation = toObservation(
+      baseRecord({ event_url: null, ticket_url: null }),
+      { source_id: "s" },
+      { retrievedAt: "2026-08-26T00:00:00.000Z", sourceUrl },
+    );
+    assert.equal(observation.source_url, sourceUrl);
+    assert.equal(observation.event_url, null);
+    assert.equal(observation.source_fields.event_detail_url, null);
+  }
 });
 
 test("toObservation throws without a source_record_id or config.source_id", () => {

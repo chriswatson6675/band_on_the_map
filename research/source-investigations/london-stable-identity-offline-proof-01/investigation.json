@@ -1,0 +1,33 @@
+{
+  "investigation_id": "london-stable-identity-offline-proof-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-29T00:00:00.000Z",
+  "investigator": { "type": "AI", "method": "Offline replay of retained Level-2 public captures; no network or browser." },
+  "probe_history": [
+    { "level": 1, "method": "PASSIVE_STATIC", "outcome": "INSUFFICIENT", "reason": "Earlier retained passive triage did not establish event tuples or stable event identity.", "evidence_refs": ["ev-level1"] },
+    { "level": 2, "method": "STRUCTURAL", "outcome": "SUFFICIENT", "reason": "Retained public detail documents permit a strict offline identity replay without a browser.", "evidence_refs": ["ev-offline"] }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Frozen London Level-2 generic-output cohort",
+  "official_url": null,
+  "identity": { "status": "PARTIAL", "confidence": "MEDIUM", "evidence_refs": ["ev-offline"], "notes": "Per-event source identity is assessed in the generated cohort audit; venue identity is not promoted." },
+  "site_classification": { "acquisition_class": "STATIC_HTML", "platform": "Generic JSON-LD plus source-published canonical detail links", "confidence": "MEDIUM", "evidence_refs": ["ev-offline"] },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-event result retained in cohort audit.", "evidence_refs": ["ev-offline"] },
+    "start_date": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-event result retained in cohort audit.", "evidence_refs": ["ev-offline"] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "source_record_id": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Promoted only at per-event level in cohort audit.", "evidence_refs": ["ev-offline"] },
+    "event_url": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Promoted only at per-event level in cohort audit.", "evidence_refs": ["ev-offline"] }
+  },
+  "collector_assessment": { "recommended_family": "STATIC_EVENT_LIST", "confidence": "MEDIUM", "evidence_refs": ["ev-offline"], "blockers": [{ "severity": "MAJOR", "description": "No source activation or public-data mutation is authorised by this investigation." }] },
+  "decision": { "status": "DEFER", "reasons": ["This aggregate investigation retains per-event proof outcomes but does not activate a source or mutate canonical/public data."], "evidence_refs": ["ev-offline"] },
+  "evidence": [
+    { "evidence_id": "ev-level1", "evidence_class": "DIRECT_EVIDENCE", "description": "Prior governed passive investigations referenced by the retained Level-2 artifacts.", "acquired_from": "Multiple first-party public URLs retained within the aggregate capture", "acquired_at": "2026-08-28T00:00:00.000Z", "method": "Public GET", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-stable-identity-offline-proof-01/evidence/generic-baseline.json" },
+    { "evidence_id": "ev-offline", "evidence_class": "DETERMINISTIC_DERIVATION", "description": "Offline replay and its generated per-event audit from retained public captures.", "acquired_from": "Retained Level-2 public captures", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Offline deterministic replay", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-stable-identity-offline-proof-01/evidence/cohort-audit.json" }
+  ],
+  "supersedes": null
+}

@@ -1,0 +1,34 @@
+{
+  "investigation_id": "london-level2-configuration-batch-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-29T00:00:00.000Z",
+  "investigator": { "type": "AI", "method": "Bounded generic public Level-2 static acquisition; no browser." },
+  "probe_history": [
+    { "level": 1, "method": "PASSIVE_STATIC", "outcome": "INSUFFICIENT", "reason": "Retained triage established programme candidates but not exact stable event tuples.", "evidence_refs": ["ev-level1"] },
+    { "level": 2, "method": "STRUCTURAL", "outcome": "SUFFICIENT", "reason": "Bounded public programme/detail captures and offline replay completed.", "evidence_refs": ["ev-level2", "ev-proof"] }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "London configuration-only batch 02 (25 next-ranked retained Level-1 candidates)",
+  "official_url": null,
+  "identity": { "status": "PARTIAL", "confidence": "MEDIUM", "evidence_refs": ["ev-proof"], "notes": "Per-event result is retained in the batch audit; venue identity is not canonicalized." },
+  "site_classification": { "acquisition_class": "STATIC_HTML", "platform": "Generic public static programme/detail acquisition", "confidence": "MEDIUM", "evidence_refs": ["ev-level2"] },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-event audit retained.", "evidence_refs": ["ev-proof"] },
+    "start_date": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-event audit retained.", "evidence_refs": ["ev-proof"] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "source_record_id": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Only event rows passing offline proof are promoted.", "evidence_refs": ["ev-proof"] },
+    "event_url": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Only event rows passing offline proof are promoted.", "evidence_refs": ["ev-proof"] }
+  },
+  "collector_assessment": { "recommended_family": "STATIC_EVENT_LIST", "confidence": "MEDIUM", "evidence_refs": ["ev-level2"], "blockers": [] },
+  "decision": { "status": "DEFER", "reasons": ["Aggregate record; no source activation or canonical/public data mutation is authorised."], "evidence_refs": ["ev-proof"] },
+  "evidence": [
+    { "evidence_id": "ev-level1", "evidence_class": "DIRECT_EVIDENCE", "description": "Retained Level-1 triage inputs selected deterministically by the evidence script.", "acquired_from": "Retained London Level-1 public captures", "acquired_at": "2026-08-28T00:00:00.000Z", "method": "Public GET", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-level2-configuration-batch-02/evidence/acquire-batch.mjs" },
+    { "evidence_id": "ev-level2", "evidence_class": "DIRECT_EVIDENCE", "description": "Bounded public programme and detail captures for the 25-candidate batch.", "acquired_from": "Multiple retained first-party public URLs", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Public unauthenticated GET", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-level2-configuration-batch-02/evidence/configuration-batch-02.json" },
+    { "evidence_id": "ev-proof", "evidence_class": "DETERMINISTIC_DERIVATION", "description": "Offline canonical-detail proof replay.", "acquired_from": "Retained batch capture", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Offline deterministic replay", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-level2-configuration-batch-02/evidence/offline-proof-audit.json" }
+  ],
+  "supersedes": null
+}
