@@ -1,0 +1,82 @@
+# BEATMAPPED-UNATTENDED-CITY-WORKER-FOUNDATION-01, reconciled onto the
+# modern collector line by BEATMAPPED-UNATTENDED-CITY-WORKER-REAL-
+# INTEGRATION-01.
+#
+# systemd unit for the always-on, queue-draining city worker
+# (ingestion/city-worker/worker-loop-main.mjs, `npm run city-worker:daemon`).
+# Sibling to the two existing units this repository already deploys
+# (deploy/systemd/botm-unattended.service, a `oneshot` run twice daily by
+# botm-unattended.timer for the single-city Lisbon+Porto pipeline;
+# deploy/systemd/botm-publication.service, a long-running read-only
+# publication endpoint) — this is a THIRD, independent long-running
+# `simple` service: it drains whatever city jobs are queued
+# (ingestion/city-worker/queue.mjs) via the real, now-existing
+# resolvers/programme-acquisition-resolver.mjs adapter, and then idles,
+# polling for new work, for as long as the service is up. City jobs are
+# enqueued separately, by an operator (or a future scheduled/dashboard-
+# triggered process) via `npm run city-worker -- enqueue-city ...` — this
+# unit never enqueues anything itself, and never touches
+# botm-unattended.{service,timer}'s own independent schedule.
+#
+# NOT INSTALLED BY THIS PACKAGE. This file is deployment-ready design only
+# — see deploy/README-CITY-WORKER.md for exactly what installing it would
+# require, and why it is deliberately not done here.
+#
+# Install (future, separate, authorised step): copy this file to
+# /etc/systemd/system/beatmapped-city-worker.service, then
+# `systemctl daemon-reload`.
+
+[Unit]
+Description=BeatMapped -- unattended city-job worker (queue-draining)
+Documentation=https://github.com/chriswatson6675/band_on_the_map/blob/main/docs/UNATTENDED_CITY_WORKER.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=botm
+Group=botm
+WorkingDirectory=/opt/band-on-the-map
+# BEATMAPPED_CITY_WORKER_RESOLVER names the module that adapts this
+# host's real acquisition interface into the geography-neutral SourceTask
+# contract runner.mjs requires -- see ingestion/city-worker/worker-loop-
+# main.mjs's own doc comment. The real adapter now exists
+# (resolvers/programme-acquisition-resolver.mjs, wired to
+# ingestion/programme-acquisition/source-execution.mjs's acquireSource())
+# and is bounded-proven against 5 real, already-governed sources -- see
+# docs/UNATTENDED_CITY_WORKER.md, "Bounded real-source proof".
+Environment=NODE_ENV=production
+Environment=BEATMAPPED_CITY_WORKER_RESOLVER=ingestion/city-worker/resolvers/programme-acquisition-resolver.mjs
+ExecStart=/usr/bin/node ingestion/city-worker/worker-loop-main.mjs
+
+# Clean shutdown: worker-loop-main.mjs's own SIGTERM/SIGINT handlers ask
+# the worker to finish its current batch of in-flight sources and persist
+# checkpoints before exiting -- give it real time to do that rather than
+# systemd's default 90s, since a single source acquisition can legitimately
+# take longer under load.
+TimeoutStopSec=120
+KillSignal=SIGTERM
+
+# Restart on a genuine crash (an unhandled exception, OOM-kill, etc.) --
+# never masks a real process failure the way a bare "always restart
+# forever" policy would; RestartSec adds a small floor so a persistently
+# crashing worker does not spin the host. Every already-checkpointed
+# source and job survives a restart untouched (see
+# ingestion/city-worker/checkpoint-store.mjs) -- that is the entire point
+# of this package.
+Restart=on-failure
+RestartSec=10s
+
+# Standard, conservative hardening -- same posture already documented
+# (and NOT yet live-verified against the real deployment target) for
+# botm-unattended.service; confirm compatibility with this host's actual
+# npm/node runtime needs before enabling.
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=beatmapped-city-worker
+
+[Install]
+WantedBy=multi-user.target
