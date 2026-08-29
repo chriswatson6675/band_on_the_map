@@ -20,6 +20,7 @@ which this package deliberately does not close).
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
 | `systemd/botm-publication.service` | long-running `npm run serve:map-data` unit — installed, enabled, and (by default) restarted by `install.sh` on every deploy, unless `--skip-publication-restart` is passed (see "Publication service lifecycle" below) |
 | `ci/resolve-and-validate-deployment.sh` | the exact SHA-resolution/authorisation logic the Action's `resolve-and-validate` job runs — see "Approved-candidate deployment trials" below |
+| `systemd/beatmapped-city-worker.service` | (present only on the unmerged city-worker candidate line, not yet in this checkout) the always-on city-job worker unit — installed/started only by the dedicated trial Action, see "Bounded city-worker runtime trial" below |
 
 ## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
 
@@ -159,41 +160,119 @@ runs exactly as before regardless of this flag; only the
       via `MAIN` mode as usual. A candidate branch is never itself the
       long-term deployment record.
 
-**Exact sequence to run a bounded city-worker runtime trial** (candidate
-`fa64002`, once this infrastructure change itself is Founder-approved and
-merged — see this package's own final report):
+A full bounded RUNTIME trial of the city-worker itself (installing the
+`beatmapped-city-worker` systemd unit, enqueueing a job, starting/stopping
+the worker) is a distinct, further step beyond what this section's
+workflow does on its own — see "Bounded city-worker runtime trial" below
+for the dedicated, single-purpose GitHub Action that performs that
+entirely through this same protected Environment, with no interactive SSH
+required at all.
 
-1. Merge this deployment-infrastructure change
-   (`BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`, building on
-   `BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01`) to `main`, with
-   Founder approval — `workflow_dispatch` only exposes the `mode` /
-   `post_deploy_action` inputs actually present in whatever version of
-   this workflow file lives on the branch/ref a run is dispatched against.
+## Bounded city-worker runtime trial (`BEATMAPPED-CITY-WORKER-BOUNDED-TRIAL-ACTION-01`)
+
+[`.github/workflows/run-beatmapped-city-worker-trial.yml`](../.github/workflows/run-beatmapped-city-worker-trial.yml)
+("**Run BeatMapped City Worker Trial**" in GitHub's Actions tab) is the
+ONE sanctioned way to perform a bounded runtime proof of the unattended
+city-worker (`ingestion/city-worker/**`, currently only on an unmerged
+candidate line) against the real production host — entirely through the
+protected `beatmapped-collector-production` Environment, never via
+routine interactive SSH (prohibited by project policy), and without
+broadening `deploy-beatmapped-collector.yml`'s own normal-deployment
+semantics. It is `workflow_dispatch` only and accepts exactly ONE input,
+the candidate's exact full 40-character commit SHA — `mode` and
+`post_deploy_action` are not exposed here at all; this workflow always
+performs `APPROVED_CANDIDATE` + `DEPLOY_ONLY`, reusing the exact same
+`deploy/ci/resolve-and-validate-deployment.sh` authorisation (a
+`candidate/deploy/*` branch's exact tip; an arbitrary feature-branch
+commit or a superseded candidate commit is rejected exactly as it is for
+a normal deployment trial).
+
+**What it does, in order, every run:**
+
+1. Resolves and validates the requested candidate SHA (shared script,
+   identical rules to `APPROVED_CANDIDATE` + `DEPLOY_ONLY` above).
+2. Checks out that exact commit and confirms it actually provides the
+   city-worker deployment assets this trial needs
+   (`deploy/systemd/beatmapped-city-worker.service`,
+   `ingestion/city-worker/cli.mjs`, the real
+   `programme-acquisition-resolver.mjs` adapter, and the trial estate
+   fixture) — fails closed before any SSH if any are missing.
+3. Validates that the trial estate
+   (`fixtures/city-worker/real-estates/berlin-sample-01.json`) is
+   **exactly** the five already-governed sources this trial is bound to
+   (`tempodrom-berlin`, `a-trane-berlin`, `b-flat-berlin`,
+   `uber-arena-berlin`, `columbiahalle-berlin`) — never all of Berlin,
+   never another city. This estate/country/city are fixed values baked
+   into the workflow, never operator inputs.
+4. Deploys the exact candidate via the same sanctioned `DEPLOY_ONLY` path
+   (`deploy/install.sh --ref=<sha> --skip-publication-restart`), verifies
+   the deployed HEAD, and captures a pre-trial baseline of
+   `botm-unattended.timer`/`botm-publication.service`'s state.
+5. Installs/reconciles the `beatmapped-city-worker` systemd unit
+   (`install -m 0644` + `daemon-reload`) — **never** `systemctl enable`s
+   it; the unit is not wanted for boot-time operation during a bounded
+   trial.
+6. Enqueues exactly one job (`node ingestion/city-worker/cli.mjs
+   enqueue-city DE Berlin fixtures/city-worker/real-estates/berlin-sample-01.json`,
+   run as the `botm` user) and captures its `job_id`.
+7. Starts the worker via `systemctl start beatmapped-city-worker.service`
+   — never `nohup`/`tmux`/`screen`/a backgrounded SSH foreground process
+   — confirms it is active, confirms it is still `disabled` for boot, and
+   that SSH connection ends.
+8. Polls for a terminal job state (`COMPLETE` / `COMPLETE_WITH_RESIDUE` /
+   `FAILED`) via **later, independent SSH connections** — a genuinely new
+   `ssh` invocation every poll — proving the worker survives entirely on
+   its own as a systemd-owned process, not tied to any one shell. Bounded
+   by both a script-level `MAX_WAIT_SECONDS` and a step-level
+   `timeout-minutes`; a timeout stops the trial safely (cleanup still
+   runs) rather than looping forever.
+9. Collects durable evidence directly from
+   `runtime/city-jobs/<job_id>/{job.json,sources/*.json}` — job-level
+   counts/state plus, per source, status, the worker's own `attempts`
+   counter **separately from** the collector's own internal `retry_count`
+   (see `ingestion/programme-acquisition/worker-checkpoint-mapping.mjs`'s
+   own "ONE RETRY OWNER" note) — printed to the run's own summary, never
+   published anywhere.
+10. **Always** (success, failure, or timeout) stops and disables the
+    city-worker service again, re-checks
+    `botm-unattended.timer`/`botm-publication.service` against the
+    pre-trial baseline, and fails the run loudly if cleanup or that
+    comparison cannot be confirmed.
+
+Shares the exact same `concurrency: group: deploy-beatmapped-collector`
+as the main deploy workflow, so a real `MAIN` deployment and this trial
+can never run against the host at the same time.
+
+**Exact sequence to run the bounded city-worker trial** (candidate
+`fa64002`, once this workflow itself is Founder-approved and merged — see
+this package's own final report):
+
+1. Merge this trial-workflow infrastructure
+   (`BEATMAPPED-CITY-WORKER-BOUNDED-TRIAL-ACTION-01`) to `main`, with
+   Founder approval — `workflow_dispatch` only exposes whatever version of
+   the workflow file lives on the branch/ref a run is dispatched against.
 2. Push the exact city-worker candidate branch/SHA (`fa64002`,
    `work/beatmapped-unattended-city-worker-real-integration-01`) to
    `origin` if not already there.
 3. Create the authorised pointer branch at that exact tip:
    `git push origin fa64002<...>:refs/heads/candidate/deploy/city-worker-trial-01`.
-4. GitHub → **Actions** → **Deploy BeatMapped Collector** → **Run workflow**.
-5. Set **mode** to `APPROVED_CANDIDATE`.
-6. Set **post_deploy_action** to `DEPLOY_ONLY`.
-7. Paste the exact full 40-character SHA of `fa64002` into **ref**.
-8. Approve the protected `beatmapped-collector-production` Environment if
-   required.
-9. The workflow deploys the exact SHA with `--skip-publication-restart` —
-   code only, no acquisition, no publication trigger, no
-   `botm-publication.service` restart — and verifies the deployed HEAD.
-10. Separately, over a short bounded SSH session (or the next sanctioned
-    mechanism for this), install/start/control the `beatmapped-city-worker`
-    systemd unit for the bounded trial itself — this workflow's
-    `DEPLOY_ONLY` mode installs the candidate's code but does not start
-    the city-worker service; that remains an explicit, separate,
-    human-authorised step, exactly as `BEATMAPPED-DIGITALOCEAN-CITY-WORKER-BOUNDED-DEPLOYMENT-TRIAL-01`
-    originally scoped it.
-11. After the trial proves what it needs to, stop/disable the city-worker
-    service.
-12. Restore the previous known-good `MAIN` deployment if required (step 10
-    of the operator procedure above).
+4. GitHub → **Actions** → **Run BeatMapped City Worker Trial** → **Run workflow**.
+5. Paste the exact full 40-character SHA of `fa64002` into **ref**.
+6. Approve the protected `beatmapped-collector-production` Environment if
+   configured.
+7. The workflow validates candidate authorisation, deploys the exact SHA
+   via `DEPLOY_ONLY`, installs the city-worker unit (not enabled), enqueues
+   the bounded five-source Berlin job, starts the worker via systemd, ends
+   that connection, and polls independently until a terminal state or
+   timeout.
+8. Review the run's own summary for the collected evidence (job state,
+   per-source outcomes, worker attempts vs collector retry_count).
+9. The workflow's own cleanup step stops and disables
+   `beatmapped-city-worker.service` and confirms
+   `botm-unattended.timer`/`botm-publication.service` were undisturbed —
+   no further manual action needed.
+10. Restore the previous known-good `MAIN` deployment if required (via
+    `deploy-beatmapped-collector.yml` in `MAIN` mode, unchanged).
 
 ## Requirements
 

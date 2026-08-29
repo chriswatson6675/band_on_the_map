@@ -1,0 +1,434 @@
+name: Run BeatMapped City Worker Trial
+
+# BEATMAPPED-CITY-WORKER-BOUNDED-TRIAL-ACTION-01
+#
+# The ONE sanctioned way to perform a bounded runtime proof of the
+# unattended city-worker (ingestion/city-worker/**, currently only on the
+# unmerged candidate line -- see docs/UNATTENDED_CITY_WORKER.md) against
+# the real production host, entirely through this protected GitHub
+# Environment -- never via routine interactive SSH (prohibited by project
+# policy) and never by broadening deploy-beatmapped-collector.yml's own
+# normal-deployment semantics.
+#
+# This workflow is DELIBERATELY narrow, single-purpose, and always
+# performs the exact same thing:
+#   - APPROVED_CANDIDATE + DEPLOY_ONLY installation of one exact,
+#     reviewed, pushed candidate SHA (reusing deploy/ci/resolve-and-
+#     validate-deployment.sh -- the SAME script deploy-beatmapped-
+#     collector.yml calls; no duplicate/weaker validation logic here);
+#   - install/reconcile (never enable for boot) the beatmapped-city-worker
+#     systemd unit already present in that candidate's own
+#     deploy/systemd/beatmapped-city-worker.service;
+#   - enqueue exactly ONE bounded job: country DE, city Berlin, the five
+#     already-governed sources in
+#     fixtures/city-worker/real-estates/berlin-sample-01.json -- never an
+#     arbitrary estate, never all of Berlin, never another city;
+#   - start the worker via systemd (never nohup/tmux/screen/a backgrounded
+#     SSH foreground process), end that SSH connection, then poll job
+#     state via later, independent SSH connections -- proving the process
+#     survives independently of the shell that started it;
+#   - always stop AND disable the service again afterwards, whatever the
+#     outcome, and confirm botm-unattended.{service,timer}/
+#     botm-publication.service were not disturbed.
+#
+# Never triggers acquisition, never triggers publication, never restarts
+# botm-publication.service (install.sh --skip-publication-restart, same
+# flag DEPLOY_ONLY mode already uses).
+#
+# workflow_dispatch ONLY. Shares the SAME concurrency group as
+# deploy-beatmapped-collector.yml so a real MAIN deployment and this
+# bounded trial can never run against the same host at once.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: >-
+          The EXACT full 40-character commit SHA of the reviewed city-worker
+          candidate to trial (e.g. the SHA of
+          work/beatmapped-unattended-city-worker-real-integration-01). Must
+          be the exact current tip of an authorised candidate/deploy/*
+          branch -- see deploy/README.md's "Approved-candidate deployment
+          trials". No short SHA, no branch/tag name.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # Deliberately the SAME group deploy-beatmapped-collector.yml uses --
+  # this trial and a real production deployment must never run against
+  # the same host at the same time.
+  group: deploy-beatmapped-collector
+  cancel-in-progress: false
+
+env:
+  BEATMAPPED_APP_DIR: /opt/band-on-the-map
+  TRIAL_COUNTRY: DE
+  TRIAL_CITY: Berlin
+  TRIAL_ESTATE_REF: fixtures/city-worker/real-estates/berlin-sample-01.json
+  # The exact, hard-bound five-source trial estate -- never an operator
+  # input. Order-insensitive comparison; count and membership must match
+  # exactly (see the "Validate the bounded trial estate" step below).
+  TRIAL_EXPECTED_SOURCE_IDS: "tempodrom-berlin,a-trane-berlin,b-flat-berlin,uber-arena-berlin,columbiahalle-berlin"
+
+jobs:
+  resolve-and-validate:
+    name: Resolve candidate SHA and validate APPROVED_CANDIDATE + DEPLOY_ONLY authorisation
+    runs-on: ubuntu-latest
+    outputs:
+      resolved_sha: ${{ steps.resolve.outputs.resolved_sha }}
+    steps:
+      - name: Checkout full history (needed for candidate/deploy/* fetch below; resolve-and-validate-deployment.sh itself needs no other main-ancestry check in this always-APPROVED_CANDIDATE workflow)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Fetch every candidate/deploy/* branch explicitly
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/candidate/deploy/*:refs/remotes/origin/candidate/deploy/*' --prune
+
+      - name: Resolve and validate the requested candidate SHA (deploy/ci/resolve-and-validate-deployment.sh, hardcoded to APPROVED_CANDIDATE + DEPLOY_ONLY -- the SAME script and SAME semantics deploy-beatmapped-collector.yml uses, never a duplicate/weaker check)
+        id: resolve
+        run: |
+          set -euo pipefail
+          REQUESTED="${{ inputs.ref }}"
+
+          if OUTPUT="$(bash deploy/ci/resolve-and-validate-deployment.sh APPROVED_CANDIDATE "$REQUESTED" DEPLOY_ONLY)"; then
+            RESOLVED_SHA="${OUTPUT#RESOLVED_SHA=}"
+            echo "resolved_sha=${RESOLVED_SHA}" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Run BeatMapped City Worker Trial"
+              echo ""
+              echo "| Field | Value |"
+              echo "|---|---|"
+              echo "| Mode | \`APPROVED_CANDIDATE\` (fixed) |"
+              echo "| Post-deploy action | \`DEPLOY_ONLY\` (fixed) |"
+              echo "| Requested ref | \`${REQUESTED}\` |"
+              echo "| Resolved full SHA | \`${RESOLVED_SHA}\` |"
+              echo "| Authorisation validation | ✅ PASS |"
+              echo "| ⚠️ UNMERGED CANDIDATE TRIAL | This installs code NOT reachable from origin/main. Acquisition/publication are never triggered by this workflow. |"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Candidate authorisation failed for ref ${REQUESTED} -- see the script's own stderr above."
+            echo "| Authorisation validation | ❌ FAIL |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+  trial:
+    name: Bounded city-worker runtime trial
+    needs: resolve-and-validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Same protected Environment deploy-beatmapped-collector.yml uses --
+    # same secrets, same required-reviewers protection if configured,
+    # never a separate/weaker one for this trial.
+    environment: beatmapped-collector-production
+    env:
+      RESOLVED_SHA: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
+    steps:
+      - name: Checkout the resolved candidate commit (to validate the trial estate and deployment assets it actually contains, before any SSH)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
+
+      - name: Confirm the candidate provides the city-worker deployment assets this trial requires
+        run: |
+          set -euo pipefail
+          for f in \
+            "deploy/systemd/beatmapped-city-worker.service" \
+            "ingestion/city-worker/cli.mjs" \
+            "ingestion/city-worker/worker-loop-main.mjs" \
+            "ingestion/city-worker/resolvers/programme-acquisition-resolver.mjs" \
+            "${TRIAL_ESTATE_REF}"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Resolved candidate ${RESOLVED_SHA} is missing required city-worker deployment asset: $f"
+              exit 1
+            fi
+          done
+          echo "All required city-worker deployment assets present in the resolved candidate."
+
+      - name: Validate the bounded trial estate is EXACTLY the five approved Berlin sources (never all Berlin, never another city, fail closed before any SSH)
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("fs");
+            const estate = JSON.parse(fs.readFileSync(process.env.TRIAL_ESTATE_REF, "utf8"));
+            const expected = process.env.TRIAL_EXPECTED_SOURCE_IDS.split(",").sort();
+            const actual = [...(estate.source_ids ?? [])].sort();
+            if (estate.registry !== "sources/berlin.json") {
+              console.error(`::error::Trial estate registry is "${estate.registry}", expected exactly "sources/berlin.json".`);
+              process.exit(1);
+            }
+            if (actual.length !== expected.length || JSON.stringify(actual) !== JSON.stringify(expected)) {
+              console.error(`::error::Trial estate source_ids do not exactly match the five approved Berlin sources. Expected: ${JSON.stringify(expected)}. Found: ${JSON.stringify(actual)}.`);
+              process.exit(1);
+            }
+            console.log(`Trial estate validated: exactly ${actual.length} approved sources (${actual.join(", ")}).`);
+          '
+
+      - name: Configure pinned SSH access (StrictHostKeyChecking=yes, never TOFU)
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy the exact candidate via the sanctioned DEPLOY_ONLY path (never triggers acquisition/publication, never restarts botm-publication.service)
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo ${BEATMAPPED_APP_DIR}/deploy/install.sh --ref=${RESOLVED_SHA} --skip-publication-restart"
+          echo "| Candidate deployed (DEPLOY_ONLY) | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify deployed SHA and capture the pre-trial baseline of existing services (read-only, short SSH)
+        id: baseline
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$RESOLVED_SHA" "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT' | tee /tmp/baseline-output.txt
+            set -euo pipefail
+            RESOLVED_SHA="$1"
+            APP_DIR="$2"
+
+            DEPLOYED_SHA="$(sudo -u botm git -C "$APP_DIR" rev-parse HEAD)"
+            if [ "$DEPLOYED_SHA" != "$RESOLVED_SHA" ]; then
+              echo "Deployed HEAD ($DEPLOYED_SHA) does not match the requested SHA ($RESOLVED_SHA)." >&2
+              exit 1
+            fi
+            echo "DEPLOYED_SHA_OK=$DEPLOYED_SHA"
+
+            echo "BASELINE_UNATTENDED_TIMER_ENABLED=$(systemctl is-enabled botm-unattended.timer 2>/dev/null || echo unknown)"
+            echo "BASELINE_UNATTENDED_TIMER_ACTIVE=$(systemctl is-active botm-unattended.timer 2>/dev/null || echo unknown)"
+            echo "BASELINE_PUBLICATION_ACTIVE=$(systemctl is-active botm-publication.service 2>/dev/null || echo unknown)"
+          REMOTE_SCRIPT
+          {
+            echo "baseline_timer_enabled=$(grep '^BASELINE_UNATTENDED_TIMER_ENABLED=' /tmp/baseline-output.txt | cut -d= -f2-)"
+            echo "baseline_timer_active=$(grep '^BASELINE_UNATTENDED_TIMER_ACTIVE=' /tmp/baseline-output.txt | cut -d= -f2-)"
+            echo "baseline_publication_active=$(grep '^BASELINE_PUBLICATION_ACTIVE=' /tmp/baseline-output.txt | cut -d= -f2-)"
+          } >> "$GITHUB_OUTPUT"
+          echo "| Deployed SHA verified | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Pre-trial baseline (unattended timer / publication) | $(grep '^BASELINE_UNATTENDED_TIMER_ENABLED=\|^BASELINE_UNATTENDED_TIMER_ACTIVE=\|^BASELINE_PUBLICATION_ACTIVE=' /tmp/baseline-output.txt | cut -d= -f2- | tr '\n' ' ') |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install/reconcile the beatmapped-city-worker systemd unit (never enabled for boot-time operation)
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo install -m 0644 ${BEATMAPPED_APP_DIR}/deploy/systemd/beatmapped-city-worker.service /etc/systemd/system/beatmapped-city-worker.service && sudo systemctl daemon-reload"
+          echo "| beatmapped-city-worker.service installed/reloaded | ✅ PASS (not enabled) |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enqueue exactly one bounded job (DE / Berlin, the five approved sources only)
+        id: enqueue
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo -u botm bash -c 'cd ${BEATMAPPED_APP_DIR} && node ingestion/city-worker/cli.mjs enqueue-city ${TRIAL_COUNTRY} ${TRIAL_CITY} ${TRIAL_ESTATE_REF}'" \
+            | tee /tmp/enqueue-output.json
+          JOB_ID="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("/tmp/enqueue-output.json","utf8")).job_id)')"
+          if [ -z "$JOB_ID" ]; then
+            echo "::error::enqueue-city did not return a job_id."
+            exit 1
+          fi
+          echo "job_id=${JOB_ID}" >> "$GITHUB_OUTPUT"
+          echo "| Job enqueued | \`${JOB_ID}\` (country=${TRIAL_COUNTRY}, city=${TRIAL_CITY}, sources=5) |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Start the city-worker service via systemd (this SSH connection ends once systemd confirms active -- the worker keeps running as an independent, systemd-owned process; never enabled for boot)
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s <<'REMOTE_SCRIPT'
+            set -euo pipefail
+            sudo systemctl start beatmapped-city-worker.service
+
+            ATTEMPTS=10
+            OK=0
+            for _ in $(seq 1 "$ATTEMPTS"); do
+              if systemctl is-active --quiet beatmapped-city-worker.service; then
+                OK=1
+                break
+              fi
+              sleep 1
+            done
+            if [ "$OK" -ne 1 ]; then
+              echo "beatmapped-city-worker.service did not report active after start." >&2
+              exit 1
+            fi
+            echo "beatmapped-city-worker.service is active (systemd-owned)."
+
+            ENABLED_STATE="$(systemctl is-enabled beatmapped-city-worker.service 2>/dev/null || echo disabled)"
+            if [ "$ENABLED_STATE" != "disabled" ]; then
+              echo "beatmapped-city-worker.service unexpectedly reports enabled state '$ENABLED_STATE' -- this trial must never leave it enabled for boot." >&2
+              exit 1
+            fi
+            echo "Confirmed: not enabled for boot-time operation."
+          REMOTE_SCRIPT
+          echo "| Worker started via systemd | ✅ ACTIVE, not enabled |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Poll job status through fresh, independent SSH connections until a terminal state or bounded timeout (proves the worker survives independently of the shell that started it)
+        id: poll
+        timeout-minutes: 25
+        env:
+          JOB_ID: ${{ steps.enqueue.outputs.job_id }}
+          POLL_INTERVAL_SECONDS: "20"
+          MAX_WAIT_SECONDS: "1200"
+        run: |
+          set -euo pipefail
+          STARTED=$(date +%s)
+          FINAL_STATE=""
+          while [ "$(($(date +%s) - STARTED))" -lt "$MAX_WAIT_SECONDS" ]; do
+            # A genuinely NEW ssh process/connection every iteration -- never
+            # a single held-open session -- so this poll can only ever see
+            # what systemd/the durable job file independently report.
+            STATE="$(ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+              -i "$HOME/.ssh/deploy_key" \
+              "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+              "sudo -u botm bash -c 'cd ${BEATMAPPED_APP_DIR} && node ingestion/city-worker/cli.mjs show-job ${JOB_ID}'" \
+              | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>{try{console.log(JSON.parse(d).state ?? "")}catch{console.log("")}})')"
+            echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) job ${JOB_ID} state: ${STATE:-<unavailable>}"
+            case "$STATE" in
+              COMPLETE|COMPLETE_WITH_RESIDUE|FAILED)
+                FINAL_STATE="$STATE"
+                break
+                ;;
+            esac
+            sleep "$POLL_INTERVAL_SECONDS"
+          done
+
+          if [ -z "$FINAL_STATE" ]; then
+            echo "::error::TIMEOUT after ${MAX_WAIT_SECONDS}s -- job ${JOB_ID} never reached a terminal state (COMPLETE / COMPLETE_WITH_RESIDUE / FAILED). Stopping the trial safely; the worker is left running -- cleanup below still stops/disables it."
+            echo "final_state=TIMEOUT" >> "$GITHUB_OUTPUT"
+            echo "| Job terminal state | ❌ TIMEOUT (no terminal state within ${MAX_WAIT_SECONDS}s) |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "final_state=${FINAL_STATE}" >> "$GITHUB_OUTPUT"
+          echo "| Job terminal state | \`${FINAL_STATE}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Collect durable checkpoint evidence (job-level and per-source; worker attempts vs collector retry_count shown separately)
+        if: always() && steps.enqueue.outputs.job_id != ''
+        env:
+          JOB_ID: ${{ steps.enqueue.outputs.job_id }}
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo -u botm bash -c 'cd ${BEATMAPPED_APP_DIR} && cat runtime/city-jobs/${JOB_ID}/job.json && echo ---SOURCES--- && for f in runtime/city-jobs/${JOB_ID}/sources/*.json; do echo \"==\$f==\"; cat \"\$f\"; done'" \
+            | tee /tmp/evidence-raw.txt
+          # No secrets ever pass through this step -- only this repository's
+          # own non-secret durable job/source-checkpoint JSON.
+          node -e '
+            const fs = require("fs");
+            const raw = fs.readFileSync("/tmp/evidence-raw.txt", "utf8");
+            const [jobPart, sourcesPart] = raw.split("---SOURCES---");
+            const job = JSON.parse(jobPart);
+            const lines = [
+              "### City-worker bounded trial evidence",
+              "",
+              "| Field | Value |",
+              "|---|---|",
+              `| job_id | \`${job.job_id}\` |`,
+              `| country / city | ${job.country} / ${job.city} |`,
+              `| runner_version_sha | \`${job.runner_version_sha}\` |`,
+              `| final state | \`${job.state}\` |`,
+              `| total_sources | ${job.total_sources} |`,
+              `| completed_sources | ${job.completed_sources} |`,
+              `| successful_sources | ${job.successful_sources} |`,
+              `| residue_sources | ${job.residue_sources} |`,
+              `| failed_sources | ${job.failed_sources} |`,
+              `| created_at | ${job.created_at} |`,
+              `| started_at | ${job.started_at} |`,
+              `| completed_at | ${job.completed_at} |`,
+              `| last_checkpoint | ${job.last_checkpoint} |`,
+              "",
+              "| source_id | status | worker attempts | collector retry_count | source_state | detail |",
+              "|---|---|---|---|---|---|",
+            ];
+            const blocks = sourcesPart.split(/^==.*==$/m).map(s => s.trim()).filter(Boolean);
+            for (const block of blocks) {
+              const rec = JSON.parse(block);
+              const detail = rec.residue_reason ? `residue_reason=${rec.residue_reason}` : (rec.error ? `error=${rec.error}` : "");
+              lines.push(`| ${rec.source_id} | ${rec.status} | ${rec.attempts} | ${rec.retry_count ?? "n/a"} | ${rec.source_state ?? "n/a"} | ${detail} |`);
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          '
+
+      - name: Stop and disable the city-worker service, verify final state, and confirm existing services were not disturbed
+        if: always()
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "${{ steps.baseline.outputs.baseline_timer_enabled }}" "${{ steps.baseline.outputs.baseline_timer_active }}" "${{ steps.baseline.outputs.baseline_publication_active }}" <<'REMOTE_SCRIPT' | tee /tmp/cleanup-output.txt
+            set -euo pipefail
+            BASELINE_TIMER_ENABLED="$1"
+            BASELINE_TIMER_ACTIVE="$2"
+            BASELINE_PUBLICATION_ACTIVE="$3"
+
+            sudo systemctl stop beatmapped-city-worker.service || true
+            sudo systemctl disable beatmapped-city-worker.service || true
+            sudo systemctl daemon-reload
+
+            FINAL_ACTIVE="$(systemctl is-active beatmapped-city-worker.service 2>/dev/null || echo inactive)"
+            FINAL_ENABLED="$(systemctl is-enabled beatmapped-city-worker.service 2>/dev/null || echo disabled)"
+            echo "FINAL_ACTIVE=$FINAL_ACTIVE"
+            echo "FINAL_ENABLED=$FINAL_ENABLED"
+            CLEANUP_OK=1
+            if [ "$FINAL_ACTIVE" = "active" ]; then
+              echo "ERROR: beatmapped-city-worker.service is still active after stop." >&2
+              CLEANUP_OK=0
+            fi
+            if [ "$FINAL_ENABLED" = "enabled" ]; then
+              echo "ERROR: beatmapped-city-worker.service is still enabled after disable." >&2
+              CLEANUP_OK=0
+            fi
+
+            NOW_TIMER_ENABLED="$(systemctl is-enabled botm-unattended.timer 2>/dev/null || echo unknown)"
+            NOW_TIMER_ACTIVE="$(systemctl is-active botm-unattended.timer 2>/dev/null || echo unknown)"
+            NOW_PUBLICATION_ACTIVE="$(systemctl is-active botm-publication.service 2>/dev/null || echo unknown)"
+            echo "NOW_TIMER_ENABLED=$NOW_TIMER_ENABLED"
+            echo "NOW_TIMER_ACTIVE=$NOW_TIMER_ACTIVE"
+            echo "NOW_PUBLICATION_ACTIVE=$NOW_PUBLICATION_ACTIVE"
+            if [ "$NOW_TIMER_ENABLED" != "$BASELINE_TIMER_ENABLED" ] || [ "$NOW_TIMER_ACTIVE" != "$BASELINE_TIMER_ACTIVE" ]; then
+              echo "ERROR: botm-unattended.timer state changed during the trial (baseline: enabled=$BASELINE_TIMER_ENABLED active=$BASELINE_TIMER_ACTIVE; now: enabled=$NOW_TIMER_ENABLED active=$NOW_TIMER_ACTIVE)." >&2
+              CLEANUP_OK=0
+            fi
+            if [ "$NOW_PUBLICATION_ACTIVE" != "$BASELINE_PUBLICATION_ACTIVE" ]; then
+              echo "ERROR: botm-publication.service active-state changed during the trial (baseline: $BASELINE_PUBLICATION_ACTIVE; now: $NOW_PUBLICATION_ACTIVE)." >&2
+              CLEANUP_OK=0
+            fi
+
+            if [ "$CLEANUP_OK" -ne 1 ]; then
+              echo "CLEANUP_CONFIRMED=false"
+              exit 1
+            fi
+            echo "CLEANUP_CONFIRMED=true"
+          REMOTE_SCRIPT
+          if grep -q '^CLEANUP_CONFIRMED=true' /tmp/cleanup-output.txt; then
+            echo "| Cleanup | ✅ city-worker stopped + disabled; existing services undisturbed |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Cleanup could not be fully confirmed -- see the step's own output above. Manual verification required."
+            echo "| Cleanup | ❌ NOT CONFIRMED -- manual verification required |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+      - name: Clean up local SSH material
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts
