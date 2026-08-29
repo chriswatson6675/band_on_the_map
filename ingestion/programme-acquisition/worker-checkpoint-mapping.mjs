@@ -1,18 +1,26 @@
-// BEATMAPPED-GENERIC-PER-SOURCE-ACQUISITION-BRIDGE-01 — the compatibility
-// contract this package promised the unattended city-worker foundation
-// (branch work/beatmapped-unattended-city-worker-foundation-01, candidate
-// SHA 8411a8d): a pure, deterministic mapping from one
-// source-execution.mjs `SourceAcquisitionResult` to the exact checkpoint
-// shape that worker's `checkpoint-store.mjs`'s `recordSourceResult()`
-// expects.
+// BEATMAPPED-GENERIC-PER-SOURCE-ACQUISITION-BRIDGE-01, reconciled by
+// BEATMAPPED-UNATTENDED-CITY-WORKER-REAL-INTEGRATION-01 — the
+// compatibility contract between this repository's own per-source
+// acquisition engine (source-execution.mjs's `acquireSource()`) and the
+// city worker's checkpoint contract (`ingestion/city-worker/checkpoint-
+// store.mjs`'s `recordSourceResult()`), now actually wired together by
+// `ingestion/city-worker/resolvers/programme-acquisition-resolver.mjs`.
 //
-// THIS FILE DOES NOT ALTER 8411a8d. It lives entirely on THIS branch, and
-// documents (rather than silently works around) the one small
-// compatibility adjustment that worker will still need at real
-// integration time — see "COMPATIBILITY GAP" below.
+// Both compatibility gaps this file originally documented (against
+// worker candidate 8411a8d, built on an old isolated base) are now
+// CLOSED on this integration branch:
+//   1. job.mjs gained a dedicated `PROGRAMME_EMPTY` residue reason —
+//      no longer overloading `SOURCE_UNRESOLVED`.
+//   2. runner.mjs gained a third non-throwing SourceTask outcome kind,
+//      `FAILED` — a mapped checkpoint here is passed straight through as
+//      terminal, never triggering the worker's own outer retry (see
+//      runner.mjs's own "ONE RETRY OWNER" header note).
+// This file's own mapping table needed no other change for either fix —
+// both were closed one layer away (job.mjs's vocabulary, runner.mjs's
+// contract), which is itself a small proof that this mapping was
+// correctly scoped to begin with.
 //
-// The worker's own checkpoint contract (job.mjs / checkpoint-store.mjs on
-// that branch) needs, per terminal source:
+// The worker's own checkpoint contract needs, per terminal source:
 //   status       "SUCCESS" | "FAILED" | "RESIDUE"
 //   attempts     number of times the worker's OWN SourceTask.run() was
 //                called for this source
@@ -30,9 +38,7 @@
 //   IMAGE_OR_POSTER_ONLY                     -> RESIDUE, residue_reason IMAGE_OR_POSTER_ONLY
 //   SOURCE_FINGERPRINT_UNSUPPORTED           -> RESIDUE, residue_reason UNSUPPORTED_COLLECTOR_FAMILY
 //   PROGRAMME_SOURCE_UNRESOLVED              -> RESIDUE, residue_reason SOURCE_UNRESOLVED
-//   PROGRAMME_EMPTY                          -> RESIDUE, residue_reason SOURCE_UNRESOLVED
-//                                                (closest existing worker
-//                                                category — see gap below)
+//   PROGRAMME_EMPTY                          -> RESIDUE, residue_reason PROGRAMME_EMPTY
 //   NETWORK_FAILURE                          -> FAILED
 //   STABLE_IDENTITY_PROOF_FAILED             -> FAILED
 //   SUPPORTED_COLLECTOR_NO_VALID_EVENTS      -> FAILED
@@ -43,35 +49,19 @@
 //                                                "needs a browser/AI/social
 //                                                worker instead")
 //
-// COMPATIBILITY GAP (worker candidate 8411a8d — document, do not fix here):
-//
-// 1. job.mjs's RESIDUE_REASONS has no exact equivalent for PROGRAMME_EMPTY
-//    ("a supported programme surface was found but genuinely has no
-//    current listings right now" — structurally different from "we could
-//    not resolve/identify a programme source at all"). Mapped to
-//    SOURCE_UNRESOLVED here as the closest existing category; if this
-//    reason proves common in real integration, worker's own
-//    RESIDUE_REASONS should gain a dedicated PROGRAMME_EMPTY entry rather
-//    than keep overloading SOURCE_UNRESOLVED.
-//
-// 2. RETRY LAYERING: this repository's own collector engine already
-//    retries each individual fetch (homepage/programme/detail) up to 3
-//    times internally (see source-execution.mjs's `fetchBounded`) BEFORE
-//    acquireSource() ever returns NETWORK_FAILURE — that budget is fully
-//    exhausted by the time this mapping runs. Worker candidate 8411a8d's
-//    own `runner.mjs` retries a SourceTask by re-calling `task.run()`
-//    whenever it THROWS (never when it returns a structured result). A
-//    real adapter built on `acquireSource()` should therefore never throw
-//    — every outcome (including NETWORK_FAILURE) is already terminal by
-//    the time it reaches the worker, and should map through this file's
-//    `mapAcquisitionResultToCheckpoint()` directly on the FIRST call, with
-//    `attempts` fixed at 1 (this collector engine's own `retry_count` is
-//    preserved separately inside `detail`, never conflated with the
-//    worker's own attempt counter). No code change to 8411a8d is required
-//    for this — it is a property of how the adapter must be written, not
-//    a defect in either branch — but it is worth stating explicitly so a
-//    future integrator does not accidentally wrap `acquireSource()` in a
-//    second, redundant outer retry loop.
+// RETRY LAYERING (now architecturally enforced, not just documented): this
+// repository's collector engine already retries each individual fetch
+// (homepage/programme/detail) up to 3 times internally (see
+// source-execution.mjs's `fetchBounded`) BEFORE `acquireSource()` ever
+// returns NETWORK_FAILURE — that budget is fully exhausted by the time
+// this mapping runs. `mapAcquisitionResultToCheckpoint()`'s own `attempts`
+// is therefore always fixed at 1 (this collector engine's own
+// `retry_count` is preserved separately inside `detail`, never conflated
+// with the worker's own attempt counter) — the real adapter
+// (programme-acquisition-resolver.mjs) passes this mapping's result
+// straight through as a non-throwing SourceTask outcome, so runner.mjs's
+// own outer retry never fires a second time for an already-terminal
+// result (see tests/city-worker/one-retry-owner.test.mjs).
 
 const RESIDUE_REASON_BY_STATE = {
   ACCESS_BLOCKED: "ACCESS_BLOCKED",
@@ -80,7 +70,7 @@ const RESIDUE_REASON_BY_STATE = {
   IMAGE_OR_POSTER_ONLY: "IMAGE_OR_POSTER_ONLY",
   SOURCE_FINGERPRINT_UNSUPPORTED: "UNSUPPORTED_COLLECTOR_FAMILY",
   PROGRAMME_SOURCE_UNRESOLVED: "SOURCE_UNRESOLVED",
-  PROGRAMME_EMPTY: "SOURCE_UNRESOLVED", // see "COMPATIBILITY GAP" item 1 above
+  PROGRAMME_EMPTY: "PROGRAMME_EMPTY",
 };
 
 const FAILED_STATES = new Set(["NETWORK_FAILURE", "STABLE_IDENTITY_PROOF_FAILED", "SUPPORTED_COLLECTOR_NO_VALID_EVENTS"]);
