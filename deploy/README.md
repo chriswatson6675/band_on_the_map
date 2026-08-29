@@ -18,7 +18,7 @@ which this package deliberately does not close).
 | `check-deploy-tree.sh` | explicit pre-checkout working-tree reconciliation — see "Runtime artifact vs pinned deployment" below |
 | `systemd/botm-unattended.service` | `oneshot` unit running one `npm run unattended` cycle |
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
-| `systemd/botm-publication.service` | long-running `npm run serve:map-data` unit — installed, enabled, and restarted by `install.sh` on every deploy (see "Publication service lifecycle" below) |
+| `systemd/botm-publication.service` | long-running `npm run serve:map-data` unit — installed, enabled, and (by default) restarted by `install.sh` on every deploy, unless `--skip-publication-restart` is passed (see "Publication service lifecycle" below) |
 | `ci/resolve-and-validate-deployment.sh` | the exact SHA-resolution/authorisation logic the Action's `resolve-and-validate` job runs — see "Approved-candidate deployment trials" below |
 
 ## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
@@ -68,7 +68,7 @@ unrelated to this SSH-based collector deployment). This is a one-time
 setup step performed directly in GitHub's own UI; secret values are never
 generated or handled by an automated coding session.
 
-## Approved-candidate deployment trials (`BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01`)
+## Approved-candidate deployment trials (`BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01`, `BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`)
 
 The workflow above (`mode: MAIN`, the default) only ever deploys a commit
 reachable from `origin/main` — the normal, unchanged rule for every real
@@ -94,24 +94,37 @@ convention is deliberately narrow:
   ancestor of some other branch is never accepted.
 - `APPROVED_CANDIDATE` mode requires the **exact full 40-character commit
   SHA** as the `ref` input — never a short SHA, never a branch/tag name.
-- `APPROVED_CANDIDATE` mode **never triggers the acquisition/publication
-  cycle** (`systemctl start botm-unattended.service`) — it proves only
-  that the candidate's code installs and runs; the workflow's run summary
-  always states explicitly whether publication ran.
 - The same `beatmapped-collector-production` Environment, the same
   secrets, and the same `deploy/install.sh --ref=<sha>` transport are
   used — nothing about production access itself is weakened or
   duplicated for this mode.
-- **Known, pre-existing side effect of the shared transport** (not
-  introduced by this mode): `install.sh` itself unconditionally
-  `systemctl restart`s `botm-publication.service` on every install/update,
-  regardless of mode — this is how it guarantees the live read-only
-  runtime endpoint always serves the code just checked out (Node does not
-  hot-reload). It briefly restarts that live, public-facing process even
-  for a code-only `APPROVED_CANDIDATE` trial. This does **not** regenerate
-  or change the map data artifact itself (that is `botm-unattended.service`,
-  which this mode never starts) — only the process serving the
-  already-existing, unchanged file.
+
+**A second, orthogonal input, `post_deploy_action`** (`NORMAL_PUBLICATION`
+default / `DEPLOY_ONLY`), controls what happens *after* the code is
+installed. Exactly two combinations are ever valid, enforced fail-closed by
+`deploy/ci/resolve-and-validate-deployment.sh` before any production
+contact is even attempted — an invalid combination (e.g. `MAIN` +
+`DEPLOY_ONLY`, or `APPROVED_CANDIDATE` + `NORMAL_PUBLICATION`) is rejected
+outright, never silently inferred or silently ignored:
+
+| `mode` | `post_deploy_action` | Behaviour |
+|---|---|---|
+| `MAIN` | `NORMAL_PUBLICATION` (the only allowed pairing) | Normal deployment, unchanged: installs the code, then triggers and verifies the full acquisition+publication cycle exactly as before. |
+| `APPROVED_CANDIDATE` | `DEPLOY_ONLY` (the only allowed pairing) | Installs and verifies the exact candidate SHA; **never** triggers `botm-unattended.service`; **never** restarts `botm-publication.service` (passes `deploy/install.sh --skip-publication-restart`) — the live, public-facing publication process is left completely undisturbed. |
+
+Before `BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`, an
+`APPROVED_CANDIDATE` trial already never triggered acquisition/publication,
+but still had one undisclosed side effect: `install.sh` unconditionally
+`systemctl restart`s `botm-publication.service` on every install, so even a
+code-only candidate trial briefly bounced the live, public-facing
+publication process. `DEPLOY_ONLY` closes that gap explicitly — via a
+plain, operator-driven CLI flag (`--skip-publication-restart`), never
+inferred from a branch name or any other heuristic — so a bounded runtime
+trial (e.g. installing the city-worker candidate) can install code without
+disturbing anything else already running on the host. Every other install
+step (fetch/checkout/`npm ci`/systemd-unit install/reload/ownership) still
+runs exactly as before regardless of this flag; only the
+`botm-publication.service` enable/restart/health-check is skipped.
 
 **Operator procedure:**
 
@@ -124,23 +137,63 @@ convention is deliberately narrow:
    ```
 4. GitHub → **Actions** → **Deploy BeatMapped Collector** → **Run workflow**.
 5. Set **mode** to `APPROVED_CANDIDATE`.
-6. Paste the exact full 40-character SHA into **ref**.
-7. Approve the protected `beatmapped-collector-production` Environment if
+6. Set **post_deploy_action** to `DEPLOY_ONLY` (the only value
+   `APPROVED_CANDIDATE` accepts).
+7. Paste the exact full 40-character SHA into **ref**.
+8. Approve the protected `beatmapped-collector-production` Environment if
    GitHub Environment protection rules require it.
-8. The workflow validates the SHA is the exact tip of an authorised
-   `candidate/deploy/*` branch, deploys it via the existing installer,
-   verifies the deployed HEAD matches exactly, confirms
-   `botm-unattended.timer`/`botm-publication.service` remain healthy, and
-   records in its own summary that publication was **not** triggered.
-9. After the bounded trial, either:
-   - **restore** the previous known-good state by re-running this same
-     workflow in `MAIN` mode with the last approved `main` SHA (no
-     interactive SSH required — the standard rollback path, unchanged
-     from `MAIN` mode's own), or
-   - **integrate properly**: once satisfied, merge the candidate through
-     the normal review process, then deploy the resulting `main` commit
-     via `MAIN` mode as usual. A candidate branch is never itself the
-     long-term deployment record.
+9. The workflow validates the SHA is the exact tip of an authorised
+   `candidate/deploy/*` branch, deploys it via the existing installer with
+   `--skip-publication-restart`, verifies the deployed HEAD matches
+   exactly, confirms `botm-unattended.timer`/`botm-publication.service`
+   remain healthy (untouched, whatever they were before), and records in
+   its own summary that publication was **not** triggered and
+   `botm-publication.service` was **not** restarted.
+10. After the bounded trial, either:
+    - **restore** the previous known-good state by re-running this same
+      workflow in `MAIN` mode (`post_deploy_action: NORMAL_PUBLICATION`)
+      with the last approved `main` SHA (no interactive SSH required —
+      the standard rollback path, unchanged from `MAIN` mode's own), or
+    - **integrate properly**: once satisfied, merge the candidate through
+      the normal review process, then deploy the resulting `main` commit
+      via `MAIN` mode as usual. A candidate branch is never itself the
+      long-term deployment record.
+
+**Exact sequence to run a bounded city-worker runtime trial** (candidate
+`fa64002`, once this infrastructure change itself is Founder-approved and
+merged — see this package's own final report):
+
+1. Merge this deployment-infrastructure change
+   (`BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`, building on
+   `BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01`) to `main`, with
+   Founder approval — `workflow_dispatch` only exposes the `mode` /
+   `post_deploy_action` inputs actually present in whatever version of
+   this workflow file lives on the branch/ref a run is dispatched against.
+2. Push the exact city-worker candidate branch/SHA (`fa64002`,
+   `work/beatmapped-unattended-city-worker-real-integration-01`) to
+   `origin` if not already there.
+3. Create the authorised pointer branch at that exact tip:
+   `git push origin fa64002<...>:refs/heads/candidate/deploy/city-worker-trial-01`.
+4. GitHub → **Actions** → **Deploy BeatMapped Collector** → **Run workflow**.
+5. Set **mode** to `APPROVED_CANDIDATE`.
+6. Set **post_deploy_action** to `DEPLOY_ONLY`.
+7. Paste the exact full 40-character SHA of `fa64002` into **ref**.
+8. Approve the protected `beatmapped-collector-production` Environment if
+   required.
+9. The workflow deploys the exact SHA with `--skip-publication-restart` —
+   code only, no acquisition, no publication trigger, no
+   `botm-publication.service` restart — and verifies the deployed HEAD.
+10. Separately, over a short bounded SSH session (or the next sanctioned
+    mechanism for this), install/start/control the `beatmapped-city-worker`
+    systemd unit for the bounded trial itself — this workflow's
+    `DEPLOY_ONLY` mode installs the candidate's code but does not start
+    the city-worker service; that remains an explicit, separate,
+    human-authorised step, exactly as `BEATMAPPED-DIGITALOCEAN-CITY-WORKER-BOUNDED-DEPLOYMENT-TRIAL-01`
+    originally scoped it.
+11. After the trial proves what it needs to, stop/disable the city-worker
+    service.
+12. Restore the previous known-good `MAIN` deployment if required (step 10
+    of the operator procedure above).
 
 ## Requirements
 
@@ -226,9 +279,12 @@ collector needs none of this repo's devDependencies, which exist only for
 the timer ever run on the server), reinstalls the systemd unit files, and
 reloads systemd. It does **not** touch `botm-unattended.timer`/`.service`'s
 enabled/running state (see "Live deployment sequence" below for that
-deliberate manual gate) — but it **does** unconditionally enable and
-restart `botm-publication.service` on every run; see "Publication service
-lifecycle" below for why that unit is handled differently.
+deliberate manual gate) — but it **does**, by default, enable and restart
+`botm-publication.service` on every run; see "Publication service
+lifecycle" below for why that unit is handled differently, and pass
+`--skip-publication-restart` explicitly to skip that one step for a
+bounded, code-only trial (`BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`
+— see "Approved-candidate deployment trials" above).
 
 ## Publication service lifecycle (`BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01`)
 
@@ -268,6 +324,18 @@ code and dependencies are in place and ownership is fixed:
 This does not change the timer's cadence, does not add a second
 publication service, and does not touch `botm-unattended.service`/`.timer`'s
 own deliberately-manual enable step described below.
+
+**`--skip-publication-restart` (`BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`):**
+an explicit, operator-controlled flag that skips all three steps above
+entirely — `install.sh` still clones/fetches, reconciles the working tree,
+checks out the exact `--ref`, runs `npm ci`, installs/reloads all three
+systemd unit files, and fixes ownership; only the
+`botm-publication.service` enable/restart/health-check is skipped, leaving
+that live, already-running process completely undisturbed. This is never
+inferred from `--ref`, a branch name, or any other heuristic — omitting
+the flag reproduces the exact prior unconditional-restart behaviour. See
+"Approved-candidate deployment trials" above for the one supported use:
+a bounded `APPROVED_CANDIDATE` + `DEPLOY_ONLY` runtime trial.
 
 ## Live deployment sequence (do this in order)
 

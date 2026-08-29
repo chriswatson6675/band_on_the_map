@@ -8,8 +8,14 @@
 // the systemd level).
 
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
 import test from "node:test";
+
+const execFileAsync = promisify(execFile);
 
 async function readDeployFile(name) {
   return readFile(new URL(`../deploy/${name}`, import.meta.url), "utf8");
@@ -187,18 +193,102 @@ test("install.sh: installs all three unit files, then daemon-reloads, before res
   assert.ok(daemonReloadIdx < restartIdx, "daemon-reload must happen before the publication service is restarted");
 });
 
-test("install.sh: restarts botm-publication.service unconditionally (systemctl restart, not merely start) after code/deps are in place", async () => {
+test("install.sh: by DEFAULT (no --skip-publication-restart), restarts botm-publication.service (systemctl restart, not merely start) after code/deps are in place — unchanged from prior behaviour", async () => {
   const script = await readDeployFile("install.sh");
   const npmCiIdx = script.indexOf("npm ci --omit=dev");
   const chownIdx = script.indexOf("chown -R");
   const restartIdx = script.indexOf("systemctl restart botm-publication.service");
-  assert.ok(restartIdx > -1, "expected an unconditional `systemctl restart botm-publication.service`");
+  assert.ok(restartIdx > -1, "expected a `systemctl restart botm-publication.service` reachable in the default (no-flag) path");
   assert.ok(restartIdx > npmCiIdx, "the publication service must be restarted AFTER new dependencies are installed");
   assert.ok(restartIdx > chownIdx, "the publication service must be restarted AFTER ownership is fixed to the botm user");
   // `restart` (not `start`) is required: `start` would silently do nothing
   // if the service was already running old code, defeating the entire
   // point of this fix (Node.js never hot-reloads ES modules).
   assert.doesNotMatch(script, /systemctl start botm-publication\.service/);
+  // BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: the restart is now
+  // reachable through an if/else on an explicit flag, not literally
+  // unconditional line-for-line — but the restart must sit in the `else`
+  // (flag-absent, default) branch, i.e. still gated on SKIP_PUBLICATION_RESTART
+  // being false, never behind any other condition.
+  const elseIdx = script.lastIndexOf("else", restartIdx);
+  assert.ok(elseIdx > -1 && elseIdx < restartIdx, "the restart must live in the SKIP_PUBLICATION_RESTART else-branch");
+});
+
+// --- BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: --skip-publication-restart ---
+
+test("install.sh: accepts an explicit --skip-publication-restart flag that skips the enable/restart/health-check entirely", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.match(script, /--skip-publication-restart\) SKIP_PUBLICATION_RESTART=1/);
+  assert.match(script, /if \[ "\$SKIP_PUBLICATION_RESTART" -eq 1 \]; then/);
+  assert.match(script, /Skipping botm-publication\.service enable\/restart/);
+  // When skipped, neither `systemctl enable` nor `systemctl restart` for
+  // the publication service may run — confirm the enable/restart calls
+  // only appear after the `else`, never before it or outside any branch.
+  const ifIdx = script.indexOf('if [ "$SKIP_PUBLICATION_RESTART" -eq 1 ]; then');
+  const elseIdx = script.indexOf("else", ifIdx);
+  const enableIdx = script.indexOf("systemctl enable botm-publication.service", ifIdx);
+  const restartIdx = script.indexOf("systemctl restart botm-publication.service", ifIdx);
+  assert.ok(elseIdx > ifIdx && enableIdx > elseIdx && restartIdx > elseIdx, "enable/restart must only be reachable in the else (flag-absent) branch");
+});
+
+test("install.sh: --skip-publication-restart is driven purely by the explicit flag, never inferred from --ref or a branch/tag name", async () => {
+  const script = await readDeployFile("install.sh");
+  // The SKIP_PUBLICATION_RESTART decision must never reference $REF or
+  // any branch-name pattern (e.g. "candidate/deploy") -- only the
+  // literal --skip-publication-restart argument sets it.
+  const decisionRegion = script.slice(script.indexOf('for arg in "$@"'), script.indexOf('if [ -z "$REF" ]'));
+  assert.doesNotMatch(decisionRegion, /candidate\/deploy/, "must never infer trial behaviour from a candidate branch naming convention");
+  assert.doesNotMatch(decisionRegion, /SKIP_PUBLICATION_RESTART=1.*REF/, "must never derive the skip decision from $REF");
+});
+
+test("install.sh: arg-parsing loop, executed for real in bash, sets SKIP_PUBLICATION_RESTART=1 only when the exact flag is passed, and 0 by default", async () => {
+  // A genuine behavioural proof (not merely text matching) of the exact
+  // arg-parsing region of install.sh -- extracted byte-for-byte and run as
+  // real bash, same convention as tests/deploy-github-workflow.test.mjs's
+  // embedded-script extraction.
+  const script = await readDeployFile("install.sh");
+  const startMarker = 'APP_DIR="/opt/band-on-the-map"';
+  const endMarker = 'if [ -z "$REF" ]; then';
+  const startIdx = script.indexOf(startMarker);
+  const endIdx = script.indexOf(endMarker);
+  assert.ok(startIdx > -1 && endIdx > startIdx, "expected to locate the variable-defaults-through-arg-parsing region");
+  const region = script.slice(startIdx, endIdx);
+
+  const dir = await mkdtemp(join(tmpdir(), "botm-install-argparse-"));
+  try {
+    const harnessPath = join(dir, "harness.sh");
+    await writeFile(
+      harnessPath,
+      `#!/usr/bin/env bash\nset -euo pipefail\n${region}\necho "REF=$REF"\necho "SKIP_PUBLICATION_RESTART=$SKIP_PUBLICATION_RESTART"\n`,
+    );
+
+    const defaultRun = await execFileAsync("bash", [harnessPath, "--ref=abc123"]);
+    assert.match(defaultRun.stdout, /REF=abc123/);
+    assert.match(defaultRun.stdout, /SKIP_PUBLICATION_RESTART=0/, "the flag must default to 0 (off) when not passed");
+
+    const flaggedRun = await execFileAsync("bash", [harnessPath, "--ref=abc123", "--skip-publication-restart"]);
+    assert.match(flaggedRun.stdout, /REF=abc123/);
+    assert.match(flaggedRun.stdout, /SKIP_PUBLICATION_RESTART=1/, "the flag must be 1 (on) when explicitly passed");
+
+    // Order-independence: the flag is never positionally coupled to --ref.
+    const reorderedRun = await execFileAsync("bash", [harnessPath, "--skip-publication-restart", "--ref=abc123"]);
+    assert.match(reorderedRun.stdout, /SKIP_PUBLICATION_RESTART=1/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("install.sh: every other install step (fetch/checkout/npm-ci/systemd-unit-install/ownership) still runs regardless of --skip-publication-restart — only the publication restart itself is skipped", async () => {
+  const script = await readDeployFile("install.sh");
+  const ifIdx = script.indexOf('if [ "$SKIP_PUBLICATION_RESTART" -eq 1 ]; then');
+  const preConditionalScript = script.slice(0, ifIdx);
+  // npm ci, systemd unit installs, and chown must all appear BEFORE the
+  // SKIP_PUBLICATION_RESTART branch — i.e. unconditionally, regardless of
+  // the flag.
+  assert.match(preConditionalScript, /npm ci --omit=dev/);
+  assert.match(preConditionalScript, /install -m 0644 "\$APP_DIR\/deploy\/systemd\/botm-unattended\.service"/);
+  assert.match(preConditionalScript, /install -m 0644 "\$APP_DIR\/deploy\/systemd\/botm-publication\.service"/);
+  assert.match(preConditionalScript, /chown -R "\$SERVICE_USER:\$SERVICE_USER"/);
 });
 
 test("install.sh: enables botm-publication.service so it survives a reboot, unlike the unattended timer's deliberate manual gate", async () => {

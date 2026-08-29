@@ -36,6 +36,31 @@ test("the mode input exists, defaults to MAIN, and offers exactly MAIN/APPROVED_
   assert.ok(optionsMatch, "the mode input's options must be exactly MAIN then APPROVED_CANDIDATE");
 });
 
+test("BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: the post_deploy_action input exists, defaults to NORMAL_PUBLICATION, and offers exactly NORMAL_PUBLICATION/DEPLOY_ONLY", () => {
+  assert.match(rawText, /post_deploy_action:/);
+  assert.match(rawText, /default: NORMAL_PUBLICATION/);
+  const optionsMatch = /options:\s*\n\s+- NORMAL_PUBLICATION\s*\n\s+- DEPLOY_ONLY/.exec(rawText);
+  assert.ok(optionsMatch, "the post_deploy_action input's options must be exactly NORMAL_PUBLICATION then DEPLOY_ONLY");
+});
+
+test("BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: post_deploy_action flows into the resolve-and-validate-deployment.sh call and into a job output", () => {
+  assert.match(rawText, /bash deploy\/ci\/resolve-and-validate-deployment\.sh "\$MODE" "\$REQUESTED" "\$POST_DEPLOY_ACTION"/);
+  assert.match(rawText, /post_deploy_action: \$\{\{ inputs\.post_deploy_action \}\}/);
+  assert.match(rawText, /POST_DEPLOY_ACTION: \$\{\{ needs\.resolve-and-validate\.outputs\.post_deploy_action \}\}/);
+});
+
+test("BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: the shared script fails closed on both invalid mode/post_deploy_action combinations (grep-level proof against the shared script)", () => {
+  assert.match(scriptText, /post_deploy_action must be NORMAL_PUBLICATION or DEPLOY_ONLY/);
+  assert.match(scriptText, /MAIN mode always performs normal deployment behaviour/);
+  assert.match(scriptText, /APPROVED_CANDIDATE mode never triggers acquisition\/publication/);
+});
+
+test("BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: DEPLOY_ONLY conditionally appends --skip-publication-restart to the installer call, never altering the --ref= SHA itself", () => {
+  assert.match(rawText, /INSTALL_ARGS="--ref=\$\{RESOLVED_SHA\}"/);
+  assert.match(rawText, /if \[ "\$POST_DEPLOY_ACTION" = "DEPLOY_ONLY" \]; then\s*\n\s+INSTALL_ARGS="\$\{INSTALL_ARGS\} --skip-publication-restart"/);
+  assert.match(rawText, /deploy\/install\.sh \$\{INSTALL_ARGS\}/);
+});
+
 test("G: the production deploy job still targets the beatmapped-collector-production Environment — no separate/weaker environment introduced for candidate deploys", () => {
   const occurrences = [...rawText.matchAll(/^\s*environment:\s*(\S+)/gm)];
   assert.equal(occurrences.length, 1, "exactly one job-level `environment:` declaration must exist");
@@ -77,7 +102,14 @@ test("a post-checkout assertion exists that the checked-out HEAD equals the reso
   assert.match(rawText, /if \[ "\$ACTUAL" != "\$RESOLVED_SHA" \]/);
 });
 
-test("the publication-trigger and publication-verification steps are gated to MAIN mode only — APPROVED_CANDIDATE never starts botm-unattended.service", () => {
+test("the publication-trigger and publication-verification steps are gated to post_deploy_action == NORMAL_PUBLICATION only — DEPLOY_ONLY never starts botm-unattended.service", () => {
+  // BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: these steps were
+  // previously gated on `mode == 'MAIN'`; under the current, enforced
+  // mode/post_deploy_action matrix (MAIN=>NORMAL_PUBLICATION,
+  // APPROVED_CANDIDATE=>DEPLOY_ONLY) that was equivalent, but gating on
+  // the actual semantic driver (post_deploy_action) is the correct,
+  // forward-compatible condition — the real question these steps ask is
+  // "should publication run", not "which mode is this".
   const gatedStepNames = [
     "Capture the pre-trigger publication generation timestamp",
     "Trigger the publication cycle",
@@ -86,15 +118,15 @@ test("the publication-trigger and publication-verification steps are gated to MA
   for (const name of gatedStepNames) {
     const stepMatch = new RegExp(`- name: .*${name.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}[^\\n]*\\n(?:\\s+id: [^\\n]*\\n)?\\s+if: ([^\\n]+)\\n`).exec(rawText);
     assert.ok(stepMatch, `step "${name}" must exist and declare an \`if:\` condition`);
-    assert.equal(stepMatch[1].trim(), "needs.resolve-and-validate.outputs.mode == 'MAIN'", `step "${name}" must be gated to MAIN mode only`);
+    assert.equal(stepMatch[1].trim(), "needs.resolve-and-validate.outputs.post_deploy_action == 'NORMAL_PUBLICATION'", `step "${name}" must be gated to post_deploy_action == 'NORMAL_PUBLICATION' only`);
   }
 });
 
-test("a skip-acknowledgement step exists for APPROVED_CANDIDATE mode, so a run's own summary always states whether publication ran", () => {
+test("a skip-acknowledgement step exists for DEPLOY_ONLY, so a run's own summary always states whether publication ran", () => {
   assert.match(rawText, /deliberately NOT triggered/);
   const skipMatch = /- name: .*deliberately NOT triggered[^\n]*\n\s+if: ([^\n]+)\n/.exec(rawText);
   assert.ok(skipMatch);
-  assert.equal(skipMatch[1].trim(), "needs.resolve-and-validate.outputs.mode == 'APPROVED_CANDIDATE'");
+  assert.equal(skipMatch[1].trim(), "needs.resolve-and-validate.outputs.post_deploy_action == 'DEPLOY_ONLY'");
 });
 
 test("concurrency guard still prevents two simultaneous deployments to the same production collector, regardless of mode", () => {

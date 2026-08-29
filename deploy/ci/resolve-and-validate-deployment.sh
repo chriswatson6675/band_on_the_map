@@ -11,7 +11,7 @@
 # just call this file.
 #
 # Usage:
-#   resolve-and-validate-deployment.sh <MAIN|APPROVED_CANDIDATE> <requested-ref>
+#   resolve-and-validate-deployment.sh <MAIN|APPROVED_CANDIDATE> <requested-ref> <NORMAL_PUBLICATION|DEPLOY_ONLY>
 #
 # Must be run inside a git working directory where the relevant remote
 # refs are already fetched: `origin/main` (for MAIN mode) and/or
@@ -20,14 +20,42 @@
 # On success: prints `RESOLVED_SHA=<full 40-char sha>` on its own stdout
 # line and exits 0. On any failure: prints a human-readable reason to
 # stderr and exits 1 -- fail closed, never a partial/ambiguous result.
+#
+# BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: a third positional
+# argument, post_deploy_action, was added alongside mode/ref. Exactly two
+# (mode, post_deploy_action) combinations are ever valid -- checked below
+# BEFORE any git lookup, so an invalid combination never gets far enough
+# to resolve a SHA or contact anything:
+#   MAIN + NORMAL_PUBLICATION           -- the only combination MAIN
+#                                          allows; normal deployment
+#                                          behaviour, unchanged.
+#   APPROVED_CANDIDATE + DEPLOY_ONLY    -- the only combination
+#                                          APPROVED_CANDIDATE allows; an
+#                                          unmerged candidate is never
+#                                          eligible for NORMAL_PUBLICATION.
+# MAIN + DEPLOY_ONLY and APPROVED_CANDIDATE + NORMAL_PUBLICATION are both
+# rejected -- neither is silently inferred or silently ignored.
 
 set -euo pipefail
 
 MODE="${1:-}"
 REQUESTED="${2:-}"
+POST_DEPLOY_ACTION="${3:-}"
 
 if [ "$MODE" != "MAIN" ] && [ "$MODE" != "APPROVED_CANDIDATE" ]; then
   echo "ERROR: mode must be MAIN or APPROVED_CANDIDATE, got '${MODE}'." >&2
+  exit 1
+fi
+if [ "$POST_DEPLOY_ACTION" != "NORMAL_PUBLICATION" ] && [ "$POST_DEPLOY_ACTION" != "DEPLOY_ONLY" ]; then
+  echo "ERROR: post_deploy_action must be NORMAL_PUBLICATION or DEPLOY_ONLY, got '${POST_DEPLOY_ACTION}'." >&2
+  exit 1
+fi
+if [ "$MODE" = "MAIN" ] && [ "$POST_DEPLOY_ACTION" != "NORMAL_PUBLICATION" ]; then
+  echo "ERROR: MAIN mode always performs normal deployment behaviour -- post_deploy_action must be NORMAL_PUBLICATION. DEPLOY_ONLY is only available for APPROVED_CANDIDATE mode trials." >&2
+  exit 1
+fi
+if [ "$MODE" = "APPROVED_CANDIDATE" ] && [ "$POST_DEPLOY_ACTION" != "DEPLOY_ONLY" ]; then
+  echo "ERROR: APPROVED_CANDIDATE mode never triggers acquisition/publication for an unmerged commit -- post_deploy_action must be DEPLOY_ONLY. An unmerged candidate is never eligible for NORMAL_PUBLICATION." >&2
   exit 1
 fi
 if [ -z "$REQUESTED" ]; then

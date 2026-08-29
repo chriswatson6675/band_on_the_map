@@ -14,7 +14,7 @@
 # installed by the most recent invocation of this script.
 #
 # Usage:
-#   sudo deploy/install.sh --ref=<git-sha-or-tag> [--repo=<git-url>] [--dir=<path>]
+#   sudo deploy/install.sh --ref=<git-sha-or-tag> [--repo=<git-url>] [--dir=<path>] [--skip-publication-restart]
 #
 # Example:
 #   sudo deploy/install.sh --ref=c25545c0dbbe2e2520876bd5a895d11358ff68c2
@@ -41,10 +41,28 @@
 #   5. install/refresh the systemd unit files from deploy/systemd/ into
 #      /etc/systemd/system/, then `systemctl daemon-reload`
 #   6. fix ownership of APP_DIR to the `botm` user
+#   7. restart botm-publication.service so it serves the code just
+#      installed -- UNLESS --skip-publication-restart was passed
+#      explicitly (see BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01
+#      below and deploy/README.md's "Publication service lifecycle")
 #
 # This script deliberately does NOT enable or start the timer -- see
 # deploy/README.md's "Live deployment" section for the required manual
 # proof-run step that must succeed first.
+#
+# --skip-publication-restart (BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01):
+# an explicit, operator-controlled flag -- never inferred from --ref, a
+# branch name, or any other heuristic -- that skips step 7 entirely. Every
+# other step (clone/fetch, checkout, npm ci, systemd unit install/reload,
+# ownership) still runs exactly as before; only the long-running
+# botm-publication.service process is left completely undisturbed. This
+# exists for a bounded APPROVED_CANDIDATE runtime trial (see
+# .github/workflows/deploy-beatmapped-collector.yml's `post_deploy_action:
+# DEPLOY_ONLY`) where code must be installed on disk without the ONE
+# unrelated side effect a normal deploy always has: briefly restarting the
+# live, public-facing publication endpoint. Omitting this flag reproduces
+# the exact prior unconditional-restart behaviour -- nothing about normal
+# deployment changes.
 
 set -euo pipefail
 
@@ -59,12 +77,14 @@ APP_DIR="/opt/band-on-the-map"
 REPO_URL="https://github.com/chriswatson6675/band_on_the_map.git"
 SERVICE_USER="botm"
 REF=""
+SKIP_PUBLICATION_RESTART=0
 
 for arg in "$@"; do
   case "$arg" in
     --ref=*) REF="${arg#--ref=}" ;;
     --repo=*) REPO_URL="${arg#--repo=}" ;;
     --dir=*) APP_DIR="${arg#--dir=}" ;;
+    --skip-publication-restart) SKIP_PUBLICATION_RESTART=1 ;;
     *)
       echo "Unknown argument: $arg" >&2
       exit 1
@@ -187,29 +207,40 @@ chown -R "$SERVICE_USER:$SERVICE_USER" "$APP_DIR"
 # up (crash-looping on bad new code, a port conflict, etc.) fails this
 # script LOUDLY and visibly, rather than leaving a broken/absent publication
 # process undetected behind a "successful" deploy.
-echo "Restarting botm-publication.service so it serves the code just installed..."
-systemctl enable botm-publication.service
-systemctl restart botm-publication.service
+if [ "$SKIP_PUBLICATION_RESTART" -eq 1 ]; then
+  echo "Skipping botm-publication.service enable/restart (--skip-publication-restart"
+  echo "was passed explicitly) -- code is installed on disk only; the live,"
+  echo "already-running publication process is left completely undisturbed."
+  PUBLICATION_SUMMARY_LINE="botm-publication.service was NOT touched (--skip-publication-restart) --
+it is still serving whatever code it loaded at its own last start; only
+new code on disk was installed by this run."
+else
+  echo "Restarting botm-publication.service so it serves the code just installed..."
+  systemctl enable botm-publication.service
+  systemctl restart botm-publication.service
 
-RESTART_CHECK_ATTEMPTS=10
-RESTART_CHECK_OK=0
-for _ in $(seq 1 "$RESTART_CHECK_ATTEMPTS"); do
-  if systemctl is-active --quiet botm-publication.service; then
-    RESTART_CHECK_OK=1
-    break
+  RESTART_CHECK_ATTEMPTS=10
+  RESTART_CHECK_OK=0
+  for _ in $(seq 1 "$RESTART_CHECK_ATTEMPTS"); do
+    if systemctl is-active --quiet botm-publication.service; then
+      RESTART_CHECK_OK=1
+      break
+    fi
+    sleep 1
+  done
+
+  if [ "$RESTART_CHECK_OK" -ne 1 ]; then
+    echo "ERROR: botm-publication.service did not report active after restart." >&2
+    echo "This deployment updated code on disk but the live publication endpoint" >&2
+    echo "may now be down or still running stale code. Investigate with:" >&2
+    echo "  systemctl status botm-publication.service" >&2
+    echo "  journalctl -u botm-publication.service -n 100 --no-pager" >&2
+    exit 1
   fi
-  sleep 1
-done
-
-if [ "$RESTART_CHECK_OK" -ne 1 ]; then
-  echo "ERROR: botm-publication.service did not report active after restart." >&2
-  echo "This deployment updated code on disk but the live publication endpoint" >&2
-  echo "may now be down or still running stale code. Investigate with:" >&2
-  echo "  systemctl status botm-publication.service" >&2
-  echo "  journalctl -u botm-publication.service -n 100 --no-pager" >&2
-  exit 1
+  echo "botm-publication.service is active."
+  PUBLICATION_SUMMARY_LINE="botm-publication.service installed, enabled, and restarted -- it is now
+serving the code just deployed."
 fi
-echo "botm-publication.service is active."
 
 cat <<EOF
 
@@ -218,8 +249,7 @@ Deployed commit: $ACTUAL_SHA
 botm-unattended.{service,timer} installed and reloaded, but NOT enabled/started
 by this script (see deploy/README.md "Live deployment" for that deliberate,
 manual first-run gate).
-botm-publication.service installed, enabled, and restarted -- it is now
-serving the code just deployed.
+$PUBLICATION_SUMMARY_LINE
 
 Next steps (see deploy/README.md "Live deployment" for the full sequence):
   1. Prove one manual run:   sudo systemctl start botm-unattended.service

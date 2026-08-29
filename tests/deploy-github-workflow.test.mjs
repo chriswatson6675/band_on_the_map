@@ -130,7 +130,9 @@ test("workflow: accepts a required 'ref' input", async () => {
 
 test("workflow: delegates SHA resolution/validation to the shared, independently-tested script — never re-inlines the logic", async () => {
   const yaml = await readWorkflow();
-  assert.match(yaml, /bash deploy\/ci\/resolve-and-validate-deployment\.sh "\$MODE" "\$REQUESTED"/);
+  // BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01 added a third
+  // argument, post_deploy_action, to this exact call.
+  assert.match(yaml, /bash deploy\/ci\/resolve-and-validate-deployment\.sh "\$MODE" "\$REQUESTED" "\$POST_DEPLOY_ACTION"/);
 });
 
 test("resolve-and-validate-deployment.sh: resolves the input to a full commit SHA, and validates MAIN-mode ancestry via merge-base --is-ancestor", async () => {
@@ -216,7 +218,13 @@ test("workflow: no credential-shaped literal or hardcoded IP anywhere in the fil
 test("workflow: invokes the EXISTING deploy/install.sh --ref=<resolved sha> — never reimplements clone/checkout/npm-ci in YAML", async () => {
   const yaml = await readWorkflow();
   const executableLines = stripCommentLines(yaml);
-  assert.match(yaml, /\$\{BEATMAPPED_APP_DIR\}\/deploy\/install\.sh --ref=\$\{RESOLVED_SHA\}/);
+  // BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01 extracted the
+  // installer's arguments into an INSTALL_ARGS variable (so DEPLOY_ONLY can
+  // conditionally append --skip-publication-restart without duplicating
+  // the ssh invocation) — the exact, unresolved `--ref=${RESOLVED_SHA}`
+  // text still appears, just one line earlier, building that variable.
+  assert.match(yaml, /INSTALL_ARGS="--ref=\$\{RESOLVED_SHA\}"/);
+  assert.match(yaml, /\$\{BEATMAPPED_APP_DIR\}\/deploy\/install\.sh \$\{INSTALL_ARGS\}/);
   assert.doesNotMatch(executableLines, /npm ci/, "dependency installation must remain install.sh's job, not YAML's");
   assert.doesNotMatch(executableLines, /git clone/, "cloning must remain install.sh's job, not YAML's");
 });
