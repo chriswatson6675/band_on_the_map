@@ -290,9 +290,27 @@ jobs:
             fi
             echo "DEPLOYED_SHA_OK=$DEPLOYED_SHA"
 
-            echo "BASELINE_UNATTENDED_TIMER_ENABLED=$(systemctl is-enabled botm-unattended.timer 2>/dev/null || echo unknown)"
-            echo "BASELINE_UNATTENDED_TIMER_ACTIVE=$(systemctl is-active botm-unattended.timer 2>/dev/null || echo unknown)"
-            echo "BASELINE_PUBLICATION_ACTIVE=$(systemctl is-active botm-publication.service 2>/dev/null || echo unknown)"
+            # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01:
+            # the ONE canonical way this workflow reads a systemd state.
+            # `systemctl is-active`/`is-enabled` legitimately PRINT a real
+            # state AND exit non-zero (inactive, failed, disabled, static,
+            # masked, and an unknown unit), so the naive
+            # `$(systemctl ... || echo <fallback>)` APPENDS a second line
+            # and yields a multi-line composite such as "disabled\ndisabled"
+            # -- which never equals the single-line state it is compared
+            # against. That is exactly what failed run 33270158683's start
+            # step. Take systemctl's own FIRST line, and use the fallback
+            # only when it printed nothing at all.
+            systemd_state() {
+              local verb="$1" unit="$2" fallback="$3" out
+              out="$(systemctl "$verb" "$unit" 2>/dev/null | head -n1 || true)"
+              [ -n "$out" ] || out="$fallback"
+              printf '%s\n' "$out"
+            }
+
+            echo "BASELINE_UNATTENDED_TIMER_ENABLED=$(systemd_state is-enabled botm-unattended.timer unknown)"
+            echo "BASELINE_UNATTENDED_TIMER_ACTIVE=$(systemd_state is-active botm-unattended.timer unknown)"
+            echo "BASELINE_PUBLICATION_ACTIVE=$(systemd_state is-active botm-publication.service unknown)"
           REMOTE_SCRIPT
           # BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01:
           # `baseline_captured` is written LAST and only on this step's
@@ -343,6 +361,22 @@ jobs:
             "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
             bash -s <<'REMOTE_SCRIPT'
             set -euo pipefail
+
+            # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01:
+            # the same single canonical state read used by the baseline and
+            # cleanup steps -- see the fuller note on the baseline step.
+            # `systemctl is-enabled` on a unit that is (correctly) NOT
+            # enabled for boot PRINTS "disabled" and exits non-zero, so the
+            # previous `|| echo disabled` produced "disabled\ndisabled" and
+            # failed run 33270158683 on a host whose state was exactly what
+            # this trial intends.
+            systemd_state() {
+              local verb="$1" unit="$2" fallback="$3" out
+              out="$(systemctl "$verb" "$unit" 2>/dev/null | head -n1 || true)"
+              [ -n "$out" ] || out="$fallback"
+              printf '%s\n' "$out"
+            }
+
             sudo systemctl start beatmapped-city-worker.service
 
             ATTEMPTS=10
@@ -360,12 +394,20 @@ jobs:
             fi
             echo "beatmapped-city-worker.service is active (systemd-owned)."
 
-            ENABLED_STATE="$(systemctl is-enabled beatmapped-city-worker.service 2>/dev/null || echo disabled)"
-            if [ "$ENABLED_STATE" != "disabled" ]; then
-              echo "beatmapped-city-worker.service unexpectedly reports enabled state '$ENABLED_STATE' -- this trial must never leave it enabled for boot." >&2
-              exit 1
-            fi
-            echo "Confirmed: not enabled for boot-time operation."
+            ENABLED_STATE="$(systemd_state is-enabled beatmapped-city-worker.service disabled)"
+            # The safety property is "never ENABLED for boot" -- so this
+            # fails only on states that actually mean enablement, exactly
+            # as the cleanup step's own check does. `disabled` (the
+            # intended trial state), and equally `static`/`masked`, are all
+            # legitimately not-enabled-for-boot and must never be treated
+            # as a violation merely because systemctl exited non-zero.
+            case "$ENABLED_STATE" in
+              enabled|enabled-runtime)
+                echo "beatmapped-city-worker.service unexpectedly reports enabled state '$ENABLED_STATE' -- this trial must never leave it enabled for boot." >&2
+                exit 1
+                ;;
+            esac
+            echo "Confirmed: not enabled for boot-time operation (is-enabled: $ENABLED_STATE)."
           REMOTE_SCRIPT
           echo "| Worker started via systemd | ✅ ACTIVE, not enabled |" >> "$GITHUB_STEP_SUMMARY"
 
@@ -509,6 +551,18 @@ jobs:
 
             UNIT="beatmapped-city-worker.service"
 
+            # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01: the
+            # single canonical state read shared by the baseline, start and
+            # cleanup steps -- see the fuller note on the baseline step.
+            # Identical in behaviour to the inline `| head -n1 || true`
+            # normalisation this step already carried.
+            systemd_state() {
+              local verb="$1" unit="$2" fallback="$3" out
+              out="$(systemctl "$verb" "$unit" 2>/dev/null | head -n1 || true)"
+              [ -n "$out" ] || out="$fallback"
+              printf '%s\n' "$out"
+            }
+
             if [ -f "/etc/systemd/system/${UNIT}" ]; then
               echo "CITY_WORKER_UNIT_PRESENT=true"
             else
@@ -526,10 +580,13 @@ jobs:
             # state and exits non-zero, so a naive `|| echo inactive` would
             # emit TWO lines and corrupt the comparison below. Take the
             # first line and fall back only on genuinely empty output.
-            FINAL_ACTIVE="$(systemctl is-active "$UNIT" 2>/dev/null | head -n1 || true)"
-            [ -n "$FINAL_ACTIVE" ] || FINAL_ACTIVE="inactive"
-            FINAL_ENABLED="$(systemctl is-enabled "$UNIT" 2>/dev/null | head -n1 || true)"
-            [ -n "$FINAL_ENABLED" ] || FINAL_ENABLED="disabled"
+            # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01: this
+            # already-correct normalisation is now expressed through the
+            # same shared helper the baseline and start steps use, so the
+            # workflow has ONE state-reading pattern rather than several.
+            # The resolved values, fallbacks and verdicts are unchanged.
+            FINAL_ACTIVE="$(systemd_state is-active "$UNIT" inactive)"
+            FINAL_ENABLED="$(systemd_state is-enabled "$UNIT" disabled)"
             echo "FINAL_ACTIVE=$FINAL_ACTIVE"
             echo "FINAL_ENABLED=$FINAL_ENABLED"
 
@@ -557,12 +614,9 @@ jobs:
               echo "EXISTING_SERVICE_BASELINE_NOT_CAPTURED"
               echo "BASELINE_RECONCILIATION=NOT_AVAILABLE"
             else
-              NOW_TIMER_ENABLED="$(systemctl is-enabled botm-unattended.timer 2>/dev/null | head -n1 || true)"
-              [ -n "$NOW_TIMER_ENABLED" ] || NOW_TIMER_ENABLED="unknown"
-              NOW_TIMER_ACTIVE="$(systemctl is-active botm-unattended.timer 2>/dev/null | head -n1 || true)"
-              [ -n "$NOW_TIMER_ACTIVE" ] || NOW_TIMER_ACTIVE="unknown"
-              NOW_PUBLICATION_ACTIVE="$(systemctl is-active botm-publication.service 2>/dev/null | head -n1 || true)"
-              [ -n "$NOW_PUBLICATION_ACTIVE" ] || NOW_PUBLICATION_ACTIVE="unknown"
+              NOW_TIMER_ENABLED="$(systemd_state is-enabled botm-unattended.timer unknown)"
+              NOW_TIMER_ACTIVE="$(systemd_state is-active botm-unattended.timer unknown)"
+              NOW_PUBLICATION_ACTIVE="$(systemd_state is-active botm-publication.service unknown)"
               echo "NOW_TIMER_ENABLED=$NOW_TIMER_ENABLED"
               echo "NOW_TIMER_ACTIVE=$NOW_TIMER_ACTIVE"
               echo "NOW_PUBLICATION_ACTIVE=$NOW_PUBLICATION_ACTIVE"

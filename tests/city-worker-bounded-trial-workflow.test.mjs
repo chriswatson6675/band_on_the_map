@@ -704,3 +704,228 @@ test("cleanup remains if: always() after the correction", () => {
   const body = extractStepBody(rawText, "Stop and disable the city-worker service");
   assert.match(body, /if:\s*always\(\)/);
 });
+
+// ---------------------------------------------------------------------------
+// BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01
+//
+// Live run 33270158683 started the worker CORRECTLY (active, not enabled for
+// boot) and then failed anyway, because:
+//
+//   systemctl is-enabled beatmapped-city-worker.service
+//
+// on a not-enabled unit PRINTS "disabled" AND exits non-zero. The step used
+//
+//   "$(systemctl is-enabled ... 2>/dev/null || echo disabled)"
+//
+// so the `|| echo` APPENDED a second line, producing the composite
+// "disabled\ndisabled", which never equals "disabled".
+//
+// These tests pin the whole defect class, not just that one line.
+// ---------------------------------------------------------------------------
+
+/** Extracts any step's embedded REMOTE_SCRIPT heredoc body. */
+function extractRemoteScript(yaml, namePrefix) {
+  const body = extractStepBody(yaml, namePrefix);
+  const m = /<<'REMOTE_SCRIPT'[^\n]*\n([\s\S]*?)\n\s*REMOTE_SCRIPT/.exec(body);
+  assert.ok(m, `expected step "${namePrefix}" to embed a REMOTE_SCRIPT heredoc`);
+  return m[1];
+}
+
+/** Every `systemd_state() { ... }` definition shipped in the workflow. */
+function extractSystemdStateHelpers(yaml) {
+  return [...yaml.matchAll(/systemd_state\(\) \{\n([\s\S]*?)\n\s*\}/g)].map((m) =>
+    m[1]
+      .split("\n")
+      .map((l) => l.trim())
+      .join("\n"),
+  );
+}
+
+/**
+ * A systemctl stub that models the REAL contract this defect class turns on:
+ * `is-active`/`is-enabled` may print a perfectly valid state on stdout while
+ * exiting NON-ZERO. Output and exit code are controlled independently so a
+ * test can express "prints disabled, exits 1" exactly.
+ */
+function systemctlStubSource() {
+  return [
+    'sudo() { "$@"; }',
+    "systemctl() {",
+    '  local cmd="${1:-}"; shift || true',
+    "  local quiet=0 a",
+    '  for a in "$@"; do [ "$a" = "--quiet" ] && quiet=1; done',
+    '  case "$cmd" in',
+    "    start|stop|disable|daemon-reload) return 0 ;;",
+    "    is-active)",
+    '      if [ "$quiet" -eq 0 ] && [ -n "${STUB_ACTIVE_OUT-}" ]; then printf "%s\\n" "${STUB_ACTIVE_OUT}"; fi',
+    '      return "${STUB_ACTIVE_RC:-0}" ;;',
+    "    is-enabled)",
+    '      if [ -n "${STUB_ENABLED_OUT-}" ]; then printf "%s\\n" "${STUB_ENABLED_OUT}"; fi',
+    '      return "${STUB_ENABLED_RC:-0}" ;;',
+    "  esac",
+    "  return 1",
+    "}",
+  ].join("\n");
+}
+
+/** Runs an arbitrary bash program under the faithful systemctl stub. */
+function runUnderStub(program, env = {}) {
+  const harness = [systemctlStubSource(), program].join("\n");
+  return new Promise((resolvePromise) => {
+    const child = spawn("bash", [], { env: { ...process.env, ...env } });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("close", (code) => resolvePromise({ status: code, stdout, stderr }));
+    child.stdin.write(harness);
+    child.stdin.end();
+  });
+}
+
+/** The shipped helper, lifted out and made callable on its own. */
+function systemdStateHelperSource(yaml) {
+  const helpers = extractSystemdStateHelpers(yaml);
+  assert.ok(helpers.length > 0, "expected the workflow to define systemd_state()");
+  return `systemd_state() {\n${helpers[0]}\n}`;
+}
+
+test("N1: THE LIVE FAILURE — is-enabled prints `disabled` and exits non-zero; the start step must resolve exactly `disabled` and PASS", async () => {
+  const script = extractRemoteScript(rawText, "Start the city-worker service via systemd");
+  const result = await runUnderStub(script, {
+    STUB_ACTIVE_OUT: "active",
+    STUB_ACTIVE_RC: "0",
+    // Exactly what production did in run 33270158683.
+    STUB_ENABLED_OUT: "disabled",
+    STUB_ENABLED_RC: "1",
+  });
+  assert.equal(result.status, 0, `start step must succeed on the intended trial state; stderr: ${result.stderr}`);
+  assert.match(result.stdout, /beatmapped-city-worker\.service is active \(systemd-owned\)\./);
+  assert.match(result.stdout, /Confirmed: not enabled for boot-time operation \(is-enabled: disabled\)\./);
+  assert.doesNotMatch(result.stderr, /unexpectedly reports enabled state/);
+  assert.doesNotMatch(result.stdout, /disabled\s*\n\s*disabled/);
+});
+
+test("N2: the pre-correction pattern really did produce the two-line composite — the harness above is genuinely sensitive", async () => {
+  // The exact shell the workflow used to ship. If this did NOT reproduce the
+  // defect, test N1 would prove nothing.
+  const old = [
+    "set -euo pipefail",
+    'ENABLED_STATE="$(systemctl is-enabled beatmapped-city-worker.service 2>/dev/null || echo disabled)"',
+    'if [ "$ENABLED_STATE" != "disabled" ]; then',
+    '  echo "REJECTED:[$ENABLED_STATE]" >&2',
+    "  exit 1",
+    "fi",
+    'echo "ACCEPTED"',
+  ].join("\n");
+  const result = await runUnderStub(old, { STUB_ENABLED_OUT: "disabled", STUB_ENABLED_RC: "1" });
+  assert.equal(result.status, 1, "the old pattern must fail on the intended trial state");
+  assert.match(result.stderr, /REJECTED:\[disabled\s*\n?\s*disabled\]/, "expected the duplicated-state composite");
+});
+
+test("N3: systemctl state matrix — every state resolves to exactly ONE canonical line", async () => {
+  const helper = systemdStateHelperSource(rawText);
+  const cases = [
+    ["A", "is-active", "active", "0", "active"],
+    ["B", "is-active", "inactive", "3", "inactive"],
+    ["C", "is-enabled", "enabled", "0", "enabled"],
+    ["D", "is-enabled", "disabled", "1", "disabled"],
+    ["E", "is-active", "failed", "3", "failed"],
+    ["F", "is-enabled", "static", "0", "static"],
+    ["G", "is-enabled", "masked", "1", "masked"],
+    // H: unknown unit — systemctl prints nothing on stdout and exits non-zero.
+    ["H", "is-active", "", "4", "FALLBACK"],
+  ];
+  for (const [label, verb, out, rc, expected] of cases) {
+    const program = [
+      helper,
+      "set -uo pipefail",
+      `V="$(systemd_state ${verb} some.unit FALLBACK)"`,
+      'printf "RESULT[%s]\\n" "$V"',
+    ].join("\n");
+    const env =
+      verb === "is-active"
+        ? { STUB_ACTIVE_OUT: out, STUB_ACTIVE_RC: rc }
+        : { STUB_ENABLED_OUT: out, STUB_ENABLED_RC: rc };
+    const result = await runUnderStub(program, env);
+    assert.equal(result.status, 0, `${label}: helper must not abort (stderr: ${result.stderr})`);
+    assert.match(result.stdout, new RegExp(`RESULT\\[${expected}\\]`), `${label}: expected canonical "${expected}"`);
+    // The whole point: never a multi-line composite.
+    const value = /RESULT\[([\s\S]*?)\]/.exec(result.stdout)[1];
+    assert.doesNotMatch(value, /\n/, `${label}: resolved value must be a single line, got ${JSON.stringify(value)}`);
+  }
+});
+
+test("N4: STATIC — no `$(systemctl is-active/is-enabled ... || echo ...)` instance may be reintroduced anywhere in the workflow", () => {
+  const withoutComments = stripCommentLines(rawText);
+  const unsafe = /\$\(\s*systemctl\s+is-(?:active|enabled)[^)]*\|\|\s*echo/;
+  assert.doesNotMatch(
+    withoutComments,
+    unsafe,
+    "a systemctl state read must never fall back with `|| echo` — it duplicates the state line (run 33270158683)",
+  );
+});
+
+test("N5: STATIC — every systemctl state read goes through the single canonical helper", () => {
+  const withoutComments = stripCommentLines(rawText);
+  // The only permitted bare form is `is-active --quiet`, which prints nothing
+  // and is consumed purely as an exit code.
+  const bare = [...withoutComments.matchAll(/systemctl\s+is-(?:active|enabled)(?!\s+--quiet)/g)];
+  assert.equal(bare.length, 0, `every state read must use systemd_state(); found ${bare.length} bare call(s)`);
+  assert.ok(
+    /systemd_state\s+is-enabled\s+beatmapped-city-worker\.service\s+disabled/.test(withoutComments),
+    "the start step must read the worker's enablement through the helper",
+  );
+});
+
+test("N6: the helper is defined identically everywhere it is used — one pattern, not several near-copies", () => {
+  const helpers = extractSystemdStateHelpers(rawText);
+  assert.equal(helpers.length, 3, "expected the baseline, start and cleanup remote scripts each to define it");
+  for (const h of helpers.slice(1)) {
+    assert.equal(h, helpers[0], "all systemd_state() definitions must be byte-identical after indentation");
+  }
+  // And it must actually implement the normalisation.
+  assert.match(helpers[0], /head -n1/);
+  assert.match(helpers[0], /\[ -n "\$out" \] \|\| out="\$fallback"/);
+});
+
+test("N7: the start-step guard fails on real enablement and passes on every not-enabled-for-boot state", async () => {
+  const script = extractRemoteScript(rawText, "Start the city-worker service via systemd");
+  for (const state of ["disabled", "static", "masked"]) {
+    const ok = await runUnderStub(script, {
+      STUB_ACTIVE_OUT: "active",
+      STUB_ACTIVE_RC: "0",
+      STUB_ENABLED_OUT: state,
+      STUB_ENABLED_RC: "1",
+    });
+    assert.equal(ok.status, 0, `"${state}" is not enabled-for-boot and must be accepted (stderr: ${ok.stderr})`);
+  }
+  for (const state of ["enabled", "enabled-runtime"]) {
+    const bad = await runUnderStub(script, {
+      STUB_ACTIVE_OUT: "active",
+      STUB_ACTIVE_RC: "0",
+      STUB_ENABLED_OUT: state,
+      STUB_ENABLED_RC: "0",
+    });
+    assert.equal(bad.status, 1, `"${state}" means enabled for boot and must still fail closed`);
+    assert.match(bad.stderr, /must never leave it enabled for boot/);
+  }
+});
+
+test("N8: the baseline step's existing-service reads are normalised too (the latent instances)", async () => {
+  const script = extractRemoteScript(rawText, "Verify deployed SHA and capture the pre-trial baseline");
+  assert.match(script, /systemd_state is-enabled botm-unattended\.timer unknown/);
+  assert.match(script, /systemd_state is-active botm-unattended\.timer unknown/);
+  assert.match(script, /systemd_state is-active botm-publication\.service unknown/);
+
+  // Behavioural: a legitimately non-zero-exiting state must not duplicate.
+  const program = [
+    systemdStateHelperSource(rawText),
+    "set -euo pipefail",
+    'echo "BASELINE_UNATTENDED_TIMER_ACTIVE=$(systemd_state is-active botm-unattended.timer unknown)"',
+  ].join("\n");
+  const result = await runUnderStub(program, { STUB_ACTIVE_OUT: "inactive", STUB_ACTIVE_RC: "3" });
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /^BASELINE_UNATTENDED_TIMER_ACTIVE=inactive$/m);
+  assert.doesNotMatch(result.stdout, /inactive\s*\n\s*inactive/);
+});
