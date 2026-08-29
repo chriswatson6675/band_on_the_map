@@ -41,3 +41,11 @@ test("embedded event state is routed through the generic collector but still req
   assert.equal(result.collector_provenance.event_like_record_count, 2);
   assert.deepEqual(discoverDetailCandidates(programme).map((link) => link.url), ["https://arbitrary.example/events/a", "https://arbitrary.example/events/b"]);
 });
+
+test("arbitrary static cards route safely and require retained detail proof", () => {
+  const programme = { url: "https://arbitrary.example/whats-on", at: "2026-08-29T00:00:00.000Z", status: 200, body: '<article class="event-card"><a href="/events/one">One</a><time datetime="2026-09-01"></time></article>' };
+  const result = collectAndProve({ source_id: "arbitrary", venue_name: "Arbitrary", programme });
+  assert.equal(result.selected.mechanism, "STATIC_HTML_CARDS");
+  assert.equal(result.state, "STABLE_IDENTITY_PROOF_FAILED");
+  assert.equal(result.collector_provenance.card_records_accepted, 1);
+});
