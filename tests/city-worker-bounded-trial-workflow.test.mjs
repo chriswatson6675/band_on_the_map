@@ -166,12 +166,20 @@ test("L: polling is bounded by both a script-level MAX_WAIT_SECONDS and a step-l
 // --- M/N: cleanup always stops+disables ---
 
 test("M/N: cleanup always stops AND disables the city-worker service, and fails closed if that cannot be confirmed", () => {
+  // BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01 hoisted the
+  // unit name into a $UNIT variable and split the single CLEANUP_CONFIRMED
+  // verdict into two distinctly-named ones. The guarantee this test exists
+  // to protect is unchanged and is asserted in exactly the same strength:
+  // cleanup is always-run, it stops AND disables, and an unconfirmed
+  // cleanup fails the run. (The behavioural proof that it actually does so
+  // under every partial-failure ordering is further down this file.)
   const cleanupBody = extractStepBody(rawText, "Stop and disable the city-worker service");
   assert.match(cleanupBody, /if:\s*always\(\)/);
-  assert.match(cleanupBody, /systemctl stop beatmapped-city-worker\.service/);
-  assert.match(cleanupBody, /systemctl disable beatmapped-city-worker\.service/);
-  assert.match(cleanupBody, /CLEANUP_CONFIRMED=false/);
-  assert.match(rawText, /::error::Cleanup could not be fully confirmed/);
+  assert.match(cleanupBody, /UNIT="beatmapped-city-worker\.service"/, "the unit under cleanup must still be exactly beatmapped-city-worker.service");
+  assert.match(cleanupBody, /systemctl stop "\$UNIT"/);
+  assert.match(cleanupBody, /systemctl disable "\$UNIT"/);
+  assert.match(cleanupBody, /CITY_WORKER_CLEANUP_CONFIRMED=false/);
+  assert.match(rawText, /::error::CITY_WORKER_CLEANUP_CONFIRMED=false/);
 });
 
 test("existing-service baseline is captured before the trial and re-checked identically after cleanup", () => {
@@ -414,4 +422,285 @@ test("behavioural: the job_id-extraction one-liner (enqueue step) reads a real e
     assert.equal(result.status, 0, `expected success, stderr: ${result.stderr}`);
     assert.equal(result.stdout.trim(), "abc-123");
   });
+});
+
+// ===================================================================
+// BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01
+//
+// The first live run (33266172218) failed closed before any production
+// mutation and exposed two control defects. These tests reproduce the
+// exact live conditions.
+// ===================================================================
+
+// --- installer capability preflight (Finding A) ---
+
+test("preflight: a READ-ONLY host installer capability check runs AFTER ssh setup but BEFORE any deployment mutation", () => {
+  const preflightIdx = rawText.indexOf("- name: Preflight the production host's installed deploy/install.sh");
+  const sshSetupIdx = rawText.indexOf("- name: Configure pinned SSH access");
+  const deployIdx = rawText.indexOf("- name: Deploy the exact candidate via the sanctioned DEPLOY_ONLY path");
+  assert.ok(preflightIdx > 0, "the preflight step must exist");
+  assert.ok(preflightIdx > sshSetupIdx, "preflight needs SSH configured, so it must follow SSH setup");
+  assert.ok(deployIdx > preflightIdx, "preflight MUST precede the deploy step -- its whole purpose is to stop before mutation");
+});
+
+test("preflight: is genuinely read-only -- it reads the installer and HEAD, and mutates nothing", () => {
+  const body = extractStepBody(rawText, "Preflight the production host's installed deploy/install.sh");
+  // Permitted read-only operations only.
+  assert.match(body, /grep -q -- '--skip-publication-restart\)'/, "must detect support via the installer's own case arm");
+  assert.match(body, /\[ ! -f "\$INSTALLER" \]/, "must handle a missing installer file");
+  // Explicitly forbidden: anything that changes host state.
+  assert.doesNotMatch(body, /install\.sh --ref=/, "preflight must never invoke the installer");
+  assert.doesNotMatch(body, /systemctl (start|stop|restart|enable|disable)/, "preflight must never change any service");
+  assert.doesNotMatch(body, /git checkout|git fetch|git pull/, "preflight must never move the host checkout");
+  assert.doesNotMatch(body, /enqueue-city/, "preflight must never enqueue work");
+});
+
+test("preflight: matching the flag's own `case` arm distinguishes a supporting installer from one that only MENTIONS the flag in comments", async () => {
+  // The real current-main installer is the positive control; a stale
+  // installer that documents the flag without implementing its case arm
+  // is the negative control this pattern must reject.
+  const realInstaller = await readFile(join(REPO_ROOT, "deploy", "install.sh"), "utf8");
+  const casePattern = /--skip-publication-restart\)/;
+  assert.match(realInstaller, casePattern, "current main's install.sh must be detected as supporting the flag");
+
+  const staleInstallerWithCommentsOnly = [
+    "#   sudo deploy/install.sh --ref=<sha> [--skip-publication-restart]",
+    "# --skip-publication-restart (some future note)",
+    'case "$arg" in',
+    "  --ref=*) REF=1 ;;",
+    "esac",
+  ].join("\n");
+  assert.doesNotMatch(staleInstallerWithCommentsOnly, casePattern, "an installer that only mentions the flag in prose must NOT be treated as supporting it");
+});
+
+test("preflight: an unsupported host installer fails with PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED and names the sanctioned MAIN recovery", () => {
+  const body = extractStepBody(rawText, "Preflight the production host's installed deploy/install.sh");
+  assert.match(body, /PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED/);
+  assert.match(body, /mode=MAIN/);
+  assert.match(body, /post_deploy_action=NORMAL_PUBLICATION/);
+  assert.match(body, /exit 1/, "an unsupported installer must fail the run, never merely warn");
+  // It must NOT quietly perform that MAIN deployment itself.
+  assert.doesNotMatch(body, /workflow run|gh workflow|dispatches/, "the trial workflow must never auto-dispatch the MAIN bootstrap deployment");
+});
+
+// --- cleanup robustness (Finding B), proven behaviourally ---
+
+/**
+ * Extracts the cleanup step's REMOTE_SCRIPT heredoc exactly as shipped.
+ * Note the heredoc marker line carries a trailing `| tee ...`, so the
+ * pattern must tolerate content after the marker.
+ */
+function extractCleanupRemoteScript(yaml) {
+  const body = extractStepBody(yaml, "Stop and disable the city-worker service");
+  const m = /<<'REMOTE_SCRIPT'[^\n]*\n([\s\S]*?)\n\s*REMOTE_SCRIPT/.exec(body);
+  assert.ok(m, "expected the cleanup step to embed a REMOTE_SCRIPT heredoc");
+  return m[1];
+}
+
+/**
+ * Models what ssh ACTUALLY does with a remote command: it joins the argv
+ * with spaces into one string and the REMOTE shell re-parses it. That is
+ * precisely why empty-string arguments vanish in transit — the defect
+ * that killed run 33266172218's cleanup at `$1: unbound variable`.
+ */
+function sshSerializeArgs(args) {
+  return args.join(" ");
+}
+
+/**
+ * Runs the real, shipped cleanup script under stubbed systemd. `sudo` and
+ * `systemctl` are overridden as SHELL FUNCTIONS rather than PATH stubs —
+ * portable, and immune to this platform's PATH-resolution quirks.
+ */
+function runCleanupScript(cleanupScript, { args = [], stubs = {} } = {}) {
+  const harness = [
+    'sudo() { "$@"; }',
+    "systemctl() {",
+    '  local cmd="$1" unit="${2:-}"',
+    '  case "$cmd" in',
+    "    stop|disable|daemon-reload) return 0 ;;",
+    "    is-active)",
+    '      case "$unit" in',
+    '        beatmapped-city-worker.service) [ -n "${STUB_CW_ACTIVE:-}" ] && echo "$STUB_CW_ACTIVE"; [ "${STUB_CW_ACTIVE:-inactive}" = active ] && return 0 || return 3 ;;',
+    '        botm-unattended.timer) [ -n "${STUB_TIMER_ACTIVE:-}" ] && echo "$STUB_TIMER_ACTIVE"; return 0 ;;',
+    '        botm-publication.service) [ -n "${STUB_PUB_ACTIVE:-}" ] && echo "$STUB_PUB_ACTIVE"; return 0 ;;',
+    "      esac ;;",
+    "    is-enabled)",
+    '      case "$unit" in',
+    '        beatmapped-city-worker.service) [ -n "${STUB_CW_ENABLED:-}" ] && echo "$STUB_CW_ENABLED"; return 0 ;;',
+    '        botm-unattended.timer) [ -n "${STUB_TIMER_ENABLED:-}" ] && echo "$STUB_TIMER_ENABLED"; return 0 ;;',
+    "      esac ;;",
+    "  esac",
+    "  return 1",
+    "}",
+    `set -- ${sshSerializeArgs(args)}`,
+    cleanupScript,
+  ].join("\n");
+
+  return new Promise((resolvePromise) => {
+    const child = spawn("bash", [], { env: { ...process.env, ...stubs } });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("close", (code) => resolvePromise({ status: code, stdout, stderr }));
+    child.stdin.write(harness);
+    child.stdin.end();
+  });
+}
+
+/** Parses the cleanup script's own KEY=VALUE verdict lines. */
+function parseVerdicts(stdout) {
+  const out = {};
+  for (const line of stdout.split("\n")) {
+    const m = /^([A-Z_]+)=(.*)$/.exec(line.trim());
+    if (m) out[m[1]] = m[2];
+  }
+  return out;
+}
+
+const HEALTHY_BASELINE_ARGS = ["true", "enabled", "active", "active"];
+const HEALTHY_STUBS = { STUB_TIMER_ENABLED: "enabled", STUB_TIMER_ACTIVE: "active", STUB_PUB_ACTIVE: "active" };
+
+test("F/A: THE LIVE FAILURE — with the baseline step skipped, ssh drops the empty args entirely and cleanup must still run (never `$1: unbound variable`)", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  // Exactly what run 33266172218 sent: three empty strings, which ssh
+  // serialises to nothing at all, leaving ZERO positional parameters.
+  const result = await runCleanupScript(script, { args: ["", "", "", ""], stubs: HEALTHY_STUBS });
+  assert.doesNotMatch(result.stderr, /unbound variable/, "the exact live-run crash must not recur");
+  assert.equal(result.status, 0, `cleanup must complete, stderr: ${result.stderr}`);
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "true", "with nothing running, the worker verdict is legitimately clean");
+  assert.equal(v.BASELINE_RECONCILIATION, "NOT_AVAILABLE");
+  assert.match(result.stdout, /EXISTING_SERVICE_BASELINE_NOT_CAPTURED/);
+});
+
+test("A: a missing baseline never silently implies existing services were verified unchanged", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, { args: ["", "", "", ""], stubs: HEALTHY_STUBS });
+  const v = parseVerdicts(result.stdout);
+  assert.notEqual(v.BASELINE_RECONCILIATION, "CONFIRMED", "never claim verification that did not happen");
+  assert.equal(v.BASELINE_RECONCILIATION, "NOT_AVAILABLE");
+});
+
+test("F: a missing baseline STILL fails the worker verdict if a worker is genuinely left running — absent baseline never masks real cleanup failure", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, { args: ["", "", "", ""], stubs: { ...HEALTHY_STUBS, STUB_CW_ACTIVE: "active" } });
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "false");
+  assert.equal(v.BASELINE_RECONCILIATION, "NOT_AVAILABLE");
+  assert.match(result.stderr, /still active after stop/);
+});
+
+test("B: baseline captured and everything matches — both verdicts CONFIRMED", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, { args: HEALTHY_BASELINE_ARGS, stubs: HEALTHY_STUBS });
+  assert.equal(result.status, 0);
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "true");
+  assert.equal(v.BASELINE_RECONCILIATION, "CONFIRMED");
+});
+
+test("D: a worker left ACTIVE after stop fails the city-worker verdict, independently of a healthy baseline reconciliation", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, { args: HEALTHY_BASELINE_ARGS, stubs: { ...HEALTHY_STUBS, STUB_CW_ACTIVE: "active" } });
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.FINAL_ACTIVE, "active");
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "false");
+  assert.equal(v.BASELINE_RECONCILIATION, "CONFIRMED", "the two verdicts are independent — a worker failure must not be blamed on the baseline");
+});
+
+test("C/N: a worker left ENABLED after disable fails the city-worker verdict", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, { args: HEALTHY_BASELINE_ARGS, stubs: { ...HEALTHY_STUBS, STUB_CW_ENABLED: "enabled" } });
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.FINAL_ENABLED, "enabled");
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "false");
+  assert.match(result.stderr, /still enabled after disable/);
+});
+
+test("G: a systemd unit that was never installed yields NO false active/enabled result — 'unit not found' is a clean terminal state", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  // systemctl prints NOTHING and exits non-zero for an unknown unit.
+  const result = await runCleanupScript(script, { args: HEALTHY_BASELINE_ARGS, stubs: HEALTHY_STUBS });
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.FINAL_ACTIVE, "inactive", "empty systemctl output must normalise to inactive, never to a doubled/blank value");
+  assert.equal(v.FINAL_ENABLED, "disabled");
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "true", "a never-installed unit must not be reported as a cleanup failure");
+});
+
+test("H: a REAL existing-service mismatch fails reconciliation visibly, while the city-worker verdict stays independently true", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, {
+    args: HEALTHY_BASELINE_ARGS,
+    stubs: { ...HEALTHY_STUBS, STUB_PUB_ACTIVE: "inactive" },
+  });
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.BASELINE_RECONCILIATION, "FAILED");
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "true");
+  assert.match(result.stderr, /botm-publication\.service active-state changed/);
+});
+
+test("E: a timeout path (worker still active, baseline present) is reported as a cleanup failure, not silently tolerated", async () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const result = await runCleanupScript(script, {
+    args: HEALTHY_BASELINE_ARGS,
+    stubs: { ...HEALTHY_STUBS, STUB_CW_ACTIVE: "activating" },
+  });
+  const v = parseVerdicts(result.stdout);
+  assert.equal(v.CITY_WORKER_CLEANUP_CONFIRMED, "false", "a still-'activating' worker is not a stopped worker");
+});
+
+// --- static guarantees about the corrected cleanup ---
+
+test("cleanup: no unsafe empty-positional-argument assumption remains — every value is sentinel-defaulted before ssh AND defaulted again remotely", () => {
+  const body = extractStepBody(rawText, "Stop and disable the city-worker service");
+  // Runner side: never hand ssh a possibly-empty string.
+  assert.match(body, /BASELINE_CAPTURED="\$\{BASELINE_CAPTURED:-false\}"/);
+  assert.match(body, /BASELINE_TIMER_ENABLED="\$\{BASELINE_TIMER_ENABLED:-NOT_CAPTURED\}"/);
+  assert.match(body, /BASELINE_TIMER_ACTIVE="\$\{BASELINE_TIMER_ACTIVE:-NOT_CAPTURED\}"/);
+  assert.match(body, /BASELINE_PUBLICATION_ACTIVE="\$\{BASELINE_PUBLICATION_ACTIVE:-NOT_CAPTURED\}"/);
+  // Remote side: `set -u` can never abort on a missing positional.
+  assert.match(body, /BASELINE_CAPTURED="\$\{1:-false\}"/);
+  assert.match(body, /BASELINE_TIMER_ENABLED="\$\{2:-NOT_CAPTURED\}"/);
+  assert.match(body, /BASELINE_TIMER_ACTIVE="\$\{3:-NOT_CAPTURED\}"/);
+  assert.match(body, /BASELINE_PUBLICATION_ACTIVE="\$\{4:-NOT_CAPTURED\}"/);
+  // The exact pre-correction pattern must be gone.
+  assert.doesNotMatch(body, /BASELINE_TIMER_ENABLED="\$1"/, "the bare positional assignment that crashed run 33266172218 must not return");
+});
+
+test("cleanup: remote script deliberately omits `set -e` so it always runs to completion and reports a verdict", () => {
+  const script = extractCleanupRemoteScript(rawText);
+  assert.match(script, /set -uo pipefail/);
+  assert.doesNotMatch(script, /set -euo pipefail/, "an aborting cleanup could stop before stopping the worker");
+});
+
+test("cleanup: stop and disable are ALWAYS attempted, never gated on how far the trial progressed", () => {
+  const script = extractCleanupRemoteScript(rawText);
+  const stopIdx = script.indexOf('sudo systemctl stop "$UNIT"');
+  const disableIdx = script.indexOf('sudo systemctl disable "$UNIT"');
+  assert.ok(stopIdx > 0 && disableIdx > stopIdx);
+  // Neither may sit inside a conditional guarding on baseline/deploy state.
+  const before = script.slice(0, stopIdx);
+  assert.doesNotMatch(before, /if \[ "\$BASELINE_CAPTURED"/, "stop/disable must not be conditioned on the baseline existing");
+});
+
+test("cleanup: the two verdicts are reported as separate, distinctly-named tokens", () => {
+  const script = extractCleanupRemoteScript(rawText);
+  assert.match(script, /CITY_WORKER_CLEANUP_CONFIRMED=/);
+  assert.match(script, /BASELINE_RECONCILIATION=(CONFIRMED|NOT_AVAILABLE|FAILED|\$)/);
+  const body = extractStepBody(rawText, "Stop and disable the city-worker service");
+  assert.match(body, /NOT_AVAILABLE\)/, "the runner must handle NOT_AVAILABLE explicitly");
+  assert.match(body, /FAILED\)/, "the runner must handle FAILED explicitly");
+});
+
+test("cleanup: an unreachable host (no verdict at all) is treated as an unconfirmed cleanup, never a silent pass", () => {
+  const body = extractStepBody(rawText, "Stop and disable the city-worker service");
+  assert.match(body, /if \[ -z "\$CITY_WORKER_CLEANUP_CONFIRMED" \]/);
+  assert.match(body, /Cleanup produced no verdict/);
+});
+
+test("cleanup remains if: always() after the correction", () => {
+  const body = extractStepBody(rawText, "Stop and disable the city-worker service");
+  assert.match(body, /if:\s*always\(\)/);
 });
