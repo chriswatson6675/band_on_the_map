@@ -32,6 +32,20 @@ name: Deploy BeatMapped Collector
 # publication cycle (see the `deploy` job's own steps below) -- it proves
 # only that the candidate's code installs and runs on the real host.
 #
+# BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: a second, orthogonal
+# input, `post_deploy_action` (`NORMAL_PUBLICATION` default / `DEPLOY_ONLY`),
+# alongside `mode`. Exactly two combinations are ever valid, enforced
+# fail-closed by deploy/ci/resolve-and-validate-deployment.sh before any
+# production contact: MAIN+NORMAL_PUBLICATION (unchanged normal deployment)
+# and APPROVED_CANDIDATE+DEPLOY_ONLY (installs the exact candidate SHA and
+# verifies it, but never triggers acquisition/publication and never
+# restarts the live botm-publication.service either -- see
+# deploy/install.sh's --skip-publication-restart flag). This closes the
+# one remaining side effect APPROVED_CANDIDATE trials previously had on
+# production (an unconditional botm-publication.service restart) for a
+# bounded runtime trial (e.g. the city-worker candidate) that must install
+# code without disturbing anything else already running.
+#
 # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
 # publication is now triggered ASYNCHRONOUSLY. SSH performs only short,
 # bounded control operations (deploy, HEAD/service verification, and a
@@ -64,6 +78,21 @@ on:
         options:
           - MAIN
           - APPROVED_CANDIDATE
+      post_deploy_action:
+        description: >-
+          MAIN mode: always NORMAL_PUBLICATION (normal deployment behaviour,
+          unchanged -- installs the code, then triggers/verifies the
+          acquisition+publication cycle as before). APPROVED_CANDIDATE mode:
+          must be DEPLOY_ONLY -- installs the exact candidate SHA and
+          verifies it, but never triggers acquisition/publication and never
+          restarts botm-publication.service -- see deploy/README.md's
+          "Approved-candidate deployment trials".
+        required: true
+        type: choice
+        default: NORMAL_PUBLICATION
+        options:
+          - NORMAL_PUBLICATION
+          - DEPLOY_ONLY
 
 permissions:
   contents: read
@@ -80,6 +109,7 @@ jobs:
     outputs:
       resolved_sha: ${{ steps.resolve.outputs.resolved_sha }}
       mode: ${{ inputs.mode }}
+      post_deploy_action: ${{ inputs.post_deploy_action }}
     steps:
       - name: Checkout full history (needed to validate MAIN-mode ancestry against origin/main)
         uses: actions/checkout@v4
@@ -98,8 +128,9 @@ jobs:
           set -euo pipefail
           MODE="${{ inputs.mode }}"
           REQUESTED="${{ inputs.ref }}"
+          POST_DEPLOY_ACTION="${{ inputs.post_deploy_action }}"
 
-          if OUTPUT="$(bash deploy/ci/resolve-and-validate-deployment.sh "$MODE" "$REQUESTED")"; then
+          if OUTPUT="$(bash deploy/ci/resolve-and-validate-deployment.sh "$MODE" "$REQUESTED" "$POST_DEPLOY_ACTION")"; then
             RESOLVED_SHA="${OUTPUT#RESOLVED_SHA=}"
             echo "resolved_sha=${RESOLVED_SHA}" >> "$GITHUB_OUTPUT"
             {
@@ -108,16 +139,20 @@ jobs:
               echo "| Field | Value |"
               echo "|---|---|"
               echo "| Deployment mode | \`${MODE}\` |"
+              echo "| Post-deploy action | \`${POST_DEPLOY_ACTION}\` |"
               echo "| Requested ref | \`${REQUESTED}\` |"
               echo "| Resolved full SHA | \`${RESOLVED_SHA}\` |"
               echo "| Authorisation validation | ✅ PASS |"
             } >> "$GITHUB_STEP_SUMMARY"
             if [ "$MODE" = "APPROVED_CANDIDATE" ]; then
-              echo "| ⚠️ UNMERGED CANDIDATE DEPLOYMENT | This deploys code NOT reachable from origin/main. The acquisition/publication cycle is NOT triggered by this mode. |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| ⚠️ UNMERGED CANDIDATE DEPLOYMENT | This deploys code NOT reachable from origin/main. |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ "$POST_DEPLOY_ACTION" = "DEPLOY_ONLY" ]; then
+              echo "| ⏭️ DEPLOY_ONLY | Code will be installed and the exact SHA verified. Acquisition/publication are NOT triggered and botm-publication.service is NOT restarted. |" >> "$GITHUB_STEP_SUMMARY"
             fi
           else
-            echo "::error::Deployment authorisation failed for mode ${MODE}, ref ${REQUESTED} -- see the script's own stderr above."
-            echo "| Authorisation validation | ❌ FAIL (mode: \`${MODE}\`) |" >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Deployment authorisation failed for mode ${MODE} / post_deploy_action ${POST_DEPLOY_ACTION}, ref ${REQUESTED} -- see the script's own stderr above."
+            echo "| Authorisation validation | ❌ FAIL (mode: \`${MODE}\`, post_deploy_action: \`${POST_DEPLOY_ACTION}\`) |" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -141,6 +176,7 @@ jobs:
     env:
       RESOLVED_SHA: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
       MODE: ${{ needs.resolve-and-validate.outputs.mode }}
+      POST_DEPLOY_ACTION: ${{ needs.resolve-and-validate.outputs.post_deploy_action }}
       BEATMAPPED_APP_DIR: /opt/band-on-the-map
       # The SAME public, read-only, uncredentialed runtime endpoint every
       # other consumer (the frontend, an operator's own browser) already
@@ -180,11 +216,20 @@ jobs:
       - name: Deploy the resolved SHA via the existing hardened installer
         run: |
           set -euo pipefail
+          # BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: the ref
+          # argument is always exactly --ref=${RESOLVED_SHA} (unchanged) --
+          # DEPLOY_ONLY only ever APPENDS the explicit
+          # --skip-publication-restart flag, never alters the resolved SHA
+          # itself.
+          INSTALL_ARGS="--ref=${RESOLVED_SHA}"
+          if [ "$POST_DEPLOY_ACTION" = "DEPLOY_ONLY" ]; then
+            INSTALL_ARGS="${INSTALL_ARGS} --skip-publication-restart"
+          fi
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
             -i "$HOME/.ssh/deploy_key" \
             "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
-            "sudo ${BEATMAPPED_APP_DIR}/deploy/install.sh --ref=${RESOLVED_SHA}"
-          echo "| Deployment (deploy/install.sh --ref=…) | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+            "sudo ${BEATMAPPED_APP_DIR}/deploy/install.sh ${INSTALL_ARGS}"
+          echo "| Deployment (deploy/install.sh ${INSTALL_ARGS}) | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify deployed HEAD and collector/timer/publication-service health (read-only, short SSH)
         run: |
@@ -220,7 +265,7 @@ jobs:
       # poll script below; it never fails the deploy on its own).
       - name: Capture the pre-trigger publication generation timestamp (read-only HTTPS, no SSH)
         id: pretrigger
-        if: needs.resolve-and-validate.outputs.mode == 'MAIN'
+        if: needs.resolve-and-validate.outputs.post_deploy_action == 'NORMAL_PUBLICATION'
         run: |
           set -euo pipefail
           cat > ./.deploy-capture-pretrigger.mjs <<'CAPTURE_EOF'
@@ -277,7 +322,7 @@ jobs:
       # launch failure" case this task's own failure-semantics phase
       # requires, distinct from "publication still running".
       - name: Trigger the publication cycle (non-blocking -- SSH returns immediately, does not wait for completion)
-        if: needs.resolve-and-validate.outputs.mode == 'MAIN'
+        if: needs.resolve-and-validate.outputs.post_deploy_action == 'NORMAL_PUBLICATION'
         run: |
           set -euo pipefail
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
@@ -286,10 +331,10 @@ jobs:
             "systemctl start --no-block botm-unattended.service"
           echo "| Publication cycle triggered (non-blocking) | ✅ ACCEPTED |" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: "APPROVED_CANDIDATE mode: record that the acquisition/publication cycle was deliberately NOT triggered"
-        if: needs.resolve-and-validate.outputs.mode == 'APPROVED_CANDIDATE'
+      - name: "DEPLOY_ONLY mode: record that the acquisition/publication cycle was deliberately NOT triggered"
+        if: needs.resolve-and-validate.outputs.post_deploy_action == 'DEPLOY_ONLY'
         run: |
-          echo "| Publication cycle | ⏭️ SKIPPED — APPROVED_CANDIDATE mode deploys code only; it never starts botm-unattended.service |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Publication cycle | ⏭️ SKIPPED — DEPLOY_ONLY installs code only; it never starts botm-unattended.service or restarts botm-publication.service |" >> "$GITHUB_STEP_SUMMARY"
 
       # SSH is not needed again after this point -- every remaining step
       # verifies completion over the public, read-only runtime endpoint
@@ -312,7 +357,7 @@ jobs:
       # the server-side systemd job is left completely alone, still
       # running to completion independently, exactly as designed.
       - name: Poll for a newer publication cycle and validate it (read-only HTTPS, no SSH, bounded)
-        if: needs.resolve-and-validate.outputs.mode == 'MAIN'
+        if: needs.resolve-and-validate.outputs.post_deploy_action == 'NORMAL_PUBLICATION'
         timeout-minutes: 50
         env:
           PRE_TRIGGER_GENERATED_AT: ${{ steps.pretrigger.outputs.pre_trigger_generated_at }}
