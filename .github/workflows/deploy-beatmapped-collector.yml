@@ -17,6 +17,21 @@ name: Deploy BeatMapped Collector
 # on push. See deploy/README.md's "Simple human deployment workflow" for
 # the full, plain-language procedure this Action is one step of.
 #
+# BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01: a second,
+# narrowly-scoped `mode` alongside the original (`MAIN`, unchanged, still
+# the default and still the normal way every real collector change
+# reaches production). `APPROVED_CANDIDATE` lets a Founder explicitly
+# deploy one exact, reviewed, PUSHED-but-UNMERGED commit SHA -- for a
+# tightly bounded trial -- without merging it to main, without ever
+# handing production SSH credentials to a human or a Claude session
+# (this workflow still owns those, exactly as before), and without
+# weakening MAIN mode's own main-history requirement one bit. See
+# deploy/README.md's "Approved-candidate deployment trials" for the full
+# procedure and the `candidate/deploy/*` branch convention this mode
+# requires. APPROVED_CANDIDATE mode never triggers the acquisition/
+# publication cycle (see the `deploy` job's own steps below) -- it proves
+# only that the candidate's code installs and runs on the real host.
+#
 # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
 # publication is now triggered ASYNCHRONOUSLY. SSH performs only short,
 # bounded control operations (deploy, HEAD/service verification, and a
@@ -35,9 +50,20 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "Approved main commit SHA (full or short) to deploy to the production collector"
+        description: >-
+          MAIN mode: approved main commit SHA (full or short). APPROVED_CANDIDATE
+          mode: the EXACT full 40-character commit SHA only (no short SHA,
+          no branch/tag name) -- see deploy/README.md.
         required: true
         type: string
+      mode:
+        description: "Deployment authorisation mode"
+        required: true
+        type: choice
+        default: MAIN
+        options:
+          - MAIN
+          - APPROVED_CANDIDATE
 
 permissions:
   contents: read
@@ -49,53 +75,49 @@ concurrency:
 
 jobs:
   resolve-and-validate:
-    name: Resolve ref and validate approved main history
+    name: Resolve ref and validate deployment authorisation
     runs-on: ubuntu-latest
     outputs:
       resolved_sha: ${{ steps.resolve.outputs.resolved_sha }}
+      mode: ${{ inputs.mode }}
     steps:
-      - name: Checkout full history (needed to validate ancestry against origin/main)
+      - name: Checkout full history (needed to validate MAIN-mode ancestry against origin/main)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
 
-      - name: Resolve the requested ref to a full commit SHA
+      - name: Fetch every candidate/deploy/* branch explicitly (never assumed already present from the main-only checkout above)
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/candidate/deploy/*:refs/remotes/origin/candidate/deploy/*' --prune
+
+      - name: Resolve and validate the requested ref (deploy/ci/resolve-and-validate-deployment.sh — the SAME script tests/deploy-workflow-authorisation.test.mjs exercises)
         id: resolve
         run: |
           set -euo pipefail
+          MODE="${{ inputs.mode }}"
           REQUESTED="${{ inputs.ref }}"
 
-          if ! git cat-file -e "${REQUESTED}^{commit}" 2>/dev/null; then
-            echo "::error::Requested ref '${REQUESTED}' does not resolve to any commit in this repository."
-            exit 1
-          fi
-
-          RESOLVED_SHA="$(git rev-parse "${REQUESTED}^{commit}")"
-          echo "Requested ref:      ${REQUESTED}"
-          echo "Resolved full SHA:  ${RESOLVED_SHA}"
-          echo "resolved_sha=${RESOLVED_SHA}" >> "$GITHUB_OUTPUT"
-
-          {
-            echo "### Deploy BeatMapped Collector"
-            echo ""
-            echo "| Field | Value |"
-            echo "|---|---|"
-            echo "| Requested ref | \`${REQUESTED}\` |"
-            echo "| Resolved full SHA | \`${RESOLVED_SHA}\` |"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Validate the resolved commit is reachable from origin/main (approved history only)
-        run: |
-          set -euo pipefail
-          RESOLVED_SHA="${{ steps.resolve.outputs.resolved_sha }}"
-
-          if git merge-base --is-ancestor "${RESOLVED_SHA}" origin/main; then
-            echo "Main-history validation: PASS -- ${RESOLVED_SHA} is reachable from origin/main."
-            echo "| Main-history validation | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+          if OUTPUT="$(bash deploy/ci/resolve-and-validate-deployment.sh "$MODE" "$REQUESTED")"; then
+            RESOLVED_SHA="${OUTPUT#RESOLVED_SHA=}"
+            echo "resolved_sha=${RESOLVED_SHA}" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Deploy BeatMapped Collector"
+              echo ""
+              echo "| Field | Value |"
+              echo "|---|---|"
+              echo "| Deployment mode | \`${MODE}\` |"
+              echo "| Requested ref | \`${REQUESTED}\` |"
+              echo "| Resolved full SHA | \`${RESOLVED_SHA}\` |"
+              echo "| Authorisation validation | ✅ PASS |"
+            } >> "$GITHUB_STEP_SUMMARY"
+            if [ "$MODE" = "APPROVED_CANDIDATE" ]; then
+              echo "| ⚠️ UNMERGED CANDIDATE DEPLOYMENT | This deploys code NOT reachable from origin/main. The acquisition/publication cycle is NOT triggered by this mode. |" >> "$GITHUB_STEP_SUMMARY"
+            fi
           else
-            echo "::error::Refusing to deploy ${RESOLVED_SHA} -- it is NOT reachable from origin/main. An arbitrary branch/PR/fork commit is never deployable merely because its SHA exists. Only approved main history may be deployed."
-            echo "| Main-history validation | ❌ FAIL — not reachable from origin/main |" >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Deployment authorisation failed for mode ${MODE}, ref ${REQUESTED} -- see the script's own stderr above."
+            echo "| Authorisation validation | ❌ FAIL (mode: \`${MODE}\`) |" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -118,6 +140,7 @@ jobs:
     environment: beatmapped-collector-production
     env:
       RESOLVED_SHA: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
+      MODE: ${{ needs.resolve-and-validate.outputs.mode }}
       BEATMAPPED_APP_DIR: /opt/band-on-the-map
       # The SAME public, read-only, uncredentialed runtime endpoint every
       # other consumer (the frontend, an operator's own browser) already
@@ -129,6 +152,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.resolve-and-validate.outputs.resolved_sha }}
+
+      - name: Assert the checked-out commit is exactly the resolved SHA (fail closed, never a moving branch tip)
+        run: |
+          set -euo pipefail
+          ACTUAL="$(git rev-parse HEAD)"
+          if [ "$ACTUAL" != "$RESOLVED_SHA" ]; then
+            echo "::error::Checkout resolved to ${ACTUAL}, not the requested ${RESOLVED_SHA} -- refusing to proceed."
+            exit 1
+          fi
+          echo "Checkout verified: HEAD is exactly ${RESOLVED_SHA}."
 
       - name: Configure pinned SSH access (StrictHostKeyChecking=yes, never TOFU)
         run: |
@@ -176,7 +209,7 @@ jobs:
             systemctl is-active botm-publication.service
             echo "Collector timer and publication service are healthy."
           REMOTE_SCRIPT
-          echo "| Deployed SHA verified | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deployed SHA verified | ✅ PASS (mode: \`$MODE\`) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Collector timer / publication service | ✅ HEALTHY |" >> "$GITHUB_STEP_SUMMARY"
 
       # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
@@ -187,6 +220,7 @@ jobs:
       # poll script below; it never fails the deploy on its own).
       - name: Capture the pre-trigger publication generation timestamp (read-only HTTPS, no SSH)
         id: pretrigger
+        if: needs.resolve-and-validate.outputs.mode == 'MAIN'
         run: |
           set -euo pipefail
           cat > ./.deploy-capture-pretrigger.mjs <<'CAPTURE_EOF'
@@ -243,6 +277,7 @@ jobs:
       # launch failure" case this task's own failure-semantics phase
       # requires, distinct from "publication still running".
       - name: Trigger the publication cycle (non-blocking -- SSH returns immediately, does not wait for completion)
+        if: needs.resolve-and-validate.outputs.mode == 'MAIN'
         run: |
           set -euo pipefail
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
@@ -250,6 +285,11 @@ jobs:
             "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
             "systemctl start --no-block botm-unattended.service"
           echo "| Publication cycle triggered (non-blocking) | ✅ ACCEPTED |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: "APPROVED_CANDIDATE mode: record that the acquisition/publication cycle was deliberately NOT triggered"
+        if: needs.resolve-and-validate.outputs.mode == 'APPROVED_CANDIDATE'
+        run: |
+          echo "| Publication cycle | ⏭️ SKIPPED — APPROVED_CANDIDATE mode deploys code only; it never starts botm-unattended.service |" >> "$GITHUB_STEP_SUMMARY"
 
       # SSH is not needed again after this point -- every remaining step
       # verifies completion over the public, read-only runtime endpoint
@@ -272,6 +312,7 @@ jobs:
       # the server-side systemd job is left completely alone, still
       # running to completion independently, exactly as designed.
       - name: Poll for a newer publication cycle and validate it (read-only HTTPS, no SSH, bounded)
+        if: needs.resolve-and-validate.outputs.mode == 'MAIN'
         timeout-minutes: 50
         env:
           PRE_TRIGGER_GENERATED_AT: ${{ steps.pretrigger.outputs.pre_trigger_generated_at }}

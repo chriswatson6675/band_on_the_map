@@ -19,6 +19,7 @@ which this package deliberately does not close).
 | `systemd/botm-unattended.service` | `oneshot` unit running one `npm run unattended` cycle |
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
 | `systemd/botm-publication.service` | long-running `npm run serve:map-data` unit — installed, enabled, and restarted by `install.sh` on every deploy (see "Publication service lifecycle" below) |
+| `ci/resolve-and-validate-deployment.sh` | the exact SHA-resolution/authorisation logic the Action's `resolve-and-validate` job runs — see "Approved-candidate deployment trials" below |
 
 ## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
 
@@ -66,6 +67,80 @@ which are Vercel's own auto-managed frontend-deployment pair and
 unrelated to this SSH-based collector deployment). This is a one-time
 setup step performed directly in GitHub's own UI; secret values are never
 generated or handled by an automated coding session.
+
+## Approved-candidate deployment trials (`BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01`)
+
+The workflow above (`mode: MAIN`, the default) only ever deploys a commit
+reachable from `origin/main` — the normal, unchanged rule for every real
+collector/publication change. A second, narrowly-scoped `mode:
+APPROVED_CANDIDATE` lets a Founder explicitly deploy ONE exact, reviewed,
+**pushed-but-unmerged** commit SHA for a tightly bounded trial — e.g.
+proving a new subsystem installs and runs correctly on the real host —
+**without** merging it to `main`, and without ever handing production SSH
+credentials to a human or a Claude session (the Action still owns those,
+exactly as in `MAIN` mode).
+
+**What makes a commit an authorised candidate**: a `candidate/deploy/*`
+branch, pushed to `origin`, whose tip is **exactly** that commit. This
+convention is deliberately narrow:
+
+- The branch exists **only as a pointer** to one exact, reviewed SHA — it
+  must never gain its own commit history (no new implementation commits
+  directly on it; if the candidate changes, move the branch to point at
+  the new reviewed SHA instead).
+- Authorisation checks **tip equality**, never mere ancestry — an earlier,
+  superseded commit on the same branch is never itself deployable once
+  the branch has moved on, and a commit that merely happens to be an
+  ancestor of some other branch is never accepted.
+- `APPROVED_CANDIDATE` mode requires the **exact full 40-character commit
+  SHA** as the `ref` input — never a short SHA, never a branch/tag name.
+- `APPROVED_CANDIDATE` mode **never triggers the acquisition/publication
+  cycle** (`systemctl start botm-unattended.service`) — it proves only
+  that the candidate's code installs and runs; the workflow's run summary
+  always states explicitly whether publication ran.
+- The same `beatmapped-collector-production` Environment, the same
+  secrets, and the same `deploy/install.sh --ref=<sha>` transport are
+  used — nothing about production access itself is weakened or
+  duplicated for this mode.
+- **Known, pre-existing side effect of the shared transport** (not
+  introduced by this mode): `install.sh` itself unconditionally
+  `systemctl restart`s `botm-publication.service` on every install/update,
+  regardless of mode — this is how it guarantees the live read-only
+  runtime endpoint always serves the code just checked out (Node does not
+  hot-reload). It briefly restarts that live, public-facing process even
+  for a code-only `APPROVED_CANDIDATE` trial. This does **not** regenerate
+  or change the map data artifact itself (that is `botm-unattended.service`,
+  which this mode never starts) — only the process serving the
+  already-existing, unchanged file.
+
+**Operator procedure:**
+
+1. Review the exact candidate commit SHA (e.g. `fa64002...` — the full
+   40-character form).
+2. If it is not already on `origin`, push the branch that contains it.
+3. Create (or move) an authorised pointer branch to that exact SHA:
+   ```bash
+   git push origin <candidate-sha>:refs/heads/candidate/deploy/<short-name>
+   ```
+4. GitHub → **Actions** → **Deploy BeatMapped Collector** → **Run workflow**.
+5. Set **mode** to `APPROVED_CANDIDATE`.
+6. Paste the exact full 40-character SHA into **ref**.
+7. Approve the protected `beatmapped-collector-production` Environment if
+   GitHub Environment protection rules require it.
+8. The workflow validates the SHA is the exact tip of an authorised
+   `candidate/deploy/*` branch, deploys it via the existing installer,
+   verifies the deployed HEAD matches exactly, confirms
+   `botm-unattended.timer`/`botm-publication.service` remain healthy, and
+   records in its own summary that publication was **not** triggered.
+9. After the bounded trial, either:
+   - **restore** the previous known-good state by re-running this same
+     workflow in `MAIN` mode with the last approved `main` SHA (no
+     interactive SSH required — the standard rollback path, unchanged
+     from `MAIN` mode's own), or
+   - **integrate properly**: once satisfied, merge the candidate through
+     the normal review process, then deploy the resulting `main` commit
+     via `MAIN` mode as usual. A candidate branch is never itself the
+     long-term deployment record.
 
 ## Requirements
 

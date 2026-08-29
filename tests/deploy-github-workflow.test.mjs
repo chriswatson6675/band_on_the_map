@@ -119,15 +119,24 @@ test("workflow: accepts a required 'ref' input", async () => {
 });
 
 // --- content-level: main-history safety ---
+//
+// BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01 extracted the
+// resolve/validate logic these next two tests originally checked inline
+// into deploy/ci/resolve-and-validate-deployment.sh — the SAME script the
+// workflow now calls (see tests/deploy-workflow-authorisation.test.mjs for
+// the full behavioural proof, run against a real git repo). These two
+// tests now check the workflow correctly delegates to that exact script,
+// plus that the script itself still contains the real logic.
 
-test("workflow: resolves the input to a full commit SHA before deploying", async () => {
+test("workflow: delegates SHA resolution/validation to the shared, independently-tested script — never re-inlines the logic", async () => {
   const yaml = await readWorkflow();
-  assert.match(yaml, /git rev-parse "\$\{REQUESTED\}\^\{commit\}"/);
+  assert.match(yaml, /bash deploy\/ci\/resolve-and-validate-deployment\.sh "\$MODE" "\$REQUESTED"/);
 });
 
-test("workflow: validates the resolved commit is reachable from origin/main via merge-base --is-ancestor", async () => {
-  const yaml = await readWorkflow();
-  assert.match(yaml, /git merge-base --is-ancestor "\$\{RESOLVED_SHA\}" origin\/main/);
+test("resolve-and-validate-deployment.sh: resolves the input to a full commit SHA, and validates MAIN-mode ancestry via merge-base --is-ancestor", async () => {
+  const script = await readFile(fileURLToPath(new URL("../deploy/ci/resolve-and-validate-deployment.sh", import.meta.url)), "utf8");
+  assert.match(script, /git rev-parse "\$\{REQUESTED\}\^\{commit\}"/);
+  assert.match(script, /git merge-base --is-ancestor "\$\{RESOLVED_SHA\}" origin\/main/);
 });
 
 test("workflow: the deploy job needs (depends on) the resolve-and-validate job — cannot skip the safety gate", async () => {
@@ -234,14 +243,24 @@ test("workflow: the SSH step that triggers publication does not itself wait for 
   assert.doesNotMatch(body, /\bsleep\b/, "the trigger step must not sleep/wait inside the SSH session");
 });
 
-test("workflow: SSH material is cleaned up immediately after the trigger step, before the long external polling phase begins", async () => {
+test("workflow: SSH material is cleaned up immediately after the last SSH-touching step, before the long external polling phase begins", async () => {
   const yaml = await readWorkflow();
   const stepNames = [...yaml.matchAll(/^\s{6}- name: (.+)$/gm)].map((m) => m[1]);
   const triggerIdx = stepNames.findIndex((n) => n.startsWith("Trigger the publication cycle"));
   const cleanupIdx = stepNames.findIndex((n) => n === "Clean up local SSH material");
   const pollIdx = stepNames.findIndex((n) => n.startsWith("Poll for a newer publication cycle"));
   assert.ok(triggerIdx >= 0 && cleanupIdx >= 0 && pollIdx >= 0, "expected all three steps to be present");
-  assert.ok(cleanupIdx === triggerIdx + 1, "SSH cleanup must immediately follow the trigger step");
+  // BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01 added one
+  // intervening step directly after the trigger step — a pure
+  // step-summary write for APPROVED_CANDIDATE mode's own "publication was
+  // not triggered" record, which never touches SSH/network. Cleanup must
+  // therefore follow the trigger step by at most that one non-SSH step,
+  // never by anything that itself performs SSH/network I/O.
+  const between = stepNames.slice(triggerIdx + 1, cleanupIdx);
+  assert.ok(between.length <= 1, `expected at most one non-SSH step between the trigger step and SSH cleanup, found: ${JSON.stringify(between)}`);
+  for (const name of between) {
+    assert.match(name, /deliberately NOT triggered/, `the only step allowed between trigger and cleanup is the APPROVED_CANDIDATE skip-acknowledgement, found: "${name}"`);
+  }
   assert.ok(pollIdx > cleanupIdx, "the bounded external poll must come after SSH material is already cleaned up");
 });
 
@@ -304,9 +323,19 @@ test("workflow: uses GITHUB_STEP_SUMMARY so a human never has to read raw logs f
   assert.ok(summaryWrites >= 5, `expected several distinct summary writes, found ${summaryWrites}`);
 });
 
-test("workflow: a failed main-history validation uses ::error:: and exits non-zero — never merely a warning", async () => {
+test("workflow: a failed authorisation validation (either mode) uses ::error:: and exits non-zero — never merely a warning", async () => {
   const yaml = await readWorkflow();
-  assert.match(yaml, /::error::Refusing to deploy[\s\S]*?exit 1/);
+  // The workflow's own step wraps ANY resolve-and-validate-deployment.sh
+  // failure (MAIN or APPROVED_CANDIDATE) with ::error:: + exit 1; the
+  // script itself (checked in the next test) is where the specific
+  // "Refusing to deploy ..." reasons now live.
+  assert.match(yaml, /::error::Deployment authorisation failed for mode[\s\S]*?exit 1/);
+});
+
+test("resolve-and-validate-deployment.sh: a failed validation in either mode fails closed with a clear, specific reason and a non-zero exit", async () => {
+  const script = await readFile(fileURLToPath(new URL("../deploy/ci/resolve-and-validate-deployment.sh", import.meta.url)), "utf8");
+  assert.match(script, /ERROR: refusing to deploy[\s\S]*?NOT reachable from origin\/main[\s\S]*?exit 1/);
+  assert.match(script, /ERROR: refusing to deploy[\s\S]*?not the exact current tip of any origin candidate\/deploy\/\*[\s\S]*?exit 1/);
 });
 
 test("workflow: a verification timeout is explicitly distinguished from a deployment failure in its own error message", async () => {
