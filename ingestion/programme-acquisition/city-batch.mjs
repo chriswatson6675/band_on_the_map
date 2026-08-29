@@ -54,7 +54,7 @@ export async function runCityAcquisition({ sources, fetchDocument, concurrency =
     const details = [];
     for (const link of links) { try { details.push(await fetchBounded(link.url, "EVENT_DETAIL_FETCH")); } catch (error) { details.push({ requested_url: link.url, error: String(error), network_stage: error.stage }); } }
     const outcome = collectAndProve({ source_id: source.source_id, venue_name: source.venue, programme, detail_documents: details });
-    return { ...base, programme_url: programme.url, programme_discovery: discovery, fingerprint: outcome.fingerprint, candidate_routes: outcome.routes, routes_attempted: outcome.selected ? [outcome.selected] : [], collector: outcome.selected?.mechanism ?? null, state: outcome.state, residue: outcome.residue, retry_provenance, normalized_event_count: outcome.records?.length ?? 0, proven_event_count: outcome.observations.length, observations: outcome.observations, proofs: outcome.proofs, evidence: [...discoveryEvidence, programme, ...details], completed_at: new Date().toISOString() };
+    return { ...base, programme_url: programme.url, programme_discovery: discovery, fingerprint: outcome.fingerprint, candidate_routes: outcome.routes, routes_attempted: outcome.selected ? [outcome.selected] : [], collector: outcome.selected?.mechanism ?? null, collector_provenance: outcome.collector_provenance, state: outcome.state, residue: outcome.residue, retry_provenance, normalized_event_count: outcome.records?.length ?? 0, proven_event_count: outcome.observations.length, observations: outcome.observations, proofs: outcome.proofs, evidence: [...discoveryEvidence, programme, ...details], completed_at: new Date().toISOString() };
   }, { concurrency, perHost });
   return results;
 }

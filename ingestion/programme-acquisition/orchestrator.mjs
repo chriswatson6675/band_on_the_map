@@ -1,6 +1,7 @@
 import { fingerprintProgrammeSurface, routeCollectorCapability } from "../venue-discovery/programme-fingerprint.mjs";
 import { extractProgrammeLinks, extractJsonLdEventLinks, proveJsonLdEvents } from "./discovery.mjs";
 import { proveCanonicalDetailEvents } from "./offline-proof.mjs";
+import { collectEmbeddedStateEvents, discoverEmbeddedStateDetailLinks } from "../embedded-state/collector.mjs";
 
 const RESIDUE_BY_MECHANISM = {
   ACCESS_BLOCKED: "ACCESS_BLOCKED",
@@ -37,12 +38,16 @@ export function collectAndProve({ source_id, venue_name, programme, detail_docum
   const routing = routeProgrammeSource(programme);
   if (!routing.selected || routing.residue_state) return { ...routing, state: routing.residue_state ?? "SOURCE_FINGERPRINT_UNSUPPORTED", observations: [], proofs: [], residue: true };
   const documents = [programme, ...detail_documents].filter((document) => typeof document?.body === "string");
-  const jsonLd = proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
+  const embedded = /^EMBEDDED_|OTHER_EMBEDDED_APP_STATE$/.test(routing.selected.mechanism)
+    ? collectEmbeddedStateEvents(programme, { sourceId: source_id, venueName: venue_name, cutoffDate: programme.at?.slice(0, 10) })
+    : null;
+  const jsonLd = embedded ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
   const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10) });
   const proofIds = new Set(proofs.map((proof) => proof.source_record_id));
-  const observations = jsonLd.observations.filter((observation) => proofIds.has(observation.source_record_id));
+  const provenRecordIds = new Set(jsonLd.records.filter((record) => proofIds.has(record.source_record_id) || proofs.some((proof) => proof.event_url === record.event_url)).map((record) => record.source_record_id));
+  const observations = jsonLd.observations.filter((observation) => provenRecordIds.has(observation.source_record_id));
   const state = observations.length ? "ACQUISITION_PROVEN" : jsonLd.records.length ? "STABLE_IDENTITY_PROOF_FAILED" : "SUPPORTED_COLLECTOR_NO_VALID_EVENTS";
-  return { ...routing, state, observations, records: jsonLd.records, proofs, residue: state !== "ACQUISITION_PROVEN" };
+  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
 }
 
 /** Derive bounded generic detail candidates from a retained programme document. */
@@ -50,5 +55,6 @@ export function discoverDetailCandidates(programme, { limit = 40 } = {}) {
   return uniqueLinks(
     extractProgrammeLinks(programme.body, { baseUrl: programme.url, limit }),
     extractJsonLdEventLinks(programme.body, { baseUrl: programme.url, limit }),
+    discoverEmbeddedStateDetailLinks(programme, { limit }),
   ).slice(0, limit);
 }

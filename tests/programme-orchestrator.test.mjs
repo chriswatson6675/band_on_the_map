@@ -31,3 +31,13 @@ test("structured records without detail proof fail closed", () => {
   const result = collectAndProve({ source_id: "arbitrary", venue_name: "Arbitrary", programme: PROGRAMME });
   assert.equal(result.state, "STABLE_IDENTITY_PROOF_FAILED");
 });
+
+test("embedded event state is routed through the generic collector but still requires detail proof", () => {
+  const programme = { url: "https://arbitrary.example/programme", at: "2026-08-29T00:00:00.000Z", status: 200, body: '<script id="__NEXT_DATA__" type="application/json">{"events":[{"id":"a","name":"A","startDate":"2026-09-01","url":"/events/a"},{"id":"b","name":"B","startDate":"2026-09-02","url":"/events/b"}]}</script>' };
+  const result = collectAndProve({ source_id: "arbitrary", venue_name: "Arbitrary", programme });
+  assert.equal(result.selected.mechanism, "EMBEDDED_NEXT_DATA");
+  assert.equal(result.state, "STABLE_IDENTITY_PROOF_FAILED");
+  assert.equal(result.records.length, 2);
+  assert.equal(result.collector_provenance.event_like_record_count, 2);
+  assert.deepEqual(discoverDetailCandidates(programme).map((link) => link.url), ["https://arbitrary.example/events/a", "https://arbitrary.example/events/b"]);
+});
