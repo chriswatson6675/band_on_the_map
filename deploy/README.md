@@ -274,6 +274,55 @@ this package's own final report):
 10. Restore the previous known-good `MAIN` deployment if required (via
     `deploy-beatmapped-collector.yml` in `MAIN` mode, unchanged).
 
+### Production installer bootstrap (`PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED`)
+
+A bounded candidate trial installs its candidate through the production
+host's **already-deployed** `deploy/install.sh`, using that script's
+`--skip-publication-restart` option. There is therefore a real version
+boundary: the host can only honour that option once a deployment has
+actually put a version of `install.sh` that supports it onto the host.
+
+Because the host's checkout only moves during a deployment, a host whose
+last deployment predates
+`BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01` still runs an older
+installer that rejects the flag outright. **This is exactly what happened
+on the first live trial** (GitHub Actions run `33266172218`): the deploy
+step failed with `Unknown argument: --skip-publication-restart`. Nothing
+was mutated on the host, but the failure surfaced mid-deploy rather than
+up front.
+
+The trial workflow now performs a **read-only preflight** before any
+mutation, and stops with `PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED` if the
+host's installer does not support the option. When you see that:
+
+1. Stop — do not re-run the bounded candidate trial yet; it will keep
+   failing the same way, and re-running changes nothing on the host.
+2. Determine the exact current approved `origin/main` SHA.
+3. GitHub → **Actions** → **Deploy BeatMapped Collector** → **Run workflow**,
+   with:
+   - **mode** = `MAIN`
+   - **post_deploy_action** = `NORMAL_PUBLICATION`
+   - **ref** = that exact current approved `main` SHA
+4. Let that normal deployment complete successfully. It updates the host
+   checkout — and therefore the host's own `deploy/install.sh` — to the
+   current supported version.
+5. **Expect publication to run.** This is an ordinary `MAIN` deployment,
+   so it performs the normal acquisition/publication lifecycle, including
+   restarting `botm-publication.service`. That is correct and expected
+   here.
+6. Verify production is healthy (the run's own summary reports the fresh
+   `generated_at` and listing counts).
+7. Re-run **Run BeatMapped City Worker Trial** with the exact authorised
+   candidate SHA. The preflight will now pass.
+
+**Keep these two things separate when reporting.** The bootstrap step
+above is a *normal `MAIN` deployment* and legitimately publishes. The
+candidate trial that follows it remains entirely publication-free: it
+never triggers `botm-unattended.service`, never runs publication
+verification, and never restarts `botm-publication.service`. "The
+candidate trial triggered no publication" stays true regardless of the
+bootstrap deployment that preceded it.
+
 ## Requirements
 
 - **Node.js ≥ 20.9.0** (from `next`'s own `package.json` `engines` field —

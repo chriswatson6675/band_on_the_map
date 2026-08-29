@@ -38,6 +38,29 @@ name: Run BeatMapped City Worker Trial
 # workflow_dispatch ONLY. Shares the SAME concurrency group as
 # deploy-beatmapped-collector.yml so a real MAIN deployment and this
 # bounded trial can never run against the same host at once.
+#
+# BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01: the first live
+# run (33266172218) failed closed before any production mutation and
+# exposed two control defects, both corrected here:
+#
+#   A. STALE HOST INSTALLER. The deploy step died with "Unknown argument:
+#      --skip-publication-restart" because the host's ON-DISK install.sh
+#      predated that flag (no ordinary MAIN deployment had happened since
+#      it reached main). A read-only preflight now detects that version
+#      boundary BEFORE any mutation and reports
+#      PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED, naming the sanctioned
+#      recovery (one normal MAIN deployment) instead of failing mid-deploy.
+#
+#   B. CLEANUP CRASH ON MISSING BASELINE. Because the deploy failed before
+#      the baseline step, the always-run cleanup received empty baseline
+#      values; ssh does not preserve empty positional arguments (it joins
+#      remote argv with spaces and the remote shell re-parses), so `set -u`
+#      aborted at "$1" BEFORE any stop/disable ran. Cleanup now uses
+#      non-empty sentinels plus ${N:-...} defaults, and reports two
+#      SEPARATE verdicts -- CITY_WORKER_CLEANUP_CONFIRMED (always
+#      answerable) and BASELINE_RECONCILIATION (CONFIRMED / NOT_AVAILABLE
+#      / FAILED) -- so a missing baseline is reported honestly rather than
+#      crashing or being mistaken for "verified unchanged".
 
 on:
   workflow_dispatch:
@@ -180,6 +203,65 @@ jobs:
           printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      # BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01: run
+      # 33266172218 died at the deploy step with "Unknown argument:
+      # --skip-publication-restart" -- the host's ON-DISK installer predated
+      # the flag, because no ordinary MAIN deployment had happened since
+      # that flag reached main. The flag is correct in main; the host copy
+      # was simply stale. This READ-ONLY preflight surfaces that version
+      # boundary BEFORE any mutation is attempted, and names the exact
+      # sanctioned recovery, instead of failing mid-deploy with a raw
+      # argument error. It reads two things and changes nothing: whether
+      # the installer file exists, and whether it contains the flag's own
+      # `case` arm.
+      - name: Preflight the production host's installed deploy/install.sh for DEPLOY_ONLY support (READ-ONLY -- no checkout, no service change, no publication)
+        id: installer_preflight
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT' | tee /tmp/installer-preflight.txt
+            set -uo pipefail
+            APP_DIR="${1:-/opt/band-on-the-map}"
+            INSTALLER="${APP_DIR}/deploy/install.sh"
+
+            if [ ! -f "$INSTALLER" ]; then
+              echo "INSTALLER_PRESENT=false"
+              echo "INSTALLER_SUPPORTS_DEPLOY_ONLY=false"
+              exit 0
+            fi
+            echo "INSTALLER_PRESENT=true"
+
+            # The flag is only genuinely honoured if the installer's own
+            # argument-parsing `case` has an arm for it -- matching the
+            # bare option string would also match its doc comments, which
+            # a stale installer could plausibly carry without the arm.
+            if grep -q -- '--skip-publication-restart)' "$INSTALLER"; then
+              echo "INSTALLER_SUPPORTS_DEPLOY_ONLY=true"
+            else
+              echo "INSTALLER_SUPPORTS_DEPLOY_ONLY=false"
+            fi
+
+            echo "HOST_CHECKOUT_SHA=$(sudo -u botm git -C "$APP_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+          REMOTE_SCRIPT
+
+          SUPPORTED="$(grep '^INSTALLER_SUPPORTS_DEPLOY_ONLY=' /tmp/installer-preflight.txt | cut -d= -f2- || true)"
+          PRESENT="$(grep '^INSTALLER_PRESENT=' /tmp/installer-preflight.txt | cut -d= -f2- || true)"
+          HOST_SHA="$(grep '^HOST_CHECKOUT_SHA=' /tmp/installer-preflight.txt | cut -d= -f2- || true)"
+          echo "| Host checkout SHA (pre-trial) | \`${HOST_SHA:-unknown}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$SUPPORTED" != "true" ]; then
+            echo "::error::PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED -- the production host's ${BEATMAPPED_APP_DIR}/deploy/install.sh (present=${PRESENT:-unknown}, host checkout ${HOST_SHA:-unknown}) does not support --skip-publication-restart, so a DEPLOY_ONLY candidate install cannot be performed safely. Nothing was changed on the host. SANCTIONED RECOVERY: manually dispatch 'Deploy BeatMapped Collector' with mode=MAIN, post_deploy_action=NORMAL_PUBLICATION and ref=<the exact current approved origin/main SHA>. That one normal deployment updates the host checkout (and therefore its install.sh); it performs the NORMAL acquisition/publication lifecycle, which is expected and is separate from this candidate trial. Once it succeeds and production is healthy, re-run this bounded trial. See deploy/README.md, 'Production installer bootstrap'."
+            {
+              echo "| Installer preflight | ❌ PRODUCTION_INSTALLER_BOOTSTRAP_REQUIRED |"
+              echo "| Recovery | Dispatch **Deploy BeatMapped Collector** (mode \`MAIN\`, post_deploy_action \`NORMAL_PUBLICATION\`) for the current approved main SHA, then re-run this trial. |"
+              echo "| Host mutated by this run | ❌ NO -- preflight is read-only and ran before any deployment step |"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "| Installer preflight | ✅ host installer supports DEPLOY_ONLY |" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Deploy the exact candidate via the sanctioned DEPLOY_ONLY path (never triggers acquisition/publication, never restarts botm-publication.service)
         run: |
           set -euo pipefail
@@ -212,10 +294,17 @@ jobs:
             echo "BASELINE_UNATTENDED_TIMER_ACTIVE=$(systemctl is-active botm-unattended.timer 2>/dev/null || echo unknown)"
             echo "BASELINE_PUBLICATION_ACTIVE=$(systemctl is-active botm-publication.service 2>/dev/null || echo unknown)"
           REMOTE_SCRIPT
+          # BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01:
+          # `baseline_captured` is written LAST and only on this step's
+          # success path, so cleanup can distinguish "existing-service
+          # state was genuinely observed before the trial" from "this step
+          # never ran" -- rather than inferring it from whether the other
+          # outputs happen to look empty.
           {
             echo "baseline_timer_enabled=$(grep '^BASELINE_UNATTENDED_TIMER_ENABLED=' /tmp/baseline-output.txt | cut -d= -f2-)"
             echo "baseline_timer_active=$(grep '^BASELINE_UNATTENDED_TIMER_ACTIVE=' /tmp/baseline-output.txt | cut -d= -f2-)"
             echo "baseline_publication_active=$(grep '^BASELINE_PUBLICATION_ACTIVE=' /tmp/baseline-output.txt | cut -d= -f2-)"
+            echo "baseline_captured=true"
           } >> "$GITHUB_OUTPUT"
           echo "| Deployed SHA verified | ✅ PASS |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Pre-trial baseline (unattended timer / publication) | $(grep '^BASELINE_UNATTENDED_TIMER_ENABLED=\|^BASELINE_UNATTENDED_TIMER_ACTIVE=\|^BASELINE_PUBLICATION_ACTIVE=' /tmp/baseline-output.txt | cut -d= -f2- | tr '\n' ' ') |" >> "$GITHUB_STEP_SUMMARY"
@@ -369,65 +458,177 @@ jobs:
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
           '
 
-      - name: Stop and disable the city-worker service, verify final state, and confirm existing services were not disturbed
+      # BEATMAPPED-CITY-WORKER-LIVE-TRIAL-BLOCKER-CORRECTION-01: this step
+      # must survive ANY amount of preceding failure -- run 33266172218
+      # proved it did not. Two independent corrections:
+      #
+      #   1. NO EMPTY POSITIONAL ARGUMENTS. ssh joins the remote argv with
+      #      spaces and the REMOTE shell re-parses the result, so an
+      #      empty-string argument vanishes in transit and silently shifts
+      #      every later positional. With the baseline step skipped, the
+      #      old `bash -s -- "" "" ""` arrived as bare `bash -s --`, and
+      #      `set -u` aborted at `$1` BEFORE a single systemctl command
+      #      ran. Every value is now defaulted to a non-empty sentinel
+      #      before it reaches ssh, AND the remote script uses ${N:-...}
+      #      so `set -u` can never abort cleanup even if one went missing.
+      #
+      #   2. TWO SEPARATE VERDICTS, never conflated. The city-worker's own
+      #      stop/disable outcome is judged on OBSERVED final state and is
+      #      always answerable. Existing-service reconciliation is only
+      #      answerable when a pre-trial baseline actually exists -- with
+      #      no baseline it reports NOT_AVAILABLE, which is honest, rather
+      #      than either crashing or silently implying "unchanged".
+      - name: Stop and disable the city-worker service, verify final state, and (only where a baseline exists) reconcile existing-service state
         if: always()
         run: |
           set -euo pipefail
+          # Defaulted here, on the runner, where "the step was skipped" is
+          # still distinguishable -- never sent to ssh as an empty string.
+          BASELINE_CAPTURED="${{ steps.baseline.outputs.baseline_captured }}"
+          BASELINE_CAPTURED="${BASELINE_CAPTURED:-false}"
+          BASELINE_TIMER_ENABLED="${{ steps.baseline.outputs.baseline_timer_enabled }}"
+          BASELINE_TIMER_ENABLED="${BASELINE_TIMER_ENABLED:-NOT_CAPTURED}"
+          BASELINE_TIMER_ACTIVE="${{ steps.baseline.outputs.baseline_timer_active }}"
+          BASELINE_TIMER_ACTIVE="${BASELINE_TIMER_ACTIVE:-NOT_CAPTURED}"
+          BASELINE_PUBLICATION_ACTIVE="${{ steps.baseline.outputs.baseline_publication_active }}"
+          BASELINE_PUBLICATION_ACTIVE="${BASELINE_PUBLICATION_ACTIVE:-NOT_CAPTURED}"
+
+          set +e
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
             -i "$HOME/.ssh/deploy_key" \
             "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
-            bash -s -- "${{ steps.baseline.outputs.baseline_timer_enabled }}" "${{ steps.baseline.outputs.baseline_timer_active }}" "${{ steps.baseline.outputs.baseline_publication_active }}" <<'REMOTE_SCRIPT' | tee /tmp/cleanup-output.txt
-            set -euo pipefail
-            BASELINE_TIMER_ENABLED="$1"
-            BASELINE_TIMER_ACTIVE="$2"
-            BASELINE_PUBLICATION_ACTIVE="$3"
+            bash -s -- "$BASELINE_CAPTURED" "$BASELINE_TIMER_ENABLED" "$BASELINE_TIMER_ACTIVE" "$BASELINE_PUBLICATION_ACTIVE" <<'REMOTE_SCRIPT' | tee /tmp/cleanup-output.txt
+            # Deliberately NOT `set -e`: cleanup must always run to
+            # completion and report its own verdict, never abort halfway
+            # and leave the worker's real state unknown.
+            set -uo pipefail
+            BASELINE_CAPTURED="${1:-false}"
+            BASELINE_TIMER_ENABLED="${2:-NOT_CAPTURED}"
+            BASELINE_TIMER_ACTIVE="${3:-NOT_CAPTURED}"
+            BASELINE_PUBLICATION_ACTIVE="${4:-NOT_CAPTURED}"
 
-            sudo systemctl stop beatmapped-city-worker.service || true
-            sudo systemctl disable beatmapped-city-worker.service || true
-            sudo systemctl daemon-reload
+            UNIT="beatmapped-city-worker.service"
 
-            FINAL_ACTIVE="$(systemctl is-active beatmapped-city-worker.service 2>/dev/null || echo inactive)"
-            FINAL_ENABLED="$(systemctl is-enabled beatmapped-city-worker.service 2>/dev/null || echo disabled)"
+            if [ -f "/etc/systemd/system/${UNIT}" ]; then
+              echo "CITY_WORKER_UNIT_PRESENT=true"
+            else
+              echo "CITY_WORKER_UNIT_PRESENT=false"
+            fi
+
+            # Always ATTEMPTED, never conditional on how far the trial got
+            # -- on a host where the unit was never installed these are
+            # simply harmless no-ops.
+            sudo systemctl stop "$UNIT" >/dev/null 2>&1 || true
+            sudo systemctl disable "$UNIT" >/dev/null 2>&1 || true
+            sudo systemctl daemon-reload >/dev/null 2>&1 || true
+
+            # `systemctl is-active` on an absent/unknown unit both PRINTS a
+            # state and exits non-zero, so a naive `|| echo inactive` would
+            # emit TWO lines and corrupt the comparison below. Take the
+            # first line and fall back only on genuinely empty output.
+            FINAL_ACTIVE="$(systemctl is-active "$UNIT" 2>/dev/null | head -n1 || true)"
+            [ -n "$FINAL_ACTIVE" ] || FINAL_ACTIVE="inactive"
+            FINAL_ENABLED="$(systemctl is-enabled "$UNIT" 2>/dev/null | head -n1 || true)"
+            [ -n "$FINAL_ENABLED" ] || FINAL_ENABLED="disabled"
             echo "FINAL_ACTIVE=$FINAL_ACTIVE"
             echo "FINAL_ENABLED=$FINAL_ENABLED"
-            CLEANUP_OK=1
-            if [ "$FINAL_ACTIVE" = "active" ]; then
-              echo "ERROR: beatmapped-city-worker.service is still active after stop." >&2
-              CLEANUP_OK=0
-            fi
+
+            # Judged on OBSERVED final state, never on whether this run
+            # happened to install the unit: "not found" is a legitimately
+            # clean terminal state (nothing is running), while "still
+            # active"/"still enabled" is a real failure either way.
+            CITY_WORKER_CLEANUP_CONFIRMED=true
+            case "$FINAL_ACTIVE" in
+              active|activating|reloading)
+                echo "ERROR: ${UNIT} is still ${FINAL_ACTIVE} after stop." >&2
+                CITY_WORKER_CLEANUP_CONFIRMED=false
+                ;;
+            esac
             if [ "$FINAL_ENABLED" = "enabled" ]; then
-              echo "ERROR: beatmapped-city-worker.service is still enabled after disable." >&2
-              CLEANUP_OK=0
+              echo "ERROR: ${UNIT} is still enabled after disable." >&2
+              CITY_WORKER_CLEANUP_CONFIRMED=false
             fi
+            echo "CITY_WORKER_CLEANUP_CONFIRMED=$CITY_WORKER_CLEANUP_CONFIRMED"
 
-            NOW_TIMER_ENABLED="$(systemctl is-enabled botm-unattended.timer 2>/dev/null || echo unknown)"
-            NOW_TIMER_ACTIVE="$(systemctl is-active botm-unattended.timer 2>/dev/null || echo unknown)"
-            NOW_PUBLICATION_ACTIVE="$(systemctl is-active botm-publication.service 2>/dev/null || echo unknown)"
-            echo "NOW_TIMER_ENABLED=$NOW_TIMER_ENABLED"
-            echo "NOW_TIMER_ACTIVE=$NOW_TIMER_ACTIVE"
-            echo "NOW_PUBLICATION_ACTIVE=$NOW_PUBLICATION_ACTIVE"
-            if [ "$NOW_TIMER_ENABLED" != "$BASELINE_TIMER_ENABLED" ] || [ "$NOW_TIMER_ACTIVE" != "$BASELINE_TIMER_ACTIVE" ]; then
-              echo "ERROR: botm-unattended.timer state changed during the trial (baseline: enabled=$BASELINE_TIMER_ENABLED active=$BASELINE_TIMER_ACTIVE; now: enabled=$NOW_TIMER_ENABLED active=$NOW_TIMER_ACTIVE)." >&2
-              CLEANUP_OK=0
-            fi
-            if [ "$NOW_PUBLICATION_ACTIVE" != "$BASELINE_PUBLICATION_ACTIVE" ]; then
-              echo "ERROR: botm-publication.service active-state changed during the trial (baseline: $BASELINE_PUBLICATION_ACTIVE; now: $NOW_PUBLICATION_ACTIVE)." >&2
-              CLEANUP_OK=0
-            fi
+            if [ "$BASELINE_CAPTURED" != "true" ]; then
+              # The trial failed before it ever observed "before" -- saying
+              # anything about existing-service equality here would be a
+              # claim this run cannot support.
+              echo "EXISTING_SERVICE_BASELINE_NOT_CAPTURED"
+              echo "BASELINE_RECONCILIATION=NOT_AVAILABLE"
+            else
+              NOW_TIMER_ENABLED="$(systemctl is-enabled botm-unattended.timer 2>/dev/null | head -n1 || true)"
+              [ -n "$NOW_TIMER_ENABLED" ] || NOW_TIMER_ENABLED="unknown"
+              NOW_TIMER_ACTIVE="$(systemctl is-active botm-unattended.timer 2>/dev/null | head -n1 || true)"
+              [ -n "$NOW_TIMER_ACTIVE" ] || NOW_TIMER_ACTIVE="unknown"
+              NOW_PUBLICATION_ACTIVE="$(systemctl is-active botm-publication.service 2>/dev/null | head -n1 || true)"
+              [ -n "$NOW_PUBLICATION_ACTIVE" ] || NOW_PUBLICATION_ACTIVE="unknown"
+              echo "NOW_TIMER_ENABLED=$NOW_TIMER_ENABLED"
+              echo "NOW_TIMER_ACTIVE=$NOW_TIMER_ACTIVE"
+              echo "NOW_PUBLICATION_ACTIVE=$NOW_PUBLICATION_ACTIVE"
 
-            if [ "$CLEANUP_OK" -ne 1 ]; then
-              echo "CLEANUP_CONFIRMED=false"
-              exit 1
+              BASELINE_RECONCILIATION=CONFIRMED
+              if [ "$NOW_TIMER_ENABLED" != "$BASELINE_TIMER_ENABLED" ] || [ "$NOW_TIMER_ACTIVE" != "$BASELINE_TIMER_ACTIVE" ]; then
+                echo "ERROR: botm-unattended.timer state changed during the trial (baseline: enabled=$BASELINE_TIMER_ENABLED active=$BASELINE_TIMER_ACTIVE; now: enabled=$NOW_TIMER_ENABLED active=$NOW_TIMER_ACTIVE)." >&2
+                BASELINE_RECONCILIATION=FAILED
+              fi
+              if [ "$NOW_PUBLICATION_ACTIVE" != "$BASELINE_PUBLICATION_ACTIVE" ]; then
+                echo "ERROR: botm-publication.service active-state changed during the trial (baseline: $BASELINE_PUBLICATION_ACTIVE; now: $NOW_PUBLICATION_ACTIVE)." >&2
+                BASELINE_RECONCILIATION=FAILED
+              fi
+              echo "BASELINE_RECONCILIATION=$BASELINE_RECONCILIATION"
             fi
-            echo "CLEANUP_CONFIRMED=true"
           REMOTE_SCRIPT
-          if grep -q '^CLEANUP_CONFIRMED=true' /tmp/cleanup-output.txt; then
-            echo "| Cleanup | ✅ city-worker stopped + disabled; existing services undisturbed |" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "::error::Cleanup could not be fully confirmed -- see the step's own output above. Manual verification required."
-            echo "| Cleanup | ❌ NOT CONFIRMED -- manual verification required |" >> "$GITHUB_STEP_SUMMARY"
-            exit 1
+          SSH_STATUS=$?
+          set -e
+
+          CITY_WORKER_CLEANUP_CONFIRMED="$(grep '^CITY_WORKER_CLEANUP_CONFIRMED=' /tmp/cleanup-output.txt | cut -d= -f2- || true)"
+          BASELINE_RECONCILIATION="$(grep '^BASELINE_RECONCILIATION=' /tmp/cleanup-output.txt | cut -d= -f2- || true)"
+          UNIT_PRESENT="$(grep '^CITY_WORKER_UNIT_PRESENT=' /tmp/cleanup-output.txt | cut -d= -f2- || true)"
+          FINAL_ACTIVE="$(grep '^FINAL_ACTIVE=' /tmp/cleanup-output.txt | cut -d= -f2- || true)"
+          FINAL_ENABLED="$(grep '^FINAL_ENABLED=' /tmp/cleanup-output.txt | cut -d= -f2- || true)"
+
+          {
+            echo "| City-worker unit present on host | ${UNIT_PRESENT:-unknown} |"
+            echo "| City-worker final active state | ${FINAL_ACTIVE:-unknown} |"
+            echo "| City-worker final enabled state | ${FINAL_ENABLED:-unknown} |"
+            echo "| City-worker cleanup | ${CITY_WORKER_CLEANUP_CONFIRMED:-unknown} |"
+            echo "| Existing-service baseline reconciliation | ${BASELINE_RECONCILIATION:-unknown} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          FAILED=0
+          # An unreachable host (or a cleanup that produced no verdict at
+          # all) is itself an unconfirmed cleanup -- never silently passed.
+          if [ -z "$CITY_WORKER_CLEANUP_CONFIRMED" ]; then
+            echo "::error::Cleanup produced no verdict (ssh exit ${SSH_STATUS}) -- the city-worker's state on the host could not be confirmed. Manual verification required."
+            FAILED=1
+          elif [ "$CITY_WORKER_CLEANUP_CONFIRMED" != "true" ]; then
+            echo "::error::CITY_WORKER_CLEANUP_CONFIRMED=false -- beatmapped-city-worker.service could not be confirmed stopped AND disabled. Manual verification required."
+            FAILED=1
           fi
+
+          case "${BASELINE_RECONCILIATION:-}" in
+            CONFIRMED)
+              echo "Existing-service state matches the pre-trial baseline."
+              ;;
+            NOT_AVAILABLE)
+              # Explicitly NOT a cleanup failure: the trial stopped before
+              # it could record a baseline, so this run simply cannot speak
+              # to existing-service equality. The underlying failure that
+              # got us here fails the job on its own.
+              echo "::notice::EXISTING_SERVICE_BASELINE_NOT_CAPTURED -- this run failed before the pre-trial baseline step, so existing-service equality was NOT independently verified. This is reported as unavailable, not as verified-unchanged."
+              ;;
+            FAILED)
+              echo "::error::BASELINE_RECONCILIATION=FAILED -- an existing production service's state differs from the pre-trial baseline. Manual verification required."
+              FAILED=1
+              ;;
+            *)
+              echo "::error::Existing-service reconciliation produced no verdict (ssh exit ${SSH_STATUS}). Manual verification required."
+              FAILED=1
+              ;;
+          esac
+
+          [ "$FAILED" -eq 0 ] || exit 1
 
       - name: Clean up local SSH material
         if: always()
