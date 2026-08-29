@@ -45,13 +45,25 @@ export function collectAndProve({ source_id, venue_name, programme, detail_docum
   const staticCards = routing.selected.mechanism === "STATIC_HTML_CARDS"
     ? collectStaticCardEvents(programme, { sourceId: source_id, venueName: venue_name, cutoffDate: programme.at?.slice(0, 10) })
     : null;
-  const jsonLd = embedded ?? staticCards ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
+  // BEATMAPPED-STATIC-CARD-EMPTY-FALLBACK-CORRECTION-01: "the collector
+  // RAN" and "the collector produced usable records" are different facts.
+  // collectStaticCardEvents() always returns a result object -- even when
+  // it accepted nothing -- so coalescing on the object itself made an
+  // EMPTY static-card result authoritative and left the pre-existing
+  // deterministic detail-document/JSON-LD path unreachable for every
+  // STATIC_HTML_CARDS surface. That silently regressed sources whose
+  // events are only present on their detail documents (b-flat-berlin:
+  // 59 card candidates inspected, 0 accepted, and no JSON-LD Event nodes
+  // on the programme page at all). Only a static-card result that
+  // actually carries records may win the chain.
+  const usableStaticCards = staticCards?.records.length ? staticCards : null;
+  const jsonLd = embedded ?? usableStaticCards ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
   const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10) });
   const proofIds = new Set(proofs.map((proof) => proof.source_record_id));
   const provenRecordIds = new Set(jsonLd.records.filter((record) => proofIds.has(record.source_record_id) || proofs.some((proof) => proof.event_url === record.event_url)).map((record) => record.source_record_id));
   const observations = jsonLd.observations.filter((observation) => provenRecordIds.has(observation.source_record_id));
   const state = observations.length ? "ACQUISITION_PROVEN" : jsonLd.records.length ? "STABLE_IDENTITY_PROOF_FAILED" : "SUPPORTED_COLLECTOR_NO_VALID_EVENTS";
-  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? staticCards?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
+  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? usableStaticCards?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
 }
 
 /** Derive bounded generic detail candidates from a retained programme document. */
