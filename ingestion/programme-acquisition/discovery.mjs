@@ -45,6 +45,32 @@ export function extractProgrammeLinks(html, { baseUrl, limit = 40 } = {}) {
   return links;
 }
 
+/**
+ * Extract same-origin event detail URLs declared by JSON-LD Event nodes on a
+ * listing page. This complements anchor discovery: a source may publish its
+ * event cards only as structured data, while still exposing a first-party
+ * detail route fit for the ordinary generic detail fetch and offline proof.
+ */
+export function extractJsonLdEventLinks(html, { baseUrl, limit = 40 } = {}) {
+  if (typeof html !== "string" || html.trim() === "") throw new Error("extractJsonLdEventLinks requires non-empty HTML");
+  if (!baseUrl) throw new Error("extractJsonLdEventLinks requires baseUrl");
+  const origin = new URL(baseUrl).origin;
+  const links = [];
+  const seen = new Set();
+  for (const node of extractEventNodes(html)) {
+    const raw = typeof node?.url === "string" ? node.url : node?.url?.url;
+    let url;
+    try { url = new URL(raw, baseUrl); } catch { continue; }
+    if (!/^https?:$/.test(url.protocol) || url.origin !== origin) continue;
+    url.hash = "";
+    if (seen.has(url.href)) continue;
+    seen.add(url.href);
+    links.push({ url: url.href, text: typeof node.name === "string" ? node.name.trim() : "", role: "JSON_LD_EVENT_DETAIL_CANDIDATE" });
+    if (links.length >= limit) break;
+  }
+  return links;
+}
+
 function eventUrl(node, fallbackUrl) {
   const value = typeof node?.url === "string" ? node.url : node?.url?.url;
   if (typeof value === "string" && value.trim()) {

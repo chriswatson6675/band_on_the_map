@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { canonicalUrlFromHtml, proveCanonicalDetailEvents } from "../ingestion/programme-acquisition/offline-proof.mjs";
+import { extractJsonLdEventLinks } from "../ingestion/programme-acquisition/discovery.mjs";
 
 test("proves a retained detail Event only when its canonical link agrees with the document URL", () => {
   const body = '<link rel="canonical" href="/events/good"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Event","name":"Good","startDate":"2026-09-01T20:00:00+01:00","url":"/events/good","@id":"/events/good"}</script>';
@@ -20,4 +21,9 @@ test("rejects a category page that merely links to an Event URL", () => {
 
 test("canonical link extraction resolves a relative href and strips a fragment", () => {
   assert.equal(canonicalUrlFromHtml('<link href="/event#fragment" rel="canonical">', "https://venue.example/a"), "https://venue.example/event");
+});
+
+test("discovers same-origin JSON-LD Event URLs from a listing page without accepting an off-origin URL", () => {
+  const html = '<script type="application/ld+json">[{"@context":"https://schema.org","@type":"Event","name":"First","url":"/events/first"},{"@context":"https://schema.org","@type":"Event","name":"Elsewhere","url":"https://elsewhere.example/events/no"}]</script>';
+  assert.deepEqual(extractJsonLdEventLinks(html, { baseUrl: "https://venue.example/whats-on" }), [{ url: "https://venue.example/events/first", text: "First", role: "JSON_LD_EVENT_DETAIL_CANDIDATE" }]);
 });
