@@ -18,7 +18,7 @@ async function mapBounded(items, worker, { concurrency = 4, perHost = 1 } = {}) 
     }
   }
   await Promise.all(Array.from({ length: concurrency }, take));
-  return results;
+  return results.map((result) => ({ ...result, retry_count: (result.retry_provenance ?? []).filter((attempt) => attempt.attempt > 1).length }));
 }
 
 /** Generic city-neutral bounded acquisition batch. Fetching/evidence retention is injected. */
