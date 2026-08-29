@@ -21,6 +21,12 @@ test("unsupported client-rendered source goes to residue rather than guessing", 
   assert.equal(result.residue_state, "BROWSER_REQUIRED");
 });
 
+test("arbitrary ICS source routes to the existing zero-code ICS capability", () => {
+  const result = routeProgrammeSource({ url: "https://arbitrary.example/calendar.ics", status: 200, content_type: "text/calendar", body: "BEGIN:VCALENDAR\nBEGIN:VEVENT\nEND:VEVENT\nEND:VCALENDAR" });
+  assert.equal(result.selected.mechanism, "ICS_OR_ICAL");
+  assert.equal(result.selected.collector_route, "EXISTING_COLLECTOR_ZERO_CODE");
+});
+
 test("structured records without detail proof fail closed", () => {
   const result = collectAndProve({ source_id: "arbitrary", venue_name: "Arbitrary", programme: PROGRAMME });
   assert.equal(result.state, "STABLE_IDENTITY_PROOF_FAILED");
