@@ -159,6 +159,151 @@ test("6: a read-only preflight precedes the mutation and fails closed on a missi
 });
 
 // ---------------------------------------------------------------------------
+// BEATMAPPED-CANCEL-CAPABILITY-PROBE-CORRECTION-01 — the capability probe,
+// executed rather than merely grepped.
+//
+// The original probe was structurally correct and behaviourally broken: it
+// piped the deployed CLI straight into `grep -q` while the remote script had
+// `set -o pipefail`. The CLI deliberately prints its command list and exits 1
+// when invoked with no command, so the pipeline inherited that 1 even when
+// grep had matched, and the workflow reported CANCEL_CAPABILITY_NOT_DEPLOYED
+// on every host. It was caught only in production (run 33327365097), against
+// a checkout that demonstrably contained cancel-job.
+//
+// The tests above could not have caught it: they assert what the YAML SAYS.
+// These run the real extracted shell, with `sudo` replaced by a shell
+// function so the probed command's output and exit status can be varied
+// independently — the exact axis the defect lived on.
+// ---------------------------------------------------------------------------
+
+/** The heredoc actually shipped to production, dedented, with the run-step wrapper removed. */
+function extractRemoteScript(yaml, namePrefix) {
+  const lines = extractStepBody(yaml, namePrefix).split("\n");
+  const start = lines.findIndex((line) => line.includes("<<'REMOTE_SCRIPT'"));
+  assert.ok(start >= 0, `expected a REMOTE_SCRIPT heredoc in the "${namePrefix}" step`);
+  const end = lines.findIndex((line, index) => index > start && line.trim() === "REMOTE_SCRIPT");
+  assert.ok(end > start, "expected the REMOTE_SCRIPT heredoc to be terminated");
+  const body = lines.slice(start + 1, end);
+  const indent = Math.min(...body.filter((line) => line.trim()).map((line) => line.match(/^ */)[0].length));
+  return body.map((line) => line.slice(indent)).join("\n");
+}
+
+/**
+ * Runs the real remote preflight script with `sudo` stubbed, so the probed
+ * CLI's OUTPUT and EXIT STATUS can be set independently. Nothing here touches
+ * a network, a host, or systemd.
+ */
+async function runPreflightRemoteScript({
+  usageOutput = "Unknown command: (none)\nAvailable: enqueue-city, city-jobs-status, cancel-job, run-worker, health",
+  usageExit = 1,
+  shaExit = 0,
+} = {}) {
+  const remote = extractRemoteScript(await readWorkflow(), "Preflight the job");
+  const script = [
+    // Stand in for `sudo -u botm <command>` without needing an executable on
+    // PATH: a shell function takes precedence over any real sudo.
+    "sudo() {",
+    '  while [ "${1:-}" = "-u" ]; do shift 2; done',
+    '  case "$*" in',
+    '    *rev-parse*) [ "$STUB_SHA_EXIT" -eq 0 ] || return "$STUB_SHA_EXIT"; printf \'%s\\n\' "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"; return 0 ;;',
+    "    *city-jobs-status*) printf '%s\\n' '{\"jobs\":[]}'; return 0 ;;",
+    '    *cli.mjs*) [ -n "$STUB_USAGE_OUTPUT" ] && printf \'%s\\n\' "$STUB_USAGE_OUTPUT"; return "$STUB_USAGE_EXIT" ;;',
+    "  esac",
+    "  return 0",
+    "}",
+    remote,
+  ].join("\n");
+
+  return new Promise((resolvePromise) => {
+    const child = spawn("bash", ["-s", "--", "/opt/band-on-the-map", "a3352663-ba07-44cc-b221-92ab1bd3adaa"], {
+      env: {
+        ...process.env,
+        STUB_USAGE_OUTPUT: usageOutput,
+        STUB_USAGE_EXIT: String(usageExit),
+        STUB_SHA_EXIT: String(shaExit),
+      },
+    });
+    let stdout = "";
+    child.stdout.on("data", (chunk) => (stdout += chunk));
+    child.stderr.on("data", () => {});
+    child.on("close", (code) => resolvePromise({ status: code, stdout }));
+    child.stdin.write(script);
+    child.stdin.end();
+  });
+}
+
+const capabilityOf = (stdout) => stdout.match(/^CANCEL_CAPABILITY_AVAILABLE=(\S+)$/m)?.[1];
+
+// The stub above is only honest if the REAL CLI still behaves this way. If a
+// future change makes `cli.mjs` with no command exit 0, or stop listing its
+// commands, this test fails and the probe must be revisited.
+test("probe: the real CLI genuinely prints its command list AND exits non-zero when given no command", async () => {
+  const cli = fileURLToPath(new URL("../ingestion/city-worker/cli.mjs", import.meta.url));
+  const result = await new Promise((resolvePromise) => {
+    const child = spawn(process.execPath, [cli]);
+    let out = "";
+    child.stdout.on("data", (chunk) => (out += chunk));
+    child.stderr.on("data", (chunk) => (out += chunk));
+    child.on("close", (code) => resolvePromise({ code, out }));
+  });
+  assert.match(result.out, /cancel-job/, "the CLI must still advertise cancel-job in its usage output");
+  assert.notEqual(result.code, 0, "the usage banner is expected to exit non-zero — that is exactly why its exit status must not be read as capability evidence");
+});
+
+test("A: usage output CONTAINS cancel-job and the command exits 1 → capability AVAILABLE (the exact live failure)", async () => {
+  const { stdout } = await runPreflightRemoteScript({ usageExit: 1 });
+  assert.equal(
+    capabilityOf(stdout),
+    "true",
+    "a deployed CLI that advertises cancel-job must be recognised even though its usage banner exits 1 — this is the defect proven live in run 33327365097",
+  );
+});
+
+test("B: a genuinely stale host whose CLI lacks cancel-job → capability NOT AVAILABLE (still fails closed)", async () => {
+  const { stdout } = await runPreflightRemoteScript({
+    usageOutput: "Unknown command: (none)\nAvailable: enqueue-city, city-jobs-status, run-worker, health",
+    usageExit: 1,
+  });
+  assert.equal(capabilityOf(stdout), "false");
+});
+
+test("C: usage output contains cancel-job and the command exits 0 → capability AVAILABLE", async () => {
+  const { stdout } = await runPreflightRemoteScript({ usageExit: 0 });
+  assert.equal(capabilityOf(stdout), "true", "the probe must not depend on the exit status in either direction");
+});
+
+test("D: an unrelated failure can create neither a false positive nor a false negative", async () => {
+  // No CLI at all on the host: nothing is printed and the command fails hard.
+  const missing = await runPreflightRemoteScript({ usageOutput: "", usageExit: 127 });
+  assert.equal(capabilityOf(missing.stdout), "false", "an absent CLI must never be reported as capable");
+
+  // The CLI errors out with a message that does not advertise the command.
+  const broken = await runPreflightRemoteScript({
+    usageOutput: "node:internal/modules/run_main: Cannot find module 'ingestion/city-worker/cli.mjs'",
+    usageExit: 1,
+  });
+  assert.equal(capabilityOf(broken.stdout), "false");
+
+  // A failure in a DIFFERENT probe line (the deployed-SHA read) must not
+  // disturb the capability verdict either way.
+  const shaFailed = await runPreflightRemoteScript({ usageExit: 1, shaExit: 3 });
+  assert.equal(capabilityOf(shaFailed.stdout), "true", "an unrelated command failure must not mask a capability that is really present");
+  assert.match(shaFailed.stdout, /^DEPLOYED_SHA=unknown$/m, "and the unreadable SHA must be reported honestly as unknown");
+});
+
+test("the probe must never again read a usage banner's exit status as capability evidence", async () => {
+  const preflight = extractStepBody(await readWorkflow(), "Preflight the job");
+  assert.doesNotMatch(
+    preflight,
+    /node ingestion\/city-worker\/cli\.mjs"?\s*(2>&1)?\s*\|\s*grep/,
+    "piping the CLI directly into grep re-introduces the pipefail defect — capture the output, then match the capture",
+  );
+  assert.match(preflight, /CLI_COMMANDS="\$\(/, "the probe must capture the CLI output into a variable first");
+  // The rest of the remote script must keep its strict options.
+  assert.match(extractRemoteScript(await readWorkflow(), "Preflight the job"), /^set -uo pipefail$/m, "pipefail must not be disabled globally to work around one probe");
+});
+
+// ---------------------------------------------------------------------------
 // §18 — operator output
 // ---------------------------------------------------------------------------
 
