@@ -1,0 +1,201 @@
+name: Check BeatMapped City Jobs
+
+# BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01
+#
+# The sanctioned READ-ONLY way to inspect production city jobs without
+# SSH. No operator ever receives, handles, or is prompted for an SSH
+# credential; the protected Environment's secrets are used internally by
+# this Action and are never printed.
+#
+# READ-ONLY BY CONSTRUCTION, not by promise. The only command this
+# workflow runs on the host is
+# `node ingestion/city-worker/cli.mjs city-jobs-status`, whose
+# implementation (ingestion/city-worker/operator-status.mjs) imports ONLY
+# reader functions -- it cannot enqueue, cancel, resume, run, start, stop,
+# enable, or disable anything. This workflow itself contains no
+# `systemctl` verb of any kind and no other CLI command.
+#
+# WHAT IT PRINTS. Per job: job id, country, city/area, governed estate
+# key and frozen estate reference, created/started/completed timestamps,
+# job state, total/completed/successful/residue/failed source counts, last
+# checkpoint, current source, and runner SHA. For a TERMINAL job it adds
+# the residue/failure breakdown. Per-source detail is a fixed ALLOW-LIST
+# projection (see operator-status.mjs) -- never a raw checkpoint spread --
+# so no secret, no environment value, and no fetched page body can reach
+# an operator summary.
+#
+# workflow_dispatch ONLY -- no schedule, no cron, no timer, no dashboard.
+# Because it mutates nothing, this has its OWN concurrency group and is
+# deliberately NOT serialised behind a deployment: an operator must be
+# able to look at job state at any moment, including during a deployment.
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: >-
+          Optional. A single job id (UUID) to inspect. Leave blank to list
+          every city job on the host.
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-beatmapped-city-jobs
+  cancel-in-progress: false
+
+env:
+  BEATMAPPED_APP_DIR: /opt/band-on-the-map
+
+jobs:
+  check:
+    name: Report city-job status (read-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: beatmapped-collector-production
+    env:
+      JOB_ID: ${{ inputs.job_id }}
+    steps:
+      # The only free-text input in this package's operator controls, and
+      # it is constrained to a UUID before it is ever used. A blank value
+      # (list everything) is the normal case.
+      - name: Validate the optional job id is blank or a plain UUID (fail closed before any SSH)
+        id: validate
+        run: |
+          set -euo pipefail
+          TRIMMED="$(printf '%s' "${JOB_ID}" | tr -d '[:space:]')"
+          if [ -n "$TRIMMED" ] && ! printf '%s' "$TRIMMED" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'; then
+            echo "::error::job_id must be blank (list all jobs) or a plain UUID as printed by this repository's own city-worker. Refusing ${TRIMMED}."
+            exit 1
+          fi
+          echo "job_id=${TRIMMED}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure pinned SSH access (StrictHostKeyChecking=yes, never TOFU)
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Read city-job status from the host (READ-ONLY -- the status CLI cannot mutate a job, the queue, or the worker)
+        id: read_status
+        env:
+          VALIDATED_JOB_ID: ${{ steps.validate.outputs.job_id }}
+        run: |
+          set -euo pipefail
+          if [ -n "$VALIDATED_JOB_ID" ]; then
+            STATUS_ARGS="--job-id=${VALIDATED_JOB_ID}"
+          else
+            STATUS_ARGS=""
+          fi
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo -u botm bash -c 'cd ${BEATMAPPED_APP_DIR} && node ingestion/city-worker/cli.mjs city-jobs-status ${STATUS_ARGS}'" \
+            > /tmp/city-jobs-status.json
+          echo "Read $(wc -c < /tmp/city-jobs-status.json) bytes of status JSON."
+
+      - name: Render the operator status summary
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("fs");
+            const report = JSON.parse(fs.readFileSync("/tmp/city-jobs-status.json", "utf8"));
+            // BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01:
+            // under drain-and-exit "no worker process" is the NORMAL
+            // resting state, so worker liveness on its own is not an
+            // operator-meaningful signal. What matters is liveness read
+            // together with whether work is waiting.
+            const EXPLAIN = {
+              WORKING: "a worker holds the lock and is draining the queue; it will exit on its own once nothing is runnable",
+              IDLE_NOTHING_TO_DO: "normal resting state — no worker running and nothing queued. Deployment is allowed in this state.",
+              WORK_NEEDS_WAKE: "⚠️ work is queued/running but no worker is running. Work is durable and safe, but nothing is moving it. Recovery: re-dispatch **Enqueue BeatMapped City Job** for the same estate — no duplicate job is created and the worker is started.",
+            };
+            const state = report.worker.operational_state;
+            const lines = [
+              "### BeatMapped city jobs",
+              "",
+              `Read at \`${report.generated_at}\`.`,
+              "",
+              `**Operational state: \`${state}\`** — ${EXPLAIN[state] ?? "unrecognised state"}`,
+              "",
+              `Worker process alive on host: **${report.worker.worker_alive ? "yes" : "no"}**` +
+                (report.worker.worker_alive ? ` (pid ${report.worker.worker_pid}, since ${report.worker.worker_started_at})` : "") +
+                ` · queued: ${report.worker.queued_job_count} · running: ${report.worker.running_job_count}`,
+              "",
+            ];
+
+            if (!report.jobs.length) {
+              lines.push(report.requested_job_id
+                ? `No job with id \`${report.requested_job_id}\` exists on this host.`
+                : "No city jobs exist on this host yet.");
+            } else {
+              lines.push(
+                "| job_id | country | city | estate key | state | sources (done/total) | ok | residue | failed | current source | last checkpoint | created | started | completed | runner SHA |",
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+              );
+              for (const job of report.jobs) {
+                lines.push([
+                  `\`${job.job_id}\``,
+                  job.country ?? "-",
+                  job.city ?? "-",
+                  job.city_estate_key ? `\`${job.city_estate_key}\`` : "_(pre-catalogue job)_",
+                  `\`${job.state}\``,
+                  `${job.completed_sources}/${job.total_sources}`,
+                  job.successful_sources,
+                  job.residue_sources,
+                  job.failed_sources,
+                  job.current_source_id ?? "-",
+                  job.last_checkpoint ?? "-",
+                  job.created_at ?? "-",
+                  job.started_at ?? "-",
+                  job.completed_at ?? "-",
+                  job.runner_version_sha ? `\`${job.runner_version_sha}\`` : "-",
+                ].join(" | ").replace(/^/, "| ").replace(/$/, " |"));
+              }
+
+              for (const job of report.jobs) {
+                const summary = job.terminal_summary;
+                if (!summary) continue;
+                const rows = [...summary.residue, ...summary.failed];
+                if (!rows.length) continue;
+                lines.push(
+                  "",
+                  `#### Residue / failure summary — \`${job.job_id}\` (${job.state})`,
+                  "",
+                  `Residue by reason: ${Object.entries(summary.residue_by_reason).map(([reason, count]) => `\`${reason}\` × ${count}`).join(", ") || "none"}`,
+                  "",
+                  "| source_id | status | residue reason | source state | collector | normalized | proven | worker attempts | collector retry_count | detail |",
+                  "|---|---|---|---|---|---|---|---|---|---|",
+                );
+                for (const record of rows) {
+                  lines.push([
+                    record.source_id,
+                    `\`${record.status}\``,
+                    record.residue_reason ?? "-",
+                    record.source_state ?? "-",
+                    record.collector ?? "-",
+                    record.normalized_event_count ?? "-",
+                    record.proven_event_count ?? "-",
+                    record.attempts ?? "-",
+                    record.retry_count ?? "-",
+                    record.error ?? "-",
+                  ].join(" | ").replace(/^/, "| ").replace(/$/, " |"));
+                }
+              }
+            }
+
+            lines.push("", "_Read-only: this workflow never enqueues, cancels, resumes, starts, stops, or enables anything._");
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+            console.log(lines.join("\n"));
+          '
+
+      - name: Clean up local SSH material
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts

@@ -1,0 +1,59 @@
+{
+  "_comment": "BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01 — the governed catalogue of city estates an operator is allowed to enqueue. This file is the ENTIRE operator input surface: the enqueue control accepts one `key` from this list and nothing else — no filesystem path, no source id, no free-text city, no registry JSON. Adding a city is a reviewed commit here, never a runtime argument. See docs/UNATTENDED_CITY_WORKER.md, 'Governed city-estate catalogue'.",
+  "_selection_modes": {
+    "ALL_ACTIVE": "The source universe is DERIVED, at enqueue time, from the named canonical registry: every entry whose active_status is exactly ACTIVE, in the registry's own order. The catalogue deliberately does NOT copy those source ids — sources/<city>.json stays the single source of truth (docs/SOURCE_REGISTRY.md), so a registry correction is never silently contradicted by a stale duplicate list here.",
+    "EXPLICIT_ESTATE_FILE": "The source universe is the already-committed, already-reviewed estate file named by `estate_file`. Used only for a deliberately bounded estate that is NOT 'the whole city' and therefore cannot be derived from a registry status filter."
+  },
+  "entries": [
+    {
+      "key": "berlin-proof-5",
+      "country": "DE",
+      "city": "Berlin",
+      "label": "Berlin — bounded 5-source proof estate",
+      "selection": "EXPLICIT_ESTATE_FILE",
+      "estate_file": "fixtures/city-worker/real-estates/berlin-sample-01.json",
+      "note": "The already-proven bounded estate from BEATMAPPED-UNATTENDED-CITY-WORKER-REAL-INTEGRATION-01 and the live DigitalOcean trial. Deliberately NOT the full Berlin estate — this is the smallest real governed job, and is the intended FIRST normal operator acquisition cycle."
+    },
+    {
+      "key": "berlin-all-active",
+      "country": "DE",
+      "city": "Berlin",
+      "label": "Berlin — every ACTIVE registered source",
+      "selection": "ALL_ACTIVE",
+      "registry": "sources/berlin.json"
+    },
+    {
+      "key": "paris-all-active",
+      "country": "FR",
+      "city": "Paris",
+      "label": "Paris — every ACTIVE registered source",
+      "selection": "ALL_ACTIVE",
+      "registry": "sources/paris.json"
+    },
+    {
+      "key": "lisbon-all-active",
+      "country": "PT",
+      "city": "Lisbon",
+      "label": "Lisbon (and travel-relevant surrounding area) — every ACTIVE registered source",
+      "selection": "ALL_ACTIVE",
+      "registry": "sources/lisbon.json"
+    },
+    {
+      "key": "porto-all-active",
+      "country": "PT",
+      "city": "Porto",
+      "label": "Greater Porto — every ACTIVE registered source",
+      "selection": "ALL_ACTIVE",
+      "registry": "sources/porto.json",
+      "note": "sources/porto.json is currently the only registry carrying non-ACTIVE entries (one DORMANT, one UNKNOWN). ALL_ACTIVE excludes both — which is exactly why the selection is a status filter rather than 'every entry in the file'."
+    },
+    {
+      "key": "barcelona-all-active",
+      "country": "ES",
+      "city": "Barcelona",
+      "label": "Barcelona — every ACTIVE registered source",
+      "selection": "ALL_ACTIVE",
+      "registry": "sources/barcelona.json"
+    }
+  ]
+}

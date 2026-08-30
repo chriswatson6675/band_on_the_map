@@ -7,11 +7,35 @@
 //
 // Commands:
 //   enqueue-city <country> <city> <estateRef> [--job-id=ID] [--config=JSON]
+//   enqueue-city-estate <cityEstateKey>
+//   list-city-estates
+//   city-jobs-status [--job-id=ID]
+//   has-runnable-work
 //   list-jobs [--state=STATE]
 //   show-job <jobId>
 //   resume-job <jobId> --resolver=<path> [--concurrency=N]
 //   cancel-job <jobId>
 //   run-worker --resolver=<path> [--concurrency=N]
+//
+// BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01 added the middle
+// three. The distinction between the first two matters:
+//
+//   enqueue-city         the original low-level primitive. Takes a free-
+//                        text country/city and an ARBITRARY estate path.
+//                        Correct for a developer/test invocation; it is
+//                        NOT what a normal operator control may call,
+//                        precisely because every one of its inputs is
+//                        arbitrary.
+//   enqueue-city-estate  the governed operator entry point. Its ONLY
+//                        input is one key from
+//                        ingestion/city-worker/city-estate-catalogue.json;
+//                        country, city, registry and the source universe
+//                        are all derived from already-committed,
+//                        already-reviewed repository data (see
+//                        city-estate-catalogue.mjs). No path, no source
+//                        id, no free-text city can be supplied. This is
+//                        what .github/workflows/enqueue-beatmapped-city-job.yml
+//                        calls.
 //
 // `--resolver=<path>` names an ES module (relative to the current working
 // directory, or absolute) exporting `resolveSourceTasks(job)` — the
@@ -33,6 +57,8 @@ import { randomUUID } from "node:crypto";
 
 import { createCityJob } from "./job.mjs";
 import { saveJob, loadJob, listJobs, CITY_WORKER_ROOT } from "./job-store.mjs";
+import { describeCityEstates, findActiveJobForEstate, materialiseJobEstate, resolveCityEstate } from "./city-estate-catalogue.mjs";
+import { buildOperatorStatusReport, summariseRunnableWork } from "./operator-status.mjs";
 import { enqueueJob } from "./queue.mjs";
 import { runCityJob } from "./runner.mjs";
 import { drainQueueOnce } from "./worker-loop.mjs";
@@ -80,6 +106,119 @@ async function cmdEnqueueCity({ flags, positional }, root) {
   await saveJob(job, { root });
   await enqueueJob(jobId, { root });
   console.log(JSON.stringify({ job_id: jobId, state: job.state }, null, 2));
+}
+
+/** Read-only: which governed city estates exist. No source-level detail — that is resolved from the canonical registry only at enqueue time. */
+async function cmdListCityEstates(_args, root) {
+  console.log(JSON.stringify({ estates: await describeCityEstates({ root }) }, null, 2));
+}
+
+/**
+ * The governed operator enqueue. One argument: a catalogue key.
+ *
+ * ORDER MATTERS and is deliberate:
+ *   1. resolve the key      — an unknown/malformed key throws here, before
+ *                             anything is written; nothing is created and
+ *                             (because this exits non-zero) the caller
+ *                             never proceeds to wake the worker.
+ *   2. duplicate check      — at most one non-terminal job per estate.
+ *                             Reported as a POLICY OUTCOME with a zero
+ *                             exit (no new job created), never as a crash:
+ *                             the caller still wants the worker running so
+ *                             the existing job progresses.
+ *   3. materialise estate   — freeze the resolved source universe into the
+ *                             job's own directory BEFORE the job record
+ *                             exists, so a job record never references a
+ *                             snapshot that was not written.
+ *   4. save + enqueue       — the job is durable before anything is asked
+ *                             to run it.
+ */
+async function cmdEnqueueCityEstate({ positional }, root) {
+  const [key, ...extra] = positional;
+  if (!key) throw new Error("usage: enqueue-city-estate <cityEstateKey>  (see `list-city-estates`)");
+  if (extra.length > 0) {
+    // Refused rather than ignored: extra positionals are how a caller
+    // would try to smuggle an estate path or a source id past the key.
+    throw new Error(`enqueue-city-estate takes exactly one governed catalogue key and nothing else — refusing unexpected argument(s): ${JSON.stringify(extra)}`);
+  }
+
+  const estate = await resolveCityEstate(key, { root });
+
+  const existing = await findActiveJobForEstate(estate.key, { root });
+  if (existing) {
+    console.log(
+      JSON.stringify(
+        {
+          enqueued: false,
+          reason: "DUPLICATE_ACTIVE_CITY_JOB",
+          city_estate_key: estate.key,
+          existing_job_id: existing.job_id,
+          existing_state: existing.state,
+          note: "This governed estate already has a non-terminal job. A new acquisition cycle is only started once that job reaches COMPLETE, COMPLETE_WITH_RESIDUE, FAILED or CANCELLED.",
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
+  const jobId = randomUUID();
+  const createdAt = new Date().toISOString();
+  const estateRef = await materialiseJobEstate({ jobId, estate, materialisedAt: createdAt, root });
+  const runnerVersionSha = await resolveRunnerVersionSha({ root });
+  const job = createCityJob({
+    jobId,
+    country: estate.country,
+    city: estate.city,
+    estateRef,
+    createdAt,
+    runnerVersionSha,
+    // The catalogue key is the durable link back to WHY this job exists,
+    // and is what the duplicate-active-job rule above matches on.
+    configuration: { city_estate_key: estate.key, estate_selection: estate.selection, estate_registry: estate.registry },
+  });
+  await saveJob(job, { root });
+  await enqueueJob(jobId, { root });
+
+  console.log(
+    JSON.stringify(
+      {
+        enqueued: true,
+        job_id: jobId,
+        city_estate_key: estate.key,
+        country: estate.country,
+        city: estate.city,
+        state: job.state,
+        estate_ref: estateRef,
+        registry: estate.registry,
+        source_count: estate.source_ids.length,
+        runner_version_sha: runnerVersionSha,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
+/**
+ * Read-only, single-line-parseable: is there any job a worker would still
+ * pick up? BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01 —
+ * this is what the operator wake's convergence check reads on the host
+ * after each idempotent `systemctl start`, so its output is deliberately
+ * KEY=VALUE lines rather than JSON. Purely a reader; it starts nothing.
+ */
+async function cmdHasRunnableWork(_args, root) {
+  const summary = await summariseRunnableWork({ root });
+  for (const [key, value] of Object.entries(summary)) {
+    console.log(`${key.toUpperCase()}=${value}`);
+  }
+}
+
+/** Read-only operator status. Imports only readers (see operator-status.mjs) — this command cannot change a job, the queue, or the worker. */
+async function cmdCityJobsStatus({ flags }, root) {
+  const report = await buildOperatorStatusReport({ root, jobId: flags["job-id"] ?? null, generatedAt: new Date().toISOString() });
+  console.log(JSON.stringify(report, null, 2));
 }
 
 async function cmdListJobs({ flags }, root) {
@@ -132,6 +271,10 @@ async function cmdHealth(_args, root) {
 
 const COMMANDS = {
   "enqueue-city": cmdEnqueueCity,
+  "enqueue-city-estate": cmdEnqueueCityEstate,
+  "list-city-estates": cmdListCityEstates,
+  "city-jobs-status": cmdCityJobsStatus,
+  "has-runnable-work": cmdHasRunnableWork,
   "list-jobs": cmdListJobs,
   "show-job": cmdShowJob,
   "resume-job": cmdResumeJob,
