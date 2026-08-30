@@ -169,9 +169,22 @@ test("usable static cards remain authoritative — the fallback must not replace
 
 test("provenance identifies the collector that actually produced the records", () => {
   const viaCards = run(extractableCardProgramme(), DETAILS);
+  // BEATMAPPED-STATIC-CARD-TEXT-DATE-ACQUISITION-01 added date-source
+  // provenance to this object (both counters below are unchanged). Asserted
+  // in full, as before — this fixture's cards carry <time datetime>, so all
+  // of them must still be attributed to the machine-readable path and none
+  // to any text or contextual derivation.
   assert.deepEqual(
     viaCards.collector_provenance,
-    { card_candidates_inspected: 2, card_records_accepted: 2 },
+    {
+      card_candidates_inspected: 2,
+      card_records_accepted: 2,
+      month_year_headings_found: 0,
+      numeric_date_order_proven: null,
+      numeric_date_order_evidence: [],
+      cards_rejected_no_resolvable_date: 0,
+      date_sources: { MACHINE_READABLE_DATETIME: 2, COMPLETE_TEXT_DATE: 0, DETERMINISTIC_CONTEXT_YEAR: 0, DETERMINISTIC_CONTEXT_NUMERIC_ORDER: 0 },
+    },
     "a real static-card acquisition keeps its own provenance",
   );
 
