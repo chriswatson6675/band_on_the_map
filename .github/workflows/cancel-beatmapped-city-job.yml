@@ -1,0 +1,214 @@
+name: Cancel BeatMapped City Job
+
+# BEATMAPPED-CITY-JOB-OPERATOR-CANCEL-CONTROL-01
+#
+# The ONE sanctioned way an operator asks production to stop working a city
+# job, entirely through this protected GitHub Environment -- never via
+# routine interactive SSH (prohibited by project policy). No operator ever
+# receives, handles, or is prompted for an SSH credential.
+#
+# COOPERATIVE CANCELLATION ONLY. This control contains NO systemctl verb
+# of any kind: it never stops, kills, restarts, enables or signals
+# beatmapped-city-worker.service, and never touches a PID. It writes one
+# flag to one durable job record, via the existing governed CLI primitive
+# (`cli.mjs cancel-job <uuid>`), and the worker itself honours it:
+#
+#   operator requests cancel
+#     -> job.cancel_requested persisted
+#     -> worker observes it at the next source boundary
+#     -> the source already in flight finishes its own attempt and
+#        checkpoints normally (nothing is ever killed mid-source)
+#     -> no further source starts for that job
+#     -> job becomes CANCELLED, with every checkpoint retained
+#     -> the worker moves on to any OTHER runnable city
+#     -> and exits 0 when the queue is empty
+#
+# So cancelling one city never stops the worker and never disturbs another
+# queued city. A CANCELLED job is terminal and is never auto-resumed; a
+# later explicit enqueue of the same estate is a NEW cycle with a new job
+# id and its own frozen estate snapshot.
+#
+# WHAT AN OPERATOR CAN SAY. Exactly one thing: an existing job id, as a
+# canonical UUID. There is deliberately NO input for a city, an estate key
+# or path, a source id, a shell fragment, a filesystem path, a PID, a
+# systemd unit, or a host.
+#
+# Never deploys, never publishes, never enqueues. workflow_dispatch ONLY.
+# It has its OWN concurrency group deliberately: cancellation is a safety
+# control and must never queue behind a long deployment.
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: >-
+          The job id to cancel, exactly as printed by "Enqueue BeatMapped
+          City Job" or "Check BeatMapped City Jobs". Canonical UUID only.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cancel-beatmapped-city-job
+  cancel-in-progress: false
+
+env:
+  BEATMAPPED_APP_DIR: /opt/band-on-the-map
+
+jobs:
+  cancel:
+    name: Request cooperative cancellation of one city job
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: beatmapped-collector-production
+    env:
+      JOB_ID: ${{ inputs.job_id }}
+    steps:
+      # The only operator input, constrained to a UUID before it is ever
+      # used -- and before any SSH key material is written to disk.
+      - name: Validate the job id is a canonical UUID (fail closed before any SSH)
+        id: validate
+        run: |
+          set -euo pipefail
+          TRIMMED="$(printf '%s' "${JOB_ID}" | tr -d '[:space:]')"
+          if ! printf '%s' "$TRIMMED" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'; then
+            echo "::error::job_id must be a canonical UUID exactly as this repository's own city worker prints it. Refusing $(printf '%s' "$TRIMMED" | head -c 80). No city name, estate key, path, or command is ever accepted here."
+            exit 1
+          fi
+          echo "job_id=${TRIMMED}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Cancel BeatMapped City Job"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Requested job id | \`${TRIMMED}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure pinned SSH access (StrictHostKeyChecking=yes, never TOFU)
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # READ-ONLY, and before any mutation: does this job exist, is its
+      # record readable, and does the deployed CLI actually provide the
+      # cancel primitive? Every "production is not ready for this" case is
+      # therefore reported with nothing changed.
+      - name: Preflight the job (READ-ONLY -- job exists and parses, deployed CLI provides cancel-job)
+        id: preflight
+        env:
+          VALIDATED_JOB_ID: ${{ steps.validate.outputs.job_id }}
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$BEATMAPPED_APP_DIR" "$VALIDATED_JOB_ID" <<'REMOTE_SCRIPT' > /tmp/cancel-preflight.txt
+            set -uo pipefail
+            APP_DIR="${1:-/opt/band-on-the-map}"
+            REQUESTED="${2:-}"
+
+            echo "DEPLOYED_SHA=$(sudo -u botm git -C "$APP_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            # Does the deployed CLI advertise the cancel primitive at all?
+            # Running it with no command prints its own command list and
+            # exits non-zero; that is a read-only capability probe.
+            if sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs" 2>&1 | grep -q 'cancel-job'; then
+              echo "CANCEL_CAPABILITY_AVAILABLE=true"
+            else
+              echo "CANCEL_CAPABILITY_AVAILABLE=false"
+            fi
+
+            echo "---JOB_STATUS---"
+            sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs city-jobs-status --job-id='$REQUESTED'" 2>/dev/null || echo "{}"
+          REMOTE_SCRIPT
+
+          DEPLOYED_SHA="$(grep '^DEPLOYED_SHA=' /tmp/cancel-preflight.txt | cut -d= -f2- || true)"
+          CAPABLE="$(grep '^CANCEL_CAPABILITY_AVAILABLE=' /tmp/cancel-preflight.txt | cut -d= -f2- || true)"
+          echo "| Deployed SHA | \`${DEPLOYED_SHA:-unknown}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$CAPABLE" != "true" ]; then
+            echo "::error::CANCEL_CAPABILITY_NOT_DEPLOYED -- the production checkout (${DEPLOYED_SHA:-unknown}) does not provide 'node ingestion/city-worker/cli.mjs cancel-job'. Nothing was changed. SANCTIONED RECOVERY: dispatch 'Deploy BeatMapped Collector' (mode MAIN) for the current approved main SHA, then re-run this workflow."
+            echo "| Preflight | ❌ CANCEL_CAPABILITY_NOT_DEPLOYED |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          node -e '
+            const fs = require("fs");
+            const raw = fs.readFileSync("/tmp/cancel-preflight.txt", "utf8");
+            const part = raw.split("---JOB_STATUS---")[1] ?? "";
+            let report;
+            try { report = JSON.parse(part); } catch {
+              console.error("::error::JOB_RECORD_UNREADABLE -- the deployed status control did not return parseable JSON for this job. Nothing was changed.");
+              process.exit(1);
+            }
+            const job = (report.jobs ?? [])[0];
+            if (!job) {
+              console.error(`::error::NO_SUCH_JOB -- no city job with id ${process.env.VALIDATED_JOB_ID} exists on production (${report.note ?? "not found"}). Nothing was changed. Dispatch "Check BeatMapped City Jobs" with a blank job id to list the real job ids.`);
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+              `| Country / city | ${job.country} / ${job.city} |`,
+              `| Estate key | ${job.city_estate_key ? "`" + job.city_estate_key + "`" : "_(pre-catalogue job)_"} |`,
+              `| Frozen estate ref | \`${job.estate_ref ?? "-"}\` |`,
+              `| State BEFORE | \`${job.state}\` |`,
+              `| cancel_requested BEFORE | \`${job.cancel_requested}\` |`,
+              `| Sources completed BEFORE | ${job.completed_sources}/${job.total_sources} |`,
+              `| Current source BEFORE | ${job.current_source_id ?? "-"} |`,
+              "",
+            ].join("\n"));
+            console.log(`Job ${job.job_id} found: ${job.state}, cancel_requested=${job.cancel_requested}, ${job.completed_sources}/${job.total_sources} sources.`);
+          '
+
+      # The ONLY mutating step. One flag, one job record, via the governed
+      # CLI primitive. No systemctl, no PID, no other job touched.
+      - name: Request cooperative cancellation via the governed CLI primitive (no systemd lifecycle control, no worker stop)
+        id: cancel
+        env:
+          VALIDATED_JOB_ID: ${{ steps.validate.outputs.job_id }}
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo -u botm bash -c 'cd ${BEATMAPPED_APP_DIR} && node ingestion/city-worker/cli.mjs cancel-job ${VALIDATED_JOB_ID}'" \
+            | tee /tmp/cancel-output.json
+
+          node -e '
+            const fs = require("fs");
+            const r = JSON.parse(fs.readFileSync("/tmp/cancel-output.json", "utf8"));
+            const EXPLAIN = {
+              CANCELLED_IMMEDIATELY: "✅ The job had not started, so it was cancelled outright. No source acquisition ran, and the worker was not woken.",
+              CANCELLATION_REQUESTED: "✅ Requested. This is COOPERATIVE, not immediate: the source currently in flight finishes its own attempt and checkpoints normally, no further source starts, and the job becomes `CANCELLED` at the next source boundary. Nothing was killed and the worker was not stopped.",
+              ALREADY_CANCEL_REQUESTED: "ℹ️ Cancellation had already been requested for this running job. Nothing was changed.",
+              ALREADY_CANCELLED: "ℹ️ This job was already `CANCELLED`. Nothing was changed.",
+              ALREADY_TERMINAL: "ℹ️ This job had already finished. A terminal job is durable historical evidence and is never rewritten. Nothing was changed.",
+            };
+            if (!EXPLAIN[r.result]) {
+              console.error(`::error::cancel-job returned an unrecognised result: ${r.result}`);
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+              `| Result | \`${r.result}\` |`,
+              `| Record changed | ${r.mutated ? "yes" : "no"} |`,
+              `| State AFTER request | \`${r.after.state}\` |`,
+              `| cancel_requested AFTER | \`${r.after.cancel_requested}\` |`,
+              "",
+              EXPLAIN[r.result],
+              "",
+              "_Every completed, residue and failed source checkpoint is retained, along with the frozen estate snapshot, provenance and runner SHA — a cancelled job stays durable historical evidence. The worker was not stopped, no other queued city was affected, and no map publication was triggered._",
+              "",
+              "_Next: dispatch **Check BeatMapped City Jobs** with this job id to watch it reach `CANCELLED`._",
+            ].join("\n"));
+            console.log(`${r.result}: ${r.before.state} -> ${r.after.state} (cancel_requested ${r.before.cancel_requested} -> ${r.after.cancel_requested})`);
+          '
+
+      - name: Clean up local SSH material
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts
