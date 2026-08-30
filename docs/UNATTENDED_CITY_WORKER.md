@@ -280,6 +280,13 @@ if a future collector starts recording one. The backing module imports
 only reader functions and contains no `child_process`, no `systemctl`, and
 no write call; the workflow itself contains no `systemctl` verb at all.
 
+**`Cancel BeatMapped City Job`**
+(`.github/workflows/cancel-beatmapped-city-job.yml`,
+`BEATMAPPED-CITY-JOB-OPERATOR-CANCEL-CONTROL-01`). One input: an existing
+job id, as a canonical UUID. No city, estate key, path, source id, shell
+fragment, PID, unit or host can be supplied. See "Cancelling a city job"
+below.
+
 ### Duplicate-active-job and new-cycle policy
 
 At most **one non-terminal job per governed estate**. A second dispatch
@@ -291,6 +298,78 @@ makes progress. Once the previous job is terminal (`COMPLETE`,
 allowed and always receives a **new job id** with its own frozen estate. A
 restart/resume of an unfinished job always keeps its **original** job id.
 The rule is per-estate: one city's active job never blocks another's.
+
+### Cancelling a city job
+
+`BEATMAPPED-CITY-JOB-OPERATOR-CANCEL-CONTROL-01` added the third operator
+control. It exists because a full-city job (38 sources for Berlin, versus
+the 5-source proof estate) should never be started without a sanctioned,
+no-SSH way to stop it.
+
+**Cancellation is COOPERATIVE and is owned by the durable job model, not
+by process control.** The control contains no `systemctl` verb at all, and
+never signals a PID:
+
+```
+operator requests cancel
+  -> job.cancel_requested persisted to that ONE job record
+  -> worker observes it at the next source boundary
+  -> the source already in flight finishes its own attempt and
+     checkpoints normally (nothing is ever killed mid-source)
+  -> no further source starts for that job
+  -> job becomes CANCELLED, every checkpoint retained
+  -> the worker moves on to any OTHER runnable city
+  -> and exits 0 when the queue is empty
+```
+
+State policy, unchanged from the existing CLI and now reported as machine-
+readable result codes:
+
+| before | result | effect |
+|---|---|---|
+| `QUEUED` | `CANCELLED_IMMEDIATELY` | cancelled atomically; no acquisition runs, and the worker is deliberately **not** woken just to finalise it |
+| `RUNNING` | `CANCELLATION_REQUESTED` | cooperative — becomes `CANCELLED` at the next source boundary |
+| `RUNNING` + already requested | `ALREADY_CANCEL_REQUESTED` | no write |
+| `CANCELLED` | `ALREADY_CANCELLED` | no write |
+| `COMPLETE` / `COMPLETE_WITH_RESIDUE` / `FAILED` | `ALREADY_TERMINAL` | **no mutation** — a finished job is durable historical evidence and is never rewritten because an operator asked to cancel it |
+
+Repeating any of these is safe.
+
+#### The defect this package found and closed
+
+`cancel-job` had existed since the foundation package, but cancelling a
+**RUNNING** job was silently ineffective, and was never covered by a test.
+Reproduced against the real runner before fixing:
+
+- `runCityJob()` read `job.cancel_requested` from the record it loaded
+  **once** at the start, so a request written by the operator's separate
+  CLI process was never observed; and
+- its own per-source progress saves wrote that stale `false` straight back
+  over the operator's `true`, **erasing the request from disk**.
+
+Result: every source kept running and the job finished `COMPLETE`. And
+even had the flag survived, the terminal decision was gated on
+`allTerminal`, so a partially-done cancelled job fell through to
+`RUNNING` — where `queue.mjs` then permanently skips it for having
+`cancel_requested` set, stranding it as `RUNNING` for ever.
+
+Three changes closed it, all in `runner.mjs`: the cancel flag is re-read
+from disk at every loop boundary and merged **monotonically** (it can only
+ever turn cancellation *on*, never off) before every progress save; and
+the terminal decision now treats cancellation as terminal in its own
+right. The two early-stop reasons stay firmly distinct — **cancellation is
+terminal (`CANCELLED`), a shutdown is resumable (`RUNNING`)** — and that
+distinction has its own test so it cannot regress.
+
+#### What cancellation never does
+
+It never stops, kills, restarts or enables the worker; never touches
+another queued city (cancel Berlin, Paris still runs to `COMPLETE` and the
+worker drains and exits normally); never erases checkpoints, the frozen
+estate snapshot, provenance or the runner SHA; and never triggers
+publication or deployment. A `CANCELLED` job is terminal, so it is never
+auto-resumed — a later explicit enqueue of the same estate is a new cycle
+with a new job id and its own frozen estate.
 
 ### Drain-and-exit lifecycle and the operator wake
 
@@ -421,6 +500,11 @@ No deployment drain/restart redesign is required for the first operating
 model. See `deploy/README.md`, "Deploying while a city job is active".
 
 ### What these controls deliberately do not do
+
+There is now a THIRD control, `Cancel BeatMapped City Job` — see
+"Cancelling a city job" above. It is a job-lifecycle control only: it
+contains no `systemctl` verb, never stops the worker, and never affects
+another queued city.
 
 No publication coupling (a completed city job never triggers map
 publication — acquisition and publication remain separate deliberate

@@ -57,12 +57,35 @@
 // another terminal, non-retried outcome, never as something to resolve
 // itself.
 
-import { loadJob, saveJob } from "./job-store.mjs";
+import { loadJob, saveJob, updateJob } from "./job-store.mjs";
 import { loadSourceCheckpoints, markSourceRunning, recordSourceResult, isTerminalCheckpoint } from "./checkpoint-store.mjs";
 import { markJobRunning, determineFinalJobState, isCatastrophicCityJob } from "./job.mjs";
 import { withRetries, DEFAULT_MAX_ATTEMPTS, DEFAULT_RETRY_DELAY_MS } from "../unattended-runner/retry.mjs";
 
 const DEFAULT_CONCURRENCY = 4;
+
+/**
+ * BEATMAPPED-CITY-JOB-OPERATOR-CANCEL-CONTROL-01 — cancellation is owned by
+ * WHOEVER HOLDS THE JOB FILE, not by this process's memory.
+ *
+ * An operator's cancel request arrives as `cancel_requested: true` written
+ * to `job.json` by a DIFFERENT process (`cli.mjs cancel-job`) while this
+ * runner is mid-city. Before this helper existed, runCityJob() read
+ * `job.cancel_requested` from the in-memory record it loaded once at the
+ * start, so it could never see that request — and worse, its own
+ * progress saves wrote that stale `false` straight back over the
+ * operator's `true`, silently erasing the request. Both were reproduced:
+ * every source kept running and the job finished COMPLETE.
+ *
+ * So every loop boundary and every progress save re-reads the flag from
+ * disk. The merge is deliberately MONOTONIC — it can only ever turn
+ * cancellation ON. This runner must never "un-cancel" a job just because
+ * its own in-memory copy predates the request.
+ */
+async function mergePersistedCancelRequest(job, { root }) {
+  const persisted = await loadJob(job.job_id, { root });
+  return persisted?.cancel_requested === true ? { ...job, cancel_requested: true } : job;
+}
 
 /** Bounded-concurrency map: never more than `limit` calls to `worker(item)` in flight at once. Order of completion is unconstrained; order of dispatch follows `items`. */
 async function mapWithConcurrency(items, limit, worker) {
@@ -205,6 +228,9 @@ export async function runCityJob(
   // for — see checkpoint-store.mjs).
   const remaining = [...pending];
   while (remaining.length > 0) {
+    // Re-read the operator-owned cancel flag from disk, never trust our own
+    // in-memory copy of it (see mergePersistedCancelRequest above).
+    job = await mergePersistedCancelRequest(job, { root });
     if (shouldStop() || job.cancel_requested) {
       stoppedEarly = true;
       break;
@@ -212,8 +238,17 @@ export async function runCityJob(
     const batch = remaining.splice(0, concurrency);
     await mapWithConcurrency(batch, concurrency, async (task) => {
       await processSourceTask(jobId, task, { root, retryPolicy, now });
-      job = { ...job, last_checkpoint: now(), current_source_id: task.source_id };
-      await saveJob(job, { root });
+      // Read-modify-write INSIDE job-store's own per-path serialisation, so
+      // this progress write can never clobber a cancel request that landed
+      // while the batch was in flight, and its read can never overlap
+      // another lane's rename onto the same job.json.
+      const snapshot = { ...job, last_checkpoint: now(), current_source_id: task.source_id };
+      job =
+        (await updateJob(
+          jobId,
+          (persisted) => ({ ...snapshot, cancel_requested: persisted?.cancel_requested === true ? true : snapshot.cancel_requested }),
+          { root },
+        )) ?? snapshot;
     });
   }
 
@@ -224,9 +259,22 @@ export async function runCityJob(
   const failedSources = terminal.filter((c) => c.status === "FAILED").length;
 
   const allTerminal = terminal.length === sourceTasks.length;
-  const finalState = allTerminal
-    ? determineFinalJobState({ totalSources: sourceTasks.length, successfulSources, cancelledEarly: stoppedEarly && job.cancel_requested })
-    : "RUNNING"; // stopped early by shutdown, not cancellation — resumable, never terminal
+  // BEATMAPPED-CITY-JOB-OPERATOR-CANCEL-CONTROL-01: a CANCELLED job is
+  // terminal with only PART of its estate done — that is the whole point of
+  // cancelling. Gating the terminal decision on `allTerminal` alone (as this
+  // did) meant a cancelled job could never reach CANCELLED: it fell through
+  // to "RUNNING", where queue.mjs then permanently skips it for having
+  // cancel_requested set, stranding it as RUNNING forever.
+  //
+  // The two early-stop reasons are genuinely different and must stay so:
+  //   cancellation -> TERMINAL (CANCELLED). Deliberate; never resumed.
+  //   shutdown     -> RUNNING. Resumable; the next worker start continues it
+  //                   under the same job id from its own checkpoints.
+  const cancelledEarly = stoppedEarly && job.cancel_requested === true;
+  const finalState =
+    allTerminal || cancelledEarly
+      ? determineFinalJobState({ totalSources: sourceTasks.length, successfulSources, cancelledEarly })
+      : "RUNNING"; // stopped early by shutdown, not cancellation — resumable, never terminal
 
   job = {
     ...job,
@@ -237,7 +285,7 @@ export async function runCityJob(
     current_source_id: null,
     last_checkpoint: now(),
     state: finalState,
-    completed_at: allTerminal || (stoppedEarly && job.cancel_requested) ? now() : job.completed_at,
+    completed_at: allTerminal || cancelledEarly ? now() : job.completed_at,
     final_metrics: allTerminal
       ? { total_sources: sourceTasks.length, successful_sources: successfulSources, residue_sources: residueSources, failed_sources: failedSources }
       : job.final_metrics,
