@@ -20,7 +20,7 @@ which this package deliberately does not close).
 | `systemd/botm-unattended.timer` | twice-daily schedule (~06:15, ~18:15 UTC) |
 | `systemd/botm-publication.service` | long-running `npm run serve:map-data` unit — installed, enabled, and (by default) restarted by `install.sh` on every deploy, unless `--skip-publication-restart` is passed (see "Publication service lifecycle" below) |
 | `ci/resolve-and-validate-deployment.sh` | the exact SHA-resolution/authorisation logic the Action's `resolve-and-validate` job runs — see "Approved-candidate deployment trials" below |
-| `systemd/beatmapped-city-worker.service` | (present only on the unmerged city-worker candidate line, not yet in this checkout) the always-on city-job worker unit — installed/started only by the dedicated trial Action, see "Bounded city-worker runtime trial" below |
+| `systemd/beatmapped-city-worker.service` | the unattended city-job worker unit — **installed/reconciled by `install.sh` on every deploy, but never started and never enabled**; see "City-worker unit ownership" below |
 
 ## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
 
@@ -413,6 +413,47 @@ lifecycle" below for why that unit is handled differently, and pass
 `--skip-publication-restart` explicitly to skip that one step for a
 bounded, code-only trial (`BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01`
 — see "Approved-candidate deployment trials" above).
+
+## City-worker unit ownership (`BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01`)
+
+`install.sh` installs and reconciles **four** managed units on every deploy:
+`botm-unattended.service`, `botm-unattended.timer`, `botm-publication.service`
+and `beatmapped-city-worker.service`.
+
+The distinction that matters operationally:
+
+> **Deployment makes the city worker AVAILABLE to systemd. It does not
+> authorise it to process city jobs.**
+
+`install.sh` never runs `start`, `restart`, `enable`, or `enable --now` against
+`beatmapped-city-worker.service` — only `install` + `daemon-reload`. After any
+normal deploy the expected state is **present, not running, not enabled**, and
+the deployment Action verifies exactly that read-only (it rejects `enabled` /
+`enabled-runtime`, accepts any legitimately not-enabled state such as
+`disabled` / `static` / `masked`, and confirms the registered unit is
+byte-identical to the deployed `deploy/systemd/` asset).
+
+Before this, the only copy of the unit on the production host was one the
+bounded trial Action installed for run `33272969771` — so it existed by
+accident of a historical experiment rather than because the sanctioned path
+owned it, and a clean or rebuilt host would have had the worker's code on disk
+with nothing registered in systemd. `install` overwrites unconditionally, so a
+stale trial copy and a clean host now converge on the same reviewed unit.
+
+Two consequences worth knowing:
+
+- The bounded trial workflow still installs the unit itself before starting it.
+  That step is now redundant on a freshly-deployed host, but it is harmless
+  (`install` is idempotent) and is deliberately left in place so the trial
+  harness remains self-contained.
+- The deploy Action currently **fails closed** if the city worker is already
+  `active` when a deployment runs, since no sanctioned path should leave it
+  running today. Once a normal operator enqueue/run control exists, a
+  legitimately in-flight city job could be active during a deploy — that
+  package must revisit this policy deliberately.
+
+Enqueueing a city job and starting the worker remain separate, explicit
+operator actions. See `deploy/README-CITY-WORKER.md`.
 
 ## Publication service lifecycle (`BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01`)
 

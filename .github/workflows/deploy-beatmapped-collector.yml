@@ -257,6 +257,96 @@ jobs:
           echo "| Deployed SHA verified | ✅ PASS (mode: \`$MODE\`) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Collector timer / publication service | ✅ HEALTHY |" >> "$GITHUB_STEP_SUMMARY"
 
+      # BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01: proves the
+      # sanctioned deployment now OWNS beatmapped-city-worker.service --
+      # that it is registered with systemd from the repo asset, that it
+      # matches the commit just deployed, and that deployment left it
+      # neither enabled for boot nor running. Read-only: it starts,
+      # stops, enables and disables nothing.
+      - name: Verify the city-worker unit is registered, matches the deployed asset, and was neither enabled nor started (read-only, short SSH)
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT' | tee /tmp/city-worker-unit.txt
+            set -euo pipefail
+            APP_DIR="$1"
+            UNIT="beatmapped-city-worker.service"
+            INSTALLED="/etc/systemd/system/${UNIT}"
+            REPO_ASSET="${APP_DIR}/deploy/systemd/${UNIT}"
+
+            # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01: the ONE
+            # canonical state read this project uses. `systemctl is-active`/
+            # `is-enabled` legitimately PRINT a real state AND exit non-zero
+            # (inactive, failed, disabled, static, masked, unknown unit), so
+            # `$(systemctl ... || echo <fallback>)` appends a SECOND line and
+            # yields "disabled\ndisabled" -- which never equals the state it is
+            # compared against. Take systemctl's own FIRST line; use the
+            # fallback only when it printed nothing at all.
+            systemd_state() {
+              local verb="$1" unit="$2" fallback="$3" out
+              out="$(systemctl "$verb" "$unit" 2>/dev/null | head -n1 || true)"
+              [ -n "$out" ] || out="$fallback"
+              printf '%s\n' "$out"
+            }
+
+            # A: the unit is registered with systemd at all.
+            if [ ! -f "$INSTALLED" ]; then
+              echo "CITY_WORKER_UNIT_INSTALLED=false"
+              echo "ERROR: ${INSTALLED} is missing -- the sanctioned installer must register this unit." >&2
+              exit 1
+            fi
+            echo "CITY_WORKER_UNIT_INSTALLED=true"
+
+            # B: the registered unit is exactly the asset from this deployment.
+            if cmp -s "$INSTALLED" "$REPO_ASSET"; then
+              echo "CITY_WORKER_UNIT_MATCHES_DEPLOYED_ASSET=true"
+            else
+              echo "CITY_WORKER_UNIT_MATCHES_DEPLOYED_ASSET=false"
+              echo "ERROR: ${INSTALLED} does not match ${REPO_ASSET} -- a stale or hand-edited unit is not a managed unit." >&2
+              exit 1
+            fi
+
+            # C: never enabled for automatic start. The safety property is "not
+            # ENABLED", so legitimate non-enabled states (disabled/static/masked)
+            # all pass; only real enablement fails.
+            CITY_WORKER_ENABLED="$(systemd_state is-enabled "$UNIT" disabled)"
+            echo "CITY_WORKER_ENABLED=$CITY_WORKER_ENABLED"
+            case "$CITY_WORKER_ENABLED" in
+              enabled|enabled-runtime)
+                echo "ERROR: ${UNIT} is ${CITY_WORKER_ENABLED} -- deployment must never authorise the city worker to start automatically." >&2
+                exit 1
+                ;;
+            esac
+
+            # D: deployment never starts it. install.sh issues no start/restart
+            # for this unit, so an active worker here is something else's doing
+            # -- reported explicitly and failed closed rather than silently
+            # claimed as "deployment didn't start it". NOTE: once a normal
+            # operator enqueue/run control exists, a legitimately in-flight city
+            # job could be active during a deploy; this policy must be revisited
+            # by that package (see deploy/README-CITY-WORKER.md).
+            CITY_WORKER_ACTIVE="$(systemd_state is-active "$UNIT" inactive)"
+            echo "CITY_WORKER_ACTIVE=$CITY_WORKER_ACTIVE"
+            case "$CITY_WORKER_ACTIVE" in
+              active|activating|reloading)
+                echo "CITY_WORKER_PRE_EXISTING_ACTIVE=true"
+                echo "ERROR: ${UNIT} is ${CITY_WORKER_ACTIVE}. This deployment did not start it -- install.sh contains no start/restart for this unit -- so a city worker was already running. Deploying code underneath a running worker is ambiguous; resolve it explicitly before re-running." >&2
+                exit 1
+                ;;
+            esac
+            echo "CITY_WORKER_PRE_EXISTING_ACTIVE=false"
+            echo "City-worker unit registered from the deployed asset; not enabled, not running."
+          REMOTE_SCRIPT
+          CW_ENABLED="$(grep '^CITY_WORKER_ENABLED=' /tmp/city-worker-unit.txt | cut -d= -f2- || true)"
+          CW_ACTIVE="$(grep '^CITY_WORKER_ACTIVE=' /tmp/city-worker-unit.txt | cut -d= -f2- || true)"
+          {
+            echo "| City-worker unit registered with systemd | ✅ PASS (matches deployed asset) |"
+            echo "| City-worker enabled state | \`${CW_ENABLED:-unknown}\` (never enabled by deployment) |"
+            echo "| City-worker active state | \`${CW_ACTIVE:-unknown}\` (never started by deployment) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # BEATMAPPED-DEPLOYMENT-WORKFLOW-ASYNC-PUBLICATION-VERIFICATION-01:
       # captured over the SAME public, read-only endpoint the final
       # validation step polls -- never over SSH, and never assumed to

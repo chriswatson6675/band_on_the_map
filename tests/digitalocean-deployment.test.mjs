@@ -9,9 +9,10 @@
 
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
 
@@ -369,4 +370,245 @@ test("deploy/README.md honestly documents the Netlify (not Vercel) static-import
   assert.match(readme, /Netlify/);
   assert.match(readme, /statically\s+imports?/i);
   assert.match(readme, /NO\s+effect on the live public site/i);
+});
+
+// ---------------------------------------------------------------------------
+// BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01
+//
+// Before this package the ONLY copy of beatmapped-city-worker.service on the
+// production host was one the bounded trial Action installed for run
+// 33272969771 — the unit existed by accident of a historical experiment, not
+// because the sanctioned deployment path owned it. A clean or rebuilt host
+// would have had the worker's code and its unit asset on disk with nothing
+// registered in systemd.
+//
+// install.sh now reconciles that unit like the other three managed units —
+// and, just as deliberately, never starts or enables it. Deployment makes the
+// worker AVAILABLE to systemd; it never authorises it to process city jobs.
+// ---------------------------------------------------------------------------
+
+const CITY_WORKER_UNIT_INSTALL = 'install -m 0644 "$APP_DIR/deploy/systemd/beatmapped-city-worker.service" /etc/systemd/system/beatmapped-city-worker.service';
+
+/** The executed (non-comment) lines only — prose in the header must never satisfy a check. */
+function executableLines(script) {
+  return script
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
+}
+
+/**
+ * Runs install.sh's real systemd-unit-installation region as bash, with
+ * `install` and `systemctl` overridden as shell FUNCTIONS (portable — immune
+ * to this platform's PATH-resolution quirks) so the hardcoded
+ * /etc/systemd/system destinations land inside a temp root instead.
+ */
+async function runUnitInstallRegion(script, { fakeRoot, appDir }) {
+  const startMarker = 'echo "Installing systemd unit files..."';
+  const endMarker = "systemctl daemon-reload";
+  const startIdx = script.indexOf(startMarker);
+  const endIdx = script.indexOf(endMarker, startIdx);
+  assert.ok(startIdx > -1 && endIdx > startIdx, "expected to locate the systemd-unit install region");
+  const region = script.slice(startIdx, endIdx + endMarker.length);
+
+  const harness = [
+    "#!/usr/bin/env bash",
+    "set -euo pipefail",
+    `APP_DIR=${JSON.stringify(appDir)}`,
+    `FAKE_ROOT=${JSON.stringify(fakeRoot)}`,
+    // Emulate `install -m <mode> <src> <dest>` into the sandbox root.
+    "install() {",
+    '  local mode="" src="" dest="" a',
+    '  while [ "$#" -gt 0 ]; do',
+    '    case "$1" in',
+    '      -m) mode="$2"; shift 2 ;;',
+    '      *) if [ -z "$src" ]; then src="$1"; else dest="$1"; fi; shift ;;',
+    "    esac",
+    "  done",
+    '  local target="${FAKE_ROOT}${dest}"',
+    '  mkdir -p "$(dirname "$target")"',
+    '  cp "$src" "$target"',
+    '  echo "INSTALLED mode=${mode} ${src} -> ${dest}"',
+    "}",
+    'systemctl() { echo "SYSTEMCTL $*"; }',
+    region,
+  ].join("\n");
+
+  const dir = await mkdtemp(join(tmpdir(), "botm-unit-install-"));
+  try {
+    const harnessPath = join(dir, "harness.sh");
+    await writeFile(harnessPath, harness);
+    return await execFileAsync("bash", [harnessPath]);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+
+/** A synthetic APP_DIR carrying the four managed unit assets. */
+async function syntheticAppDir(contents = "REPO UNIT CONTENT\n") {
+  const appDir = await mkdtemp(join(tmpdir(), "botm-appdir-"));
+  await mkdir(join(appDir, "deploy/systemd"), { recursive: true });
+  for (const unit of ["botm-unattended.service", "botm-unattended.timer", "botm-publication.service"]) {
+    await writeFile(join(appDir, "deploy/systemd", unit), `${unit} content\n`);
+  }
+  await writeFile(join(appDir, "deploy/systemd/beatmapped-city-worker.service"), contents);
+  return appDir;
+}
+
+// --- §18: static safety — the unit is managed, and never executed ---
+
+test("install.sh: beatmapped-city-worker.service is in the sanctioned unit installation list", async () => {
+  const script = await readDeployFile("install.sh");
+  assert.ok(
+    executableLines(script).includes(CITY_WORKER_UNIT_INSTALL),
+    "the normal installer must own this unit — not a trial-only step",
+  );
+});
+
+test("install.sh: NEVER starts, restarts, enables, or `enable --now`s the city worker", async () => {
+  const script = await readDeployFile("install.sh");
+  // Executed body only: the trailing `cat <<EOF` heredoc PRINTS a summary
+  // that legitimately names the unit, exactly as the existing
+  // botm-unattended test above excludes its printed next-step instructions.
+  const code = executableLines(script.slice(0, script.indexOf("cat <<EOF")));
+  for (const forbidden of [
+    /systemctl\s+start\s+beatmapped-city-worker/,
+    /systemctl\s+restart\s+beatmapped-city-worker/,
+    /systemctl\s+enable\s+beatmapped-city-worker/,
+    /systemctl\s+enable\s+--now\s+beatmapped-city-worker/,
+  ]) {
+    assert.doesNotMatch(code, forbidden, "deployment must make the worker available, never authorise it to run");
+  }
+  // Nothing at all beyond `install` may reference the unit in an executed line.
+  const referencing = code.split("\n").filter((l) => l.includes("beatmapped-city-worker"));
+  assert.equal(referencing.length, 1, `exactly one executed line may mention the unit, got:\n${referencing.join("\n")}`);
+  assert.ok(referencing[0].trim().startsWith("install -m 0644"), "that line must be the install itself");
+});
+
+test("install.sh: the city-worker unit install precedes daemon-reload, like the other three managed units", async () => {
+  const code = executableLines(await readDeployFile("install.sh"));
+  const cityIdx = code.indexOf(CITY_WORKER_UNIT_INSTALL);
+  const reloadIdx = code.indexOf("systemctl daemon-reload");
+  assert.ok(cityIdx > -1 && reloadIdx > cityIdx, "systemd must be reloaded after the unit is written");
+});
+
+// --- §14: clean host — nothing pre-existing ---
+
+test("install.sh (real bash): on a CLEAN host the city-worker unit is installed from the repo asset, reloaded, and neither started nor enabled", async (t) => {
+  const script = await readDeployFile("install.sh");
+  const appDir = await syntheticAppDir("CLEAN HOST REPO UNIT\n");
+  const fakeRoot = await mkdtemp(join(tmpdir(), "botm-fakeroot-"));
+  t.after(() => Promise.all([rm(appDir, { recursive: true, force: true }), rm(fakeRoot, { recursive: true, force: true })]));
+
+  const dest = join(fakeRoot, "etc/systemd/system/beatmapped-city-worker.service");
+  assert.equal(existsSync(dest), false, "precondition: the clean host has no unit registered");
+
+  const run = await runUnitInstallRegion(script, { fakeRoot, appDir });
+
+  assert.equal(existsSync(dest), true, "a clean host must end up with the unit registered");
+  assert.equal(await readFile(dest, "utf8"), "CLEAN HOST REPO UNIT\n", "installed from the deployed repo asset");
+  assert.match(run.stdout, /INSTALLED mode=0644 .*beatmapped-city-worker\.service -> \/etc\/systemd\/system\/beatmapped-city-worker\.service/);
+  assert.match(run.stdout, /SYSTEMCTL daemon-reload/);
+  // All four managed units land.
+  for (const unit of ["botm-unattended.service", "botm-unattended.timer", "botm-publication.service", "beatmapped-city-worker.service"]) {
+    assert.equal(existsSync(join(fakeRoot, "etc/systemd/system", unit)), true, `${unit} must be reconciled`);
+  }
+  // And nothing was started or enabled by this region.
+  assert.doesNotMatch(run.stdout, /SYSTEMCTL (start|restart|enable)/);
+});
+
+// --- §15: an existing trial artefact reconciles idempotently ---
+
+test("install.sh (real bash): a STALE pre-existing unit (the trial artefact) is reconciled to the reviewed asset without error, start, or enable", async (t) => {
+  const script = await readDeployFile("install.sh");
+  const appDir = await syntheticAppDir("REVIEWED MAINLINE UNIT\n");
+  const fakeRoot = await mkdtemp(join(tmpdir(), "botm-fakeroot-"));
+  t.after(() => Promise.all([rm(appDir, { recursive: true, force: true }), rm(fakeRoot, { recursive: true, force: true })]));
+
+  // Model production today: a unit left behind by bounded trial run 33272969771.
+  const dest = join(fakeRoot, "etc/systemd/system/beatmapped-city-worker.service");
+  await mkdir(dirname(dest), { recursive: true });
+  await writeFile(dest, "STALE TRIAL-INSTALLED UNIT\n");
+
+  const run = await runUnitInstallRegion(script, { fakeRoot, appDir });
+
+  assert.equal(
+    await readFile(dest, "utf8"),
+    "REVIEWED MAINLINE UNIT\n",
+    "a stale trial copy must converge on the reviewed repo unit — its presence is never an error, and its content is never trusted",
+  );
+  assert.match(run.stdout, /SYSTEMCTL daemon-reload/);
+  assert.doesNotMatch(run.stdout, /SYSTEMCTL (start|restart|enable)/, "an existing unit must never be started merely because it already existed");
+});
+
+test("install.sh (real bash): a clean host and a stale-artefact host converge on byte-identical registered units", async (t) => {
+  const script = await readDeployFile("install.sh");
+  const appDir = await syntheticAppDir("CONVERGENT UNIT CONTENT\n");
+  const cleanRoot = await mkdtemp(join(tmpdir(), "botm-clean-"));
+  const staleRoot = await mkdtemp(join(tmpdir(), "botm-stale-"));
+  t.after(() => Promise.all([
+    rm(appDir, { recursive: true, force: true }),
+    rm(cleanRoot, { recursive: true, force: true }),
+    rm(staleRoot, { recursive: true, force: true }),
+  ]));
+
+  const stalePath = join(staleRoot, "etc/systemd/system/beatmapped-city-worker.service");
+  await mkdir(dirname(stalePath), { recursive: true });
+  await writeFile(stalePath, "ANCIENT TRIAL UNIT\n");
+
+  await runUnitInstallRegion(script, { fakeRoot: cleanRoot, appDir });
+  await runUnitInstallRegion(script, { fakeRoot: staleRoot, appDir });
+
+  const cleanContent = await readFile(join(cleanRoot, "etc/systemd/system/beatmapped-city-worker.service"), "utf8");
+  const staleContent = await readFile(stalePath, "utf8");
+  assert.equal(cleanContent, staleContent);
+  assert.equal(cleanContent, "CONVERGENT UNIT CONTENT\n");
+});
+
+// --- §16 / §17: both deployment modes still behave correctly ---
+
+test("install.sh: the city-worker unit install runs UNCONDITIONALLY — both MAIN and DEPLOY_ONLY reconcile it", async () => {
+  const script = await readDeployFile("install.sh");
+  // It must sit BEFORE the SKIP_PUBLICATION_RESTART branch, i.e. outside it.
+  const ifIdx = script.indexOf('if [ "$SKIP_PUBLICATION_RESTART" -eq 1 ]; then');
+  assert.ok(ifIdx > -1);
+  const unconditional = executableLines(script.slice(0, ifIdx));
+  assert.ok(
+    unconditional.includes(CITY_WORKER_UNIT_INSTALL),
+    "DEPLOY_ONLY must also register the unit — the flag only ever skips the publication restart",
+  );
+});
+
+test("install.sh: --skip-publication-restart still leaves botm-publication.service untouched while the city-worker unit is reconciled", async () => {
+  const script = await readDeployFile("install.sh");
+  const skipBranch = script.slice(
+    script.indexOf('if [ "$SKIP_PUBLICATION_RESTART" -eq 1 ]; then'),
+    script.indexOf("cat <<EOF"),
+  );
+  // The skip branch must not restart/enable publication...
+  const skipOnly = skipBranch.slice(0, skipBranch.indexOf("else"));
+  assert.doesNotMatch(skipOnly, /systemctl (restart|enable) botm-publication\.service/);
+  // ...and must not touch the city worker either.
+  assert.doesNotMatch(skipBranch, /systemctl (start|restart|enable) beatmapped-city-worker/);
+});
+
+test("install.sh: existing unit lifecycles are unchanged — publication still enabled+restarted by default, unattended timer still never enabled", async () => {
+  const script = await readDeployFile("install.sh");
+  // Executed body only — the printed heredoc names the operator's manual
+  // `systemctl enable --now botm-unattended.timer` next step by design.
+  const code = executableLines(script.slice(0, script.indexOf("cat <<EOF")));
+  assert.match(code, /systemctl enable botm-publication\.service/);
+  assert.match(code, /systemctl restart botm-publication\.service/);
+  assert.doesNotMatch(code, /systemctl enable botm-unattended\.timer/, "the unattended timer's manual first-run gate must survive");
+  assert.doesNotMatch(code, /systemctl start botm-unattended\.(service|timer)/);
+});
+
+// --- §13: the operator-facing summary tells the truth ---
+
+test("install.sh: the completion summary states the city worker is installed but NOT started and NOT enabled", async () => {
+  const script = await readDeployFile("install.sh");
+  const summary = script.slice(script.indexOf("cat <<EOF"));
+  assert.match(summary, /beatmapped-city-worker\.service installed\/reconciled/);
+  assert.match(summary, /NOT\s*\n?started and NOT enabled|NOT started and NOT enabled/);
+  assert.match(summary, /does not authorise it to process city jobs|AVAILABLE to systemd/i);
 });
