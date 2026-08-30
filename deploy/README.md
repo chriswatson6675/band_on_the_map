@@ -446,14 +446,63 @@ Two consequences worth knowing:
   That step is now redundant on a freshly-deployed host, but it is harmless
   (`install` is idempotent) and is deliberately left in place so the trial
   harness remains self-contained.
-- The deploy Action currently **fails closed** if the city worker is already
-  `active` when a deployment runs, since no sanctioned path should leave it
-  running today. Once a normal operator enqueue/run control exists, a
-  legitimately in-flight city job could be active during a deploy — that
-  package must revisit this policy deliberately.
+- The deploy Action **fails closed** if the city worker is already `active`
+  when a deployment runs. See "Deploying while a city job is active" below —
+  `BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01` reviewed this
+  deliberately and **kept** it.
 
 Enqueueing a city job and starting the worker remain separate, explicit
 operator actions. See `deploy/README-CITY-WORKER.md`.
+
+## Deploying while a city job is active (`BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01`)
+
+Now that an operator control can legitimately leave the city worker running,
+this interaction is a real operational rule rather than a theoretical one.
+The rule, decided deliberately and **unchanged** in the deployment Action:
+
+> **An active city job blocks deployment. Deployment waits for the job; the
+> job is never overwritten underneath itself.**
+
+Concretely: `Deploy BeatMapped Collector` still fails closed on
+`CITY_WORKER_PRE_EXISTING_ACTIVE=true`, before it changes anything. An
+operator seeing that failure should dispatch **Check BeatMapped City Jobs**,
+wait for the in-flight job to reach a terminal state, and then deploy. The two
+controls also share a concurrency group (`deploy-beatmapped-collector`), so an
+enqueue and a deployment can never interleave in the first place.
+
+**This is a brief interlock, not a deadlock** — but only because the worker is
+**drain-and-exit** (`BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01`):
+
+```
+city work running -> deployment blocked
+queue finishes -> worker exits 0 -> service inactive
+  -> deployment allowed again
+```
+
+It is worth knowing why that matters. The worker was originally always-on: it
+drained the queue and then idled, polling, forever. Combined with this
+fail-closed rule that meant the *first* city job left the service active
+permanently and blocked **every** subsequent deployment, with no sanctioned way
+out short of an out-of-band `systemctl stop`. The fix was the worker's
+lifecycle, not this rule. `Check BeatMapped City Jobs` reports
+`IDLE_NOTHING_TO_DO` when the host is in the deployable resting state.
+
+Why this is the right default rather than an inconvenience to relax:
+`install.sh` checks out new code underneath a running process, and Node does
+not hot-reload ES modules — so a mid-job deployment would leave a worker
+executing its old, already-loaded collector logic against a job whose
+remaining sources are resolved from a *new* on-disk registry. That is
+precisely the silent-drift failure `botm-publication.service` already
+suffered once (see "Publication service lifecycle" below). A city job is
+bounded and finite; waiting for it is cheap, and the alternative needs a
+proper drain-and-restart lifecycle design that this package deliberately did
+not attempt. **Do not relax this to overwrite code beneath an active city job
+without that separate design.**
+
+If a job is genuinely stuck and a deployment cannot wait, the sanctioned
+recovery is `cancel-job` (cooperative — it takes effect between sources, and
+the job's per-source checkpoints are retained so it can be resumed later),
+never a forced stop or an interactive SSH kill.
 
 ## Publication service lifecycle (`BEATMAPPED-PUBLICATION-SERVICE-DEPLOY-LIFECYCLE-01`)
 
