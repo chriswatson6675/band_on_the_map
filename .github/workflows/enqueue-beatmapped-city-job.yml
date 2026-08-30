@@ -1,0 +1,372 @@
+name: Enqueue BeatMapped City Job
+
+# BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01
+#
+# The ONE sanctioned way a normal operator asks production to acquire a
+# city. Entirely through this protected GitHub Environment -- never via
+# routine interactive SSH (prohibited by project policy). No operator ever
+# receives, handles, or is prompted for an SSH credential; the protected
+# Environment's own secrets are used internally by this Action and are
+# never printed.
+#
+# WHAT AN OPERATOR CAN SAY. Exactly one thing: a `city_estate` key from
+# ingestion/city-worker/city-estate-catalogue.json, chosen from a
+# workflow_dispatch `choice` list. There is deliberately NO input for a
+# filesystem path, a source id, a registry JSON blob, a shell fragment, or
+# a free-text country/city -- country, city, registry and the source
+# universe are all DERIVED on the host from already-committed, already-
+# reviewed repository data (see ingestion/city-worker/city-estate-
+# catalogue.mjs). Adding a city is a reviewed commit to that catalogue,
+# never a dispatch argument.
+#
+# WHAT THIS WORKFLOW DOES, in order:
+#   1. read-only preflight of the deployed host: the deployed SHA, that
+#      the deployed code actually provides the governed operator CLI, that
+#      the requested key exists in the DEPLOYED catalogue, and that the
+#      city-worker systemd unit is installed. Nothing is mutated, and any
+#      failure here happens before a job could exist;
+#   2. enqueue exactly one durable job via the governed CLI entry point
+#      (`enqueue-city-estate <key>`), which itself enforces the duplicate-
+#      active-job rule -- at most one non-terminal job per estate;
+#   3. SANCTIONED SYSTEMD WAKE: if beatmapped-city-worker.service is not
+#      already active, `systemctl start` it -- and nothing else. Never
+#      `enable` (the worker must never come back on boot), never `restart`
+#      (a running worker already polls for new jobs -- see the note on the
+#      wake step), never nohup/tmux/screen, never a foreground `node`
+#      worker process. The worker always remains systemd-owned.
+#
+# WHAT IT DELIBERATELY DOES NOT DO: it never deploys code, never publishes
+# a map, never enables a unit or a timer, never enqueues more than the one
+# requested estate, and never touches botm-unattended.{service,timer} or
+# botm-publication.service.
+#
+# workflow_dispatch ONLY -- no schedule, no cron, no timer. Shares the
+# SAME concurrency group as deploy-beatmapped-collector.yml so an enqueue
+# and a production deployment can never run against the same host at once.
+
+on:
+  workflow_dispatch:
+    inputs:
+      city_estate:
+        description: >-
+          The governed city estate to acquire. This list is the complete
+          operator input surface -- see
+          ingestion/city-worker/city-estate-catalogue.json.
+        required: true
+        type: choice
+        options:
+          - berlin-proof-5
+          - berlin-all-active
+          - paris-all-active
+          - lisbon-all-active
+          - porto-all-active
+          - barcelona-all-active
+
+permissions:
+  contents: read
+
+concurrency:
+  # Deliberately the SAME group deploy-beatmapped-collector.yml uses -- an
+  # operator enqueue and a real production deployment must never run
+  # against the same host at the same time.
+  group: deploy-beatmapped-collector
+  cancel-in-progress: false
+
+env:
+  BEATMAPPED_APP_DIR: /opt/band-on-the-map
+  CITY_WORKER_UNIT: beatmapped-city-worker.service
+  CITY_ESTATE_CATALOGUE: ingestion/city-worker/city-estate-catalogue.json
+
+jobs:
+  enqueue:
+    name: Enqueue one governed city job and wake the systemd worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The same protected Environment deploy-beatmapped-collector.yml uses
+    # -- same secrets, same required-reviewers protection if configured,
+    # never a separate/weaker one for operator control.
+    environment: beatmapped-collector-production
+    env:
+      CITY_ESTATE: ${{ inputs.city_estate }}
+    steps:
+      - name: Checkout main (to validate the requested key against the reviewed catalogue before any SSH)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # Defence in depth. `type: choice` already restricts the dispatch to
+      # the enumerated options, and the DEPLOYED catalogue on the host is
+      # the real authority (checked below) -- but a key that is not a bare
+      # lowercase token, or is not in main's own catalogue, is refused here
+      # before a single byte reaches production.
+      - name: Validate the requested estate key is a governed catalogue key (fail closed before any SSH)
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("fs");
+            const requested = process.env.CITY_ESTATE ?? "";
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(requested)) {
+              console.error(`::error::Requested estate key ${JSON.stringify(requested)} is not a bare catalogue key. No path, source id, or shell fragment is ever accepted here.`);
+              process.exit(1);
+            }
+            const catalogue = JSON.parse(fs.readFileSync(process.env.CITY_ESTATE_CATALOGUE, "utf8"));
+            const entry = (catalogue.entries ?? []).find((candidate) => candidate.key === requested);
+            if (!entry) {
+              const keys = (catalogue.entries ?? []).map((candidate) => candidate.key);
+              console.error(`::error::UNKNOWN_CITY_ESTATE_KEY: ${JSON.stringify(requested)} is not in ${process.env.CITY_ESTATE_CATALOGUE}. Governed keys: ${keys.join(", ")}.`);
+              process.exit(1);
+            }
+            console.log(`Requested estate: ${entry.key} (${entry.country} / ${entry.city}, selection ${entry.selection}).`);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+              "### Enqueue BeatMapped City Job",
+              "",
+              "| Field | Value |",
+              "|---|---|",
+              `| Requested estate key | \`${entry.key}\` |`,
+              `| Country / city | ${entry.country} / ${entry.city} |`,
+              `| Selection | \`${entry.selection}\` |`,
+              `| Catalogue (on main) | \`${process.env.CITY_ESTATE_CATALOGUE}\` |`,
+              "",
+            ].join("\n"));
+          '
+
+      - name: Configure pinned SSH access (StrictHostKeyChecking=yes, never TOFU)
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.BEATMAPPED_PROD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # READ-ONLY. Runs before anything is created, so every "production is
+      # not ready for this" case is reported with nothing enqueued and the
+      # worker untouched.
+      - name: Preflight the deployed host (READ-ONLY -- deployed SHA, governed operator CLI present, requested key in the DEPLOYED catalogue, city-worker unit installed)
+        id: preflight
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$BEATMAPPED_APP_DIR" "$CITY_WORKER_UNIT" "$CITY_ESTATE" <<'REMOTE_SCRIPT' | tee /tmp/enqueue-preflight.txt
+            set -uo pipefail
+            APP_DIR="${1:-/opt/band-on-the-map}"
+            UNIT="${2:-beatmapped-city-worker.service}"
+            REQUESTED="${3:-}"
+
+            echo "DEPLOYED_SHA=$(sudo -u botm git -C "$APP_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            if [ -f "/etc/systemd/system/${UNIT}" ]; then
+              echo "CITY_WORKER_UNIT_INSTALLED=true"
+            else
+              echo "CITY_WORKER_UNIT_INSTALLED=false"
+            fi
+
+            # Does the DEPLOYED code provide the governed operator entry
+            # point at all, and does its catalogue carry this key? The host
+            # is the authority -- main's catalogue says what SHOULD be
+            # deployed, this says what IS.
+            ESTATES="$(sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs list-city-estates" 2>/dev/null || true)"
+            if [ -z "$ESTATES" ]; then
+              echo "OPERATOR_CLI_AVAILABLE=false"
+              echo "REQUESTED_KEY_DEPLOYED=false"
+            else
+              echo "OPERATOR_CLI_AVAILABLE=true"
+              if printf '%s' "$ESTATES" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>{try{const k=(JSON.parse(d).estates??[]).map(e=>e.key);process.exit(k.includes(process.argv[1])?0:1)}catch{process.exit(1)}})' "$REQUESTED"; then
+                echo "REQUESTED_KEY_DEPLOYED=true"
+              else
+                echo "REQUESTED_KEY_DEPLOYED=false"
+              fi
+            fi
+          REMOTE_SCRIPT
+
+          DEPLOYED_SHA="$(grep '^DEPLOYED_SHA=' /tmp/enqueue-preflight.txt | cut -d= -f2- || true)"
+          UNIT_INSTALLED="$(grep '^CITY_WORKER_UNIT_INSTALLED=' /tmp/enqueue-preflight.txt | cut -d= -f2- || true)"
+          CLI_AVAILABLE="$(grep '^OPERATOR_CLI_AVAILABLE=' /tmp/enqueue-preflight.txt | cut -d= -f2- || true)"
+          KEY_DEPLOYED="$(grep '^REQUESTED_KEY_DEPLOYED=' /tmp/enqueue-preflight.txt | cut -d= -f2- || true)"
+          echo "| Deployed SHA (pre-enqueue) | \`${DEPLOYED_SHA:-unknown}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$CLI_AVAILABLE" != "true" ]; then
+            echo "::error::OPERATOR_CLI_NOT_DEPLOYED -- the production checkout (${DEPLOYED_SHA:-unknown}) does not provide 'node ingestion/city-worker/cli.mjs list-city-estates'. Nothing was enqueued and the worker was not touched. SANCTIONED RECOVERY: dispatch 'Deploy BeatMapped Collector' (mode MAIN) for the current approved main SHA, then re-run this workflow."
+            echo "| Preflight | ❌ OPERATOR_CLI_NOT_DEPLOYED |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          if [ "$KEY_DEPLOYED" != "true" ]; then
+            echo "::error::ESTATE_KEY_NOT_DEPLOYED -- '${CITY_ESTATE}' exists in main's catalogue but not in the catalogue deployed at ${DEPLOYED_SHA:-unknown}. Nothing was enqueued and the worker was not touched. SANCTIONED RECOVERY: deploy the current approved main SHA, then re-run."
+            echo "| Preflight | ❌ ESTATE_KEY_NOT_DEPLOYED |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          if [ "$UNIT_INSTALLED" != "true" ]; then
+            echo "::error::CITY_WORKER_UNIT_NOT_INSTALLED -- /etc/systemd/system/${CITY_WORKER_UNIT} is missing, so the enqueued job could never be worked. Nothing was enqueued. SANCTIONED RECOVERY: dispatch 'Deploy BeatMapped Collector' (mode MAIN) -- normal deployment owns installing this unit (see deploy/README.md, 'City-worker unit ownership')."
+            echo "| Preflight | ❌ CITY_WORKER_UNIT_NOT_INSTALLED |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "| Preflight | ✅ operator CLI deployed, key present, unit installed |" >> "$GITHUB_STEP_SUMMARY"
+
+      # The ONLY mutating step that touches the queue. The governed CLI
+      # entry point takes the key and nothing else; it derives country,
+      # city, registry and the source universe itself, freezes that
+      # universe into the job's own directory, and enforces the duplicate-
+      # active-job rule. If it exits non-zero, no job exists and the wake
+      # step below never runs.
+      - name: Enqueue exactly one governed city job (duplicate-active-job rule enforced by the CLI itself)
+        id: enqueue
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            "sudo -u botm bash -c 'cd ${BEATMAPPED_APP_DIR} && node ingestion/city-worker/cli.mjs enqueue-city-estate ${CITY_ESTATE}'" \
+            | tee /tmp/enqueue-output.json
+
+          node -e '
+            const fs = require("fs");
+            const result = JSON.parse(fs.readFileSync("/tmp/enqueue-output.json", "utf8"));
+            const out = [];
+            if (result.enqueued === true) {
+              out.push(`enqueued=true`, `job_id=${result.job_id}`);
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+                `| Job enqueued | \`${result.job_id}\` |`,
+                `| Country / city | ${result.country} / ${result.city} |`,
+                `| Estate registry | \`${result.registry}\` |`,
+                `| Frozen estate snapshot | \`${result.estate_ref}\` |`,
+                `| Sources in this job | ${result.source_count} |`,
+                `| Job state | \`${result.state}\` |`,
+                "",
+              ].join("\n"));
+            } else if (result.reason === "DUPLICATE_ACTIVE_CITY_JOB") {
+              // A deliberate policy outcome, not an error: no new job was
+              // created. The worker is still woken below so the EXISTING
+              // non-terminal job makes progress -- which is exactly the
+              // recovery path for a job left QUEUED by an earlier failed
+              // wake.
+              out.push(`enqueued=false`, `job_id=${result.existing_job_id}`);
+              console.log(`::notice::DUPLICATE_ACTIVE_CITY_JOB -- ${result.city_estate_key} already has a non-terminal job (${result.existing_job_id}, ${result.existing_state}). No new job was created.`);
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+                `| Job enqueued | ⚠️ NO -- \`DUPLICATE_ACTIVE_CITY_JOB\` |`,
+                `| Existing job | \`${result.existing_job_id}\` (${result.existing_state}) |`,
+                `| Note | A new acquisition cycle is only started once that job is terminal. |`,
+                "",
+              ].join("\n"));
+            } else {
+              console.error(`::error::enqueue-city-estate returned an unrecognised result: ${JSON.stringify(result)}`);
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, out.join("\n") + "\n");
+          '
+
+      # SANCTIONED SYSTEMD WAKE -- and the narrowest possible one.
+      #
+      # WHY THERE IS NO RESTART HERE. runWorkerLoop() (ingestion/city-worker/
+      # worker-loop.mjs) is RESIDENT: it drains the queue, sleeps
+      # pollIntervalMs (5s by default), and drains again, until SIGTERM. An
+      # already-active worker therefore discovers a newly-enqueued job BY
+      # ITSELF within about five seconds. Restarting it to "wake" it would
+      # be strictly worse than doing nothing: it would SIGTERM a worker that
+      # may be mid-city, discarding the rest of that city's current batch's
+      # progress for no benefit whatsoever. So: start only when inactive,
+      # and otherwise touch nothing.
+      #
+      # NEVER `enable`: the city worker must never come back automatically
+      # on boot -- acquiring a city is always a deliberate operator act.
+      # NEVER nohup/tmux/screen, and never a foreground `node` worker: the
+      # worker process is systemd-owned, always.
+      - name: Wake the systemd worker if (and only if) it is not already active -- never enabled, never restarted
+        id: wake
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -i "$HOME/.ssh/deploy_key" \
+            "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
+            bash -s -- "$CITY_WORKER_UNIT" <<'REMOTE_SCRIPT' | tee /tmp/wake-output.txt
+            set -uo pipefail
+            UNIT="${1:-beatmapped-city-worker.service}"
+
+            # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01: the
+            # one canonical single-line state read. `systemctl is-active`/
+            # `is-enabled` legitimately PRINT a real state AND exit non-zero
+            # (inactive, failed, disabled, static, masked, unknown unit), so
+            # the naive `$(systemctl ... || echo <fallback>)` appends a
+            # SECOND line and yields a composite such as "disabled\ndisabled"
+            # that never equals the state it is compared against.
+            systemd_state() {
+              local verb="$1" unit="$2" fallback="$3" out
+              out="$(systemctl "$verb" "$unit" 2>/dev/null | head -n1 || true)"
+              [ -n "$out" ] || out="$fallback"
+              printf '%s\n' "$out"
+            }
+
+            ACTIVE_BEFORE="$(systemd_state is-active "$UNIT" inactive)"
+            ENABLED_BEFORE="$(systemd_state is-enabled "$UNIT" disabled)"
+            echo "WORKER_ACTIVE_BEFORE=$ACTIVE_BEFORE"
+            echo "WORKER_ENABLED_BEFORE=$ENABLED_BEFORE"
+
+            case "$ACTIVE_BEFORE" in
+              active|activating|reloading)
+                # Already running: it will pick the new job up on its own
+                # next poll. Deliberately a no-op -- see the note above.
+                echo "WORKER_WAKE_ACTION=NONE_ALREADY_ACTIVE"
+                ;;
+              *)
+                if sudo systemctl start "$UNIT"; then
+                  echo "WORKER_WAKE_ACTION=STARTED"
+                else
+                  echo "WORKER_WAKE_ACTION=START_FAILED"
+                fi
+                ;;
+            esac
+
+            OK=0
+            for _ in $(seq 1 10); do
+              if systemctl is-active --quiet "$UNIT"; then OK=1; break; fi
+              sleep 1
+            done
+            ACTIVE_AFTER="$(systemd_state is-active "$UNIT" inactive)"
+            ENABLED_AFTER="$(systemd_state is-enabled "$UNIT" disabled)"
+            echo "WORKER_ACTIVE_AFTER=$ACTIVE_AFTER"
+            echo "WORKER_ENABLED_AFTER=$ENABLED_AFTER"
+            echo "WORKER_ACTIVE_CONFIRMED=$OK"
+          REMOTE_SCRIPT
+
+          ACTIVE_BEFORE="$(grep '^WORKER_ACTIVE_BEFORE=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          WAKE_ACTION="$(grep '^WORKER_WAKE_ACTION=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          ACTIVE_AFTER="$(grep '^WORKER_ACTIVE_AFTER=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          ENABLED_AFTER="$(grep '^WORKER_ENABLED_AFTER=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          CONFIRMED="$(grep '^WORKER_ACTIVE_CONFIRMED=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          {
+            echo "| Worker state before wake | \`${ACTIVE_BEFORE:-unknown}\` |"
+            echo "| Wake action | \`${WAKE_ACTION:-unknown}\` |"
+            echo "| Worker state after wake | \`${ACTIVE_AFTER:-unknown}\` |"
+            echo "| Worker enabled-for-boot | \`${ENABLED_AFTER:-unknown}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Enablement is a hard safety property, checked whatever else
+          # happened: this control must never leave the city worker set to
+          # come back on boot.
+          case "${ENABLED_AFTER:-}" in
+            enabled|enabled-runtime)
+              echo "::error::CITY_WORKER_ENABLED_FOR_BOOT -- ${CITY_WORKER_UNIT} reports '${ENABLED_AFTER}'. Operator control must never enable the city worker for boot-time operation. Manual verification required."
+              exit 1
+              ;;
+          esac
+
+          if [ "$CONFIRMED" != "1" ]; then
+            # The job is already durable on disk (QUEUED) at this point --
+            # a failed wake never loses it. Re-dispatching this workflow for
+            # the same estate is the recovery: the duplicate-active-job rule
+            # will decline to create a second job, and this step will try
+            # the start again.
+            echo "::error::WORKER_START_FAILED -- ${CITY_WORKER_UNIT} did not reach 'active' (wake action: ${WAKE_ACTION:-unknown}, state: ${ACTIVE_AFTER:-unknown}). The enqueued job REMAINS DURABLE AND QUEUED and is not lost. RECOVERY: check 'Check BeatMapped City Jobs', then re-dispatch this workflow for the same estate -- no duplicate job will be created and the start will be retried."
+            echo "| Result | ❌ WORKER_START_FAILED (job remains queued and recoverable) |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          {
+            echo "| Result | ✅ worker active and systemd-owned (never enabled for boot) |"
+            echo "| Next | Dispatch **Check BeatMapped City Jobs** to follow progress. Acquisition does NOT publish the map -- publication remains a separate, deliberate action. |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up local SSH material
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key ~/.ssh/known_hosts

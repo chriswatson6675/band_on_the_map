@@ -180,6 +180,157 @@ source-task reconstruction depends on what a previous process held in
 memory (proven directly by
 `tests/city-worker/programme-acquisition-resolver.test.mjs`'s item 11).
 
+## Governed city-estate catalogue (`BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01`)
+
+The estate format above is exactly right for the job model and exactly
+wrong as an *operator* input: `estate_ref` is an arbitrary filesystem
+path, and `country`/`city` are arbitrary free text. Before this package
+there was **no canonical full-city estate for any city** — the only
+committed real estate was the bounded 5-source Berlin proof estate below.
+
+`ingestion/city-worker/city-estate-catalogue.json` closes both gaps. It is
+the complete operator input surface: a closed list of reviewed **keys**,
+each of which derives everything else.
+
+| key | country / city | selection | universe |
+|---|---|---|---|
+| `berlin-proof-5` | DE / Berlin | `EXPLICIT_ESTATE_FILE` | the already-reviewed bounded 5-source proof estate |
+| `berlin-all-active` | DE / Berlin | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/berlin.json` |
+| `paris-all-active` | FR / Paris | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/paris.json` |
+| `lisbon-all-active` | PT / Lisbon | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/lisbon.json` |
+| `porto-all-active` | PT / Porto | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/porto.json` |
+| `barcelona-all-active` | ES / Barcelona | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/barcelona.json` |
+
+There is deliberately **no London key** — this repository has no
+`sources/london.json`, so London has no governed estate to enqueue and a
+key for it would be an invented one.
+
+Two properties the catalogue exists to guarantee:
+
+**No duplicated source universe.** An `ALL_ACTIVE` entry names a
+*registry*, never a source-id list. The universe is derived at enqueue
+time from `sources/<city>.json` — still the single source of truth
+(`docs/SOURCE_REGISTRY.md`) — so the catalogue can never drift out of
+agreement with it, and a registry correction needs no catalogue edit.
+`porto-all-active` is the concrete illustration: `sources/porto.json`
+carries one `DORMANT` and one `UNKNOWN` entry, and the status filter
+excludes both (21 entries → 19 sources) without anyone maintaining a
+parallel list. Registries are read strictly read-only.
+
+**Durable estate identity, frozen at enqueue.** Deriving the universe at
+enqueue time would, on its own, mean a job *resumed* after a registry edit
+silently resumes against a different source set under the same job id —
+its existing per-source checkpoints then describing an estate that no
+longer exists. So enqueue **materialises** the resolved universe into the
+job's own directory, `runtime/city-jobs/<job_id>/estate.json`, and points
+`estate_ref` at that snapshot. The snapshot is written once and never
+rewritten. Its shape is deliberately the same `{ registry, source_ids }`
+estate format, so `programme-acquisition-resolver.mjs` consumes it with no
+change at all. Registry entries are still re-read for each source's live
+details (name, programme URL) — only *membership* is frozen. Proven by
+`tests/city-worker/city-estate-catalogue.test.mjs` (a job resumed after
+the registry gains and retires sources reconstructs the identical set, and
+survives its own catalogue entry being deleted).
+
+## Operator controls (`BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01`)
+
+Two `workflow_dispatch`-only GitHub Actions, both running in the same
+protected `beatmapped-collector-production` Environment the deployment
+Action uses. **No operator ever receives or handles an SSH credential, and
+no interactive SSH path is introduced.**
+
+**`Enqueue BeatMapped City Job`**
+(`.github/workflows/enqueue-beatmapped-city-job.yml`). One input: a
+`city_estate` key, as a `choice` list that is asserted to match the
+catalogue exactly. There is no input for a path, a source id, a registry
+blob, a shell fragment, or a free-text country/city. It then:
+
+1. validates the key on the runner, before any SSH key material is written;
+2. read-only preflights the host — deployed SHA, that the deployed code
+   provides the governed CLI, that the key exists in the *deployed*
+   catalogue, and that the city-worker unit is installed. Any failure here
+   leaves nothing enqueued and the worker untouched;
+3. enqueues exactly one job via `cli.mjs enqueue-city-estate <key>`;
+4. wakes the worker — see below.
+
+**`Check BeatMapped City Jobs`**
+(`.github/workflows/check-beatmapped-city-jobs.yml`). Read-only. Its only
+input is an optional job id, constrained to a UUID; blank lists every job.
+Per job it reports job id, country, city/area, governed estate key and
+frozen estate reference, created/started/completed timestamps, state,
+total/completed/successful/residue/failed counts, last checkpoint, current
+source, and runner SHA — plus, for a terminal job, the residue/failure
+breakdown. Per-source detail is a fixed **allow-list projection**
+(`operator-status.mjs`), never a raw checkpoint spread, so no secret,
+environment value, or fetched page body can reach an operator summary even
+if a future collector starts recording one. The backing module imports
+only reader functions and contains no `child_process`, no `systemctl`, and
+no write call; the workflow itself contains no `systemctl` verb at all.
+
+### Duplicate-active-job and new-cycle policy
+
+At most **one non-terminal job per governed estate**. A second dispatch
+while that estate's job is `QUEUED` or `RUNNING` reports
+`DUPLICATE_ACTIVE_CITY_JOB` and creates nothing — a deliberate policy
+outcome, not a crash, so the worker is still woken and the *existing* job
+makes progress. Once the previous job is terminal (`COMPLETE`,
+`COMPLETE_WITH_RESIDUE`, `FAILED`, `CANCELLED`), a new explicit cycle is
+allowed and always receives a **new job id** with its own frozen estate. A
+restart/resume of an unfinished job always keeps its **original** job id.
+The rule is per-estate: one city's active job never blocks another's.
+
+### Idle behaviour and the operator wake
+
+`runWorkerLoop()` is **resident**: it drains the queue, sleeps
+`pollIntervalMs` (5000 ms by default, overridable via
+`BEATMAPPED_CITY_WORKER_POLL_INTERVAL_MS`), and drains again, until
+SIGTERM. It does **not** exit when the queue empties.
+
+This package deliberately did **not** redesign that into a one-shot model
+— it measured the behaviour and built the operator control around it. The
+consequence that matters:
+
+> An already-active worker discovers a newly-enqueued job **by itself**,
+> within about one poll interval. No wake mechanism is needed for it.
+
+So the wake step starts the unit **only when it is not active**, and
+otherwise does nothing at all. Restarting a running worker to "wake" it
+would be strictly worse than doing nothing: it would SIGTERM a worker that
+may be mid-city, discarding the rest of that city's current batch for no
+benefit. `systemctl enable` is never used — the city worker must never
+come back automatically on boot — and the worker is never launched via
+`nohup`/`tmux`/`screen` or as a foreground `node` process. It is always
+systemd-owned.
+
+Three further properties make an accidental redundant start harmless:
+`systemctl start` on an active `Type=simple` unit is a no-op; if a second
+process did launch, `acquireWorkerLock()` returns `ANOTHER_WORKER_RUNNING`
+and it exits `2` ("refused, not failed"); and an idle worker does no
+acquisition work at all — its cost is one queue read per poll. All proven
+in `tests/city-worker/resident-worker-idle.test.mjs`.
+
+If the start genuinely fails, the enqueued job is already durable and
+`QUEUED` — it is never lost. The recovery is to re-dispatch the same
+workflow for the same estate: the duplicate rule declines to create a
+second job, and the start is retried.
+
+### Deployment while a city job is active
+
+An active city job **blocks deployment**; deployment waits for the job,
+and the job is never overwritten underneath itself. The deployment
+Action's existing fail-closed-on-active check was reviewed here and
+deliberately **kept unchanged**. See `deploy/README.md`, "Deploying while
+a city job is active", for the full rule and why relaxing it needs a
+separate drain-and-restart lifecycle design.
+
+### What these controls deliberately do not do
+
+No publication coupling (a completed city job never triggers map
+publication — acquisition and publication remain separate deliberate
+acts); no systemd timer, cron, schedule, recurring acquisition, autonomous
+queue producer, or dashboard. Both controls are manual, human-dispatched,
+and `workflow_dispatch`-only.
+
 ## Bounded real-source proof
 
 **5 real, currently-ACTIVE, already-governed `sources/berlin.json`
@@ -292,6 +443,22 @@ against the real Berlin proof job above. CLI/JSON only, no frontend.
 
 ## Operator CLI
 
+`BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01` added three commands,
+and the distinction between the first two below matters:
+
+- `enqueue-city <country> <city> <estateRef>` — the original low-level
+  primitive. Free-text country/city, arbitrary estate path. Correct for a
+  developer or test invocation; **not** what an operator control may call,
+  precisely because every one of its inputs is arbitrary.
+- `enqueue-city-estate <cityEstateKey>` — the governed operator entry
+  point. Its only input is one catalogue key; country, city, registry and
+  the source universe are all derived, and the universe is frozen into the
+  job's own directory. This is what the enqueue Action calls.
+- `list-city-estates` — read-only: which governed estates exist.
+- `city-jobs-status [--job-id=ID]` — read-only: the full operator status
+  report (see "Operator controls" above). Backs the status Action.
+
+The original set —
 `enqueue-city`, `list-jobs`, `show-job`, `resume-job`, `cancel-job`,
 `run-worker`, `health` — all demonstrated live above against the real
 integrated stack (enqueue → show (QUEUED) → run-worker (real network) →
@@ -337,7 +504,11 @@ and behaviourally (the real proof's own residue sources never blocked
   addressed here.
 - Per-host throttling at real production scale (a full city, not this
   package's bounded 5-source proof) has not been re-validated against a
-  large real estate's actual host diversity.
+  large real estate's actual host diversity. This matters more now that
+  `*-all-active` catalogue keys exist: **no full-city estate has ever
+  been run**, in production or otherwise. `berlin-proof-5` is the only
+  key backed by a real end-to-end run, and is deliberately the intended
+  first normal operator cycle.
 - No dashboard; CLI/JSON only (by design, per this package's own brief).
 - Publication is not connected (by design, per this package's own
   brief).

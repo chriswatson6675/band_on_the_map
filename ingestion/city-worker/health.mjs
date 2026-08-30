@@ -6,6 +6,7 @@
 
 import { readWorkerLockStatus } from "./lock.mjs";
 import { listJobs, loadJob } from "./job-store.mjs";
+import { readJobCityEstateKey } from "./city-estate-catalogue.mjs";
 
 /** Health snapshot for one specific job — used by `show-job`/`resume-job` and by the "current city" question below. */
 export function buildJobHealthSnapshot(job) {
@@ -14,6 +15,12 @@ export function buildJobHealthSnapshot(job) {
     job_id: job.job_id,
     country: job.country,
     city: job.city,
+    // BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01: estate identity is
+    // now part of every status answer. `city_estate_key` is null for a job
+    // enqueued before the governed catalogue existed (the bounded live
+    // trial's own jobs) — reported honestly rather than guessed at.
+    city_estate_key: readJobCityEstateKey(job),
+    estate_ref: job.estate_ref ?? null,
     state: job.state,
     total_sources: job.total_sources,
     completed_sources: job.completed_sources,

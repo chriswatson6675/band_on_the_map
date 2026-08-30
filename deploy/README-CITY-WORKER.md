@@ -48,7 +48,36 @@ branch:
    `mapAcquisitionResultToCheckpoint()`, bounded-proven live against 5
    real `sources/berlin.json` entries.
 
-## Exact steps a later deployment package would still need
+## SUPERSEDED — read this before the checklist below
+
+`BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01` and
+`BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01` closed this checklist.
+The sanctioned path is now entirely through GitHub Actions, and **routine
+interactive SSH to production is prohibited** — the manual commands below
+are retained only as a description of what those Actions do on the host,
+never as instructions to run by hand.
+
+- **Step 1 (install the unit) is now owned by normal deployment.**
+  `deploy/install.sh` installs and reconciles
+  `beatmapped-city-worker.service` on every deploy — present, not
+  running, not enabled — and `Deploy BeatMapped Collector` verifies that
+  read-only. See `deploy/README.md`, "City-worker unit ownership".
+- **Steps 2–3 (start the worker, enqueue a city) are now one operator
+  Action**: `Enqueue BeatMapped City Job`, whose only input is a governed
+  estate key. Progress is read via `Check BeatMapped City Jobs`. See
+  `docs/UNATTENDED_CITY_WORKER.md`, "Operator controls".
+- **Step 4 is WITHDRAWN. Do not `systemctl enable` this unit.** The
+  requirement that the city worker is never enabled for boot is now
+  absolute and enforced: `install.sh` never enables it, the deployment
+  Action fails closed on `enabled`/`enabled-runtime`, and so does the
+  operator control. Acquiring a city is always a deliberate operator act,
+  never something a reboot resumes on its own. The reboot-resilience
+  concern the original step 4 was reaching for is instead answered by the
+  job model itself — a job's state and per-source checkpoints are durable
+  on disk, so a job interrupted by a reboot is resumed, under its
+  original job id, by the next operator wake.
+
+## Exact steps a later deployment package would still need (HISTORICAL — see "SUPERSEDED" above)
 
 1. **Install the new systemd unit alongside the existing two**: copy
    `deploy/systemd/beatmapped-city-worker.service` to
