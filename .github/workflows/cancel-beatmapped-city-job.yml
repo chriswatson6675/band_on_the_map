@@ -117,11 +117,28 @@ jobs:
             echo "DEPLOYED_SHA=$(sudo -u botm git -C "$APP_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
 
             # Does the deployed CLI advertise the cancel primitive at all?
-            # Running it with no command prints its own command list and
-            # exits non-zero; that is a read-only capability probe.
-            if sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs" 2>&1 | grep -q 'cancel-job'; then
+            # Running it with no command PRINTS its own command list and
+            # deliberately EXITS 1 -- the exit status of a usage banner
+            # carries no capability evidence; only its OUTPUT does.
+            #
+            # BEATMAPPED-CANCEL-CAPABILITY-PROBE-CORRECTION-01: this used
+            # to pipe the CLI straight into `grep -q`. Under this script's
+            # own `set -o pipefail` the pipeline inherited the CLI's
+            # intentional exit 1 even though grep had matched, so the probe
+            # reported CANCEL_CAPABILITY_AVAILABLE=false on EVERY host --
+            # proven live against a production checkout that demonstrably
+            # DID provide the primitive. See workflow run 33327365097,
+            # deployed SHA cf875407ad8d76fd823fee5ca8f914287b5caef3. CAPTURE the
+            # output first, then MATCH the capture. pipefail deliberately
+            # stays on for the rest of this script; only this one probe is
+            # exempted, and only from an exit status that was never
+            # meaningful.
+            CLI_COMMANDS="$(sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs" 2>&1 || true)"
+            if printf '%s\n' "$CLI_COMMANDS" | grep -q 'cancel-job'; then
               echo "CANCEL_CAPABILITY_AVAILABLE=true"
             else
+              # Genuinely stale host, or no CLI at all: still fails closed
+              # below, before any mutation.
               echo "CANCEL_CAPABILITY_AVAILABLE=false"
             fi
 
