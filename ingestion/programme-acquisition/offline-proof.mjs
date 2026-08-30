@@ -1,4 +1,5 @@
 import { extractEventNodes } from "../json-ld/parse.mjs";
+import { proofDateFromStartDate } from "./proof-date.mjs";
 
 function nonEmpty(value) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -130,7 +131,7 @@ function canonicalProofs(document, documentUrl, canonicalUrl, cutoff) {
     const nodeUrl = absoluteUrl(typeof node?.url === "string" ? node.url : node?.url?.url, documentUrl);
     const jsonLdId = absoluteUrl(node?.["@id"], documentUrl);
     if (!title || !startRaw || (nodeUrl && nodeUrl !== canonicalUrl)) continue;
-    const date = /^\d{4}-\d{2}-\d{2}/.exec(startRaw)?.[0] ?? null;
+    const date = proofDateFromStartDate(startRaw);
     if (cutoff && (!date || date < cutoff)) continue;
     proofs.push({
       title,
@@ -169,7 +170,7 @@ function selfReferentialProofs(document, documentUrl, cutoff) {
     const startRaw = nonEmpty(node?.startDate);
     const selfUrl = selfReferentialEventUrl(node, documentUrl);
     if (!title || !startRaw || !selfUrl) continue;
-    const date = /^\d{4}-\d{2}-\d{2}/.exec(startRaw)?.[0] ?? null;
+    const date = proofDateFromStartDate(startRaw);
     if (cutoff && (!date || date < cutoff)) continue;
     eligible.push({ title, startRaw, selfUrl, jsonLdId: publishedAbsoluteId(node) });
   }

@@ -256,7 +256,14 @@ test("§6 the new basis relaxes no existing event requirement", () => {
     "empty name": { name: "   ", startDate: "2026-09-01T20:00:00+01:00", url },
     "missing startDate": { name: "No date", url },
     "before cutoff": { name: "Past", startDate: "2026-08-01T20:00:00+01:00", url },
-    "unparseable startDate": { name: "Unpadded", startDate: "2026-8-31T20:30+2:00", url },
+    // BEATMAPPED-PROOF-DATE-PREFIX-PARSING-01 replaced this case. It used to
+    // be `startDate: "2026-8-31T20:30+2:00"` ("unparseable"), which encoded the
+    // very defect that package fixed: an unpadded month/day is a perfectly
+    // readable source-published date and now proves. The property under test
+    // here is unchanged — the identity basis relaxes no date rule — so the
+    // case is now an impossible calendar date, which is still rejected.
+    "impossible calendar date": { name: "Never happened", startDate: "2026-2-30T20:30+2:00", url },
+    "malformed date prefix": { name: "Garbage", startDate: "2026-8-31garbage", url },
   };
   for (const [label, fields] of Object.entries(cases)) {
     assert.deepEqual(proofsFor([{ url, body: eventJson(fields) }]), [], `${label} must still be rejected`);
