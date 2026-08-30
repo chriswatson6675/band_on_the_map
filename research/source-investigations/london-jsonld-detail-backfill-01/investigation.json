@@ -1,0 +1,33 @@
+{
+  "investigation_id": "london-jsonld-detail-backfill-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-29T00:00:00.000Z",
+  "investigator": { "type": "AI", "method": "Generic JSON-LD Event URL detail replay; no browser." },
+  "probe_history": [
+    { "level": 1, "method": "PASSIVE_STATIC", "outcome": "INSUFFICIENT", "reason": "Listing JSON-LD supplied event URLs but the prior generic anchor discovery did not retain the corresponding detail documents.", "evidence_refs": ["ev-prior"] },
+    { "level": 2, "method": "STRUCTURAL", "outcome": "SUFFICIENT", "reason": "One retained public GET per declared Event URL replayed the generic canonical-detail rule.", "evidence_refs": ["ev-backfill"] }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "London JSON-LD event-detail backfill (17 prior deferred event records)",
+  "official_url": null,
+  "identity": { "status": "PARTIAL", "confidence": "MEDIUM", "evidence_refs": ["ev-backfill"], "notes": "Twelve event records pass the canonical-detail rule; five 403 responses remain browser-dependent." },
+  "site_classification": { "acquisition_class": "STATIC_HTML", "platform": "Generic JSON-LD detail URL discovery", "confidence": "MEDIUM", "evidence_refs": ["ev-backfill"] },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-event result retained in backfill audit.", "evidence_refs": ["ev-backfill"] },
+    "start_date": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-event result retained in backfill audit.", "evidence_refs": ["ev-backfill"] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "source_record_id": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Only canonical-detail proof rows are promoted.", "evidence_refs": ["ev-backfill"] },
+    "event_url": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Only canonical-detail proof rows are promoted.", "evidence_refs": ["ev-backfill"] }
+  },
+  "collector_assessment": { "recommended_family": "STATIC_EVENT_LIST", "confidence": "MEDIUM", "evidence_refs": ["ev-backfill"], "blockers": [{ "severity": "MAJOR", "description": "Chats Palace detail URLs return retained HTTP 403 responses; browser work remains deferred by scope." }] },
+  "decision": { "status": "DEFER", "reasons": ["Aggregate record; browser-dependent five-record subset is retained but not escalated."], "evidence_refs": ["ev-backfill"] },
+  "evidence": [
+    { "evidence_id": "ev-prior", "evidence_class": "DIRECT_EVIDENCE", "description": "Prior frozen cohort audit identifying the exact deferred Event URLs.", "acquired_from": "Retained London Level-2 public captures", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Offline read", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-stable-identity-offline-proof-01/evidence/cohort-audit.json" },
+    { "evidence_id": "ev-backfill", "evidence_class": "DIRECT_EVIDENCE", "description": "Bounded current public detail GETs and canonical-detail proof outcomes.", "acquired_from": "Multiple retained first-party Event URLs", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Public unauthenticated GET", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-jsonld-detail-backfill-01/evidence/detail-backfill-audit.json" }
+  ],
+  "supersedes": "london-stable-identity-offline-proof-01"
+}

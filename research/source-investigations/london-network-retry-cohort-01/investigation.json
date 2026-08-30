@@ -1,0 +1,32 @@
+{
+  "investigation_id": "london-network-retry-cohort-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-29T00:00:00.000Z",
+  "investigator": { "type": "AI", "method": "Bounded generic public retry validation; no browser." },
+  "probe_history": [
+    { "level": 1, "method": "PASSIVE_STATIC", "outcome": "INSUFFICIENT", "reason": "The retained city rerun established the precise network-failure cohort but could not distinguish transient recovery.", "evidence_refs": ["ev-level1"] },
+    { "level": 2, "method": "STRUCTURAL", "outcome": "SUFFICIENT", "reason": "The bounded retry cohort retains every attempt provenance and final outcome.", "evidence_refs": ["ev-level2", "ev-proof"] }
+  ],
+  "source_candidate_id": null, "source_id": null,
+  "venue_reference": "Exact 20-source London network-failure retry cohort", "official_url": null,
+  "identity": { "status": "PARTIAL", "confidence": "MEDIUM", "evidence_refs": ["ev-proof"], "notes": "Per-source evidence is retained; this aggregate does not canonicalize venues." },
+  "site_classification": { "acquisition_class": "STATIC_HTML", "platform": "Generic public retry acquisition", "confidence": "MEDIUM", "evidence_refs": ["ev-level2"] },
+  "data_paths": [],
+  "field_assessment": {
+    "title": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-source outcome retained.", "evidence_refs": ["ev-proof"] },
+    "start_date": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Per-source outcome retained.", "evidence_refs": ["ev-proof"] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "source_record_id": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Only independently proven rows are promoted.", "evidence_refs": ["ev-proof"] },
+    "event_url": { "state": "PARTIAL", "value": null, "basis": null, "derivation": null, "notes": "Only independently proven rows are promoted.", "evidence_refs": ["ev-proof"] }
+  },
+  "collector_assessment": { "recommended_family": "STATIC_EVENT_LIST", "confidence": "MEDIUM", "evidence_refs": ["ev-level2"], "blockers": [] },
+  "decision": { "status": "DEFER", "reasons": ["Aggregate retry validation only; no activation or public/canonical data mutation is authorised."], "evidence_refs": ["ev-proof"] },
+  "evidence": [
+    { "evidence_id": "ev-level1", "evidence_class": "DIRECT_EVIDENCE", "description": "Retained prior city rerun from which the cohort is selected mechanically.", "acquired_from": "Retained London public acquisition evidence", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Public GET", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-programme-resolution-rerun-01/evidence/city-rerun.json" },
+    { "evidence_id": "ev-level2", "evidence_class": "DIRECT_EVIDENCE", "description": "Bounded retry-cohort captures, attempt provenance, routes, and results.", "acquired_from": "Multiple retained first-party public URLs", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Public unauthenticated GET", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-network-retry-cohort-01/evidence/network-retry-cohort.json" },
+    { "evidence_id": "ev-proof", "evidence_class": "DETERMINISTIC_DERIVATION", "description": "Generic collector and offline proof outcomes in the retained retry cohort.", "acquired_from": "Retained retry-cohort capture", "acquired_at": "2026-08-29T00:00:00.000Z", "method": "Offline deterministic replay", "content_type": "application/json", "byte_faithful": false, "path": "research/source-investigations/london-network-retry-cohort-01/evidence/network-retry-cohort.json" }
+  ],
+  "supersedes": null
+}
