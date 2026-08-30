@@ -107,6 +107,62 @@ async function withOptionalSummary(job, { root }) {
 }
 
 /**
+ * BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01 — the three
+ * operator-visible operational states. Under drain-and-exit a worker that
+ * is NOT running is the normal resting condition, so "no worker process"
+ * on its own says nothing; it only becomes meaningful next to whether
+ * there is work waiting.
+ *
+ *   WORKING              a worker process holds the lock. Whatever is
+ *                        queued will be drained by it — drainQueueOnce
+ *                        re-picks after every job — and it will exit on
+ *                        its own once nothing is runnable.
+ *   IDLE_NOTHING_TO_DO   no worker, and nothing queued or running. The
+ *                        normal resting state, and the state in which a
+ *                        deployment is allowed.
+ *   WORK_NEEDS_WAKE      no worker, but a QUEUED or RUNNING job exists.
+ *                        Work is durable and safe but nothing is moving it.
+ *                        Normal operator use should never produce this —
+ *                        the enqueue control always issues an idempotent
+ *                        `systemctl start` and converges on a running
+ *                        worker — so seeing it means a wake was missed
+ *                        (e.g. a start that failed, or a worker killed
+ *                        out of band). The recovery is to re-dispatch
+ *                        "Enqueue BeatMapped City Job" for the same
+ *                        estate: no duplicate job is created, and the
+ *                        start is retried.
+ */
+export function deriveOperationalState({ workerAlive, queuedJobCount, runningJobCount }) {
+  if (workerAlive) return "WORKING";
+  return queuedJobCount + runningJobCount > 0 ? "WORK_NEEDS_WAKE" : "IDLE_NOTHING_TO_DO";
+}
+
+/**
+ * The minimal read-only question the operator wake needs answered on the
+ * host: is there any job a worker would still pick up? Deliberately tiny
+ * and separate from the full status report, so the wake step's
+ * convergence check stays a cheap, unambiguous line of output rather than
+ * bash parsing a large document.
+ *
+ * "Runnable" is exactly queue.mjs's own rule — QUEUED, or RUNNING and not
+ * cancel-requested — so this can never disagree with what a worker would
+ * actually choose to process.
+ */
+export async function summariseRunnableWork({ root } = {}) {
+  const lockStatus = await readWorkerLockStatus({ root });
+  const jobs = await listJobs({ root });
+  const queued = jobs.filter((job) => job.state === "QUEUED");
+  const running = jobs.filter((job) => job.state === "RUNNING" && !job.cancel_requested);
+  return {
+    runnable_work: queued.length + running.length > 0,
+    queued_job_count: queued.length,
+    running_job_count: running.length,
+    worker_alive: lockStatus.alive,
+    operational_state: deriveOperationalState({ workerAlive: lockStatus.alive, queuedJobCount: queued.length, runningJobCount: running.length }),
+  };
+}
+
+/**
  * The whole operator status report: worker liveness plus every job (or a
  * single job when `jobId` is given), newest first. `generated_at` is
  * supplied by the caller so this module stays clock-free and its output
@@ -114,10 +170,16 @@ async function withOptionalSummary(job, { root }) {
  */
 export async function buildOperatorStatusReport({ root, jobId = null, generatedAt } = {}) {
   const lockStatus = await readWorkerLockStatus({ root });
+  const allJobs = await listJobs({ root });
+  const queuedJobCount = allJobs.filter((job) => job.state === "QUEUED").length;
+  const runningJobCount = allJobs.filter((job) => job.state === "RUNNING").length;
   const worker = {
     worker_alive: lockStatus.alive,
     worker_pid: lockStatus.pid ?? null,
     worker_started_at: lockStatus.started_at ?? null,
+    queued_job_count: queuedJobCount,
+    running_job_count: runningJobCount,
+    operational_state: deriveOperationalState({ workerAlive: lockStatus.alive, queuedJobCount, runningJobCount }),
   };
 
   if (jobId) {
@@ -128,7 +190,7 @@ export async function buildOperatorStatusReport({ root, jobId = null, generatedA
     return { generated_at: generatedAt ?? null, worker, requested_job_id: jobId, job_count: 1, jobs: [await withOptionalSummary(job, { root })] };
   }
 
-  const jobs = await listJobs({ root });
+  const jobs = [...allJobs];
   jobs.sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")));
   const projected = [];
   for (const job of jobs) projected.push(await withOptionalSummary(job, { root }));

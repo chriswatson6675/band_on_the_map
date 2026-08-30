@@ -10,6 +10,7 @@
 //   enqueue-city-estate <cityEstateKey>
 //   list-city-estates
 //   city-jobs-status [--job-id=ID]
+//   has-runnable-work
 //   list-jobs [--state=STATE]
 //   show-job <jobId>
 //   resume-job <jobId> --resolver=<path> [--concurrency=N]
@@ -57,7 +58,7 @@ import { randomUUID } from "node:crypto";
 import { createCityJob } from "./job.mjs";
 import { saveJob, loadJob, listJobs, CITY_WORKER_ROOT } from "./job-store.mjs";
 import { describeCityEstates, findActiveJobForEstate, materialiseJobEstate, resolveCityEstate } from "./city-estate-catalogue.mjs";
-import { buildOperatorStatusReport } from "./operator-status.mjs";
+import { buildOperatorStatusReport, summariseRunnableWork } from "./operator-status.mjs";
 import { enqueueJob } from "./queue.mjs";
 import { runCityJob } from "./runner.mjs";
 import { drainQueueOnce } from "./worker-loop.mjs";
@@ -200,6 +201,20 @@ async function cmdEnqueueCityEstate({ positional }, root) {
   );
 }
 
+/**
+ * Read-only, single-line-parseable: is there any job a worker would still
+ * pick up? BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01 —
+ * this is what the operator wake's convergence check reads on the host
+ * after each idempotent `systemctl start`, so its output is deliberately
+ * KEY=VALUE lines rather than JSON. Purely a reader; it starts nothing.
+ */
+async function cmdHasRunnableWork(_args, root) {
+  const summary = await summariseRunnableWork({ root });
+  for (const [key, value] of Object.entries(summary)) {
+    console.log(`${key.toUpperCase()}=${value}`);
+  }
+}
+
 /** Read-only operator status. Imports only readers (see operator-status.mjs) — this command cannot change a job, the queue, or the worker. */
 async function cmdCityJobsStatus({ flags }, root) {
   const report = await buildOperatorStatusReport({ root, jobId: flags["job-id"] ?? null, generatedAt: new Date().toISOString() });
@@ -259,6 +274,7 @@ const COMMANDS = {
   "enqueue-city-estate": cmdEnqueueCityEstate,
   "list-city-estates": cmdListCityEstates,
   "city-jobs-status": cmdCityJobsStatus,
+  "has-runnable-work": cmdHasRunnableWork,
   "list-jobs": cmdListJobs,
   "show-job": cmdShowJob,
   "resume-job": cmdResumeJob,

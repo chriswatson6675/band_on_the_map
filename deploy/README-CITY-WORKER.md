@@ -66,6 +66,14 @@ never as instructions to run by hand.
   Action**: `Enqueue BeatMapped City Job`, whose only input is a governed
   estate key. Progress is read via `Check BeatMapped City Jobs`. See
   `docs/UNATTENDED_CITY_WORKER.md`, "Operator controls".
+- **Step 2's success criterion is also WRONG now.** The worker is
+  **drain-and-exit** (`BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01`):
+  it drains every queued job and then exits 0, so `systemctl status` showing
+  `inactive (dead)` shortly after a run is the CORRECT, healthy outcome — not
+  a failure. A service that stays `active` indefinitely would be the problem,
+  because normal deployment fails closed while the city worker is active.
+  Read job outcomes from `Check BeatMapped City Jobs`, never from unit
+  liveness.
 - **Step 4 is WITHDRAWN. Do not `systemctl enable` this unit.** The
   requirement that the city worker is never enabled for boot is now
   absolute and enforced: `install.sh` never enables it, the deployment

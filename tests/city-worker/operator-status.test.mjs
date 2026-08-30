@@ -16,7 +16,7 @@ import { join, relative } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
-import { buildOperatorStatusReport, buildResidueSummary, projectJobForOperator } from "../../ingestion/city-worker/operator-status.mjs";
+import { buildOperatorStatusReport, buildResidueSummary, deriveOperationalState, projectJobForOperator, summariseRunnableWork } from "../../ingestion/city-worker/operator-status.mjs";
 import { recordSourceResult } from "../../ingestion/city-worker/checkpoint-store.mjs";
 import { createCityJob } from "../../ingestion/city-worker/job.mjs";
 import { saveJob } from "../../ingestion/city-worker/job-store.mjs";
@@ -71,15 +71,37 @@ async function snapshotTree(root) {
 // cannot mutate queue/jobs; cannot start/stop the worker
 // ---------------------------------------------------------------------------
 
+/** Strip `//` line comments and block comments, so a prose mention of a banned token is never mistaken for a call to it. */
+function stripComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+}
+
 test("the status module imports ONLY readers — no writer, no queue mutation, no process control", async () => {
   const source = await readFile(MODULE_PATH, "utf8");
   const imported = [...source.matchAll(/^import \{([^}]+)\} from/gm)].flatMap((match) => match[1].split(",").map((name) => name.trim()));
 
-  const forbidden = ["saveJob", "enqueueJob", "runCityJob", "drainQueueOnce", "runWorkerLoop", "requestJobCancel", "acquireWorkerLock", "releaseWorkerLock", "recordSourceResult", "markSourceRunning"];
+  const forbidden = [
+    "saveJob",
+    "enqueueJob",
+    "runCityJob",
+    "drainQueueOnce",
+    // BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01 renamed
+    // runWorkerLoop; both names are banned so neither can slip back in.
+    "runWorkerLoop",
+    "runWorkerUntilQueueDrained",
+    "requestJobCancel",
+    "acquireWorkerLock",
+    "releaseWorkerLock",
+    "recordSourceResult",
+    "markSourceRunning",
+  ];
   for (const name of forbidden) {
     assert.ok(!imported.includes(name), `operator-status.mjs must never import ${name}`);
   }
-  assert.doesNotMatch(source, /node:child_process|execFile|spawn|systemctl|writeFile|mkdir|rename|unlink/, "the status surface must have no way to run a command or write a file");
+  // Scoped to EXECUTABLE code only: this module's documentation legitimately
+  // discusses what the operator control's `systemctl start` does, and a
+  // prose mention is not a capability. The ban itself is unchanged.
+  assert.doesNotMatch(stripComments(source), /node:child_process|execFile|spawn|systemctl|writeFile|mkdir|rename|unlink/, "the status surface must have no way to run a command or write a file");
 });
 
 test("running the real status CLI leaves the entire runtime tree byte-identical", async (t) => {
@@ -245,6 +267,96 @@ test("a job created before the governed catalogue existed reports a null estate 
   const [job] = (await buildOperatorStatusReport({ root, generatedAt: "2026-08-30T02:00:00.000Z" })).jobs;
   assert.equal(job.city_estate_key, null);
   assert.equal(job.estate_ref, "fixtures/city-worker/real-estates/berlin-sample-01.json");
+});
+
+// ---------------------------------------------------------------------------
+// §15 — operational state. Under drain-and-exit "no worker process" is the
+// NORMAL resting condition, so liveness alone is not an operator signal;
+// it only means something read together with whether work is waiting.
+// ---------------------------------------------------------------------------
+
+test("15: no worker and nothing queued is NORMAL IDLE, not a problem", async (t) => {
+  const root = await freshRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await seedJob(root, { jobId: "job-done", state: "COMPLETE_WITH_RESIDUE" });
+
+  const report = await buildOperatorStatusReport({ root, generatedAt: "2026-08-30T02:00:00.000Z" });
+  assert.equal(report.worker.worker_alive, false);
+  assert.equal(report.worker.operational_state, "IDLE_NOTHING_TO_DO");
+  assert.equal(report.worker.queued_job_count, 0);
+  assert.equal(report.worker.running_job_count, 0);
+});
+
+test("15: no worker WITH a queued or running job is WORK_NEEDS_WAKE — distinguished from normal idle", async (t) => {
+  const root = await freshRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await seedJob(root, { jobId: "job-waiting", state: "QUEUED" });
+
+  const report = await buildOperatorStatusReport({ root, generatedAt: "2026-08-30T02:00:00.000Z" });
+  assert.equal(report.worker.operational_state, "WORK_NEEDS_WAKE");
+  assert.equal(report.worker.queued_job_count, 1);
+
+  // A job left RUNNING by a killed worker is the same condition.
+  await seedJob(root, { jobId: "job-orphan", state: "RUNNING", created_at: "2026-08-30T00:00:01.000Z" });
+  const second = await buildOperatorStatusReport({ root, generatedAt: "2026-08-30T02:00:00.000Z" });
+  assert.equal(second.worker.operational_state, "WORK_NEEDS_WAKE");
+  assert.equal(second.worker.running_job_count, 1);
+});
+
+test("15: the three operational states are exactly the documented mapping", () => {
+  assert.equal(deriveOperationalState({ workerAlive: true, queuedJobCount: 0, runningJobCount: 0 }), "WORKING");
+  assert.equal(deriveOperationalState({ workerAlive: true, queuedJobCount: 3, runningJobCount: 1 }), "WORKING");
+  assert.equal(deriveOperationalState({ workerAlive: false, queuedJobCount: 0, runningJobCount: 0 }), "IDLE_NOTHING_TO_DO");
+  assert.equal(deriveOperationalState({ workerAlive: false, queuedJobCount: 1, runningJobCount: 0 }), "WORK_NEEDS_WAKE");
+  assert.equal(deriveOperationalState({ workerAlive: false, queuedJobCount: 0, runningJobCount: 1 }), "WORK_NEEDS_WAKE");
+});
+
+test("15: status reporting never requires a worker process to be alive — a host with no worker still answers fully", async (t) => {
+  const root = await freshRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await seedJob(root, { jobId: "job-past", state: "COMPLETE", counts: { total_sources: 5, completed_sources: 5, successful_sources: 5 }, completed_at: "2026-08-30T01:00:00.000Z" });
+
+  const { stdout } = await execFileAsync(process.execPath, [CLI, "city-jobs-status", `--root=${root}`]);
+  const report = JSON.parse(stdout);
+  assert.equal(report.worker.worker_alive, false);
+  assert.equal(report.jobs[0].total_sources, 5, "full per-job detail is available with no worker running");
+  assert.ok(report.jobs[0].terminal_summary, "and so is the terminal summary");
+});
+
+test("15: has-runnable-work answers the wake's question using queue.mjs's own runnable rule", async (t) => {
+  const root = await freshRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const empty = await summariseRunnableWork({ root });
+  assert.equal(empty.runnable_work, false);
+  assert.equal(empty.operational_state, "IDLE_NOTHING_TO_DO");
+
+  await seedJob(root, { jobId: "job-q", state: "QUEUED" });
+  assert.equal((await summariseRunnableWork({ root })).runnable_work, true);
+
+  // A cancel-requested RUNNING job is NOT runnable — the same exclusion
+  // pickNextRunnableJobId makes, so the wake can never disagree with a worker.
+  const root2 = await freshRoot();
+  t.after(() => rm(root2, { recursive: true, force: true }));
+  await seedJob(root2, { jobId: "job-cancelling", state: "RUNNING", cancel_requested: true });
+  const cancelling = await summariseRunnableWork({ root: root2 });
+  assert.equal(cancelling.runnable_work, false, "a cancel-requested job must not make the wake think there is work");
+});
+
+test("15: the has-runnable-work CLI prints flat KEY=VALUE lines the wake's shell can read, and mutates nothing", async (t) => {
+  const root = await freshRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await seedJob(root, { jobId: "job-q", state: "QUEUED" });
+
+  const before = await snapshotTree(root);
+  const { stdout } = await execFileAsync(process.execPath, [CLI, "has-runnable-work", `--root=${root}`]);
+  const after = await snapshotTree(root);
+
+  assert.match(stdout, /^RUNNABLE_WORK=true$/m);
+  assert.match(stdout, /^OPERATIONAL_STATE=WORK_NEEDS_WAKE$/m);
+  for (const line of stdout.trim().split("\n")) assert.match(line, /^[A-Z_]+=\S*$/, `every line must be a single flat KEY=VALUE: ${line}`);
+  assert.deepEqual([...after.keys()].sort(), [...before.keys()].sort());
+  for (const [path, content] of before) assert.equal(after.get(path), content, `${path} must be unchanged by the wake's read-only query`);
 });
 
 // ---------------------------------------------------------------------------

@@ -260,7 +260,20 @@ Per job it reports job id, country, city/area, governed estate key and
 frozen estate reference, created/started/completed timestamps, state,
 total/completed/successful/residue/failed counts, last checkpoint, current
 source, and runner SHA — plus, for a terminal job, the residue/failure
-breakdown. Per-source detail is a fixed **allow-list projection**
+breakdown.
+
+It also reports one **operational state** for the host as a whole. Under
+drain-and-exit a worker that is *not* running is the normal resting
+condition, so liveness on its own says nothing; it only means something
+read together with whether work is waiting:
+
+| state | meaning |
+|---|---|
+| `WORKING` | a worker holds the lock and is draining the queue; it will exit on its own once nothing is runnable |
+| `IDLE_NOTHING_TO_DO` | no worker, nothing queued or running — the normal resting state, and the state in which a deployment is allowed |
+| `WORK_NEEDS_WAKE` | no worker, but a QUEUED/RUNNING job exists. Durable and safe, but nothing is moving it. Normal operator use never produces this, because the enqueue control always converges on a running worker; seeing it means a wake was missed. Recovery: re-dispatch the enqueue control for the same estate — no duplicate job is created and the worker is started. |
+
+Status reporting never requires a worker process to be alive. Per-source detail is a fixed **allow-list projection**
 (`operator-status.mjs`), never a raw checkpoint spread, so no secret,
 environment value, or fetched page body can reach an operator summary even
 if a future collector starts recording one. The backing module imports
@@ -279,49 +292,133 @@ allowed and always receives a **new job id** with its own frozen estate. A
 restart/resume of an unfinished job always keeps its **original** job id.
 The rule is per-estate: one city's active job never blocks another's.
 
-### Idle behaviour and the operator wake
+### Drain-and-exit lifecycle and the operator wake
 
-`runWorkerLoop()` is **resident**: it drains the queue, sleeps
-`pollIntervalMs` (5000 ms by default, overridable via
-`BEATMAPPED_CITY_WORKER_POLL_INTERVAL_MS`), and drains again, until
-SIGTERM. It does **not** exit when the queue empties.
+`BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01` replaced the
+worker's always-on shape. The previous
+`BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01` measured the resident
+loop and built its wake around it — correctly for that loop, but the
+combination with the sanctioned deployment path was unusable:
 
-This package deliberately did **not** redesign that into a one-shot model
-— it measured the behaviour and built the operator control around it. The
-consequence that matters:
+```
+first city job -> worker starts -> queue drains
+  -> worker stays ACTIVE IDLE forever
+  -> every subsequent normal deployment fails closed forever
+```
 
-> An already-active worker discovers a newly-enqueued job **by itself**,
-> within about one poll interval. No wake mechanism is needed for it.
+...because deployment deliberately fails closed while
+`beatmapped-city-worker.service` is active. Nothing but an out-of-band
+`systemctl stop` could break that deadlock — exactly the manual
+intervention this line of work exists to remove.
 
-So the wake step starts the unit **only when it is not active**, and
-otherwise does nothing at all. Restarting a running worker to "wake" it
-would be strictly worse than doing nothing: it would SIGTERM a worker that
-may be mid-city, discarding the rest of that city's current batch for no
-benefit. `systemctl enable` is never used — the city worker must never
-come back automatically on boot — and the worker is never launched via
+The lifecycle is now:
+
+```
+enqueue durable job -> systemctl start
+  -> worker drains ALL current and newly-queued work
+  -> queue empty -> worker exits 0
+  -> systemd returns inactive -> next enqueue starts it again
+```
+
+`runWorkerUntilQueueDrained()` acquires the single-worker lock, calls
+`drainQueueOnce()` once, releases the lock and returns. `drainQueueOnce()`
+is itself a loop — it keeps picking the next runnable job until none
+remains — so multiple cities still drain **sequentially in one process**,
+and a job enqueued *while* the worker is mid-city is still picked up by
+that same run. There is deliberately **no grace sleep** before exiting: an
+idle window is the always-on behaviour in a smaller costume. The
+queue-empty condition is the exit condition.
+
+**Exit codes are a real contract**, because the unit is
+`Restart=on-failure` with no `SuccessExitStatus=`:
+
+| exit | meaning | systemd |
+|---|---|---|
+| `0` | queue drained (or already empty), or a clean SIGTERM shutdown | **not** respawned — the service goes `inactive`, which is what re-allows deployment |
+| `2` | `ANOTHER_WORKER_RUNNING` — refused, not failed | respawned after `RestartSec=10s`, which is *wanted*: a wake landing while a previous worker still holds the lock retries until it frees, instead of stranding the job |
+| `1` | a genuine fatal error | respawned, exactly as before |
+
+The unit needed **no directive change** for this — it was audited and
+`Restart=on-failure` already treats exit 0 as success. `Restart=always`,
+`Restart=on-success` or any `SuccessExitStatus=` would restore the
+always-active deadlock, and
+`tests/city-worker/city-worker-systemd-unit.test.mjs` fails if one appears.
+
+#### The shutdown-boundary race, and what actually closes it
+
+Drain-and-exit opens a race the resident loop did not have:
+
+1. the worker makes its final empty-queue check and decides to exit;
+2. the operator enqueues job J (durable);
+3. systemd still reports the unit `active`;
+4. the old worker exits;
+5. J waits forever.
+
+**"Always issue `systemctl start`" does not on its own close this** —
+`start` against a unit systemd still reports as `active` is a no-op, and
+the old worker exits anyway. This is worth stating plainly because the
+always-start rule *looks* sufficient.
+
+What closes it is converging on a **checked postcondition**:
+
+> no runnable work remains **OR** a worker has been observed active across
+> two consecutive checks separated by a real grace period.
+
+A worker in its exit path cannot stay active across a multi-second gap, so
+"stably active" genuinely distinguishes a worker that will pick the job up
+from one about to disappear — and a stably-active worker *will* pick it
+up, because `drainQueueOnce` re-picks after every job. `start` is
+re-issued on each iteration: free when the unit is already active, and
+exactly what is needed on the iteration after the old worker went away.
+The loop is bounded (8 attempts × 3 s ≈ 24 s worst case) so the control
+returns promptly and never waits for a city to finish. Runnable work is
+read by `cli.mjs has-runnable-work`, a read-only query using
+`queue.mjs`'s own runnable rule, so the wake can never disagree with what
+a worker would actually choose to process; if the host cannot answer, the
+wake assumes work remains.
+
+`systemctl restart`/`try-restart`/`reload` are never used — SIGTERMing a
+worker that may be mid-city would discard the rest of that city's batch.
+`systemctl enable` is never used. The worker is never launched via
 `nohup`/`tmux`/`screen` or as a foreground `node` process. It is always
-systemd-owned.
+systemd-owned. All proven behaviourally in
+`tests/city-job-operator-workflows.test.mjs` (§21/§22) by extracting the
+wake's real remote script and running it against a stubbed systemd that
+models a no-op start, an exiting old worker, and a fresh replacement.
 
-Three further properties make an accidental redundant start harmless:
-`systemctl start` on an active `Type=simple` unit is a no-op; if a second
-process did launch, `acquireWorkerLock()` returns `ANOTHER_WORKER_RUNNING`
-and it exits `2` ("refused, not failed"); and an idle worker does no
-acquisition work at all — its cost is one queue read per poll. All proven
-in `tests/city-worker/resident-worker-idle.test.mjs`.
+If the wake genuinely cannot converge, the enqueued job is already durable
+and `QUEUED` — never lost. The control fails loudly, and the recovery is
+to re-dispatch the same workflow for the same estate: the duplicate rule
+declines to create a second job, and the start is retried.
 
-If the start genuinely fails, the enqueued job is already durable and
-`QUEUED` — it is never lost. The recovery is to re-dispatch the same
-workflow for the same estate: the duplicate rule declines to create a
-second job, and the start is retried.
+#### A duplicate-active decision still wakes the worker
+
+`DUPLICATE_ACTIVE_CITY_JOB` exits **zero** (a policy outcome, not a
+crash), so the wake step still runs after it. That is deliberate: a
+durable job must never stay stranded merely because the service changed
+state during the operator's request — and it is precisely the recovery
+path for a job left `QUEUED` by an earlier failed wake. A genuine enqueue
+*failure* still exits non-zero and skips the wake, so no worker is ever
+started for a job that does not exist.
 
 ### Deployment while a city job is active
 
 An active city job **blocks deployment**; deployment waits for the job,
 and the job is never overwritten underneath itself. The deployment
-Action's existing fail-closed-on-active check was reviewed here and
-deliberately **kept unchanged**. See `deploy/README.md`, "Deploying while
-a city job is active", for the full rule and why relaxing it needs a
-separate drain-and-restart lifecycle design.
+Action's fail-closed-on-active check was reviewed and deliberately **kept
+unchanged**.
+
+Under drain-and-exit this is no longer a deadlock but a natural, brief
+interlock that resolves itself:
+
+```
+city work running -> deployment blocked
+queue finishes -> worker exits cleanly -> service inactive
+  -> deployment allowed again
+```
+
+No deployment drain/restart redesign is required for the first operating
+model. See `deploy/README.md`, "Deploying while a city job is active".
 
 ### What these controls deliberately do not do
 
@@ -457,6 +554,11 @@ and the distinction between the first two below matters:
 - `list-city-estates` — read-only: which governed estates exist.
 - `city-jobs-status [--job-id=ID]` — read-only: the full operator status
   report (see "Operator controls" above). Backs the status Action.
+- `has-runnable-work` — read-only, flat `KEY=VALUE` output: is there any
+  job a worker would still pick up? Added by
+  `BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01` for the
+  wake's convergence check, which needs one cheap unambiguous line rather
+  than bash parsing the full status document.
 
 The original set —
 `enqueue-city`, `list-jobs`, `show-job`, `resume-job`, `cancel-job`,

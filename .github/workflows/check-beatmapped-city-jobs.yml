@@ -107,11 +107,27 @@ jobs:
           node -e '
             const fs = require("fs");
             const report = JSON.parse(fs.readFileSync("/tmp/city-jobs-status.json", "utf8"));
+            // BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01:
+            // under drain-and-exit "no worker process" is the NORMAL
+            // resting state, so worker liveness on its own is not an
+            // operator-meaningful signal. What matters is liveness read
+            // together with whether work is waiting.
+            const EXPLAIN = {
+              WORKING: "a worker holds the lock and is draining the queue; it will exit on its own once nothing is runnable",
+              IDLE_NOTHING_TO_DO: "normal resting state — no worker running and nothing queued. Deployment is allowed in this state.",
+              WORK_NEEDS_WAKE: "⚠️ work is queued/running but no worker is running. Work is durable and safe, but nothing is moving it. Recovery: re-dispatch **Enqueue BeatMapped City Job** for the same estate — no duplicate job is created and the worker is started.",
+            };
+            const state = report.worker.operational_state;
             const lines = [
               "### BeatMapped city jobs",
               "",
-              `Read at \`${report.generated_at}\`. Worker alive on host: **${report.worker.worker_alive ? "yes" : "no"}**` +
-                (report.worker.worker_alive ? ` (pid ${report.worker.worker_pid}, since ${report.worker.worker_started_at})` : "") + ".",
+              `Read at \`${report.generated_at}\`.`,
+              "",
+              `**Operational state: \`${state}\`** — ${EXPLAIN[state] ?? "unrecognised state"}`,
+              "",
+              `Worker process alive on host: **${report.worker.worker_alive ? "yes" : "no"}**` +
+                (report.worker.worker_alive ? ` (pid ${report.worker.worker_pid}, since ${report.worker.worker_started_at})` : "") +
+                ` · queued: ${report.worker.queued_job_count} · running: ${report.worker.running_job_count}`,
               "",
             ];
 

@@ -470,6 +470,23 @@ wait for the in-flight job to reach a terminal state, and then deploy. The two
 controls also share a concurrency group (`deploy-beatmapped-collector`), so an
 enqueue and a deployment can never interleave in the first place.
 
+**This is a brief interlock, not a deadlock** — but only because the worker is
+**drain-and-exit** (`BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01`):
+
+```
+city work running -> deployment blocked
+queue finishes -> worker exits 0 -> service inactive
+  -> deployment allowed again
+```
+
+It is worth knowing why that matters. The worker was originally always-on: it
+drained the queue and then idled, polling, forever. Combined with this
+fail-closed rule that meant the *first* city job left the service active
+permanently and blocked **every** subsequent deployment, with no sanctioned way
+out short of an out-of-band `systemctl stop`. The fix was the worker's
+lifecycle, not this rule. `Check BeatMapped City Jobs` reports
+`IDLE_NOTHING_TO_DO` when the host is in the deployable resting state.
+
 Why this is the right default rather than an inconvenience to relax:
 `install.sh` checks out new code underneath a running process, and Node does
 not hot-reload ES modules — so a mid-job deployment would leave a worker

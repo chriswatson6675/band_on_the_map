@@ -169,6 +169,16 @@ jobs:
             # is the authority -- main's catalogue says what SHOULD be
             # deployed, this says what IS.
             ESTATES="$(sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs list-city-estates" 2>/dev/null || true)"
+
+            # The wake step's convergence check depends on this second
+            # read-only command, so a host missing it must be caught HERE
+            # (before anything is enqueued) rather than degrading the wake.
+            if sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs has-runnable-work" 2>/dev/null | grep -q '^RUNNABLE_WORK='; then
+              echo "RUNNABLE_WORK_QUERY_AVAILABLE=true"
+            else
+              echo "RUNNABLE_WORK_QUERY_AVAILABLE=false"
+            fi
+
             if [ -z "$ESTATES" ]; then
               echo "OPERATOR_CLI_AVAILABLE=false"
               echo "REQUESTED_KEY_DEPLOYED=false"
@@ -188,6 +198,8 @@ jobs:
           KEY_DEPLOYED="$(grep '^REQUESTED_KEY_DEPLOYED=' /tmp/enqueue-preflight.txt | cut -d= -f2- || true)"
           echo "| Deployed SHA (pre-enqueue) | \`${DEPLOYED_SHA:-unknown}\` |" >> "$GITHUB_STEP_SUMMARY"
 
+          RUNNABLE_QUERY="$(grep '^RUNNABLE_WORK_QUERY_AVAILABLE=' /tmp/enqueue-preflight.txt | cut -d= -f2- || true)"
+
           if [ "$CLI_AVAILABLE" != "true" ]; then
             echo "::error::OPERATOR_CLI_NOT_DEPLOYED -- the production checkout (${DEPLOYED_SHA:-unknown}) does not provide 'node ingestion/city-worker/cli.mjs list-city-estates'. Nothing was enqueued and the worker was not touched. SANCTIONED RECOVERY: dispatch 'Deploy BeatMapped Collector' (mode MAIN) for the current approved main SHA, then re-run this workflow."
             echo "| Preflight | ❌ OPERATOR_CLI_NOT_DEPLOYED |" >> "$GITHUB_STEP_SUMMARY"
@@ -203,7 +215,12 @@ jobs:
             echo "| Preflight | ❌ CITY_WORKER_UNIT_NOT_INSTALLED |" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          echo "| Preflight | ✅ operator CLI deployed, key present, unit installed |" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$RUNNABLE_QUERY" != "true" ]; then
+            echo "::error::RUNNABLE_WORK_QUERY_NOT_DEPLOYED -- the production checkout (${DEPLOYED_SHA:-unknown}) does not provide 'node ingestion/city-worker/cli.mjs has-runnable-work', which the race-safe wake's convergence check requires. Nothing was enqueued and the worker was not touched. SANCTIONED RECOVERY: dispatch 'Deploy BeatMapped Collector' (mode MAIN) for the current approved main SHA, then re-run this workflow."
+            echo "| Preflight | ❌ RUNNABLE_WORK_QUERY_NOT_DEPLOYED |" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "| Preflight | ✅ operator CLI deployed, key present, unit installed, wake convergence query available |" >> "$GITHUB_STEP_SUMMARY"
 
       # The ONLY mutating step that touches the queue. The governed CLI
       # entry point takes the key and nothing else; it derives country,
@@ -257,32 +274,70 @@ jobs:
             fs.appendFileSync(process.env.GITHUB_OUTPUT, out.join("\n") + "\n");
           '
 
-      # SANCTIONED SYSTEMD WAKE -- and the narrowest possible one.
+      # SANCTIONED SYSTEMD WAKE -- race-safe under drain-and-exit.
       #
-      # WHY THERE IS NO RESTART HERE. runWorkerLoop() (ingestion/city-worker/
-      # worker-loop.mjs) is RESIDENT: it drains the queue, sleeps
-      # pollIntervalMs (5s by default), and drains again, until SIGTERM. An
-      # already-active worker therefore discovers a newly-enqueued job BY
-      # ITSELF within about five seconds. Restarting it to "wake" it would
-      # be strictly worse than doing nothing: it would SIGTERM a worker that
-      # may be mid-city, discarding the rest of that city's current batch's
-      # progress for no benefit whatsoever. So: start only when inactive,
-      # and otherwise touch nothing.
+      # BEATMAPPED-CITY-WORKER-DRAIN-AND-EXIT-OPERATOR-LIFECYCLE-01 replaced
+      # this step's previous "start only when inactive, otherwise do
+      # nothing" rule. That rule was correct for the old ALWAYS-ON worker
+      # (an idle resident worker really would find the new job on its next
+      # 5s poll) but it strands work under drain-and-exit:
       #
-      # NEVER `enable`: the city worker must never come back automatically
-      # on boot -- acquiring a city is always a deliberate operator act.
-      # NEVER nohup/tmux/screen, and never a foreground `node` worker: the
-      # worker process is systemd-owned, always.
-      - name: Wake the systemd worker if (and only if) it is not already active -- never enabled, never restarted
+      #   1. worker makes its final empty-queue check and decides to exit;
+      #   2. operator enqueues job J (durable);
+      #   3. operator observes the unit still `active` -> does nothing;
+      #   4. the old worker exits;
+      #   5. J waits forever.
+      #
+      # NOTE THE SUBTLETY: "always issue `systemctl start`" does NOT on its
+      # own close that race, because `start` against a unit systemd still
+      # reports as `active` is a no-op -- the old worker then exits anyway
+      # and nothing was started. What closes it is CONVERGING ON A CHECKED
+      # POSTCONDITION:
+      #
+      #   no runnable work remains  OR  a worker has been observed active
+      #   across two consecutive checks separated by a real grace period.
+      #
+      # A worker in its exit path cannot stay active across a multi-second
+      # gap, so "stably active" genuinely distinguishes a worker that will
+      # pick the job up from one that is about to disappear. And a worker
+      # that is stably active WILL pick it up: drainQueueOnce re-picks the
+      # next runnable job after every job it finishes.
+      #
+      # `start` is re-issued on every iteration. That is free when the unit
+      # is already active (no-op on a running Type=simple unit) and is
+      # exactly what is needed on the iteration after the old worker went
+      # away. If a start lands while the previous worker still holds the
+      # single-worker lock, the new process exits 2 and systemd's
+      # Restart=on-failure retries it after RestartSec -- a third,
+      # independent safety net rather than a stranded job.
+      #
+      # NEVER `restart`/`try-restart`/`reload`: SIGTERMing a worker that may
+      # be mid-city would discard the rest of that city's current batch for
+      # no benefit. NEVER `enable`: the city worker must never come back
+      # automatically on boot. NEVER nohup/tmux/screen, and never a
+      # foreground `node` worker -- the process is systemd-owned, always.
+      #
+      # This step runs after BOTH a successful enqueue and a
+      # DUPLICATE_ACTIVE_CITY_JOB decision, deliberately: a durable job must
+      # never stay stranded merely because the service changed state during
+      # the operator's request. It does NOT run if the enqueue step itself
+      # failed (no `if:`), so a genuine failure never starts a worker for a
+      # job that does not exist.
+      - name: Wake the systemd worker with an idempotent start, converging on a stably-active worker -- never enabled, never restarted
         id: wake
         run: |
           set -euo pipefail
           ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
             -i "$HOME/.ssh/deploy_key" \
             "${{ secrets.BEATMAPPED_PROD_USER }}@${{ secrets.BEATMAPPED_PROD_HOST }}" \
-            bash -s -- "$CITY_WORKER_UNIT" <<'REMOTE_SCRIPT' | tee /tmp/wake-output.txt
+            bash -s -- "$CITY_WORKER_UNIT" "$BEATMAPPED_APP_DIR" <<'REMOTE_SCRIPT' | tee /tmp/wake-output.txt
             set -uo pipefail
             UNIT="${1:-beatmapped-city-worker.service}"
+            APP_DIR="${2:-/opt/band-on-the-map}"
+            # Bounded: this step must return promptly, never wait for a
+            # city to finish. 8 attempts x 3s grace is ~24s worst case.
+            MAX_WAKE_ATTEMPTS=8
+            WAKE_GRACE_SECONDS=3
 
             # BEATMAPPED-CITY-WORKER-TRIAL-SYSTEMCTL-NORMALISATION-01: the
             # one canonical single-line state read. `systemctl is-active`/
@@ -298,48 +353,90 @@ jobs:
               printf '%s\n' "$out"
             }
 
+            # Read-only: does any job remain that a worker would pick up?
+            # Prints "true"/"false"; "unknown" if the host could not answer,
+            # which is treated as "assume there is work" below (fail safe).
+            runnable_work() {
+              local out
+              out="$(sudo -u botm bash -c "cd '$APP_DIR' && node ingestion/city-worker/cli.mjs has-runnable-work" 2>/dev/null \
+                | grep '^RUNNABLE_WORK=' | head -n1 | cut -d= -f2- || true)"
+              [ -n "$out" ] || out="unknown"
+              printf '%s\n' "$out"
+            }
+
             ACTIVE_BEFORE="$(systemd_state is-active "$UNIT" inactive)"
             ENABLED_BEFORE="$(systemd_state is-enabled "$UNIT" disabled)"
             echo "WORKER_ACTIVE_BEFORE=$ACTIVE_BEFORE"
             echo "WORKER_ENABLED_BEFORE=$ENABLED_BEFORE"
 
-            case "$ACTIVE_BEFORE" in
-              active|activating|reloading)
-                # Already running: it will pick the new job up on its own
-                # next poll. Deliberately a no-op -- see the note above.
-                echo "WORKER_WAKE_ACTION=NONE_ALREADY_ACTIVE"
-                ;;
-              *)
-                if sudo systemctl start "$UNIT"; then
-                  echo "WORKER_WAKE_ACTION=STARTED"
-                else
-                  echo "WORKER_WAKE_ACTION=START_FAILED"
-                fi
-                ;;
-            esac
+            ATTEMPTS=0
+            STARTS_ISSUED=0
+            START_FAILURES=0
+            CONSECUTIVE_ACTIVE=0
+            CONVERGED=""
+            ACTIVE_AFTER="$ACTIVE_BEFORE"
+            RUNNABLE="unknown"
 
-            OK=0
-            for _ in $(seq 1 10); do
-              if systemctl is-active --quiet "$UNIT"; then OK=1; break; fi
-              sleep 1
+            while [ "$ATTEMPTS" -lt "$MAX_WAKE_ATTEMPTS" ]; do
+              ATTEMPTS=$((ATTEMPTS + 1))
+
+              # ALWAYS issued, every iteration. Idempotent no-op on an
+              # already-running Type=simple unit; a real start otherwise.
+              if sudo systemctl start "$UNIT"; then
+                STARTS_ISSUED=$((STARTS_ISSUED + 1))
+              else
+                START_FAILURES=$((START_FAILURES + 1))
+              fi
+
+              sleep "$WAKE_GRACE_SECONDS"
+
+              ACTIVE_AFTER="$(systemd_state is-active "$UNIT" inactive)"
+              RUNNABLE="$(runnable_work)"
+
+              if [ "$RUNNABLE" = "false" ]; then
+                # Nothing left for any worker to do -- the queue drained
+                # (possibly by the very worker we just started). Converged.
+                CONVERGED="NO_RUNNABLE_WORK_REMAINS"
+                break
+              fi
+
+              case "$ACTIVE_AFTER" in
+                active|activating|reloading) CONSECUTIVE_ACTIVE=$((CONSECUTIVE_ACTIVE + 1)) ;;
+                *) CONSECUTIVE_ACTIVE=0 ;;
+              esac
+
+              if [ "$CONSECUTIVE_ACTIVE" -ge 2 ]; then
+                # Active across two checks a real grace period apart: this
+                # is a worker that is running, not one mid-exit.
+                CONVERGED="WORKER_ACTIVE_AND_STABLE"
+                break
+              fi
             done
-            ACTIVE_AFTER="$(systemd_state is-active "$UNIT" inactive)"
+
             ENABLED_AFTER="$(systemd_state is-enabled "$UNIT" disabled)"
+            echo "WORKER_WAKE_ATTEMPTS=$ATTEMPTS"
+            echo "WORKER_STARTS_ISSUED=$STARTS_ISSUED"
+            echo "WORKER_START_FAILURES=$START_FAILURES"
+            echo "WORKER_RUNNABLE_WORK=$RUNNABLE"
             echo "WORKER_ACTIVE_AFTER=$ACTIVE_AFTER"
             echo "WORKER_ENABLED_AFTER=$ENABLED_AFTER"
-            echo "WORKER_ACTIVE_CONFIRMED=$OK"
+            echo "WORKER_WAKE_CONVERGED=${CONVERGED:-NOT_CONVERGED}"
           REMOTE_SCRIPT
 
           ACTIVE_BEFORE="$(grep '^WORKER_ACTIVE_BEFORE=' /tmp/wake-output.txt | cut -d= -f2- || true)"
-          WAKE_ACTION="$(grep '^WORKER_WAKE_ACTION=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          ATTEMPTS="$(grep '^WORKER_WAKE_ATTEMPTS=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          STARTS_ISSUED="$(grep '^WORKER_STARTS_ISSUED=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          RUNNABLE="$(grep '^WORKER_RUNNABLE_WORK=' /tmp/wake-output.txt | cut -d= -f2- || true)"
           ACTIVE_AFTER="$(grep '^WORKER_ACTIVE_AFTER=' /tmp/wake-output.txt | cut -d= -f2- || true)"
           ENABLED_AFTER="$(grep '^WORKER_ENABLED_AFTER=' /tmp/wake-output.txt | cut -d= -f2- || true)"
-          CONFIRMED="$(grep '^WORKER_ACTIVE_CONFIRMED=' /tmp/wake-output.txt | cut -d= -f2- || true)"
+          CONVERGED="$(grep '^WORKER_WAKE_CONVERGED=' /tmp/wake-output.txt | cut -d= -f2- || true)"
           {
             echo "| Worker state before wake | \`${ACTIVE_BEFORE:-unknown}\` |"
-            echo "| Wake action | \`${WAKE_ACTION:-unknown}\` |"
+            echo "| Idempotent starts issued | ${STARTS_ISSUED:-unknown} (over ${ATTEMPTS:-unknown} convergence attempt(s)) |"
+            echo "| Runnable work remaining | \`${RUNNABLE:-unknown}\` |"
             echo "| Worker state after wake | \`${ACTIVE_AFTER:-unknown}\` |"
             echo "| Worker enabled-for-boot | \`${ENABLED_AFTER:-unknown}\` |"
+            echo "| Wake outcome | \`${CONVERGED:-unknown}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
           # Enablement is a hard safety property, checked whatever else
@@ -352,20 +449,33 @@ jobs:
               ;;
           esac
 
-          if [ "$CONFIRMED" != "1" ]; then
-            # The job is already durable on disk (QUEUED) at this point --
-            # a failed wake never loses it. Re-dispatching this workflow for
-            # the same estate is the recovery: the duplicate-active-job rule
-            # will decline to create a second job, and this step will try
-            # the start again.
-            echo "::error::WORKER_START_FAILED -- ${CITY_WORKER_UNIT} did not reach 'active' (wake action: ${WAKE_ACTION:-unknown}, state: ${ACTIVE_AFTER:-unknown}). The enqueued job REMAINS DURABLE AND QUEUED and is not lost. RECOVERY: check 'Check BeatMapped City Jobs', then re-dispatch this workflow for the same estate -- no duplicate job will be created and the start will be retried."
-            echo "| Result | ❌ WORKER_START_FAILED (job remains queued and recoverable) |" >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
-          {
-            echo "| Result | ✅ worker active and systemd-owned (never enabled for boot) |"
-            echo "| Next | Dispatch **Check BeatMapped City Jobs** to follow progress. Acquisition does NOT publish the map -- publication remains a separate, deliberate action. |"
-          } >> "$GITHUB_STEP_SUMMARY"
+          case "${CONVERGED:-}" in
+            WORKER_ACTIVE_AND_STABLE)
+              {
+                echo "| Result | ✅ worker running and systemd-owned (never enabled for boot) |"
+                echo "| Next | Dispatch **Check BeatMapped City Jobs** to follow progress. The worker EXITS on its own once the queue drains, which is also what re-allows deployment. Acquisition does NOT publish the map. |"
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            NO_RUNNABLE_WORK_REMAINS)
+              # Legitimate and common for a small estate: the worker started,
+              # drained, and exited inside the convergence window. Not a
+              # failure -- the work is done, not stranded.
+              echo "::notice::NO_RUNNABLE_WORK_REMAINS -- no job is left for a worker to pick up. Under drain-and-exit this normally means the queue was drained (possibly by the worker this step just started) and the worker has already exited cleanly. Dispatch 'Check BeatMapped City Jobs' to see the outcome."
+              {
+                echo "| Result | ✅ no runnable work remains -- worker drained and exited cleanly |"
+                echo "| Next | Dispatch **Check BeatMapped City Jobs** to see the job's terminal state and residue summary. |"
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            *)
+              # The job is already durable on disk at this point -- a failed
+              # wake never loses it. Re-dispatching this workflow for the
+              # same estate is the recovery: the duplicate-active-job rule
+              # declines to create a second job, and the start is retried.
+              echo "::error::WORKER_WAKE_DID_NOT_CONVERGE -- after ${ATTEMPTS:-?} idempotent start attempt(s), ${CITY_WORKER_UNIT} is '${ACTIVE_AFTER:-unknown}' while runnable work remains ('${RUNNABLE:-unknown}'). The enqueued job REMAINS DURABLE AND QUEUED and is not lost. RECOVERY: dispatch 'Check BeatMapped City Jobs' (expect operational_state WORK_NEEDS_WAKE), then re-dispatch this workflow for the same estate -- no duplicate job will be created and the start will be retried."
+              echo "| Result | ❌ WORKER_WAKE_DID_NOT_CONVERGE (job remains queued and recoverable) |" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+              ;;
+          esac
 
       - name: Clean up local SSH material
         if: always()
