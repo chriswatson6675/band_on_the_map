@@ -14,7 +14,7 @@
 //   list-jobs [--state=STATE]
 //   show-job <jobId>
 //   resume-job <jobId> --resolver=<path> [--concurrency=N]
-//   cancel-job <jobId>
+//   cancel-job <jobId>                 (cooperative; see cmdCancelJob)
 //   run-worker --resolver=<path> [--concurrency=N]
 //
 // BEATMAPPED-MAINLINE-CITY-JOB-OPERATOR-CONTROL-01 added the middle
@@ -55,9 +55,9 @@ import { resolve as resolvePath } from "node:path";
 import { pathToFileURL } from "node:url";
 import { randomUUID } from "node:crypto";
 
-import { createCityJob } from "./job.mjs";
+import { createCityJob, isTerminalJobState } from "./job.mjs";
 import { saveJob, loadJob, listJobs, CITY_WORKER_ROOT } from "./job-store.mjs";
-import { describeCityEstates, findActiveJobForEstate, materialiseJobEstate, resolveCityEstate } from "./city-estate-catalogue.mjs";
+import { describeCityEstates, findActiveJobForEstate, materialiseJobEstate, readJobCityEstateKey, resolveCityEstate } from "./city-estate-catalogue.mjs";
 import { buildOperatorStatusReport, summariseRunnableWork } from "./operator-status.mjs";
 import { enqueueJob } from "./queue.mjs";
 import { runCityJob } from "./runner.mjs";
@@ -244,18 +244,87 @@ async function cmdResumeJob({ flags, positional }, root) {
   console.log(JSON.stringify({ job_id: job.job_id, state: job.state, final_metrics: job.final_metrics }, null, 2));
 }
 
+/**
+ * Cooperative cancellation of ONE job. Never touches systemd, never stops
+ * the worker, never affects any other queued city — the worker keeps
+ * draining whatever else is runnable and exits normally when the queue
+ * empties.
+ *
+ * BEATMAPPED-CITY-JOB-OPERATOR-CANCEL-CONTROL-01 kept the existing state
+ * policy exactly and made the RESULT machine-readable, so the sanctioned
+ * operator Action can report honestly instead of parsing prose:
+ *
+ *   QUEUED    -> CANCELLED_IMMEDIATELY. Never started, so it is cancelled
+ *                atomically here with no worker execution at all — the
+ *                worker is deliberately NOT woken just to finalise it.
+ *   RUNNING   -> CANCELLATION_REQUESTED. COOPERATIVE, not immediate: the
+ *                in-flight source finishes its own current attempt and
+ *                checkpoints normally, and the job becomes CANCELLED at
+ *                the next source boundary. Nothing is killed mid-source.
+ *   CANCELLED -> ALREADY_CANCELLED (idempotent no-op).
+ *   COMPLETE / COMPLETE_WITH_RESIDUE / FAILED
+ *             -> ALREADY_TERMINAL. No mutation: a finished job is durable
+ *                historical evidence and is never rewritten just because
+ *                an operator asked to cancel it.
+ *
+ * Repeating any of these is safe — a second call on a RUNNING job whose
+ * flag is already set reports ALREADY_CANCEL_REQUESTED and writes nothing.
+ */
 async function cmdCancelJob({ positional }, root) {
   const [jobId] = positional;
   if (!jobId) throw new Error("usage: cancel-job <jobId>");
   const job = await loadJob(jobId, { root });
   if (!job) throw new Error(`no such job: ${jobId}`);
-  if (job.state !== "QUEUED" && job.state !== "RUNNING") {
-    console.log(JSON.stringify({ job_id: jobId, state: job.state, note: "already terminal — cancel is a no-op" }, null, 2));
+
+  const before = {
+    job_id: job.job_id,
+    country: job.country,
+    city: job.city,
+    city_estate_key: readJobCityEstateKey(job),
+    estate_ref: job.estate_ref ?? null,
+    state: job.state,
+    cancel_requested: job.cancel_requested === true,
+    completed_sources: job.completed_sources ?? 0,
+    total_sources: job.total_sources ?? 0,
+    current_source_id: job.current_source_id ?? null,
+  };
+
+  const emit = (result, after, note) => {
+    console.log(JSON.stringify({ result, mutated: after !== null, before, after: after ?? before, note }, null, 2));
+  };
+
+  if (job.state === "CANCELLED") {
+    emit("ALREADY_CANCELLED", null, "This job is already CANCELLED. Nothing was changed.");
     return;
   }
-  const updated = { ...job, cancel_requested: true, state: job.state === "QUEUED" ? "CANCELLED" : job.state, completed_at: job.state === "QUEUED" ? new Date().toISOString() : job.completed_at };
+  if (isTerminalJobState(job.state)) {
+    emit("ALREADY_TERMINAL", null, `This job already finished as ${job.state}. A terminal job is durable historical evidence and is never rewritten — nothing was changed.`);
+    return;
+  }
+  if (job.state === "RUNNING" && job.cancel_requested === true) {
+    emit("ALREADY_CANCEL_REQUESTED", null, "Cancellation was already requested for this running job. It becomes CANCELLED at the next source boundary. Nothing was changed.");
+    return;
+  }
+
+  const cancelledImmediately = job.state === "QUEUED";
+  const updated = {
+    ...job,
+    cancel_requested: true,
+    state: cancelledImmediately ? "CANCELLED" : job.state,
+    completed_at: cancelledImmediately ? new Date().toISOString() : job.completed_at,
+  };
   await saveJob(updated, { root });
-  console.log(JSON.stringify({ job_id: jobId, state: updated.state, note: updated.state === "RUNNING" ? "cancellation requested — will take effect between sources" : "cancelled" }, null, 2));
+
+  const after = { ...before, state: updated.state, cancel_requested: true };
+  if (cancelledImmediately) {
+    emit("CANCELLED_IMMEDIATELY", after, "This job had not started, so it was cancelled outright. No source acquisition ran and no worker needed to be woken.");
+  } else {
+    emit(
+      "CANCELLATION_REQUESTED",
+      after,
+      "COOPERATIVE: the source currently in flight finishes its own attempt and checkpoints normally; no further source starts, and the job becomes CANCELLED at the next source boundary. Nothing was killed, the worker was not stopped, and any other queued city is unaffected.",
+    );
+  }
 }
 
 async function cmdRunWorker({ flags }, root) {
