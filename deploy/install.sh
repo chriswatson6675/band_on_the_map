@@ -39,7 +39,11 @@
 #      only `npm test`/`npm run lint`/`npm run build` do, and this script
 #      never runs those on the server
 #   5. install/refresh the systemd unit files from deploy/systemd/ into
-#      /etc/systemd/system/, then `systemctl daemon-reload`
+#      /etc/systemd/system/, then `systemctl daemon-reload` -- the
+#      managed set is botm-unattended.service, botm-unattended.timer,
+#      botm-publication.service and (since
+#      BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01)
+#      beatmapped-city-worker.service
 #   6. fix ownership of APP_DIR to the `botm` user
 #   7. restart botm-publication.service so it serves the code just
 #      installed -- UNLESS --skip-publication-restart was passed
@@ -48,7 +52,9 @@
 #
 # This script deliberately does NOT enable or start the timer -- see
 # deploy/README.md's "Live deployment" section for the required manual
-# proof-run step that must succeed first.
+# proof-run step that must succeed first. It likewise never starts or
+# enables beatmapped-city-worker.service: deployment makes the city
+# worker available to systemd, never authorised to run city jobs.
 #
 # --skip-publication-restart (BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01):
 # an explicit, operator-controlled flag -- never inferred from --ref, a
@@ -162,10 +168,31 @@ echo "Installing production dependencies (npm ci --omit=dev)..."
 # runtime-publication-bridge package; this script simply keeps its
 # installed copy in sync with the checkout on every deploy, same as it
 # already does for the other two units.
+#
+# BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01:
+# beatmapped-city-worker.service joins the managed set. Before this, the
+# ONLY copy on the production host was one the bounded trial workflow
+# installed for run 33272969771 -- so the unit existed by accident of a
+# historical experiment rather than because the sanctioned deployment
+# path owned it, and a clean/rebuilt host would have had the worker's
+# code and its unit asset on disk but nothing registered with systemd.
+# `install` overwrites unconditionally, so a stale trial copy and a
+# clean host converge on exactly the reviewed repo unit.
+#
+# Installation is deliberately ALL this does for that unit: it is never
+# started, restarted, enabled, or `enable --now`-ed here (see the
+# static tests in tests/digitalocean-deployment.test.mjs). Making the
+# worker AVAILABLE to systemd is not the same as authorising it to
+# process city jobs -- that remains a separate, explicit operator
+# action. Like botm-unattended.{service,timer}, a
+# never-started/not-enabled state is always safe for this unit: it runs
+# a queued job to completion and re-spawns fresh from whatever code is
+# on disk, so nothing is lost by leaving it stopped.
 echo "Installing systemd unit files..."
 install -m 0644 "$APP_DIR/deploy/systemd/botm-unattended.service" /etc/systemd/system/botm-unattended.service
 install -m 0644 "$APP_DIR/deploy/systemd/botm-unattended.timer" /etc/systemd/system/botm-unattended.timer
 install -m 0644 "$APP_DIR/deploy/systemd/botm-publication.service" /etc/systemd/system/botm-publication.service
+install -m 0644 "$APP_DIR/deploy/systemd/beatmapped-city-worker.service" /etc/systemd/system/beatmapped-city-worker.service
 systemctl daemon-reload
 
 # --- 6. ownership --------------------------------------------------------
@@ -249,6 +276,11 @@ Deployed commit: $ACTUAL_SHA
 botm-unattended.{service,timer} installed and reloaded, but NOT enabled/started
 by this script (see deploy/README.md "Live deployment" for that deliberate,
 manual first-run gate).
+beatmapped-city-worker.service installed/reconciled and reloaded, but NOT
+started and NOT enabled -- this deployment makes the unattended city worker
+AVAILABLE to systemd; it does not authorise it to process city jobs. Enqueueing
+and starting a city job is a separate, explicit operator action (see
+deploy/README-CITY-WORKER.md).
 $PUBLICATION_SUMMARY_LINE
 
 Next steps (see deploy/README.md "Live deployment" for the full sequence):

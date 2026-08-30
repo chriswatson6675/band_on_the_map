@@ -29,7 +29,7 @@
 
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -657,5 +657,189 @@ test("poll-and-validate script: real, currently-committed data/public/lisbon-por
     });
   } finally {
     server.close();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// BEATMAPPED-MAINLINE-CITY-WORKER-SYSTEMD-OWNERSHIP-01
+//
+// The sanctioned deployment now proves, read-only, that it OWNS
+// beatmapped-city-worker.service: registered from the deployed asset, not
+// enabled for boot, and not started by the deployment.
+// ---------------------------------------------------------------------------
+
+const CITY_WORKER_VERIFY_STEP = "Verify the city-worker unit is registered, matches the deployed asset, and was neither enabled nor started";
+
+/** Extracts a step's embedded REMOTE_SCRIPT heredoc body. */
+function extractRemoteScriptFrom(yaml, namePrefix) {
+  const body = extractStepBody(yaml, namePrefix);
+  const m = /<<'REMOTE_SCRIPT'[^\n]*\n([\s\S]*?)\n\s*REMOTE_SCRIPT/.exec(body);
+  assert.ok(m, `expected step "${namePrefix}" to embed a REMOTE_SCRIPT heredoc`);
+  return m[1];
+}
+
+/** Runs the verification step's embedded remote script under stubbed systemd. */
+function runCityWorkerVerifyScript(script, { appDir, stubs = {} } = {}) {
+  const harness = [
+    'sudo() { "$@"; }',
+    "systemctl() {",
+    '  local verb="${1:-}" unit="${2:-}"',
+    '  case "$verb" in',
+    "    is-active)",
+    '      if [ -n "${STUB_CW_ACTIVE_OUT-}" ]; then printf "%s\\n" "$STUB_CW_ACTIVE_OUT"; fi',
+    '      return "${STUB_CW_ACTIVE_RC:-0}" ;;',
+    "    is-enabled)",
+    '      if [ -n "${STUB_CW_ENABLED_OUT-}" ]; then printf "%s\\n" "$STUB_CW_ENABLED_OUT"; fi',
+    '      return "${STUB_CW_ENABLED_RC:-0}" ;;',
+    "  esac",
+    "  return 1",
+    "}",
+    `set -- ${JSON.stringify(appDir)}`,
+    script,
+  ].join("\n");
+
+  return new Promise((resolvePromise) => {
+    const child = spawn("bash", [], { env: { ...process.env, ...stubs } });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("close", (code) => resolvePromise({ status: code, stdout, stderr }));
+    child.stdin.write(harness);
+    child.stdin.end();
+  });
+}
+
+/**
+ * Builds a sandbox that mimics the host layout the remote script inspects:
+ * an APP_DIR with the repo asset, plus a fake /etc/systemd/system. The script
+ * hardcodes /etc/systemd/system, so the sandbox rewrites that path in the
+ * extracted copy — the only substitution made, and it is asserted below.
+ */
+async function sandboxScript(rawScript, fakeEtc) {
+  return rawScript.split("/etc/systemd/system").join(`${fakeEtc}/etc/systemd/system`);
+}
+
+async function makeHost({ installedContent, assetContent }) {
+  const root = await mkdtemp(join(tmpdir(), "cw-verify-"));
+  const appDir = join(root, "app");
+  await mkdir(join(appDir, "deploy/systemd"), { recursive: true });
+  if (assetContent !== undefined) {
+    await writeFile(join(appDir, "deploy/systemd/beatmapped-city-worker.service"), assetContent);
+  }
+  if (installedContent !== undefined) {
+    await mkdir(join(root, "etc/systemd/system"), { recursive: true });
+    await writeFile(join(root, "etc/systemd/system/beatmapped-city-worker.service"), installedContent);
+  }
+  return { root, appDir };
+}
+
+test("deploy workflow: a read-only city-worker verification step exists and starts/enables nothing", async () => {
+  const yaml = await readWorkflow();
+  const body = extractStepBody(yaml, CITY_WORKER_VERIFY_STEP);
+  // State is read through the canonical helper, never a bare systemctl call.
+  assert.match(body, /systemd_state is-enabled "\$UNIT" disabled/);
+  assert.match(body, /systemd_state is-active "\$UNIT" inactive/);
+  // Read-only: no lifecycle verbs anywhere in the step.
+  assert.doesNotMatch(body, /systemctl (start|restart|stop|enable|disable)\b/, "verification must never change unit state");
+});
+
+test("deploy workflow: city-worker verification uses the canonical single-line state read, never the `|| echo` form", async () => {
+  const yaml = await readWorkflow();
+  const body = stripCommentLines(extractStepBody(yaml, CITY_WORKER_VERIFY_STEP));
+  assert.match(body, /systemd_state\(\) \{/, "must define the canonical helper");
+  assert.match(body, /head -n1/);
+  assert.doesNotMatch(
+    body,
+    /\$\(\s*systemctl\s+is-(?:active|enabled)[^)]*\|\|\s*echo/,
+    "the disabled\\ndisabled composite pattern must never return",
+  );
+});
+
+test("deploy workflow: the intended production state (registered, disabled, inactive) PASSES verification", async (t) => {
+  const yaml = await readWorkflow();
+  const raw = extractRemoteScriptFrom(yaml, CITY_WORKER_VERIFY_STEP);
+  const { root, appDir } = await makeHost({ installedContent: "UNIT\n", assetContent: "UNIT\n" });
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const result = await runCityWorkerVerifyScript(await sandboxScript(raw, root), {
+    appDir,
+    // The real systemd contract: prints a valid state AND exits non-zero.
+    stubs: { STUB_CW_ENABLED_OUT: "disabled", STUB_CW_ENABLED_RC: "1", STUB_CW_ACTIVE_OUT: "inactive", STUB_CW_ACTIVE_RC: "3" },
+  });
+
+  assert.equal(result.status, 0, `expected PASS; stderr: ${result.stderr}`);
+  assert.match(result.stdout, /CITY_WORKER_UNIT_INSTALLED=true/);
+  assert.match(result.stdout, /CITY_WORKER_UNIT_MATCHES_DEPLOYED_ASSET=true/);
+  assert.match(result.stdout, /CITY_WORKER_ENABLED=disabled/);
+  assert.match(result.stdout, /CITY_WORKER_ACTIVE=inactive/);
+  assert.match(result.stdout, /CITY_WORKER_PRE_EXISTING_ACTIVE=false/);
+  // Never the historical composite.
+  assert.doesNotMatch(result.stdout, /=disabled\s*\n\s*disabled/);
+});
+
+test("deploy workflow: a MISSING unit fails closed — the installer must own registration", async (t) => {
+  const yaml = await readWorkflow();
+  const raw = extractRemoteScriptFrom(yaml, CITY_WORKER_VERIFY_STEP);
+  const { root, appDir } = await makeHost({ assetContent: "UNIT\n" });
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const result = await runCityWorkerVerifyScript(await sandboxScript(raw, root), { appDir });
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /CITY_WORKER_UNIT_INSTALLED=false/);
+  assert.match(result.stderr, /is missing/);
+});
+
+test("deploy workflow: a STALE registered unit that does not match the deployed asset fails closed", async (t) => {
+  const yaml = await readWorkflow();
+  const raw = extractRemoteScriptFrom(yaml, CITY_WORKER_VERIFY_STEP);
+  const { root, appDir } = await makeHost({ installedContent: "STALE TRIAL UNIT\n", assetContent: "REVIEWED UNIT\n" });
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const result = await runCityWorkerVerifyScript(await sandboxScript(raw, root), { appDir });
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /CITY_WORKER_UNIT_MATCHES_DEPLOYED_ASSET=false/);
+  assert.match(result.stderr, /does not match/);
+});
+
+test("deploy workflow: every legitimately NOT-enabled state passes; only real enablement fails closed", async (t) => {
+  const yaml = await readWorkflow();
+  const raw = extractRemoteScriptFrom(yaml, CITY_WORKER_VERIFY_STEP);
+  const { root, appDir } = await makeHost({ installedContent: "UNIT\n", assetContent: "UNIT\n" });
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const sandboxed = await sandboxScript(raw, root);
+
+  for (const state of ["disabled", "static", "masked"]) {
+    const ok = await runCityWorkerVerifyScript(sandboxed, {
+      appDir,
+      stubs: { STUB_CW_ENABLED_OUT: state, STUB_CW_ENABLED_RC: "1", STUB_CW_ACTIVE_OUT: "inactive", STUB_CW_ACTIVE_RC: "3" },
+    });
+    assert.equal(ok.status, 0, `"${state}" is not enabled-for-boot and must pass; stderr: ${ok.stderr}`);
+  }
+  for (const state of ["enabled", "enabled-runtime"]) {
+    const bad = await runCityWorkerVerifyScript(sandboxed, {
+      appDir,
+      stubs: { STUB_CW_ENABLED_OUT: state, STUB_CW_ENABLED_RC: "0", STUB_CW_ACTIVE_OUT: "inactive", STUB_CW_ACTIVE_RC: "3" },
+    });
+    assert.equal(bad.status, 1, `"${state}" means enabled for boot and must fail closed`);
+    assert.match(bad.stderr, /must never authorise the city worker to start automatically/);
+  }
+});
+
+test("deploy workflow: an already-ACTIVE worker is reported explicitly and failed closed, never silently claimed as not-started", async (t) => {
+  const yaml = await readWorkflow();
+  const raw = extractRemoteScriptFrom(yaml, CITY_WORKER_VERIFY_STEP);
+  const { root, appDir } = await makeHost({ installedContent: "UNIT\n", assetContent: "UNIT\n" });
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const sandboxed = await sandboxScript(raw, root);
+
+  for (const state of ["active", "activating", "reloading"]) {
+    const result = await runCityWorkerVerifyScript(sandboxed, {
+      appDir,
+      stubs: { STUB_CW_ENABLED_OUT: "disabled", STUB_CW_ENABLED_RC: "1", STUB_CW_ACTIVE_OUT: state, STUB_CW_ACTIVE_RC: "0" },
+    });
+    assert.equal(result.status, 1, `"${state}" must fail closed`);
+    assert.match(result.stdout, /CITY_WORKER_PRE_EXISTING_ACTIVE=true/);
+    assert.match(result.stderr, /This deployment did not start it/);
   }
 });
