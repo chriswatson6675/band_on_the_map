@@ -12,7 +12,7 @@
 // computed uniformly by acquireSource() itself instead) — see this
 // package's own FINAL REPORT.
 
-import { acquireSource } from "./source-execution.mjs";
+import { acquireSource, DEFAULT_DETAIL_LIMIT } from "./source-execution.mjs";
 
 async function mapBounded(items, worker, { concurrency = 4, perHost = 1 } = {}) {
   const results = new Array(items.length);
@@ -33,8 +33,8 @@ async function mapBounded(items, worker, { concurrency = 4, perHost = 1 } = {}) 
   return results;
 }
 
-/** Generic city-neutral bounded acquisition batch. Fetching/evidence retention is injected. Delegates every source's own acquisition to acquireSource() (source-execution.mjs) — this function adds only scheduling on top. */
-export async function runCityAcquisition({ sources, fetchDocument, concurrency = 4, perHost = 1, detailLimit = 12 } = {}) {
+/** Generic city-neutral bounded acquisition batch. Fetching/evidence retention is injected. Delegates every source's own acquisition to acquireSource() (source-execution.mjs) — this function adds only scheduling on top. `detailLimit` defaults to source-execution.mjs's own DEFAULT_DETAIL_LIMIT constant (BEATMAPPED-DETAIL-LIMIT-36-IMPLEMENTATION-01) so this file never hardcodes a second, independently-driftable literal. */
+export async function runCityAcquisition({ sources, fetchDocument, concurrency = 4, perHost = 1, detailLimit = DEFAULT_DETAIL_LIMIT } = {}) {
   if (!Array.isArray(sources)) throw new Error("sources must be an array");
   if (typeof fetchDocument !== "function") throw new Error("fetchDocument is required");
   return mapBounded(sources, (source) => acquireSource(source, { fetchDocument, detailLimit }), { concurrency, perHost });
