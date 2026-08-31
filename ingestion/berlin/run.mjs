@@ -172,7 +172,32 @@ async function collectSinglePageJsonLd({ sourceId, url, venueNameOverride, filte
 // HTML pages) has stayed comfortably under this bound on its own.
 const MAX_DETAIL_FETCHES = 80;
 
-async function collectListDetailJsonLd({ sourceId, listUrl, listIsXml = false, linkPattern, baseUrl, venueNameOverride, timeoutMs }) {
+// BEATMAPPED-ZIG-ZAG-LIVE-EVENT-LINK-REPAIR-01: `eventUrlFallback` is an
+// opt-in-only addition, defaulting to `false` — every existing caller of
+// this function that does not pass it gets byte-identical behaviour to
+// before this change; nothing about any other Berlin venue's collector
+// changed. When a source's own detail page publishes NO `url` at all in
+// its JSON-LD Event node (Zig Zag Jazz Club's live pages genuinely do
+// not — see research/source-investigations/beatmapped-zig-zag-live-event-
+// link-repair-01/ for the retained evidence), `normaliseJsonLdEvent()`
+// leaves `record.event_url` null, and every downstream Observation for
+// that event carried `event_url: null` despite the correct, real,
+// first-party detail URL having already been fetched and proven to
+// return 200 moments earlier in this very loop. `toObservation()`
+// (ingestion/json-ld/observation-adapter.mjs) already has an existing,
+// unmodified fallback chain for exactly this case —
+// `record.event_url ?? record.ticket_url ?? options.eventDetailUrl ??
+// null` — this only supplies the one input that chain was already
+// designed to accept, `options.eventDetailUrl`, using the SAME `detailUrl`
+// already retained as this event's own `source_record_id` basis and
+// already independently verified reachable (this loop only reaches this
+// point after `detailRes.ok`). No URL is invented, guessed, or derived
+// from a title/slug convention — it is the exact address this event's own
+// content was just fetched from. Because it only ever fills an ALREADY
+// -null `event_url`, this can never override a source's own genuinely
+// published url (Konzerthaus and every other `collectListDetailJsonLd()`
+// caller are unaffected whether or not they ever opt in).
+async function collectListDetailJsonLd({ sourceId, listUrl, listIsXml = false, linkPattern, baseUrl, venueNameOverride, timeoutMs, eventUrlFallback = false }) {
   const fetchOpts = timeoutMs ? { timeoutMs } : {};
   const listRes = await fetchText(listUrl, fetchOpts);
   if (!listRes.ok) throw new Error(`HTTP ${listRes.status} from ${listUrl}`);
@@ -194,7 +219,9 @@ async function collectListDetailJsonLd({ sourceId, listUrl, listIsXml = false, l
     rawCount += nodes.length;
     if (nodes.length === 0) continue;
     const record = normaliseJsonLdEvent(nodes[0], { deriveId: () => lastPathSegment(detailUrl) });
-    observations.push(jsonLdToObservation(record, { source_id: sourceId }, { retrievedAt: detailRes.retrievedAt, sourceUrl: detailUrl, venueNameOverride }));
+    const observationOptions = { retrievedAt: detailRes.retrievedAt, sourceUrl: detailUrl, venueNameOverride };
+    if (eventUrlFallback) observationOptions.eventDetailUrl = detailUrl;
+    observations.push(jsonLdToObservation(record, { source_id: sourceId }, observationOptions));
   }
   return { rawRecordCount: rawCount, observations, notes };
 }
@@ -253,12 +280,22 @@ async function collectSo36() {
   });
 }
 async function collectZigZagJazzClub() {
+  // BEATMAPPED-ZIG-ZAG-LIVE-EVENT-LINK-REPAIR-01: this venue's own detail
+  // pages (Squarespace's default Event schema block) publish no `url`
+  // property in their JSON-LD Event node at all — every event was
+  // therefore previously published with `event_url: null` despite the
+  // real, first-party, individually-fetched detail page existing and
+  // returning 200 for each one. `eventUrlFallback: true` supplies that
+  // already-fetched, already-verified detail URL as the event's own
+  // `event_url` — see collectListDetailJsonLd()'s own doc comment for why
+  // this is additive-only and cannot affect any other source.
   return collectListDetailJsonLd({
     sourceId: "zig-zag-jazz-club-berlin",
     listUrl: "https://www.zigzag-jazzclub.berlin/menu-marquee",
     linkPattern: /href="(\/program-mai\/[a-z0-9-]+)"/g,
     baseUrl: "https://www.zigzag-jazzclub.berlin",
     venueNameOverride: "Zig Zag Jazz Club",
+    eventUrlFallback: true,
   });
 }
 async function collectKesselhaus() {
