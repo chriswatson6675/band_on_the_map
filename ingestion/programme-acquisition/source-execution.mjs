@@ -75,6 +75,23 @@ import { collectAndProve, discoverDetailCandidates, routeProgrammeSource } from 
 import { resolveProgrammeSource } from "./programme-resolver.mjs";
 import { withRetries } from "../unattended-runner/retry.mjs";
 
+// BEATMAPPED-DETAIL-LIMIT-36-IMPLEMENTATION-01 — the ONE canonical
+// production detail-fetch budget. Raised from 12 to 36 on the strength of
+// research/source-investigations/beatmapped-detail-limit-coverage-
+// experiment-01's bounded, retained coverage-curve measurement (detailLimit
+// 36 recommended as the best-supported single production constant; see
+// that package's own README for the full cohort evidence). This changes
+// ONLY the size of the bounded inspection budget passed to
+// discoverDetailCandidates({ limit }) below — candidate selection,
+// ordering, dedupe, normalization, identity, and proof are all completely
+// unchanged (discoverDetailCandidates() already guarantees that raising
+// `limit` only ever APPENDS further candidates after the same first-N
+// ordered prefix — see tests/detail-limit-36-implementation.test.mjs's own
+// determinism assertion). city-batch.mjs imports this SAME constant rather
+// than hardcoding a second literal, so the two production call sites can
+// never silently drift apart again.
+export const DEFAULT_DETAIL_LIMIT = 36;
+
 /**
  * @typedef {Object} SourceAcquisitionResult
  * @property {string} source_id
@@ -106,7 +123,7 @@ import { withRetries } from "../unattended-runner/retry.mjs";
  * @param {{fetchDocument: (url: string) => Promise<object>, detailLimit?: number}} options
  * @returns {Promise<SourceAcquisitionResult>}
  */
-export async function acquireSource(source, { fetchDocument, detailLimit = 12 } = {}) {
+export async function acquireSource(source, { fetchDocument, detailLimit = DEFAULT_DETAIL_LIMIT } = {}) {
   if (!source?.source_id) throw new Error("acquireSource: source.source_id is required");
   if (typeof fetchDocument !== "function") throw new Error("acquireSource: fetchDocument is required");
 
