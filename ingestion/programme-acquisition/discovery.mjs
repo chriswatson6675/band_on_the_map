@@ -1,5 +1,6 @@
 import { extractEventNodes, normaliseJsonLdEvent } from "../json-ld/parse.mjs";
 import { toObservations } from "../json-ld/observation-adapter.mjs";
+import { proofDateFromStartDate } from "./proof-date.mjs";
 
 const EVENT_SIGNAL = /\b(event|events|veranstaltung|veranstaltungen|konzert|konzerte|concert|concerts|gig|gigs|show|shows|programm|programme|spielplan|calendar|kalender|agenda|tickets?)\b/i;
 const REJECTED_PATH = /\b(privacy|impressum|kontakt|contact|about|login|account|cart|warenkorb|newsletter|press|jobs?)\b/i;
@@ -90,7 +91,18 @@ export function proveJsonLdEvents(documents, { sourceId, venueName, retrievedAt,
       const record = normaliseJsonLdEvent(node, { deriveId: () => url });
       if (!record.event_url) record.event_url = url;
       if (!record.title || !record.start_raw || !url) continue;
-      const date = /^\d{4}-\d{2}-\d{2}/.exec(record.start_raw)?.[0] ?? null;
+      // BEATMAPPED-NORMALISATION-DATE-PREFIX-PARITY-01: this line previously
+      // inlined `/^\d{4}-\d{2}-\d{2}/`, a second copy of the padded-only
+      // predicate the proof layer used. The two copies disagreed for any
+      // source publishing an unpadded month/day, so a-trane-berlin's own
+      // events were kept by detail proof and simultaneously discarded here —
+      // the normalized and proven sets could not intersect, and the source
+      // stayed at 0 proven despite 8 valid proofs. One source-published
+      // startDate must have exactly one governed calendar-date reading, so
+      // normalisation now shares the proof layer's helper rather than
+      // approximating it. The accepted grammar, strict calendar validation
+      // and clock-independence are that helper's, unchanged.
+      const date = proofDateFromStartDate(record.start_raw);
       if (!date || date < cutoff) continue;
       records.push({ ...record, source_document_url: document.url });
     }
