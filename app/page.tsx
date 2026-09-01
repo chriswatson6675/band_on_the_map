@@ -44,7 +44,21 @@ type ArtistIndexEntry = {
 //
 // The public homepage does not scrape venue websites. It renders the
 // latest successfully published map dataset, runtime or bundled.
-const BUNDLED_ARTIFACT = publicationData;
+//
+// BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01: this
+// committed snapshot predates London/United Kingdom and legitimately has no
+// `countries.UnitedKingdom` key yet -- regenerating it would require running
+// a real `npm run publish:map-data` against live sources, which is a manual
+// publication action explicitly out of scope for this integration package.
+// The cast below only tells TypeScript that shape is possible; it changes no
+// runtime behaviour -- `unitedKingdomMarkers` below already falls back to
+// `[]` via `?? []` for a genuinely-absent key, exactly as Spain/Germany/
+// France did before their own first bundled snapshot existed. A live
+// runtime artifact fetched via resolveMapData() (see RUNTIME_MAP_DATA_URL
+// below) can and will carry a real `countries.UnitedKingdom` bucket.
+const BUNDLED_ARTIFACT = publicationData as typeof publicationData & {
+  countries: { UnitedKingdom?: { markers: unknown[] } };
+};
 const RUNTIME_MAP_DATA_URL = process.env.NEXT_PUBLIC_BOTM_MAP_DATA_URL || null;
 
 const genres = ["Any", "Rock", "Indie", "Alternative", "Electronic", "Jazz", "Folk", "Pop", "Metal"];
