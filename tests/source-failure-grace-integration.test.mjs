@@ -91,6 +91,10 @@ async function makeTempRoot() {
   // see tests/unattended-runner.test.mjs's identical addition for why.
   await writeFile(join(root, "venues", "berlin.json"), JSON.stringify({ region: "Berlin", venues: [] }));
   await writeFile(join(root, "venues", "paris.json"), JSON.stringify({ region: "Paris", venues: [] }));
+  // BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01:
+  // venues/london.json now must exist under every isolated test root too —
+  // see tests/unattended-runner.test.mjs's identical addition for why.
+  await writeFile(join(root, "venues", "london.json"), JSON.stringify({ venues: [] }));
   await writeFile(
     join(root, "venues", "barcelona.json"),
     JSON.stringify({
@@ -156,6 +160,14 @@ async function emptyParisAcquire() {
   return { parisRegistry: { entries: [] }, parisResults: [], parisObservations: [] };
 }
 
+// BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01: same
+// safe, fast, fully-offline default as every other country above, so this
+// suite never reaches the real acquireLondon() (live network against 6
+// real London sources).
+async function emptyLondonAcquire() {
+  return { londonRegistry: { entries: [] }, londonResults: [], londonObservations: [] };
+}
+
 const emptyPortugalAcquire = async () => ({
   lisbonRegistry: { entries: [] },
   portoRegistry: { entries: [] },
@@ -206,7 +218,7 @@ test("REGRESSION (L'Auditori shape): the real umbrella source failing within 24h
     acquireLisbonPorto: emptyPortugalAcquire,
     acquireBarcelona: barcelonaAcquireWithFailingUmbrella(),
     acquireBerlin: emptyBerlinAcquire,
-    acquireParis: emptyParisAcquire,
+    acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "a retained-but-failed source must never be reported as fully HEALTHY");
@@ -245,7 +257,7 @@ test("grace expiry: an umbrella source still failing >24h after its last real su
     acquireLisbonPorto: emptyPortugalAcquire,
     acquireBarcelona: barcelonaAcquireWithFailingUmbrella(),
     acquireBerlin: emptyBerlinAcquire,
-    acquireParis: emptyParisAcquire,
+    acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
@@ -268,13 +280,13 @@ test("recovery: once the umbrella source succeeds again, fresh data immediately 
   await seedPreviousArtifact(root, { umbrellaLastSuccessAt: new Date(Date.now() - 3 * H).toISOString() });
 
   // Run 1: still failing, within grace — retained.
-  const first = await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: emptyPortugalAcquire, acquireBarcelona: barcelonaAcquireWithFailingUmbrella(), acquireBerlin: emptyBerlinAcquire, acquireParis: emptyParisAcquire });
+  const first = await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: emptyPortugalAcquire, acquireBarcelona: barcelonaAcquireWithFailingUmbrella(), acquireBerlin: emptyBerlinAcquire, acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire });
   assert.equal(first.report.overall_status, "DEGRADED");
   const firstUmbrellaEntry = first.report.sources.find((s) => s.source_id === UMBRELLA_SOURCE);
   assert.equal(firstUmbrellaEntry.retained, true);
 
   // Run 2: the source recovers.
-  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: emptyPortugalAcquire, acquireBarcelona: barcelonaAcquireWithRecoveredUmbrella(), acquireBerlin: emptyBerlinAcquire, acquireParis: emptyParisAcquire });
+  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: emptyPortugalAcquire, acquireBarcelona: barcelonaAcquireWithRecoveredUmbrella(), acquireBerlin: emptyBerlinAcquire, acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire });
   assert.equal(second.report.overall_status, "HEALTHY", "every source succeeding again must report fully HEALTHY, not still degraded");
 
   const artifact = JSON.parse(await readFile(resolvePublicationArtifactPath({ root }), "utf8"));
@@ -306,7 +318,7 @@ test("multi-source venue: a fresh source and a failed-but-in-grace source coveri
     acquireLisbonPorto: emptyPortugalAcquire,
     acquireBarcelona: barcelonaAcquireWithFailingUmbrella(),
     acquireBerlin: emptyBerlinAcquire,
-    acquireParis: emptyParisAcquire,
+    acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
@@ -338,7 +350,7 @@ test("successful-zero: a source that legitimately returns zero observations is a
     barcelonaObservations: [freshObs(FRESH_SOURCE_1, "f1"), freshObs(FRESH_SOURCE_2, "f2"), freshObs(FRESH_SOURCE_3, "f3")],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "run-zero", acquireLisbonPorto: emptyPortugalAcquire, acquireBarcelona: zeroEventAcquire, acquireBerlin: emptyBerlinAcquire, acquireParis: emptyParisAcquire });
+  const { report } = await runUnattendedCycle({ root, runId: "run-zero", acquireLisbonPorto: emptyPortugalAcquire, acquireBarcelona: zeroEventAcquire, acquireBerlin: emptyBerlinAcquire, acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire });
 
   assert.equal(report.overall_status, "HEALTHY", "a legitimate zero-event success must never be treated as a failure/degradation");
   const artifact = JSON.parse(await readFile(resolvePublicationArtifactPath({ root }), "utf8"));
@@ -363,7 +375,7 @@ test("a corrupt/invalid previous artifact is NEVER trusted as last-known-good �
     acquireLisbonPorto: emptyPortugalAcquire,
     acquireBarcelona: barcelonaAcquireWithFailingUmbrella(),
     acquireBerlin: emptyBerlinAcquire,
-    acquireParis: emptyParisAcquire,
+    acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
@@ -389,7 +401,7 @@ test("no previous artifact at all (first-ever run): retention is simply unavaila
     acquireLisbonPorto: emptyPortugalAcquire,
     acquireBarcelona: barcelonaAcquireWithFailingUmbrella(),
     acquireBerlin: emptyBerlinAcquire,
-    acquireParis: emptyParisAcquire,
+    acquireParis: emptyParisAcquire, acquireLondon: emptyLondonAcquire,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
