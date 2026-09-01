@@ -1,0 +1,166 @@
+{
+  "investigation_id": "london-t2-paloma-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:20:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Phase B deep-dive: reuses london-t2-paloma-01's retained Level 1 PASSIVE_STATIC evidence (re-characterised here as INSUFFICIENT for this deeper pass -- see probe_history reason), then escalates to Level 2 STRUCTURAL with one additional bounded, unauthenticated GET of the same single official_url (curl, descriptive User-Agent, redirects followed, 20s timeout, single request, no retry, no authentication/browser/CAPTCHA-bypass), specifically hunting for an ICS export, a JSON-LD Event block, a JSON API, or any genuine retained context (a copyright year, an explicit fetch-relative framing, or similar) that could honestly establish a year for the visible club-night schedule -- the critical open question this Phase B investigation exists to resolve."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "london-t2-paloma-01's Level 1 pass established identity and a partial field picture (day-of-week + day + month present per schedule card, but no year anywhere, and no JSON-LD Event/ICS/JSON-API search was performed) -- insufficient on its own to answer this investigation's central question of whether a year can honestly be established, or must stay unresolved. Escalating to Level 2 to search specifically for a machine feed or any genuine year-bearing context.",
+      "evidence_refs": ["ev-level1-reused"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A deeper structural read of the same retained response answers the open question directly: (a) no ICS export link and no JSON/REST API were found; (b) a genuine JSON-LD @graph of schema.org Event objects DOES exist (not noticed at Level 1) and DOES carry full ISO startDate/endDate values including year -- but it covers only 1 of the 5 recurring series shown in the static schedule, and all 4 of its sampled instances are already in the past relative to this probe's own fetch time, so it cannot honestly be used as a current, comprehensive data path without further (out-of-bounds) monitoring; (c) the only year-shaped text anywhere else on the page is a structurally-unrelated footer copyright notice ('...2026'), which docs/SOURCE_INVESTIGATION_POLICY.md's Field-value basis (v1.2) section does not permit as a DETERMINISTIC_CONTEXT input -- using it would be AI_INFERENCE (plausibility), not a genuine mechanical combination. This is sufficient to reach an honest, evidenced DEFER decision without further escalation to Level 3.",
+      "evidence_refs": ["ev-level2-home"]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Paloma -- Old Brompton Road 92, SW7 3LQ, London (second London tranche Phase B deep-dive)",
+  "official_url": "https://palomachelsea.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level1-reused", "ev-level2-home"],
+    "notes": "Retained Organization/LocalBusiness JSON-LD address ('92b Old Brompton Road, London, England, SW7 3LQ, United Kingdom') matches the candidate's discovery address; same conclusion as the superseded record, now independently reconfirmed by the Level 2 fetch."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Squarespace site. The current club-night schedule is rendered as static 'sqs-html-content' text blocks directly in the server-delivered HTML (day-of-week + day + month + time + genre, no year). The same page also embeds a genuine schema.org Event JSON-LD @graph via a third-party ticketing widget (linkhub.fm), but that graph is limited to one of five recurring series and its sampled instances are already stale/past relative to fetch time.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level2-home"]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://palomachelsea.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    {
+      "kind": "EMBEDDED_JSON_LD_EVENTS",
+      "url": "https://palomachelsea.com/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": ["ev-level2-home"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "BESO BESO",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The schedule card's own <h3> states the recurring night's name directly (also independently confirmed by the JSON-LD Event graph's own 'name': 'BESO BESO: Reggaeton Thursdays' for the same series). Other cards on the same page show other real, directly-stated names (PRIME TIME, DRUM CITY, SATURDAY SPOTLIGHT, SHIFTING CULTURE).",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "This investigation's central open question. The static schedule cards state day-of-week + day + month directly (e.g. 'THURSDAY 20 AUGUST') but NEVER a year, anywhere structurally tied to the schedule. The only 4-digit year-shaped text anywhere on the whole retained page is a footer copyright notice ('...@PALOMA CHELSEA 2026'), structurally unrelated to the schedule section (a different, unconnected block deep in the page) -- using it to fill in the year would be exactly the AI_INFERENCE ('the copyright year is close to today, so the nearby schedule is probably that year') docs/SOURCE_INVESTIGATION_POLICY.md's Field-value basis (v1.2) section explicitly excludes from ever being PROVEN, not a genuine DETERMINISTIC_CONTEXT combination with exactly one structurally-provable result. Separately, a genuine JSON-LD Event graph on the same page DOES carry full ISO dates with year for the 'BESO BESO' series specifically (DIRECT_SOURCE) -- but its 4 sample instances (2026-04-23, 2026-06-11, 2026-06-18, 2026-06-25) are all already in the past relative to this probe's fetch time and do not cover the other 4 recurring series at all, so it cannot honestly stand in as a current, comprehensive value for this field either. Deliberately left PARTIAL rather than PROVEN or a guessed AMBIGUOUS-with-value -- no precise value is claimed.",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "22:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Every sampled card states its start time directly ('22:00 - LATE').",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "'LATE' is not a specific end time; no end time or date is stated anywhere in the retained response.",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "92b Old Brompton Road, London, England, SW7 3LQ, United Kingdom",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Retained Organization and LocalBusiness JSON-LD blocks both state this address directly; the schedule is the venue's own single-venue homepage listing, so this address applies to every card on it.",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No stable per-event or per-instance identifier is exposed for the static schedule cards (no id/slug/permalink per card). The JSON-LD Event objects also carry no 'identifier' field of their own; their only near-identifying value is a third-party ticketing URL query parameter (linkhub.fm/event/974314), which is not a first-party identifier this venue itself documents or controls.",
+      "evidence_refs": ["ev-level2-home"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No first-party, individually-addressable event URL exists for any schedule card -- all schedule content lives directly on the single homepage with no per-card anchor or link. The JSON-LD Event graph's 'offers.url' points at a THIRD-PARTY ticketing domain (linkhub.fm), which per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' distinction is not treated as first-party event_url authority here.",
+      "evidence_refs": ["ev-level2-home"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "LOW",
+    "evidence_refs": ["ev-level2-home"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "No year is exposed anywhere in retained first-party context structurally tied to the visible club-night schedule (day-of-week + day + month only). Safely constructing dated calendar Observations for this schedule is not possible without inventing a year, which docs/SOURCE_INVESTIGATION_POLICY.md prohibits outright -- 'never invent a missing year just because today's date makes one seem likely.'"
+      },
+      {
+        "severity": "MAJOR",
+        "description": "A genuine JSON-LD Event mechanism exists (via a linkhub.fm ticketing widget) that CAN produce full dated events, but it currently covers only 1 of 5 recurring series and its retained sample instances are already all in the past relative to fetch time -- its live/current reliability is unconfirmed by this bounded, single-fetch probe."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The genuinely dominant, currently-promoted club-night schedule (BESO BESO / PRIME TIME / DRUM CITY / SATURDAY SPOTLIGHT / SHIFTING CULTURE) exposes day-of-week + day + month directly but never a year, and no retained first-party context on the page structurally establishes one -- the nearest year-shaped text (a footer copyright notice) is structurally unrelated to the schedule and using it would be AI_INFERENCE, not a genuine DETERMINISTIC_CONTEXT derivation, per docs/SOURCE_INVESTIGATION_POLICY.md's Field-value basis (v1.2) section. field_assessment.start_date honestly stays PARTIAL rather than being forced to PROVEN or AMBIGUOUS-with-a-guessed-value.",
+      "A secondary, genuine JSON-LD Event acquisition path was discovered at Level 2 that CAN expose full DIRECT_SOURCE dates (with year) -- but it is narrow (1 of 5 series) and its only 4 retained sample instances are already stale/past relative to fetch time, so this investigation cannot honestly certify it as a reliable current data path without a follow-up probe (a repeated fetch over time to observe whether it updates), which is out of this investigation's bounds.",
+      "Per this task's explicit guidance and docs/SOURCE_INVESTIGATION_POLICY.md's DEFER framing, DEFER is the honest outcome here -- not a forced activation and not an invented year. A future investigation could re-open this candidate if either the static schedule starts exposing a genuine year-bearing structural context, or repeated observation over time shows the JSON-LD Event graph is in fact kept current and comprehensive."
+    ],
+    "evidence_refs": ["ev-level1-reused", "ev-level2-home"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level1-reused",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Reused, unmodified Level 1 evidence retained by the superseded investigation london-t2-paloma-01: retained, bounded, genuine excerpts of the actual HTTP response body from a single unauthenticated GET.",
+      "acquired_from": "https://palomachelsea.com/",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-paloma-01/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-level2-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal contiguous excerpts (Organization/LocalBusiness JSON-LD; the full first Event JSON-LD object plus a note on the other 3; one representative static schedule card; the footer copyright text) from a fresh Level 2 GET of https://palomachelsea.com/, annotated with acquisition metadata and explicit notes on what was and was not found. The excerpt slices themselves are byte-faithful contiguous substrings; the file as a whole (with added annotation) is not byte-faithful.",
+      "acquired_from": "https://palomachelsea.com/",
+      "acquired_at": "2026-09-01T19:58:40.000Z",
+      "method": "curl -sL; descriptive User-Agent; unauthenticated GET; --max-time 25; single request; no retry; no browser/JS execution; no authentication or CAPTCHA bypass",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-paloma-02/evidence/level2-home-excerpt.html"
+    }
+  ],
+  "supersedes": "london-t2-paloma-01"
+}

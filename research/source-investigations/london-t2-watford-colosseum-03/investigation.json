@@ -1,0 +1,113 @@
+{
+  "investigation_id": "london-t2-watford-colosseum-03",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:27:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Pre-activation implementation-time review (BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01), superseding london-t2-watford-colosseum-02. Before wiring the venue into ingestion/london/run.mjs, a real Nominatim OSM_ID_LOOKUP of the venue's own known OSM node id was performed to obtain real coordinates (the prior record left osm_ref/coordinates unresolved). The result changes this venue's tranche-2 disposition: it is genuinely outside Greater London (Watford, Hertfordshire) and outside the existing United Kingdom map view bounds -- this record documents that finding and reclassifies the decision to DEFER for THIS tranche, not because of any content/data-quality problem (the content-readiness finding in london-t2-watford-colosseum-02 stands, unchanged and un-superseded in substance)."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Carries forward london-t2-watford-colosseum-02's own probe_history -- retained here as INSUFFICIENT for the new question this record answers (does the venue's real geographic location fit this tranche's London/UK map scope?).",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A real Nominatim /lookup of the venue's own already-known OSM node id (osm-node-1265649653) directly answers the question: OpenStreetMap's own first-party record places the venue's address in Watford, Hertfordshire (no London borough/city_district field at all, unlike every genuinely-London source this project has activated), and its coordinates (lon -0.4034534) fall outside the existing 'United Kingdom' map view's western bound (-0.26). Fully answers the question with no further escalation needed.",
+      "evidence_refs": ["ev-osm-lookup"]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Watford Colosseum",
+  "official_url": "https://watfordcolosseum.co.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02", "ev-osm-lookup"],
+    "notes": "Identity remains PROVEN exactly as in london-t2-watford-colosseum-02; unaffected by this record's finding."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Unchanged from london-t2-watford-colosseum-02.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02"]
+  },
+  "data_paths": [
+    {
+      "kind": "EVENTS_INDEX_PAGE",
+      "url": "https://www.watfordcolosseum.co.uk/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-prior-02"]
+    }
+  ],
+  "field_assessment": {
+    "title": { "state": "PROVEN", "value": "Fun Lovin' Criminals", "basis": "DIRECT_SOURCE", "derivation": null, "notes": "Unchanged from london-t2-watford-colosseum-02.", "evidence_refs": ["ev-prior-02"] },
+    "start_date": { "state": "PROVEN", "value": "2026-09-12", "basis": "DIRECT_SOURCE", "derivation": null, "notes": "Unchanged from london-t2-watford-colosseum-02.", "evidence_refs": ["ev-prior-02"] },
+    "time": { "state": "NOT_PRESENT", "value": null, "basis": null, "derivation": null, "notes": "Unchanged from london-t2-watford-colosseum-02.", "evidence_refs": [] },
+    "end": { "state": "NOT_PRESENT", "value": null, "basis": null, "derivation": null, "notes": "Unchanged from london-t2-watford-colosseum-02.", "evidence_refs": [] },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Watford Colosseum, Rickmansworth Road, Watford, Hertfordshire WD17 3JN",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Confirmed via direct Nominatim OSM_ID_LOOKUP (lat 51.6589220, lon -0.4034534) -- this is the material new finding: the venue's real, first-party-confirmed location is Watford, Hertfordshire, NOT a London borough, and falls outside this project's existing 'United Kingdom' map view bounds.",
+      "evidence_refs": ["ev-osm-lookup"]
+    },
+    "source_record_id": { "state": "PROVEN", "value": "fun-lovin-criminals", "basis": "DIRECT_SOURCE", "derivation": null, "notes": "Unchanged from london-t2-watford-colosseum-02.", "evidence_refs": ["ev-prior-02"] },
+    "event_url": { "state": "PROVEN", "value": "https://www.watfordcolosseum.co.uk/events/fun-lovin-criminals", "basis": "DIRECT_SOURCE", "derivation": null, "notes": "Unchanged from london-t2-watford-colosseum-02.", "evidence_refs": ["ev-prior-02"] }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Not a data-acquisition blocker: the venue is real, its data is genuinely acquirable, and ingestion/aeg-presents/observation-adapter.mjs (built for sibling venue Eventim Apollo, same platform) would work unchanged. The blocker is scope-only -- the venue's real, OSM-confirmed location is outside Greater London and outside this project's existing United Kingdom map view bounds. Activating it would require widening components/DiscoveryMap.tsx's UK bounds/center, a visible frontend behaviour change this package's own minimal-integration instructions do not call for. Retained here for a future tranche that explicitly wants to widen UK map scope beyond Greater London."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Content/data readiness is unchanged and remains strong (see london-t2-watford-colosseum-02) -- this is not a quality or acquisition-path failure.",
+      "The venue's real, OSM-confirmed address is Watford, Hertfordshire, not a Greater London borough -- geographically outside this project's 'London' scope as established by every other activated United Kingdom source.",
+      "The venue's real coordinates fall outside the existing United Kingdom map view bounds; activating it without a frontend bounds change would either render the marker invisible on the default view or require a scope decision (widen 'London' to include Home Counties commuter towns) this package was not asked to make.",
+      "Retained as a strong, ready candidate for a future tranche that explicitly decides to widen UK map scope beyond Greater London."
+    ],
+    "evidence_refs": ["ev-osm-lookup", "ev-prior-02"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-prior-02",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The prior (superseded) investigation london-t2-watford-colosseum-02's full retained evidence set, cited/carried forward rather than re-fetched.",
+      "acquired_from": "research/source-investigations/london-t2-watford-colosseum-02/",
+      "acquired_at": "2026-09-01T19:56:30.000Z",
+      "method": "Carried forward from the prior investigation",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-watford-colosseum-02/investigation.json"
+    },
+    {
+      "evidence_id": "ev-osm-lookup",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Real Nominatim /lookup response for the venue's own already-known OSM node id (osm-node-1265649653), confirming this is a Hertfordshire, not Greater London, address, and that its coordinates fall outside the existing UK map view bounds.",
+      "acquired_from": "https://nominatim.openstreetmap.org/lookup?osm_ids=N1265649653&format=jsonv2&addressdetails=1",
+      "acquired_at": "2026-09-01T20:22:33.543Z",
+      "method": "ingestion/geocoding/nominatim.mjs's lookupNominatimOsmIdLive(), rate-limited single request",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-watford-colosseum-03/evidence/osm-lookup.json"
+    }
+  ],
+  "supersedes": "london-t2-watford-colosseum-02"
+}

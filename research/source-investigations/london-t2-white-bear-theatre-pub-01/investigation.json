@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-white-bear-theatre-pub-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "White Bear Theatre Pub — London (address text corrupted in source estate; treated as UNKNOWN, not invented)",
+  "official_url": "https://www.whitebeartheatre.co.uk/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-295709722-london-01",
+  "investigated_at": "2026-09-01T19:39:25.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Canonical URL, <title>, and meta description all match the venue name and self-describe it as White Bear Theatre; no cross-domain redirect occurred."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Server-rendered marketing/box-office site (single unauthenticated GET returned real body text).",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage returned <head> metadata that directly and unambiguously self-describes the venue's core identity as a fringe theatre, conclusively answering the music-relevance question without further escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own meta description states: 'White Bear Theatre is an award fringe theatre founded in 1988 at the White Bear Pub in Kennington, London, by founder and Artistic Director Michael Kingsbury.' — the venue self-identifies as a fringe theatre.",
+      "The fetched page contains 645 occurrences of 'play' and 6 of 'fringe theatre' against zero occurrences of 'live music', 'gig', 'band', 'jazz', or 'cabaret' — real evidence that the primary programme is theatrical, not musical, and therefore fails BeatMapped's venue-level music gate."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt: <title>, meta description, and canonical link, self-describing the venue as an award fringe theatre.",
+      "acquired_from": "https://www.whitebeartheatre.co.uk/",
+      "acquired_at": "2026-09-01T19:39:25.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-white-bear-theatre-pub-01/evidence/passive-static.json"
+    }
+  ]
+}

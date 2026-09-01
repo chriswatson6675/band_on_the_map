@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-night-tales-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:45:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage-refinement: one unauthenticated GET to the candidate's official_website (via curl, descriptive User-Agent, redirects followed, 25s timeout, no retries), plus one additional unauthenticated GET to the candidate's given official_programme_url under the same bounds. No browser, authentication, CAPTCHA-bypass, or state-changing request was used."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single unauthenticated GET to the candidate's official_website, plus a single additional GET to the given official_programme_url (https://www.nighttales.co.uk/whats-on), to establish identity, check for the flagged duplicate-entity concern, and sample the current programme.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-6900790809",
+  "source_id": null,
+  "venue_reference": "Night Tales -- second London tranche triage-refinement candidate (osm-node-6900790809)",
+  "official_url": "https://nighttales.co.uk",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retrieved page's own <title> ('Night Tales') and meta description ('East London's largest terrace bar, nightclub & event space') identify this as Night Tales' own official site; the /whats-on page's own footer states the address '14 Bohemia Place London E8 1DU', matching the candidate's given address."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Squarespace-hosted site; the /whats-on page's static HTML is almost entirely navigation chrome ('BOOK TICKETS', FAQs links) with no visible dated event listing in the retrieved static response -- event content appears to be client-rendered.",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The retrieved evidence (the site's own 'Check Out Our Other Venues: NT'S LOFT NETIL360 PALAIS' text) shows 'Night Tales' and 'Night Tales Loft' are sibling names under one operator at the same Bohemia Place complex, raising a genuine, unresolved duplicate-entity concern with the already-approved first-tranche venue Night Tales Loft (osm-node-9286567817) -- per the investigation brief, this must be flagged and deferred rather than activated.",
+      "The /whats-on page's static HTML contains no visible dated event listing (content appears client-rendered), so no current programme could be confirmed from this Level-1 probe regardless of the duplicate concern."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal excerpt(s) of the actual HTTP response body/bodies from the candidate's official_website and the given official_programme_url -- each excerpt is a contiguous, unedited substring of the real retrieved HTML, capped well under 4KB per item; the surrounding full response was not retained in full (bounded capture, not a full-page dump).",
+      "acquired_from": "https://nighttales.co.uk; https://www.nighttales.co.uk/whats-on",
+      "acquired_at": "2026-09-01T19:40:25.000Z",
+      "method": "curl GET; descriptive User-Agent; unauthenticated; redirects followed; 25-second timeout; single request per URL; no retry; no authentication, CAPTCHA-bypass, or state-changing request",
+      "content_type": "text/html;charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-night-tales-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-6900790809-london-01"
+}

@@ -1,0 +1,149 @@
+{
+  "investigation_id": "london-t2-paloma-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded, single unauthenticated Level-1 PASSIVE_STATIC GET (curl, descriptive User-Agent, redirects followed, 20s timeout, no retry, no authentication, no CAPTCHA/challenge bypass, no browser) against the venue's official_website (falling back to official_programme_url where noted), as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 batch 6 of 7."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated Level-1 static GET against https://palomachelsea.com/ retained enough real evidence (event/programme listing content, title/meta tags, and structured data where present) to reach an honest, evidenced READY_FOR_OFFLINE_PROOF decision without needing to escalate to Level 2/3/4.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Paloma — Old Brompton Road 92, SW7 3LQ, London",
+  "official_url": "https://palomachelsea.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained Organization JSON-LD block's own address ('92b Old Brompton Road, London, England, SW7 3LQ') matches the candidate's discovery address (Old Brompton Road 92, SW7 3LQ, London), and the page's own <title> is 'Paloma Chelsea'."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Squarespace site with event listings rendered as static 'sqs-html-content' text blocks directly in the server-delivered HTML (day/time/genre are present in the raw response, not purely client-rendered).",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://palomachelsea.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Retained static blocks show real, named recurring club nights (e.g. 'BESO BESO', 'PRIME TIME', 'DRUM CITY', 'SHIFTING CULTURE') each paired with a music genre (REGGAETON/HOUSE/AFRO HOUSE) and a day/date, but whether the night name or the genre label constitutes the durable per-instance 'title' was not resolved by this bounded Level-1 probe.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Retained blocks show real day-of-week + day + month combinations (e.g. 'THURSDAY 20 AUGUST', 'FRIDAY 21 AUGUST') grouped under month headings ('AUGUST', 'SEPTEMBER'), but no explicit year is stated adjacent to any individual date in the retained excerpts, so a precise calendar date is not claimed here — that would require a further, explicit derivation step this bounded probe does not attempt.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Old Brompton Road 92, SW7 3LQ, London",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Retained Organization JSON-LD address ('92b Old Brompton Road, London, England, SW7 3LQ') matches the discovery-supplied address.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "The retained response body's own static HTML text blocks show a genuine, dated, multi-week schedule of named club nights, each tagged with a music genre (REGGAETON, HOUSE, AFRO HOUSE) and start time ('22:00 - LATE') — this is DJ/club-night music programming, not incidental background music.",
+      "The venue's own retained meta description ('Luxury nightclub ... known for exceptional music') and Organization JSON-LD opening hours (Thu/Fri/Sat 21:00-03:00) corroborate a nightclub identity consistent with the retained event schedule.",
+      "A plausible first-party acquisition path exists: the schedule is present in the server-delivered static HTML of the homepage itself (not behind a login or third-party platform), so a bounded, deeper structural (Level 2) pass could reasonably attempt to parse it — this record recommends that next step rather than activation."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, genuine excerpts (contiguous literal substrings) of the actual HTTP response body from a single unauthenticated GET, plus response metadata (status/content-type/title); JSON wrapper around literal excerpt strings, so not byte-faithful as a whole file.",
+      "acquired_from": "https://palomachelsea.com/",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-paloma-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-14040070075-london-01"
+}

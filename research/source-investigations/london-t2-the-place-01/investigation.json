@@ -1,0 +1,136 @@
+{
+  "investigation_id": "london-t2-the-place-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:48:55.276Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC refinement probe: single unauthenticated GET of the official_website (one same-host 301 redirect followed), no browser/auth/retries; music-relevance assessed only from the retrieved content."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The homepage's own <title>, keywords meta, description meta and Open Graph tags exhaustively describe the venue as contemporary dance (\"dance\", \"contemporary dance\", \"dance shows\", \"dance classes\", \"studying dance\") with zero mention of live music, concerts, gigs, bands, DJs, jazz or classical music anywhere in the retrieved page. This conclusively answers the music-relevance question without escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-way-513152399",
+  "source_id": null,
+  "venue_reference": "The Place — Duke's Road 17, WC1H 9PY, London",
+  "official_url": "https://www.theplace.org.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title (\"Home | The Place\"), og:site_name (\"The Place\") and repeated references to London Contemporary Dance School (LCDS, resident at The Place) match the reported candidate name."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom site with schema.org LocalBusiness/Organization JSON-LD; no Event-typed structured data found on the fetched homepage.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The venue's own homepage metadata describes its programme exhaustively as contemporary dance and dance education (London Contemporary Dance School); no live-music terms appear anywhere in the retrieved content. Dance is not music under BeatMapped's venue-level music gate, so this fails the gate regardless of technical acquisition feasibility."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "Real, retained Level-1 evidence (title, keywords, description, Open Graph tags) shows the venue is a contemporary-dance venue and dance school (home of London Contemporary Dance School), confirming the pre-triage expectation that The Place is not a live-music venue.",
+      "No live band/concert/jazz/electronic/DJ/classical programming of any kind is present anywhere in the retrieved page."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, unedited excerpt (the <head> block: title, keywords, description, Open Graph tags) from the single unauthenticated GET of https://www.theplace.org.uk/.",
+      "acquired_from": "https://www.theplace.org.uk/",
+      "acquired_at": "2026-09-01T19:41:09.000Z",
+      "method": "curl -L; descriptive User-Agent; unauthenticated single GET; one same-host redirect followed; 20s timeout; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-place-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-513152399-london-01"
+}

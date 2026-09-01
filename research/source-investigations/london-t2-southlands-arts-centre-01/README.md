@@ -1,0 +1,3 @@
+# Southlands Arts Centre — Level 1 passive-static investigation (tranche 2)
+
+Supersedes `triage-osm-node-8816283371-london-01`. A single unauthenticated GET to https://www.southlandsarts.co.uk/our-events/ confirmed identity (schema.org Organization "Southlands Arts Centre", operated by Yiewsley and West Drayton Arts Council, matching the reported address) but exposed no embedded event listing — the page's own "Our Events" section only links out to a separate `/events/` calendar and a past-events gallery, neither fetched under the one-GET-per-venue bound. Music relevance cannot be honestly assessed from this probe alone. Decision: `DEFER`. See `investigation.json` for the authoritative record.

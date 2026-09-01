@@ -1,0 +1,144 @@
+{
+  "investigation_id": "london-t2-eventim-apollo-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:41:05.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC probe as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 triage refinement: a single unauthenticated GET to the venue's official website (or official programme URL when directly given), no retries, no browser, no authentication, no challenge bypass, no state-changing request."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The retained /events index directly listed a large, current roster of concert acts in static heading markup, conclusively answering the music-relevance question without needing further escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Eventim Apollo",
+  "official_url": "https://www.eventimapollo.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained response's own <title> is \"Eventim Apollo | Events Index\" at eventimapollo.com, matching the candidate name and Queen Caroline Street, W6 9QH address (the venue formerly known as Hammersmith Apollo)."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Craft CMS (SEOmatic plugin generator tag)",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "EVENTS_INDEX_PAGE",
+      "url": "https://www.eventimapollo.com/events/",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retained response's own address text corroborates the candidate's discovery-supplied address, but this probe did not promote it to a canonical venue fact.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "The retained events index lists a large, current roster of live music acts directly in the response headings, including Judas Priest, Marillion, Europe, Amon Amarth, Alison Moyet, Lake Street Dive, The Jacksons, The Fray, MUNA, Georges Wassouf, and Levellers, alongside a smaller number of comedy (Kevin Bridges, Mo Gilligan) and film-in-concert events.",
+      "This substantially and directly confirms Eventim Apollo's primary current programme is live concerts/bands, consistent with its well-known identity as a major London concert venue, and a public /events index page exists as a plausible first-party acquisition path."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, contiguous excerpt of the actual HTTP response body from the single unauthenticated GET, plus real response metadata (status, final URL, content-type); the excerpt substring is a literal transcription of the response but is wrapped in a JSON envelope with metadata rather than the full raw byte stream, so it is not itself the byte-faithful response.",
+      "acquired_from": "https://www.eventimapollo.com/events",
+      "acquired_at": "2026-09-01T19:41:05.000Z",
+      "method": "curl -sL; descriptive research User-Agent; 20-second timeout; redirects followed; unauthenticated GET; no retry.",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-29204026-london-01"
+}

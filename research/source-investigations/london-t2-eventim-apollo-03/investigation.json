@@ -1,0 +1,183 @@
+{
+  "investigation_id": "london-t2-eventim-apollo-03",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:25:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Pre-activation implementation-time review (BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01), superseding london-t2-eventim-apollo-02. While building the reusable ingestion/aeg-presents/observation-adapter.mjs collector against the real, full /events/ index response (82 cards, not the prior record's 3-event sample), a material finding emerged: Eventim Apollo's real current programme is genuinely mixed (comedy/talks alongside concerts), which the prior record's narrow sample did not surface. This record documents that finding, the full-listing manual review used to build a deterministic runtime music gate, and a real Nominatim OSM_ID_LOOKUP coordinate confirmation -- all persisted per the no-scratchpad governance rule rather than left in agent/chat context."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Carries forward london-t2-eventim-apollo-02's own Level 1/2 history (see that record's probe_history) -- retained here as INSUFFICIENT for the new question this record answers (does the FULL current listing, not a 3-event sample, remain safely publishable as-is?).",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A real, unauthenticated GET to the full /events/ index (the same page london-t2-eventim-apollo-02 already confirmed as the confirmed public data path) was parsed in full via ingestion/aeg-presents/observation-adapter.mjs's own extractEventCards() -- all 82 real current cards, not a 3-event sample. Manual review of every real title (evidence/full-listing-review.json), mechanically re-verified against the retained fixture, found 29 of 82 are comedy/talk/podcast/ambiguous, not music -- fully answering the question and requiring no browser escalation.",
+      "evidence_refs": ["ev-full-listing-review"]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": "eventim-apollo-london",
+  "venue_reference": "Eventim Apollo",
+  "official_url": "https://www.eventimapollo.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02", "ev-osm-lookup"],
+    "notes": "Identity already PROVEN in london-t2-eventim-apollo-02 (JSON-LD MusicVenue + footer address on every retrieved page). This record additionally confirms the venue's exact coordinates via a direct Nominatim /lookup of its own already-known OSM way id (osm-way-29204026, from research/venue-estate/london-venue-estate-01.json), returning the identical venue name and a W6 9QH Hammersmith address matching the site's own stated address exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Unchanged from london-t2-eventim-apollo-02 -- custom AEG-hosted venue CMS, shared with sibling venue Watford Colosseum.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02"]
+  },
+  "data_paths": [
+    {
+      "kind": "EVENTS_INDEX_PAGE",
+      "url": "https://www.eventimapollo.com/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-full-listing-review"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Judas Priest",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-eventim-apollo-02 -- see that record's field_assessment.title for the full offline-reproduced derivation.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-21",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-eventim-apollo-02.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Unchanged from london-t2-eventim-apollo-02 -- doors time only, no precise performance start.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Unchanged from london-t2-eventim-apollo-02.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Eventim Apollo, 45 Queen Caroline Street, London, England W6 9QH",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Confirmed independently via direct Nominatim OSM_ID_LOOKUP of the venue's own known OSM way id (lat 51.4907466, lon -0.2244517), matching the site's own stated address exactly.",
+      "evidence_refs": ["ev-osm-lookup"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "https://www.eventimapollo.com/events/judas-priest",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-eventim-apollo-02.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.eventimapollo.com/events/judas-priest",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-eventim-apollo-02 -- INDIVIDUAL_FIRST_PARTY_EVENT_PAGE for every card the runtime gate keeps.",
+      "evidence_refs": ["ev-prior-02"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-full-listing-review"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Every gate already satisfied in london-t2-eventim-apollo-02 (identity, acquisition class, confirmed data path, title/start_date PROVEN DIRECT_SOURCE, source_record_id PROVEN, collector family, offline-derivation proof) remains satisfied.",
+      "The material full-listing finding (comedy/talk mix) is resolved via a deterministic, evidence-cited, curated MUSIC_GATE_INCLUDED_TITLES runtime gate (ingestion/aeg-presents/filter.mjs) -- 53 of 82 real current cards individually confirmed as music (53 distinct included titles), 29 conservatively excluded (comedy/talk/ambiguous) -- satisfying this package's own 'mixed venues MAY qualify if the collector can deterministically filter their music programme' rule, and 'research judgement to determine source configuration, runtime filtering must remain deterministic' rule. This live run's actual output (fixtures/map/beatmapped-london-first-tranche-main-rebase-and-music-gate-01-live-run-proof.json) confirms eventim-apollo-london: raw=82, kept=53, matching this evidence exactly.",
+      "Coordinates independently confirmed via real OSM_ID_LOOKUP and verified to fall within the existing United Kingdom map view bounds with zero frontend change required.",
+      "No unresolved CRITICAL or MINOR blocker remains (the MINOR CARD_START blocker noted in -02 does not apply -- this package's own ingestion/aeg-presents/observation-adapter.mjs is a new, purpose-built adapter, not a modification of the shared static-cards collector)."
+    ],
+    "evidence_refs": ["ev-full-listing-review", "ev-osm-lookup", "ev-prior-02"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-prior-02",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The prior (superseded) investigation london-t2-eventim-apollo-02's full retained evidence set (events index excerpts, 3 event detail pages, offline derivation script/output), cited/carried forward rather than re-fetched.",
+      "acquired_from": "research/source-investigations/london-t2-eventim-apollo-02/",
+      "acquired_at": "2026-09-01T20:12:00.000Z",
+      "method": "Carried forward from the prior investigation",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/investigation.json"
+    },
+    {
+      "evidence_id": "ev-full-listing-review",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Every one of the 82 real event cards on the venue's own full, current /events/ index at fetch time, individually classified include (music) or exclude (comedy/talk/ambiguous) with a concrete cited reason per title -- the retained, evidenced basis for the runtime MUSIC_GATE_INCLUDED_TITLES gate.",
+      "acquired_from": "https://www.eventimapollo.com/events/",
+      "acquired_at": "2026-09-01T20:19:41.000Z",
+      "method": "curl -sL; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; single unauthenticated GET; parsed via ingestion/aeg-presents/observation-adapter.mjs's own extractEventCards()",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-03/evidence/full-listing-review.json"
+    },
+    {
+      "evidence_id": "ev-osm-lookup",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Real Nominatim /lookup response for the venue's own already-known OSM way id (osm-way-29204026), confirming name, address, and coordinates directly from OpenStreetMap's own record of this exact object.",
+      "acquired_from": "https://nominatim.openstreetmap.org/lookup?osm_ids=W29204026&format=jsonv2&addressdetails=1",
+      "acquired_at": "2026-09-01T20:22:34.657Z",
+      "method": "ingestion/geocoding/nominatim.mjs's lookupNominatimOsmIdLive(), rate-limited single request",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-eventim-apollo-03/evidence/osm-lookup.json"
+    },
+    {
+      "evidence_id": "ev-derive-script",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Carried forward from london-t2-eventim-apollo-02: the small, dependency-free, no-network Node.js script that deterministically re-derives title/start_date from the retained fixture, proving the DIRECT_SOURCE parse-out is reproducible. Unchanged by this record's full-listing finding (which concerns venue-level music-gate filtering, not per-field date/title extraction).",
+      "acquired_from": "Authored for london-t2-eventim-apollo-02; not fetched from a live source",
+      "acquired_at": "2026-09-01T20:04:55.000Z",
+      "method": "Authored by the AI investigator; run via `node evidence/derive-fields.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/evidence/derive-fields.mjs"
+    },
+    {
+      "evidence_id": "ev-derive-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Carried forward from london-t2-eventim-apollo-02: captured stdout of the offline derivation script, all_match true for all three sampled events.",
+      "acquired_from": "Local execution of evidence/derive-fields.mjs against the retained fixture only; no network access",
+      "acquired_at": "2026-09-01T20:05:01.000Z",
+      "method": "`node evidence/derive-fields.mjs > evidence/derive-fields-output.json`",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/evidence/derive-fields-output.json"
+    }
+  ],
+  "supersedes": "london-t2-eventim-apollo-02"
+}

@@ -1,0 +1,14 @@
+{
+  "purpose": "Level 2 STRUCTURAL: direct GET of the /Events page named in the RSS feed, to confirm (rather than infer from the RSS description alone) that its rendered event content is DICE-dependent.",
+  "requested_url": "https://mothclub.co.uk/Events",
+  "final_url": "https://mothclub.co.uk/Events",
+  "http_status": 200,
+  "acquired_at": "2026-09-01T19:58:40.000Z",
+  "method": "curl -sS -L -A 'Mozilla/5.0 (compatible; BandOnTheMapResearch/1.0; +research)' --max-time 20 (single unauthenticated GET; no retries)",
+  "content_type": "text/html; charset=UTF-8",
+  "byte_faithful_contiguous_excerpt": true,
+  "excerpt": "<script src=\"https://widgets.dice.fm/dice-event-list-widget.js\" type=\"text/javascript\"></script> ... DiceEventListWidget.create({\"information\":\"full\",\"eventTitle\":\"event\",\"showImages\":true,\"showAudio\":true,\"showNewBadge\":true,\"hidePostponed\":true,\"hideCancelled\":true,\"layout\":\"gallery\",\"roundButtons\":true,\"theme\":\"dark\",\"fontFamily\":\"inherit\",\"partnerId\":\"1e576144\",\"apiKey\":\"t7ohtz7EWk3gjVx2PNQafaYhqYoG5N1e1lJ5EbTq\",\"version\":2,\"showPrice\":true,\"__p\":false,\"__pc\":{},\"title\":\"Events\",\"highlightColour\":\"#ffffff\",\"numberOfEvents\":\"12\",\"eventListLink\":\"\",\"venues\":[\"moth club\"]})",
+  "json_ld_blocks_found": 0,
+  "static_event_data_present_in_page": false,
+  "notable_finding": "The page's own <script src> loads widgets.dice.fm's dice-event-list-widget.js, and the only event-related JS on the page is the DiceEventListWidget.create(...) call carrying MOTH Club's DICE partnerId/apiKey filtered to venues:['moth club']. No event titles, dates, or IDs are present anywhere in the static HTML itself -- all event rendering happens client-side, sourced from DICE's own API, not any first-party MOTH Club JSON/feed."
+}

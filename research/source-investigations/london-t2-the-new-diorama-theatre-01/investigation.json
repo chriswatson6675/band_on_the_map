@@ -1,0 +1,140 @@
+{
+  "investigation_id": "london-t2-the-new-diorama-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:44:11.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage: one unauthenticated homepage GET via curl (descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth, no CAPTCHA-bypass, no browser). Full response saved locally; a compact, contiguous, literal excerpt of the actual retrieved HTML (never a paraphrase or full-page dump) is retained as evidence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single bounded, unauthenticated Level 1 GET was performed as part of a triage-refinement batch; this record documents an honest identity/music-relevance triage read from that one probe, not a full field-level extraction — deeper structural work (Level 2+) is deferred to a later candidate-specific package.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "The New Diorama Theatre — Triton Street 15-16, NW1 3BF, London",
+  "official_url": "https://newdiorama.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved footer states 'New Diorama Theatre, 15 - 16 Triton Street, Regent's Place, London, NW1 3BF' — matching the given address 'Triton Street 15-16, NW1 3BF, London' exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Vue/Nuxt-style server-rendered site (data-v-* attributes) — show titles, dates, and synopses were present directly in the plain unauthenticated GET response.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://newdiorama.com/whats-on",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retrieved homepage self-describes as 'the most influential studio theatre in the UK, creating new theatre that tours to audiences across the world', and its current/upcoming programme ('New Autumn Season' with three theatre-ensemble premieres, 'AMPLIFY' devised work from Kestrel Theatre Company, 'Artist Support Season') is entirely theatre productions.",
+      "One news item ('JEEZUS!') is described as 'a sinful mix of live music, dark humour, and Latin heat' but is itself a piece of devised theatre, not a concert — the venue's primary current programme is theatre, not music."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from a single unauthenticated GET (a genuine substring of the real response, not a paraphrase or summary).",
+      "acquired_from": "https://newdiorama.com/",
+      "acquired_at": "2026-09-01T19:44:11.000Z",
+      "method": "curl GET; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-new-diorama-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-12953571733-london-01"
+}

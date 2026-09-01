@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-upstairs-at-the-gatehouse-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Upstairs at the Gatehouse — North Road, N6 4BD, London",
+  "official_url": "https://www.upstairsatthegatehouse.com/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-4171880790-london-01",
+  "investigated_at": "2026-09-01T19:39:21.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "<title> and <h1> both read 'Upstairs at the Gatehouse'; no cross-domain redirect occurred."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress (Elementor page builder); individual shows are ticketed via a third-party platform (Ticketsolve).",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage returned a <title> and current-production heading that directly and unambiguously self-describe the venue's core identity as a theatre currently staging a play, conclusively answering the music-relevance question without further escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own <title> reads 'Upstairs at the Gatehouse – Award Winning London Theatre', and the homepage's featured current production heading reads 'Mammy's House' under an explicit 'Theatre' section heading.",
+      "The retained keyword scan of the fetched body shows 142 occurrences of 'play', 16 of 'theatre', and 13 of 'musical' (a genre-adjacent word appearing in production-type context, not evidence of a live-music programme) against zero occurrences of 'live music', 'gig', 'band', 'jazz', or 'cabaret' — real evidence the primary programme is theatrical, failing BeatMapped's venue-level music gate."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful excerpt combining <title>, main <h1>, and current-production heading/section heading, self-describing the venue as an award-winning theatre currently staging a play.",
+      "acquired_from": "https://www.upstairsatthegatehouse.com/",
+      "acquired_at": "2026-09-01T19:39:21.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-upstairs-at-the-gatehouse-01/evidence/passive-static.json"
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-tramshed-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Tramshed Theatre — Woolwich New Road 41, SE18 6ET, London",
+  "official_url": "https://tramshed.org/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-353319091-london-01",
+  "investigated_at": "2026-09-01T19:39:25.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Canonical URL resolves to the same registrable domain as the supplied official_website (301 www->non-www redirect only); <title>, og:title, and og:site_name all read 'Tramshed'."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Squarespace — server-rendered marketing page.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage returned meta/og description text that directly and unambiguously self-describes the venue's core identity as a community arts hub, conclusively answering the music-relevance question without further escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own meta/og description states: 'South-East London's home of participation. A community arts hub focusing on young people, learning disabled adults and local community members.' — the venue self-identifies as a community arts hub, not a music venue.",
+      "The retained keyword scan of the fetched body shows zero occurrences of 'live music', 'gig', 'band', 'jazz', 'cabaret', 'musical', or 'comedy', against 14 occurrences of 'community' and 5 of 'young people' — real evidence the primary programme is community participation work, failing BeatMapped's venue-level music gate."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt: <title>, canonical link, og/twitter tags, and meta description, self-describing the venue as a community arts hub.",
+      "acquired_from": "https://tramshed.org/",
+      "acquired_at": "2026-09-01T19:39:25.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-tramshed-theatre-01/evidence/passive-static.json"
+    }
+  ]
+}

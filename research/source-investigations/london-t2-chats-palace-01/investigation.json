@@ -1,0 +1,134 @@
+{
+  "investigation_id": "london-t2-chats-palace-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded, single unauthenticated Level-1 PASSIVE_STATIC GET (curl, descriptive User-Agent, redirects followed, 20s timeout, no retry, no authentication, no CAPTCHA/challenge bypass, no browser) against the venue's official_website (falling back to official_programme_url where noted), as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 batch 6 of 7."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "BLOCKED",
+      "reason": "A single unauthenticated GET to both the programme URL (https://chatspalace.com/new-events/) and the homepage (https://chatspalace.com/) returned HTTP 403 Forbidden with an identical generic nginx/WAF error page (no venue-specific content) — a legitimate access-control boundary, not a page to be defeated or retried.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Chats Palace — Brooksby's Walk 42-44, E9 6DF, London",
+  "official_url": "https://chatspalace.com/new-events/",
+  "identity": {
+    "status": "UNKNOWN",
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "notes": "Both the programme URL and the homepage returned an edge/WAF-generated 403 Forbidden error page (identical generic error content, no venue-specific markup), so this bounded probe retained no page content that could confirm or deny official identity."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": []
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://chatspalace.com/new-events/",
+      "access": "UNKNOWN",
+      "status": "UNKNOWN",
+      "confidence": "NONE",
+      "evidence_refs": []
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The response was a 403 Forbidden error page; no venue content (and therefore no address confirmation) was retained.",
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Both the given official_website and official_programme_url returned HTTP 403 Forbidden on a single unauthenticated GET, with an identical generic edge/WAF error page — a genuine access-control boundary per policy, not a signal to retry, escalate to a browser, or otherwise bypass.",
+      "No real evidence of identity or of music vs. non-music programming could be retained from this bounded Level-1 probe; the venue name ('Chats Palace') and prior discovery context describe a community arts centre that sometimes hosts live-music nights, but this must be checked from real evidence, not assumed — which this blocked probe could not do."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained response headers and error-page body from a single unauthenticated GET that was refused with HTTP 403 Forbidden; genuine literal excerpts, not byte-faithful as a whole file (JSON wrapper around literal excerpt strings).",
+      "acquired_from": "https://chatspalace.com/new-events/",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-chats-palace-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-116953211-london-01"
+}

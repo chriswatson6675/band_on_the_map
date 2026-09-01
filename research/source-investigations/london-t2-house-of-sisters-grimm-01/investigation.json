@@ -1,0 +1,152 @@
+{
+  "investigation_id": "london-t2-house-of-sisters-grimm-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:44:11.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage: one unauthenticated homepage GET via curl (descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth, no CAPTCHA-bypass, no browser). Full response saved locally; a compact, contiguous, literal excerpt of the actual retrieved HTML (never a paraphrase or full-page dump) is retained as evidence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single bounded, unauthenticated Level 1 GET was performed as part of a triage-refinement batch; this record documents an honest identity/music-relevance triage read from that one probe, not a full field-level extraction — deeper structural work (Level 2+) is deferred to a later candidate-specific package.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "House of Sisters Grimm — Eastcastle Street 23-25, London",
+  "official_url": "https://houseofsistersgrimm.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page carries a schema.org JSON-LD block declaring '@type':'EntertainmentBusiness', 'name':'House of Sisters Grimm', 'address':{'streetAddress':'Ground Floor & Basement, 23-25 Eastcastle Street','postalCode':'W1W 8DF'} — matching the given address 'Eastcastle Street 23-25, London' exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom WordPress-style site; a recurring events module ('date date--ongoing' cards, each with its own /events/<slug>/ permalink) is rendered server-side and was present directly in the plain unauthenticated GET response.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://houseofsistersgrimm.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://houseofsistersgrimm.com/events/",
+      "access": "PUBLIC",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Individual event titles (e.g. 'African Jazz Nights at iGOLI Bar', 'Sabina Desir: Freedom Road Re-Imagined ... EFG London Jazz Festival 2026') are directly visible in the retained excerpt, but no systematic parser/extraction was built in this Level 1 pass.",
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Some events carry a recurrence label ('Every Friday') rather than a calendar date, and others carry explicit dates (e.g. '17th - 18th Nov' for the Sabina Desir jazz performances); no systematic per-event date extraction was proven in this Level 1 pass.",
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Venue identity/address is confirmed via retained JSON-LD ('23-25 Eastcastle Street, London, W1W 8DF'), but per-event venue linkage was not separately proven.",
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "The retained evidence shows substantial, genuinely current/future live-music programming: INALA (self-described 'Grammy-nominated ... Live Music Experience', a musical journey of 'music, dance, and storytelling' relaunching 17 Sept 2026), recurring 'African Jazz Nights at iGOLI Bar' every Friday, and 'Sabina Desir: Freedom Road Re-Imagined' — two jazz-vocalist performances on 17-18 Nov 2026 for the EFG London Jazz Festival 2026.",
+      "A first-party programme page exists (homepage listing confirmed directly; a dedicated /events/ index discovered and linked from the homepage) — a plausible acquisition path for a deeper Level 2 pass. Non-music strands (wine tasting, art gallery) are present alongside the music programme but do not displace it as a primary current offering."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from a single unauthenticated GET (a genuine substring of the real response, not a paraphrase or summary).",
+      "acquired_from": "https://houseofsistersgrimm.com/",
+      "acquired_at": "2026-09-01T19:44:11.000Z",
+      "method": "curl GET; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-13740556401-london-01"
+}

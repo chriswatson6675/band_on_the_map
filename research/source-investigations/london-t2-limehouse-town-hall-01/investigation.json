@@ -1,0 +1,135 @@
+{
+  "investigation_id": "london-t2-limehouse-town-hall-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:08.331Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC refinement probe: single unauthenticated GET of the official_website (no official_programme_url was supplied), no browser/auth/retries/challenge-bypass."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "BLOCKED",
+      "reason": "The single GET to the official_website returned HTTP 403 Forbidden from a Cloudflare edge (\"Access to this page is forbidden.\"), an explicit access-control boundary. Per policy this terminates escalation — no CAPTCHA/challenge bypass, retry loop, or browser workaround was attempted.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-way-102468236",
+  "source_id": null,
+  "venue_reference": "Limehouse Town Hall — Commercial Road 646, E14 7HA, London",
+  "official_url": "https://www.limehousetownhall.co.uk/",
+  "identity": {
+    "status": "UNKNOWN",
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "notes": "The single GET was blocked (HTTP 403) before any page content describing the venue was returned; identity could not be assessed from this probe."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The official_website returned an explicit Cloudflare-level HTTP 403 access-control response on a plain unauthenticated GET; no official_programme_url alternative was supplied for this candidate. No content was observed, so neither identity nor music relevance can be assessed without a legitimate, policy-compliant path around this boundary (which this policy does not permit forcing)."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The single bounded Level-1 probe of the official_website was blocked (HTTP 403, Cloudflare) before any content could be retrieved.",
+      "No official_programme_url fallback was supplied for this candidate, so no alternative URL existed to try under the one-GET-per-venue bound.",
+      "Per policy, a BLOCKED outcome terminates escalation; bypassing the block was not attempted."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, unedited excerpt (title/meta and the visible error heading/message) from the single unauthenticated GET of https://www.limehousetownhall.co.uk/, which returned HTTP 403.",
+      "acquired_from": "https://www.limehousetownhall.co.uk/",
+      "acquired_at": "2026-09-01T19:41:13.000Z",
+      "method": "curl; descriptive User-Agent; unauthenticated single GET; redirects followed; 20s timeout; no retry",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-limehouse-town-hall-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-102468236-london-01"
+}

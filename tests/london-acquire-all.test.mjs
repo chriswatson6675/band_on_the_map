@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { acquireAll, applyMusicGate, LONDON_SOURCE_IDS } from "../ingestion/london/run.mjs";
 
-test("LONDON_SOURCE_IDS lists exactly the 6 first-tranche sources", () => {
+test("LONDON_SOURCE_IDS lists exactly the 6 first-tranche sources plus the 2 second-tranche sources, unchanged order for the first 6", () => {
   assert.deepEqual(LONDON_SOURCE_IDS, [
     "downstairs-at-the-dome-london",
     "night-tales-loft-london",
@@ -16,10 +16,12 @@ test("LONDON_SOURCE_IDS lists exactly the 6 first-tranche sources", () => {
     "100-club-london",
     "the-underworld-london",
     "jazz-cafe-posk-london",
+    "eventim-apollo-london",
+    "jamboree-london",
   ]);
 });
 
-test("acquireAll isolates one failing source from the other 5 — a thrown collector never aborts the run", async () => {
+test("acquireAll isolates one failing source from the other 7 — a thrown collector never aborts the run", async () => {
   const registryEntries = LONDON_SOURCE_IDS.map((id) => ({ id }));
   const collectors = Object.fromEntries(
     LONDON_SOURCE_IDS.map((id) => [
@@ -32,7 +34,7 @@ test("acquireAll isolates one failing source from the other 5 — a thrown colle
 
   const results = await acquireAll(LONDON_SOURCE_IDS, registryEntries, collectors);
 
-  assert.equal(results.length, 6);
+  assert.equal(results.length, 8);
   const roxy = results.find((r) => r.source_id === "the-roxy-london");
   assert.equal(roxy.success, false);
   assert.match(roxy.error, /simulated HTTP 500/);
@@ -62,4 +64,18 @@ test("applyMusicGate is a no-op for a source with no configured exclusions", () 
   const { keptObservations, excludedCount } = applyMusicGate("the-underworld-london", observations);
   assert.equal(excludedCount, 0);
   assert.equal(keptObservations.length, 2);
+});
+
+// BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 — the two new sources use their
+// own dedicated music-gate mechanisms (ingestion/aeg-presents/filter.mjs's
+// curated inclusion Set, ingestion/jamboree/filter.mjs's source-exposed
+// programme-note field check), not applyMusicGate()'s exact-title
+// exclusion Set — applyMusicGate() must remain a correct no-op for them.
+test("applyMusicGate is a no-op for both second-tranche sources — they use their own dedicated music-gate mechanisms", () => {
+  for (const sourceId of ["eventim-apollo-london", "jamboree-london"]) {
+    const observations = [{ title: "ANYTHING" }];
+    const { keptObservations, excludedCount } = applyMusicGate(sourceId, observations);
+    assert.equal(excludedCount, 0);
+    assert.equal(keptObservations.length, 1);
+  }
 });

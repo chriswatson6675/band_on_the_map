@@ -1,0 +1,18 @@
+{
+  "purpose": "Level 2 STRUCTURAL: bounded status-only probe of common events/programme path slugs on the same origin, to check for a first-party listing page before falling back to nav-link discovery.",
+  "requested_base": "https://www.arizonalounge.com/",
+  "acquired_at": "2026-09-01T19:55:00.000Z",
+  "method": "curl -sS -L -o /dev/null -w '%{http_code}' -A 'Mozilla/5.0 (compatible; BandOnTheMapResearch/1.0; +research)' --max-time 15 <url>; status-code-only GET per path (no body retained beyond the status line), unauthenticated, single request per path, no retries.",
+  "results": [
+    { "path": "/events", "http_status": 404 },
+    { "path": "/whats-on", "http_status": 404 },
+    { "path": "/whatson", "http_status": 404 },
+    { "path": "/gigs", "http_status": 404 },
+    { "path": "/calendar", "http_status": 404 },
+    { "path": "/listings", "http_status": 404 },
+    { "path": "/programme", "http_status": 404 },
+    { "path": "/events-2", "http_status": 404 },
+    { "path": "/live-music", "http_status": 404 }
+  ],
+  "outcome": "None of the common events/programme path slugs resolve on this Wix site; the actual first-party navigation structure had to be discovered from the homepage's own rendered nav links instead (see entertainment-page.json)."
+}

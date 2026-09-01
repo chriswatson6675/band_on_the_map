@@ -1,0 +1,134 @@
+{
+  "investigation_id": "london-t2-erith-playhouse-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Erith Playhouse — Erith High Street, DA8 1QY, Erith",
+  "official_url": "https://www.playhouse.org.uk",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-401788093-london-01",
+  "investigated_at": "2026-09-01T19:39:24.000Z",
+  "identity": {
+    "status": "UNKNOWN",
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-blocked"
+    ],
+    "notes": "The single unauthenticated GET was rejected by the origin with a genuine HTTP 403 hosting-level error page before any venue content was served; identity could not be assessed from this probe."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-blocked"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The official_website rejected a plain unauthenticated GET with HTTP 403 Forbidden and a generic nginx hosting-level error page (not venue content)."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "BLOCKED",
+      "reason": "A single unauthenticated GET to the official_website returned HTTP 403 Forbidden with a generic nginx/hosting-level error page (<title>403 - Forbidden</title>), not venue content. Per policy this is a legitimate access boundary, not a signal to retry, bypass, or escalate to browser/headless probing.",
+      "evidence_refs": [
+        "ev-blocked"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "A single unauthenticated GET to https://www.playhouse.org.uk was rejected with HTTP 403 Forbidden and a generic hosting-level 'Forbidden' error page — no venue identity or programme content was ever served to this probe.",
+      "Per policy, a BLOCKED Level 1 result terminates escalation; retrying, bypassing, or moving to browser-based probing to get past an access control is prohibited, so this candidate is deferred rather than escalated or guessed at."
+    ],
+    "evidence_refs": [
+      "ev-blocked"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-blocked",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained HTTP response headers (403 Forbidden) and a verbatim, byte-faithful excerpt of the generic hosting-level error page body served instead of venue content.",
+      "acquired_from": "https://www.playhouse.org.uk",
+      "acquired_at": "2026-09-01T19:39:24.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-erith-playhouse-01/evidence/passive-static.json"
+    }
+  ]
+}

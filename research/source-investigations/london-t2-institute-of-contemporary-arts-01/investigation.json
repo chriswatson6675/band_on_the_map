@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-institute-of-contemporary-arts-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:45:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage-refinement: one unauthenticated GET to the candidate's official_website (via curl, descriptive User-Agent, redirects followed, 25s timeout, no retries), plus one additional unauthenticated GET to the candidate's given official_programme_url under the same bounds. No browser, authentication, CAPTCHA-bypass, or state-changing request was used."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single unauthenticated GET to the candidate's official_website, plus a single additional GET to the given official_programme_url (https://ica.art/2026-07?calendar), to establish identity and the balance of current programme categories.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-5015865539",
+  "source_id": null,
+  "venue_reference": "Institute of Contemporary Arts -- second London tranche triage-refinement candidate (osm-node-5015865539)",
+  "official_url": "https://ica.art/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retrieved page's own <title> ('ICA | Institute of Contemporary Arts') and meta description ('The Institute of Contemporary Arts (ICA) is London's leading space for contemporary culture...') identify this as the ICA's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Server-rendered calendar/listing site with a dated day-by-day programme (also probed at the given official_programme_url, https://ica.art/2026-07?calendar, which server-rendered the July 2026 daily programme for 1 July 2026).",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Real retrieved evidence shows the ICA's current programme is genuinely mixed across Exhibitions, Films, Talks & Events, and Live (music/performance) -- with Film and visual-arts content outnumbering music items on both the homepage listing and the sampled daily-programme page.",
+      "Music events are real and dated (e.g. 'CTM x ICA 2026', 24-25 September 2026) but form only a minority category, requiring deeper per-category filtering before any acquisition path targeting music specifically could be built."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal excerpt(s) of the actual HTTP response body/bodies from the candidate's official_website and the given official_programme_url -- each excerpt is a contiguous, unedited substring of the real retrieved HTML, capped well under 4KB per item; the surrounding full response was not retained in full (bounded capture, not a full-page dump).",
+      "acquired_from": "https://ica.art/; https://ica.art/2026-07?calendar",
+      "acquired_at": "2026-09-01T19:40:18.000Z",
+      "method": "curl GET; descriptive User-Agent; unauthenticated; redirects followed; 25-second timeout; single request per URL; no retry; no authentication, CAPTCHA-bypass, or state-changing request",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-institute-of-contemporary-arts-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-5015865539-london-01"
+}

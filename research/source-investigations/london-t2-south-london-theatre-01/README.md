@@ -1,0 +1,3 @@
+# South London Theatre — Level 1 passive-static investigation (tranche 2)
+
+Supersedes `triage-osm-way-184288140-london-01`. A single unauthenticated GET to https://www.southlondontheatre.co.uk/whats-on/ returned a "What's On" page whose own category labels (SLT Show, SLT Audition, Visiting Show) and event titles are all amateur-dramatic plays, auditions, and a visiting stand-up comedy night (e.g. Hedda Gabler, Beyond Therapy, Good Ship Comedy featuring Angela Barnes). No live band/concert/jazz/electronic/DJ/classical event appears anywhere. Decision: `REJECT`. See `investigation.json` for the authoritative record.

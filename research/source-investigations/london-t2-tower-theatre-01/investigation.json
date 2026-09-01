@@ -1,0 +1,147 @@
+{
+  "investigation_id": "london-t2-tower-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:59.793Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC refinement probe: single unauthenticated GET of the official_programme_url, no browser/auth/retries; music-relevance assessed only from the retrieved content."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The single GET returned the venue’s \"Tower Social\" page, whose own title (\"Clowning and Directors’ Workshops, and Poetry Evening\") and body text describe its actual current social-events pipeline as rehearsed readings, informal social gatherings, Q&A sessions, quiz nights, and directing/acting/movement/design workshops. A separate call-for-ideas paragraph invites the community to propose future events and lists \"gig nights\" only as one hypothetical category among several (alongside improv nights, comedy, poetry nights) — an aspirational suggestion, not a proven current listing. This conclusively answers the music-relevance question without escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-way-84728028",
+  "source_id": null,
+  "venue_reference": "Tower Theatre — Northwold Road 16, N16 7HR, London",
+  "official_url": "https://www.towertheatre.org.uk/tower.htm",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title (\"...The Tower Theatre\") and domain (towertheatre.org.uk) match the reported candidate name."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress (wp-content/wp-json present; ajaxurl defined). The page’s own <head> also links a public iCal feed (/events/?ical=1), which was not fetched under this bounded one-GET-per-venue probe.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "ICS",
+      "url": "https://www.towertheatre.org.uk/events/?ical=1",
+      "access": "UNKNOWN",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "The venue’s own retained description of its current social-events pipeline (rehearsed readings, Q&A sessions, quiz nights, directing/acting workshops, a poetry evening) is community/theatre-arts programming, not live bands/concerts/jazz/electronic/DJ-club-nights/classical; a single aspirational mention of \"gig nights\" in a call-for-future-ideas paragraph is not proven current programming and does not change this. Fails BeatMapped’s venue-level music gate regardless of technical acquisition feasibility."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "Real, retained Level-1 evidence (the venue’s own \"Tower Social\" page) shows its actual current programme is rehearsed readings, Q&A sessions, quiz nights, and theatre-craft workshops — community/theatre-arts, not live music.",
+      "\"Gig nights\" appears exactly once, inside a general call-for-ideas paragraph listing several hypothetical future event types (improv, comedy, poetry, gigs); this is an aspirational suggestion, not proven current or scheduled music programming, and must not be treated as evidence of a substantially musical programme."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, unedited excerpts (article heading, current social-events description, and call-for-ideas paragraph) from the single unauthenticated GET of https://www.towertheatre.org.uk/social/.",
+      "acquired_from": "https://www.towertheatre.org.uk/social/",
+      "acquired_at": "2026-09-01T19:41:16.000Z",
+      "method": "curl; descriptive User-Agent; unauthenticated single GET; redirects followed; 20s timeout; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-tower-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-84728028-london-01"
+}

@@ -1,0 +1,137 @@
+{
+  "investigation_id": "london-t2-palace-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:53:30.649Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website via curl (descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-way-149173471",
+  "source_id": null,
+  "venue_reference": "Palace Theatre — London (osm-way-149173471)",
+  "official_url": "https://www.palacetheatrelondon.org/",
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retrieved page's own header states 'An independent guide to Palace Theatre / Shaftesbury Avenue, London W1D 5AY' — i.e. the site explicitly self-identifies as a third-party independent guide rather than the theatre operator's own first-party official presence. Address given on page (Shaftesbury Avenue) is also a discrepancy against the candidate's given address (Cambridge Circus, W1D 5AY) though both resolve to the same physical corner venue."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The single unauthenticated GET returned a real, current programme listing directly on the page — sufficient to reach an honest identity and music-relevance decision without escalating.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": null,
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Harry Potter and the Cursed Child",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The homepage states directly: 'John Tiffany's nine-time Olivier Award-winning production Harry Potter and the Cursed Child plays at London's Palace Theatre' — a staged play, not a concert.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retrieved page shows an overall production run/season rather than individually dated performance instances in this bounded static probe.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retrieved page states an address ('null') that does not match the candidate's given address ('Cambridge Circus, W1D 5AY, London').",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own current programme, as retained directly from https://www.palacetheatrelondon.org/, is theatrical staged production(s) — 'Harry Potter and the Cursed Child' — not live music, concerts, or DJ/club-night performance.",
+      "The retrieved site's own tagline states 'An independent guide to Palace Theatre' — it explicitly self-describes as a third-party independent guide, not the theatre's own first-party official presence, despite the discovery-supplied URL being labelled official_website; this further weakens any activation case beyond the music-gate rejection alone."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the official site showing the current production listing.",
+      "acquired_from": "https://www.palacetheatrelondon.org/",
+      "acquired_at": "2026-09-01T19:53:30.649Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-palace-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-149173471-london-01"
+}

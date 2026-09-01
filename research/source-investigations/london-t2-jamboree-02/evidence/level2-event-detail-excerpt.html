@@ -1,0 +1,38 @@
+<!--
+Retained, bounded, literal contiguous excerpt from the real HTTP response
+body of a single unauthenticated GET to the individual first-party event
+page https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/
+(Level 2 STRUCTURAL probe, london-t2-jamboree-02) -- the same "Celtic
+Session" event sampled on the /upcoming-events/ list page. This confirms
+the list page's own eventTitle link resolves to a real, individually
+addressable, first-party page carrying its own <link rel="canonical">
+pointing at itself, and restates the same date/time/price directly.
+
+acquired_from: https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/
+acquired_at:   2026-09-01T19:57:10.000Z
+method:        curl -sL; User-Agent "Mozilla/5.0 (compatible;
+               BandOnTheMapResearchBot/1.0; +https://bandonthemap.example/research)";
+               unauthenticated GET; --max-time 25; single request; no retry;
+               no browser/JS execution; no authentication or CAPTCHA bypass.
+http_status:   200
+content_type:  text/html; charset=UTF-8
+-->
+<link rel="canonical" href="https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/" />
+...
+<span class="event-date-dn">Tuesday 1 September 2026</span><br />
+
+<p class="eventArtists">Live Music from 8.30pm</p>
+
+<p><b>Doors:</b> See footer<br />
+<b>Entry Price:</b> Free<br />
+<b><a href="" class="ticketLink" target="_none">&raquo; Buy Tickets</a></b></p>
+<!-- No JSON-LD, ICS link, or JSON API reference was found anywhere in this
+detail page's retained response either -- confirms Level 2 STRUCTURAL did
+not surface a machine feed beyond the static-HTML card/detail-page pair
+already identified. "Doors: See footer" resolves only to the venue's
+general weekday opening-hours range (not reproduced here; see the
+superseded london-t2-jamboree-01 evidence and this file's sibling
+investigation.json field_assessment.time notes) -- not a specific per-event
+door/start time, so it is not treated as a usable "time" value on its own;
+the per-event value actually used for field_assessment.time is the
+directly-stated "Live Music from 8.30pm" line above. -->

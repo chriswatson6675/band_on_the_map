@@ -1,0 +1,263 @@
+{
+  "investigation_id": "london-t2-house-of-sisters-grimm-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T21:10:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Level 2 STRUCTURAL follow-up to a prior Level 1 PASSIVE_STATIC triage: single unauthenticated GET (curl, descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth, no CAPTCHA-bypass, no browser/headless session) against the venue's dedicated /events/ programme index and against three individual event detail pages linked from that index. Full response bodies saved locally; compact, contiguous, literal excerpts of the actual retrieved HTML (never a paraphrase or full-page dump) are retained as evidence, plus a small dependency-free offline derivation script re-parsing those retained excerpts."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The prior investigation's single Level 1 homepage GET (research/source-investigations/london-t2-house-of-sisters-grimm-01/evidence/passive-static.json) proved official identity via retained JSON-LD and surfaced several event titles directly on the homepage, but explicitly performed no systematic per-event field extraction and did not fetch the dedicated /events/ programme index or any individual event detail page -- insufficient to classify site-wide acquisition method, confirm a stable public data path, or honestly assess per-event date/id/url fields.",
+      "evidence_refs": ["ev-prior-passive-static"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated GET of https://houseofsistersgrimm.com/events/ (200 OK) plus three individual event detail pages it links to (also 200 OK) fully exposed the site's event-listing structure: plain server-rendered HTML 'date'/'date--ongoing' card modules under two headings ('Upcoming & ongoing events' and 'Our previous events'), each card linking to its own /events/<slug>/ permalink page. Every fetched page's only JSON-LD is generic Yoast-SEO boilerplate (WebPage/WebSite/Organization/BreadcrumbList/ImageObject/SearchAction/ReadAction/EntryPoint/PropertyValueSpecification/ListItem) -- no Event or MusicEvent structured data anywhere. This was sufficient to classify acquisition_class, confirm a stable public data path, and reach honest field-level assessments (including one reproducible DETERMINISTIC_CONTEXT date derivation and one DIRECT_SOURCE date). No browser/headless escalation was needed -- everything required was present in the plain HTTP response bodies.",
+      "evidence_refs": [
+        "ev-events-index",
+        "ev-detail-sabina-desir",
+        "ev-detail-african-jazz-nights",
+        "ev-detail-global-landscapes"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "House of Sisters Grimm — 23-25 Eastcastle Street, London W1W 8DF",
+  "official_url": "https://houseofsistersgrimm.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-passive-static", "ev-detail-sabina-desir"],
+    "notes": "Carried forward from the prior investigation's retained JSON-LD ('@type':'EntertainmentBusiness', name 'House of Sisters Grimm', address '23-25 Eastcastle Street ... W1W 8DF') and reinforced at Level 2: the Sabina Desir event detail page's own retained text states 'Venue: House of Sisters Grimm, 23-25 Eastcastle Street, London W1W 8DF' verbatim, matching exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom WordPress-style site (unchanged conclusion from Level 1, now confirmed structurally at Level 2). The /events/ index is a plain server-rendered list of 'date'/'date--ongoing' card modules split under two headings ('Upcoming & ongoing events' and 'Our previous events'); each card exposes day/month text, a title, a subheader, a 'Learn more' link to an individual /events/<slug>/ permalink page, and a 'Buy Tickets' link to a separate tickets.houseofsistersgrimm.com booking page. Every fetched page (the index and all three sampled detail pages) carries only generic Yoast-SEO JSON-LD (WebPage/WebSite/Organization/BreadcrumbList/etc) -- confirmed absent of any Event or MusicEvent structured data.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes"]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://houseofsistersgrimm.com/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-prior-passive-static"]
+    },
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://houseofsistersgrimm.com/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-index"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE",
+      "url": "https://houseofsistersgrimm.com/events/sabina-desir-freedom-road-re-imagined-at-house-of-sisters-grimm-for-efg-london-jazz-festival-2026/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-sabina-desir"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE",
+      "url": "https://houseofsistersgrimm.com/events/african-jazz-nights-at-igoli-bar/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-african-jazz-nights"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE",
+      "url": "https://houseofsistersgrimm.com/events/global-landscapes-retrospective/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-detail-global-landscapes"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "each event card's own <h3 class=\"date__title\"> states the full event title directly; confirmed matching the detail page's own <title> and og:title for every sampled event",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Titles are directly and reliably extractable across every one of the 9 events observed on the /events/ index (both current/upcoming and past sections), with no combination or inference required. Sampled and confirmed for 'Sabina Desir: Freedom Road Re-Imagined...', 'African Jazz Nights at iGOLI Bar', and 'GLOBAL LANDSCAPES RETROSPECTIVE'.",
+      "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes"]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Genuinely mixed across the source, not uniformly resolvable -- so this aggregate field stays PARTIAL rather than PROVEN, honestly reflecting three distinct outcomes actually observed: (1) DIRECT_SOURCE PROVEN is reachable when a detail page states a full year-stamped range directly, e.g. GLOBAL LANDSCAPES RETROSPECTIVE's own page states '19 August - 9 September 2026' outright; (2) DETERMINISTIC_CONTEXT PROVEN is reachable when a detail page's own Date line omits the year but the SAME page separately and explicitly states a year-stamped containing range, e.g. Sabina Desir's 'Date: Tuesday 17 November and Wednesday 18 November' combined with the same page's 'Part of EFG London Jazz Festival 2026' / 'Taking place across the capital from 13-22 November 2026' -- reproduced offline, see evidence/offline-proof-output.txt; but (3) a materially sized subset of the current programme exposes NO calendar date at all: African Jazz Nights at iGOLI Bar (confirmed weekly, 'Every Friday at 9:15pm', with a literal empty '<div class=\"lp-intro__date\"></div>' element on its own detail page), South African wine flight tasting ('Every Performance Day'), and Sensory Notes ('Every Friday & Saturday') are all genuinely recurring with no next-occurrence date the source itself ever states -- these stay NOT_PRESENT at the per-event level and were never promoted to a guessed date. No single state describes the whole source honestly.",
+      "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Present as floating local text for sampled dated/timed events (Sabina Desir: 'Door Time: 6PM' / 'Performance: 7.30PM'; African Jazz Nights: 'Friday - 9:15pm') but no page fetched at Level 1 or Level 2 states an explicit UTC offset or timezone anywhere -- per the project's existing date/time certainty model this stays a floating local time, never promoted to a confirmed UTC instant.",
+      "evidence_refs": ["ev-detail-sabina-desir", "ev-detail-african-jazz-nights"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date was found on the events index or on any of the three fetched detail pages.",
+      "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "House of Sisters Grimm, 23-25 Eastcastle Street, London W1W 8DF",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Single-venue site; the exact same address is stated directly in the homepage's own JSON-LD (Level 1) and again directly in the Sabina Desir detail page's own 'Venue:' line (Level 2) -- no combination needed, since every event on this source belongs to this one venue.",
+      "evidence_refs": ["ev-prior-passive-static", "ev-detail-sabina-desir"]
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "PROVEN-quality is reachable per the project's stable-identifier rule for events that have their own individual detail page: the page's own <link rel=\"canonical\"> URL slug is a source-authored, self-referencing canonical path (confirmed for Sabina Desir, African Jazz Nights, and GLOBAL LANDSCAPES RETROSPECTIVE). One caution found: the /events/ INDEX page's own 'Learn more' href for Sabina Desir ('/events/sabina-desir-comes-to-house-of-sisters-grimm-for-efg-london-jazz-festival-2026/') is STALE and 301-redirects to the true canonical slug ('sabina-desir-freedom-road-re-imagined-at-house-of-sisters-grimm-for-efg-london-jazz-festival-2026') -- a collector must follow redirects or read the detail page's own <link rel=\"canonical\">, not store the index-page href verbatim, to get a genuinely stable id. But this reachable-PROVEN case does not cover the whole source: the 'INALA RELAUNCHES THURSDAY 17th SEPTEMBER' listing -- the venue's flagship music show -- links only to the generic https://houseofsistersgrimm.com/tickets/ page on the index, with no individual event URL of its own at all, so it has no candidate stable id under this strategy. Aggregate state stays PARTIAL, not PROVEN.",
+      "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes"]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Same reasoning as source_record_id above: most sampled events resolve to their own INDIVIDUAL_FIRST_PARTY_EVENT_PAGE (via <link rel=\"canonical\">, following a redirect where the index-page href is stale), but the INALA relaunch listing -- one of the venue's most prominent current music offerings -- exposes no individual event URL at all on the index, only a generic FIRST_PARTY_PROGRAMME_PAGE-style /tickets/ link. Aggregate state stays PARTIAL.",
+      "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes"]
+    },
+    "price": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Present as explicit tiered GBP pricing for some one-off ticketed events (Sabina Desir: 'Standard: £33.50, including all charges' / 'Premium/front row allocated seating: £48') but not a single canonical value across the source -- other listings (e.g. GLOBAL LANDSCAPES RETROSPECTIVE) advertise 'Free Admission' via a separate pop-up banner rather than a per-card price field. Genuinely variable per event and per ticket tier, never uniform.",
+      "evidence_refs": ["ev-detail-sabina-desir"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No deterministic, source-exposed field (no genre/category tag, no data attribute) separates music events from non-music events anywhere on the shared /events/ programme index -- every card (music and non-music alike) uses the identical 'date'/'date--ongoing' markup with no distinguishing attribute. Critically, this is NOT the 'occasional non-music exception on an overwhelmingly-music venue' pattern this project already has a working precedent for (MUSIC_GATE_EXCLUDED_TITLES in ingestion/london/run.mjs, built for 100 Club London): the current 'Upcoming & ongoing events' section of THIS venue is genuinely and roughly evenly split -- 3 of 6 listings are non-music (GLOBAL LANDSCAPES RETROSPECTIVE, an art exhibition; South African wine flight tasting; Sensory Notes, an immersive art-and-wine experience) against 3 that are music (INALA relaunch, Sabina Desir/EFG London Jazz Festival, African Jazz Nights). A safe collector for this source would need a human-curated per-title exclusion (or inclusion) list, reviewed and actively maintained at roughly this scale on an ongoing basis -- building and authorising that list is separate, not-yet-authorised work outside this investigation's scope."
+      },
+      {
+        "severity": "MAJOR",
+        "description": "The venue's most substantial recurring music offering, 'African Jazz Nights at iGOLI Bar' (weekly, confirmed via both the events index and its own detail page, which contains a literal empty '<div class=\"lp-intro__date\"></div>' element), exposes no calendar date at all -- only a recurring day-of-week/time pattern ('Every Friday at 9:15pm'). A STATIC_EVENT_LIST collector has no per-occurrence date to record for this listing without either inventing a date (prohibited by this project's policy) or implementing dedicated recurrence-expansion logic, which was not evidenced, designed, or proven in this investigation."
+      },
+      {
+        "severity": "MINOR",
+        "description": "The venue's flagship 'INALA RELAUNCHES THURSDAY 17th SEPTEMBER' listing on the events index links only to the site's generic /tickets/ page, not to an individual first-party event URL, so it currently offers no stable per-event source_record_id/event_url of its own under the canonical-URL strategy used successfully for the other three sampled events."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Acquisition mechanics are genuinely solid where a date exists: STATIC_HTML confirmed (no Event/MusicEvent JSON-LD anywhere; plain server-rendered cards), a public data path is confirmed (/events/ index plus individual /events/<slug>/ permalink pages), titles extract reliably (DIRECT_SOURCE) across the whole source, and one full example each of DIRECT_SOURCE (GLOBAL LANDSCAPES RETROSPECTIVE, non-music) and DETERMINISTIC_CONTEXT (Sabina Desir, music) start_date derivation was reproduced offline and deterministically (evidence/offline-proof.mjs, evidence/offline-proof-output.txt) -- so this is not a rejection of the venue's technical acquirability.",
+      "However, the venue's current live programme is honestly, materially mixed rather than music-led-with-occasional-exceptions: 3 of the 6 events in the 'Upcoming & ongoing events' section are non-music (an art exhibition, a wine tasting, an art-and-wine experience), and no source-exposed field mechanically separates them from the 3 music events. This differs materially from this project's existing MUSIC_GATE_EXCLUDED_TITLES precedent (built for an overwhelmingly-music venue with rare exceptions) and would require new, not-yet-authorised, ongoing human curation to acquire safely.",
+      "Separately, the venue's most substantial recurring music offering (African Jazz Nights, weekly) exposes no calendar date at all -- a genuine gap for a STATIC_EVENT_LIST collector that this investigation did not attempt to paper over with an invented or inferred date.",
+      "Per docs/SOURCE_INVESTIGATION_POLICY.md, DEFER is a legitimate, complete outcome, not a failure -- this venue's live-music relevance is real (INALA, a Grammy-nominated live-music/dance/storytelling production; a dated EFG London Jazz Festival booking; a weekly jazz night) and this record retains everything a future re-investigation or an explicitly-authorised curation effort would need to proceed quickly."
+    ],
+    "evidence_refs": ["ev-events-index", "ev-detail-sabina-desir", "ev-detail-african-jazz-nights", "ev-detail-global-landscapes", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-prior-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Re-cited Level 1 evidence from the superseded investigation: compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from the prior single unauthenticated homepage GET, including retained JSON-LD identity and several homepage event cards.",
+      "acquired_from": "https://houseofsistersgrimm.com/",
+      "acquired_at": "2026-09-01T19:44:11.000Z",
+      "method": "curl GET; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; response saved locally and this excerpt taken from it unedited (performed for the superseded investigation london-t2-house-of-sisters-grimm-01, retained there and re-cited here unmodified)",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-01/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-events-index",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from a single unauthenticated GET of the /events/ programme index -- both section headings ('Upcoming & ongoing events', 'Our previous events') and all 9 event cards in between, unedited.",
+      "acquired_from": "https://houseofsistersgrimm.com/events/",
+      "acquired_at": "2026-09-01T20:57:00.000Z",
+      "method": "curl GET; descriptive research User-Agent (BandOnTheMap-research/1.0); redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; HTTP 200; full response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-02/evidence/events-index-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-detail-sabina-desir",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpts of the actual retrieved HTTP response body for the Sabina Desir individual event detail page: the <title> and <link rel=\"canonical\"> head elements, the festival-year context paragraph, and the explicit Date/Door Time/Performance/Venue/Tickets block.",
+      "acquired_from": "https://houseofsistersgrimm.com/events/sabina-desir-comes-to-house-of-sisters-grimm-for-efg-london-jazz-festival-2026/ (301-redirects to https://houseofsistersgrimm.com/events/sabina-desir-freedom-road-re-imagined-at-house-of-sisters-grimm-for-efg-london-jazz-festival-2026/, per its own <link rel=\"canonical\">)",
+      "acquired_at": "2026-09-01T20:58:00.000Z",
+      "method": "curl GET; descriptive research User-Agent (BandOnTheMap-research/1.0); redirects followed (1 redirect observed); 20s timeout; no retry; no auth/CAPTCHA-bypass; HTTP 200 at final URL; full response saved locally and these excerpts taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-02/evidence/detail-sabina-desir-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-detail-african-jazz-nights",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpts of the actual retrieved HTTP response body for the African Jazz Nights individual event detail page: the <title> and <link rel=\"canonical\"> head elements, and the full recurring 'When' block, including the literal empty '<div class=\"lp-intro__date\"></div>' element proving no calendar date is exposed by the source for this listing.",
+      "acquired_from": "https://houseofsistersgrimm.com/events/african-jazz-nights-at-igoli-bar/",
+      "acquired_at": "2026-09-01T20:58:30.000Z",
+      "method": "curl GET; descriptive research User-Agent (BandOnTheMap-research/1.0); redirects followed (0 redirects); 20s timeout; no retry; no auth/CAPTCHA-bypass; HTTP 200; full response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-02/evidence/detail-african-jazz-nights-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-detail-global-landscapes",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpts of the actual retrieved HTTP response body for the GLOBAL LANDSCAPES RETROSPECTIVE individual event detail page (a non-music art exhibition, sampled to honestly document the venue's genuine programme mix): the <title> and <link rel=\"canonical\"> head elements, and the hero block stating its own full year-stamped exhibition range directly ('19 August - 9 September 2026').",
+      "acquired_from": "https://houseofsistersgrimm.com/events/global-landscapes-retrospective/",
+      "acquired_at": "2026-09-01T20:59:00.000Z",
+      "method": "curl GET; descriptive research User-Agent (BandOnTheMap-research/1.0); redirects followed (0 redirects); 20s timeout; no retry; no auth/CAPTCHA-bypass; HTTP 200; full response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-02/evidence/detail-global-landscapes-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically re-parses evidence/detail-sabina-desir-excerpt.html and evidence/detail-global-landscapes-excerpt.html, proving (a) the Sabina Desir DETERMINISTIC_CONTEXT date derivation -- combining the event's own year-less 'Date: Tuesday 17 November and Wednesday 18 November' line with the same page's own year-stamped 'Part of EFG London Jazz Festival 2026' / '13-22 November 2026' festival-range statement, checking structural containment (17-18 falls within 13-22) rather than assuming it -- and (b) the GLOBAL LANDSCAPES RETROSPECTIVE DIRECT_SOURCE date, stated as a full year-stamped range directly on its own page with no combination needed.",
+      "acquired_from": "Authored directly for this investigation, re-parsing only the retained fixtures above; not fetched from a live source",
+      "acquired_at": "2026-09-01T21:05:00.000Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-02/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, 'OFFLINE PROOF: PASSED', and prints the derived title/start_date/event_url/source_record_id for Sabina Desir (2026-11-17, plus the second performance date 2026-11-18) and the derived start_date for GLOBAL LANDSCAPES RETROSPECTIVE (2026-08-19), each with its exact derivation inputs, matching field_assessment notes above exactly.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against the retained fixtures only; no network access",
+      "acquired_at": "2026-09-01T21:05:30.000Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-house-of-sisters-grimm-02/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": "london-t2-house-of-sisters-grimm-01"
+}

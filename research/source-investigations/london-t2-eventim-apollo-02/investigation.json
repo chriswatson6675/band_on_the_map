@@ -1,0 +1,216 @@
+{
+  "investigation_id": "london-t2-eventim-apollo-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:12:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Phase B deep-dive activation-readiness investigation (BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01), superseding the Level-1 triage london-t2-eventim-apollo-01. Escalates to Level 2 STRUCTURAL: real unauthenticated GETs (curl, descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth/CAPTCHA-bypass, no browser) to the events index page and three real individual event detail pages, comparing JSON-LD, list-card markup and hero-detail markup across all four retrieved pages to classify acquisition method and assess every governed field."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Mirrors/cites the prior investigation london-t2-eventim-apollo-01's own retained Level 1 PASSIVE_STATIC probe (a single bounded GET to the /events index page performed as part of a triage-refinement batch). That probe was SUFFICIENT for its own narrower music-relevance question but honestly left every field_assessment key at UNKNOWN/PARTIAL -- no per-event field extraction, acquisition_class beyond a provisional STATIC_HTML guess, or offline proof was attempted at Level 1. This record continues that investigation rather than repeating it: Level 1 is retained here as INSUFFICIENT for the deep-dive activation-readiness questions this package must answer.",
+      "evidence_refs": ["ev-level1-prior"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Real unauthenticated GETs to the /events/ events index page and three real individual /events/<slug> detail pages (Judas Priest, Europe, Amon Amarth) fully answered every open question: the platform is a custom AEG-hosted venue CMS (aeg-media-assets.b-cdn.net asset CDN; identical event-hero__title/card__title/card--horizontal markup conventions to the sibling AEG venue Watford Colosseum); every page carries exactly one application/ld+json block (WebSite/MusicVenue/BreadcrumbList) and never a per-event schema.org Event/MusicEvent block; each event's own title, complete day+month+year date, and a doors time (from a per-event 'showings' table also repeating the date) are stated directly and unambiguously in plain server-rendered HTML on both the list card and the detail page hero. The venue's full street address, absent from the JSON-LD itself, is stated directly as plain text in the site's own footer navigation link on every page. No JS bootstrap/page-data blob, private endpoint, or client-side rendering was found or needed -- static structural inspection fully exposed the acquisition path, so no Level 3 browser observation was required.",
+      "evidence_refs": ["ev-events-index", "ev-event-detail-pages"]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Eventim Apollo",
+  "official_url": "https://www.eventimapollo.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level1-prior", "ev-events-index", "ev-event-detail-pages"],
+    "notes": "Prior investigation already proved identity from the retained /events index response's own <title> and roster. This record's retained /events index and all three retained event detail pages carry the identical JSON-LD identity block ({\"@type\":\"MusicVenue\",\"name\":\"Eventim Apollo\"}), and the site's own footer navigation link states the full venue name plus address directly and identically on every retrieved page (\"Eventim Apollo, 45 Queen Caroline Street, London, England W6 9QH\" -- the venue formerly known as Hammersmith Apollo), and every detail page's own JSON-LD mainEntityOfPage/BreadcrumbList entries self-declare the page as https://www.eventimapollo.com/events/<slug>."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom AEG-hosted venue site (same platform family as sibling AEG venue Watford Colosseum -- shared aeg-media-assets.b-cdn.net CDN and shared event-hero__title / card__title / card--horizontal markup conventions). The events index page and individual /events/<slug> detail pages are all server-rendered plain HTML with no client-side rendering required to expose event data. A single schema.org JSON-LD block (WebSite/MusicVenue/BreadcrumbList) is present on every page retrieved, but no page anywhere in the retained sample carries a schema.org Event/MusicEvent JSON-LD block -- title/date/doors-time are only ever present as plain HTML text.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-index", "ev-event-detail-pages"]
+  },
+  "data_paths": [
+    {
+      "kind": "EVENTS_INDEX_PAGE",
+      "url": "https://www.eventimapollo.com/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-index"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE",
+      "url": "https://www.eventimapollo.com/events/judas-priest",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-pages"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE",
+      "url": "https://www.eventimapollo.com/events/europe",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-pages"]
+    },
+    {
+      "kind": "EVENT_DETAIL_PAGE",
+      "url": "https://www.eventimapollo.com/events/amon-amarth",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-event-detail-pages"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Judas Priest",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each sampled event's own <h1 class=\"event-hero__title\"> on its detail page (and matching <h3 class=\"card__title\"> on the list page) states the full title directly -- no combination required. Verified identically for all three sampled events (Judas Priest, Europe, Amon Amarth); reproduced offline against the retained fixture (ev-derive-script/ev-derive-output).",
+      "evidence_refs": ["ev-events-index", "ev-event-detail-pages", "ev-derive-script", "ev-derive-output"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-21",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Each sampled event's detail-page hero carries a <p class=\"date variable-color\"> stating a complete day+month+year directly in one place, immediately above the H1 (e.g. \"Monday 21st September 2026\" for Judas Priest; \"Saturday 3rd October 2026\" for Europe; \"Saturday 10th October 2026\" for Amon Amarth), corroborated by an independent 'showings' table row restating the same date in a different format ('September 21st 2026') -- no cross-context combination needed, so basis is DIRECT_SOURCE, not DETERMINISTIC_CONTEXT. Reproduced offline against the retained fixture for all three sampled events (ev-derive-script/ev-derive-output, all_match: true).",
+      "evidence_refs": ["ev-event-detail-pages", "ev-derive-script", "ev-derive-output"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each sampled event's own 'showings' table states a Doors time directly (19:00 Judas Priest; 18:00 Europe; 17:30 Amon Amarth), but the adjacent 'Showtime' column only ever states the vague label 'Evening', never a precise numeric performance-start time -- doors time is retained honestly as doors time, never promoted to stand in for an unstated performance start.",
+      "evidence_refs": ["ev-event-detail-pages"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date is exposed anywhere in the retained events index page or any of the three retained event detail pages.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Eventim Apollo, 45 Queen Caroline Street, London, England W6 9QH",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The site's own footer navigation link states the venue name plus full address directly, as one literal text string ('Eventim Apollo, 45 Queen Caroline Street, London, England W6 9QH'), identically on the retained events index page and on all three retained event detail pages -- a single piece of first-party evidence, not a combination across pages.",
+      "evidence_refs": ["ev-event-detail-pages"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "https://www.eventimapollo.com/events/judas-priest",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Per docs/SOURCE_INVESTIGATION_POLICY.md's stable identifier rule, the per-event /events/<slug> detail URL is used, consistently across list card links, detail-page breadcrumbs, and the detail page's own JSON-LD mainEntityOfPage field, as this source's own declared canonical path for the event (self-documented stability, not merely something that looks stable) -- e.g. mainEntityOfPage \"https://www.eventimapollo.com/events/judas-priest\" for this event, and the equivalent for Europe and Amon Amarth. Verified identical across all three sampled events.",
+      "evidence_refs": ["ev-event-detail-pages"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.eventimapollo.com/events/judas-priest",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The same first-party per-event detail URL as source_record_id above -- an INDIVIDUAL_FIRST_PARTY_EVENT_PAGE, distinct from the events index/listing page, stated directly by the list card's title link and confirmed reachable directly (HTTP 200) for all three sampled events.",
+      "evidence_refs": ["ev-events-index", "ev-event-detail-pages"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-index", "ev-event-detail-pages", "ev-derive-script", "ev-derive-output"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "ingestion/static-cards/collector.mjs's CARD_START regex requires an event/programme/calendar keyword to appear BEFORE a card/item keyword within the card wrapper's own class attribute. This source's real card wrapper class is 'card h-full  card--horizontal' (retained in ev-events-index) -- it contains no event/programme/calendar keyword at all, so CARD_START would not match this venue's real markup as currently written (an even more pronounced instance of the same mismatch found at sibling venue Watford Colosseum). card-date.mjs's COMPLETE_TEXT_DATE date-resolution path already handles the venue's actual complete-text date format ('Monday 21st September 2026') without any change. Widening CARD_START to be keyword-order-independent (or matching on the leaf 'card__title'/'card__info' classes instead of the outer wrapper) is a small, well-scoped collector change to an existing family, not a new family."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Identity is PROVEN (identical retained JSON-LD MusicVenue block plus the site's own footer address text on all four retrieved pages, matching the known venue -- formerly Hammersmith Apollo -- exactly).",
+      "Acquisition class is STATIC_HTML, a resolved/supported class: the events index page and every sampled event detail page are plain, server-rendered HTML reachable via a single unauthenticated GET each, with no JSON-LD Event objects and no client-side rendering required.",
+      "A confirmed public data path exists (the /events/ index page plus three confirmed individual event detail pages).",
+      "title.state and start_date.state are both PROVEN with basis DIRECT_SOURCE for all three sampled real events (Judas Priest 2026-09-21, Europe 2026-10-03, Amon Amarth 2026-10-10) -- no invented year or date at any point.",
+      "source_record_id.state is PROVEN using the site's own declared canonical per-event URL (JSON-LD mainEntityOfPage), satisfying the stable identifier rule via self-documented stability.",
+      "collector_assessment.recommended_family is STATIC_EVENT_LIST, an existing, already-implemented family (ingestion/static-cards/) -- the sole blocker is MINOR (a regex widening, not a new architecture) and does not block activation.",
+      "The DIRECT_SOURCE title/start_date parse-out was reproduced offline, deterministically, against the retained fixture with zero network access (ev-derive-script/ev-derive-output, all_match: true across all three sampled events), satisfying the general offline-proof gate.",
+      "No unresolved CRITICAL blocker exists."
+    ],
+    "evidence_refs": ["ev-events-index", "ev-event-detail-pages", "ev-derive-script", "ev-derive-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level1-prior",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The prior (superseded) investigation london-t2-eventim-apollo-01's own retained Level 1 PASSIVE_STATIC evidence -- a retained, bounded, contiguous excerpt of the real HTTP response body from a single unauthenticated GET to the /events index page, plus real response metadata, cited/carried forward per this package's instructions rather than re-fetched.",
+      "acquired_from": "https://www.eventimapollo.com/events",
+      "acquired_at": "2026-09-01T19:41:05.000Z",
+      "method": "curl -sL; descriptive research User-Agent; 20-second timeout; redirects followed; unauthenticated GET; no retry (performed by the prior, superseded investigation)",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-01/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-events-index",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, retained excerpts of the real HTTP response body of the /events/ events index page: the page's sole application/ld+json block, the three sampled events' own card fragments (title/date/detail-link), and one representative card wrapper class attribute.",
+      "acquired_from": "https://www.eventimapollo.com/events/",
+      "acquired_at": "2026-09-01T19:56:34.000Z",
+      "method": "curl -sL; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; single unauthenticated GET",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/evidence/events-index.json"
+    },
+    {
+      "evidence_id": "ev-event-detail-pages",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, retained excerpts of three real individual event detail pages (Judas Priest, Europe, Amon Amarth): each page's own application/ld+json block, hero date+title block, showings-table row (date/showtime-label/doors), and the site's own footer venue-address link text.",
+      "acquired_from": "https://www.eventimapollo.com/events/judas-priest ; https://www.eventimapollo.com/events/europe ; https://www.eventimapollo.com/events/amon-amarth",
+      "acquired_at": "2026-09-01T19:59:00.000Z",
+      "method": "curl -sL; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; single unauthenticated GET per URL",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/evidence/event-detail-pages.json"
+    },
+    {
+      "evidence_id": "ev-derive-script",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically parses evidence/event-detail-pages.json (the retained fixture, read from local disk only) and mechanically extracts each event's title and complete DIRECT_SOURCE start_date from its own hero block -- proving the parse-out is reproducible, not merely asserted.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-09-01T20:04:55.000Z",
+      "method": "Authored by the AI investigator; run via `node evidence/derive-fields.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/evidence/derive-fields.mjs"
+    },
+    {
+      "evidence_id": "ev-derive-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/derive-fields.mjs`: all_match true for all three sampled events (Judas Priest -> 2026-09-21; Europe -> 2026-10-03; Amon Amarth -> 2026-10-10), each derived title/date matching field_assessment above exactly, with zero network access.",
+      "acquired_from": "Local execution of evidence/derive-fields.mjs against the retained fixture only; no network access",
+      "acquired_at": "2026-09-01T20:05:01.000Z",
+      "method": "`node evidence/derive-fields.mjs > evidence/derive-fields-output.json`",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-eventim-apollo-02/evidence/derive-fields-output.json"
+    }
+  ],
+  "supersedes": "london-t2-eventim-apollo-01"
+}

@@ -1,0 +1,56 @@
+<!--
+Retained, bounded, literal contiguous excerpts from the real HTTP response
+body of a single unauthenticated GET to
+https://www.jamboreevenue.co.uk/upcoming-events/ (Level 2 STRUCTURAL probe,
+london-t2-jamboree-02). Two contiguous slices are concatenated below,
+separated by a marker comment: (1) the page's own JSON-LD @graph block
+(rank-math-schema), which carries Place/Organization identity+address but
+no Event-type entries; (2) the first real event card in the static
+"#events-list-page" markup (id="event-8305", the "Celtic Session" on
+Tuesday 1 September 2026). Each slice is copied verbatim from the raw
+response; nothing has been reworded, summarised, or reformatted.
+
+acquired_from: https://www.jamboreevenue.co.uk/upcoming-events/
+acquired_at:   2026-09-01T19:56:35.000Z
+method:        curl -sL; User-Agent "Mozilla/5.0 (compatible;
+               BandOnTheMapResearchBot/1.0; +https://bandonthemap.example/research)";
+               unauthenticated GET; --max-time 25; single request; no retry;
+               no browser/JS execution; no authentication or CAPTCHA bypass.
+http_status:   200
+content_type:  text/html; charset=UTF-8
+-->
+<!-- === SLICE 1: JSON-LD @graph block (identity/address; no Event entries found anywhere on this page) === -->
+<script type="application/ld+json" class="rank-math-schema">{"@context":"https://schema.org","@graph":[{"@type":"Place","@id":"https://www.jamboreevenue.co.uk/#place","address":{"@type":"PostalAddress","streetAddress":"6 St Chads Place","addressLocality":"King's Cross","addressRegion":"London","postalCode":"WC1X 9HH","addressCountry":"UK"}},{"@type":["BarOrPub","Organization"],"@id":"https://www.jamboreevenue.co.uk/#organization","name":"Jamboree – Kings Cross, London: Jazz, World Music &amp; European Folk Music Venue in Central London","url":"https://www.jamboreevenue.co.uk","address":{"@type":"PostalAddress","streetAddress":"6 St Chads Place","addressLocality":"King's Cross","addressRegion":"London","postalCode":"WC1X 9HH","addressCountry":"UK"},"logo":{"@type":"ImageObject","@id":"https://www.jamboreevenue.co.uk/#logo","url":"https://www.jamboreevenue.co.uk/wp-content/uploads/2025/05/jamboree-new-venue-image-with-logo-square.jpg","contentUrl":"https://www.jamboreevenue.co.uk/wp-content/uploads/2025/05/jamboree-new-venue-image-with-logo-square.jpg","caption":"Jamboree – Kings Cross, London: Jazz, World Music &amp; European Folk Music Venue in Central London","inLanguage":"en-US","width":"1437","height":"1437"},"openingHours":["Monday 18:00-00:00","Tuesday 17:00-00:00","Wednesday,Sunday 11:00-00:00","Thursday,Friday,Saturday 11:00-01:00"],"description":"Welcome to Jamboree, the home of Jazz, World Music &amp; European Folk Music in King's Cross, Central London","legalName":"Jamboree Venue","location":{"@id":"https://www.jamboreevenue.co.uk/#place"},"image":{"@id":"https://www.jamboreevenue.co.uk/#logo"},"telephone":"02072786797"}]}</script>
+<!-- === SLICE 2: first static event card (id="event-8305") === -->
+<div class="event-item" id="event-8305">
+<div class="event-blurb">
+<div class="event-list-image">
+<a href="https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/" class="eventTitle" title="Celtic Session"><img class="lazy" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20450%20300'%3E%3C/svg%3E" data-src='https://www.jamboreevenue.co.uk/wp-content/uploads/2025/11/jamboree-celtic-session-new-venue-photo-2025-2-e1762529815434.jpg' alt='Celtic Session'/></a>
+</div>
+
+<span class="event-date-dn">Tuesday 1 September 2026</span><br/>
+
+<h3><a href="https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/" title="More info about Celtic Session">Celtic Session</a></h3>
+<h4>Live Music from 8.30pm</h4>
+
+<p class="eventsExcerpt"><p>Our weekly traditional Jamboree Celtic session! Come and enjoy listening in to the warmth and beauty of this special music with us. The session features established musicians on the London trad session scene, playing mainly Irish tunes with a few Scottish and other related traditional styles thrown in.</p>
+<p><em><strong>We also have a HAPPY HOUR between 5 and 7pm.</strong></em></p>
+</p>
+
+<p class="meta"><b>Doors:</b> See footer | <b>Entry:</b> Free</p>
+
+<p style="text-align: right; float: right;"><b><a href="" class="ticketLink" target="_none" onClick="_gaq.push(['_trackEvent', 'ticket-listpage', 'click', 'Celtic Session');">&raquo; Buy Tickets</a></b></p>
+</div>
+</div>
+<!-- Two further sample event cards were also observed on the same retained
+response (not reproduced verbatim here to keep this excerpt bounded), used
+only for the field-assessment "sample_events" listed in investigation.json:
+  - "The Trouble Notes", <span class="event-date-dn">Wednesday 2 September 2026</span>,
+    https://www.jamboreevenue.co.uk/events/live-progressive-folk-music-in-london/
+  - "Opa Rosa + Karp.OS", <span class="event-date-dn">Friday 4 September 2026</span>,
+    https://www.jamboreevenue.co.uk/events/live-balkan-music-in-london-11/
+No ICS export link, JSON-LD Event block, or JSON/REST API exposing event
+data was found anywhere in the retained response (checked: no ".ics"
+reference; the only application/ld+json block present is the Place/
+Organization/WebSite graph reproduced above; wp-json links present are the
+generic WordPress REST API root/oEmbed endpoints, not an events endpoint). -->

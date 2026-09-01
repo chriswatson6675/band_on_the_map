@@ -1,0 +1,27 @@
+{
+  "purpose": "Level 2 STRUCTURAL: bounded sample of ONE real record from the site's own public JSON API (https://www.southlandsarts.co.uk/wp-json/geodir/v2/events), showing the full field shape available -- title, slug, link, start/end date+time, price, ticket_link, post_category, and a stable numeric id. Retained as a single representative record rather than the full 33-item response to keep evidence bounded; the full (essential-fields-only) 33-item listing used for the category tally is retained separately as geodir-events-full-fixture.json.",
+  "requested_url": "https://www.southlandsarts.co.uk/wp-json/geodir/v2/events?per_page=100",
+  "http_status": 200,
+  "acquired_at": "2026-09-01T20:04:20.000Z",
+  "method": "curl -sS -L -A 'Mozilla/5.0 (compatible; BandOnTheMapResearch/1.0; +research)' --max-time 20 (single unauthenticated GET; no retries); the one record below was selected from that real retained response (the WordPress post_type=gd_event record for 'Classic Concert', the only Music-tagged event found).",
+  "content_type": "application/json",
+  "byte_faithful_contiguous_excerpt": true,
+  "record": {
+    "id": 250125,
+    "title": { "raw": "Classic Concert", "rendered": "Classic Concert" },
+    "slug": "classic-concert",
+    "link": "https://www.southlandsarts.co.uk/events/classic-concert/",
+    "post_category": [ { "id": 347, "name": "Music", "slug": "music" } ],
+    "start_date": { "raw": "2026-09-06", "rendered": "Sunday 6th September" },
+    "start_time": { "raw": "19:30", "rendered": "7:30 PM" },
+    "end_date": { "raw": "2026-09-06", "rendered": "Sunday 6th September" },
+    "end_time": { "raw": "21:30", "rendered": "9:30 PM" },
+    "all_day": "0",
+    "start_datetime": { "raw": "2026-09-06T19:30:00", "rendered": "Sunday 6th September, 7:30 PM" },
+    "end_datetime": { "raw": "2026-09-06T21:30:00", "rendered": "Sunday 6th September, 9:30 PM" },
+    "price": "15.00",
+    "ticket_link": "https://www.ticketsource.com/yiewsley-and-west-drayton-arts-council/t-aayajav",
+    "website": ""
+  },
+  "notable_finding": "The site's own event API directly states a full, unambiguous date/time (DIRECT_SOURCE-grade, no contextual derivation needed) and a numeric WordPress post id that is the API's own stable identifier for this record. This confirms a technically strong, genuinely first-party data path -- the REJECT decision for this candidate rests entirely on the music-gate finding (see category-tally-output.json), not on any acquisition weakness."
+}

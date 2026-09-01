@@ -1,0 +1,137 @@
+{
+  "investigation_id": "london-t2-punchdrunk-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:53:30.649Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website via curl (descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-way-1344902256",
+  "source_id": null,
+  "venue_reference": "Punchdrunk — London (osm-way-1344902256)",
+  "official_url": "https://www.punchdrunk.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title 'Multi-Award Winning Immersive Theatre Company | Punchdrunk' and 'What's On' listing 'One Cartridge Place, Woolwich' match the candidate name and given address exactly."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The single unauthenticated GET returned a real, current programme listing directly on the page — sufficient to reach an honest identity and music-relevance decision without escalating.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": null,
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Persephone (One Cartridge Place, Woolwich)",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The homepage's 'What's On' section lists 'Persephone' at 'One Cartridge Place, Woolwich' directly, alongside other current immersive-theatre productions ('The Shed, New York', 'Viola's Room' in Shanghai, 'Sleep No More'). The site self-describes as a 'Multi-Award Winning Immersive Theatre Company'.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retrieved page shows an overall production run/season rather than individually dated performance instances in this bounded static probe.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Cartridge Place 1, SE18 6ZR, London",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The retrieved page states this address directly and it matches the candidate's given address.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own current programme, as retained directly from https://www.punchdrunk.com, is theatrical staged production(s) — 'Persephone (One Cartridge Place, Woolwich)' — not live music, concerts, or DJ/club-night performance.",
+      "Punchdrunk explicitly and repeatedly identifies itself as an 'Immersive Theatre Company' (registered trade mark, company number 9302561) — its programme is staged, scripted/directed immersive theatre productions, not live-music performance."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the official site showing the current production listing and venue address.",
+      "acquired_from": "https://www.punchdrunk.com",
+      "acquired_at": "2026-09-01T19:53:30.649Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-punchdrunk-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-1344902256-london-01"
+}

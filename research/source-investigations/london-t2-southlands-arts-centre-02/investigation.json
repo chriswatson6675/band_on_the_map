@@ -1,0 +1,225 @@
+{
+  "investigation_id": "london-t2-southlands-arts-centre-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 2 STRUCTURAL escalation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01 Phase B: GET'd the /events/ calendar page the superseded Level 1 record had identified but not fetched, discovered a public WordPress GeoDirectory REST API referenced in that page's own HTML, and fetched a bounded sample plus the full (33-item) current/future events listing from that API to assess music relevance. No auth, browser, or CAPTCHA bypass; a small number of same-origin, unauthenticated GETs, none state-changing."
+  },
+  "source_candidate_id": "reconciled-cand-osm-node-8816283371",
+  "source_id": null,
+  "venue_reference": "Southlands Arts Centre — The Green 75, UB7 7PW, West Drayton",
+  "official_url": "https://www.southlandsarts.co.uk/",
+  "data_paths": [
+    {
+      "kind": "STATIC_PAGE",
+      "url": "https://www.southlandsarts.co.uk/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-page"]
+    },
+    {
+      "kind": "PUBLIC_JSON_API",
+      "url": "https://www.southlandsarts.co.uk/wp-json/geodir/v2/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-geodir-api-discovery", "ev-geodir-sample-record", "ev-geodir-full-fixture"]
+    }
+  ],
+  "supersedes": "london-t2-southlands-arts-centre-01",
+  "investigated_at": "2026-09-01T20:10:00.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-passive-static"],
+    "notes": "Unchanged from the superseded Level 1 record: schema.org Organization/WebSite JSON-LD names 'Southlands Arts Centre', operated by 'Yiewsley and West Drayton Arts Council', consistent with the reported West Drayton address."
+  },
+  "site_classification": {
+    "acquisition_class": "PUBLIC_JSON_API",
+    "platform": "WordPress (Divi theme) with the GeoDirectory plugin, which exposes a genuine, unauthenticated, GET-accessible REST API at /wp-json/geodir/v2/events for the venue's own current/future events (post type gd_event). Records carry a full ISO date/time, price, ticket link, per-event category tags, and a stable numeric post id.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-events-page", "ev-geodir-api-discovery", "ev-geodir-sample-record"]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Classic Concert",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own title.raw field states the exact event title directly, for the one Music-category event found.",
+      "evidence_refs": ["ev-geodir-sample-record"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-06",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own start_date.raw / start_datetime.raw fields state the exact date directly.",
+      "evidence_refs": ["ev-geodir-sample-record"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:30",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own start_time.raw field states the exact local time directly.",
+      "evidence_refs": ["ev-geodir-sample-record"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "2026-09-06T21:30:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own end_datetime.raw field states the exact end instant directly.",
+      "evidence_refs": ["ev-geodir-sample-record"]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No explicit per-event venue/address field is present in the API record itself. The API is scoped to this single business's own WordPress install (whose already-proven identity is Southlands Arts Centre), so every record returned by it structurally belongs to this venue -- but this is an inference about API scope, not a directly-stated per-event venue fact, so it is kept PARTIAL rather than promoted to PROVEN.",
+      "evidence_refs": ["ev-geodir-sample-record", "ev-passive-static"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "250125",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own numeric id field is the site's WordPress post ID for this record, which the same API also uses as the record's own canonical path segment logic (the id-addressed route /geodir/v2/events/(?P<id>[\\d]+) in the route index); a WordPress post ID does not regenerate per request the way the Hot Clube ICS UID did (see docs/SOURCE_INVESTIGATION_POLICY.md's stable-identifier rule) and is consistent with the record's own permalink slug across the retained sample.",
+      "evidence_refs": ["ev-geodir-sample-record", "ev-geodir-api-discovery"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.southlandsarts.co.uk/events/classic-concert/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own link field states the canonical public event page URL directly.",
+      "evidence_refs": ["ev-geodir-sample-record"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "15.00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The API's own price field states the ticket price directly (GBP, inferred only from site locale/currency symbol elsewhere on the page, not claimed here beyond the numeric value).",
+      "evidence_refs": ["ev-geodir-sample-record"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "JSON_API",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-geodir-api-discovery", "ev-geodir-sample-record"],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Music-relevance blocker, not an acquisition blocker: a deterministic, offline-reproduced tally of the site's own full current/future events listing (33 events) found only 1 tagged 'Music' ('Classic Concert'); the other 32 are Workshops/Wellbeing/LitOct/Art/Crafts/Literary/Talks/Creative Writing/Family/Kids/Gardening/Meet the Maker -- a general community arts centre, not a music-primary venue. This fails BeatMapped's venue-level music gate regardless of the acquisition path's technical quality."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The single GET (superseded london-t2-southlands-arts-centre-01) confirmed venue identity but the page's own 'Our Events' section contains no embedded event listing -- only a link to a separate /events/ calendar, which this Level-1 probe did not fetch. No music-relevance assessment was possible from this page alone.",
+      "evidence_refs": ["ev-passive-static"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Escalated to fetch the /events/ calendar page the Level 1 probe had identified but not retrieved. That page is a real, current, dated GeoDirectory event-listing grid; its own HTML also references a public /wp-json/geodir/v2/events REST API, which was fetched (a bounded sample record, then the full 33-item current/future listing) to assess both the data path's technical viability and the programme's actual music relevance. Both questions this investigation needed to answer -- is there a usable data path, and is the venue music-primary -- were conclusively answered from this one further probe: yes to the former, no to the latter (1 of 33 events is Music-tagged).",
+      "evidence_refs": ["ev-events-page", "ev-geodir-api-discovery", "ev-geodir-sample-record", "ev-geodir-full-fixture"]
+    }
+  ],
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "A genuinely strong, first-party public JSON API data path exists (GeoDirectory REST API at /wp-json/geodir/v2/events), with direct-source-grade title/date/time/price/id/url fields -- the acquisition side of this candidate is not the problem.",
+      "A deterministic, offline-reproduced tally of the site's own full current/future events listing (33 events, retained in geodir-events-full-fixture.json, tally reproduced by category-tally-derivation.mjs) found only 1 event tagged 'Music'; the other 32 are Workshops/Wellbeing/LitOct/Art/Crafts/Literary/Talks/Creative Writing/Family/Kids/Gardening/Meet the Maker.",
+      "Southlands Arts Centre is a general community arts centre whose actual current programme is not substantially musical -- this fails BeatMapped's venue-level music gate on real, retained, mechanically-verifiable evidence, not a plausibility guess, so REJECT rather than DEFER or activation."
+    ],
+    "evidence_refs": ["ev-events-page", "ev-geodir-full-fixture", "ev-category-tally-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Two literal, unedited excerpts from the Level 1 GET of https://www.southlandsarts.co.uk/our-events/: the Organization/WebSite JSON-LD block, and the page's own 'Our Events' section text. Carried forward unchanged from london-t2-southlands-arts-centre-01.",
+      "acquired_from": "https://www.southlandsarts.co.uk/our-events/",
+      "acquired_at": "2026-09-01T19:41:13.000Z",
+      "method": "curl; descriptive User-Agent; unauthenticated single GET; redirects followed; 20s timeout; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, real (tag-stripped) text excerpt from the single GET of https://www.southlandsarts.co.uk/events/, showing the live event-listing grid (real dates Aug-Nov 2026, real prices, per-event category tags).",
+      "acquired_from": "https://www.southlandsarts.co.uk/events/",
+      "acquired_at": "2026-09-01T20:03:00.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/events-page.json"
+    },
+    {
+      "evidence_id": "ev-geodir-api-discovery",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Route list extracted from the real WordPress REST API namespace-root discovery document at /wp-json/geodir/v2/, confirming a genuine public /geodir/v2/events endpoint (plus /events/categories, /events/tags, /events/fields).",
+      "acquired_from": "https://www.southlandsarts.co.uk/wp-json/geodir/v2/",
+      "acquired_at": "2026-09-01T20:03:40.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/geodir-api-discovery.json"
+    },
+    {
+      "evidence_id": "ev-geodir-sample-record",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-faithful single-record excerpt from the real /wp-json/geodir/v2/events response: the 'Classic Concert' record (the one Music-tagged event), showing the API's full field shape (title, dates, times, price, ticket_link, category, stable numeric id).",
+      "acquired_from": "https://www.southlandsarts.co.uk/wp-json/geodir/v2/events?per_page=100",
+      "acquired_at": "2026-09-01T20:04:20.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/geodir-events-sample-record.json"
+    },
+    {
+      "evidence_id": "ev-geodir-full-fixture",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Reformatted-but-real retention of the site's own full current/future events listing (all 33 items from the same GET as ev-geodir-sample-record, trimmed to essential fields: id, title, slug, link, start/end date+time, price, categories) -- the fixture the offline category-tally derivation below re-parses.",
+      "acquired_from": "https://www.southlandsarts.co.uk/wp-json/geodir/v2/events?per_page=100",
+      "acquired_at": "2026-09-01T20:04:20.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry; response reformatted to essential fields only for bounded retention",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/geodir-events-full-fixture.json"
+    },
+    {
+      "evidence_id": "ev-category-tally-derivation-script",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Bounded, dependency-free, no-network Node.js script that re-parses geodir-events-full-fixture.json and deterministically tallies each GeoDirectory category's event count. Never a production collector; exists only to prove the category tally used in the decision is genuinely reproducible.",
+      "acquired_from": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/geodir-events-full-fixture.json",
+      "acquired_at": "2026-09-01T20:06:00.000Z",
+      "method": "node category-tally-derivation.mjs, run offline against the retained fixture, no network access",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/category-tally-derivation.mjs"
+    },
+    {
+      "evidence_id": "ev-category-tally-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Retained stdout of `node category-tally-derivation.mjs`, proving the reproduced tally: 33 total events, only 1 tagged Music ('Classic Concert'), the rest Workshops/Wellbeing/LitOct/Art/Crafts/Literary/Talks/Creative Writing/Family/Kids/Gardening/Meet the Maker.",
+      "acquired_from": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/geodir-events-full-fixture.json",
+      "acquired_at": "2026-09-01T20:06:00.000Z",
+      "method": "node category-tally-derivation.mjs, run offline against the retained fixture, no network access",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-02/evidence/category-tally-output.json"
+    }
+  ]
+}

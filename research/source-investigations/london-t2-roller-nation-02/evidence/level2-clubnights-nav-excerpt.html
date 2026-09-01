@@ -1,0 +1,32 @@
+<!--
+Retained, bounded, literal excerpts from a fresh Level 2 GET of
+https://www.rollernation.com/club-nights (Level 2 STRUCTURAL probe,
+london-t2-roller-nation-02). Confirms: (a) no JSON-LD Event block exists on
+this page (only WebPage/BreadcrumbList/WebSite/Organization, via a Yoast
+SEO plugin); (b) the page's own top navigation links to a distinct
+"Buy Tickets" page at the same-origin path /events/, separate from this
+recurring club-nights schedule -- this /events/ page is what Level 2 fetched
+next (see level2-events-page-excerpt.html) and is where genuine dated,
+individually-titled events (not just recurring day-of-week slots) were
+found.
+
+acquired_from: https://www.rollernation.com/club-nights
+acquired_at:   2026-09-01T19:59:40.000Z
+method:        curl -sL; User-Agent "Mozilla/5.0 (compatible;
+               BandOnTheMapResearchBot/1.0; +https://bandonthemap.example/research)";
+               unauthenticated GET; --max-time 25; single request; no retry;
+               no browser/JS execution; no authentication or CAPTCHA bypass.
+http_status:   200
+content_type:  text/html; charset=UTF-8
+-->
+<!-- === SLICE A: page-identity JSON-LD (no Event type present) === -->
+<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"WebPage","@id":"https:\/\/rollernation.com\/club-nights","url":"https:\/\/rollernation.com\/club-nights","name":"Club Nights - Roller Disco Nights Out in London, - Rollernation","isPartOf":{"@id":"https:\/\/rollernation.com\/#website"},"datePublished":"2022-07-29T01:45:39+00:00","dateModified":"2026-06-26T16:25:06+00:00","description":"Check out our club nights on skates – a variety of sessions with different music to dance to. Book Online Today!","breadcrumb":{"@id":"https:\/\/rollernation.com\/club-nights#breadcrumb"},"inLanguage":"en-GB","potentialAction":[{"@type":"ReadAction","target":["https:\/\/rollernation.com\/club-nights"]}]},{"@type":"BreadcrumbList","@id":"https:\/\/rollernation.com\/club-nights#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/rollernation.com\/"},{"@type":"ListItem","position":2,"name":"Club Nights"}]},{"@type":"WebSite","@id":"https:\/\/rollernation.com\/#website","url":"https:\/\/rollernation.com\/","name":"Rollernation","description":"Home of Rollerdisco","publisher":{"@id":"https:\/\/rollernation.com\/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/rollernation.com\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-GB"},{"@type":"Organization","@id":"https:\/\/rollernation.com\/#organization","name":"Rollernation","url":"https:\/\/rollernation.com\/","logo":{"@type":"ImageObject","inLanguage":"en-GB","@id":"https:\/\/rollernation.com\/#\/schema\/logo\/image\/","url":"https:\/\/rollernation.com\/wp-content\/uploads\/2022\/09\/logo-1.png","contentUrl":"https:\/\/rollernation.com\/wp-content\/uploads\/2022\/09\/logo-1.png","width":480,"height":460,"caption":"Rollernation"},"image":{"@id":"https:\/\/rollernation.com\/#\/schema\/logo\/image\/"},"sameAs":["https:\/\/www.instagram.com\/rollernation.uk\/","https:\/\/www.tiktok.com\/@rollernation.uk"]}]}</script>
+<!-- === SLICE B: nav link to the distinct dated-events page === -->
+<li id="menu-item-157" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-157"><a href="/events/">Buy Tickets</a></li>
+<!-- No ".ics" reference, no other application/ld+json block, and no
+discoverable JSON/REST endpoint carrying event data were found anywhere in
+this page's retained response. The recurring named nights themselves
+("Soul Skate Thursday", "Link Up Friday", etc, already retained by
+london-t2-roller-nation-01) state only a weekly day-of-week recurrence
+pattern and a time -- never a specific calendar date -- confirmed
+unchanged at this Level 2 pass. -->

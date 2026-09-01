@@ -1,0 +1,143 @@
+{
+  "investigation_id": "london-t2-the-africa-centre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:52:12.153Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website via curl (descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-node-9550710672",
+  "source_id": null,
+  "venue_reference": "The Africa Centre — London (osm-node-9550710672)",
+  "official_url": "https://www.africacentre.org.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title 'Home for contemporary African culture and heritage in London' and body content self-identify as 'The Africa Centre', consistent with the candidate name."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The single unauthenticated GET confirmed identity but also surfaced a retained 'Notice of Closure' stating the building is temporarily closed from 28 July 2026 due to a financial crisis, with no confirmed reopening date — this bounded probe cannot establish whether any current/future live-music programme genuinely exists.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": null,
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current dated event listing was found; the homepage is dominated by financial-crisis/closure news rather than a programme.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No current dated event listing was found.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Homepage references the Centre's Southwark HQ (relocated from Covent Garden in June 2022); the given OSM address text ('Old Union Yard Arches, London') was not independently restated verbatim on the retrieved page.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Retrieved 'Notice of Closure' states the building is temporarily closed (from 28 July 2026) amid a stated financial crisis, with no confirmed reopening date — no current programme can be honestly confirmed while this stands."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The retrieved homepage's own 'Notice of Closure' states the building has been temporarily closed since 28 July 2026 due to a financial crisis, with fundraising underway and no confirmed reopening date.",
+      "The Centre's own general description does mention 'event spaces featuring live music, exhibitions and Africa Centre programme' as part of its normal offering, but this bounded probe found no current, dated event listing to confirm an active music programme right now.",
+      "Re-investigation once the venue's operating status is clarified (reopened or otherwise) is needed before a music-gate decision can be made responsibly."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Two literal, contiguous excerpts of the real HTTP response body from the official homepage: (1) the 'Notice of Closure' announcement, (2) a passage describing the Centre's spaces as featuring live music/exhibitions.",
+      "acquired_from": "https://www.africacentre.org.uk/",
+      "acquired_at": "2026-09-01T19:52:12.153Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-africa-centre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-9550710672-london-01"
+}

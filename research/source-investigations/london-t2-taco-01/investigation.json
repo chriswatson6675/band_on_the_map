@@ -1,0 +1,147 @@
+{
+  "investigation_id": "london-t2-taco-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:44:11.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage: one unauthenticated homepage GET via curl (descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth, no CAPTCHA-bypass, no browser). Full response saved locally; a compact, contiguous, literal excerpt of the actual retrieved HTML (never a paraphrase or full-page dump) is retained as evidence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single bounded, unauthenticated Level 1 GET was performed as part of a triage-refinement batch; this record documents an honest identity/music-relevance triage read from that one probe, not a full field-level extraction — deeper structural work (Level 2+) is deferred to a later candidate-specific package.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "TACO! — Cygnet Square 2, SE2 9FA, London",
+  "official_url": "https://taco.org.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved footer states 'TACO! 2 CYGNET SQUARE THAMESMEAD LONDON SE2 9FA' — matching the given address 'Cygnet Square 2, SE2 9FA, London' exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Custom site embedding page content (including escaped HTML event listings) inside an initial-load JSON blob, rather than as directly-crawlable static markup or a discovered feed/API.",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://taco.org.uk/Whats-On",
+      "access": "UNKNOWN",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The retrieved homepage mixes a recurring electronic/DJ club-night programme (e.g. 'THE HOT SNAKES NIGHT CLUB', 'ELECTRONIC AUDIO CLUB ... EVERY LAST SUNDAY OF THE MONTH', 'TRANSMEAD LIVE') with substantial non-music community-arts content (a poetry book launch/reading-group series, a public-artwork workshop, a print/publishing studio) — the primary-programme music gate cannot be resolved honestly from a single bounded GET."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The retained evidence shows a genuine mix: recurring electronic/DJ club nights ('Hot Snakes Night Club', 'Electronic Audio Club', 'Transmead Live') alongside non-music community-arts programming (poetry launch, reading-group series, public-art workshop, print studio) — it is not honestly resolvable from this single bounded GET whether live/DJ music is the venue's PRIMARY current programme or one strand among several.",
+      "No confirmed first-party programme/feed path was retrieved in this Level 1 pass — the 'Whats-On' link is a same-origin candidate only, not fetched."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from a single unauthenticated GET (a genuine substring of the real response, not a paraphrase or summary).",
+      "acquired_from": "https://taco.org.uk/",
+      "acquired_at": "2026-09-01T19:44:11.000Z",
+      "method": "curl GET; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-taco-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-13058748905-london-01"
+}

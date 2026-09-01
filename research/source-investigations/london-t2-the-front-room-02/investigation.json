@@ -1,0 +1,164 @@
+{
+  "investigation_id": "london-t2-the-front-room-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 2 STRUCTURAL escalation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01 Phase B: since the superseded Level 1 record's homepage nav links exposed no events/programme page, this pass fetched the site's publicly-exposed Squarespace sitemap.xml, then GET'd the one event-shaped page it named plus one further sitemap slug of unclear purpose. No auth, browser, or CAPTCHA bypass; a small number of same-origin, unauthenticated GETs, none state-changing."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "The Front Room — St George's Walk 37-39, CR0 1YL, Croydon",
+  "official_url": "https://www.frontroom.space/",
+  "data_paths": [
+    {
+      "kind": "SITEMAP",
+      "url": "https://www.frontroom.space/sitemap.xml",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-sitemap"]
+    },
+    {
+      "kind": "STATIC_PAGE",
+      "url": "https://www.frontroom.space/jazz-lunchtim",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-jazz-lunchtime-page"]
+    }
+  ],
+  "supersedes": "london-t2-the-front-room-01",
+  "investigated_at": "2026-09-01T20:05:00.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-identity"],
+    "notes": "Unchanged from the superseded Level 1 record: canonical URL resolves to the supplied official_website domain, og:site_name/<title> both read 'FrontRoomSpace', and the page's own body text names Croydon."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Squarespace — server-rendered marketing site. The site's public sitemap.xml lists only 6 real pages (contact, home, jazz-lunchtim, new-page, radio, services-2); none is a maintained events/programme listing. The one event-shaped page ('jazz-lunchtim') is a stale, unmaintained legacy page whose own text is frozen at 'now arranged into March 2022' with a 2022 copyright footer.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-identity", "ev-music-description", "ev-sitemap", "ev-jazz-lunchtime-page"]
+  },
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Unchanged from the superseded record: discovery evidence reports \"St George's Walk 37-39, CR0 1YL, Croydon\"; the homepage's own body text and the jazz-lunchtim page's own address footer ('The Front Room, 37-39 St George's Walk, CR0 1YL') are consistent with this, but this is prose confirmation, not a canonical structured venue fact.",
+      "evidence_refs": ["ev-identity", "ev-croydon-heading", "ev-jazz-lunchtime-page"]
+    },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No current/maintained first-party events data path exists: the site's own sitemap.xml lists no live events/programme page, and the one event-shaped page found ('jazz-lunchtim') is a stale 2022 artifact with no current date content."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage (superseded london-t2-the-front-room-01) returned real body text confirming a live-music identity, but no events/programme page link, feed, or API endpoint was present anywhere in the response or its internal navigation links.",
+      "evidence_refs": ["ev-identity", "ev-music-description"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Escalated because Level 1's homepage nav links exposed no events/programme page. Fetched the site's public sitemap.xml (a legitimate structural discovery step for a Squarespace site) to enumerate its full page inventory, then GET'd the one event-shaped page it named ('jazz-lunchtim') and one further ambiguous slug ('new-page'). Neither exposes a current/maintained events listing: jazz-lunchtim is a stale page frozen at March 2022, and new-page is an empty 'Test' placeholder.",
+      "evidence_refs": ["ev-sitemap", "ev-jazz-lunchtime-page", "ev-new-page-check"]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Live-music venue identity remains proven on real retained evidence (homepage body text, the jazz-lunchtim page's own recurring-jazz-night description).",
+      "Level 2 STRUCTURAL escalation via the site's public sitemap.xml found no current, maintained first-party events/programme listing — the only event-shaped page discovered is a stale, unmaintained 2022 artifact, not a live data path.",
+      "No third-party platform dependency was found either (no DICE/Skiddle/Songkick link); the honest conclusion is simply that this venue's current programme is not exposed anywhere in its public static site, so DEFER rather than REJECT or activation."
+    ],
+    "evidence_refs": ["ev-identity", "ev-music-description", "ev-sitemap", "ev-jazz-lunchtime-page"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt: <title>, canonical link, and og:site_name, confirming venue identity. Carried forward unchanged from london-t2-the-front-room-01.",
+      "acquired_from": "https://www.frontroom.space/",
+      "acquired_at": "2026-09-01T14:55:36.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-front-room-02/evidence/identity.json"
+    },
+    {
+      "evidence_id": "ev-music-description",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful body-text excerpt ('About the space' section) self-describing the venue as a live-music venue programming musical and theatrical performances, and stating events are programmed by the venue itself.",
+      "acquired_from": "https://www.frontroom.space/",
+      "acquired_at": "2026-09-01T14:55:36.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-front-room-02/evidence/music-description.json"
+    },
+    {
+      "evidence_id": "ev-croydon-heading",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful hero-heading excerpt naming Croydon as the venue's location. Carried forward unchanged from london-t2-the-front-room-01.",
+      "acquired_from": "https://www.frontroom.space/",
+      "acquired_at": "2026-09-01T14:55:36.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-front-room-02/evidence/croydon-heading.json"
+    },
+    {
+      "evidence_id": "ev-sitemap",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Real page-URL list extracted from the site's public sitemap.xml (6 pages total; no events/programme page among them).",
+      "acquired_from": "https://www.frontroom.space/sitemap.xml",
+      "acquired_at": "2026-09-01T20:00:00.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "application/xml",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-the-front-room-02/evidence/sitemap.json"
+    },
+    {
+      "evidence_id": "ev-jazz-lunchtime-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, real (tag-stripped) text excerpt from the single GET of https://www.frontroom.space/jazz-lunchtim, showing a recurring jazz-night description frozen at March 2022 with a 2022 copyright footer.",
+      "acquired_from": "https://www.frontroom.space/jazz-lunchtim",
+      "acquired_at": "2026-09-01T20:01:10.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-the-front-room-02/evidence/jazz-lunchtime-page.json"
+    },
+    {
+      "evidence_id": "ev-new-page-check",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Bounded, real (tag-stripped) text excerpt from the single GET of https://www.frontroom.space/new-page, confirming it is an empty 'Test' placeholder page.",
+      "acquired_from": "https://www.frontroom.space/new-page",
+      "acquired_at": "2026-09-01T20:02:00.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-the-front-room-02/evidence/new-page-check.json"
+    }
+  ]
+}

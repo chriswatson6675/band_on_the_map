@@ -1,0 +1,124 @@
+{
+  "investigation_id": "london-t2-moth-club-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 2 STRUCTURAL escalation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01 Phase B: re-fetched the homepage to find its own linked RSS feed, fetched that feed to enumerate the site's real page inventory (discovering an in-nav /Events page), then GET'd that /Events page directly to confirm its event content. No auth, browser, or CAPTCHA bypass; a small number of same-origin, unauthenticated GETs, none state-changing."
+  },
+  "source_candidate_id": "reconciled-cand-osm-node-8846263692",
+  "source_id": null,
+  "venue_reference": "MOTH Club -- second London tranche triage-refinement candidate (osm-node-8846263692)",
+  "official_url": "https://www.mothclub.co.uk/",
+  "data_paths": [
+    {
+      "kind": "RSS",
+      "url": "https://mothclub.co.uk/rss",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-rss-feed"]
+    },
+    {
+      "kind": "STATIC_PAGE",
+      "url": "https://mothclub.co.uk/Events",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-events-page"]
+    }
+  ],
+  "supersedes": "london-t2-moth-club-01",
+  "investigated_at": "2026-09-01T20:05:00.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-passive-static"],
+    "notes": "Unchanged from the superseded Level 1 record: <title> and body copy ('MOTH shows', named touring artists) identify this as MOTH Club's own official site, matching the candidate name and address (Valette Street, E9)."
+  },
+  "site_classification": {
+    "acquisition_class": "TICKETING_ONLY",
+    "platform": "Cargo-hosted (cargo.site) site. MOTH Club DOES maintain its own first-party, in-nav 'Events' page (https://mothclub.co.uk/Events), discovered via the site's own RSS feed -- but that page's entire event-listing content is a DiceEventListWidget.create(...) embed (script from widgets.dice.fm, carrying MOTH Club's own DICE partnerId/apiKey, filtered to venues:['moth club']). No event titles, dates, IDs, JSON-LD, or first-party JSON API is present anywhere in the static HTML; all event rendering is sourced client-side from DICE's own platform.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-rss-feed", "ev-events-page"]
+  },
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": "The venue's own Events page carries no first-party title data -- everything is rendered client-side by DICE.", "evidence_refs": ["ev-events-page"] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "MOTH Club's own first-party events page is entirely a DICE.fm widget embed (DiceEventListWidget with a DICE partnerId/apiKey). There is no first-party event data path independent of DICE -- treating DICE as source authority for MOTH Club's facts would violate the third-party-sources rule in docs/SOURCE_INVESTIGATION_POLICY.md without a separate, explicit governing policy for DICE as a discovery/acquisition platform."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single unauthenticated GET to the candidate's official_website (superseded london-t2-moth-club-01) returned a heavily client-rendered image-slideshow shell with strong live-music identity evidence but no dated current programme and no discoverable data path.",
+      "evidence_refs": ["ev-passive-static"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Escalated because Level 1 exposed no data path. Found and fetched the site's own linked RSS feed to enumerate its page inventory, discovering an in-nav 'Events' page; a direct GET of that page confirms its event-listing content is entirely a DICE.fm widget embed (script + DiceEventListWidget.create call carrying MOTH Club's own DICE credentials), not first-party structured data.",
+      "evidence_refs": ["ev-rss-feed", "ev-events-page"]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Live-music identity remains strongly proven on real retained evidence ('Live Music Photography', 'MORE MOTH SHOWS', named touring artists at Level 1).",
+      "MOTH Club does maintain its own first-party, in-nav Events page -- but its entire event-listing content is a DICE.fm widget embed (confirmed both via the RSS feed's cached description and a direct GET of the page itself), with no first-party JSON/feed/API of its own discoverable in static HTML.",
+      "This is a third-party-platform-dependent programme, not a first-party data gap -- per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' section, DICE may be a discovery lead but is not automatically source authority for MOTH Club's own facts, so this remains DEFER (platform dependency) rather than READY_FOR_OFFLINE_PROOF or activation."
+    ],
+    "evidence_refs": ["ev-passive-static", "ev-rss-feed", "ev-events-page"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal excerpt of the actual HTTP response body from the candidate's official_website. Carried forward unchanged from london-t2-moth-club-01.",
+      "acquired_from": "https://www.mothclub.co.uk/",
+      "acquired_at": "2026-09-01T19:40:27.000Z",
+      "method": "curl GET; descriptive User-Agent; unauthenticated; redirects followed; 25-second timeout; single request per URL; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-moth-club-02/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-rss-feed",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-faithful excerpt of the site's own RSS feed <item> for its 'Events' page, showing the page's cached description is a DiceEventListWidget.create(...) call carrying MOTH Club's own DICE partnerId/apiKey.",
+      "acquired_from": "https://mothclub.co.uk/rss",
+      "acquired_at": "2026-09-01T19:57:20.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "application/xml",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-moth-club-02/evidence/rss-feed-discovery.json"
+    },
+    {
+      "evidence_id": "ev-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Byte-faithful excerpt of the live https://mothclub.co.uk/Events page's own HTML, confirming the widgets.dice.fm script and DiceEventListWidget.create(...) call are genuinely present in the rendered page, not just in the RSS cache.",
+      "acquired_from": "https://mothclub.co.uk/Events",
+      "acquired_at": "2026-09-01T19:58:40.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-moth-club-02/evidence/events-page-dice-widget.json"
+    }
+  ]
+}

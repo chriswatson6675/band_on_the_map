@@ -1,0 +1,163 @@
+{
+  "investigation_id": "london-t2-the-front-room-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "The Front Room — St George's Walk 37-39, CR0 1YL, Croydon",
+  "official_url": "https://www.frontroom.space/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-2106381784-london-01",
+  "investigated_at": "2026-09-01T14:55:36.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "Canonical URL resolves to the same domain as the supplied official_website, og:site_name and <title> both read 'FrontRoomSpace', and the page's own body text names Croydon, matching the candidate's discovery address."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Squarespace — server-rendered marketing page (single unauthenticated GET returned real body text, not a client-side shell).",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-identity",
+      "ev-music-description"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Discovery evidence reports \"St George's Walk 37-39, CR0 1YL, Croydon\"; the fetched homepage's own body text independently states the venue is 'in Croydon', consistent with (but not a full-address confirmation of) the discovery evidence.",
+      "evidence_refs": [
+        "ev-identity",
+        "ev-croydon-heading"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "No events/programme link, ICS feed, JSON-LD event markup, or JSON API endpoint was exposed anywhere in the fetched homepage's static HTML or its internal <a href> links."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage returned real body text confirming a live-music identity, but no events/programme page link, feed, or API endpoint was present anywhere in the response to establish a data acquisition path.",
+      "evidence_refs": [
+        "ev-identity",
+        "ev-music-description"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The fetched homepage's own body text directly states 'The Front Room is a premier live music venue in Croydon, programming diverse musical and theatrical performances in an intimate space' and 'a platform for improvised and experimental music & theatre' — this satisfies BeatMapped's music gate on real evidence.",
+      "No events/programme link, ICS feed, JSON-LD event markup, or JSON API endpoint was exposed in the static homepage response or its internal navigation links; a plausible first-party acquisition path could not be established from this single bounded GET.",
+      "Deeper site navigation (Level 2 structural work) would be required to locate the venue's actual event listing before this candidate could move to READY_FOR_OFFLINE_PROOF."
+    ],
+    "evidence_refs": [
+      "ev-identity",
+      "ev-music-description"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt: <title>, canonical link, and og:site_name, confirming venue identity.",
+      "acquired_from": "https://www.frontroom.space/",
+      "acquired_at": "2026-09-01T14:55:36.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-front-room-01/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-music-description",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful body-text excerpt ('About the space' section) self-describing the venue as a live-music venue programming musical and theatrical performances.",
+      "acquired_from": "https://www.frontroom.space/",
+      "acquired_at": "2026-09-01T14:55:36.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-front-room-01/evidence/music-description.json"
+    },
+    {
+      "evidence_id": "ev-croydon-heading",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful hero-heading excerpt naming Croydon as the venue's location.",
+      "acquired_from": "https://www.frontroom.space/",
+      "acquired_at": "2026-09-01T14:55:36.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-front-room-01/evidence/croydon-heading.json"
+    }
+  ]
+}

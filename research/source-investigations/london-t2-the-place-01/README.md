@@ -1,0 +1,3 @@
+# The Place — Level 1 passive-static investigation (tranche 2)
+
+Supersedes `triage-osm-way-513152399-london-01`. A single unauthenticated GET to https://www.theplace.org.uk/ (one same-host redirect followed) returned a homepage whose own title, keywords meta, description meta, and Open Graph tags describe the venue exhaustively as contemporary dance and dance education (home of London Contemporary Dance School), with zero mention of live music, concerts, gigs, bands, DJs, jazz, or classical music anywhere in the retrieved content. Decision: `REJECT`. See `investigation.json` for the authoritative record.

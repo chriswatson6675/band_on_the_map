@@ -1,0 +1,153 @@
+{
+  "investigation_id": "london-t2-south-london-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:34.007Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC refinement probe: single unauthenticated GET of the official_programme_url, no browser/auth/retries; music-relevance assessed only from the retrieved content."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The single GET returned a \"What’s On\" page whose own category labels (SLT Show, SLT Audition, Visiting Show) and event titles are all plays, auditions, and a visiting stand-up comedy night (Good Ship Comedy) — e.g. Hedda Gabler, Beyond Therapy, Auditions: The Flint Street Nativity, Good Ship Comedy featuring Angela Barnes. No live band/concert/jazz/electronic/DJ/classical event appears anywhere. This conclusively answers the music-relevance question without escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-way-184288140",
+  "source_id": null,
+  "venue_reference": "South London Theatre — Norwood High Street 2A, SE27 9NS, London",
+  "official_url": "https://www.southlondontheatre.co.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title (\"What's On at SLT | South London Theatre\") and event permalinks on southlondontheatre.co.uk match the reported candidate name."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom-templated site; event cards are present directly in the static HTML response with no observed calendar-plugin markers on this fetched page.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_HTML",
+      "url": "https://www.southlondontheatre.co.uk/whats-on/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Individual event titles are present in retained cards (e.g. \"Hedda Gabler\", \"Good Ship Comedy featuring Angela Barnes\"), but none were promoted to a claimed single current-programme title since this investigation is not proceeding toward activation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Retained cards carry stable-looking permalink URLs (e.g. /event/hedda-gabler/) but stability was not independently verified.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Retained cards carry permalink URLs on the venue’s own domain.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Every retained event card on the \"What’s On\" page is the venue’s own amateur-dramatic theatre productions, auditions, or a visiting stand-up comedy night; this is theatre and comedy, not live bands/concerts/jazz/electronic/DJ-club-nights/classical, and fails BeatMapped’s venue-level music gate regardless of technical acquisition feasibility."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "Real, retained Level-1 evidence (the site’s own event-category labels and titles) shows the venue’s current programme is amateur-dramatic theatre productions, auditions, and a visiting comedy night, confirming the pre-triage expectation that South London Theatre is not a live-music venue.",
+      "No live band/concert/jazz/electronic/DJ/classical programming of any kind is present anywhere in the retrieved page."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Five literal, unedited event-card excerpts (category label + title + permalink) from the single unauthenticated GET of https://www.southlondontheatre.co.uk/whats-on/.",
+      "acquired_from": "https://www.southlondontheatre.co.uk/whats-on/",
+      "acquired_at": "2026-09-01T19:41:14.000Z",
+      "method": "curl; descriptive User-Agent; unauthenticated single GET; redirects followed; 20s timeout; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-south-london-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-184288140-london-01"
+}

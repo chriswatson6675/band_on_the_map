@@ -1,0 +1,183 @@
+{
+  "investigation_id": "london-t2-jamboree-03",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:26:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Pre-activation implementation-time review (BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01), superseding london-t2-jamboree-02. While building ingestion/jamboree/observation-adapter.mjs against the real, full /upcoming-events/ response (14 cards, the venue's complete current listing, not the prior record's narrower sample), a genuinely useful source-exposed field was characterised fully: every card's own <h4> programme-note text ('Live Music from ...' vs 'Class Runs from ...') deterministically distinguishes Jamboree's real music programme from its recurring dance/art classes. This record documents that finding plus a real Nominatim OSM_ID_LOOKUP coordinate confirmation."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Carries forward london-t2-jamboree-02's own probe_history -- retained here as INSUFFICIENT for the new question this record answers (does the full current listing, not a narrower sample, contain non-music records requiring a runtime filter?).",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A real, unauthenticated GET to the full /upcoming-events/ page (the same confirmed public data path as london-t2-jamboree-02) was parsed in full. All 14 real current cards were reviewed (evidence/full-listing-review.json): 11 are genuine live-music events (own h4 text states 'Live Music from ...'), 2 are recurring dance/art classes (own h4 text states 'Class Runs from ...'), and 1 ('Word Space') is an ambiguous spoken-word/open-mic night conservatively excluded. Fully answers the question with no browser escalation required.",
+      "evidence_refs": ["ev-full-listing-review"]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-520235585",
+  "source_id": "jamboree-london",
+  "venue_reference": "Jamboree",
+  "official_url": "https://jamboreevenue.co.uk",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02", "ev-osm-lookup"],
+    "notes": "Identity already PROVEN in london-t2-jamboree-02. This record additionally confirms exact coordinates via direct Nominatim /lookup of the venue's own already-known OSM node id (osm-node-520235585) -- OSM itself independently categorises this node type=\"music_venue\", corroborating the venue's own self-description ('Jazz, World Music & European Folk Music Venue')."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "Unchanged from london-t2-jamboree-02 -- Events Manager WordPress plugin, server-rendered '.event-item' cards.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-prior-02"]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_EVENT_LIST_PAGE",
+      "url": "https://www.jamboreevenue.co.uk/upcoming-events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-full-listing-review"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Celtic Session",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-jamboree-02 -- stated directly per card's own <h3><a> title link, and offline-reproduced there.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-01",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-jamboree-02 -- each card's own <span class=\"event-date-dn\"> states a complete weekday+day+month+year directly (e.g. 'Tuesday 1 September 2026'), no combination needed.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "time": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Each card's own <h4> states a start time as free text (e.g. 'Live Music from 8.30pm') -- retained as the same field used for the music gate, not promoted to a structured time value beyond what card-date-style adapters elsewhere in this repo treat as DATE_ONLY confidence.",
+      "evidence_refs": ["ev-full-listing-review"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date is exposed anywhere in the retained listing.",
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Jamboree, 6 St Chad's Place, King's Cross, London WC1X 9HH",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Confirmed independently via direct Nominatim OSM_ID_LOOKUP of the venue's own known OSM node id (lat 51.5305881, lon -0.1196742), matching the site's own stated address exactly.",
+      "evidence_refs": ["ev-osm-lookup"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "live-irish-and-celtic-folk-music-in-london-23",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-jamboree-02 -- the WordPress permalink slug is this source's own canonical path per event.",
+      "evidence_refs": ["ev-prior-02"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Unchanged from london-t2-jamboree-02 -- INDIVIDUAL_FIRST_PARTY_EVENT_PAGE for every card the runtime gate keeps.",
+      "evidence_refs": ["ev-prior-02"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-full-listing-review"],
+    "blockers": []
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Every gate already satisfied in london-t2-jamboree-02 (identity, acquisition class, confirmed data path, title/start_date PROVEN DIRECT_SOURCE, source_record_id PROVEN, collector family, offline-derivation proof) remains satisfied.",
+      "The mixed-venue finding (recurring dance/art classes alongside genuine music) is resolved via a deterministic, source-exposed field: every card's own h4 text states 'Live Music from ...' for music events and 'Class Runs from ...' for classes -- a plain, case-insensitive substring check at runtime, never an AI genre guess, and (unlike a static per-title snapshot list) correctly classifies future not-yet-seen events too since it reads a field the source itself provides on every card.",
+      "Coordinates independently confirmed via real OSM_ID_LOOKUP (OSM itself independently tags this node type=music_venue) and verified to fall within the existing United Kingdom map view bounds with zero frontend change required.",
+      "No unresolved CRITICAL or MINOR blocker remains."
+    ],
+    "evidence_refs": ["ev-full-listing-review", "ev-osm-lookup", "ev-prior-02"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-prior-02",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "The prior (superseded) investigation london-t2-jamboree-02's full retained evidence set (events-list excerpt, event-detail excerpt, offline derivation script/output), cited/carried forward rather than re-fetched.",
+      "acquired_from": "research/source-investigations/london-t2-jamboree-02/",
+      "acquired_at": "2026-09-01T20:10:00.000Z",
+      "method": "Carried forward from the prior investigation",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-jamboree-02/investigation.json"
+    },
+    {
+      "evidence_id": "ev-full-listing-review",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Every one of the 14 real event cards on the venue's own full, current /upcoming-events/ page at fetch time, with each card's own h4 programme-note text and the resulting deterministic music-gate classification.",
+      "acquired_from": "https://www.jamboreevenue.co.uk/upcoming-events/",
+      "acquired_at": "2026-09-01T20:15:00.000Z",
+      "method": "curl -sL; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; single unauthenticated GET",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-jamboree-03/evidence/full-listing-review.json"
+    },
+    {
+      "evidence_id": "ev-osm-lookup",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Real Nominatim /lookup response for the venue's own already-known OSM node id (osm-node-520235585), confirming name, address, coordinates, and OSM's own music_venue category tag directly from OpenStreetMap's own record of this exact object.",
+      "acquired_from": "https://nominatim.openstreetmap.org/lookup?osm_ids=N520235585&format=jsonv2&addressdetails=1",
+      "acquired_at": "2026-09-01T20:22:35.773Z",
+      "method": "ingestion/geocoding/nominatim.mjs's lookupNominatimOsmIdLive(), rate-limited single request",
+      "content_type": "application/json",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-jamboree-03/evidence/osm-lookup.json"
+    },
+    {
+      "evidence_id": "ev-derive-script",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Carried forward from london-t2-jamboree-02: the small, dependency-free, no-network offline-proof script re-deriving title/start_date from the retained fixture.",
+      "acquired_from": "Authored for london-t2-jamboree-02; not fetched from a live source",
+      "acquired_at": "2026-09-01T20:09:00.000Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-jamboree-02/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-derive-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Carried forward from london-t2-jamboree-02: captured stdout of the offline derivation script.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against the retained fixture only; no network access",
+      "acquired_at": "2026-09-01T20:09:30.000Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-jamboree-02/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": "london-t2-jamboree-02"
+}

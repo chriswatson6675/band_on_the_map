@@ -1,0 +1,3 @@
+# Tower Theatre — Level 1 passive-static investigation (tranche 2)
+
+Supersedes `triage-osm-way-84728028-london-01`. A single unauthenticated GET to https://www.towertheatre.org.uk/social/ returned the venue's "Tower Social" page describing its actual current social-events pipeline as rehearsed readings, Q&A sessions, quiz nights, and theatre-craft workshops. A separate call-for-ideas paragraph mentions "gig nights" once, only as a hypothetical category alongside improv/comedy/poetry nights — an aspirational suggestion, not proven current programming. Decision: `REJECT`. See `investigation.json` for the authoritative record.

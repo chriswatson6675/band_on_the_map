@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-the-globe-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:45:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage-refinement: one unauthenticated GET to the candidate's official_website (via curl, descriptive User-Agent, redirects followed, 25s timeout, no retries). No browser, authentication, CAPTCHA-bypass, or state-changing request was used."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single unauthenticated GET to the candidate's official_website to establish identity and current programme.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-7194787125",
+  "source_id": null,
+  "venue_reference": "The Globe -- second London tranche triage-refinement candidate (osm-node-7194787125)",
+  "official_url": "https://www.theglobeclub.com/home",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retrieved page's own <title> ('HOME | The Globe') and body copy (address '103 Talbot Road, London, W11 2AT', matching the candidate's given address) identify this as The Globe's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Wix-hosted single-page marketing/history site (sections: Club, Bar, History, Hire, Contact); no dated events listing of any kind was found in the retrieved static content.",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The venue's own identity is genuinely music/DJ-nightclub-centred (per its retrieved self-description and history), but the retrieved page exposes no dated, current public events listing -- only private-hire and guest-list enquiry forms.",
+      "No structured, stable public data path for a music programme was found in this Level-1 probe."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal excerpt(s) of the actual HTTP response body/bodies from the candidate's official_website -- each excerpt is a contiguous, unedited substring of the real retrieved HTML, capped well under 4KB per item; the surrounding full response was not retained in full (bounded capture, not a full-page dump).",
+      "acquired_from": "https://www.theglobeclub.com/home",
+      "acquired_at": "2026-09-01T19:40:26.000Z",
+      "method": "curl GET; descriptive User-Agent; unauthenticated; redirects followed; 25-second timeout; single request per URL; no retry; no authentication, CAPTCHA-bypass, or state-changing request",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-globe-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-7194787125-london-01"
+}
