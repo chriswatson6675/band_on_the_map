@@ -1,0 +1,15 @@
+{
+  "purpose": "Level 2 STRUCTURAL: the Level 1 homepage response was dominated by an image-slideshow bootstrap and did not expose a usable nav-link list directly; a re-fetch of the homepage found a link to the site's own Cargo-hosted RSS feed (https://mothclub.co.uk/rss), which was then fetched to enumerate the site's real page inventory.",
+  "homepage_reref_acquired_at": "2026-09-01T19:56:00.000Z",
+  "homepage_nav_link_found": "https://mothclub.co.uk/rss",
+  "rss_request": {
+    "requested_url": "https://mothclub.co.uk/rss",
+    "http_status": 200,
+    "acquired_at": "2026-09-01T19:57:20.000Z",
+    "method": "curl -sS -L -A 'Mozilla/5.0 (compatible; BandOnTheMapResearch/1.0; +research)' --max-time 20 (single unauthenticated GET; no retries)",
+    "content_type": "application/xml"
+  },
+  "byte_faithful_contiguous_excerpt": true,
+  "excerpt": "<item>\n\t<title>Events</title>\n\t\t\t\t\n\t<link>https://mothclub.co.uk/Events</link>\n\n\t<pubDate>Mon, 29 Nov 2021 17:18:54 +0000</pubDate>\n\n\t<dc:creator>MOTH Club</dc:creator>\n\n\t<guid isPermaLink=\"true\">https://mothclub.co.uk/Events</guid>\n\n\t<description>\n\n\n\n\nDiceEventListWidget.create({\"information\":\"full\",\"eventTitle\":\"event\",\"showImages\":true,\"showAudio\":true,\"showNewBadge\":true,\"hidePostponed\":true,\"hideCancelled\":true,\"layout\":\"gallery\",\"roundButtons\":true,\"theme\":\"dark\",\"fontFamily\":\"inherit\",\"partnerId\":\"1e576144\",\"apiKey\":\"t7ohtz7EWk3gjVx2PNQafaYhqYoG5N1e1lJ5EbTq\",\"version\":2,\"showPrice\":true,\"__p\":false,\"__pc\":{},\"title\":\"Events\",\"highlightColour\":\"#ffffff\",\"numberOfEvents\":\"12\",\"eventListLink\":\"\",\"venues\":[\"moth club\"]});\n\n</description>\n\t\n</item>",
+  "notable_finding": "MOTH Club DOES have its own first-party, in-nav 'Events' page at https://mothclub.co.uk/Events (confirmed by the RSS feed's own <link> and <guid>). Its content, as embedded in the RSS description, is a DiceEventListWidget.create(...) call carrying a DICE.fm partnerId and apiKey, filtered to venues:['moth club'] -- i.e. the page's event content is a DICE.fm widget embed, not first-party structured event data."
+}

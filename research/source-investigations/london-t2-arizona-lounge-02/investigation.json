@@ -1,0 +1,123 @@
+{
+  "investigation_id": "london-t2-arizona-lounge-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 2 STRUCTURAL escalation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01 Phase B: since the superseded Level 1 record found only a client-rendered Wix shell, this pass (a) status-checked common events/programme path slugs, then (b) re-fetched the homepage to read its own rendered nav links and GET the single most promising one (/entertainment). No auth, browser, or CAPTCHA bypass; at most a small number of same-origin, unauthenticated GETs, none state-changing."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Arizona Lounge — Marylebone Road 134, London",
+  "official_url": "https://www.arizonalounge.com/",
+  "data_paths": [
+    {
+      "kind": "STATIC_PAGE",
+      "url": "https://www.arizonalounge.com/entertainment",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-entertainment-page"]
+    }
+  ],
+  "supersedes": "london-t2-arizona-lounge-01",
+  "investigated_at": "2026-09-01T20:05:00.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-passive-static"],
+    "notes": "Unchanged from the superseded Level 1 record: canonical URL and og:url both resolve to the supplied official_website domain, and <title>/meta description match the venue's live-music/nightclub identity."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Wix single-page application. Common event/programme path slugs (/events, /whats-on, /whatson, /gigs, /calendar, /listings, /programme, /events-2, /live-music) all 404. The homepage's own nav links resolve to a small, fixed set of marketing pages (Home, Entertainment, Food, Drinks, Gallery, Contact Us, My Account); the /entertainment page's only dynamic content block is a client-side widget that failed to hydrate in a static GET ('Widget Didn't Load'), exposing no event data, JSON-LD, ICS link, or discoverable JSON API endpoint.",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-passive-static", "ev-common-paths-check", "ev-entertainment-page"]
+  },
+  "field_assessment": {
+    "title": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "start_date": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "time": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "end": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Unchanged from the superseded record: discovery evidence reports 'Marylebone Road 134, London'; this probe did not independently confirm an address on the page.",
+      "evidence_refs": ["ev-passive-static"]
+    },
+    "source_record_id": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] },
+    "event_url": { "state": "UNKNOWN", "value": null, "basis": null, "derivation": null, "notes": null, "evidence_refs": [] }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "No first-party events/programme data path could be found: all common path slugs 404, and the only nav-linked candidate page (/entertainment) renders a hydration-failed client widget with no fallback static event data, JSON-LD, ICS, or JSON API endpoint."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage (superseded london-t2-arizona-lounge-01) returned only <head> metadata and Wix client-side bootstrap code; no visible event/programme data or discoverable data path was exposed.",
+      "evidence_refs": ["ev-passive-static"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "INSUFFICIENT",
+      "reason": "Escalated because Level 1 exposed no data path. Checked common events/programme path slugs (all 404) and the homepage's own rendered nav links, then GET'd the one plausible candidate (/entertainment). It confirms live-entertainment programming in prose ('LIVE SINGERS | TOP DJS | BELLY DANCERS') but its actual listing content is a client-side widget that failed to render in a static GET, exposing no dated events, JSON-LD, ICS feed, or discoverable JSON API endpoint.",
+      "evidence_refs": ["ev-common-paths-check", "ev-entertainment-page"]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Live-music/entertainment identity remains proven on real retained evidence (meta description at Level 1, and the /entertainment page's own hero copy at Level 2).",
+      "Level 2 STRUCTURAL escalation found no first-party events/programme data path: all common path slugs 404, and the one nav-linked candidate page's event content is a client-side widget that never hydrated in a static GET, exposing no dated events, JSON-LD, ICS feed, or JSON API endpoint.",
+      "Level 3 (browser observation) could plausibly discover the widget's underlying data path, but that is a genuinely higher-cost escalation out of scope for this bounded Phase B pass — DEFER, not REJECT, since nothing here indicates the venue is non-music-primary."
+    ],
+    "evidence_refs": ["ev-passive-static", "ev-common-paths-check", "ev-entertainment-page"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt from the superseded Level 1 GET of the official homepage: <title>, meta description, and canonical link, confirming venue identity and self-described live-music/nightclub programming. Carried forward unchanged from london-t2-arizona-lounge-01.",
+      "acquired_from": "https://www.arizonalounge.com/",
+      "acquired_at": "2026-09-01T19:39:20.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-arizona-lounge-02/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-common-paths-check",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Status-code-only results for 9 common events/programme path slugs on the same origin — all returned HTTP 404.",
+      "acquired_from": "https://www.arizonalounge.com/",
+      "acquired_at": "2026-09-01T19:55:00.000Z",
+      "method": "curl -sS -L -o /dev/null -w '%{http_code}'; descriptive User-Agent; unauthenticated; single GET per path; no retries",
+      "content_type": null,
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-arizona-lounge-02/evidence/common-paths-check.json"
+    },
+    {
+      "evidence_id": "ev-entertainment-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Homepage nav-link enumeration plus a bounded, real (tag-stripped, not AI-summarized) text excerpt from the single GET of https://www.arizonalounge.com/entertainment, showing the hero copy and the failed-to-hydrate widget placeholder.",
+      "acquired_from": "https://www.arizonalounge.com/entertainment",
+      "acquired_at": "2026-09-01T19:54:05.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-arizona-lounge-02/evidence/entertainment-page.json"
+    }
+  ]
+}

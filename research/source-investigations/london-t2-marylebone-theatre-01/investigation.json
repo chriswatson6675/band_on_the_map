@@ -1,0 +1,142 @@
+{
+  "investigation_id": "london-t2-marylebone-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded, single unauthenticated Level-1 PASSIVE_STATIC GET (curl, descriptive User-Agent, redirects followed, 20s timeout, no retry, no authentication, no CAPTCHA/challenge bypass, no browser) against the venue's official_website (falling back to official_programme_url where noted), as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 batch 6 of 7."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated Level-1 static GET against https://marylebonetheatre.com/ retained enough real evidence (event/programme listing content, title/meta tags, and structured data where present) to reach an honest, evidenced REJECT decision without needing to escalate to Level 2/3/4.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Marylebone Theatre — Park Road 35, NW1 6XT, London",
+  "official_url": "https://www.marylebonetheatre.com/#Whats-On",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained footer and PerformingArtsTheater JSON-LD both give the address 'Rudolf Steiner House, 35 Park Road, London NW1 6XT', matching the discovery-supplied address (Park Road 35, NW1 6XT, London) exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Webflow-CMS-rendered production list ('production-list w-dyn-items') with a Finsweet CMS-filter genre tag ('fs-cmsfilter-field=\"genre\"') per item, plus a site-level PerformingArtsTheater JSON-LD block (not per-production Event schema).",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://marylebonetheatre.com/",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Park Road 35, NW1 6XT, London",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Retained footer text and PerformingArtsTheater JSON-LD both state '35 Park Road, London NW1 6XT' (Rudolf Steiner House), matching the discovery-supplied address exactly.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retained What's On listing carries an explicit, source-tagged genre field ('fs-cmsfilter-field=\"genre\"') on every production, and all three currently-listed productions in the retained excerpt ('Tartuffe (Remixed)', 'Speculations...', 'What We Talk About When We Talk About Anne Frank') are each tagged genre 'Theatre' — none is tagged 'Music'.",
+      "Although the site's own genre-filter UI lists a 'Music' category alongside Theatre/Comedy/Dance/Visual Arts/Spoken Word/Community/Family (and the site's meta description mentions 'concerts' among its stated remit), the retained current programme itself shows zero music-tagged productions — matching the policy's guidance that Marylebone Theatre is likely REJECT absent real evidence of substantially live-music programming, which this bounded probe did not find."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, genuine excerpts (contiguous literal substrings) of the actual HTTP response body from a single unauthenticated GET, plus response metadata (status/content-type/title); JSON wrapper around literal excerpt strings, so not byte-faithful as a whole file.",
+      "acquired_from": "https://marylebonetheatre.com/",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-marylebone-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-1109747107-london-01"
+}

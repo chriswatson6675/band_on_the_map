@@ -12,14 +12,16 @@ async function loadLondonVenues() {
   return registry.venues;
 }
 
-test("venues/london.json contains exactly the 6 live-verified first-tranche venues", async () => {
+test("venues/london.json contains exactly the 6 live-verified first-tranche venues plus the 2 live-verified second-tranche venues", async () => {
   const venues = await loadLondonVenues();
-  assert.equal(venues.length, 6);
+  assert.equal(venues.length, 8);
   assert.deepEqual(
     venues.map((v) => v.venue_id).sort(),
     [
       "venue-london-100-club",
       "venue-london-downstairs-at-the-dome",
+      "venue-london-eventim-apollo",
+      "venue-london-jamboree",
       "venue-london-jazz-cafe-posk",
       "venue-london-night-tales-loft",
       "venue-london-the-roxy",

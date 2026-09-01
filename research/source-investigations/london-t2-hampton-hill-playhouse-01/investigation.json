@@ -1,0 +1,167 @@
+{
+  "investigation_id": "london-t2-hampton-hill-playhouse-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:52:12.153Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website, plus one bounded GET of the discovery-supplied official_programme_url (curl, descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-way-105510419",
+  "source_id": null,
+  "venue_reference": "Hampton Hill Playhouse — London (osm-way-105510419)",
+  "official_url": "https://www.hamptonhilltheatre.org.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static-home"
+    ],
+    "notes": "Retrieved homepage title 'Welcome to Hampton Hill Theatre | Hampton Hill Theatre' and footer address '90 High Street, Hampton Hill, TW12 1NZ' match the candidate name and given address exactly. Site describes itself as 'home of Teddington Theatre Club'."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The /whats-on page embeds a client-side calendar-widget JSON data blob (escaped inline in the HTML) listing genuine, current/future dated entries through 2027 — sufficient to conclusively assess the venue's actual programme without escalating.",
+      "evidence_refs": [
+        "ev-passive-static-home",
+        "ev-passive-static-whatson"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": null,
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static-whatson"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "EMBEDDED_JSON_CALENDAR",
+      "url": "https://www.hamptonhilltheatre.org.uk/whats-on",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static-whatson"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Robin Hood",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The retained /whats-on page's embedded JSON calendar data lists dated 2026/2027 entries directly by title, e.g. 'Robin Hood', 'Education Education Education', 'Flare Path', 'Absent Friends', 'Once in a Lifetime', 'The Children', 'The Watsons' — all play readings/auditions/productions, not concerts or gigs.",
+      "evidence_refs": [
+        "ev-passive-static-whatson"
+      ]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-05",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The embedded JSON gives an ISO start date directly for the 'Robin Hood - Reading' entry ('start':'2026-09-05').",
+      "evidence_refs": [
+        "ev-passive-static-whatson"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Per-entry time fields exist in the JSON blob but were not extracted for every title in this bounded excerpt.",
+      "evidence_refs": [
+        "ev-passive-static-whatson"
+      ]
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "90 High Street, Hampton Hill, TW12 1NZ",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The homepage footer states the address directly and it matches the candidate's given address exactly.",
+      "evidence_refs": [
+        "ev-passive-static-home"
+      ]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "205-0",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The embedded JSON gives a per-event 'id' field directly (e.g. 'id':'205-0' for the 'TTC Carol Concert' entry); stability across repeated downloads was not empirically verified in this bounded probe.",
+      "evidence_refs": [
+        "ev-passive-static-whatson"
+      ]
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Per-event relative URL fragments (e.g. '/events/...') exist in the JSON blob but a fully-qualified, confirmed event_url was not extracted in this bounded excerpt.",
+      "evidence_refs": [
+        "ev-passive-static-whatson"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static-whatson"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own current/future (2026–2027) programme, as retained directly from its /whats-on page's embedded calendar data, is overwhelmingly amateur stage theatre: play readings and auditions for titles including 'The Welkin', 'Hansard', 'Once', 'Tryst', 'Witch', 'The Cherry Orchard', 'We Anchor in Hope', 'Robin Hood', 'Education Education Education', 'Flare Path', 'Absent Friends', 'Once in a Lifetime', 'The Children', and 'The Watsons'.",
+      "The site self-describes as 'home of Teddington Theatre Club' with primary navigation items 'AUDITIONS' and 'Past productions' — an amateur theatre company, not a live-music venue.",
+      "Nothing in the retrieved current/future listing is a concert, gig, DJ night, or comparable musical performance — one 'TTC Carol Concert' and one 'Where There Is Music' entry appear in the wider dataset but are incidental to an otherwise play-dominated programme, not evidence of a primarily musical venue."
+    ],
+    "evidence_refs": [
+      "ev-passive-static-whatson"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the official homepage confirming identity, address, and 'home of Teddington Theatre Club' branding.",
+      "acquired_from": "https://www.hamptonhilltheatre.org.uk/",
+      "acquired_at": "2026-09-01T19:52:12.153Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-hampton-hill-playhouse-01/evidence/passive-static-home.json"
+    },
+    {
+      "evidence_id": "ev-passive-static-whatson",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the official /whats-on page's embedded (escaped inline) JSON calendar-widget data, showing genuine dated 2026/2027 titles.",
+      "acquired_from": "https://www.hamptonhilltheatre.org.uk/whats-on",
+      "acquired_at": "2026-09-01T19:52:12.153Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-hampton-hill-playhouse-01/evidence/passive-static-whatson.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-105510419-london-01"
+}

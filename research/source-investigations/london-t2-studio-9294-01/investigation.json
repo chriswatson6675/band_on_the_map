@@ -1,0 +1,130 @@
+{
+  "investigation_id": "london-t2-studio-9294-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:45:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage-refinement: one unauthenticated GET to the candidate's official_website (via curl, descriptive User-Agent, redirects followed, 25s timeout, no retries). No browser, authentication, CAPTCHA-bypass, or state-changing request was used."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single unauthenticated GET to the candidate's official_website to establish identity and current programme.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-4685886038",
+  "source_id": null,
+  "venue_reference": "Studio 9294 -- second London tranche triage-refinement candidate (osm-node-4685886038)",
+  "official_url": "http://studio9294.co.uk/",
+  "identity": {
+    "status": "NOT_PRESENT",
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The candidate's official_website (http://studio9294.co.uk/) 302-redirects to https://number90corporate.co.uk/, whose retrieved homepage title, canonical URL, and Open Graph metadata all identify it as 'Number 90 Corporate' -- a different, unrelated business (an events/corporate-hire space in Hackney Wick) -- not 'Studio 9294'. The domain no longer represents the candidate; genuine current identity could not be established from this probe."
+  },
+  "site_classification": {
+    "acquisition_class": "AMBIGUOUS",
+    "platform": "Domain now serves a WordPress/Yoast site for an unrelated business (Number 90 Corporate); the original Studio 9294 identity/content was not found at this URL.",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The given official_website no longer resolves to the candidate: it 302-redirects to https://number90corporate.co.uk/, a different, unrelated business ('Number 90 Corporate'), per the retained HTTP response (title 'Home - Number 90 Corporate', canonical URL number90corporate.co.uk).",
+      "Genuine current identity for 'Studio 9294' could not be established from this single unauthenticated GET; the residentadvisor.net URL supplied as a discovery hint returned HTTP 403 and was not used as source authority.",
+      "Per policy, a third-party/duplicate/relocated identity concern must be resolved with deeper identity work, not activated or rejected on an unconfirmed redirect target."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal excerpt(s) of the actual HTTP response body/bodies from the candidate's official_website -- each excerpt is a contiguous, unedited substring of the real retrieved HTML, capped well under 4KB per item; the surrounding full response was not retained in full (bounded capture, not a full-page dump).",
+      "acquired_from": "http://studio9294.co.uk/",
+      "acquired_at": "2026-09-01T19:39:54.000Z",
+      "method": "curl GET; descriptive User-Agent; unauthenticated; redirects followed; 25-second timeout; single request per URL; no retry; no authentication, CAPTCHA-bypass, or state-changing request",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-studio-9294-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-4685886038-london-01"
+}

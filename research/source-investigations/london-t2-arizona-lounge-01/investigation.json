@@ -1,0 +1,137 @@
+{
+  "investigation_id": "london-t2-arizona-lounge-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Arizona Lounge — Marylebone Road 134, London",
+  "official_url": "https://www.arizonalounge.com/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-1614146298-london-01",
+  "investigated_at": "2026-09-01T19:39:20.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Canonical URL and og:url both resolve to the same domain as the supplied official_website, and <title>/og:site_name match the venue name exactly; no cross-domain redirect occurred."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Wix single-page application — the fetched HTML contains only <head> metadata and client-side JS bootstrap code; no server-rendered body content was present in this GET.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Discovery evidence (candidate record) reports 'Marylebone Road 134, London'; this passive probe did not independently confirm an address on the page and does not promote this to a canonical venue fact.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Client-rendered Wix SPA: no event/programme listing, JSON-LD, ICS feed, or discoverable JSON API endpoint was present in the static HTML response."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage returned only <head> metadata (confirming music identity) and Wix client-side bootstrap code; no visible event/programme data or discoverable data path was exposed.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The fetched <head> metadata (<title>, meta description 'Live Music Venue | Arabic & Middle Eastern Nightclub London', og tags, canonical URL) genuinely confirms this is a live-music venue, satisfying BeatMapped's venue-level music gate on real evidence.",
+      "The site is a Wix single-page application; the bounded GET exposed no event listing, JSON-LD, ICS feed, or discoverable first-party JSON API for individual events.",
+      "No first-party acquisition path could be established from this single Level-1 GET; Level 2/3 structural or browser work would be required, which is out of scope for this bounded pass."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt from a single unauthenticated GET of the official homepage: <title>, meta description, and canonical link, confirming venue identity and self-described live-music/nightclub programming.",
+      "acquired_from": "https://www.arizonalounge.com/",
+      "acquired_at": "2026-09-01T19:39:20.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-arizona-lounge-01/evidence/passive-static.json"
+    }
+  ]
+}

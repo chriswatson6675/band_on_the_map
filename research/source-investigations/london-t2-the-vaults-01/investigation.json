@@ -1,0 +1,163 @@
+{
+  "investigation_id": "london-t2-the-vaults-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "The Vaults — Leake Street, SE1 7NN, London",
+  "official_url": "https://www.thevaults.london",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-3249860773-london-01",
+  "investigated_at": "2026-09-01T19:39:25.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "<title> reads 'The Vaults' and the meta description directly matches the venue name and 'underground world of Waterloo station', consistent with the Leake Street/SE1 discovery address; no cross-domain redirect occurred."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Wix single-page application — an embedded router/pagesMap JSON blob lists individual page titles, but no server-rendered event listing was present in the fetched HTML body.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-identity",
+      "ev-programme-titles",
+      "ev-jazz-title"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Programming is genuinely mixed (immersive theatre, art, comedy, and only occasional music-branded shows); the venue-level music gate cannot be honestly resolved from a single static GET without deeper, page-by-page filtering."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "A single unauthenticated GET exposed an embedded page-router JSON blob naming many individual page/show titles, but this bounded probe cannot classify the venue's *primary* current programme as music vs. non-music from a titles list alone — the mix (immersive theatre, art, comedy, one recurring jazz-branded show) is genuinely ambiguous.",
+      "evidence_refs": [
+        "ev-identity",
+        "ev-programme-titles",
+        "ev-jazz-title"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The meta description self-describes The Vaults as 'a multi-disciplinary space'; the retained keyword scan of the fetched body shows 'art' (426), 'theatre' (20), 'DJ' (29), 'jazz' (12), and 'comedy' (4), but zero 'live music', 'gig', or 'band'.",
+      "The retained embedded page-titles excerpt lists shows spanning immersive theatre ('SEEKING SANCTUARY', 'ZOMBIE BLITZ'), a Shakespeare production ('RICHARD II'), an art masterclass, and a recurring music-branded night ('HIDDEN JAZZ CLUB 2026') — genuinely mixed programming, not clearly primary-music.",
+      "This is a mixed, multi-disciplinary venue needing deeper page-by-page filtering work to honestly resolve the music gate; that is out of scope for a single bounded Level-1 GET."
+    ],
+    "evidence_refs": [
+      "ev-identity",
+      "ev-programme-titles",
+      "ev-jazz-title"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt: <title> and meta description, confirming venue identity as a multi-disciplinary space under Waterloo station.",
+      "acquired_from": "https://www.thevaults.london",
+      "acquired_at": "2026-09-01T19:39:25.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-vaults-01/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-programme-titles",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful excerpt of the embedded Wix page-router 'pagesMap' JSON, listing several individual show/page titles spanning immersive theatre, an art masterclass, and adult cabaret.",
+      "acquired_from": "https://www.thevaults.london",
+      "acquired_at": "2026-09-01T19:39:25.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-vaults-01/evidence/programme-titles.json"
+    },
+    {
+      "evidence_id": "ev-jazz-title",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful excerpt of the same pagesMap JSON showing a recurring 'HIDDEN JAZZ CLUB 2026' page/show title.",
+      "acquired_from": "https://www.thevaults.london",
+      "acquired_at": "2026-09-01T19:39:25.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-vaults-01/evidence/jazz-title.json"
+    }
+  ]
+}

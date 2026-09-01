@@ -1,0 +1,142 @@
+{
+  "investigation_id": "london-t2-emergency-exit-arts-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded, single unauthenticated Level-1 PASSIVE_STATIC GET (curl, descriptive User-Agent, redirects followed, 20s timeout, no retry, no authentication, no CAPTCHA/challenge bypass, no browser) against the venue's official_website (falling back to official_programme_url where noted), as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 batch 6 of 7."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated Level-1 static GET against https://eea.org.uk/events retained enough real evidence (event/programme listing content, title/meta tags, and structured data where present) to reach an honest, evidenced REJECT decision without needing to escalate to Level 2/3/4.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Emergency Exit Arts — Azof Street, SE10 0EF, London",
+  "official_url": "https://eea.org.uk/events",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained page's own <title> ('Events | EEA') and meta description ('Emergency Exit Arts (EEA) creates unforgettable events...') directly self-identify the domain as EEA's official events page."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Server-rendered static HTML event cards; retained JSON-LD on this page is limited to WebPage/LocalBusiness/BreadcrumbList schema.org types, not Event schema.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://eea.org.uk/events",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Discovery evidence reports Azof Street, SE10 0EF, London; the retained excerpt did not itself restate a street address for this bounded probe.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retained Upcoming-events excerpt shows only two current listings: 'Quingo Starlequinn @Freedom Fesival 2026' (an outdoor drummer/visual performance hosted at a third-party festival, not at this venue's own premises) and 'Greenwich YouthFest' (an outdoor youth-club programme) — neither is a bands/concerts/DJ/classical music programme at the venue itself.",
+      "EEA's own retained meta description self-identifies the organisation as creating 'events and participatory experiences using visual performance, processions, puppetry, music and pyrotechnics' — a community/outdoor street-arts organisation for which music is one ingredient among several, not a substantially music-led venue programme."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, genuine excerpts (contiguous literal substrings) of the actual HTTP response body from a single unauthenticated GET, plus response metadata (status/content-type/title); JSON wrapper around literal excerpt strings, so not byte-faithful as a whole file.",
+      "acquired_from": "https://eea.org.uk/events",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-emergency-exit-arts-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-2506577884-london-01"
+}

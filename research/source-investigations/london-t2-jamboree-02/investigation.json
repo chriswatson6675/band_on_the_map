@@ -1,0 +1,203 @@
+{
+  "investigation_id": "london-t2-jamboree-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:10:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Phase B deep-dive: reuses london-t2-jamboree-01's retained Level 1 PASSIVE_STATIC finding (outcome INSUFFICIENT -- a Level-1 triage-refinement pass only, no field extraction or offline proof attempted), then escalates to Level 2 STRUCTURAL with two additional bounded, unauthenticated GETs (curl, descriptive User-Agent, redirects followed, 25s timeout, single request per URL, no retry, no authentication/browser/CAPTCHA-bypass): one to the official_programme_url (https://www.jamboreevenue.co.uk/upcoming-events/) and one to a sampled individual first-party event detail page it links to, specifically hunting for an ICS export, JSON-LD Event block, or JSON API, and otherwise assessing what the static HTML itself already exposes per event."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The prior investigation (london-t2-jamboree-01) established identity and confirmed the /upcoming-events/ page contains real dated, priced event cards, but performed no field-level extraction, URL/ID classification, or offline proof -- insufficient on its own to reach a READY_FOR_ACTIVATION or DEFER decision. Escalating to Level 2 to look for a machine feed (ICS/JSON-LD/JSON API) and to formally extract/verify per-field values against the retained static HTML.",
+      "evidence_refs": ["ev-level1-reused"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "Two bounded GETs (the events-list page and one individual event detail page it links to) together confirm: no ICS export link, no JSON-LD Event block (the page's only application/ld+json is a Place/Organization/WebSite graph, not Event), and no discoverable JSON/REST API for events (the only wp-json endpoints present are the generic WordPress REST API root and oEmbed, unrelated to events data) -- but the static HTML itself already exposes title, a full day+date+month+year, a specific per-event start time, price, and a stable first-party canonical permalink per event card, directly and consistently, on both the list page and the individual detail page it links to. This is sufficient to reach an honest, evidenced decision without further escalation.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail"]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-520235585",
+  "source_id": null,
+  "venue_reference": "Jamboree -- second London tranche Phase B deep-dive (osm-node-520235585)",
+  "official_url": "https://jamboreevenue.co.uk",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level1-reused", "ev-level2-events-list"],
+    "notes": "Retained JSON-LD Place/Organization block on the events-list page states the venue's own address ('6 St Chads Place, King's Cross, London, WC1X 9HH, UK') and self-description ('Jamboree -- Kings Cross, London: Jazz, World Music & European Folk Music Venue'), consistent with the candidate's discovery identity and the london-t2-jamboree-01 finding. Same conclusion as the superseded record, now additionally corroborated by the Level 2 fetch."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress site; the /upcoming-events/ page is a custom page template that server-renders a static list of '.event-item' cards (no client-side rendering required to see event data). No ICS, JSON-LD Event, or JSON/REST API for events was found; the generic wp-json REST root and oEmbed endpoints present are unrelated to event data.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail"]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_EVENT_LIST_PAGE",
+      "url": "https://www.jamboreevenue.co.uk/upcoming-events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-level2-events-list"]
+    },
+    {
+      "kind": "INDIVIDUAL_FIRST_PARTY_EVENT_PAGE",
+      "url": "https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-level2-event-detail"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Celtic Session",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event card's own eventTitle anchor 'title' attribute and its <h3> link text both state the full title directly; the individual detail page restates the same title in its own <title>/heading content. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-09-01",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The card's own '.event-date-dn' span states the full date directly, including an explicit year ('Tuesday 1 September 2026') -- no combination with separate page/section context is needed, unlike the DETERMINISTIC_CONTEXT scenario this policy also permits. The individual detail page restates the identical date text. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "20:30",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The card's own '<h4>Live Music from 8.30pm</h4>' states a specific per-event start time directly, restated identically on the individual detail page ('<p class=\"eventArtists\">Live Music from 8.30pm</p>'). This is a floating local time (no explicit UTC offset/timezone stated in the retained markup, though the venue is a physical London venue). The separate 'Doors: See footer' text resolves only to the venue's general weekday opening-hours range, not a specific per-event time, and was NOT used as the basis for this claim. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No end time or end date is stated anywhere in the retained list-page or detail-page responses for this event.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "6 St Chads Place, King's Cross, London, WC1X 9HH, UK",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The retained JSON-LD Place block's own streetAddress/postalCode fields state the venue's address directly; the events-list page is itself the venue's own single-venue programme (every card on it is this venue's own event), so this address applies to every sampled event. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "source_record_id": {
+      "state": "PROVEN",
+      "value": "https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Per the stable-identifier rule (docs/SOURCE_INVESTIGATION_POLICY.md), the transient-looking DOM id ('event-8305') was NOT used, since its stability is undocumented and unproven. Instead, the event's own canonical permalink URL is used as the stable identifier: the individual event page's own '<link rel=\"canonical\">' tag independently states the same URL the list-page card links to, which is a deterministic source property (a WordPress permalink slug) whose stability is evidenced by the site's own declared canonical relationship to itself -- matching the policy's example of a permissible stable-ID strategy. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "INDIVIDUAL_FIRST_PARTY_EVENT_PAGE quality: the list card's own href and the detail page's own canonical link agree on this URL, and the detail page is a real, individually addressable, first-party page (not merely an anchor or in-page toggle) carrying its own title, date, time, and price. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "Free",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The card's own '.meta' line ('Doors: See footer | Entry: Free') and the detail page's own 'Entry Price: Free' both state this event's price directly. Price varies genuinely per event across the wider programme (e.g. other sampled cards show '£15 at door', '£12 / £8 / £15') -- each card states its own price directly, so this is DIRECT_SOURCE per event, not a page-wide constant. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Event start times are floating local time only (no explicit UTC offset/timezone in the retained markup); a future collector should assume Europe/London and handle BST/GMT transitions explicitly rather than assuming a fixed offset."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_ACTIVATION",
+    "reasons": [
+      "Every READY_FOR_ACTIVATION gate in docs/SOURCE_INVESTIGATION_POLICY.md is satisfied against retained, cited evidence: identity.status is PROVEN; site_classification.acquisition_class (WORDPRESS) is a resolved, supported class; a PUBLIC/CONFIRMED data_paths entry exists (the /upcoming-events/ list page); field_assessment.title.state is PROVEN; field_assessment.start_date.state is PROVEN (not UNKNOWN/NOT_PRESENT); field_assessment.source_record_id.state is PROVEN using the event's own canonical permalink (not the unproven transient DOM id); collector_assessment.recommended_family is a known family (STATIC_EVENT_LIST); no CRITICAL blocker exists; and evidence/offline-proof.mjs + evidence/offline-proof-output.txt provide the required DETERMINISTIC_DERIVATION proof that every claimed value is reproducible offline against the retained fixtures, not merely asserted.",
+      "Every gated field's basis is DIRECT_SOURCE (the site states title/date/time/venue/id/url/price directly, with no contextual combination needed), so the v1.2-only DETERMINISTIC_CONTEXT offline-proof requirement does not additionally apply here -- but an offline proof was retained anyway, satisfying the general (v1.1-and-v1.2) activation gate that the parser/adapter itself be proven offline against retained fixtures.",
+      "Three real, currently-listed, differently-dated jazz/world/folk music events were sampled from the retained response (Celtic Session on 2026-09-01, The Trouble Notes on 2026-09-02, Opa Rosa + Karp.OS on 2026-09-04), each with its own individually addressable first-party event page -- consistent with the venue's own self-description as a jazz/world/folk live-music venue."
+    ],
+    "evidence_refs": ["ev-level2-events-list", "ev-level2-event-detail", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level1-reused",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Reused, unmodified Level 1 evidence retained by the superseded investigation london-t2-jamboree-01: bounded, literal excerpts of the real HTTP response bodies from the candidate's official_website and official_programme_url.",
+      "acquired_from": "https://jamboreevenue.co.uk; https://www.jamboreevenue.co.uk/upcoming-events/",
+      "acquired_at": "2026-09-01T19:40:20.000Z",
+      "method": "curl GET; descriptive User-Agent; unauthenticated; redirects followed; 25-second timeout; single request per URL; no retry; no authentication, CAPTCHA-bypass, or state-changing request",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-jamboree-01/evidence/passive-static.json"
+    },
+    {
+      "evidence_id": "ev-level2-events-list",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal contiguous excerpts (JSON-LD identity block + one full static event card) from a fresh Level 2 GET of https://www.jamboreevenue.co.uk/upcoming-events/, annotated with acquisition metadata and a note on what was NOT found (no ICS/JSON-LD Event/JSON API). The excerpt slices themselves are byte-faithful contiguous substrings; the file as a whole (with added annotation) is not byte-faithful.",
+      "acquired_from": "https://www.jamboreevenue.co.uk/upcoming-events/",
+      "acquired_at": "2026-09-01T19:56:35.000Z",
+      "method": "curl -sL; descriptive User-Agent; unauthenticated GET; --max-time 25; single request; no retry; no browser/JS execution; no authentication or CAPTCHA bypass",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-jamboree-02/evidence/level2-events-list-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-level2-event-detail",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal contiguous excerpt from a fresh Level 2 GET of the individual first-party event page for the sampled 'Celtic Session' event, confirming its own canonical link and restating date/time/price. The excerpt slice itself is a byte-faithful contiguous substring; the file as a whole (with added annotation) is not byte-faithful.",
+      "acquired_from": "https://www.jamboreevenue.co.uk/events/live-irish-and-celtic-folk-music-in-london-23/",
+      "acquired_at": "2026-09-01T19:57:10.000Z",
+      "method": "curl -sL; descriptive User-Agent; unauthenticated GET; --max-time 25; single request; no retry; no browser/JS execution; no authentication or CAPTCHA bypass",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-jamboree-02/evidence/level2-event-detail-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically re-parses the two retained excerpt files above and re-derives title, start_date, time, venue_location, source_record_id, event_url, and price -- proving every claimed DIRECT_SOURCE value above is reproducible, not merely asserted.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-09-01T20:05:00.000Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-jamboree-02/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, prints 'OFFLINE PROOF: PASSED', and prints every derived field value, matching field_assessment above exactly.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against the retained fixtures only; no network access",
+      "acquired_at": "2026-09-01T20:05:05.000Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-jamboree-02/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": "london-t2-jamboree-01"
+}

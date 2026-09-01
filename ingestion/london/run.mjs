@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01 — London's
-// own bounded, 6-source pipeline, mirroring ingestion/berlin/run.mjs's
-// exact pattern (never touching it, or ingestion/lisbon-porto/run.mjs, or
-// the unattended runner — London is a wholly separate, parallel entry
-// point):
+// own bounded pipeline, mirroring ingestion/berlin/run.mjs's exact
+// pattern (never touching it, or ingestion/lisbon-porto/run.mjs, or the
+// unattended runner — London is a wholly separate, parallel entry
+// point). BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 additively extended
+// this from 6 to 8 sources (Eventim Apollo, Jamboree) — the original 6
+// are unchanged (same source IDs, same collectors, same music gate):
 //
 //   selected sources/london.json registry entries
 //     -> acquire first-party source records (live HTTP, these 6 sources
@@ -51,6 +53,10 @@ import { extractEventCards as extractSquarespaceCards, toObservations as squares
 import { extractEventCards as extract100ClubCards, toObservations as toObservations100Club } from "../100-club/observation-adapter.mjs";
 import { extractEventCards as extractUnderworldCards, toObservations as toObservationsUnderworld } from "../the-underworld/observation-adapter.mjs";
 import { extractEventCards as extractJazzCafePoskCards, toObservations as toObservationsJazzCafePosk } from "../jazz-cafe-posk/observation-adapter.mjs";
+import { extractEventCards as extractAegPresentsCards, toObservations as aegPresentsToObservations } from "../aeg-presents/observation-adapter.mjs";
+import { filterAegPresentsMusicRecords } from "../aeg-presents/filter.mjs";
+import { extractEventCards as extractJamboreeCards, toObservations as toObservationsJamboree } from "../jamboree/observation-adapter.mjs";
+import { filterJamboreeMusicRecords } from "../jamboree/filter.mjs";
 
 import { resolveObservation } from "../venue/resolver.mjs";
 import { buildUnitedKingdomMarkers } from "../map/publication.mjs";
@@ -66,6 +72,11 @@ const LONDON_SOURCE_IDS = [
   "100-club-london",
   "the-underworld-london",
   "jazz-cafe-posk-london",
+  // BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 — additive second tranche.
+  // The existing six above are UNCHANGED (same source IDs, same
+  // collectors, same music gate).
+  "eventim-apollo-london",
+  "jamboree-london",
 ];
 
 async function loadRegistryEntry(entries, sourceId) {
@@ -151,6 +162,34 @@ async function collectJazzCafePosk({ timeoutMs } = {}) {
   return { rawRecordCount: cards.length, observations: keptObservations, notes };
 }
 
+// ---------------------------------------------------------------------
+// BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 — additive second tranche.
+// ---------------------------------------------------------------------
+
+async function collectEventimApollo({ timeoutMs } = {}) {
+  const url = "https://www.eventimapollo.com/events/";
+  const res = await fetchText(url, timeoutMs ? { timeoutMs } : {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractAegPresentsCards(res.text, { baseUrl: url });
+  const observations = aegPresentsToObservations(cards, { sourceId: "eventim-apollo-london", venueName: "Eventim Apollo", retrievedAt: res.retrievedAt });
+  const keptObservations = filterAegPresentsMusicRecords("eventim-apollo-london", observations);
+  const excludedCount = observations.length - keptObservations.length;
+  const notes = excludedCount > 0 ? [`MUSIC GATE: ${excludedCount} record(s) excluded (comedy/talk/podcast/ambiguous, curated inclusion list) — see research/source-investigations/london-t2-eventim-apollo-03/`] : [];
+  return { rawRecordCount: cards.length, observations: keptObservations, notes };
+}
+
+async function collectJamboree({ timeoutMs } = {}) {
+  const url = "https://www.jamboreevenue.co.uk/upcoming-events/";
+  const res = await fetchText(url, timeoutMs ? { timeoutMs } : {});
+  if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+  const cards = extractJamboreeCards(res.text, { baseUrl: url });
+  const observations = toObservationsJamboree(cards, { retrievedAt: res.retrievedAt });
+  const keptObservations = filterJamboreeMusicRecords(observations);
+  const excludedCount = observations.length - keptObservations.length;
+  const notes = excludedCount > 0 ? [`MUSIC GATE: ${excludedCount} record(s) excluded (recurring class/ambiguous, own <h4> programme note lacks 'Live Music') — see research/source-investigations/london-t2-jamboree-03/`] : [];
+  return { rawRecordCount: cards.length, observations: keptObservations, notes };
+}
+
 const COLLECTORS = {
   "downstairs-at-the-dome-london": () => collectSquarespace({ sourceId: "downstairs-at-the-dome-london", url: "https://www.domelondon.co.uk/whatson", venueName: "Downstairs at The Dome" }),
   "night-tales-loft-london": () => collectSquarespace({ sourceId: "night-tales-loft-london", url: "https://www.ntloft.co.uk/events", venueName: "Night Tales Loft" }),
@@ -158,6 +197,8 @@ const COLLECTORS = {
   "100-club-london": collect100Club,
   "the-underworld-london": collectUnderworld,
   "jazz-cafe-posk-london": collectJazzCafePosk,
+  "eventim-apollo-london": collectEventimApollo,
+  "jamboree-london": collectJamboree,
 };
 
 async function acquireAll(sourceIds, registryEntries, collectors = COLLECTORS) {

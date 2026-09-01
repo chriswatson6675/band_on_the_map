@@ -1,0 +1,149 @@
+{
+  "investigation_id": "london-t2-shaw-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Shaw Theatre — Euston Road 100-110, NW1 2AJ, London",
+  "official_url": "https://www.shaw-theatre.com/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-332118767-london-01",
+  "investigated_at": "2026-09-01T19:42:26.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-homepage"
+    ],
+    "notes": "og:site_name and <title> both read 'Shaw Theatre'; the homepage 307-redirected from https://www.shaw-theatre.com/ to https://shaw-theatre.com/ (same registrable domain, not a cross-domain redirect)."
+  },
+  "site_classification": {
+    "acquisition_class": "CLIENT_RENDERED",
+    "platform": "Nuxt.js single-page application. The candidate-supplied official_programme_url (/whats-on) is server-rendered but its own embedded __NUXT_DATA__ hydration payload reveals the page's backend API call failed at fetch time: '[GET] \"/api/pages/whats-on\": 500 Error fetching page'.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-homepage",
+      "ev-whatson-api-error"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "The site's own hydration payload reveals a first-party JSON API pattern (/api/pages/<slug>), but it returned a 500 error for /whats-on at fetch time, so no confirmed public data path exists yet."
+      }
+    ]
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Two bounded unauthenticated GETs (homepage, then the candidate-supplied official_programme_url) both returned Nuxt.js client-rendered shells with no visible programme content; the /whats-on page's own embedded hydration payload shows its backend API call errored (500) at fetch time, so no event data or confirmed data path was retrievable, and the venue's actual current programme (music vs. theatre) could not be determined from this GET.",
+      "evidence_refs": [
+        "ev-homepage",
+        "ev-whatson-api-error"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The site is a Nuxt.js SPA; both the homepage and the candidate-supplied /whats-on programme URL returned client-rendered shells with no visible event/programme text in the static HTML.",
+      "The /whats-on page's own embedded __NUXT_DATA__ hydration payload reveals its backend API call errored at fetch time ('[GET] \"/api/pages/whats-on\": 500 Error fetching page'), so no music-vs-non-music determination could be made from real evidence — the venue's name alone ('Theatre') is not a sufficient basis per policy.",
+      "A discoverable JSON API pattern (/api/pages/<slug>) exists but is not currently confirmed working; Level 2 structural or browser work would be needed to determine whether it is a viable, stable acquisition path."
+    ],
+    "evidence_refs": [
+      "ev-homepage",
+      "ev-whatson-api-error"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-homepage",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt from the official homepage GET, confirming venue identity and showing the Nuxt.js client-rendered bootstrap.",
+      "acquired_from": "https://www.shaw-theatre.com/",
+      "acquired_at": "2026-09-01T19:39:24.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-shaw-theatre-01/evidence/passive-static-homepage.json"
+    },
+    {
+      "evidence_id": "ev-whatson-api-error",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful excerpt of the candidate-supplied official_programme_url's own embedded __NUXT_DATA__ hydration script, showing its server-side API call to /api/pages/whats-on returned a 500 error at fetch time.",
+      "acquired_from": "https://shaw-theatre.com/whats-on",
+      "acquired_at": "2026-09-01T19:42:26.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single additional same-origin GET to the candidate-supplied official_programme_url; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-shaw-theatre-01/evidence/passive-static-whatson.json"
+    }
+  ]
+}

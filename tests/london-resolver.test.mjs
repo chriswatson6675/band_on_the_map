@@ -20,9 +20,11 @@ const LONDON_SOURCE_TO_VENUE = {
   "100-club-london": { venueId: "venue-london-100-club", venueName: "100 Club" },
   "the-underworld-london": { venueId: "venue-london-the-underworld", venueName: "The Underworld" },
   "jazz-cafe-posk-london": { venueId: "venue-london-jazz-cafe-posk", venueName: "Jazz Cafe Posk" },
+  "eventim-apollo-london": { venueId: "venue-london-eventim-apollo", venueName: "Eventim Apollo" },
+  "jamboree-london": { venueId: "venue-london-jamboree", venueName: "Jamboree" },
 };
 
-test("every London first-tranche source's own deterministic venue_name resolves to its correct canonical venue via the data-driven mapping table", () => {
+test("every London source's own deterministic venue_name resolves to its correct canonical venue via the data-driven mapping table", () => {
   for (const [sourceId, { venueId, venueName }] of Object.entries(LONDON_SOURCE_TO_VENUE)) {
     const observation = { source_id: sourceId, source_record_id: "x", venue_name: venueName, location_text: null };
     const result = resolveObservation(observation);
@@ -52,7 +54,7 @@ test("every London mapping target in venues/source-venue-mappings.json actually 
   const knownVenueIds = new Set(venueRegistry.venues.map((v) => v.venue_id));
   const mappings = JSON.parse(await readFile(new URL("../venues/source-venue-mappings.json", import.meta.url), "utf8"));
   const londonMappings = mappings.mappings.filter((m) => m.source_id.endsWith("-london"));
-  assert.equal(londonMappings.length, 6);
+  assert.equal(londonMappings.length, 8);
   for (const mapping of londonMappings) {
     assert.ok(knownVenueIds.has(mapping.venue_id), `${mapping.venue_id} must exist in venues/london.json`);
   }

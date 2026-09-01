@@ -1,0 +1,140 @@
+{
+  "investigation_id": "london-t2-phoenix-arts-club-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:44:11.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage: one unauthenticated homepage GET via curl (descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth, no CAPTCHA-bypass, no browser). Full response saved locally; a compact, contiguous, literal excerpt of the actual retrieved HTML (never a paraphrase or full-page dump) is retained as evidence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single bounded, unauthenticated Level 1 GET was performed as part of a triage-refinement batch; this record documents an honest identity/music-relevance triage read from that one probe, not a full field-level extraction — deeper structural work (Level 2+) is deferred to a later candidate-specific package.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Phoenix Arts Club — Phoenix Street 1, WC2H 8BU, London",
+  "official_url": "https://phoenixartsclub.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page carries a schema.org JSON-LD block declaring '@type':['EntertainmentBusiness','NightClub'], 'name':'Phoenix Arts Club', 'address':{'streetAddress':'1 Phoenix Street','postalCode':'WC2H 8BU'} — matching the given address 'Phoenix Street 1, WC2H 8BU, London' exactly."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Custom site; nightly show names and JSON-LD identity are present directly in the plain unauthenticated GET response.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://phoenixartsclub.com/whats-on",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "LOW",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retrieved JSON-LD and page copy both self-describe the venue as a cabaret/variety nightclub: 'Discover nightly cabaret, variety, musical theatre and late-night entertainment', with named shows ('Soho Electric', 'Sing Out, Louise!', 'Saturday Supershow', 'Gotta Sing!', 'Dragaoke', 'Cheers for Cabaret') and self-summary 'nightly cabaret shows, featuring the best in cabaret & variety from drag to musical theatre, burlesque to aerial, comedy and so much more'.",
+      "This is cabaret/variety/drag/burlesque/comedy entertainment, not primarily live bands, concerts, DJ/club-night, jazz, electronic, or classical performance — it does not meet BeatMapped's venue-level music gate even though 'musical theatre' is named as one strand among many."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from a single unauthenticated GET (a genuine substring of the real response, not a paraphrase or summary).",
+      "acquired_from": "https://phoenixartsclub.com",
+      "acquired_at": "2026-09-01T19:44:11.000Z",
+      "method": "curl GET; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-phoenix-arts-club-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-13482463001-london-01"
+}

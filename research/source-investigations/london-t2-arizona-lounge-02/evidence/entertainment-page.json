@@ -1,0 +1,29 @@
+{
+  "purpose": "Level 2 STRUCTURAL: re-fetch of the homepage to enumerate its own rendered <a href> nav links (none of the common events/programme paths resolved — see common-paths-check.json), followed by a single bounded GET of the most promising nav link found.",
+  "nav_links_discovered_on_homepage": [
+    "https://www.arizonalounge.com",
+    "https://www.arizonalounge.com/contact-us",
+    "https://www.arizonalounge.com/drinks",
+    "https://www.arizonalounge.com/entertainment",
+    "https://www.arizonalounge.com/food",
+    "https://www.arizonalounge.com/gallery",
+    "https://www.arizonalounge.com/my-account",
+    "https://www.facebook.com/ArizonaLoungeUK/"
+  ],
+  "homepage_nav_extraction_method": "curl -sS -L -A '<UA>' --max-time 20 https://www.arizonalounge.com/ ; grep -oE 'href=\"[^\"]*\"' on the retained response body, deduplicated.",
+  "homepage_nav_extraction_acquired_at": "2026-09-01T19:52:10.000Z",
+  "followup_request": {
+    "requested_url": "https://www.arizonalounge.com/entertainment",
+    "final_url": "https://www.arizonalounge.com/entertainment",
+    "http_status": 200,
+    "acquired_at": "2026-09-01T19:54:05.000Z",
+    "method": "curl -sS -L -A 'Mozilla/5.0 (compatible; BandOnTheMapResearch/1.0; +research)' --max-time 20 (single unauthenticated GET; no retries)",
+    "content_type": "text/html; charset=utf-8",
+    "byte_faithful_contiguous_excerpt": false,
+    "excerpt_note": "Tags stripped for readability; the underlying retained response is the actual HTTP body, not an AI summary.",
+    "title_tag": "ENTERTAINMENT | arizonelounge",
+    "visible_text_excerpt": "ENTERTAINMENT | arizonelounge top of page HOME ENTERTAINMENT FOOD DRINKS GALLERY CONTACT US My Account More Use tab to navigate through the menu items. Arizona Lounge Log In BRINGING YOU THE FINEST ENTERTAINMENT LIVE SINGERS | TOP DJS | BELLY DANCERS & PLENTY MORE ! Widget Didn't Load Check your internet and refresh this page. If that doesn't work, contact us. (c) Arizona Lounge. All rights reserved bottom of page",
+    "json_ld_blocks_found": 0,
+    "notable_finding": "The page's only content block below the hero copy is a client-rendered widget that failed to hydrate in this static GET ('Widget Didn't Load Check your internet and refresh this page'), rendering an empty placeholder rather than any event/programme data. No JSON-LD, ICS link, or discoverable JSON API endpoint is present anywhere in the retained HTML."
+  }
+}

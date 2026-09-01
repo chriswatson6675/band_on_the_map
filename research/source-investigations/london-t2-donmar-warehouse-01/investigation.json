@@ -1,0 +1,143 @@
+{
+  "investigation_id": "london-t2-donmar-warehouse-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC investigation per BOTM-LONDON-SECOND-LIVE-TRANCHE-01: one unauthenticated GET to the venue's official_website (WebFetch/curl fallback), with at most one additional same-origin GET when official_programme_url was directly supplied as a candidate field. No browser, authentication, CAPTCHA bypass, or retry loop."
+  },
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Donmar Warehouse — Earlham Street, WC2H 9LX, London",
+  "official_url": "https://www.donmarwarehouse.com/",
+  "data_paths": [],
+  "supersedes": "triage-osm-node-4547813306-london-01",
+  "investigated_at": "2026-09-01T19:39:26.000Z",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-identity"
+    ],
+    "notes": "og:site_name, og:url, and <title> all match the venue name and official domain exactly; no cross-domain redirect occurred. The candidate-supplied official_programme_url (/whats-on) is linked directly from the fetched homepage nav."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Server-rendered custom site (built by Supercool Design per the page's own JSON-LD); homepage includes server-rendered production listings and JSON-LD blocks.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-identity",
+      "ev-productions"
+    ]
+  },
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated GET to the official homepage returned server-rendered current-production listings (with playwright/author credits and 'Book now' ticketing links) that directly and unambiguously identify the venue's core programme as theatrical plays, conclusively answering the music-relevance question without further escalation.",
+      "evidence_refs": [
+        "ev-identity",
+        "ev-productions"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The fetched homepage's own server-rendered content lists current productions 'A Month in the Country' (by Brian Friel, after Ivan Turgenev) and 'Ilford Boy' (by Danny Lee Wynter), each with a playwright credit, synopsis, and 'Book now'/'More info' ticketing links to /events/<slug> pages — this is real, retained evidence of a theatrical (play) programme, not a music programme.",
+      "The retained keyword scan of the fetched body shows 82 occurrences of 'production' and 12 of 'play' against zero occurrences of 'concert', 'gig', 'jazz', 'live music', or 'theatre' as a self-descriptor — consistent with a producing theatre staging scripted plays, failing BeatMapped's venue-level music gate."
+    ],
+    "evidence_refs": [
+      "ev-identity",
+      "ev-productions"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-identity",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful <head> excerpt: <title> and og tags, confirming venue identity.",
+      "acquired_from": "https://www.donmarwarehouse.com/",
+      "acquired_at": "2026-09-01T19:39:26.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-donmar-warehouse-01/evidence/identity.json"
+    },
+    {
+      "evidence_id": "ev-productions",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Verbatim, byte-faithful excerpts of the two currently-featured production cards on the homepage, each naming a play, its author, a synopsis, and ticketing links — real evidence of a theatrical programme.",
+      "acquired_from": "https://www.donmarwarehouse.com/",
+      "acquired_at": "2026-09-01T19:39:26.000Z",
+      "method": "curl -sS -L; descriptive User-Agent; single unauthenticated GET; redirects followed; no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-donmar-warehouse-01/evidence/productions.json"
+    }
+  ]
+}

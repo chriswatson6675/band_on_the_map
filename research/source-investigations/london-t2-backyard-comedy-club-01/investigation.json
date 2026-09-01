@@ -1,0 +1,153 @@
+{
+  "investigation_id": "london-t2-backyard-comedy-club-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:49:21.095Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC refinement probe: single unauthenticated GET of the official_programme_url, no browser/auth/retries; music-relevance assessed only from the retrieved content."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The single GET returned a WordPress page using The Events Calendar (Tribe Events) plugin. Its own inline JSON state reports \"There are no upcoming events\" for the /events/ list view, and every retained past/recent event card (e.g. \"The Comedy Hump\") is tagged with the site’s own event-category class cat_comedy and described as a stand-up night. This conclusively answers the music-relevance question without escalation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-7125946902",
+  "source_id": null,
+  "venue_reference": "Backyard Comedy Club — Cambridge Heath Road 231, E2 0EL, London",
+  "official_url": "https://backyardcomedyclub.co.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title (\"Events - Backyard Comedy Club\") and domain (backyardcomedyclub.co.uk) match the reported candidate name."
+  },
+  "site_classification": {
+    "acquisition_class": "KNOWN_CALENDAR_PLUGIN",
+    "platform": "WordPress running The Events Calendar (Tribe Events) plugin — evidenced by tribe-events-* CSS classes and the page’s own \"This calendar is powered by The Events Calendar\" HTML comment.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "KNOWN_CALENDAR_PLUGIN",
+      "url": "https://backyardcomedyclub.co.uk/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Individual event titles (e.g. \"The Comedy Hump\") are present in retained cards, but the live /events/ list view itself reported no upcoming events at fetch time; not promoted to a claimed current-programme title.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Retained cards carry explicit datetime attributes (e.g. datetime=\"2024-12-04\") for past events; the live list view reported no upcoming events at fetch time.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Retained cards carry stable-looking permalink URLs (e.g. /event/the-comedy-hump-19/) but stability was not independently verified.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "CRITICAL",
+        "description": "Every retained event card is tagged with the site’s own cat_comedy taxonomy and describes stand-up comedy programming (\"The Comedy Hump\" — \"the biggest stand-up stars and the best new acts\"); this is comedy, not live bands/concerts/jazz/electronic/DJ-club-nights/classical, and fails BeatMapped’s venue-level music gate regardless of technical acquisition feasibility."
+      }
+    ]
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "Real, retained Level-1 evidence (the site’s own event-category taxonomy and event descriptions) shows the venue’s programme is stand-up comedy, confirming the pre-triage expectation that Backyard Comedy Club is not a live-music venue.",
+      "No live band/concert/jazz/electronic/DJ/classical programming of any kind is present anywhere in the retrieved page."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, unedited excerpt (one full Tribe-Events event-card block, including its cat_comedy taxonomy class and description text) from the single unauthenticated GET of https://backyardcomedyclub.co.uk/events/.",
+      "acquired_from": "https://backyardcomedyclub.co.uk/events/",
+      "acquired_at": "2026-09-01T19:41:10.000Z",
+      "method": "curl; descriptive User-Agent; unauthenticated single GET; redirects followed; 20s timeout; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-backyard-comedy-club-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-7125946902-london-01"
+}

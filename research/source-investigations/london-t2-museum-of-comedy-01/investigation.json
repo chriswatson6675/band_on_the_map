@@ -1,0 +1,140 @@
+{
+  "investigation_id": "london-t2-museum-of-comedy-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded, single unauthenticated Level-1 PASSIVE_STATIC GET (curl, descriptive User-Agent, redirects followed, 20s timeout, no retry, no authentication, no CAPTCHA/challenge bypass, no browser) against the venue's official_website (falling back to official_programme_url where noted), as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 batch 6 of 7."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated Level-1 static GET against https://www.museumofcomedy.com retained enough real evidence (event/programme listing content, title/meta tags, and structured data where present) to reach an honest, evidenced REJECT decision without needing to escalate to Level 2/3/4.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Museum of Comedy — London (address text corrupted in source estate — treat as UNKNOWN)",
+  "official_url": "https://www.museumofcomedy.com",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained page's own <title> ('The Museum of Comedy - Showcasing comedy's biggest names and rising stars...') and retained Museum-type JSON-LD organization block directly self-identify the domain as the venue's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "Custom jQuery-based site emitting a schema.org ItemList of EventSeries entries via JSON-LD.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://www.museumofcomedy.com",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The discovery-supplied address text is itself flagged as corrupted/UNKNOWN for this candidate; the retained homepage excerpt did not resolve a clean street address in this bounded probe.",
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retained page's own <title> and navigation ('What's On: Comedy, Family Workshops, Cabaret Theatre, New Comedian of the Year, Not So New Comedian of the Year, Sketch Off!') and a retained EventSeries JSON-LD entry ('The Monday Club') all self-identify the venue as a stand-up comedy club, not a music venue.",
+      "No bands/concerts/DJ/classical/jazz category or listing appears anywhere in the retained evidence — matching the policy's guidance that this venue is almost certainly comedy, confirmed here by real retained evidence."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, genuine excerpts (contiguous literal substrings) of the actual HTTP response body from a single unauthenticated GET, plus response metadata (status/content-type/title); JSON wrapper around literal excerpt strings, so not byte-faithful as a whole file.",
+      "acquired_from": "https://www.museumofcomedy.com",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-museum-of-comedy-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-5656403457-london-01"
+}

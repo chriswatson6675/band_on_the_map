@@ -1,0 +1,142 @@
+{
+  "investigation_id": "london-t2-victoria-palace-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:50:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded, single unauthenticated Level-1 PASSIVE_STATIC GET (curl, descriptive User-Agent, redirects followed, 20s timeout, no retry, no authentication, no CAPTCHA/challenge bypass, no browser) against the venue's official_website (falling back to official_programme_url where noted), as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 batch 6 of 7."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "A single unauthenticated Level-1 static GET against https://www.victoriapalacetheatre.co.uk/whats-on retained enough real evidence (event/programme listing content, title/meta tags, and structured data where present) to reach an honest, evidenced REJECT decision without needing to escalate to Level 2/3/4.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Victoria Palace Theatre — Victoria Street 79, SW1E 5EA, London",
+  "official_url": "https://www.victoriapalacetheatre.co.uk/whats-on",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained page's own <title> ('What's On at Victoria Palace Theatre in London's West End') and retained Organization JSON-LD ('Delfont Mackintosh Theatres') directly self-identify the domain as the venue's own official site."
+  },
+  "site_classification": {
+    "acquisition_class": "JSON_LD_EVENT",
+    "platform": "WordPress-based Delfont Mackintosh Theatres site emitting an Organization block and a single long-running Event (a theatrical production run) via JSON-LD.",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "PROGRAMME_PAGE",
+      "url": "https://www.victoriapalacetheatre.co.uk/whats-on",
+      "access": "PUBLIC",
+      "status": "REJECTED",
+      "confidence": "HIGH",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Discovery evidence reports Victoria Street 79, SW1E 5EA, London; the retained excerpt did not itself restate a street address for this bounded probe (it cites the operator's separate head-office address instead).",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retained page's own JSON-LD Event and 'Currently Playing at Victoria Palace Theatre' hero section both show a single long-running theatrical production, 'Hamilton' (booking until 13 March 2027) — a West End book-musical run, not a concert, gig, or DJ/club night.",
+      "Matching the policy's guidance that Victoria Palace Theatre is a West-End style theatre likely to be rejected absent real evidence of substantially live-music/concert programming, this bounded probe found only the single ongoing musical-theatre production and no concert/gig listing."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, genuine excerpts (contiguous literal substrings) of the actual HTTP response body from a single unauthenticated GET, plus response metadata (status/content-type/title); JSON wrapper around literal excerpt strings, so not byte-faithful as a whole file.",
+      "acquired_from": "https://www.victoriapalacetheatre.co.uk/whats-on",
+      "acquired_at": "2026-09-01T19:50:00.000Z",
+      "method": "curl -L (redirects followed); descriptive User-Agent; unauthenticated GET; 20-second timeout; no retry; no browser/JS execution.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-victoria-palace-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-107160897-london-01"
+}

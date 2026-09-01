@@ -1,0 +1,131 @@
+{
+  "investigation_id": "london-t2-wilton-s-music-hall-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:41:05.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC probe as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 triage refinement: a single unauthenticated GET to the venue's official website (or official programme URL when directly given), no retries, no browser, no authentication, no challenge bypass, no state-changing request."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The retained Level 1 listing proves Wilton's Music Hall is a genuinely mixed theatre/music/cabaret venue rather than resolving cleanly to either side of the music gate; a bounded per-event pass (or a fuller listing fetch) is needed before a READY_FOR_OFFLINE_PROOF or REJECT decision would be honest.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Wilton's Music Hall",
+  "official_url": "https://wiltons.org.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained response's own page title is \"What's On - Wilton's Music Hall\" and its What's On listing markup (WhatsOnList/WhatsonItem classes) is served directly from wiltons.org.uk, matching the candidate name and Graces Alley, E1 8JB address."
+  },
+  "site_classification": {
+    "acquisition_class": "WORDPRESS",
+    "platform": "WordPress 7.0.2, custom \"WhatsOnList\"/\"WhatsonItem\" event-listing markup",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retained response's own address text corroborates the candidate's discovery-supplied address, but this probe did not promote it to a canonical venue fact.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The retained What's On listing is genuinely mixed: current/upcoming titles directly present in the response include the opera \"The Elixir of Love\", the live-scored silent films \"The Cabinet of Dr Caligari (1920) with live score\" and \"Harold Lloyd's Safety Last! (1923) with live score\", the words-and-music show \"INCENDIARY – Samuel Pepys in Words and Music\", and the musical-revue cabaret \"FLOP! The Best Songs From The Worst Musicals\" — all substantially musical performance.",
+      "The same listing also includes plays (\"The Signalman\", \"Private Peaceful\"), stand-up/spoken word (\"Tim Key: Loganberry\", \"Phil Ellis – Bath Mat\", \"A Brief Case of Crazy\") and a non-performance history tour, so the primary programme cannot be honestly called substantially music without deeper per-event classification of the full current listing."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, contiguous excerpt of the actual HTTP response body from the single unauthenticated GET, plus real response metadata (status, final URL, content-type); the excerpt substring is a literal transcription of the response but is wrapped in a JSON envelope with metadata rather than the full raw byte stream, so it is not itself the byte-faithful response.",
+      "acquired_from": "https://wiltons.org.uk/whats-on",
+      "acquired_at": "2026-09-01T19:41:05.000Z",
+      "method": "curl -sL; descriptive research User-Agent; 20-second timeout; redirects followed; unauthenticated GET; no retry.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-wilton-s-music-hall-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-264532955-london-01"
+}

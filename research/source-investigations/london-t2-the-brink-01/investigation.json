@@ -1,0 +1,151 @@
+{
+  "investigation_id": "london-t2-the-brink-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:51:14.469Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website via curl (descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-node-9116743525",
+  "source_id": null,
+  "venue_reference": "The Brink — London (osm-node-9116743525)",
+  "official_url": "https://www.offbroadway.org.uk/",
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retrieved page identifies the business as 'Off Broadway – An American Bar in Hackney' at 63-65 Broadway Market, London E8 4PH. The retrieved content never refers to a venue named 'The Brink' anywhere in its title, body text, or navigation (About / Kids / Dogs / Get Here / Drinks / Food / Private Hire / Gallery). This bounded probe cannot establish that offbroadway.org.uk is The Brink's own official presence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The single unauthenticated GET of the discovery-supplied official_website returned real, live content, but that content identifies a different, unrelated business ('Off Broadway' bar) with no events/gig/music section of any kind — insufficient to assess the candidate venue's ('The Brink') actual programme.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (Salient/Nectar theme markup observed in page source)",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No events, gigs, or programme listing of any kind is exposed by the retrieved site's navigation or body content.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No events/dates are exposed.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No events/times are exposed.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "end": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No events/times are exposed.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "venue_location": {
+      "state": "AMBIGUOUS",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retrieved page gives an address (63-65 Broadway Market, London E8 4PH) belonging to a differently-named business ('Off Broadway'), inconsistent with the candidate being 'The Brink'.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No events are exposed to derive an identifier from.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No events/programme URL is exposed.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The discovery-supplied official_website resolves to an unrelated business ('Off Broadway' bar in Hackney) with no music/events content — the candidate's real official site has not been located by this bounded probe."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The retrieved official_website identifies itself as 'Off Broadway – An American Bar in Hackney' (63-65 Broadway Market, London E8 4PH) and never refers to 'The Brink' anywhere in its content.",
+      "The retrieved site's own navigation (About/Kids/Dogs/Get Here/Drinks/Food/Private Hire/Gallery) exposes no events, gigs, or music programme of any kind.",
+      "This candidate's real official site was not established by this bounded Level-1 probe; re-discovery of the correct official presence is needed before the venue's actual programme (music or otherwise) can be assessed."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the discovery-supplied official_website, containing the page <title>, hero copy, opening hours, and address.",
+      "acquired_from": "https://www.offbroadway.org.uk/",
+      "acquired_at": "2026-09-01T19:51:14.469Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-brink-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-9116743525-london-01"
+}

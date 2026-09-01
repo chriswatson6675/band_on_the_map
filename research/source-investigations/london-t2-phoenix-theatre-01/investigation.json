@@ -1,0 +1,136 @@
+{
+  "investigation_id": "london-t2-phoenix-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:53:30.649Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website via curl (descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-way-107056902",
+  "source_id": null,
+  "venue_reference": "Phoenix Theatre — London (osm-way-107056902)",
+  "official_url": "https://www.thephoenixtheatre.co.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved page title 'The Phoenix Theatre | Official Site' and footer address 'Phoenix Theatre, Charing Cross Road, London WC2H 0JP' match the candidate name and given address exactly. Page footer credits '© ATG Entertainment'."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The single unauthenticated GET returned a real, current programme listing directly on the page — sufficient to reach an honest identity and music-relevance decision without escalating.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": null,
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Stranger Things: The First Shadow",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The homepage states directly: 'Stranger Things: The First Shadow — Fri 17 Nov 2023 - Sun 27 Dec 2026', and describes the venue's history as 'the very best of live theatre' with productions from Noël Coward and Stephen Sondheim.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retrieved page shows an overall production run/season rather than individually dated performance instances in this bounded static probe.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Charing Cross Road, WC2H 0JP, London",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The retrieved page states this address directly and it matches the candidate's given address.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The venue's own current programme, as retained directly from https://www.thephoenixtheatre.co.uk/, is theatrical staged production(s) — 'Stranger Things: The First Shadow' — not live music, concerts, or DJ/club-night performance."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the official site showing the current production listing and venue address.",
+      "acquired_from": "https://www.thephoenixtheatre.co.uk/",
+      "acquired_at": "2026-09-01T19:53:30.649Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-phoenix-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-107056902-london-01"
+}

@@ -1,0 +1,131 @@
+{
+  "investigation_id": "london-t2-the-cockpit-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:41:05.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC probe as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 triage refinement: a single unauthenticated GET to the venue's official website (or official programme URL when directly given), no retries, no browser, no authentication, no challenge bypass, no state-changing request."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The retained homepage listing proves The Cockpit is a mixed theatre/music fringe venue rather than resolving cleanly to either side of the music gate; a bounded per-event pass is needed before a READY_FOR_OFFLINE_PROOF or REJECT decision would be honest.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "The Cockpit Theatre",
+  "official_url": "https://thecockpit.org.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained response's own <title> is \"The Cockpit\" and its meta description states \"The Cockpit is a theatre in Marylebone, London\", matching the candidate name and Gateforth Street, NW8 8EH address."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Drupal 7",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The retained response's own address text corroborates the candidate's discovery-supplied address, but this probe did not promote it to a canonical venue fact.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "The venue's own retained meta description self-identifies as \"a theatre in Marylebone... shows, events and knees-ups of every stripe\", and its retained listing headings are dominated by plays, spoken word and Shakespeare (e.g. \"Krapp's Last Tape\", \"Extremism by Anders Lustgarten\", \"Family Shakespeare: Pyramus & Thisbe\").",
+      "The same retained listing also includes genuinely musical bookings — \"Sam Glaser Quintet, Charlotte Keeffe + Sylvie Noble\" (a jazz line-up), the operas \"Orpheus and Euridice\" and \"The Dunwich Horror: An Opera\", the song-cycle \"Frauenliebe und Leben\", and \"Peter and the Wolf\" — so this is a genuinely mixed fringe venue that needs deeper per-event filtering rather than a single accept/reject call."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, contiguous excerpt of the actual HTTP response body from the single unauthenticated GET, plus real response metadata (status, final URL, content-type); the excerpt substring is a literal transcription of the response but is wrapped in a JSON envelope with metadata rather than the full raw byte stream, so it is not itself the byte-faithful response.",
+      "acquired_from": "https://thecockpit.org.uk/",
+      "acquired_at": "2026-09-01T19:41:05.000Z",
+      "method": "curl -sL; descriptive research User-Agent; 20-second timeout; redirects followed; unauthenticated GET; no retry.",
+      "content_type": "text/html; charset=utf-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-the-cockpit-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-691569932-london-01"
+}

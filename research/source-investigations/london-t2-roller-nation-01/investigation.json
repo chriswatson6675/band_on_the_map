@@ -1,0 +1,186 @@
+{
+  "investigation_id": "london-t2-roller-nation-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:51:14.469Z",
+  "investigator": {
+    "type": "AI",
+    "method": "One bounded, unauthenticated GET of the discovery-supplied official_website, plus one additional bounded GET of a same-origin 'Club nights' link directly exposed in that page's own navigation (curl, descriptive User-Agent, redirects followed, no retries, no browser, no auth)."
+  },
+  "source_candidate_id": "reconciled-cand-osm-node-9130356701",
+  "source_id": null,
+  "venue_reference": "Roller Nation — London (osm-node-9130356701)",
+  "official_url": "http://rollerdiscolondon.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static-home"
+    ],
+    "notes": "Retrieved homepage content brands itself 'Roller Nation' throughout and describes 'the Tottenham based venue' — consistent with the candidate's given address (Bruce Grove 117, N17 6UR — Tottenham). Site navigation also resolves to sibling domains rollernation.com / rollerdisco.com under the same operator/brand."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The homepage and the same-origin 'Club nights' page it directly links to together gave a complete, current, real picture of named recurring events with days, times, and prices — sufficient to reach an honest field assessment and decision without escalating.",
+      "evidence_refs": [
+        "ev-passive-static-home",
+        "ev-passive-static-clubnights"
+      ]
+    }
+  ],
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "Squarespace (class names such as 'Header-nav-item' / 'Mobile-overlay-nav-item' observed in markup)",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static-home",
+      "ev-passive-static-clubnights"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_EVENT_LIST",
+      "url": "https://www.rollernation.com/club-nights",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "Soul Skate Thursday",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Named recurring club nights are stated directly on the club-nights page (e.g. 'Own Skate Mondays', 'Soul Skate Thursday', 'Link Up Friday').",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "The page states a weekly recurrence pattern ('Every Thursday', 'Every Friday') and a time, not a specific calendar date for each occurrence — no per-occurrence dated instance was exposed by this bounded static probe.",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Soul Skate Thursday states 'Time: 7pm – 11pm, last admission 9.30pm' directly on the club-nights page.",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "23:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Same source line gives the session end time (11pm) directly.",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Homepage copy states 'the Tottenham based venue', consistent with the candidate's given address, but the full street address was not restated verbatim on the pages retrieved in this bounded probe.",
+      "evidence_refs": [
+        "ev-passive-static-home"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No stable per-event identifier is exposed; recurring club nights are named (e.g. 'Soul Skate Thursday') but not given individual per-occurrence IDs in this bounded probe.",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    },
+    "event_url": {
+      "state": "PROVEN",
+      "value": "https://www.rollernation.com/club-nights",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "This is the venue's own first-party programme/booking page for its club nights; individual per-night permalinks were not confirmed within this bounded probe.",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "£13.50",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Soul Skate Thursday states 'Price: £13.50' directly; other named nights show their own distinct prices (e.g. Link Up Friday '£17').",
+      "evidence_refs": [
+        "ev-passive-static-clubnights"
+      ]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static-clubnights"
+    ],
+    "blockers": [
+      {
+        "severity": "MINOR",
+        "description": "Events are recurring/weekly rather than individually dated on this page — a future collector/offline-proof package would need to confirm how (or whether) specific calendar occurrences are exposed before activation."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "The retained club-nights page shows genuine, current, named recurring DJ/dance-music nights — e.g. 'Soul Skate Thursday' (soul/funk DJ sets) and 'Link Up Friday' (Hip Hop/R&B/Dancehall/Afrobeats/Amapiano DJ sets) — with real times and prices, which is electronic/DJ-club-night programming under BeatMapped's venue-level music gate.",
+      "Although branded around roller skating, the venue's own copy frames its current offering explicitly as clubbing to DJ sets ('Roller Disco is ideal for a unique night out clubbing with friends to funky and classic tunes by some of London's best DJ's'), not as a non-music activity with incidental background music.",
+      "A first-party static page (club-nights) exists as a plausible acquisition path; a dedicated offline-proof/collector-design package should confirm how per-occurrence dates are exposed before any activation."
+    ],
+    "evidence_refs": [
+      "ev-passive-static-home",
+      "ev-passive-static-clubnights"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the official homepage, describing the roller disco/club-night offering and the Tottenham location.",
+      "acquired_from": "http://rollerdiscolondon.com/",
+      "acquired_at": "2026-09-01T19:51:14.469Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-roller-nation-01/evidence/passive-static-home.json"
+    },
+    {
+      "evidence_id": "ev-passive-static-clubnights",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Literal, contiguous excerpt of the real HTTP response body from the same-origin 'Club nights' page, listing named recurring nights with day, time, and price.",
+      "acquired_from": "https://www.rollernation.com/club-nights",
+      "acquired_at": "2026-09-01T19:51:14.469Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-roller-nation-01/evidence/passive-static-clubnights.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-9130356701-london-01"
+}

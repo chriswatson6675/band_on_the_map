@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-kenneth-more-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:41:05.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC probe as part of BEATMAPPED-LONDON-SECOND-LIVE-TRANCHE-01 triage refinement: a single unauthenticated GET to the venue's official website (or official programme URL when directly given), no retries, no browser, no authentication, no challenge bypass, no state-changing request."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The single homepage GET did not resolve to the candidate's own official presence, so neither identity nor music-relevance could be established from this response; rediscovering the venue's genuine official site is out of scope for this bounded Level 1 probe.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "Kenneth More Theatre",
+  "official_url": "https://www.kmtheatre.co.uk/",
+  "identity": {
+    "status": "AMBIGUOUS",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The retained response's own JSON-LD WebSite block names the site \"KM Sugical Theatre\" with description \"Providing e-medical press releases\", running a generic WordPress news/magazine theme (Enternews) with unrelated post content (health, fishing). The only occurrence of the string \"Kenneth More\" in the retained response is a WordPress author byline (a person's display name on unrelated posts), not a reference to the venue. This does not read as the Kenneth More Theatre's genuine official presence; the domain appears to have been repurposed/parked and no longer represents the Ilford venue."
+  },
+  "site_classification": {
+    "acquisition_class": "UNKNOWN",
+    "platform": "WordPress theme \"Enternews\" serving unrelated syndicated/spam-style content; not attributable to the candidate venue",
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Real retained evidence shows the given official_website no longer hosts Kenneth More Theatre's own content; it returns an unrelated WordPress site self-described as \"KM Sugical Theatre\" / \"Providing e-medical press releases\".",
+      "This is an identity/acquisition-path failure, not a music-relevance finding — the venue's real current official presence (if any) was not located within this bounded Level 1 probe and needs separate rediscovery work before any music-relevance judgement can be made."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, contiguous excerpt of the actual HTTP response body from the single unauthenticated GET, plus real response metadata (status, final URL, content-type); the excerpt substring is a literal transcription of the response but is wrapped in a JSON envelope with metadata rather than the full raw byte stream, so it is not itself the byte-faithful response.",
+      "acquired_from": "https://www.kmtheatre.co.uk/",
+      "acquired_at": "2026-09-01T19:41:05.000Z",
+      "method": "curl -sL; descriptive research User-Agent; 20-second timeout; redirects followed; unauthenticated GET; no retry.",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-kenneth-more-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-way-226891862-london-01"
+}

@@ -1,0 +1,21 @@
+{
+  "purpose": "Level 2 STRUCTURAL: the /events/ page's own HTML references geodir_* JS globals and a wp-json base URL, indicating a WordPress GeoDirectory plugin REST API. This was fetched to check whether a stable, public, machine-readable events endpoint exists.",
+  "discovery_source": "String '\"i_url\":\"https:\\/\\/www.southlandsarts.co.uk\\/wp-json\\/geodir\\/v2\\/\",\"location_base_url...' found verbatim in the /events/ page's own static HTML (see events-page.json).",
+  "requested_url": "https://www.southlandsarts.co.uk/wp-json/geodir/v2/",
+  "http_status": 200,
+  "acquired_at": "2026-09-01T20:03:40.000Z",
+  "method": "curl -sS -L -A 'Mozilla/5.0 (compatible; BandOnTheMapResearch/1.0; +research)' --max-time 15 (single unauthenticated GET; no retries)",
+  "content_type": "application/json",
+  "byte_faithful_contiguous_excerpt": false,
+  "extraction_note": "The retained response is the WordPress REST API's own self-describing route index (its standard 'namespace root' discovery document); the route list below was extracted by parsing that real JSON, not written by hand.",
+  "relevant_routes_found": [
+    "/geodir/v2/places",
+    "/geodir/v2/events",
+    "/geodir/v2/events/(?P<id>[\\d]+)",
+    "/geodir/v2/events/tags",
+    "/geodir/v2/events/categories",
+    "/geodir/v2/events/categories/(?P<id>[\\d]+)",
+    "/geodir/v2/events/fields"
+  ],
+  "notable_finding": "A public, unauthenticated, GET-accessible JSON REST API for this site's own events (post type gd_event) genuinely exists at https://www.southlandsarts.co.uk/wp-json/geodir/v2/events -- a real, stable, first-party public data path, independent of the site's HTML rendering."
+}

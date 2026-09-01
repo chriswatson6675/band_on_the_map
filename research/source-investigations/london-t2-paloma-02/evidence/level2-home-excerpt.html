@@ -1,0 +1,122 @@
+<!--
+Retained, bounded, literal contiguous excerpts from the real HTTP response
+body of a single unauthenticated GET to https://palomachelsea.com/
+(Level 2 STRUCTURAL probe, london-t2-paloma-02). Slices below are copied
+verbatim from the raw response; nothing has been reworded, summarised, or
+reformatted. This is the SAME single page as london-t2-paloma-01's Level 1
+probe (this site has no separate distinct events/programme sub-page); Level
+2 here means a deeper structural read of the same retained response --
+specifically hunting for an ICS export link, a JSON-LD Event block, a JSON
+API, and any genuine year context for the visible club-night schedule.
+
+acquired_from: https://palomachelsea.com/
+acquired_at:   2026-09-01T19:58:40.000Z
+method:        curl -sL; User-Agent "Mozilla/5.0 (compatible;
+               BandOnTheMapResearchBot/1.0; +https://bandonthemap.example/research)";
+               unauthenticated GET; --max-time 25; single request; no retry;
+               no browser/JS execution; no authentication or CAPTCHA bypass.
+http_status:   200
+content_type:  text/html; charset=UTF-8
+-->
+<!-- === SLICE A: Organization + LocalBusiness JSON-LD (identity/address; confirms Level-1 finding) === -->
+<script type="application/ld+json">{"legalName":"B Club London Ltd","address":"92b Old Brompton Road\nLondon, England, SW7 3LQ\nUnited Kingdom","email":"info@bclublondon.com","telephone":"0205842000","sameAs":["https://www.instagram.com/palomaclubchelsea/"],"@context":"http://schema.org","@type":"Organization"}</script><script type="application/ld+json">{"address":"92b Old Brompton Road\nLondon, England, SW7 3LQ\nUnited Kingdom","image":"https://static1.squarespace.com/static/64de438789991c57c7ff37f6/t/6903728504df342ee404ec35/1787920994397/","name":"B Club London Ltd","openingHours":", , , Th 21:00-03:00, Fr 21:00-03:00, Sa 21:00-03:00, ","@context":"http://schema.org","@type":"LocalBusiness"}</script>
+<!-- === SLICE B: a genuine JSON-LD @graph of Event objects DOES exist on this page (found only at Level 2, not noticed in the Level-1 pass) -- but see the note below on why its 4 entries are NOT used as a comprehensive current-programme data path === -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Event",
+      "name": "BESO BESO: Reggaeton Thursdays",
+      "description": "Weekly reggaeton night in London.",
+      "startDate": "2026-04-23T22:00:00+01:00",
+      "endDate": "2026-04-24T03:00:00+01:00",
+      "performer": [
+        {
+          "@type": "MusicGroup",
+          "name": "LZ_VRTL"
+        },
+        {
+          "@type": "MusicGroup",
+          "name": "DJ KHRIZ",
+          "sameAs": "https://www.instagram.com/djkhrizuk?igsh=MTNlaXd6NGNqOXI2bQ=="
+        }
+      ],
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "location": {
+        "@type": "Place",
+        "name": "Paloma Chelsea",
+        "address": {
+          "@type": "PostalAddress",
+          "postalCode": "SW7 3LQ",
+          "addressLocality": "London",
+          "addressCountry": "GB"
+        }
+      },
+      "image": [
+        "https://images.squarespace-cdn.com/content/v1/64de438789991c57c7ff37f6/b9f17f19-a38d-4768-9758-543866a8b108/Frame+138-1.jpg?format=2500w"
+      ],
+      "offers": {
+        "@type": "AggregateOffer",
+        "url": "https://linkhub.fm/event/974314?src=56ecc6",
+        "lowPrice": 10,
+        "highPrice": 20,
+        "priceCurrency": "GBP",
+        "validFrom": "2026-04-01T00:00:00+01:00",
+        "availability": "https://schema.org/InStock"
+      },
+      "organizer": {
+        "@type": "Organization",
+        "name": "Paloma",
+        "url": "https://palomachelsea.com"
+      }
+    },
+<!-- (3 further Event entries follow in the retained response with the same
+shape, startDate values 2026-06-11T22:00, 2026-06-18T22:00, 2026-06-25T22:00
+-- all four are the SAME 'BESO BESO: Reggaeton Thursdays' series only; no
+other series (PRIME TIME, DRUM CITY, SATURDAY SPOTLIGHT, SHIFTING CULTURE)
+appears in this JSON-LD graph at all. Every one of the 4 startDate values is
+already in the PAST relative to this probe's own fetch timestamp
+(2026-09-01T19:58:40Z) -- the most recent is 2026-06-25, over two months
+earlier. This is retained, genuine DIRECT_SOURCE evidence that the
+mechanism CAN produce full ISO dates (with year) for this one series, but
+it is evidently not being kept current for the presently-promoted August/
+September programme, and it does not cover 4 of the 5 recurring series
+visible in the static schedule at all. A single bounded GET cannot
+establish whether this feed is simply stale/abandoned or updates on some
+slower cadence than the static schedule -- that would require a repeated
+fetch at a later date, outside this investigation's bounds. -->
+<!-- === SLICE C: one representative static schedule card (no year anywhere in or near it) === -->
+<h3 style="white-space:pre-wrap;" data-rte-preserve-empty="true">BESO BESO</h3>
+...
+<p class="sqsrte-large" style="white-space:pre-wrap;" data-rte-preserve-empty="true">THURSDAY 20 AUGUST</p>
+...
+<p style="white-space:pre-wrap;" data-rte-preserve-empty="true"><strong>22:00 - LATE</strong>  \\  REGGAETON</p>
+<!-- This day+date+month text pattern (day-of-week + day + month, NO year)
+repeats identically for every one of the ~17 static schedule cards found on
+the page, spanning THURSDAY 20 AUGUST through SATURDAY 26 SEPTEMBER --
+i.e. this is genuinely the site's own current, dated (day+month) schedule,
+just never carrying a year anywhere structurally tied to it: no month/year
+heading of the kind the DETERMINISTIC_CONTEXT worked example in
+docs/SOURCE_INVESTIGATION_POLICY.md relies on (each card already states its
+own month directly -- the missing piece is specifically the year, and
+nothing on the page states "this schedule covers 2026" or similar as an
+explicit, structurally-linked boundary). -->
+<!-- === SLICE D: the only 4-digit year-shaped text found ANYWHERE on the whole retained page === -->
+<p class="sqsrte-small" style="text-align: right; ; white-space:pre-wrap;" data-rte-preserve-empty="true">ALL RIGHT RESERVED. @PALOMA CHELSEA 2026</p>
+<!-- This is a generic site-wide footer copyright notice, structurally
+unrelated to (not contained within, not a heading of, not adjacent to) the
+schedule section above -- it is in a completely separate footer block deep
+in the page markup. A copyright year is not itself an assertion that "all
+events on this page occur in year X": copyright years are frequently
+last-updated years rather than event-programme years, and nothing on this
+page states or implies that this footer notice governs the schedule's
+year. Treating it as if it did would be exactly the kind of
+plausibility-based reasoning ("the copyright year is 2026 and today is
+2026, so the nearby schedule is probably 2026 too") that
+docs/SOURCE_INVESTIGATION_POLICY.md's Field-value basis (v1.2) section
+classifies as AI_INFERENCE, not DETERMINISTIC_CONTEXT -- DETERMINISTIC_CONTEXT
+requires a genuine, structurally-provable combination rule with exactly one
+result, not a coincidental nearby year. This was deliberately NOT used to
+claim a PROVEN start_date. -->

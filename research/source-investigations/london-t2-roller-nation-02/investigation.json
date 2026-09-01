@@ -1,0 +1,218 @@
+{
+  "investigation_id": "london-t2-roller-nation-02",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T20:30:00.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Phase B deep-dive: reuses london-t2-roller-nation-01's retained Level 1 PASSIVE_STATIC evidence (re-characterised here as INSUFFICIENT for this deeper pass -- see probe_history reason), then escalates to Level 2 STRUCTURAL with two additional bounded, unauthenticated GETs (curl, descriptive User-Agent, redirects followed, 25s timeout, single request per URL, no retry, no authentication/browser/CAPTCHA-bypass): a fresh fetch of https://www.rollernation.com/club-nights (confirming the recurring schedule and discovering a same-origin 'Buy Tickets' nav link to a distinct /events/ page), and a fetch of that /events/ page itself, specifically to answer this task's open question: whether real, individually dated events (not just recurring day-of-week slots) are exposed anywhere on the site."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "london-t2-roller-nation-01's Level 1 pass established identity and a full picture of the recurring named club nights (title/time/end/price all directly stated) but only checked the homepage and /club-nights, and concluded start_date was PARTIAL because /club-nights itself only exposes weekly recurrence, not calendar dates. It did not check whether the site exposes real dated events anywhere else -- insufficient on its own to answer this Phase B investigation's central question. Escalating to Level 2 to search the rest of the site's own navigation for a dated-events data path.",
+      "evidence_refs": ["ev-level1-reused-home", "ev-level1-reused-clubnights"]
+    },
+    {
+      "level": 2,
+      "method": "STRUCTURAL",
+      "outcome": "SUFFICIENT",
+      "reason": "A fresh fetch of /club-nights confirms no JSON-LD Event block and no ICS/JSON API exist there, but surfaces a same-origin 'Buy Tickets' nav link to /events/ -- a page not examined by the prior Level 1 pass. Fetching that page directly answers the open question: it exposes a genuine 'Upcoming Events' section with individually-titled, specifically-dated one-off events (full day+date+month+year, time, and price stated directly per event), structurally distinct from the merely-recurring club-nights schedule. This is sufficient to reach an honest, evidenced decision without further escalation to Level 3.",
+      "evidence_refs": ["ev-level2-clubnights-nav", "ev-level2-events-page"]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-9130356701",
+  "source_id": null,
+  "venue_reference": "Roller Nation -- London (osm-node-9130356701) -- second London tranche Phase B deep-dive",
+  "official_url": "https://www.rollernation.com/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level1-reused-home", "ev-level2-events-page"],
+    "notes": "Same conclusion as the superseded record: the site brands itself 'Roller Nation' throughout and its own event copy states its address directly ('Roller Nation, 117 Bruce Grove, London N17 6UR'), matching the candidate's discovery address (Bruce Grove 117, N17 6UR -- Tottenham). Domain confirmed as rollernation.com (www and bare both resolve; the discovery-supplied rollerdiscolondon.com redirects to the same site, per london-t2-roller-nation-01), not rollerdiscolondon.com as a separate identity."
+  },
+  "site_classification": {
+    "acquisition_class": "STATIC_HTML",
+    "platform": "WordPress (rollernation.com) with a custom 'Buy Tickets'/events page (/events/) whose 'Upcoming Events' section server-renders individually dated event entries as static HTML (WordPress custom post type, DOM ids like id=\"event-2531\"); the separate /club-nights page is a Squarespace-style static recurring schedule with no calendar dates. No ICS, JSON-LD Event block, or JSON/REST API for events was found on either page.",
+    "confidence": "HIGH",
+    "evidence_refs": ["ev-level2-clubnights-nav", "ev-level2-events-page"]
+  },
+  "data_paths": [
+    {
+      "kind": "STATIC_RECURRING_SCHEDULE_PAGE",
+      "url": "https://www.rollernation.com/club-nights",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "HIGH",
+      "evidence_refs": ["ev-level2-clubnights-nav"]
+    },
+    {
+      "kind": "STATIC_EVENT_LIST_PAGE",
+      "url": "https://www.rollernation.com/events/",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": ["ev-level2-events-page"]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PROVEN",
+      "value": "You Got The Love",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The /events/ page's own event-title heading states the full title directly (the second sampled event, 'Sunday Specials: DONIS', is titled the same direct way).",
+      "evidence_refs": ["ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "start_date": {
+      "state": "PROVEN",
+      "value": "2026-08-21",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'When:' line states the full date directly, including an explicit year ('Friday, 21st August 2026') -- a genuine, specific calendar date, not merely a recurring day-of-week slot. This directly answers this task's open question for Roller Nation: real specific dates ARE exposed, on the distinct /events/ page (not on /club-nights, which remains recurring-only). This sample date is already in the past relative to this probe's own fetch time (2026-09-01) -- see collector_assessment.blockers for why this keeps the decision at READY_FOR_OFFLINE_PROOF rather than READY_FOR_ACTIVATION. Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "time": {
+      "state": "PROVEN",
+      "value": "19:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'Time:' line states '7pm - 2am' directly. Floating local time (no explicit UTC offset in the retained markup).",
+      "evidence_refs": ["ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "end": {
+      "state": "PROVEN",
+      "value": "02:00",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "Same 'Time: 7pm - 2am' line directly states the end time. Ends after midnight (i.e. on the following calendar date) -- a future collector must handle this day-rollover explicitly rather than assuming end shares start's calendar date.",
+      "evidence_refs": ["ev-level2-events-page"]
+    },
+    "venue_location": {
+      "state": "PROVEN",
+      "value": "Roller Nation, 117 Bruce Grove, London N17 6UR",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own prose description states the venue name and full address directly ('Roller Nation, 117 Bruce Grove, London N17 6UR'), an improvement on the superseded record's PARTIAL assessment (which only had the homepage's vaguer 'the Tottenham based venue' phrasing). Reproduced offline in evidence/offline-proof-output.txt.",
+      "evidence_refs": ["ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Per the stable-identifier rule (docs/SOURCE_INVESTIGATION_POLICY.md), the DOM id ('event-2531') is left UNKNOWN rather than PROVEN: it is plausibly a WordPress post ID (typically stable once assigned), but this is neither documented by the source itself nor empirically confirmed by repeated fetches within this bounded, single-GET probe -- the same honest limitation this project already learned from Hot Clube de Portugal's regenerating ICS UID. Alternative strategy if this candidate proceeds further: a future offline-proof/collector-design package should either (a) empirically confirm the DOM id's stability by re-fetching the page on a later date and checking the same events keep the same id, or (b) fall back to a documented composite key (title + start_date) as an explicit, non-PROVEN alternative identity strategy.",
+      "evidence_refs": ["ev-level2-events-page"]
+    },
+    "event_url": {
+      "state": "NOT_PRESENT",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "No individual first-party event URL/permalink exists: the page's own <link rel=\"canonical\"> resolves to the shared /events listing page itself (not per-event), and the in-page 'Read More' control is a JS-only toggle (href=\"#\"), not a real navigable page. The only per-event outbound link found is a THIRD-PARTY Skiddle ticketing URL (e.g. https://www.skiddle.com/e/42641256), which per docs/SOURCE_INVESTIGATION_POLICY.md's 'Third-party sources' distinction is not treated as first-party event_url authority.",
+      "evidence_refs": ["ev-level2-events-page"]
+    },
+    "price": {
+      "state": "PROVEN",
+      "value": "£17 Per Person",
+      "basis": "DIRECT_SOURCE",
+      "derivation": null,
+      "notes": "The event's own 'Price:' line states this directly ('17  Per Person'; other sampled events on the same page show their own distinct price, e.g. 'Sunday Specials: DONIS' at '£16 Per Person').",
+      "evidence_refs": ["ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"]
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "STATIC_EVENT_LIST",
+    "confidence": "MEDIUM",
+    "evidence_refs": ["ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "Only 2 dated sample events were found on the retained /events/ page, and both are already in the past relative to this probe's own fetch time (fetched 2026-09-01; events dated 21 and 23 August 2026) -- this section's refresh cadence/currency is unconfirmed by this bounded, single-fetch probe. Before activation, a follow-up structural check (a later re-fetch) should confirm the page is genuinely kept current with future-dated events, not stale/abandoned."
+      },
+      {
+        "severity": "MINOR",
+        "description": "field_assessment.source_record_id is not PROVEN (see its notes for the documented alternative strategy); an activation-readiness pass would need to resolve this before READY_FOR_ACTIVATION."
+      }
+    ]
+  },
+  "decision": {
+    "status": "READY_FOR_OFFLINE_PROOF",
+    "reasons": [
+      "This task's open question for Roller Nation -- whether real specific dates (not just recurring day-of-week slots) are exposed anywhere -- is answered YES: the distinct /events/ page (reached via a same-origin nav link from /club-nights, not examined by the prior Level 1 investigation) exposes individually-titled, specifically-dated one-off events with a full day+date+month+year, time, and price stated directly per event (DIRECT_SOURCE), independently reproduced offline in evidence/offline-proof-output.txt.",
+      "This is NOT escalated to READY_FOR_ACTIVATION: only 2 sample dated events were found, and both are already in the past relative to fetch time, so this bounded, single-fetch probe cannot honestly certify the page is being kept current; and field_assessment.source_record_id is not proven (only a documented alternative strategy, not empirical confirmation). A dedicated follow-up offline-proof/collector-design phase should re-fetch this page at a later date to confirm currency and settle a stable-identifier strategy before activation is considered.",
+      "The recurring /club-nights schedule remains, on its own, recurring-only (day-of-week + time, no calendar date) and is not the basis for this decision -- the genuinely dated data path is the separate /events/ page identified at Level 2."
+    ],
+    "evidence_refs": ["ev-level1-reused-home", "ev-level1-reused-clubnights", "ev-level2-clubnights-nav", "ev-level2-events-page", "ev-offline-proof", "ev-offline-proof-output"]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-level1-reused-home",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Reused, unmodified Level 1 evidence retained by the superseded investigation london-t2-roller-nation-01: literal, contiguous excerpt of the real HTTP response body from the official homepage.",
+      "acquired_from": "http://rollerdiscolondon.com/",
+      "acquired_at": "2026-09-01T19:51:14.469Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-roller-nation-01/evidence/passive-static-home.json"
+    },
+    {
+      "evidence_id": "ev-level1-reused-clubnights",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Reused, unmodified Level 1 evidence retained by the superseded investigation london-t2-roller-nation-01: literal, contiguous excerpt of the real HTTP response body from the same-origin 'Club nights' page.",
+      "acquired_from": "https://www.rollernation.com/club-nights",
+      "acquired_at": "2026-09-01T19:51:14.469Z",
+      "method": "curl; descriptive User-Agent; unauthenticated GET; redirects followed; bounded response; single request, no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-roller-nation-01/evidence/passive-static-clubnights.json"
+    },
+    {
+      "evidence_id": "ev-level2-clubnights-nav",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal excerpts from a fresh Level 2 GET of /club-nights: page-identity JSON-LD (no Event type present) and the nav link to the distinct /events/ page. Annotated with acquisition metadata; the excerpt slices themselves are byte-faithful contiguous substrings, but the file as a whole (with added annotation) is not byte-faithful.",
+      "acquired_from": "https://www.rollernation.com/club-nights",
+      "acquired_at": "2026-09-01T19:59:40.000Z",
+      "method": "curl -sL; descriptive User-Agent; unauthenticated GET; --max-time 25; single request; no retry; no browser/JS execution; no authentication or CAPTCHA bypass",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-roller-nation-02/evidence/level2-clubnights-nav-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-level2-events-page",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Retained, bounded, literal contiguous excerpt of the real HTTP response body from a fresh Level 2 GET of /events/, covering both sampled dated events ('You Got The Love', 'Sunday Specials: DONIS') in full, including their When/Time/Price lines and prose bodies. Annotated with acquisition metadata and canonical-link/third-party-link notes; the excerpt slice itself is a byte-faithful contiguous substring, but the file as a whole (with added annotation) is not byte-faithful.",
+      "acquired_from": "https://www.rollernation.com/events/",
+      "acquired_at": "2026-09-01T20:00:15.000Z",
+      "method": "curl -sL; descriptive User-Agent; unauthenticated GET; --max-time 25; single request; no retry; no browser/JS execution; no authentication or CAPTCHA bypass",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-roller-nation-02/evidence/level2-events-page-excerpt.html"
+    },
+    {
+      "evidence_id": "ev-offline-proof",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Small, dependency-free, no-network Node.js script that deterministically re-parses evidence/level2-events-page-excerpt.html and re-derives title, start_date, time, price, and venue_location for the 'You Got The Love' sample event -- proving every claimed DIRECT_SOURCE value above is reproducible, not merely asserted.",
+      "acquired_from": "Authored directly for this investigation; not fetched from a live source",
+      "acquired_at": "2026-09-01T20:25:00.000Z",
+      "method": "Authored by the AI investigator; run via `node evidence/offline-proof.mjs`",
+      "content_type": "application/javascript",
+      "byte_faithful": false,
+      "path": "research/source-investigations/london-t2-roller-nation-02/evidence/offline-proof.mjs"
+    },
+    {
+      "evidence_id": "ev-offline-proof-output",
+      "evidence_class": "DETERMINISTIC_DERIVATION",
+      "description": "Captured stdout of `node evidence/offline-proof.mjs`: exits 0, prints 'OFFLINE PROOF: PASSED', and prints every derived field value, matching field_assessment above exactly.",
+      "acquired_from": "Local execution of evidence/offline-proof.mjs against the retained fixture only; no network access",
+      "acquired_at": "2026-09-01T20:25:05.000Z",
+      "method": "`node evidence/offline-proof.mjs > evidence/offline-proof-output.txt 2>&1`",
+      "content_type": "text/plain",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-roller-nation-02/evidence/offline-proof-output.txt"
+    }
+  ],
+  "supersedes": "london-t2-roller-nation-01"
+}

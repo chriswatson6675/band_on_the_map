@@ -1,0 +1,129 @@
+{
+  "investigation_id": "london-t2-the-calder-bookshop-and-theatre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:44:11.000Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage: one unauthenticated homepage GET via curl (descriptive research User-Agent, redirects followed, 20s timeout, no retry, no auth, no CAPTCHA-bypass, no browser). Full response saved locally; a compact, contiguous, literal excerpt of the actual retrieved HTML (never a paraphrase or full-page dump) is retained as evidence."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "Single bounded, unauthenticated Level 1 GET was performed as part of a triage-refinement batch; this record documents an honest identity/music-relevance triage read from that one probe, not a full field-level extraction — deeper structural work (Level 2+) is deferred to a later candidate-specific package.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": null,
+  "source_id": null,
+  "venue_reference": "The Calder Bookshop & Theatre — The Cut 51, SE1 8LF, London",
+  "official_url": "https://calderbookshop.com/",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "Retrieved <title> 'Calder Bookshop & Theatre' and meta description 'London's Premier Independent Theatre Bookshop. Theatre, Philosophy and Politics.' match the candidate name, but the given address 'The Cut 51, SE1 8LF' was not itself present in the retained excerpt to cross-check."
+  },
+  "site_classification": {
+    "acquisition_class": "EMBEDDED_JSON",
+    "platform": "Cargo (Cargo Collective site builder, 'Running on Cargo' footer text) — page content is embedded as an escaped-HTML JSON field in the initial response rather than directly-crawlable static markup.",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [],
+    "blockers": []
+  },
+  "decision": {
+    "status": "REJECT",
+    "reasons": [
+      "The retrieved homepage explicitly self-describes: 'We are an independent bookshop specialising in theatre, philosophy, and politics. We also put on theatre productions, film screenings, and more in our intimate theatre, located at the back of the bookshop.'",
+      "No live band, concert, DJ/club-night, jazz, classical, or other clearly musical performance content is present anywhere in the retained evidence — this is a bookshop/theatre/film-screening venue, not a music venue."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Compact, contiguous, unedited literal excerpt of the actual retrieved HTTP response body from a single unauthenticated GET (a genuine substring of the real response, not a paraphrase or summary).",
+      "acquired_from": "https://calderbookshop.com/",
+      "acquired_at": "2026-09-01T19:44:11.000Z",
+      "method": "curl GET; descriptive research User-Agent; redirects followed; 20s timeout; no retry; no auth/CAPTCHA-bypass; response saved locally and this excerpt taken from it unedited",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-the-calder-bookshop-and-theatre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-13116959727-london-01"
+}

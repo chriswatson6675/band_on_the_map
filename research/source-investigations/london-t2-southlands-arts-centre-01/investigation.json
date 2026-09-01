@@ -1,0 +1,147 @@
+{
+  "investigation_id": "london-t2-southlands-arts-centre-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-09-01T19:49:46.725Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC refinement probe: single unauthenticated GET of the official_programme_url, no browser/auth/retries; music-relevance assessed only from the retrieved content."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "INSUFFICIENT",
+      "reason": "The single GET confirmed venue identity (schema.org Organization \"Southlands Arts Centre\", operated by \"Yiewsley and West Drayton Arts Council\", matching the reported address) but the page’s own \"Our Events\" section contains no embedded event listing — it only links to a separate /events/ calendar page and a past-events gallery, neither of which was fetched under the one-GET-per-venue bound. No heading, card, or structured-data fragment anywhere in this retrieved page names any specific current or future event, musical or otherwise, so music relevance cannot be honestly assessed from this probe alone.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-8816283371",
+  "source_id": null,
+  "venue_reference": "Southlands Arts Centre — The Green 75, UB7 7PW, West Drayton",
+  "official_url": "https://www.southlandsarts.co.uk/",
+  "identity": {
+    "status": "PROVEN",
+    "confidence": "HIGH",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "schema.org Organization/WebSite JSON-LD names \"Southlands Arts Centre\" and describes it as the \"West Drayton & Yiewsley, Hillingdon Arts Community\"; page footer names the operating charity \"Yiewsley and West Drayton Arts Council\", consistent with the reported West Drayton address."
+  },
+  "site_classification": {
+    "acquisition_class": "AMBIGUOUS",
+    "platform": "WordPress (Divi theme, GeoDirectory plugin present in page dependencies); the mechanism by which the actual /events/ calendar renders its listing was not observed on this fetched page and cannot be classified from it alone.",
+    "confidence": "LOW",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "UNKNOWN",
+      "url": "https://www.southlandsarts.co.uk/events/",
+      "access": "UNKNOWN",
+      "status": "CANDIDATE",
+      "confidence": "LOW",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "start_date": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": null,
+    "confidence": "NONE",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": [
+      {
+        "severity": "MAJOR",
+        "description": "The fetched page’s static HTML does not embed any event listing (only a link to a separate /events/ calendar and a past-events gallery); a further bounded probe of that specific URL is required before music relevance or an acquisition path can be assessed."
+      }
+    ]
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "Identity is proven, but the single retained Level-1 probe of the given official_programme_url did not expose any current/future event content — the real listing lives on a separate /events/ page not covered by this bounded probe.",
+      "Southlands Arts Centre is a community/event-hire arts centre (\"Hire a room\", \"Start a group\" are prominent on the fetched page); whether its actual programme is substantially musical cannot be honestly determined without a follow-up probe of the /events/ page itself."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Two literal, unedited excerpts from the single unauthenticated GET of https://www.southlandsarts.co.uk/our-events/: the Organization/WebSite JSON-LD block, and the page’s own \"Our Events\" section text.",
+      "acquired_from": "https://www.southlandsarts.co.uk/our-events/",
+      "acquired_at": "2026-09-01T19:41:13.000Z",
+      "method": "curl; descriptive User-Agent; unauthenticated single GET; redirects followed; 20s timeout; no retry",
+      "content_type": "text/html; charset=UTF-8",
+      "byte_faithful": true,
+      "path": "research/source-investigations/london-t2-southlands-arts-centre-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": "triage-osm-node-8816283371-london-01"
+}
