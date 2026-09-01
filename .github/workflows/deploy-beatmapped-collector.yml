@@ -13,9 +13,19 @@ name: Deploy BeatMapped Collector
 # --ref=<sha> on the server (deploy/check-deploy-tree.sh's dirty-tree
 # protection is untouched and still fully in force there).
 #
-# Deliberately workflow_dispatch ONLY -- this must never run automatically
-# on push. See deploy/README.md's "Simple human deployment workflow" for
-# the full, plain-language procedure this Action is one step of.
+# BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01: this workflow now ALSO
+# runs automatically on every push to `main` -- a merged, approved PR
+# deploys itself, with no further Founder action. `workflow_dispatch`
+# remains fully available, unchanged, for deliberate redeployment,
+# rollback/recovery, and APPROVED_CANDIDATE trials -- see deploy/README.md's
+# "Simple human deployment workflow" and "Approved-candidate deployment
+# trials". A `push` event always resolves to MAIN mode /
+# NORMAL_PUBLICATION, deploying the EXACT commit SHA GitHub attached to
+# that push event (`github.sha`) -- never a branch tip re-read later, and
+# never any ref other than `main` (the `branches: [main]` filter below is
+# the only thing that can start a deployment without a human clicking
+# anything; a feature/PR/draft branch, a tag, or a Vercel preview branch
+# push can never match it).
 #
 # BEATMAPPED-APPROVED-CANDIDATE-SHA-DEPLOYMENT-PATH-01: a second,
 # narrowly-scoped `mode` alongside the original (`MAIN`, unchanged, still
@@ -61,6 +71,9 @@ name: Deploy BeatMapped Collector
 # step timeout, never by an SSH connection's lifetime.
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       ref:
@@ -108,8 +121,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       resolved_sha: ${{ steps.resolve.outputs.resolved_sha }}
-      mode: ${{ inputs.mode }}
-      post_deploy_action: ${{ inputs.post_deploy_action }}
+      mode: ${{ steps.trigger-inputs.outputs.mode }}
+      post_deploy_action: ${{ steps.trigger-inputs.outputs.post_deploy_action }}
     steps:
       - name: Checkout full history (needed to validate MAIN-mode ancestry against origin/main)
         uses: actions/checkout@v4
@@ -122,13 +135,35 @@ jobs:
           set -euo pipefail
           git fetch origin '+refs/heads/candidate/deploy/*:refs/remotes/origin/candidate/deploy/*' --prune
 
+      # BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01: the ONE place a
+      # `push` event and a `workflow_dispatch` event diverge. A push
+      # ALWAYS resolves to MAIN mode / NORMAL_PUBLICATION for the exact
+      # commit GitHub's own push event carries (`github.sha` -- the
+      # immutable event payload, read once, here, and never re-derived
+      # from a moving branch tip by any later step). workflow_dispatch is
+      # completely unchanged: the human-supplied inputs flow through
+      # exactly as before.
+      - name: Determine ref/mode/post_deploy_action for this trigger
+        id: trigger-inputs
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "mode=MAIN" >> "$GITHUB_OUTPUT"
+            echo "post_deploy_action=NORMAL_PUBLICATION" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+            echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
+            echo "post_deploy_action=${{ inputs.post_deploy_action }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Resolve and validate the requested ref (deploy/ci/resolve-and-validate-deployment.sh — the SAME script tests/deploy-workflow-authorisation.test.mjs exercises)
         id: resolve
         run: |
           set -euo pipefail
-          MODE="${{ inputs.mode }}"
-          REQUESTED="${{ inputs.ref }}"
-          POST_DEPLOY_ACTION="${{ inputs.post_deploy_action }}"
+          MODE="${{ steps.trigger-inputs.outputs.mode }}"
+          REQUESTED="${{ steps.trigger-inputs.outputs.ref }}"
+          POST_DEPLOY_ACTION="${{ steps.trigger-inputs.outputs.post_deploy_action }}"
 
           if OUTPUT="$(bash deploy/ci/resolve-and-validate-deployment.sh "$MODE" "$REQUESTED" "$POST_DEPLOY_ACTION")"; then
             RESOLVED_SHA="${OUTPUT#RESOLVED_SHA=}"
@@ -138,6 +173,11 @@ jobs:
               echo ""
               echo "| Field | Value |"
               echo "|---|---|"
+              if [ "${{ github.event_name }}" = "push" ]; then
+                echo "| Trigger | 🤖 automatic (push to \`main\`) |"
+              else
+                echo "| Trigger | 🧑 manual (workflow_dispatch) |"
+              fi
               echo "| Deployment mode | \`${MODE}\` |"
               echo "| Post-deploy action | \`${POST_DEPLOY_ACTION}\` |"
               echo "| Requested ref | \`${REQUESTED}\` |"
@@ -549,7 +589,7 @@ jobs:
             // a courtesy sanity check on the artifact the pipeline's own
             // isCatastrophicPublicationRun() already refused-or-accepted
             // at write time -- never a second publication-safety gate.
-            const requiredCountries = ["Portugal", "Spain", "Germany", "France"];
+            const requiredCountries = ["Portugal", "Spain", "Germany", "France", "UnitedKingdom"];
             for (const country of requiredCountries) {
               const markers = artifact.countries?.[country]?.markers;
               if (!Array.isArray(markers) || markers.length === 0) {
@@ -566,6 +606,7 @@ jobs:
             console.log("RUNTIME_SPAIN_MARKERS=" + artifact.countries.Spain.markers.length);
             console.log("RUNTIME_GERMANY_MARKERS=" + artifact.countries.Germany.markers.length);
             console.log("RUNTIME_FRANCE_MARKERS=" + artifact.countries.France.markers.length);
+            console.log("RUNTIME_UK_MARKERS=" + artifact.countries.UnitedKingdom.markers.length);
           }
 
           await main();
@@ -581,9 +622,11 @@ jobs:
           ES=$(grep '^RUNTIME_SPAIN_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           DE=$(grep '^RUNTIME_GERMANY_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           FR=$(grep '^RUNTIME_FRANCE_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
+          UK=$(grep '^RUNTIME_UK_MARKERS=' /tmp/runtime-verify-output.txt | cut -d= -f2-)
           {
             echo "| Runtime endpoint (${RUNTIME_BASE_URL}/map-data) | ✅ PASS |"
             echo "| Pre-trigger generated_at | \`${PRE_TRIGGER_GENERATED_AT:-(none observed)}\` |"
             echo "| Post-publication generated_at | \`$GENERATED_AT\` |"
-            echo "| Runtime listings | $LISTINGS across $MARKERS venues (Portugal $PT / Spain $ES / Germany $DE / France $FR) |"
+            echo "| Deployed SHA | \`$RESOLVED_SHA\` |"
+            echo "| Runtime listings | $LISTINGS across $MARKERS venues (Portugal $PT / Spain $ES / Germany $DE / France $FR / UnitedKingdom $UK) |"
           } >> "$GITHUB_STEP_SUMMARY"
