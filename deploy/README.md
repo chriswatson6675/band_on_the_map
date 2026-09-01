@@ -22,34 +22,59 @@ which this package deliberately does not close).
 | `ci/resolve-and-validate-deployment.sh` | the exact SHA-resolution/authorisation logic the Action's `resolve-and-validate` job runs — see "Approved-candidate deployment trials" below |
 | `systemd/beatmapped-city-worker.service` | the unattended city-job worker unit — **installed/reconciled by `install.sh` on every deploy, but never started and never enabled**; see "City-worker unit ownership" below |
 
-## Simple human deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
+## Automatic deployment (`BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01`)
 
-Most changes to this repository need **no manual deployment step at all**:
+**Normal operation needs no manual deployment step at all, for any kind of
+change:**
 
-- **Frontend-only change** (UI, copy, styling, anything under `app/`
-  that doesn't touch the collector/enrichment/publication code paths) —
-  merge to `main`. Vercel's own GitHub integration picks it up and
-  deploys the frontend automatically. Nothing else to do.
-- **Collector, enrichment, or publication change** (anything the
-  DigitalOcean production collector actually runs —
-  `ingestion/unattended-runner/**`, `ingestion/map/**`,
-  `ingestion/publication-server/**`, `artists/**`, etc.) — merge to
-  `main`, then:
-  1. GitHub → **Actions** → **Deploy BeatMapped Collector**
-  2. **Run workflow**, enter the approved `main` commit SHA
-  3. Confirm the run finishes **green** — the run summary shows the
-     resolved SHA, main-history validation, deployment result,
-     collector/timer health, publication result, and the fresh runtime
-     `generated_at`/listing count directly, with no need to read raw logs.
+> Merge an approved PR to `main`. Nothing else is required.
 
-This is the [`.github/workflows/deploy-beatmapped-collector.yml`](../.github/workflows/deploy-beatmapped-collector.yml)
-Action — `workflow_dispatch` only, never triggered automatically on push
-(collector code reaching `main` and collector code actually running in
-production are two deliberately separate, human-gated events). It never
-duplicates `install.sh`'s own logic — it only decides which commit is
-safe to hand to it, then runs the exact same `deploy/install.sh --ref=<sha>`
-this document already describes below, over SSH, using this repository's
-own hardened, dirty-tree-aware installer.
+`.github/workflows/deploy-beatmapped-collector.yml` now runs automatically
+on every push to `main`, deploying the **exact merge commit SHA** GitHub's
+own push event carries (`github.sha`, read once at the start of the run —
+never a branch tip re-read later) in `mode: MAIN` /
+`post_deploy_action: NORMAL_PUBLICATION` — precisely what a Founder
+previously had to select by hand in the Actions UI. Frontend-only changes
+are still also picked up separately and automatically by Vercel's own
+GitHub integration (see "Frontend" below) — a merge to `main` now needs
+nothing further from anyone for either half of the system.
+
+Automatic deployment is scoped tightly to `main` itself
+(`on: push: branches: [main]`): a feature branch, a PR branch, a draft
+branch, a tag, or a Vercel preview branch can never trigger it — only an
+actual push whose ref is `refs/heads/main` can. Opening or updating a PR
+never touches production.
+
+Two concurrent production deployments never run at once — the workflow's
+existing `concurrency: group: deploy-beatmapped-collector` /
+`cancel-in-progress: false` (unchanged) means if two commits land on
+`main` close together, the later deployment queues behind the earlier one
+rather than either being killed mid-SSH or the two racing each other; each
+queued run still deploys its own exact triggering SHA.
+
+## Manual deployment workflow (`BEATMAPPED-COLLECTOR-ONE-CLICK-DEPLOY-02`)
+
+The same Action also remains fully available for **deliberate
+redeployment, rollback/recovery, or exceptional operator use** — e.g.
+re-running publication without a new commit, or rolling production back to
+an earlier approved `main` SHA:
+
+1. GitHub → **Actions** → **Deploy BeatMapped Collector**
+2. **Run workflow**, enter the approved `main` commit SHA
+3. Confirm the run finishes **green** — the run summary shows the
+   resolved SHA, main-history validation, deployment result,
+   collector/timer health, publication result, and the fresh runtime
+   `generated_at`/listing count directly, with no need to read raw logs.
+
+This is the same [`.github/workflows/deploy-beatmapped-collector.yml`](../.github/workflows/deploy-beatmapped-collector.yml)
+Action described above — `workflow_dispatch` and automatic `push`-to-`main`
+share the identical resolve/deploy/verify implementation; only how `ref`,
+`mode`, and `post_deploy_action` are determined differs between the two
+triggers. It never duplicates `install.sh`'s own logic — it only decides
+which commit is safe to hand to it, then runs the exact same
+`deploy/install.sh --ref=<sha>` this document already describes below,
+over SSH, using this repository's own hardened, dirty-tree-aware
+installer.
 
 **Manual interactive SSH to the production droplet is emergency/debugging
 access only** — for investigating an unclear failure, or a situation the

@@ -101,15 +101,37 @@ test("workflow: display name is exactly 'Deploy BeatMapped Collector'", async ()
   assert.match(yaml, /^name:\s*Deploy BeatMapped Collector\s*$/m);
 });
 
-test("workflow: triggers ONLY on workflow_dispatch — never automatically on push", async () => {
+// BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01: a merged, approved PR now
+// deploys itself — this workflow gained a `push` trigger, scoped tightly to
+// `main` only. workflow_dispatch remains fully present, unchanged, for
+// deliberate redeployment/rollback/APPROVED_CANDIDATE trials.
+test("workflow: triggers on workflow_dispatch AND on push to main ONLY — never any other branch/tag/PR", async () => {
   const yaml = await readWorkflow();
   assert.match(yaml, /^on:\s*$/m);
   assert.match(yaml, /^\s+workflow_dispatch:/m);
-  // The literal YAML key `push:` must never appear as a trigger for this
-  // workflow — this file has exactly one `on:` block.
   const onBlockMatch = /^on:\n([\s\S]*?)^permissions:/m.exec(yaml);
   assert.ok(onBlockMatch, "expected an `on:` block terminated by `permissions:`");
-  assert.doesNotMatch(onBlockMatch[1], /^\s*push:/m, "this workflow must never trigger automatically on push");
+  const onBlock = onBlockMatch[1];
+  assert.match(onBlock, /^\s+push:\s*\n\s+branches:\s*\n\s+-\s*main\s*$/m, "push trigger must exist and be scoped to exactly the `main` branch");
+  assert.doesNotMatch(onBlock, /^\s{2}pull_request:\s*\n/m, "this workflow must never trigger on pull_request — PR creation/update must never mutate production");
+  assert.doesNotMatch(onBlock, /branches:\s*\n(\s+-\s*\S+\s*\n){2,}/m, "the push trigger must list exactly one branch (main), never a second branch/tag pattern");
+});
+
+test("workflow: a push event always resolves to MAIN mode / NORMAL_PUBLICATION using github.sha — the exact triggering commit, never re-derived from a branch tip", async () => {
+  const yaml = await readWorkflow();
+  const body = extractStepBody(yaml, "Determine ref/mode/post_deploy_action for this trigger");
+  assert.match(body, /if \[ "\$\{\{ github\.event_name \}\}" = "push" \]; then/);
+  assert.match(body, /echo "ref=\$\{\{ github\.sha \}\}" >> "\$GITHUB_OUTPUT"/);
+  assert.match(body, /echo "mode=MAIN" >> "\$GITHUB_OUTPUT"/);
+  assert.match(body, /echo "post_deploy_action=NORMAL_PUBLICATION" >> "\$GITHUB_OUTPUT"/);
+});
+
+test("workflow: workflow_dispatch's own human-supplied inputs still flow through unchanged for a manual run", async () => {
+  const yaml = await readWorkflow();
+  const body = extractStepBody(yaml, "Determine ref/mode/post_deploy_action for this trigger");
+  assert.match(body, /echo "ref=\$\{\{ inputs\.ref \}\}" >> "\$GITHUB_OUTPUT"/);
+  assert.match(body, /echo "mode=\$\{\{ inputs\.mode \}\}" >> "\$GITHUB_OUTPUT"/);
+  assert.match(body, /echo "post_deploy_action=\$\{\{ inputs\.post_deploy_action \}\}" >> "\$GITHUB_OUTPUT"/);
 });
 
 test("workflow: accepts a required 'ref' input", async () => {
@@ -303,11 +325,12 @@ test("workflow: verification reuses ingestion/map/publication.mjs's validatePubl
   assert.match(yaml, /import \{ validatePublicationArtifact \} from "\.\/ingestion\/map\/publication\.mjs"/);
 });
 
-test("workflow: publication verification checks Portugal, Spain, Germany, and France all have markers", async () => {
+test("workflow: publication verification checks Portugal, Spain, Germany, France, and UnitedKingdom all have markers", async () => {
   const yaml = await readWorkflow();
-  assert.match(yaml, /\["Portugal", "Spain", "Germany", "France"\]/);
+  assert.match(yaml, /\["Portugal", "Spain", "Germany", "France", "UnitedKingdom"\]/);
   assert.match(yaml, /RUNTIME_FRANCE_MARKERS/);
-  assert.match(yaml, /Portugal \$PT \/ Spain \$ES \/ Germany \$DE \/ France \$FR/);
+  assert.match(yaml, /RUNTIME_UK_MARKERS/);
+  assert.match(yaml, /Portugal \$PT \/ Spain \$ES \/ Germany \$DE \/ France \$FR \/ UnitedKingdom \$UK/);
 });
 
 test("workflow: verification never hardcodes an exact marker/listing count as a pass/fail threshold", async () => {
@@ -394,7 +417,7 @@ function runScript(scriptPath, env) {
   });
 }
 
-function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1, france = 1 }) {
+function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1, france = 1, unitedKingdom = 1 }) {
   const marker = (i, country) => ({
     venue_id: `venue-${country}-${i}`,
     canonical_name: `Venue ${country} ${i}`,
@@ -403,17 +426,19 @@ function validArtifact({ generatedAt, portugal = 1, spain = 1, germany = 1, fran
     address: "Test Address",
     display_listings: [{ kind: "SINGLE", source_id: `source-${country}-${i}`, source_record_id: "rec-1" }],
   });
+  const total = portugal + spain + germany + france + unitedKingdom;
   return {
     generated_at: generatedAt,
     window: { from: null, to: null },
     source_report: { success_count: 1, failure_count: 0, sources: [{ source_id: "test-source", success: true, raw_record_count: 1, observation_count: 1 }] },
-    counts: { observation_count: portugal + spain + germany + france, display_listing_count: portugal + spain + germany + france, map_marker_count: portugal + spain + germany + france },
+    counts: { observation_count: total, display_listing_count: total, map_marker_count: total },
     countries: {
       Portugal: { markers: Array.from({ length: portugal }, (_, i) => marker(i, "pt")) },
       Croatia: { markers: [] },
       Spain: { markers: Array.from({ length: spain }, (_, i) => marker(i, "es")) },
       Germany: { markers: Array.from({ length: germany }, (_, i) => marker(i, "de")) },
       France: { markers: Array.from({ length: france }, (_, i) => marker(i, "fr")) },
+      UnitedKingdom: { markers: Array.from({ length: unitedKingdom }, (_, i) => marker(i, "uk")) },
     },
   };
 }
@@ -460,7 +485,7 @@ test("poll-and-validate script: recognizes a newer generation and exits 0 with t
     const artifactPath = join(dir, "map-data.json");
     // Server starts already serving the NEWER cycle — proves the script
     // correctly recognizes generated_at > preTrigger on the very first poll.
-    await writeFile(artifactPath, JSON.stringify(validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 13, spain: 31, germany: 22 })));
+    await writeFile(artifactPath, JSON.stringify(validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 13, spain: 31, germany: 22, unitedKingdom: 8 })));
     const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
     try {
       const { port } = server.address();
@@ -477,6 +502,7 @@ test("poll-and-validate script: recognizes a newer generation and exits 0 with t
       assert.match(result.stdout, /RUNTIME_SPAIN_MARKERS=31/);
       assert.match(result.stdout, /RUNTIME_GERMANY_MARKERS=22/);
       assert.match(result.stdout, /RUNTIME_FRANCE_MARKERS=1/);
+      assert.match(result.stdout, /RUNTIME_UK_MARKERS=8/);
     } finally {
       server.close();
     }
@@ -607,12 +633,37 @@ test("poll-and-validate script: source/country continuity — rejects a newer ar
   });
 });
 
+test("poll-and-validate script: source/country continuity — rejects a newer artifact missing UnitedKingdom markers, never accepts it as success", async () => {
+  const yaml = await readWorkflow();
+  const script = extractHeredocScript(yaml, "VERIFY_EOF");
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 13, spain: 31, germany: 22, unitedKingdom: 0 });
+    await writeFile(artifactPath, JSON.stringify(artifact));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
+      const scriptPath = await writeScript(dir, script);
+      const result = await runScript(scriptPath, {
+        RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
+        PRE_TRIGGER_GENERATED_AT: "2026-08-26T18:11:52.772Z",
+        POLL_INTERVAL_SECONDS: "0.1",
+        MAX_WAIT_SECONDS: "1",
+      });
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /UnitedKingdom/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
 test("poll-and-validate script: source/country continuity — rejects a structurally-valid but wholly EMPTY (zero-marker) newer artifact", async () => {
   const yaml = await readWorkflow();
   const script = extractHeredocScript(yaml, "VERIFY_EOF");
   await withTempDir(async (dir) => {
     const artifactPath = join(dir, "map-data.json");
-    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 0, spain: 0, germany: 0, france: 0 });
+    const artifact = validArtifact({ generatedAt: "2026-08-26T18:41:35.794Z", portugal: 0, spain: 0, germany: 0, france: 0, unitedKingdom: 0 });
     artifact.counts.map_marker_count = 0;
     artifact.counts.display_listing_count = 0;
     await writeFile(artifactPath, JSON.stringify(artifact));
@@ -634,14 +685,29 @@ test("poll-and-validate script: source/country continuity — rejects a structur
   });
 });
 
-test("poll-and-validate script: real, currently-committed data/public/lisbon-porto-map.json (served fresh) validates successfully end-to-end", async () => {
+// The committed data/public/lisbon-porto-map.json fixture predates London's
+// addition to the unattended cycle (ingestion/unattended-runner/run.mjs's
+// own acquireLondon()/buildUnitedKingdomMarkers() wiring) and has never
+// itself been regenerated by any automated process — it has no
+// `countries.UnitedKingdom` bucket, which the poll script now legitimately
+// requires (matching what a real production run of NORMAL_PUBLICATION
+// actually produces today: Portugal + Spain + Germany + France + United
+// Kingdom). Regenerating that committed fixture would itself require a
+// live, multi-country acquisition run — explicitly out of scope for
+// BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01 ("deployment ergonomics
+// only", no London/canonical-acquisition work). This test still proves the
+// SAME real behaviour end-to-end (real running publication-server, real
+// validatePublicationArtifact(), real extracted script) against a
+// synthetic-but-currently-accurate 5-country artifact instead.
+test("poll-and-validate script: a real, currently-accurate 5-country artifact (served fresh) validates successfully end-to-end", async () => {
   const yaml = await readWorkflow();
   const script = extractHeredocScript(yaml, "VERIFY_EOF");
-  const realArtifactPath = join(REPO_ROOT, "data", "public", "lisbon-porto-map.json");
-  const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath: realArtifactPath });
-  try {
-    const { port } = server.address();
-    await withTempDir(async (dir) => {
+  await withTempDir(async (dir) => {
+    const artifactPath = join(dir, "map-data.json");
+    await writeFile(artifactPath, JSON.stringify(validArtifact({ generatedAt: "2026-09-01T06:15:00.000Z", portugal: 32, spain: 31, germany: 36, france: 33, unitedKingdom: 8 })));
+    const server = await startServer({ host: "127.0.0.1", port: 0, artifactPath });
+    try {
+      const { port } = server.address();
       const scriptPath = await writeScript(dir, script);
       const result = await runScript(scriptPath, {
         RUNTIME_BASE_URL: `http://127.0.0.1:${port}`,
@@ -654,10 +720,25 @@ test("poll-and-validate script: real, currently-committed data/public/lisbon-por
       assert.match(result.stdout, /RUNTIME_PORTUGAL_MARKERS=\d+/);
       assert.match(result.stdout, /RUNTIME_SPAIN_MARKERS=\d+/);
       assert.match(result.stdout, /RUNTIME_GERMANY_MARKERS=\d+/);
-    });
-  } finally {
-    server.close();
-  }
+      assert.match(result.stdout, /RUNTIME_UK_MARKERS=\d+/);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+// The committed fixture is still real, still schema-valid, and still worth
+// proving parses through the SAME publication-server + schema — just
+// without the (newer, stricter) UnitedKingdom-presence requirement the
+// deploy workflow's own poll script now enforces, since it predates that
+// requirement.
+test("data/public/lisbon-porto-map.json still validates against the real publication schema on its own (pre-London fixture, unrelated to the deploy workflow's country requirement)", async () => {
+  const { validatePublicationArtifact } = await import("../ingestion/map/publication.mjs");
+  const realArtifactPath = join(REPO_ROOT, "data", "public", "lisbon-porto-map.json");
+  const raw = await readFile(realArtifactPath, "utf8");
+  const artifact = JSON.parse(raw);
+  const errors = validatePublicationArtifact(artifact);
+  assert.deepEqual(errors, []);
 });
 
 // ---------------------------------------------------------------------------

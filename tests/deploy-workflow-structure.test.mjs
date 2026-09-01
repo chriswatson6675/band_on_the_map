@@ -23,9 +23,15 @@ test.before(async () => {
   scriptText = await readFile(SCRIPT_PATH, "utf8");
 });
 
-test("J: candidate mode (like the existing MAIN mode) is workflow_dispatch only — never triggered on push/PR", () => {
-  assert.match(rawText, /\bon:\s*\n\s+workflow_dispatch:/, "the single `on:` trigger must be workflow_dispatch");
-  assert.doesNotMatch(rawText, /\n\s{2}push:\s*\n/, "this workflow must never gain a push trigger");
+// BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01: superseded the previous
+// "workflow_dispatch only" design (which this same test file used to
+// assert) — a merged, approved PR now deploys itself. APPROVED_CANDIDATE
+// mode itself is UNCHANGED by that: it remains reachable only via a human
+// workflow_dispatch run (a push to `main` always resolves to MAIN mode —
+// see tests/deploy-github-workflow.test.mjs's own trigger-resolution
+// tests), and pull_request still can never trigger anything.
+test("J: candidate mode is still only reachable via a human workflow_dispatch run — the new automatic push trigger always resolves to MAIN mode, and pull_request never triggers this workflow at all", () => {
+  assert.match(rawText, /\bon:\s*\n\s+push:\s*\n\s+branches:\s*\n\s+-\s*main\s*\n\s+workflow_dispatch:/, "the `on:` block must be exactly push (main-only) then workflow_dispatch");
   assert.doesNotMatch(rawText, /\n\s{2}pull_request:\s*\n/, "this workflow must never gain a pull_request trigger");
 });
 
@@ -45,7 +51,12 @@ test("BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: the post_deploy_action 
 
 test("BEATMAPPED-APPROVED-CANDIDATE-DEPLOY-ONLY-MODE-01: post_deploy_action flows into the resolve-and-validate-deployment.sh call and into a job output", () => {
   assert.match(rawText, /bash deploy\/ci\/resolve-and-validate-deployment\.sh "\$MODE" "\$REQUESTED" "\$POST_DEPLOY_ACTION"/);
-  assert.match(rawText, /post_deploy_action: \$\{\{ inputs\.post_deploy_action \}\}/);
+  // BEATMAPPED-AUTO-DEPLOY-MAIN-TO-DIGITALOCEAN-01: the job output now
+  // sources from the trigger-resolution step's own output (which itself
+  // forwards `inputs.post_deploy_action` unchanged for workflow_dispatch —
+  // see tests/deploy-github-workflow.test.mjs), not directly from `inputs.*`,
+  // since a push event has no `inputs` context at all.
+  assert.match(rawText, /post_deploy_action: \$\{\{ steps\.trigger-inputs\.outputs\.post_deploy_action \}\}/);
   assert.match(rawText, /POST_DEPLOY_ACTION: \$\{\{ needs\.resolve-and-validate\.outputs\.post_deploy_action \}\}/);
 });
 
