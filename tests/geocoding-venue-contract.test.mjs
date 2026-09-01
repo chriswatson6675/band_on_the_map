@@ -137,3 +137,35 @@ test("an existing CONFIRMED venue with no coordinate_provenance at all remains v
   });
   assert.deepEqual(errors, []);
 });
+
+// BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01 —
+// OSM_ID_LOOKUP joins GEOCODED_FROM_OFFICIAL_ADDRESS as a second,
+// equally-deterministic GEOCODED provenance method (a direct Nominatim
+// /lookup of a venue's own originating OSM object, never a fuzzy search).
+test("a GEOCODED venue with an OSM_ID_LOOKUP coordinate_provenance validates successfully", () => {
+  const errors = validateVenue({
+    venue_id: "venue-london-example",
+    canonical_name: "Example",
+    location_status: "GEOCODED",
+    address: "Somewhere Real 1",
+    latitude: 51.5,
+    longitude: -0.13,
+    evidence: [{ url: "https://example.test" }],
+    coordinate_provenance: { method: "OSM_ID_LOOKUP", osm_ref: "osm-node-123" },
+  });
+  assert.deepEqual(errors, []);
+});
+
+test("a CONFIRMED venue must not carry an OSM_ID_LOOKUP coordinate_provenance either", () => {
+  const errors = validateVenue({
+    venue_id: "venue-london-example",
+    canonical_name: "Example",
+    location_status: "CONFIRMED",
+    address: "Somewhere Real 1",
+    latitude: 51.5,
+    longitude: -0.13,
+    evidence: [{ url: "https://example.test" }],
+    coordinate_provenance: { method: "OSM_ID_LOOKUP", osm_ref: "osm-node-123" },
+  });
+  assert.ok(errors.some((e) => e.includes("must not carry a OSM_ID_LOOKUP coordinate_provenance")));
+});

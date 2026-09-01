@@ -284,3 +284,63 @@ export async function searchNominatimStructuredLive(fields, options = {}) {
   const url = buildStructuredPoiSearchUrl(fields, options);
   return enqueueNominatimRequest(() => fetchNominatimUrl(url, JSON.stringify(fields)));
 }
+
+// BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01 — a direct
+// Nominatim `/lookup` of one already-known OSM node/way/relation id, used
+// when a venue candidate's own originating OSM object id is already known
+// (e.g. from research/venue-estate/london-venue-estate-01.json's own
+// osm_ref) — this resolves directly to that exact object's own recorded
+// address/coordinates. This is not a fuzzy name/address search that might
+// match the wrong place; it is asking the same open dataset the candidate
+// itself came from for that candidate's own recorded location. Still
+// shares the exact same rate-limited, single-threaded queue as
+// searchNominatimLive()/searchNominatimStructuredLive() above — never a
+// second, independent request path.
+
+const OSM_TYPE_PREFIXES = Object.freeze({ node: "N", way: "W", relation: "R" });
+
+/**
+ * Build the exact Nominatim `/lookup` URL for one OSM object.
+ * `osmType` must be "node" | "way" | "relation"; `osmId` the bare numeric
+ * OSM id (string or number) — never a fabricated/guessed id, always one
+ * already cited in this project's own retained research evidence.
+ */
+export function buildNominatimLookupUrl(osmType, osmId, { baseUrl = NOMINATIM_BASE_URL } = {}) {
+  const prefix = OSM_TYPE_PREFIXES[osmType];
+  if (!prefix) {
+    throw new Error(`buildNominatimLookupUrl requires osmType to be one of ${Object.keys(OSM_TYPE_PREFIXES).join(", ")}`);
+  }
+  if ((typeof osmId !== "string" && typeof osmId !== "number") || String(osmId).trim() === "") {
+    throw new Error("buildNominatimLookupUrl requires a non-empty osmId");
+  }
+  const params = new URLSearchParams({
+    osm_ids: `${prefix}${osmId}`,
+    format: "jsonv2",
+    addressdetails: "1",
+  });
+  return `${baseUrl}/lookup?${params.toString()}`;
+}
+
+/**
+ * Issue ONE single, rate-limited, live Nominatim `/lookup` request for a
+ * known OSM node/way/relation id. Shares the exact same serialized queue
+ * and rate limiter as every other live call in this module.
+ */
+export async function lookupNominatimOsmIdLive(osmType, osmId, options = {}) {
+  const url = buildNominatimLookupUrl(osmType, osmId, options);
+  return enqueueNominatimRequest(() => fetchNominatimUrl(url, `${osmType}/${osmId}`));
+}
+
+/**
+ * Parse `osm_ref` as retained in research/venue-estate/london-venue-estate-01.json
+ * (e.g. "osm-node-10251739583", "osm-way-1110282368", "osm-relation-2023676")
+ * into `{ osmType, osmId }` for lookupNominatimOsmIdLive()/buildNominatimLookupUrl().
+ * Throws on anything not matching that exact retained shape — never guesses.
+ */
+export function parseOsmRef(osmRef) {
+  const match = /^osm-(node|way|relation)-(\d+)$/.exec(String(osmRef ?? ""));
+  if (!match) {
+    throw new Error(`parseOsmRef: "${osmRef}" is not a recognised osm-{node|way|relation}-<id> reference`);
+  }
+  return { osmType: match[1], osmId: match[2] };
+}

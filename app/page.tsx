@@ -214,9 +214,18 @@ export default function Home() {
     () => (publicationArtifact.countries.France?.markers as MapMarker[] | undefined) ?? [],
     [publicationArtifact],
   );
+  // BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01 — United
+  // Kingdom's own bucket, read the same optional-chained way as France
+  // above: an artifact published before London existed legitimately has
+  // no `countries.UnitedKingdom` key at all and must still render every
+  // other country exactly as before rather than throwing.
+  const unitedKingdomMarkers = useMemo(
+    () => (publicationArtifact.countries.UnitedKingdom?.markers as MapMarker[] | undefined) ?? [],
+    [publicationArtifact],
+  );
   const visibleMarkers = useMemo(
-    () => getMarkersForArea(area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers) as MapMarker[],
-    [area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers],
+    () => getMarkersForArea(area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers, unitedKingdomMarkers) as MapMarker[],
+    [area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers, unitedKingdomMarkers],
   );
 
   // BEATMAPPED-ENRICHMENT-PILOT-01 — the publication artifact's own
@@ -315,6 +324,7 @@ export default function Home() {
             <span>Spain</span>
             <span>Germany</span>
             <span>France</span>
+            <span>United Kingdom</span>
           </div>
         </section>
 
@@ -352,6 +362,7 @@ export default function Home() {
                   <option>Spain</option>
                   <option>Germany</option>
                   <option>France</option>
+                  <option>United Kingdom</option>
                 </select>
               </span>
             </label>

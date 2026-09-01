@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231a0040'/%3E%3Ctext x='16' y='24' font-family='Arial%2C sans-serif' font-weight='bold' font-size='20' fill='white' text-anchor='middle'%3EZ%3C%2Ftext%3E%3C%2Fsvg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's On — ZODIAC Bar, Club & Karaoke · Camden</title>
+<meta name="description" content="Drag, karaoke, DJ nights, Trans events and Eurovision — seven nights a week at Camden's queer venue. 119 Hampstead Road, NW1 3EE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,300;1,14..32,400;1,14..32,500;1,14..32,600;1,14..32,700;1,14..32,800;1,14..32,900&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --bg:       #080808;
+  --surface:  #0f0f0f;
+  --border:   rgba(255,255,255,0.07);
+  --border-md:rgba(255,255,255,0.12);
+  --text:     #ebebeb;
+  --sub:      #888;
+  --dim:      #444;
+  --accent:   #c060ff;
+  --accent-lo:rgba(192,96,255,0.12);
+  --live:     #22c55e;
+  --gold:     #f0c040;
+  --euv:      #009ee3;
+  --warn:     #f59e0b;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+
+  --fam: 'Inter', system-ui, sans-serif;
+
+  /* Pride */
+  --rainbow: linear-gradient(90deg,#FF0018,#FFA52C,#FFFF41,#008018,#0000F9,#86007D);
+  --trans-blue: #55CDFC;
+  --trans-pink: #F7A8B8;
+  --bi-pink: #D60270;
+  --bi-purple: #9B4F96;
+  --bi-blue: #0038A8;
+}
+
+/* ─── RESET ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--fam);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--fam);cursor:pointer;border:none;background:none}
+img{display:block;max-width:100%}
+
+/* ─── UTILITY ────────────────────────────────────────── */
+.u-label{
+  font-size:.7rem;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--sub);
+}
+.u-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--live);
+  animation:blink 2s ease-in-out infinite;
+  vertical-align:middle;margin-right:6px;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.u-sep{color:var(--dim);margin:0 .35em}
+
+/* ─── NAV ────────────────────────────────────────────── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  background:rgba(8,8,8,.92);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:9px;
+  font-size:.85rem;font-weight:800;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text);
+}
+.nav-links{
+  display:flex;align-items:center;gap:6px;
+  list-style:none;
+}
+.nav-links li a{
+  font-size:.78rem;font-weight:500;letter-spacing:.02em;
+  color:var(--sub);
+  padding:6px 10px;border-radius:var(--r-sm);
+  transition:color .15s;
+}
+.nav-links li a:hover{color:var(--text)}
+.nav-links .nav-book a{
+  background:var(--text);color:var(--bg);
+  font-weight:700;padding:7px 16px;
+  border-radius:var(--r-sm);
+  transition:opacity .15s;
+}
+.nav-links .nav-book a:hover{opacity:.85}
+@media(max-width:680px){
+  .nav-links{display:none}
+}
+
+/* ─── TICKER ─────────────────────────────────────────── */
+.ticker-rail{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+  height:36px;
+  display:flex;align-items:center;
+}
+.ticker-inner{
+  display:flex;
+  white-space:nowrap;
+  animation:scroll-left 40s linear infinite;
+  will-change:transform;
+}
+.ticker-inner:hover{animation-play-state:paused}
+.ticker-item{
+  font-size:.7rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--sub);
+  padding:0 24px;
+  display:flex;align-items:center;gap:8px;
+}
+.ticker-item .t-hi{color:var(--text)}
+.ticker-item .t-accent{color:var(--accent)}
+.ticker-item .t-euv{color:var(--euv)}
+.ticker-item .t-gold{color:var(--gold)}
+@keyframes scroll-left{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* ─── HERO ───────────────────────────────────────────── */
+.hero{
+  padding-top:56px;
+  min-height:100svh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding-bottom:72px;
+  position:relative;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%,rgba(192,96,255,.14) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 30% at 85% 80%,rgba(0,158,227,.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+/* subtle grid */
+.hero-bg::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+.hero-inner{
+  position:relative;z-index:2;
+  max-width:1200px;margin:0 auto;padding:0 24px;
+  width:100%;
+}
+.hero-status{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.72rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--sub);
+  margin-bottom:32px;
+}
+.hero-h1{
+  font-size:clamp(3rem,8vw,6.5rem);
+  font-weight:900;
+  letter-spacing:-.03em;
+  line-height:.95;
+  text-transform:uppercase;
+  margin-bottom:28px;
+}
+.hero-h1 em{font-style:italic;font-weight:900}
+.hero-sub{
+  font-size:clamp(.95rem,1.5vw,1.1rem);
+  color:var(--sub);
+  max-width:520px;
+  line-height:1.65;
+  margin-bottom:36px;
+}
+.hero-actions{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.82rem;font-weight:700;letter-spacing:.04em;
+  padding:11px 22px;border-radius:var(--r-sm);
+  transition:all .15s;
+  text-transform:uppercase;
+}
+.btn-primary{background:var(--text);color:var(--bg)}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{
+  color:var(--sub);
+  border:1px solid var(--border-md);
+  border-radius:var(--r-sm);
+}
+.btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.25)}
+
+/* countdown strip */
+.hero-countdown{
+  margin-top:56px;
+  padding-top:32px;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:0;flex-wrap:wrap;
+}
+.cd-label{
+  font-size:.65rem;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--sub);
+  margin-right:32px;
+  flex-shrink:0;
+}
+.cd-units{display:flex;gap:0}
+.cd-unit{
+  text-align:center;padding:0 24px;
+  border-right:1px solid var(--border);
+}
+.cd-unit:first-child{padding-left:0}
+.cd-unit:last-child{border-right:none}
+.cd-n{
+  font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;
+  letter-spacing:-.03em;line-height:1;
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.cd-t{
+  font-size:.6rem;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--sub);margin-top:3px;
+}
+@media(max-width:480px){
+  .cd-label{width:100%;margin-bottom:16px;margin-right:0}
+  .cd-unit{padding:0 16px}
+}
+
+/* ─── SECTION WRAPPER ────────────────────────────────── */
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* ─── FEATURED STRIP ─────────────────────────────────── */
+.featured{
+  padding:80px 0;
+  border-bottom:1px solid var(--border);
+}
+.feat-header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+  margin-bottom:40px;
+}
+.feat-h2{
+  font-size:clamp(1.4rem,3vw,2rem);
+  font-weight:800;letter-spacing:-.02em;
+  text-transform:uppercase;line-height:1.1;
+}
+.feat-h2 em{font-style:italic;font-weight:800}
+
+/* two col grid */
+.feat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+}
+@media(max-width:720px){.feat-grid{grid-template-columns:1fr}}
+.feat-card{
+  background:var(--bg);
+  padding:36px 32px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  min-height:340px;
+  position:relative;
+  overflow:hidden;
+  transition:background .2s;
+}
+.feat-card:hover{background:var(--surface)}
+.feat-card-glow{
+  position:absolute;
+  top:-40%;left:-20%;
+  width:60%;height:60%;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:.15;
+  filter:blur(60px);
+}
+.fc-reopen .feat-card-glow{background:var(--accent)}
+.fc-euv    .feat-card-glow{background:var(--euv)}
+.feat-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.68rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:4px 11px;border-radius:100px;
+  align-self:flex-start;margin-bottom:24px;
+}
+.tag-reopen{
+  background:rgba(192,96,255,.1);
+  border:1px solid rgba(192,96,255,.25);
+  color:var(--accent);
+}
+.tag-euv{
+  background:rgba(0,158,227,.1);
+  border:1px solid rgba(0,158,227,.25);
+  color:var(--euv);
+}
+.feat-date{
+  font-size:.75rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--sub);
+  margin-bottom:10px;
+}
+.feat-title{
+  font-size:clamp(1.3rem,2.5vw,1.8rem);
+  font-weight:800;letter-spacing:-.02em;
+  text-transform:uppercase;line-height:1.1;
+  margin-bottom:12px;
+}
+.feat-title em{font-style:italic;font-weight:800}
+.feat-body{
+  font-size:.875rem;color:var(--sub);
+  line-height:1.6;max-width:360px;
+  margin-bottom:24px;
+}
+.feat-meta{
+  font-size:.72rem;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--sub);
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:0;flex-wrap:wrap;
+}
+.cap-live{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--warn);font-weight:700;
+}
+.cap-live::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--warn);
+  animation:blink 1.4s ease-in-out infinite;
+  flex-shrink:0;
+}
+
+/* inline btn */
+.btn-invert{
+  background:transparent;
+  border:1px solid var(--border-md);
+  color:var(--sub);
+}
+.btn-invert:hover{border-color:rgba(255,255,255,.3);color:var(--text)}
+
+/* ─── FILTER BAR ─────────────────────────────────────── */
+.filter-bar{
+  position:sticky;top:56px;z-index:100;
+  background:rgba(8,8,8,.96);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.filter-inner{
+  max-width:1200px;margin:0 auto;
+  padding:0 24px;
+  display:flex;align-items:center;gap:2px;
+  overflow-x:auto;scrollbar-width:none;
+  height:48px;
+}
+.filter-inner::-webkit-scrollbar{display:none}
+.f-btn{
+  flex-shrink:0;
+  padding:5px 14px;border-radius:100px;
+  font-size:.72rem;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;
+  color:var(--sub);
+  border:1px solid transparent;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.f-btn:hover{color:var(--text);border-color:var(--border-md)}
+.f-btn.is-active{
+  color:var(--text);
+  background:rgba(255,255,255,.06);
+  border-color:var(--border-md);
+}
+/* type-specific active */
+.f-btn[data-f="drag"].is-active    {color:#f472b6;border-color:rgba(244,114,182,.3);background:rgba(244,114,182,.08)}
+.f-btn[data-f="karaoke"].is-active {color:#38bdf8;border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.08)}
+.f-btn[data-f="dj"].is-active      {color:var(--accent);border-color:rgba(192,96,255,.3);background:var(--accent-lo)}
+.f-btn[data-f="pride"].is-active   {color:#4ade80;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08)}
+.f-btn[data-f="special"].is-active {color:var(--gold);border-color:rgba(240,192,64,.3);background:rgba(240,192,64,.08)}
+.f-btn[data-f="eurovision"].is-active{color:var(--euv);border-color:rgba(0,158,227,.3);background:rgba(0,158,227,.08)}
+.f-btn[data-f="recurring"].is-active{color:var(--sub);border-color:var(--border-md)}
+
+/* ─── EVENTS ─────────────────────────────────────────── */
+.events{padding:64px 0 80px}
+.month-block{margin-bottom:56px}
+.month-block.is-hidden{display:none}
+.month-label{
+  font-size:.68rem;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim);
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:0;
+}
+
+/* event row */
+.ev{
+  display:grid;
+  grid-template-columns:64px 1fr auto;
+  gap:20px;align-items:center;
+  padding:18px 0;
+  border-bottom:1px solid var(--border);
+  position:relative;
+  transition:background .12s;
+}
+.ev:hover{
+  background:rgba(255,255,255,.02);
+  margin:0 -16px;padding-left:16px;padding-right:16px;
+  border-radius:var(--r-sm);
+  border-bottom-color:transparent;
+}
+.ev.is-hidden{display:none}
+@media(max-width:600px){
+  .ev{grid-template-columns:52px 1fr}
+  .ev-action{display:none}
+}
+
+/* featured glow bar */
+.ev.ev-feat::before{
+  content:'';
+  position:absolute;left:0;top:12px;bottom:12px;
+  width:2px;border-radius:2px;
+  background:var(--accent);
+  opacity:.6;
+}
+.ev.ev-feat:hover::before{opacity:1}
+
+.ev-date{
+  text-align:center;flex-shrink:0;
+}
+.ev-day{
+  font-size:1.9rem;font-weight:900;
+  letter-spacing:-.03em;line-height:1;
+  color:var(--text);
+}
+.ev-wday{
+  font-size:.6rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);
+  margin-top:2px;
+}
+
+.ev-body{min-width:0}
+.ev-tags{
+  display:flex;gap:6px;flex-wrap:wrap;
+  margin-bottom:5px;
+}
+.ev-tag{
+  font-size:.62rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:2px 8px;border-radius:100px;
+}
+.ev-tag-drag     {color:#f472b6;background:rgba(244,114,182,.1)}
+.ev-tag-karaoke  {color:#38bdf8;background:rgba(56,189,248,.1)}
+.ev-tag-dj       {color:var(--accent);background:var(--accent-lo)}
+.ev-tag-pride    {color:#4ade80;background:rgba(74,222,128,.1)}
+.ev-tag-special  {color:var(--gold);background:rgba(240,192,64,.1)}
+.ev-tag-eurovision{color:var(--euv);background:rgba(0,158,227,.1)}
+.ev-tag-recurring{color:var(--dim);background:rgba(255,255,255,.04)}
+.ev-tag-feat     {color:var(--accent);font-style:italic}
+
+.ev-name{
+  font-size:1rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:3px;
+}
+.ev-meta{
+  font-size:.75rem;color:var(--sub);
+  display:flex;align-items:center;gap:0;flex-wrap:wrap;
+}
+.ev-cap{
+  display:inline-flex;align-items:center;gap:4px;
+  color:var(--warn);font-weight:600;
+  font-size:.72rem;
+}
+.ev-cap::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--warn);
+  animation:blink 1.4s infinite;
+  flex-shrink:0;
+}
+.ev-free{
+  color:#4ade80;font-weight:700;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
+}
+
+.ev-action{flex-shrink:0}
+.ev-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.72rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:7px 14px;border-radius:var(--r-sm);
+  border:1px solid var(--border-md);
+  color:var(--sub);
+  white-space:nowrap;
+  transition:all .15s;
+}
+.ev-btn:hover{border-color:rgba(255,255,255,.25);color:var(--text)}
+.ev-btn-free{border-color:rgba(74,222,128,.25);color:#4ade80}
+.ev-btn-free:hover{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.5)}
+.ev-btn-hot{border-color:rgba(192,96,255,.3);color:var(--accent)}
+.ev-btn-hot:hover{background:var(--accent-lo)}
+.ev-btn-euv{border-color:rgba(0,158,227,.3);color:var(--euv)}
+.ev-btn-euv:hover{background:rgba(0,158,227,.1)}
+
+/* recurring rows */
+.ev-recurring .ev-day{font-size:1rem;letter-spacing:.06em;color:var(--dim)}
+
+/* ─── SCHEDULE ───────────────────────────────────────── */
+.schedule{
+  padding:72px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.sch-grid{
+  margin-top:36px;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+}
+@media(max-width:960px){.sch-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:560px){.sch-grid{grid-template-columns:repeat(2,1fr)}}
+.sch-day{background:var(--bg);padding:18px 14px}
+.sch-dname{
+  font-size:.62rem;font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:14px;
+}
+.sch-ev{
+  margin-bottom:10px;padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+.sch-ev:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.sch-en{font-size:.78rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:2px}
+.sch-et{font-size:.68rem;color:var(--sub)}
+.sch-er{font-size:.62rem;color:var(--accent);font-weight:600;margin-top:1px}
+
+/* ─── NEWSLETTER ─────────────────────────────────────── */
+.nl{
+  padding:72px 0;
+  border-bottom:1px solid var(--border);
+}
+.nl-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;
+}
+@media(max-width:720px){.nl-wrap{grid-template-columns:1fr;gap:28px}}
+.nl-h{
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:800;letter-spacing:-.02em;
+  text-transform:uppercase;line-height:1.1;
+  margin-bottom:10px;
+}
+.nl-h em{font-style:italic;font-weight:800}
+.nl-sub{font-size:.875rem;color:var(--sub);line-height:1.6;max-width:380px}
+.nl-form{display:flex;gap:8px;flex-wrap:wrap}
+.nl-input{
+  flex:1;min-width:200px;
+  background:var(--surface);
+  border:1px solid var(--border-md);
+  border-radius:var(--r-sm);
+  padding:11px 14px;
+  color:var(--text);font-family:var(--fam);font-size:.875rem;
+  outline:none;transition:border-color .15s;
+}
+.nl-input::placeholder{color:var(--dim)}
+.nl-input:focus{border-color:rgba(255,255,255,.25)}
+.nl-note{font-size:.7rem;color:var(--dim);margin-top:8px}
+.nl-note a{color:var(--sub);text-decoration:underline;text-underline-offset:3px}
+
+/* ─── PROMOTER ───────────────────────────────────────── */
+.promo{padding:56px 0}
+.promo-inner{
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:36px 40px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
+}
+@media(max-width:640px){.promo-inner{padding:24px 20px}}
+.promo-h{
+  font-size:1.15rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:-.01em;
+  margin-bottom:5px;
+}
+.promo-h em{font-style:italic;font-weight:800}
+.promo-sub{font-size:.82rem;color:var(--sub)}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+.footer{
+  border-top:1px solid var(--border);
+  padding:56px 0 32px;
+  background:var(--surface);
+}
+.footer-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;
+  margin-bottom:40px;
+}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.footer-brand-name{
+  font-size:1rem;font-weight:900;letter-spacing:.1em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.footer-brand-sub{font-size:.82rem;color:var(--sub);line-height:1.6;max-width:240px;margin-bottom:16px}
+.footer-ht{
+  font-size:.6rem;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);
+  margin-bottom:12px;
+}
+.footer-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.footer-list a{font-size:.82rem;color:var(--sub);transition:color .15s}
+.footer-list a:hover{color:var(--text)}
+.footer-bottom{
+  padding-top:24px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-size:.72rem;color:var(--dim);
+}
+.footer-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.65rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:4px 11px;border-radius:100px;
+  border:1px solid var(--border-md);color:var(--sub);
+}
+
+/* ─── PRIDE ──────────────────────────────────────────── */
+/* Top rainbow bar */
+.pride-bar{
+  height:3px;
+  background:var(--rainbow);
+  position:fixed;top:0;left:0;right:0;z-index:300;
+}
+/* Season badge */
+.pride-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.65rem;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:3px 10px;border-radius:100px;
+  background:linear-gradient(90deg,rgba(255,0,24,.15),rgba(134,0,125,.15));
+  border:1px solid rgba(255,255,255,.15);
+  color:var(--text);
+  position:relative;overflow:hidden;
+}
+.pride-badge::before{
+  content:'';position:absolute;inset:0;
+  background:var(--rainbow);
+  opacity:.12;
+  border-radius:inherit;
+}
+/* Trans accent bar on Way Out Club row */
+.ev-trans::before{
+  background:linear-gradient(180deg,var(--trans-blue),var(--trans-pink),#fff,var(--trans-pink),var(--trans-blue)) !important;
+}
+/* Pride season section divider */
+.pride-season-divider{
+  padding:28px 0;
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:8px;
+}
+.pride-season-divider .psd-line{
+  flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+}
+.pride-season-divider .psd-label{
+  font-size:.68rem;font-weight:800;letter-spacing:.18em;
+  text-transform:uppercase;
+  background:var(--rainbow);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  white-space:nowrap;
+}
+/* Rainbow underline on hero "ZODIAC" */
+.hero-rainbow-word{
+  position:relative;display:inline;
+}
+.hero-rainbow-word::after{
+  content:'';
+  position:absolute;left:0;right:0;bottom:-4px;
+  height:3px;
+  background:var(--rainbow);
+  border-radius:2px;
+}
+/* Tag */
+.ev-tag-pride-season{
+  color:#fff;
+  background:linear-gradient(90deg,rgba(255,0,24,.25),rgba(134,0,125,.25));
+  border:1px solid rgba(255,255,255,.15);
+}
+/* ─── MISC ───────────────────────────────────────────── */
+@media(max-width:480px){
+  .btn{font-size:.75rem;padding:10px 16px}
+}
+
+/* ─── DUAL-CHANNEL TICKET BUTTONS ─────────────────────────────────────────── */
+.ev-action-dual { display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+.ev-btn-direct  { background:var(--accent); color:#fff; padding:8px 16px; border-radius:var(--r-sm); font-size:.78rem; font-weight:700; letter-spacing:.04em; white-space:nowrap; transition:opacity .15s; }
+.ev-btn-direct:hover { opacity:.85; }
+.ev-btn-outsavvy { font-size:.68rem; color:var(--sub); text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+.ev-btn-outsavvy:hover { color:var(--text); }
+
+/* ─── EMAIL CAPTURE OVERLAY ─────────────────────────────────────────────────── */
+#zt-overlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; }
+#zt-overlay.is-open { display:flex; }
+#zt-box { background:#0f0f0f; border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:32px; max-width:420px; width:90%; position:relative; }
+#zt-close { position:absolute; top:12px; right:16px; background:none; border:none; color:var(--sub); font-size:1.2rem; cursor:pointer; line-height:1; }
+#zt-label { font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; font-weight:600; }
+#zt-heading { font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:6px; letter-spacing:-.01em; }
+#zt-sub { font-size:.82rem; color:var(--sub); line-height:1.5; margin-bottom:20px; }
+#zt-form input[type=email], #zt-form input[type=text] { width:100%; padding:10px 14px; background:#111; border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--text); font-size:.88rem; margin-bottom:12px; font-family:var(--fam); }
+#zt-mkt { display:flex; align-items:flex-start; gap:8px; font-size:.78rem; color:var(--sub); line-height:1.4; margin-bottom:16px; cursor:pointer; }
+#zt-mkt input { margin-top:2px; accent-color:var(--accent); }
+#zt-submit { width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:6px; font-family:var(--fam); font-size:.82rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; transition:opacity .2s; }
+#zt-submit:hover { opacity:.85; }
+#zt-note { font-size:.7rem; color:var(--dim); margin-top:10px; text-align:center; }
+
+
+/* Mobile: show book button on recurring rows */
+@media(max-width:600px){
+  .ev-action-dual { display:flex!important; flex-direction:row; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .ev-action-dual .ev-btn-direct { font-size:.75rem; padding:8px 14px; }
+  .ev-action-dual .ev-btn-outsavvy { display:none; }
+  .ev-recurring { flex-wrap:wrap; grid-template-columns:52px 1fr; }
+  .ev-recurring .ev-action-dual { grid-column:1/-1; }
+}
+/* === MOBILE RESPONSIVE PACK === */
+@media(max-width:780px){
+  body{font-size:17px;line-height:1.65}
+  .page-wrap,.wrap{padding:36px 20px 72px}
+  h1,h2{font-size:clamp(1.6rem,5.5vw,2.8rem)}
+  .hero-sec,.page-hero{padding:56px 20px 48px}
+  .ev-grid,.events-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:560px){
+  body{font-size:16px}
+  .page-wrap,.wrap{padding:28px 16px 64px}
+  .filter-row,.nav-filters{flex-wrap:wrap;gap:8px}
+  .filter-btn{font-size:.72rem;padding:7px 14px}
+  .ev-card{border-radius:10px}
+  .cta-row,.hero-ctas{flex-direction:column;gap:10px;align-items:stretch}
+  .cta-row a,.hero-ctas a{width:100%;justify-content:center;text-align:center}
+}
+@media(max-width:380px){
+  .page-wrap,.wrap{padding:24px 14px 56px}
+}
+</style>
+<link rel="icon" href="https://www.zodiacbarlondon.com/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://www.zodiacbarlondon.com/events">
+<meta property="og:title" content="What's On at ZODIAC — Camden's Queer Venue">
+<meta property="og:description" content="Drag. Karaoke. DJ nights. Trans events. Eurovision. Seven nights a week at 119 Hampstead Road, Camden.">
+<meta property="og:image" content="https://www.zodiacbarlondon.com/shared/og/zodiac.png">
+<meta property="og:url" content="https://www.zodiacbarlondon.com/events">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@zodiacbarlondon">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-59MLTE2CD9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',wait_for_update:500});gtag('js',new Date());gtag('config','G-59MLTE2CD9',{anonymize_ip:true,linker:{domains:['zodiacbarlondon.com','partnerships.community']}});</script>
+
+<script>
+(function(){
+  var email=new URLSearchParams(location.search).get('e');
+  if(!email)return;
+  var enc=encodeURIComponent(email);
+  window._ze=email;
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('a[href*="buy.stripe.com"]').forEach(function(a){
+      a.href=a.href+(a.href.includes('?')?'&':'?')+'prefilled_email='+enc;
+    });
+  });
+})();
+</script>
+</head>
+<body>
+
+<!-- PRIDE RAINBOW BAR -->
+<div class="pride-bar" aria-hidden="true"></div>
+
+<!-- STANDARD ZODIAC NAV STACK -->
+<style>
+.zs-top{position:fixed;top:4px;left:0;right:0;z-index:299;display:flex;align-items:stretch;background:linear-gradient(90deg,#FF2EA7,#FF1A6C,#FF2EA7);box-shadow:0 2px 12px rgba(255,46,167,.4);border-bottom:1px solid rgba(255,255,255,.18)}
+.zs-top a{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;white-space:nowrap}
+.zs-top a+a{border-left:1px solid rgba(255,255,255,.25)}
+.zs-top a:hover{background:rgba(0,0,0,.12)}
+.zs-top .zs-num{font-size:.95rem;font-weight:900;text-decoration:underline;text-underline-offset:3px}
+.zs-info{position:fixed;top:50px;left:0;right:0;z-index:298;display:flex;align-items:stretch;background:rgba(8,8,18,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+.zs-info .zs-cell{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 14px;font-family:'Space Grotesk',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:.68rem;color:#fff;text-decoration:none}
+.zs-info .zs-cell+.zs-cell{border-left:1px solid rgba(255,255,255,.08)}
+.zs-info .zs-cell strong{color:#6BCB77}
+.zs-info a.zs-cell:hover{background:rgba(0,238,255,.07);color:#00EEFF}
+.zs-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6BCB77;animation:zsblink 1.6s infinite;flex-shrink:0}
+@keyframes zsblink{0%,100%{opacity:1}50%{opacity:.15}}
+.zs-nav{position:fixed;top:88px;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:11px 36px;background:rgba(3,2,10,.97);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.09);font-family:'Space Grotesk',sans-serif}
+.zs-logo{font-weight:700;font-size:.95rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;text-decoration:none}
+.zs-links{display:flex;gap:22px;font-size:.72rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.zs-links a:hover,.zs-links a.on{color:#fff;text-decoration:none}
+.zs-cta{background:linear-gradient(135deg,#7B2DFF,#FF2D78);color:#fff;padding:9px 20px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.zs-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.zs-burger span{display:block;width:22px;height:2px;background:rgba(255,255,255,.8);border-radius:2px;transition:transform .25s,opacity .25s}
+.zs-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.zs-burger.open span:nth-child(2){opacity:0}
+.zs-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.zs-mobile{display:none;position:fixed;top:130px;left:0;right:0;background:rgba(3,2,10,.98);border-bottom:1px solid rgba(123,45,255,.3);padding:18px 28px;flex-direction:column;z-index:199}
+.zs-mobile.open{display:flex}
+.zs-mobile a{display:block;padding:12px 0;font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.06);text-decoration:none}
+.zs-mobile a:last-child{border-bottom:none;margin-top:12px;background:linear-gradient(135deg,#7B2DFF,#FF2D78);color:#fff!important;text-align:center;padding:13px 0;border-radius:100px}
+.zs-spacer{height:130px}
+@media(max-width:768px){.zs-nav{padding:10px 18px}.zs-links{display:none}.zs-burger{display:flex}}
+@media(max-width:600px){.zs-top a{font-size:.7rem;padding:10px 10px;letter-spacing:.08em}.zs-num{font-size:.82rem!important}}
+</style>
+
+<div class="zs-top">
+  <a href="tel:02071268230"><span class="zs-num">020 7126 8230</span></a>
+  <a href="mailto:info@zodiacbar.co.uk">info@zodiacbar.co.uk</a>
+</div>
+<div class="zs-info">
+  <div class="zs-cell"><span class="zs-dot"></span><span><strong>Open Every Day</strong> · 12pm till late</span></div>
+  <a class="zs-cell" href="mailto:info@zodiacbar.co.uk?subject=Lost%20Property%20%E2%80%94%20ZODIAC">Lost property →</a>
+</div>
+<nav class="zs-nav">
+  <a class="zs-logo" href="/">ZODIAC</a>
+  <div class="zs-links">
+    <a href="/events" class="on">What's On</a>
+    <a href="/karaoke">Karaoke</a>
+    <a href="/monday">Monday Night</a>
+    <a href="/mirror-mirror">Mirror Mirror</a>
+    <a href="/shop">Shop</a>
+    <a href="/invest-in-queer-venues-and-press" style="color:rgba(255,210,76,.75)">Press</a>
+  </div>
+  <button class="zs-burger" id="zs-burger" onclick="document.getElementById('zs-burger').classList.toggle('open');document.getElementById('zs-mobile').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <a class="zs-cta" href="/book">Reserve a Table →</a>
+</nav>
+<div class="zs-mobile" id="zs-mobile">
+  <a href="/events">What's On</a>
+  <a href="/karaoke">Karaoke</a>
+  <a href="/monday">Monday Night</a>
+  <a href="/mirror-mirror">Mirror Mirror</a>
+  <a href="/shop">Shop · Gift Cards</a>
+  <a href="/book">Reserve a Table →</a>
+</div>
+<div class="zs-spacer"></div>
+
+<!-- TICKER -->
+<div class="ticker-rail" style="margin-top:0">
+  <div class="ticker-inner" aria-hidden="true">
+    <!-- block 1 -->
+    <span class="ticker-item"><span class="u-dot"></span> <span class="t-hi">HAUS RULES · Grand Reopening</span> · 9 & 10 May · 12pm to Late · Kinkeoke Downstairs · Free Entry</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item"><span class="t-euv">Eurovision Week</span> · 12 · 14 · 16 May · Tickets on OutSavvy</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">🏳️‍🌈 <span class="t-accent">Pride Season · June 2026</span> · Pink Friday Pre-Pride SteamPunk · 12 June</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">🏳️‍⚧️ <span class="t-hi">Way Out Club</span> · UK's longest-running Trans night · 16 May · 9pm</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item"><span class="t-hi">Drag Bingo</span> w/ Eileen · Every Thursday · Win up to £75 bar tab</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">Karaoke Mania · Mon–Wed · 6:30pm · Walk-ins welcome</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item"><span class="t-gold">Pink Friday</span> · Pre-Pride SteamPunk · 12 June · Tickets on Outsavvy</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">Trans-founded by Jade Phoenix Hoskins · £300,000+ raised for LGBTQ+ causes · 119 Hampstead Road NW1</span>
+    <span class="ticker-item">·</span>
+    <!-- block 2 (duplicate for seamless loop) -->
+    <span class="ticker-item"><span class="u-dot"></span> <span class="t-hi">HAUS RULES · Grand Reopening</span> · 9 & 10 May · 12pm to Late · Kinkeoke Downstairs · Free Entry</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item"><span class="t-euv">Eurovision Week</span> · 12 · 14 · 16 May · Tickets on OutSavvy</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">🏳️‍🌈 <span class="t-accent">Pride Season · June 2026</span> · Pink Friday Pre-Pride SteamPunk · 12 June</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">🏳️‍⚧️ <span class="t-hi">Way Out Club</span> · UK's longest-running Trans night · 16 May · 9pm</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item"><span class="t-hi">Drag Bingo</span> w/ Eileen · Every Thursday · Win up to £75 bar tab</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">Karaoke Mania · Mon–Wed · 6:30pm · Walk-ins welcome</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item"><span class="t-gold">Pink Friday</span> · Pre-Pride SteamPunk · 12 June · Tickets on Outsavvy</span>
+    <span class="ticker-item">·</span>
+    <span class="ticker-item">Trans-founded by Jade Phoenix Hoskins · £300,000+ raised for LGBTQ+ causes · 119 Hampstead Road NW1</span>
+    <span class="ticker-item">·</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-status">
+      <span class="u-dot"></span> Live now · Seven nights · Camden NW1
+    </div>
+    <h1 class="hero-h1">
+      What's on<br>at <em class="hero-rainbow-word">ZODIAC.</em>
+    </h1>
+    <p class="hero-sub">
+      Drag. Karaoke. DJ nights. Trans events. Eurovision. Pride Season.
+      Seven nights a week at 119 Hampstead Road — Camden's queer constellation.
+    </p>
+    <div class="hero-actions">
+      <a href="#events" class="btn btn-primary">Browse events ↓</a>
+      <a href="https://www.zodiacbarlondon.com/grand-reopening" class="btn btn-ghost">Grand Reopening →</a>
+      <a href="https://www.zodiacbarlondon.com/eurovision" class="btn btn-ghost">Eurovision week →</a>
+    </div>
+
+    <!-- Countdown -->
+    <div class="hero-countdown">
+      <span class="cd-label">Grand Reopening · 9 May 2026 · 12pm</span>
+      <div class="cd-units">
+        <div class="cd-unit"><div class="cd-n" id="cd-d">--</div><div class="cd-t">Days</div></div>
+        <div class="cd-unit"><div class="cd-n" id="cd-h">--</div><div class="cd-t">Hours</div></div>
+        <div class="cd-unit"><div class="cd-n" id="cd-m">--</div><div class="cd-t">Mins</div></div>
+        <div class="cd-unit"><div class="cd-n" id="cd-s">--</div><div class="cd-t">Secs</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<section class="featured">
+  <div class="wrap">
+    <div class="feat-header">
+      <div>
+        <div class="u-label" style="margin-bottom:8px">Don't miss</div>
+        <h2 class="feat-h2">Two unmissable nights <em>this May.</em></h2>
+      </div>
+      <a href="#events" class="btn btn-ghost" style="font-size:.72rem;padding:8px 16px">See all events ↓</a>
+    </div>
+
+    <div class="feat-grid">
+
+      <!-- Grand Reopening -->
+      <div class="feat-card fc-reopen">
+        <div class="feat-card-glow"></div>
+        <div>
+          <span class="feat-tag tag-reopen">🌟 Grand Reopening</span>
+          <div class="feat-date">9 &amp; 10 May 2026 · 12pm to Late</div>
+          <h3 class="feat-title">ZODIAC is back —<br><em>and we've levelled up.</em></h3>
+          <p class="feat-body">Two days. Two floors. One community. Pole dancing, bar walks, meet the artists — and Kinkeoke downstairs all weekend. 12pm till late both days. This is your homecoming.</p>
+        </div>
+        <div>
+          <div class="feat-meta">
+            <span class="cap-live">250 spots per day · filling now</span>
+            <span class="u-sep">·</span>
+            <span>Free entry</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a href="https://www.zodiacbarlondon.com/grand-reopening" class="btn btn-primary" style="font-size:.8rem;padding:10px 20px">Reserve a spot →</a>
+            <a href="https://www.zodiacbarlondon.com/grand-reopening" class="btn btn-ghost" style="font-size:.8rem;padding:10px 20px">What's on</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eurovision -->
+      <div class="feat-card fc-euv">
+        <div class="feat-card-glow"></div>
+        <div>
+          <span class="feat-tag tag-euv">🎤 Eurovision Week 2026</span>
+          <div class="feat-date">12 · 14 · 16 May · Vienna comes to Camden</div>
+          <h3 class="feat-title">Douze points.<br><em>Camden picks up Vienna.</em></h3>
+          <p class="feat-body">Three nights. Country sweepstake. Eileen's Drag Bingo. Costume parade. Prediction pot. GA from £15. Booth from £35. VIP table from £75. Week Pass £35 all three nights.</p>
+        </div>
+        <div>
+          <div class="feat-meta">
+            <span>250 per night</span>
+            <span class="u-sep">·</span>
+            <span>Doors 19:30 · Show 20:00 UK</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a href="https://www.zodiacbarlondon.com/eurovision" class="btn btn-primary" style="font-size:.8rem;padding:10px 20px">Get tickets →</a>
+            <a href="https://www.zodiacbarlondon.com/eurovision#games" class="btn btn-ghost" style="font-size:.8rem;padding:10px 20px">How it plays</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="events">
+  <div class="filter-inner">
+    <button class="f-btn is-active" data-f="all">All events</button>
+    <button class="f-btn" data-f="drag">Drag</button>
+    <button class="f-btn" data-f="karaoke">Karaoke</button>
+    <button class="f-btn" data-f="dj">DJ Nights</button>
+    <button class="f-btn" data-f="eurovision">Eurovision</button>
+    <button class="f-btn" data-f="pride">Pride &amp; Community</button>
+    <button class="f-btn" data-f="special">Special Events</button>
+    <button class="f-btn" data-f="recurring">Weekly Regulars</button>
+  </div>
+</div>
+
+<!-- EVENTS LIST -->
+<div class="events">
+  <div class="wrap">
+
+    <!-- APRIL -->
+    <div class="month-block" data-month="april">
+      <div class="month-label">April 2026</div>
+
+      <a href="https://www.outsavvy.com/event/29751/fridaoke-with-dee-chanelle" class="ev" data-type="karaoke">
+        <div class="ev-date"><div class="ev-day">24</div><div class="ev-wday">Fri</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span></div>
+          <div class="ev-name">Dee Chanelle's Weekend Karaoke Workout</div>
+          <div class="ev-meta"><span>7pm – 2am</span><span class="u-sep">·</span><span>Club Z</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/31485/dee-chanelle-weekend-karaoke-workout-saturday" class="ev" data-type="karaoke">
+        <div class="ev-date"><div class="ev-day">25</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span></div>
+          <div class="ev-name">Dee Chanelle's Weekend Karaoke Workout — Saturday</div>
+          <div class="ev-meta"><span>8pm – 2am</span><span class="u-sep">·</span><span>Club Z</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/35162/dj-tomices-haus-of-groove" class="ev" data-type="dj">
+        <div class="ev-date"><div class="ev-day">25</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-dj">DJ Night</span></div>
+          <div class="ev-name">DJ Tomice's Haus of Groove</div>
+          <div class="ev-meta"><span>9pm – Late</span><span class="u-sep">·</span><span>Main Bar</span><span class="u-sep">·</span><span class="ev-cap">Filling fast</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn ev-btn-hot">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/24355/game-on-eileen-drag-bingo" class="ev" data-type="drag">
+        <div class="ev-date"><div class="ev-day">30</div><div class="ev-wday">Thu</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-drag">Drag</span></div>
+          <div class="ev-name">Game On Eileen! Drag Bingo · Win up to £75 bar tab</div>
+          <div class="ev-meta"><span>7pm – 10pm</span><span class="u-sep">·</span><span>Main Bar</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/27022/londons-1-daily-karaoke-party-zodiac" class="ev" data-type="karaoke" target="_blank" rel="noopener">
+        <div class="ev-date"><div class="ev-day">30</div><div class="ev-wday">Thu</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span></div>
+          <div class="ev-name">Thirsty Thursday Karaoke</div>
+          <div class="ev-meta"><span>7pm – 2am</span><span class="u-sep">·</span><span>Club Z</span><span class="u-sep">·</span><span>Free – £5</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Book on OutSavvy →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/27021/temptation" class="ev" data-type="special">
+        <div class="ev-date"><div class="ev-day">30</div><div class="ev-wday">Thu</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-special">Special Event</span></div>
+          <div class="ev-name">Temptation — Brandy X Birthday Edition</div>
+          <div class="ev-meta"><span>7pm – 2am</span><span class="u-sep">·</span><span>Main Bar</span><span class="u-sep">·</span><span>£10 on the door</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+    </div>
+
+    <!-- MAY -->
+    <div class="month-block" data-month="may">
+      <div class="month-label">May 2026</div>
+
+      <a href="https://www.outsavvy.com/event/29751/fridaoke-with-dee-chanelle" class="ev" data-type="karaoke">
+        <div class="ev-date"><div class="ev-day">1</div><div class="ev-wday">Fri</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span></div>
+          <div class="ev-name">Weekend Karaoke Madness with Dee — Bank Holiday Friday</div>
+          <div class="ev-meta"><span>7pm – 2am</span><span class="u-sep">·</span><span>Club Z</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/31485/dee-chanelle-weekend-karaoke-workout-saturday" class="ev" data-type="karaoke">
+        <div class="ev-date"><div class="ev-day">2</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span></div>
+          <div class="ev-name">Weekend Karaoke Madness with Dee Chanelle</div>
+          <div class="ev-meta"><span>7pm – 2am</span><span class="u-sep">·</span><span>Club Z</span><span class="u-sep">·</span><span>£5 from 9pm</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.zodiacbarlondon.com/book" class="ev" data-type="special">
+        <div class="ev-date"><div class="ev-day">2</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-special">Special Event</span></div>
+          <div class="ev-name">Exilio Latin Night — Salsa, Reggaeton &amp; Latin House</div>
+          <div class="ev-meta"><span>10pm – 2am</span><span class="u-sep">·</span><span>Main Bar</span><span class="u-sep">·</span><span>£10 at the door</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/24360/mega-karaoke-sunday" class="ev" data-type="karaoke" target="_blank" rel="noopener">
+        <div class="ev-date"><div class="ev-day">3</div><div class="ev-wday">Sun</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span></div>
+          <div class="ev-name">Sunday Karaoke Star with Alotta</div>
+          <div class="ev-meta"><span>8:30pm – Midnight</span><span class="u-sep">·</span><span>Main Bar</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Book on OutSavvy →</span></div>
+      </a>
+
+      <a href="https://www.zodiacbarlondon.com/grand-reopening" class="ev ev-feat" data-type="special">
+        <div class="ev-date"><div class="ev-day">9</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-special">HAUS RULES</span><span class="ev-tag ev-tag-feat">★ Grand Reopening Night 1</span></div>
+          <div class="ev-name">ZODIAC Grand Reopening Weekend · Night One</div>
+          <div class="ev-meta"><span>12pm – Late</span><span class="u-sep">·</span><span class="ev-free">Free</span><span class="u-sep">·</span><span>Both Floors</span><span class="u-sep">·</span><span class="ev-cap">250 spots</span></div>
+        </div>
+        <div class="ev-action"><a href="https://www.zodiacbarlondon.com/grand-reopening" class="ev-btn ev-btn-free">Reserve →</a></div>
+      </a>
+
+      <div class="ev" data-type="special">
+        <div class="ev-date"><div class="ev-day">9</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Kinkeoke</span><span class="ev-tag" style="color:#4ade80;background:rgba(74,222,128,.1)">✅ Confirmed</span></div>
+          <div class="ev-name">Kinkeoke — Downstairs</div>
+          <div class="ev-meta"><span>12pm – Late</span><span class="u-sep">·</span><span>Club Z (downstairs)</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Free entry</span></div>
+      </div>
+
+      <a href="https://www.zodiacbarlondon.com/grand-reopening" class="ev ev-feat" data-type="special">
+        <div class="ev-date"><div class="ev-day">10</div><div class="ev-wday">Sun</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-special">HAUS RULES</span><span class="ev-tag ev-tag-feat">★ Grand Reopening Night 2</span></div>
+          <div class="ev-name">ZODIAC Grand Reopening Weekend · Night Two</div>
+          <div class="ev-meta"><span>12pm – Late</span><span class="u-sep">·</span><span class="ev-free">Free</span><span class="u-sep">·</span><span>Both Floors</span><span class="u-sep">·</span><span class="ev-cap">250 spots</span></div>
+        </div>
+        <div class="ev-action"><a href="https://www.zodiacbarlondon.com/grand-reopening" class="ev-btn ev-btn-free">Reserve →</a></div>
+      </a>
+
+      <div class="ev" data-type="special">
+        <div class="ev-date"><div class="ev-day">10</div><div class="ev-wday">Sun</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Kinkeoke</span><span class="ev-tag" style="color:#4ade80;background:rgba(74,222,128,.1)">✅ Confirmed</span></div>
+          <div class="ev-name">Kinkeoke — Downstairs</div>
+          <div class="ev-meta"><span>12pm – Late</span><span class="u-sep">·</span><span>Club Z (downstairs)</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Free entry</span></div>
+      </div>
+
+      <a href="https://www.zodiacbarlondon.com/eurovision#tickets" class="ev ev-feat" data-type="eurovision">
+        <div class="ev-date"><div class="ev-day">12</div><div class="ev-wday">Tue</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-eurovision">Eurovision</span><span class="ev-tag ev-tag-feat">★ Featured</span></div>
+          <div class="ev-name">Eurovision Semi-Final 1 — Vienna Comes to Camden</div>
+          <div class="ev-meta"><span>Doors 19:30 · Show 20:00 UK</span><span class="u-sep">·</span><span>From £15</span><span class="u-sep">·</span><span>Both Floors</span></div>
+        </div>
+        <div class="ev-action"><a href="https://www.zodiacbarlondon.com/eurovision#tickets" class="ev-btn ev-btn-euv">Tickets →</a></div>
+      </a>
+
+      <a href="https://www.zodiacbarlondon.com/eurovision#tickets" class="ev ev-feat" data-type="eurovision">
+        <div class="ev-date"><div class="ev-day">14</div><div class="ev-wday">Thu</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-eurovision">Eurovision</span><span class="ev-tag ev-tag-feat">★ Featured</span></div>
+          <div class="ev-name">Eurovision Semi-Final 2 — The Final Ten</div>
+          <div class="ev-meta"><span>Doors 19:30 · Show 20:00 UK</span><span class="u-sep">·</span><span>From £15</span></div>
+        </div>
+        <div class="ev-action"><a href="https://www.zodiacbarlondon.com/eurovision#tickets" class="ev-btn ev-btn-euv">Tickets →</a></div>
+      </a>
+
+      <a href="https://www.zodiacbarlondon.com/eurovision#tickets" class="ev ev-feat" data-type="eurovision">
+        <div class="ev-date"><div class="ev-day">16</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-eurovision">Eurovision</span><span class="ev-tag ev-tag-dj">Late Party</span><span class="ev-tag ev-tag-feat">★ Grand Final</span></div>
+          <div class="ev-name">Eurovision Grand Final — Douze Points, Camden 🏆</div>
+          <div class="ev-meta"><span>Doors 19:30 · Show 20:00 · Late party after</span><span class="u-sep">·</span><span>From £15</span><span class="u-sep">·</span><span class="ev-cap">Selling fast</span></div>
+        </div>
+        <div class="ev-action"><a href="https://www.zodiacbarlondon.com/eurovision#tickets" class="ev-btn ev-btn-euv">Tickets →</a></div>
+      </a>
+
+      <a href="https://www.outsavvy.com/event/24354/way-out-club" class="ev ev-feat ev-trans" data-type="pride">
+        <div class="ev-date"><div class="ev-day">16</div><div class="ev-wday">Sat</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-pride">🏳️‍⚧️ Pride &amp; Community</span><span class="ev-tag ev-tag-feat">★ Featured</span></div>
+          <div class="ev-name">Way Out Club — UK's Longest-Running Trans Night</div>
+          <div class="ev-meta"><span>9pm – 2am</span><span class="u-sep">·</span><span>3rd Saturday</span><span class="u-sep">·</span><span>Both Floors</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+    </div>
+
+    <!-- PRIDE SEASON DIVIDER -->
+    <div class="pride-season-divider">
+      <div class="psd-line"></div>
+      <div class="psd-label">🏳️‍🌈 Pride Season · June 2026</div>
+      <div class="psd-line"></div>
+    </div>
+
+    <!-- JUNE -->
+    <div class="month-block" data-month="june">
+      <div class="month-label">June 2026 · Pride Season</div>
+
+      <a href="https://www.outsavvy.com/event/34289/pink-friday-pre-pride-steampunk-night" class="ev ev-feat" data-type="special">
+        <div class="ev-date"><div class="ev-day">12</div><div class="ev-wday">Fri</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-special">Special Event</span><span class="ev-tag ev-tag-pride">🏳️‍🌈 Pride &amp; Community</span><span class="ev-tag ev-tag-pride-season">Pride Season</span></div>
+          <div class="ev-name">Pink Friday Pre-Pride SteamPunk Night</div>
+          <div class="ev-meta"><span>Doors 8pm – Late</span><span class="u-sep">·</span><span>Tickets on Outsavvy</span></div>
+        </div>
+        <div class="ev-action"><span class="ev-btn">Tickets →</span></div>
+      </a>
+    </div>
+
+    <!-- RECURRING -->
+    <div class="month-block" data-month="recurring">
+      <div class="month-label" style="color:var(--dim)">Weekly Regulars</div>
+
+      <div class="ev ev-recurring" data-type="recurring">
+        <div class="ev-date"><div class="ev-day" style="font-size:.85rem;letter-spacing:.04em;color:var(--dim)">Mon–Wed</div><div class="ev-wday">Weekly</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span><span class="ev-tag ev-tag-recurring">Recurring</span></div>
+          <div class="ev-name">Karaoke Mania — Every Monday, Tuesday &amp; Wednesday</div>
+          <div class="ev-meta"><span>6:30pm – 1am</span><span class="u-sep">·</span><span>Club Z</span><span class="u-sep">·</span><span>Walk-ins welcome</span></div>
+        </div>
+        <div class="ev-action ev-action-dual">
+          <a href="mailto:events@zodiacbar.co.uk?subject=Karaoke%20Mania%20enquiry" class="ev-btn-direct" data-event="karaoke-entry">Email to enquire →</a>
+          <a href="tel:02071268230" class="ev-btn-outsavvy">Call 020 7126 8230</a>
+        </div>
+      </div>
+
+      <div class="ev ev-recurring" data-type="recurring">
+        <div class="ev-date"><div class="ev-day" style="font-size:1.2rem;letter-spacing:.04em;color:var(--dim)">Thu</div><div class="ev-wday">Weekly</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-drag">Drag</span><span class="ev-tag ev-tag-recurring">Recurring</span></div>
+          <div class="ev-name">Game On Eileen! Drag Bingo — Every Thursday</div>
+          <div class="ev-meta"><span>7pm – 10pm</span><span class="u-sep">·</span><span>Main Bar</span><span class="u-sep">·</span><span>Win up to £75 bar tab</span></div>
+        </div>
+        <div class="ev-action ev-action-dual">
+          <a href="mailto:events@zodiacbar.co.uk?subject=Drag%20Bingo%20enquiry%20%E2%80%94%20Game%20On%20Eileen" class="ev-btn-direct" data-event="drag-bingo">Email to enquire →</a>
+          <a href="https://www.outsavvy.com/event/24355/game-on-eileen-drag-bingo-with-eileen-eiffell-every-thursday" class="ev-btn-outsavvy" target="_blank" rel="noopener">Book on OutSavvy →</a>
+        </div>
+      </div>
+
+      <div class="ev ev-recurring" data-type="recurring">
+        <div class="ev-date"><div class="ev-day" style="font-size:1.2rem;letter-spacing:.04em;color:var(--dim)">Fri</div><div class="ev-wday">Weekly</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span><span class="ev-tag ev-tag-recurring">Recurring</span></div>
+          <div class="ev-name">Dee Chanelle's Weekend Karaoke Workout — Every Friday</div>
+          <div class="ev-meta"><span>7pm – 2am</span><span class="u-sep">·</span><span>Club Z</span></div>
+        </div>
+        <div class="ev-action ev-action-dual">
+          <a href="mailto:events@zodiacbar.co.uk?subject=Friday%20Karaoke%20Workout%20enquiry" class="ev-btn-direct" data-event="fri-karaoke">Email to enquire →</a>
+          <a href="https://www.outsavvy.com/event/29751/fridaoke-with-dee-chanelle" class="ev-btn-outsavvy" target="_blank" rel="noopener">Book on OutSavvy →</a>
+        </div>
+      </div>
+
+      <div class="ev ev-recurring" data-type="recurring">
+        <div class="ev-date"><div class="ev-day" style="font-size:1.2rem;letter-spacing:.04em;color:var(--dim)">Sat</div><div class="ev-wday">Weekly</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span><span class="ev-tag ev-tag-recurring">Recurring</span></div>
+          <div class="ev-name">Dee Chanelle's Weekend Karaoke Workout — Every Saturday</div>
+          <div class="ev-meta"><span>8pm – 2am</span><span class="u-sep">·</span><span>Club Z</span></div>
+        </div>
+        <div class="ev-action ev-action-dual">
+          <a href="mailto:events@zodiacbar.co.uk?subject=Saturday%20Karaoke%20Workout%20enquiry" class="ev-btn-direct" data-event="sat-karaoke">Email to enquire →</a>
+          <a href="https://www.outsavvy.com/event/31485/dee-chanelles-weekend-karaoke-workout-saturday-edition" class="ev-btn-outsavvy" target="_blank" rel="noopener">Book on OutSavvy →</a>
+        </div>
+      </div>
+
+      <div class="ev ev-recurring" data-type="recurring">
+        <div class="ev-date"><div class="ev-day" style="font-size:1.2rem;letter-spacing:.04em;color:var(--dim)">Sun</div><div class="ev-wday">Weekly</div></div>
+        <div class="ev-body">
+          <div class="ev-tags"><span class="ev-tag ev-tag-karaoke">Karaoke</span><span class="ev-tag ev-tag-recurring">Recurring</span></div>
+          <div class="ev-name">Sunday Karaoke Star with Alotta</div>
+          <div class="ev-meta"><span>8:30pm – Midnight</span><span class="u-sep">·</span><span>Main Bar</span></div>
+        </div>
+        <div class="ev-action ev-action-dual">
+          <a href="mailto:events@zodiacbar.co.uk?subject=Sunday%20Karaoke%20enquiry" class="ev-btn-direct" data-event="sun-karaoke">Email to enquire →</a>
+          <a href="https://www.outsavvy.com/event/24360/mega-karaoke-sunday" class="ev-btn-outsavvy" target="_blank" rel="noopener">Book on OutSavvy →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WEEKLY SCHEDULE -->
+<div class="schedule">
+  <div class="wrap">
+    <div class="u-label" style="margin-bottom:8px">At a glance</div>
+    <h2 style="font-size:clamp(1.4rem,3vw,2rem);font-weight:800;letter-spacing:-.02em;text-transform:uppercase;line-height:1.1">
+      The weekly <em style="font-style:italic">schedule.</em>
+    </h2>
+    <div class="sch-grid">
+      <div class="sch-day">
+        <div class="sch-dname">Monday</div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Mania</div><div class="sch-et">6:30pm – 1am</div><div class="sch-er">Club Z</div></div>
+      </div>
+      <div class="sch-day">
+        <div class="sch-dname">Tuesday</div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Mania</div><div class="sch-et">6:30pm – 1am</div><div class="sch-er">Club Z</div></div>
+      </div>
+      <div class="sch-day">
+        <div class="sch-dname">Wednesday</div>
+        <div class="sch-ev"><div class="sch-en">Daily Karaoke</div><div class="sch-et">6:30pm – 1am</div><div class="sch-er">Club Z</div></div>
+      </div>
+      <div class="sch-day">
+        <div class="sch-dname">Thursday</div>
+        <div class="sch-ev"><div class="sch-en">Drag Bingo w/ Eileen</div><div class="sch-et">7pm – 10pm</div><div class="sch-er">Main Bar</div></div>
+        <div class="sch-ev"><div class="sch-en">Thirsty Karaoke</div><div class="sch-et">7pm – 2am</div><div class="sch-er">Club Z</div></div>
+        <div class="sch-ev"><div class="sch-en">Temptation</div><div class="sch-et">7pm – 2am</div><div class="sch-er">Main Bar</div></div>
+      </div>
+      <div class="sch-day">
+        <div class="sch-dname">Friday</div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Workout</div><div class="sch-et">7pm – 2am</div><div class="sch-er">Club Z</div></div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Fever ⅓</div><div class="sch-et">7pm – 2am</div><div class="sch-er">Both Floors</div></div>
+      </div>
+      <div class="sch-day">
+        <div class="sch-dname">Saturday</div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Workout</div><div class="sch-et">8pm – 2am</div><div class="sch-er">Club Z</div></div>
+        <div class="sch-ev"><div class="sch-en">Way Out Club ⅓</div><div class="sch-et">9pm – 2am</div><div class="sch-er">Both Floors</div></div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Insomnia ⅓</div><div class="sch-et">Late</div><div class="sch-er">Both Floors</div></div>
+      </div>
+      <div class="sch-day">
+        <div class="sch-dname">Sunday</div>
+        <div class="sch-ev"><div class="sch-en">Karaoke Star w/ Alotta</div><div class="sch-et">8:30pm – Midnight</div><div class="sch-er">Main Bar</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="nl">
+  <div class="wrap">
+    <div class="nl-wrap">
+      <div>
+        <h2 class="nl-h">Never miss a night <em>at ZODIAC.</em></h2>
+        <p class="nl-sub">One email a week. Dates, ticket drops, Pride Season lineup, and the nights that sell out before they hit Instagram.</p>
+      </div>
+      <div>
+        <form class="nl-form" id="nlForm" onsubmit="return nlSubmit(event)">
+          <input type="email" class="nl-input" id="nlEmail" placeholder="your@email.com" required>
+          <button type="submit" class="btn btn-primary" id="nlBtn">Get event alerts →</button>
+        </form>
+        <p class="nl-note" id="nlNote">
+          No spam. Unsubscribe any time. <a href="https://instagram.com/zodiacbarlondon">@zodiacbarlondon</a>
+        </p>
+        <script>
+        function nlSubmit(e){
+          e.preventDefault();
+          var btn=document.getElementById('nlBtn');
+          var email=document.getElementById('nlEmail').value;
+          btn.disabled=true;btn.textContent='Adding…';
+          fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email:email,source:'events_newsletter',tags:['events-signup']})
+          }).then(function(){
+            document.getElementById('nlNote').innerHTML='<strong style="color:#4ade80">✓ You're in.</strong> First to know about every night.';
+            document.getElementById('nlForm').innerHTML='';
+          }).catch(function(){
+            btn.disabled=false;btn.textContent='Get event alerts →';
+          });
+          return false;
+        }
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROMOTER -->
+<div class="promo">
+  <div class="wrap">
+    <div class="promo-inner">
+      <div>
+        <div class="promo-h">Got a night to bring to <em>ZODIAC?</em></div>
+        <div class="promo-sub">DJs, drag collectives and event promoters. Three partnership tiers, one proper home for your night in Camden.</div>
+      </div>
+      <a href="https://www.zodiacbarlondon.com/promoter-programme" class="btn btn-ghost">Promoter programme →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">ZODIAC</div>
+        <p class="footer-brand-sub">Camden's queer bar, club and karaoke venue. Trans-founded by Lady Phoenix. LGBTQ+-led. Open since 5 November 2021.</p>
+        <a href="https://instagram.com/zodiacbarlondon" class="btn btn-ghost" style="font-size:.72rem;padding:6px 14px;display:inline-flex">@zodiacbarlondon →</a>
+      </div>
+      <div>
+        <div class="footer-ht">Venue</div>
+        <ul class="footer-list">
+          <li><a href="/events">What's On</a></li>
+          <li><a href="/karaoke">Karaoke</a></li>
+          <li><a href="/monday">Monday Night</a></li>
+          <li><a href="/mirror-mirror">Mirror Mirror</a></li>
+          <li><a href="/book">Reserve a Table</a></li>
+          <li><a href="/shop">Gift Cards</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-ht">Business</div>
+        <ul class="footer-list">
+          <li><a href="/hire">Private Hire</a></li>
+          <li><a href="/promoter-programme">Residency</a></li>
+          <li><a href="/invest-in-queer-venues-and-press">Press &amp; Invest</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-ht">Find Us</div>
+        <ul class="footer-list">
+          <li><a href="https://maps.google.com/?q=119+Hampstead+Road+London+NW1+3EE">119 Hampstead Road, NW1 3EE</a></li>
+          <li><a href="mailto:hello@zodiacbarlondon.co.uk">hello@zodiacbarlondon.co.uk</a></li>
+          <li><a href="https://www.zodiacbarlondon.com/tickets-terms">Ticket terms &amp; refunds</a></li>
+          <li><a href="https://www.zodiacbarlondon.com/terms">House rules</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ZODIAC Bar, Club &amp; Karaoke · 119 Hampstead Road, London NW1 3EE · Digital presence managed by <a href="https://www.partnerships.community" style="color:var(--sub)">partnerships.community</a></span>
+      <span class="footer-badge">🏳️‍⚧️ Trans-founded · 🏳️‍🌈 LGBTQ+ venue · All are welcome here</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── COUNTDOWN ─────────────────────────────────────────
+function tick(){
+  const target=new Date('2026-05-09T12:00:00');
+  const diff=target-new Date();
+  if(diff<=0){['d','h','m','s'].forEach(k=>document.getElementById('cd-'+k).textContent='00');return}
+  const d=Math.floor(diff/864e5);
+  const h=Math.floor(diff%864e5/36e5);
+  const m=Math.floor(diff%36e5/6e4);
+  const s=Math.floor(diff%6e4/1e3);
+  document.getElementById('cd-d').textContent=String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+}
+tick();setInterval(tick,1000);
+
+// ── FILTER ────────────────────────────────────────────
+document.querySelectorAll('.f-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    const f=btn.dataset.f;
+    document.querySelectorAll('.ev').forEach(ev=>{
+      ev.classList.toggle('is-hidden', f!=='all' && ev.dataset.type!==f);
+    });
+    document.querySelectorAll('.month-block').forEach(mb=>{
+      const visible=[...mb.querySelectorAll('.ev')].some(e=>!e.classList.contains('is-hidden'));
+      mb.classList.toggle('is-hidden',!visible);
+    });
+  });
+});
+</script>
+</body>
+</html>
