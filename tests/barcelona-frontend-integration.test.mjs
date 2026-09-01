@@ -46,7 +46,7 @@ test("DiscoveryMap.tsx: SearchCountry includes Spain alongside Portugal/Croatia"
   // "France" — this test's own name predates both and still asserts
   // Spain's presence correctly; the trailing `| "Germany" | "France"` is
   // asserted by its own Berlin/Paris-named tests below.
-  assert.match(src, /export type SearchCountry = "Portugal" \| "Croatia" \| "Spain" \| "Germany" \| "France";/);
+  assert.match(src, /export type SearchCountry = "Portugal" \| "Croatia" \| "Spain" \| "Germany" \| "France" \| "United Kingdom";/);
 });
 
 test("DiscoveryMap.tsx: COUNTRY_MAP_VIEWS has a Spain entry with real bounds/center/zoom", async () => {
@@ -107,12 +107,14 @@ test("page.tsx: the Where selector offers Spain alongside Portugal/Croatia", asy
 
 test("page.tsx: area selection receives Spain's marker bucket, not an old Portugal-only call", async () => {
   const src = await readPageSource();
-  // BEATMAPPED-ALL-CITIES-DEFAULT-MAP-01 keeps all four populated marker
+  // BEATMAPPED-ALL-CITIES-DEFAULT-MAP-01 keeps all five populated marker
   // buckets explicit while adding the frontend-only area selection layer.
+  // BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01
+  // additively appended unitedKingdomMarkers as a 6th argument.
   assert.match(
     src,
-    /getMarkersForArea\(area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers\)/,
-    "the area selector must receive Spain, Germany, and France alongside Portugal",
+    /getMarkersForArea\(area, portugalMarkers, spainMarkers, germanyMarkers, franceMarkers, unitedKingdomMarkers\)/,
+    "the area selector must receive Spain, Germany, France, and United Kingdom alongside Portugal",
   );
 });
 

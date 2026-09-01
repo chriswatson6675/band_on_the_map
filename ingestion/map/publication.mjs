@@ -179,6 +179,38 @@ export function buildFranceMarkers({
 }
 
 /**
+ * BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01: the
+ * United Kingdom/London sibling of buildPortugalMarkers()/
+ * buildSpainMarkers()/buildGermanyMarkers()/buildFranceMarkers() above —
+ * same projectObservationsToDisplayMarkers() machinery, same manual
+ * -coordinate composition, same artist-genre attachment, so London is
+ * never a second, independently-drifting projection path. `associations`
+ * defaults to `[]` (no hand-authored cross-source association pairs exist
+ * for London yet, matching Spain/Germany/Paris's own precedent) — a
+ * future London duplicate-listing case would need its own explicit,
+ * evidence-backed association module, following the Hot Clube/Capitólio
+ * precedent exactly.
+ */
+export function buildUnitedKingdomMarkers({
+  londonObservations,
+  londonVenues,
+  londonSourceRegistry,
+  associations = [],
+  manualCoordinatesByVenueId,
+  artistRegistry = [],
+  artistLinks = [],
+}) {
+  const markers = projectObservationsToDisplayMarkers(londonObservations ?? [], {
+    venues: londonVenues ?? [],
+    sourceRegistry: londonSourceRegistry ?? [],
+    associations,
+    manualCoordinatesByVenueId,
+  });
+
+  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
+}
+
+/**
  * Trim one full display marker (as produced by
  * projectObservationsToDisplayMarkers, which also carries the raw,
  * ungrouped `listings` array used only for internal proof/debug
@@ -300,6 +332,7 @@ export function buildPublicationArtifact({
   spainMarkers = [],
   germanyMarkers = [],
   franceMarkers = [],
+  unitedKingdomMarkers = [],
   sourceResults,
   observationCount,
   artistRegistry = [],
@@ -308,11 +341,13 @@ export function buildPublicationArtifact({
   const publicationSpainMarkers = (spainMarkers ?? []).map(toPublicationMarker);
   const publicationGermanyMarkers = (germanyMarkers ?? []).map(toPublicationMarker);
   const publicationFranceMarkers = (franceMarkers ?? []).map(toPublicationMarker);
+  const publicationUnitedKingdomMarkers = (unitedKingdomMarkers ?? []).map(toPublicationMarker);
   const allPublicationMarkers = [
     ...publicationPortugalMarkers,
     ...publicationSpainMarkers,
     ...publicationGermanyMarkers,
     ...publicationFranceMarkers,
+    ...publicationUnitedKingdomMarkers,
   ];
   const displayListingCount = allPublicationMarkers.reduce((sum, marker) => sum + marker.display_listings.length, 0);
   const successCount = (sourceResults ?? []).filter((result) => result.success).length;
@@ -396,6 +431,7 @@ export function buildPublicationArtifact({
       Spain: { markers: publicationSpainMarkers },
       Germany: { markers: publicationGermanyMarkers },
       France: { markers: publicationFranceMarkers },
+      UnitedKingdom: { markers: publicationUnitedKingdomMarkers },
     },
     artists: buildArtistIndex(allPublicationMarkers, artistRegistry, generatedAt ? generatedAt.slice(0, 10) : null),
   };
@@ -533,11 +569,26 @@ export function validatePublicationArtifact(artifact) {
     }
   }
 
+  // BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01:
+  // "UnitedKingdom" joins "France" as another OPTIONAL country bucket, for
+  // the exact same reason France was optional relative to Germany/Spain/
+  // Portugal/Croatia — every artifact built before London existed
+  // legitimately has no `countries.UnitedKingdom` key at all. Its markers
+  // join the SAME global cross-checks below (map_marker_count/
+  // display_listing_count/venue_id uniqueness are the TOTAL across every
+  // published country).
+  if (artifact.countries.UnitedKingdom !== undefined) {
+    if (!artifact.countries.UnitedKingdom || !Array.isArray(artifact.countries.UnitedKingdom.markers)) {
+      errors.push("countries.UnitedKingdom.markers must be an array when present");
+    }
+  }
+
   const portugalMarkers = Array.isArray(artifact.countries.Portugal?.markers) ? artifact.countries.Portugal.markers : null;
   const spainMarkers = Array.isArray(artifact.countries.Spain?.markers) ? artifact.countries.Spain.markers : [];
   const germanyMarkers = Array.isArray(artifact.countries.Germany?.markers) ? artifact.countries.Germany.markers : [];
   const franceMarkers = Array.isArray(artifact.countries.France?.markers) ? artifact.countries.France.markers : [];
-  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers, ...germanyMarkers, ...franceMarkers] : null;
+  const unitedKingdomMarkers = Array.isArray(artifact.countries.UnitedKingdom?.markers) ? artifact.countries.UnitedKingdom.markers : [];
+  const allCountryMarkers = portugalMarkers ? [...portugalMarkers, ...spainMarkers, ...germanyMarkers, ...franceMarkers, ...unitedKingdomMarkers] : null;
 
   if (allCountryMarkers) {
     let listingSum = 0;
@@ -706,6 +757,11 @@ export function validatePublicationArtifact(artifact) {
  * BEATMAPPED-PARIS-30-40-VENUE-POPULATION-01: `franceMarkerCount` joins
  * `germanyMarkerCount`/`spainMarkerCount` the exact same way, defaulting to
  * `0` so every existing caller that omits it keeps today's exact behaviour.
+ *
+ * BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01:
+ * `unitedKingdomMarkerCount` joins `franceMarkerCount`/`germanyMarkerCount`/
+ * `spainMarkerCount` the exact same way, defaulting to `0` so every
+ * existing caller that omits it keeps today's exact behaviour.
  */
 export function isCatastrophicPublicationRun({
   sourceSuccessCount,
@@ -713,6 +769,10 @@ export function isCatastrophicPublicationRun({
   spainMarkerCount = 0,
   germanyMarkerCount = 0,
   franceMarkerCount = 0,
+  unitedKingdomMarkerCount = 0,
 }) {
-  return sourceSuccessCount === 0 || portugalMarkerCount + spainMarkerCount + germanyMarkerCount + franceMarkerCount === 0;
+  return (
+    sourceSuccessCount === 0 ||
+    portugalMarkerCount + spainMarkerCount + germanyMarkerCount + franceMarkerCount + unitedKingdomMarkerCount === 0
+  );
 }

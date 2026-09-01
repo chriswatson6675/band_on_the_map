@@ -13,6 +13,7 @@ export function getMarkersForArea(
   spainMarkers = [],
   germanyMarkers = [],
   franceMarkers = [],
+  unitedKingdomMarkers = [],
 ) {
   if (area === ALL_CITIES_AREA) {
     return [
@@ -20,6 +21,7 @@ export function getMarkersForArea(
       ...(spainMarkers ?? []),
       ...(germanyMarkers ?? []),
       ...(franceMarkers ?? []),
+      ...(unitedKingdomMarkers ?? []),
     ];
   }
 
@@ -29,5 +31,6 @@ export function getMarkersForArea(
     spainMarkers,
     germanyMarkers,
     franceMarkers,
+    unitedKingdomMarkers,
   );
 }

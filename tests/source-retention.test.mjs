@@ -444,6 +444,44 @@ test("France participates in both cold-start bootstrap and source-scoped marker 
   assert.equal(retained.get("venue-paris-sunset-sunside").listings[0].retained_since, generatedAt);
 });
 
+// BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01 —
+// London/United Kingdom participates in the SAME generic retention logic
+// as every other country, never a London-specific mechanism. Note the
+// artifact's own JSON key is `UnitedKingdom` (no space, matching
+// ingestion/map/publication.mjs's buildPublicationArtifact() — the
+// frontend-facing "United Kingdom" label with a space is a completely
+// separate concern, see components/DiscoveryMap.tsx's SearchCountry).
+test("United Kingdom participates in both cold-start bootstrap and source-scoped marker retention", () => {
+  const generatedAt = "2026-09-01T12:26:28.325Z";
+  const sourceId = "100-club-london";
+  const previousArtifact = {
+    generated_at: generatedAt,
+    source_report: { sources: [{ source_id: sourceId, success: true }] },
+    countries: {
+      Portugal: { markers: [] },
+      Spain: { markers: [] },
+      Germany: { markers: [] },
+      France: { markers: [] },
+      UnitedKingdom: {
+        markers: [marker({
+          venueId: "venue-london-100-club",
+          name: "100 Club",
+          listings: [singleListing({ sourceId, recordId: "gb-1", date: "2026-09-01" })],
+          lat: 51.5161082,
+          lon: -0.1353568,
+        })],
+      },
+    },
+  };
+
+  assert.equal(bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, sourceId }), generatedAt);
+  const retained = extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString: "2026-09-01", retainedSince: generatedAt });
+  assert.equal(retained.size, 1);
+  assert.equal(retained.get("venue-london-100-club").country, "UnitedKingdom");
+  assert.equal(retained.get("venue-london-100-club").listings[0].stale, true);
+  assert.equal(retained.get("venue-london-100-club").listings[0].retained_since, generatedAt);
+});
+
 test("extractRetainableMarkersForSource: the real 9-venue L'Auditori scenario — one umbrella source, nine distinct canonical venues, all correctly attributed", () => {
   const AUDITORI_VENUES = [
     "venue-barcelona-l-auditori",

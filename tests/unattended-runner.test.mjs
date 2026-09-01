@@ -62,6 +62,16 @@ const VENUE_ID_DE = "venue-berlin-yaam";
 const PARIS_SOURCE_ID = "sunset-sunside-paris";
 const VENUE_ID_FR = "venue-paris-sunset-sunside";
 
+// 100-club-london: a real, existing VENUE_NAME-keyed entry in the
+// committed venues/source-venue-mappings.json — resolves ONLY an
+// Observation whose own venue_name is exactly "100 Club" (matching
+// ingestion/100-club/observation-adapter.mjs's own hardcoded venue_name),
+// unlike Paris's SOURCE_ID-keyed mapping above. obs() below must pass
+// `{ venue_name: "100 Club" }` explicitly wherever a healthy London
+// Observation is constructed.
+const LONDON_SOURCE_ID = "100-club-london";
+const VENUE_ID_GB = "venue-london-100-club";
+
 function obs(sourceId, id, overrides = {}) {
   return createObservation({
     source_id: sourceId,
@@ -192,6 +202,34 @@ async function makeTempRoot({ seedGoodArtifact = false } = {}) {
       }],
     }),
   );
+  // BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01:
+  // venues/london.json now must exist under every isolated test root too —
+  // runUnattendedCycle() reads it unconditionally, the same way it already
+  // reads venues/lisbon.json/porto.json/barcelona.json/berlin.json/paris.json.
+  // The one venue here (100 Club, real committed coordinates/address — see
+  // venues/london.json in the real repository) matches
+  // VENUE_ID_GB/LONDON_SOURCE_ID above exactly, and resolves via the SAME
+  // real, committed venues/source-venue-mappings.json data-driven entry
+  // London's own real collector uses (VENUE_NAME "100 Club").
+  await writeFile(
+    join(root, "venues", "london.json"),
+    JSON.stringify({
+      venues: [{
+        venue_id: VENUE_ID_GB,
+        canonical_name: "100 Club",
+        country_code: "GB",
+        city: "London",
+        municipality: "City of Westminster",
+        address: "Oxford Street 100, W1D 1LL, London",
+        latitude: 51.5161082,
+        longitude: -0.1353568,
+        location_status: "GEOCODED",
+        evidence: [{ url: "https://www.the100club.co.uk/" }],
+        coordinate_provenance: { method: "OSM_ID_LOOKUP", osm_ref: "osm-node-313349354" },
+        retrieved_at: "2026-09-01",
+      }],
+    }),
+  );
 
   // No venues/manual-coordinates.json — loadManualCoordinateStore() falls
   // back to an empty store for a missing file, exactly as it already does
@@ -289,6 +327,28 @@ function fakeAcquireParisHealthy() {
   });
 }
 
+// BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01 — the
+// safe, fast, fully-offline default every EXISTING (Portugal/Spain/
+// Germany/France-focused) test below passes as `acquireLondon`, so none
+// of them ever reach the real acquireLondon() (live network against 6
+// real London sources). Zero sources, zero observations: a legitimate,
+// honestly-empty United Kingdom acquisition, not a failure.
+async function fakeAcquireLondonEmpty() {
+  return { londonRegistry: { entries: [] }, londonResults: [], londonObservations: [] };
+}
+
+// A single successful London source (100 Club), for tests that need
+// United Kingdom to actually publish a real marker.
+function fakeAcquireLondonHealthy() {
+  return async () => ({
+    londonRegistry: { entries: [{ id: LONDON_SOURCE_ID, name: "100 Club" }] },
+    londonResults: [
+      { source_id: LONDON_SOURCE_ID, success: true, raw_record_count: 1, observation_count: 1, observations: [obs(LONDON_SOURCE_ID, "1", { venue_name: "100 Club" })], notes: [] },
+    ],
+    londonObservations: [obs(LONDON_SOURCE_ID, "1", { venue_name: "100 Club" })],
+  });
+}
+
 // The same real, existing MEO Arena / Casa da Música pair every other
 // HEALTHY-style test in this file already uses.
 function fakeAcquirePortugalHealthy() {
@@ -320,7 +380,7 @@ test("DEGRADED: A succeeds, B fails, C succeeds — safe publication completes, 
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-degraded", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "test-degraded", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
 
   assert.equal(report.overall_status, "DEGRADED");
   assert.equal(report.publication_status, "PUBLISHED");
@@ -359,7 +419,7 @@ test("FAILED (all sources fail): the previous known-good public artifact is pres
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-failed", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "test-failed", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
 
   assert.equal(report.overall_status, "FAILED");
   assert.equal(report.publication_status, "PRESERVED_PREVIOUS");
@@ -384,7 +444,7 @@ test("HEALTHY: every source succeeds and publication succeeds", async (t) => {
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "test-healthy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "test-healthy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
   assert.equal(report.overall_status, "HEALTHY");
   assert.equal(report.failed_source_count, 0);
   assert.equal(report.publication_status, "PUBLISHED");
@@ -405,7 +465,7 @@ test("overlapping run: a second invocation while a lock is already held is refus
     throw new Error("must never be called — the run should be refused before any acquisition happens");
   };
 
-  const outcome = await runUnattendedCycle({ root, runId: "test-overlap", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const outcome = await runUnattendedCycle({ root, runId: "test-overlap", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
 
   assert.equal(outcome.refused, true);
   assert.equal(outcome.reason, "ANOTHER_RUN_IN_PROGRESS");
@@ -432,8 +492,8 @@ test("the lock is released after a normal (HEALTHY) completion, allowing a subse
     lisbonAssociations: [],
   });
 
-  await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
-  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  await runUnattendedCycle({ root, runId: "run-1", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
+  const second = await runUnattendedCycle({ root, runId: "run-2", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
   assert.equal(second.refused, undefined, "the lock must be released after a normal completion");
   assert.equal(second.report.overall_status, "HEALTHY");
 });
@@ -461,10 +521,10 @@ test("the lock is released after a handled FAILED run (catastrophic), allowing a
     lisbonAssociations: [],
   });
 
-  const first = await runUnattendedCycle({ root, runId: "run-fail", acquireLisbonPorto: failingAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const first = await runUnattendedCycle({ root, runId: "run-fail", acquireLisbonPorto: failingAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
   assert.equal(first.report.overall_status, "FAILED");
 
-  const second = await runUnattendedCycle({ root, runId: "run-recover", acquireLisbonPorto: healthyAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const second = await runUnattendedCycle({ root, runId: "run-recover", acquireLisbonPorto: healthyAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
   assert.equal(second.refused, undefined, "the lock must be released even after a handled FAILED run");
   assert.equal(second.report.overall_status, "HEALTHY");
 });
@@ -483,7 +543,7 @@ test("health report is written with UTC timestamps and can be read back byte-ide
     lisbonAssociations: [],
   });
 
-  const { report } = await runUnattendedCycle({ root, runId: "run-ts", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  const { report } = await runUnattendedCycle({ root, runId: "run-ts", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
   assert.ok(report.started_at.endsWith("Z"), "started_at must be a UTC (Z-suffixed) ISO timestamp");
   assert.ok(report.completed_at.endsWith("Z"), "completed_at must be a UTC (Z-suffixed) ISO timestamp");
   assert.ok(typeof report.duration_ms === "number" && report.duration_ms >= 0);
@@ -513,7 +573,7 @@ test("uses this project's bounded retry policy defaults when maxAttempts/retryDe
     };
   };
 
-  await runUnattendedCycle({ root, runId: "run-policy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, delayFn: instantDelay() });
+  await runUnattendedCycle({ root, runId: "run-policy", acquireLisbonPorto: fakeAcquire, acquireBarcelona: fakeAcquireBarcelonaEmpty, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty, delayFn: instantDelay() });
   assert.equal(seenRetryPolicy.maxAttempts, 3);
   assert.equal(seenRetryPolicy.retryDelayMs, 500);
 });
@@ -530,7 +590,7 @@ test("the unattended runner invokes Barcelona/Spain acquisition every cycle, not
     return fakeAcquireBarcelonaEmpty();
   };
 
-  await runUnattendedCycle({ root, runId: "run-spain-invoked", acquireLisbonPorto: fakeAcquirePortugalHealthy(), acquireBarcelona: spyAcquireBarcelona, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty });
+  await runUnattendedCycle({ root, runId: "run-spain-invoked", acquireLisbonPorto: fakeAcquirePortugalHealthy(), acquireBarcelona: spyAcquireBarcelona, acquireBerlin: fakeAcquireBerlinEmpty, acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty });
   assert.equal(barcelonaAcquisitionCalled, true, "acquireBarcelona() must be called on every unattended cycle, not left Portugal-only");
 });
 
@@ -544,7 +604,7 @@ test("Portugal AND Spain markers both reach the SAME combined publication artifa
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: fakeAcquireBarcelonaHealthy(),
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisEmpty,
+    acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "HEALTHY");
@@ -588,7 +648,7 @@ test("a Portugal-side source failure does not zero Spain — Spain still publish
     acquireLisbonPorto: degradedPortugal,
     acquireBarcelona: fakeAcquireBarcelonaHealthy(),
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisEmpty,
+    acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "one failed Portugal source degrades the run but must not fail it outright");
@@ -626,7 +686,7 @@ test("a Spain-side source failure does not zero Portugal — Portugal still publ
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: degradedBarcelona,
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisEmpty,
+    acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "one failed Barcelona source degrades the run but must not fail it outright");
@@ -656,7 +716,7 @@ test("a TOTAL Barcelona acquisition failure (the whole call throws) does not abo
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: throwingAcquireBarcelona,
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisEmpty,
+    acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED", "a total Barcelona acquisition failure must degrade, never crash, the whole cycle");
@@ -709,7 +769,7 @@ test("failed_source_count/successful_source_count/active_source_count are truthf
     acquireLisbonPorto: degradedPortugal,
     acquireBarcelona: degradedBarcelona,
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisEmpty,
+    acquireParis: fakeAcquireParisEmpty, acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
@@ -726,32 +786,60 @@ test("failed_source_count/successful_source_count/active_source_count are truthf
   assert.equal(report.map_marker_count, 3);
 });
 
-test("regression: unattended publication includes healthy Portugal, Spain, Germany, and France in one artifact", async (t) => {
+test("regression: unattended publication includes healthy Portugal, Spain, Germany, France, and United Kingdom in one artifact", async (t) => {
   const root = await makeTempRoot();
   t.after(() => rm(root, { recursive: true, force: true }));
 
   const { report } = await runUnattendedCycle({
     root,
-    runId: "run-four-country-regression",
+    runId: "run-five-country-regression",
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: fakeAcquireBarcelonaHealthy(),
     acquireBerlin: fakeAcquireBerlinHealthy(),
     acquireParis: fakeAcquireParisHealthy(),
+    acquireLondon: fakeAcquireLondonHealthy(),
   });
 
   assert.equal(report.overall_status, "HEALTHY");
   assert.equal(report.publication_status, "PUBLISHED");
-  assert.equal(report.map_marker_count, 5);
+  assert.equal(report.map_marker_count, 6);
   const artifact = JSON.parse(await readFile(resolvePublicationArtifactPath({ root }), "utf8"));
   assert.deepEqual(artifact.countries.Portugal.markers.map((marker) => marker.venue_id).sort(), [VENUE_ID_A, VENUE_ID_C].sort());
   assert.deepEqual(artifact.countries.Spain.markers.map((marker) => marker.venue_id), [VENUE_ID_ES]);
   assert.deepEqual(artifact.countries.Germany.markers.map((marker) => marker.venue_id), [VENUE_ID_DE]);
   assert.deepEqual(artifact.countries.France.markers.map((marker) => marker.venue_id), [VENUE_ID_FR]);
-  assert.equal(artifact.counts.map_marker_count, 5);
-  assert.equal(artifact.counts.display_listing_count, 5);
+  assert.deepEqual(artifact.countries.UnitedKingdom.markers.map((marker) => marker.venue_id), [VENUE_ID_GB]);
+  assert.equal(artifact.counts.map_marker_count, 6);
+  assert.equal(artifact.counts.display_listing_count, 6);
   const parisSource = artifact.source_report.sources.find((source) => source.source_id === PARIS_SOURCE_ID);
   assert.equal(parisSource.success, true);
   assert.equal(parisSource.observation_count, 1);
+  const londonSource = artifact.source_report.sources.find((source) => source.source_id === LONDON_SOURCE_ID);
+  assert.equal(londonSource.success, true);
+  assert.equal(londonSource.observation_count, 1);
+});
+
+test("the unattended runner invokes London/United Kingdom acquisition every cycle, not just the other four countries", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  let invoked = false;
+  const spyAcquireLondon = async (...callArgs) => {
+    invoked = true;
+    return fakeAcquireLondonEmpty(...callArgs);
+  };
+
+  await runUnattendedCycle({
+    root,
+    runId: "run-london-invoked",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: fakeAcquireBarcelonaEmpty,
+    acquireBerlin: fakeAcquireBerlinEmpty,
+    acquireParis: fakeAcquireParisEmpty,
+    acquireLondon: spyAcquireLondon,
+  });
+
+  assert.equal(invoked, true, "acquireLondon must be invoked exactly once per normal unattended cycle");
 });
 
 test("France marker count participates in the canonical catastrophic-publication guard", async (t) => {
@@ -773,7 +861,7 @@ test("France marker count participates in the canonical catastrophic-publication
     acquireLisbonPorto: emptyPortugal,
     acquireBarcelona: fakeAcquireBarcelonaEmpty,
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisHealthy(),
+    acquireParis: fakeAcquireParisHealthy(), acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.publication_status, "PUBLISHED", "a successful France-only fixture is non-catastrophic because France contributes to the shared guard");
@@ -791,6 +879,7 @@ test("a total Paris acquisition failure is isolated and preserves successful Por
     acquireBarcelona: fakeAcquireBarcelonaHealthy(),
     acquireBerlin: fakeAcquireBerlinHealthy(),
     acquireParis: async () => { throw new Error("sources/paris.json unreadable"); },
+    acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
@@ -815,7 +904,7 @@ test("a failed Paris source retains France within grace without affecting fresh 
     acquireLisbonPorto: fakeAcquirePortugalHealthy(),
     acquireBarcelona: fakeAcquireBarcelonaEmpty,
     acquireBerlin: fakeAcquireBerlinEmpty,
-    acquireParis: fakeAcquireParisHealthy(),
+    acquireParis: fakeAcquireParisHealthy(), acquireLondon: fakeAcquireLondonEmpty,
   });
 
   const failedParis = async () => ({
@@ -830,6 +919,7 @@ test("a failed Paris source retains France within grace without affecting fresh 
     acquireBarcelona: fakeAcquireBarcelonaEmpty,
     acquireBerlin: fakeAcquireBerlinEmpty,
     acquireParis: failedParis,
+    acquireLondon: fakeAcquireLondonEmpty,
   });
 
   assert.equal(report.overall_status, "DEGRADED");
@@ -844,10 +934,105 @@ test("a failed Paris source retains France within grace without affecting fresh 
   assert.equal(failedEntry.retained, true);
 });
 
-test("anti-drift: manual and unattended publishers build the same four country marker sets", async () => {
+test("United Kingdom marker count participates in the canonical catastrophic-publication guard", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const emptyPortugal = async () => ({
+    lisbonRegistry: { entries: [] },
+    portoRegistry: { entries: [] },
+    lisbonResults: [],
+    portoResults: [],
+    lisbonObservations: [],
+    portoObservations: [],
+    lisbonAssociations: [],
+  });
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-london-guard",
+    acquireLisbonPorto: emptyPortugal,
+    acquireBarcelona: fakeAcquireBarcelonaEmpty,
+    acquireBerlin: fakeAcquireBerlinEmpty,
+    acquireParis: fakeAcquireParisEmpty,
+    acquireLondon: fakeAcquireLondonHealthy(),
+  });
+
+  assert.equal(report.publication_status, "PUBLISHED", "a successful London-only fixture is non-catastrophic because United Kingdom contributes to the shared guard");
+  assert.equal(report.map_marker_count, 1);
+});
+
+test("a total London acquisition failure is isolated and preserves successful Portugal, Spain, Germany, and France", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-london-total-fail",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: fakeAcquireBarcelonaHealthy(),
+    acquireBerlin: fakeAcquireBerlinHealthy(),
+    acquireParis: fakeAcquireParisHealthy(),
+    acquireLondon: async () => { throw new Error("sources/london.json unreadable"); },
+  });
+
+  assert.equal(report.overall_status, "DEGRADED");
+  assert.equal(report.publication_status, "PUBLISHED");
+  const artifact = JSON.parse(await readFile(resolvePublicationArtifactPath({ root }), "utf8"));
+  assert.equal(artifact.countries.Portugal.markers.length, 2);
+  assert.equal(artifact.countries.Spain.markers.length, 1);
+  assert.equal(artifact.countries.Germany.markers.length, 1);
+  assert.equal(artifact.countries.France.markers.length, 1);
+  assert.equal(artifact.countries.UnitedKingdom.markers.length, 0);
+  const failedEntry = report.sources.find((source) => source.source_id === "london-acquisition");
+  assert.equal(failedEntry.status, "FAILED");
+  assert.match(failedEntry.error, /sources\/london\.json unreadable/);
+});
+
+test("a failed London source retains United Kingdom within grace without affecting fresh Portugal data", async (t) => {
+  const root = await makeTempRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  await runUnattendedCycle({
+    root,
+    runId: "run-london-retention-seed",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: fakeAcquireBarcelonaEmpty,
+    acquireBerlin: fakeAcquireBerlinEmpty,
+    acquireParis: fakeAcquireParisEmpty,
+    acquireLondon: fakeAcquireLondonHealthy(),
+  });
+
+  const failedLondon = async () => ({
+    londonRegistry: { entries: [{ id: LONDON_SOURCE_ID, name: "100 Club" }] },
+    londonResults: [{ source_id: LONDON_SOURCE_ID, success: false, error: "HTTP 503 response", raw_record_count: 0, observation_count: 0, observations: [], notes: [], attempts: 3 }],
+    londonObservations: [],
+  });
+  const { report } = await runUnattendedCycle({
+    root,
+    runId: "run-london-retention-failure",
+    acquireLisbonPorto: fakeAcquirePortugalHealthy(),
+    acquireBarcelona: fakeAcquireBarcelonaEmpty,
+    acquireBerlin: fakeAcquireBerlinEmpty,
+    acquireParis: fakeAcquireParisEmpty,
+    acquireLondon: failedLondon,
+  });
+
+  assert.equal(report.overall_status, "DEGRADED");
+  const artifact = JSON.parse(await readFile(resolvePublicationArtifactPath({ root }), "utf8"));
+  assert.equal(artifact.countries.Portugal.markers.length, 2);
+  assert.deepEqual(artifact.countries.UnitedKingdom.markers.map((marker) => marker.venue_id), [VENUE_ID_GB]);
+  const retainedListing = artifact.countries.UnitedKingdom.markers[0].display_listings[0];
+  assert.equal(retainedListing.stale, true);
+  assert.ok(retainedListing.retained_since);
+  const failedEntry = report.sources.find((source) => source.source_id === LONDON_SOURCE_ID);
+  assert.equal(failedEntry.status, "FAILED");
+  assert.equal(failedEntry.retained, true);
+});
+
+test("anti-drift: manual and unattended publishers build the same five country marker sets", async () => {
   const manualSource = await readFile(new URL("../ingestion/publish-map-data/run.mjs", import.meta.url), "utf8");
   const unattendedSource = await readFile(new URL("../ingestion/unattended-runner/run.mjs", import.meta.url), "utf8");
-  const countriesBuiltBy = (source) => [...new Set([...source.matchAll(/build(Portugal|Spain|Germany|France)Markers\(/g)].map((match) => match[1]))].sort();
+  const countriesBuiltBy = (source) => [...new Set([...source.matchAll(/build(Portugal|Spain|Germany|France|UnitedKingdom)Markers\(/g)].map((match) => match[1]))].sort();
   assert.deepEqual(countriesBuiltBy(unattendedSource), countriesBuiltBy(manualSource));
-  assert.deepEqual(countriesBuiltBy(unattendedSource), ["France", "Germany", "Portugal", "Spain"]);
+  assert.deepEqual(countriesBuiltBy(unattendedSource), ["France", "Germany", "Portugal", "Spain", "UnitedKingdom"]);
 });

@@ -18,6 +18,21 @@ export const LOCATION_STATUSES = new Set(["CONFIRMED", "GEOCODED", "ADDRESS_ONLY
 // definition of "map-eligible" rather than re-deriving it.
 export const MAP_ELIGIBLE_LOCATION_STATUSES = new Set(["CONFIRMED", "GEOCODED"]);
 
+// Every deterministic method by which a GEOCODED venue's coordinates may
+// have been derived. GEOCODED_FROM_OFFICIAL_ADDRESS (VENUE-GEOCODING-01)
+// is a Nominatim free-text/structured search against this venue's own
+// already-evidenced official address. BEATMAPPED-LONDON-FIRST-TRANCHE-
+// MAIN-REBASE-AND-MUSIC-GATE-01 adds OSM_ID_LOOKUP: a direct Nominatim
+// /lookup of the exact OpenStreetMap node/way/relation this venue was
+// originally discovered from (ingestion/geocoding/nominatim.mjs's
+// lookupNominatimOsmIdLive()) — not a fuzzy address search at all, so it
+// is honestly recorded under its own, differently-named method rather than
+// mislabeled as an address query that never happened. Both are equally
+// deterministic, evidence-backed, non-guessed coordinate derivations;
+// GEOCODED never distinguishes further between them beyond this method
+// name.
+export const GEOCODED_PROVENANCE_METHODS = new Set(["GEOCODED_FROM_OFFICIAL_ADDRESS", "OSM_ID_LOOKUP"]);
+
 /**
  *   CONFIRMED     - a non-empty address AND coordinates are both
  *                    evidenced DIRECTLY through the venue/official
@@ -163,9 +178,9 @@ export function validateVenue(venue) {
         "a CONFIRMED venue must carry coordinates (use ADDRESS_ONLY if only the address is evidenced)",
       );
     }
-    if (provenanceMethod === "GEOCODED_FROM_OFFICIAL_ADDRESS") {
+    if (GEOCODED_PROVENANCE_METHODS.has(provenanceMethod)) {
       errors.push(
-        "a CONFIRMED venue must not carry a GEOCODED_FROM_OFFICIAL_ADDRESS coordinate_provenance (use location_status GEOCODED instead — never relabel a geocoded coordinate as first-party CONFIRMED)",
+        `a CONFIRMED venue must not carry a ${provenanceMethod} coordinate_provenance (use location_status GEOCODED instead — never relabel a geocoded coordinate as first-party CONFIRMED)`,
       );
     }
   } else if (venue?.location_status === "GEOCODED") {
@@ -181,9 +196,9 @@ export function validateVenue(venue) {
       errors.push(
         "a GEOCODED venue must carry a coordinate_provenance object recording how its coordinates were derived",
       );
-    } else if (provenanceMethod !== "GEOCODED_FROM_OFFICIAL_ADDRESS") {
+    } else if (!GEOCODED_PROVENANCE_METHODS.has(provenanceMethod)) {
       errors.push(
-        "a GEOCODED venue's coordinate_provenance.method must be GEOCODED_FROM_OFFICIAL_ADDRESS",
+        `a GEOCODED venue's coordinate_provenance.method must be one of ${[...GEOCODED_PROVENANCE_METHODS].join(", ")}`,
       );
     }
   } else if (venue?.location_status === "ADDRESS_ONLY") {

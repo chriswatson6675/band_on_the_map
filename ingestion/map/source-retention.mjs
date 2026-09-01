@@ -111,7 +111,7 @@ export function bootstrapLastSuccessAtFromPreviousArtifact({ previousArtifact, s
   const sourceEntry = (previousArtifact.source_report?.sources ?? []).find((entry) => entry?.source_id === sourceId);
   if (!sourceEntry || sourceEntry.success !== true) return null;
 
-  const hasRealListing = ["Portugal", "Spain", "Germany", "France"].some((country) =>
+  const hasRealListing = ["Portugal", "Spain", "Germany", "France", "UnitedKingdom"].some((country) =>
     (previousArtifact.countries?.[country]?.markers ?? []).some((marker) =>
       (marker.display_listings ?? []).some((listing) => listing?.kind === "SINGLE" && listing.source_id === sourceId),
     ),
@@ -206,7 +206,7 @@ export function annotateSourceProvenance({ sourceResults, previousSourceReportSo
 export function extractRetainableMarkersForSource({ previousArtifact, sourceId, todayDateString, retainedSince = null }) {
   const retainedByVenueId = new Map();
 
-  for (const country of ["Portugal", "Spain", "Germany", "France"]) {
+  for (const country of ["Portugal", "Spain", "Germany", "France", "UnitedKingdom"]) {
     const markers = previousArtifact?.countries?.[country]?.markers ?? [];
     for (const marker of markers) {
       const retainedListings = (marker.display_listings ?? [])

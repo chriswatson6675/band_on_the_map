@@ -186,7 +186,7 @@ export function projectObservationsToMapMarkers(observations, { venues, sourceRe
  * the same additive way as `germanyMarkers`, so every existing
  * 2/3/4-argument call site keeps its exact prior behaviour unchanged.
  */
-export function getMarkersForCountry(country, portugalMarkers, spainMarkers = [], germanyMarkers = [], franceMarkers = []) {
+export function getMarkersForCountry(country, portugalMarkers, spainMarkers = [], germanyMarkers = [], franceMarkers = [], unitedKingdomMarkers = []) {
   if (country === "Portugal") {
     return portugalMarkers ?? [];
   }
@@ -198,6 +198,9 @@ export function getMarkersForCountry(country, portugalMarkers, spainMarkers = []
   }
   if (country === "France") {
     return franceMarkers ?? [];
+  }
+  if (country === "United Kingdom") {
+    return unitedKingdomMarkers ?? [];
   }
   return [];
 }

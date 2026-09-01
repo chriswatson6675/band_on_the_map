@@ -30,7 +30,7 @@ setWorkerUrl(
   "https://unpkg.com/maplibre-gl@6.5.0/dist/maplibre-gl-worker.mjs",
 );
 
-export type SearchCountry = "Portugal" | "Croatia" | "Spain" | "Germany" | "France";
+export type SearchCountry = "Portugal" | "Croatia" | "Spain" | "Germany" | "France" | "United Kingdom";
 export type SearchArea = "All cities" | SearchCountry;
 
 type CountryMapView = {
@@ -119,6 +119,24 @@ export const COUNTRY_MAP_VIEWS: Record<SearchArea, CountryMapView> = {
     ],
     center: [2.336, 48.866],
     zoom: 11.3,
+  },
+  // BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01 —
+  // United Kingdom's own bucket, following the exact same "scope the box
+  // to where the real markers actually are" precedent as Spain/Germany/
+  // France above: every current United Kingdom venue is in London (see
+  // ingestion/map/publication.mjs's buildUnitedKingdomMarkers() doc
+  // comment), so this box comfortably fits the real first-tranche venue
+  // coordinates (observed lat 51.4936–51.5573, lon -0.2373–-0.0578, see
+  // fixtures/map/beatmapped-london-first-tranche-main-rebase-and-music-
+  // gate-01-live-run-proof.json) rather than a whole-country box that
+  // would leave the markers a tiny cluster in one corner.
+  "United Kingdom": {
+    bounds: [
+      [-0.26, 51.47],
+      [-0.03, 51.58],
+    ],
+    center: [-0.148, 51.523],
+    zoom: 11,
   },
 };
 
