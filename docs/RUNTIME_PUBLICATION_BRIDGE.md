@@ -100,9 +100,18 @@ runtime, in the browser:
 - **unset** -> renders the bundled artifact immediately, no network call
   at all.
 - **set** -> tries the runtime endpoint (`ingestion/map/
-  runtime-publication.mjs`'s `resolveMapData()`, 4s default timeout via
-  `AbortController`); a validated response replaces the bundled data and
-  the page re-renders with it.
+  runtime-publication.mjs`'s `resolveMapData()`, 15s default timeout via
+  `AbortController` -- `BEATMAPPED-RUNTIME-FETCH-TIMEOUT-LONDON-LIVE-01`
+  widened this from an original, too-tight 4s once the artifact grew
+  large enough that some real visitor network conditions could exceed
+  it, silently masking genuinely fresh data behind the bundled fallback);
+  a validated response replaces the bundled data and the page re-renders
+  with it. A `TIMEOUT` or `NETWORK_ERROR` result is retried exactly
+  once, after a short bounded delay, before falling back -- the bundled
+  data is already on screen the whole time, so this costs nothing
+  visible. `HTTP_ERROR`/`MALFORMED_JSON`/`INVALID_SCHEMA` are never
+  retried (an immediate second attempt against the same response would
+  not change the outcome).
 - **any failure** (timeout, network error, non-2xx, malformed JSON --
   including an HTML/error page served with a `200` -- or a payload that
   fails `validatePublicationArtifact()`) -> keeps rendering the bundled
