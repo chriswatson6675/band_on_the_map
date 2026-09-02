@@ -42,19 +42,27 @@ function processTreeSample() {
     let changed = true;
     while (changed) { changed = false; for (const row of rows) if (owned.has(row.ppid) && !owned.has(row.pid)) { owned.add(row.pid); changed = true; } }
     const selected = rows.filter((row) => owned.has(row.pid));
-    return { rss_mb: Math.round(selected.reduce((sum, row) => sum + row.rssKb, 0) / 1024), cpu_percent_sum: selected.reduce((sum, row) => sum + row.cpu, 0), process_count: selected.length };
+    return { rss_mb: Math.round(selected.reduce((sum, row) => sum + row.rssKb, 0) / 1024), cpu_percent_sum: selected.reduce((sum, row) => sum + row.cpu, 0), process_count: selected.length, host_available_mb: Math.floor(os.freemem() / 1048576) };
   } catch { return null; }
 }
 
 const results = [];
 const durations = [];
-let peak = { rss_mb: 0, cpu_percent_sum: 0, process_count: 0 };
+const activeSamples = [];
+const perProbePeaks = [];
+let peak = { rss_mb: 0, cpu_percent_sum: 0, process_count: 0, host_available_mb: Math.floor(os.freemem() / 1048576) };
+const idleAvailableMb = Math.floor(os.freemem() / 1048576);
+const loadAverageBefore = os.loadavg();
 const startedAt = new Date().toISOString();
 for (const candidate of candidates) {
   const started = Date.now();
+  let probePeak = { rss_mb: 0, cpu_percent_sum: 0, process_count: 0, host_available_mb: Math.floor(os.freemem() / 1048576) };
   const sampler = setInterval(() => {
     const sample = processTreeSample();
-    if (sample && sample.rss_mb > peak.rss_mb) peak = sample;
+    if (!sample) return;
+    activeSamples.push(sample);
+    if (sample.rss_mb > peak.rss_mb) peak = sample;
+    if (sample.rss_mb > probePeak.rss_mb) probePeak = sample;
   }, 250);
   try {
     const [result] = await runBrowserResolutionQueue([{ candidate_id: candidate.candidate_id, venue: candidate.venue, url: candidate.programme_url }], { sessionFactory });
@@ -62,6 +70,7 @@ for (const candidate of candidates) {
   } finally {
     clearInterval(sampler);
     durations.push(Date.now() - started);
+    perProbePeaks.push(probePeak);
   }
 }
 
@@ -85,7 +94,25 @@ const liveResults = sanitizeArtifact({
   results,
 });
 const endpoints = sanitizeArtifact({ schema_version: "BEATMAPPED-RESOLVED-ENDPOINTS-v1", candidate_sha: candidateSha, generated_at: new Date().toISOString(), endpoints: results.flatMap((result) => (result.discovered_endpoints ?? []).map((endpoint) => ({ candidate_id: result.candidate_id, venue: result.venue, programme_url: result.programme_url, ...endpoint }))) });
-const measurements = sanitizeArtifact({ schema_version: "BEATMAPPED-BROWSER-RUNTIME-MEASUREMENTS-v1", candidate_sha: candidateSha, generated_at: new Date().toISOString(), browser_executable: chromium, browser_launches: results.length, concurrency: 1, duration_ms: { total: durations.reduce((sum, value) => sum + value, 0), median: sortedDurations.length ? sortedDurations[Math.floor(sortedDurations.length / 2)] : null, minimum: sortedDurations[0] ?? null, maximum: sortedDurations.at(-1) ?? null }, peak_process_tree: peak, host_free_memory_mb_after: Math.floor(os.freemem() / 1048576), timeout_count: results.filter((item) => item.failure?.type === "TOTAL_PROBE_TIMEOUT").length, orphan_browser_processes: orphanRows });
+const sortedActiveRss = activeSamples.map((sample) => sample.rss_mb).sort((a, b) => a - b);
+const timeoutCount = results.filter((item) => item.failure?.type === "TOTAL_PROBE_TIMEOUT").length;
+const measurements = sanitizeArtifact({
+  schema_version: "BEATMAPPED-BROWSER-RUNTIME-MEASUREMENTS-v1",
+  candidate_sha: candidateSha,
+  generated_at: new Date().toISOString(),
+  browser_executable: chromium,
+  browser_launches: results.length,
+  concurrency: 1,
+  duration_ms: { total: durations.reduce((sum, value) => sum + value, 0), average: durations.length ? Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length) : null, median: sortedDurations.length ? sortedDurations[Math.floor(sortedDurations.length / 2)] : null, minimum: sortedDurations[0] ?? null, maximum: sortedDurations.at(-1) ?? null },
+  memory_mb: { idle_available: idleAvailableMb, first_active_process_tree_rss: activeSamples[0]?.rss_mb ?? null, typical_active_process_tree_rss: sortedActiveRss.length ? sortedActiveRss[Math.floor(sortedActiveRss.length / 2)] : null, peak_process_tree_rss: peak.rss_mb, minimum_host_available: activeSamples.length ? Math.min(...activeSamples.map((sample) => sample.host_available_mb)) : null, host_available_after: Math.floor(os.freemem() / 1048576) },
+  peak_process_tree: peak,
+  per_probe_peak_process_tree: perProbePeaks,
+  load_average: { before: loadAverageBefore, after: os.loadavg() },
+  timeout_count: timeoutCount,
+  timeout_rate_percent: results.length ? Math.round((timeoutCount / results.length) * 1000) / 10 : 0,
+  orphan_browser_processes: orphanRows,
+  bounded_output_bytes_before_measurement: Buffer.byteLength(JSON.stringify(liveResults)) + Buffer.byteLength(JSON.stringify(endpoints)),
+});
 
 for (const [name, artifact] of [["live-browser-results.json", liveResults], ["resolved-endpoints.json", endpoints], ["runtime-measurements.json", measurements]]) {
   const leaks = findCredentialLeaks(artifact);
