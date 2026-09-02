@@ -17,7 +17,33 @@ export const CLUSTER_COUNT_LAYER_ID = "botm-cluster-count";
 // supercluster groups points together. Tuned so Lisbon's tightly-packed
 // venues combine into one city cluster at country-wide zoom while Porto's
 // separate metro area (~300km away) forms its own cluster.
-export const CLUSTER_RADIUS = 60;
+//
+// BEATMAPPED-LONDON-MAP-CLUSTER-VISIBILITY-01: reduced from 60 to 35.
+// At the wide, very-zoomed-out "All cities" default view (see
+// COUNTRY_MAP_VIEWS["All cities"] in components/DiscoveryMap.tsx —
+// fitBounds computes an even lower effective zoom than its own
+// nominal `zoom: 4.2` once the container's wide/short aspect ratio is
+// accounted for), 60px genuinely spans enough real-world distance to
+// merge London into the Paris/France cluster (~340km apart) — proven
+// directly: a live, instrumented MapLibre source inspection showed
+// London's 8 venues as `getClusterLeaves()` members of the SAME
+// cluster as Paris's 33, contributing correctly to its summed
+// `gig_count` but never forming (or being visible as) their own
+// circle. 35 was the smallest tested reduction that reliably separates
+// Paris from London at this exact view while leaving Germany/Berlin
+// and Spain/Barcelona (already single-city clusters, no separation
+// risk) unaffected. The one real, accepted side effect: Lisbon and
+// Porto (~300km apart, comparably close) also separate into two
+// clusters at this SAME "All cities" view, instead of the one merged
+// circle they previously formed there — the original tuning note above
+// was always scoped to Portugal's own country-level view (zoom 5.5,
+// see COUNTRY_MAP_VIEWS.Portugal), never to "All cities", and no test
+// asserted Lisbon+Porto must stay merged at the wider view, so this is
+// treated as an acceptable (arguably more informative — Lisbon and
+// Porto are both substantial, independently real markets) side effect
+// of the smallest change that reliably shows London, rather than a
+// regression.
+export const CLUSTER_RADIUS = 35;
 
 // The zoom level at/above which supercluster stops merging points into
 // clusters — every venue point renders individually (as its own DOM
