@@ -41,8 +41,9 @@ type CountryMapView = {
 
 export const COUNTRY_MAP_VIEWS: Record<SearchArea, CountryMapView> = {
   // BEATMAPPED-ALL-CITIES-DEFAULT-MAP-01 — deliberately scoped to the
-  // current BeatMapped footprint: Lisbon/Porto, Barcelona, Paris, and
-  // Berlin. This frames western/central Europe without falling back to a
+  // current BeatMapped footprint: Lisbon/Porto, Barcelona, Paris, Berlin,
+  // and (BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01)
+  // London. This frames western/central Europe without falling back to a
   // low-information whole-world view. Individual country views below are
   // unchanged.
   "All cities": {
@@ -508,11 +509,42 @@ export function DiscoveryMap({ area, markers }: DiscoveryMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const initialAreaRef = useRef(area);
-  // Snapshot of `markers` at mount time only, mirroring initialAreaRef
-  // above — the cluster source is seeded with this once when the map
-  // first loads; the separate `[markers]` effect below keeps it in sync
-  // afterwards, so this ref deliberately never needs to be re-read.
-  const initialMarkersRef = useRef(markers);
+  // BEATMAPPED-LONDON-MAP-CLUSTER-VISIBILITY-01: ALWAYS the most recent
+  // `markers` prop, not a mount-time snapshot (see the `[markers]` effect
+  // below, which keeps this current on every render). This used to be
+  // `initialMarkersRef = useRef(markers)` — captured ONCE at mount and
+  // never updated — which raced the map's own asynchronous `"load"`
+  // event: `addSource`/`addLayer` can only run once MapLibre's style has
+  // loaded, so the mount effect below defers seeding the cluster source
+  // until `map.once("load", ...)` fires. If the `[markers]` prop changed
+  // (e.g. the client-side runtime fetch replacing the initial bundled
+  // artifact — see ingestion/map/runtime-publication.mjs's
+  // resolveMapData(), wired into app/page.tsx) BEFORE that "load" event —
+  // which real timing shows happens routinely, not as some rare edge
+  // case — the `[markers]` effect's own `source.setData(...)` call was a
+  // silent no-op (`map.getSource(...)` not yet registered), and "load"
+  // then permanently seeded the source from the STALE, ALREADY-OUTDATED
+  // mount-time snapshot. Nothing ever re-applied the newer data
+  // afterwards, since the `[markers]` effect only re-runs when `markers`
+  // itself changes again — which it does not, since the runtime fetch is
+  // one-shot. Proven directly: London/UnitedKingdom venues exist ONLY in
+  // the runtime artifact (the bundled fallback predates London), so this
+  // exact loss is why they never appeared on the live map at all — even
+  // though the page's own text summary (driven straight from React
+  // state, not from this map) already correctly counted them. Reproduced
+  // live via console-instrumented traces (a real "[markers] effect ...
+  // source_exists=false ukCount=8" firing ~1.5s before "load") against
+  // the real production runtime data, and against
+  // https://www.beatmapped.com itself (screenshot: 4 country clusters
+  // visible, summing to the full displayed listing total, zero UK
+  // markers anywhere in the source). Reading the LATEST ref here instead
+  // closes the race from both directions: if "load" fires first, the
+  // `[markers]` effect's existing `source.setData(...)` call already
+  // handles every later update correctly (unchanged); if a newer
+  // `markers` value (with or without new venues) arrives BEFORE "load",
+  // "load" now seeds the source with THAT latest value instead of a
+  // stale one.
+  const latestMarkersRef = useRef(markers);
   const [activeVenue, setActiveVenue] = useState<MapMarker | null>(null);
 
   // Imperative state read by map event handlers below — kept current by
@@ -696,7 +728,7 @@ export function DiscoveryMap({ area, markers }: DiscoveryMapProps) {
       // cluster hover tooltip ("N venues · M gigs").
       map.addSource(VENUE_CLUSTER_SOURCE_ID, {
         type: "geojson",
-        data: buildVenueFeatureCollection(initialMarkersRef.current) as GeoJSON.FeatureCollection,
+        data: buildVenueFeatureCollection(latestMarkersRef.current) as GeoJSON.FeatureCollection,
         cluster: true,
         clusterRadius: CLUSTER_RADIUS,
         clusterMaxZoom: CLUSTER_MAX_ZOOM,
@@ -795,6 +827,14 @@ export function DiscoveryMap({ area, markers }: DiscoveryMapProps) {
     resizeObserver.observe(containerRef.current);
 
     mapRef.current = map;
+    // Dev-only white-box hook for tests/discovery-map-uk-cluster.browser.test.mjs
+    // (BEATMAPPED-LONDON-MAP-CLUSTER-VISIBILITY-01's regression coverage) —
+    // `next build`/`next start` set NODE_ENV=production automatically, so
+    // this branch never runs (and this reference is never reachable) in
+    // any real deployment; only `next dev` (development) exposes it.
+    if (process.env.NODE_ENV !== "production") {
+      (window as unknown as { __botmMap?: Map }).__botmMap = map;
+    }
 
     return () => {
       resizeObserver.disconnect();
@@ -821,13 +861,22 @@ export function DiscoveryMap({ area, markers }: DiscoveryMapProps) {
   }, [area]);
 
   // Keeps the clustered GeoJSON source in sync when the visible marker
-  // set changes (e.g. a genre/date/price filter narrows `markers`) —
+  // set changes (e.g. a genre/date/price filter narrows `markers`, or the
+  // client-side runtime fetch replaces the initial bundled artifact) —
   // the underlying dataset itself never changes here, only what's
-  // currently plotted. The mount effect's own `map.once("load", ...)`
-  // seeds the source with whatever `markers` held at construction time;
-  // this effect keeps it current afterwards.
+  // currently plotted. `latestMarkersRef` is updated UNCONDITIONALLY,
+  // every time this effect runs — including before the map/source exist
+  // yet — so that whenever `map.once("load", ...)` (in the mount effect
+  // above) does eventually seed the source, it reads whatever `markers`
+  // is CURRENT at that moment, never a stale value from an earlier
+  // render (see BEATMAPPED-LONDON-MAP-CLUSTER-VISIBILITY-01's comment on
+  // `latestMarkersRef` above for why this matters). If the source
+  // already exists, this effect also applies the update directly via
+  // `setData` — the two paths together cover both possible orderings of
+  // "load" vs. a `markers` change, with no gap either way.
   useEffect(() => {
     venueByIdRef.current = new globalThis.Map(markers.map((marker) => [marker.venue_id, marker]));
+    latestMarkersRef.current = markers;
 
     const map = mapRef.current;
     if (!map) return;

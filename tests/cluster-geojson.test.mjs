@@ -58,6 +58,17 @@ test("named zoom/radius constants exist and are sane numbers", () => {
   assert.ok(NEAR_TERM_LABEL_MIN_ZOOM >= CLUSTER_MAX_ZOOM, "near-term labels should only appear once venues have fully separated out of clusters");
 });
 
+// BEATMAPPED-LONDON-MAP-CLUSTER-VISIBILITY-01: at the wide, very-zoomed-out
+// "All cities" default view, the original CLUSTER_RADIUS (60) merged
+// London into the Paris/France cluster (~340km apart) — proven directly
+// via a real, instrumented MapLibre source inspection (see
+// tests/discovery-map-uk-cluster.browser.test.mjs for the live-browser
+// regression proof; this is a fast, literal-value guard against that
+// specific reduction silently regressing back up).
+test("CLUSTER_RADIUS is 35 (BEATMAPPED-LONDON-MAP-CLUSTER-VISIBILITY-01 — reduced from 60 so London separates from Paris/France at the All-cities view)", () => {
+  assert.equal(CLUSTER_RADIUS, 35);
+});
+
 test("buildVenueFeatureCollection: one Point Feature per venue with a finite coordinate, carrying venue_id and gig_count", () => {
   const fc = buildVenueFeatureCollection([venue("a", 36), venue("b", 25), venue("c", 12)]);
   assert.equal(fc.type, "FeatureCollection");
