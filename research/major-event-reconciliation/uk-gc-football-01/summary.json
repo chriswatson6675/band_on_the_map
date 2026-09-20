@@ -1,0 +1,93 @@
+{
+  "artifact_type": "UK_GC_FOOTBALL_FIXTURE_RECONCILIATION_SUMMARY",
+  "run_id": "uk-gc-football-01",
+  "derived_at": "2026-09-21T00:00:00.000Z",
+  "provenance": {
+    "source_observations": "research/major-event-acquisition/uk-gc-football-01/observations.json",
+    "venue_attributions": "research/major-event-attribution/uk-gc-football-01/attributions.json",
+    "reconciliation_key": "platform_match_id + normalized kickoff instant — and nothing else",
+    "keys_deliberately_not_used": [
+      "home team name",
+      "away team name",
+      "competition name",
+      "source venue text",
+      "source calendar",
+      "inferred club identity"
+    ],
+    "creates_canonical_event_identity": false,
+    "note": "A reconciliation group states that several source Observations describe one underlying fixture. It is NOT a canonical Event: no event id is minted, nothing is published, and no source record is altered."
+  },
+  "accounting": {
+    "source_observations": 5092,
+    "observations_accounted_for": 5092,
+    "observations_without_reconciliation_key": 0,
+    "distinct_platform_match_ids": 4137,
+    "multi_source_match_ids": 898,
+    "single_source_match_ids": 3239,
+    "observations_in_multi_source_ids": 1853,
+    "observations_in_single_source_ids": 3239
+  },
+  "by_reconciliation_state": {
+    "SINGLE_SOURCE_NOT_IN_SCOPE": 3239,
+    "RECONCILED_MULTI_SOURCE": 898
+  },
+  "reconciliation": {
+    "reconciled_multi_source_groups": 898,
+    "source_observations_represented": 1853,
+    "analytical_duplicate_reduction": 955,
+    "conflict_groups": 0,
+    "single_source_groups_left_untouched": 3239
+  },
+  "multiplicity_distribution": {
+    "1_source": 3239,
+    "2_sources": 844,
+    "3_sources": 51,
+    "4_sources": 3
+  },
+  "max_source_multiplicity": 4,
+  "independent_publisher_evidence": {
+    "reconciled_groups": 898,
+    "corroborated_by_more_than_one_publishing_domain": 674,
+    "all_members_from_a_single_publishing_domain": 224,
+    "publisher_domain_distribution": {
+      "2_domains": 674,
+      "1_domain": 224
+    },
+    "note": "Groups whose members all share one publishing domain are one club's own duplicate calendar entries (a /matches and a /tickets page, or a club registered under two census venues). Collapsing them is still correct — it is the same fixture twice — but they are NOT independent corroboration, and this package attaches no confidence score either way."
+  },
+  "venue": {
+    "by_venue_evidence_state": {
+      "NO_MEMBER_RESOLVED": 478,
+      "AGREED_BY_ALL_RESOLVED_MEMBERS": 420
+    },
+    "reconciled_with_agreed_venue": 420,
+    "reconciled_with_no_venue_evidence": 478,
+    "conflicting_venue_groups": 0,
+    "venue_carried_by_partial_evidence": 0,
+    "distinct_reconciled_venues": 56
+  },
+  "naming_variants_retained": {
+    "groups_with_multiple_home_team_spellings": 20,
+    "groups_with_multiple_away_team_spellings": 21,
+    "groups_with_multiple_competition_labels": 15,
+    "groups_with_multiple_source_venue_texts": 3,
+    "note": "Retained verbatim and never overwritten. None is a reconciliation key, and this package chooses no canonical spelling — it reconciles fixture occurrence, not vocabulary."
+  },
+  "collision_audit": {
+    "distinct_platform_match_ids": 4137,
+    "match_ids_with_multiple_observations": 898,
+    "match_id_kickoff_collisions": 0,
+    "match_id_resolved_venue_collisions": 0,
+    "match_ids_repeated_within_one_source": 0,
+    "match_ids_without_any_kickoff": 0,
+    "multi_observation_ids_with_home_team_variants": 20,
+    "multi_observation_ids_with_away_team_variants": 21,
+    "multi_observation_ids_with_competition_variants": 15,
+    "multi_observation_ids_with_venue_text_variants": 3
+  },
+  "temporal": {
+    "reconciled_future_groups": 719,
+    "reconciled_past_groups": 179,
+    "reconciled_mixed_or_unknown": 0
+  }
+}
