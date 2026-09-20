@@ -35,6 +35,27 @@ test("two sibling nested-div cards on the same page are each captured independen
   assert.deepEqual(result.records.map((r) => r.start_raw).sort(), ["2026-09-01", "2026-09-02"]);
 });
 
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — the SAME
+// whole-CSS-class-token "event" widening as programme-fingerprint.mjs's
+// own STATIC_HTML_CARDS detection (see that file's test suite for the
+// full corpus-validated rationale), applied to CARD_START's own card
+// boundary matching so a recognised page's real cards are actually
+// extracted, not just detected.
+test("a card using 'event' as a whole class token (RNCM's own real shape), never fused with card/item, is still extracted", () => {
+  const body = '<div class="event tab-3 dts-3 cf"><a href="/performance/a">The Only King</a><div class="event-date">Sep 20th</div><time datetime="2026-09-20"></time></div>';
+  const result = collectStaticCardEvents({ url: "https://arbitrary.example/whats-on", body, at: "2026-08-29T00:00:00Z" }, options);
+  assert.equal(result.records.length, 1);
+  assert.equal(result.records[0].title, "The Only King");
+});
+
+test("a single, non-repeated section wrapper carrying a bare 'programme' class token does NOT swallow the whole section as one card (the real Le Trabendo Paris risk)", () => {
+  const body = '<div class="wrap programme"><article class="item"><a href="/e/a">Event A</a><time datetime="2026-09-01"></time></article><article class="item"><a href="/e/b">Event B</a><time datetime="2026-09-02"></time></article></div>';
+  const result = collectStaticCardEvents({ url: "https://arbitrary.example/whats-on", body, at: "2026-08-29T00:00:00Z" }, options);
+  // Neither inner <article class="item"> matches on its own (no event/programme/calendar word at all in ITS class) and the outer
+  // "wrap programme" wrapper is deliberately not treated as a card boundary — this must not silently produce one truncated record.
+  assert.equal(result.records.length, 0, "a bare 'programme' token must not be treated as a card boundary at all, avoiding the single-wrapper risk entirely");
+});
+
 test("rejects headings, cross-card fields, external links, missing date, and generic labels", () => {
   const body = '<h2>Heading Only</h2><article class="event-card"><a href="/events/a">A</a></article><article class="event-card"><time datetime="2026-09-01"></time></article><article class="event-card"><a href="https://tickets.example/a">External</a><time datetime="2026-09-01"></time></article><article class="event-card"><a href="/events/list">What\'s on</a><time datetime="2026-09-01"></time></article>';
   assert.equal(collectStaticCardEvents({ url: "https://arbitrary.example/", body }, options).records.length, 0);

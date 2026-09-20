@@ -1,4 +1,5 @@
 import { fingerprintProgrammeSurface } from "../venue-discovery/programme-fingerprint.mjs";
+import { parseCompleteCardDate } from "../static-cards/card-date.mjs";
 
 const POSITIVE = /\b(events?|what'?s on|programme|program|calendar|gigs?|live|concerts?|shows?|agenda|listings?|performances?)\b/i;
 const NEGATIVE = /\b(blog|news|press|menu|food|drink|hire|private|about|contact|accessibility|privacy|terms)\b/i;
@@ -23,6 +24,36 @@ const DATE = /\b20\d{2}[-/.](?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\d|3[01])\b/g;
 // against every source's own origin; a non-WordPress site simply 404s
 // like any other absent common path, an honest, non-fatal outcome.
 const COMMON_PROGRAMME_PATHS = ["/events", "/whats-on", "/whatson", "/programme", "/program", "/calendar", "/agenda", "/concerts", "/gigs", "/shows", "/wp-json/tribe/events/v1/events/"];
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real
+// Manchester venue (RNCM) links 29 same-scoring nav candidates on its
+// own homepage (individual performance pages, alumni sub-pages, ...),
+// with its own real programme listing (/whats-on/events/) landing at
+// position 20 among them purely by alphabetical chance ("alumni-home"
+// sorts before "whats-on") — exactly at the maxCandidates=20 cutoff
+// below, so it was silently EXCLUDED from ever being fetched or scored
+// at all, no matter how well any later content-based signal might have
+// favoured it. Deciding WHICH candidates make it into the bounded
+// budget is therefore just as important as scoring the ones that do.
+// An index/listing page's URL path overwhelmingly ends in a short,
+// generic word (exactly the same vocabulary COMMON_PROGRAMME_PATHS
+// already uses), while a detail page's own path ends in a long,
+// specific, hyphenated slug — a free, deterministic, no-fetch-required
+// signal, reused (not duplicated) both here, as a same-score TIE-BREAK
+// so index-shaped candidates are never starved out of the bounded
+// candidate set, and again below in the real evidenceScore once a
+// candidate has actually been fetched. Checked against the FINAL path
+// segment only (never a substring match), so a false-positive shape
+// like "/photo-gallery/events-gallery/" (a real Manchester page — a
+// photo gallery, not a programme) is correctly excluded: its last
+// segment is "events-gallery" as ONE compound word, not "events" alone.
+const INDEX_PATH_WORDS = new Set(COMMON_PROGRAMME_PATHS.map((path) => path.replace(/^\/|\/$/g, "").toLowerCase()).filter((word) => word && !word.includes("/")));
+
+function isIndexShapedPath(url) {
+  let pathname; try { pathname = new URL(url).pathname; } catch { return false; }
+  const lastSegment = pathname.replace(/\/+$/, "").split("/").pop()?.toLowerCase() ?? "";
+  return INDEX_PATH_WORDS.has(lastSegment);
+}
 
 // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — a real
 // Manchester venue (The Warehouse Project) serves its homepage at
@@ -59,7 +90,7 @@ export function rankProgrammeCandidates(homepage) {
   const candidates = links(homepage.body, homepage.url).map((candidate) => {
     const signal = `${candidate.url} ${candidate.text}`;
     return { ...candidate, score: (POSITIVE.test(signal) ? 40 : 0) - (NEGATIVE.test(signal) ? 35 : 0), evidence: POSITIVE.test(signal) ? ["programme-like navigation label or URL"] : [], source: "HOMEPAGE_NAVIGATION_LINK" };
-  }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score || a.url.localeCompare(b.url));
+  }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score || (Number(isIndexShapedPath(b.url)) - Number(isIndexShapedPath(a.url))) || a.url.localeCompare(b.url));
   return candidates;
 }
 
@@ -176,6 +207,32 @@ function countEventEntities(body) {
   return Math.max((text.match(JSON_LD_EVENT_ENTITY) ?? []).length, (text.match(ICS_VEVENT_ENTITY) ?? []).length);
 }
 
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real
+// Manchester run found JSON_LD_EVENT's fixed +40 bonus rewarding a
+// stale, single-event archive page (Aviva Studios: a 2023 event,
+// surfaced via sitemap.xml) enough to outrank the venue's own real,
+// current listing page, which happened not to be JSON-LD-fingerprinted
+// at all. The bonus is withheld ONLY when every extractable JSON-LD
+// startDate on the page is confirmedly in the past — never when a date
+// is unparseable or absent (uncertainty is never treated as evidence
+// of staleness) and never for a page mixing past and future events
+// (a real, common listing shape). parseCompleteCardDate is reused
+// unchanged from static-cards/card-date.mjs — the SAME deterministic,
+// no-year-invention date parser already proven against real textual
+// dates ("25 Apr 2023, midnight" being the exact real Aviva shape).
+const JSON_LD_START_DATE = /"startDate"\s*:\s*"([^"]+)"/gi;
+
+function jsonLdHasOnlyPastDates(body, cutoffDate) {
+  let sawAny = false;
+  for (const match of String(body ?? "").matchAll(JSON_LD_START_DATE)) {
+    const parsed = parseCompleteCardDate(match[1]);
+    if (!parsed) continue; // unparseable — not evidence either way
+    sawAny = true;
+    if (!cutoffDate || parsed.iso >= cutoffDate) return false; // a confirmed future/current date found — never withhold
+  }
+  return sawAny; // true only when at least one date resolved AND every resolved date was in the past
+}
+
 export async function resolveProgrammeSource({ homepage, fetchDocument, maxCandidates = 20 } = {}) {
   const navCandidates = rankProgrammeCandidates(homepage);
   const pathCandidates = commonPathCandidates(homepage.url);
@@ -209,8 +266,46 @@ export async function resolveProgrammeSource({ homepage, fetchDocument, maxCandi
     // machine-readable date), could never clear the selection threshold
     // even though the collector that would run on it already exists and
     // already works — a selection-scoring gap, not a dispatch gap.
-    const evidenceScore = candidate.score + futureDates * 5 + listingBonus + (fingerprint.detected_mechanisms.includes("JSON_LD_EVENT") ? 40 : 0) + (fingerprint.detected_mechanisms.includes("LIST_TO_DETAIL_HTML") ? 25 : 0) + (fingerprint.detected_mechanisms.includes("ICS_OR_ICAL") ? 30 : 0) + (fingerprint.detected_mechanisms.includes("WORDPRESS_TRIBE_API") ? 30 : 0) + (fingerprint.detected_mechanisms.includes("STATIC_HTML_CARDS") ? 30 : 0);
-    examined.push({ ...candidate, page, fingerprint, futureDates, eventEntityCount, evidenceScore });
+    const jsonLdEventBonus = fingerprint.detected_mechanisms.includes("JSON_LD_EVENT") && !jsonLdHasOnlyPastDates(page.body, page.at?.slice(0, 10) ?? null) ? 40 : 0;
+    // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real
+    // Manchester site (manchestertheatres.com) has a client-rendered
+    // /whatson page carrying 86 incidental ISO-date-shaped substrings
+    // (embedded config/hydration data, not real distinct events) —
+    // CLIENT_RENDERED_UNKNOWN's own condition already means "no
+    // dispatchable structure was found here at all" (see
+    // routeCollectorCapability: it always maps to BROWSER_REQUIRED, never
+    // to a real collector), so a page whose ONLY signal is that fallback
+    // can never actually be turned into a proven result even if
+    // selected — rewarding it as heavily as a page with a genuinely
+    // dispatchable mechanism is always counter-productive, and once this
+    // package's OWN candidate-ordering fix (above) correctly stopped
+    // starving /whatson-shaped pages out of consideration, its sheer
+    // date-text volume was enough to outrank a genuinely working
+    // JSON_LD_EVENT individual event page. Both the URL-shape bonus and
+    // the raw date-text count are therefore withheld specifically when
+    // NO substantive (dispatchable-or-potentially-dispatchable) mechanism
+    // was found — never a blanket cap, since a page that DOES carry a
+    // real mechanism (STATIC_HTML_CARDS, ICS, Tribe API, ...) keeps full
+    // credit for both signals exactly as before.
+    const NON_SUBSTANTIVE_MECHANISMS = new Set(["NO_CURRENT_PROGRAMME_FOUND", "CLIENT_RENDERED_UNKNOWN"]);
+    const hasSubstantiveFingerprint = fingerprint.detected_mechanisms.some((mechanism) => !NON_SUBSTANTIVE_MECHANISMS.has(mechanism));
+    // A CLIENT_RENDERED_UNKNOWN candidate (a real page shell/script
+    // marker WAS found, just nothing extractable) still needs to be
+    // SELECTABLE when it is the only real option at all — that is how
+    // this pipeline reaches the honest BROWSER_REQUIRED terminal state
+    // rather than an uninformative PROGRAMME_SOURCE_UNRESOLVED. The
+    // reduced (not zeroed) bonus below is calibrated to reliably cross
+    // the selection threshold on its own, while still reliably losing to
+    // any candidate that DOES carry a real, dispatchable mechanism.
+    // NO_CURRENT_PROGRAMME_FOUND (a literally empty/contentless response
+    // — no shell marker, no script, nothing) gets neither bonus at all,
+    // exactly as before: URL shape alone must never resolve a genuinely
+    // empty page.
+    const isClientRenderedOnly = fingerprint.mechanism === "CLIENT_RENDERED_UNKNOWN" && !hasSubstantiveFingerprint;
+    const indexPathBonus = isIndexShapedPath(candidate.url) ? (hasSubstantiveFingerprint ? 35 : isClientRenderedOnly ? 15 : 0) : 0;
+    const futureDatesScore = Math.min(futureDates, hasSubstantiveFingerprint ? 10 : 2) * 5;
+    const evidenceScore = candidate.score + futureDatesScore + listingBonus + jsonLdEventBonus + indexPathBonus + (fingerprint.detected_mechanisms.includes("LIST_TO_DETAIL_HTML") ? 25 : 0) + (fingerprint.detected_mechanisms.includes("ICS_OR_ICAL") ? 30 : 0) + (fingerprint.detected_mechanisms.includes("WORDPRESS_TRIBE_API") ? 30 : 0) + (fingerprint.detected_mechanisms.includes("STATIC_HTML_CARDS") ? 30 : 0);
+    examined.push({ ...candidate, page, fingerprint, futureDates, eventEntityCount, evidenceScore, indexPathBonus });
   }
   const selected = examined.filter((item) => item.page?.status >= 200 && item.page.status < 300 && item.evidenceScore >= 50).sort((a, b) => b.evidenceScore - a.evidenceScore || a.url.localeCompare(b.url))[0] ?? null;
   return { state: selected ? "PROGRAMME_SOURCE_RESOLVED" : "PROGRAMME_SOURCE_UNRESOLVED", selected: selected ? { url: selected.page.url, discovery: selected.source ?? "HOMEPAGE_NAVIGATION_LINK", evidence: selected.evidence, score: selected.evidenceScore, event_entity_count: selected.eventEntityCount } : null, considered: examined.map(({ page, ...item }) => ({ ...item, status: page?.status ?? null })) };

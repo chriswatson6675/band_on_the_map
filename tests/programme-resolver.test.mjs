@@ -35,6 +35,132 @@ test("a homepage's own nav link to its bare (non-www) host is followed when the 
   assert.equal(result.selected.url, "https://arbitrary-whp.example/events/");
 });
 
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real venue
+// (Aviva Studios / Factory International) had sitemap.xml surface a
+// stale, single-event 2023 archive page whose JSON-LD `startDate` is
+// confirmedly in the past ("25 Apr 2023, midnight") — its fixed
+// JSON_LD_EVENT bonus alone outscored the venue's own real, current
+// listing page (which had no JSON-LD at all). The bonus must be
+// withheld for a confirmed past-only event, without ever penalising a
+// genuinely future event or one whose date could not be parsed.
+test("a JSON-LD page whose ONLY event is confirmedly in the past does not outrank a real current listing candidate", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/whats-on/stale-2023-event/">Stale Event</a><a href="/whats-on/gigs/">Gigs</a>' };
+  const fetchDocument = async (url) => {
+    if (url.includes("stale-2023-event")) {
+      return { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<script type="application/ld+json">{"@type":"Event","name":"Old Show","startDate":"25 Apr 2023, midnight","url":"/whats-on/stale-2023-event/"}</script>' };
+    }
+    if (url.includes("/whats-on/gigs")) {
+      return { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<div class="event-card"><a href="/whats-on/gigs/a">Gig A</a><time datetime="2026-10-01"></time></div><div class="event-card"><a href="/whats-on/gigs/b">Gig B</a><time datetime="2026-10-02"></time></div>' };
+    }
+    return { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" };
+  };
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/whats-on/gigs/", "the real current listing must win, not the confirmedly-stale single event");
+});
+
+test("a JSON-LD event with a genuinely FUTURE date still receives its full bonus (this correction never penalises real future evidence)", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/event/a">Event A</a>' };
+  const fetchDocument = async (url) => (url.endsWith("/event/a")
+    ? { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<script type="application/ld+json">{"@type":"Event","name":"A","startDate":"2026-10-01T20:00:00Z","url":"/event/a"}</script>' }
+    : { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/event/a");
+});
+
+test("a JSON-LD event whose date cannot be parsed at all still receives its full bonus (uncertainty is never treated as staleness)", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/event/a">Event A</a>' };
+  const fetchDocument = async (url) => (url.endsWith("/event/a")
+    ? { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<script type="application/ld+json">{"@type":"Event","name":"A","startDate":"TBC","url":"/event/a"}</script>' }
+    : { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/event/a");
+});
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real venue
+// (Band on the Wall) had EVERY individual event page tie in score,
+// while its own real listing (/events/) was not even competitive,
+// because the real listing had no JSON-LD/date/static-card signal of
+// its own. The venue's own URL naming (an index-shaped path) is a
+// further, independent, deterministic signal.
+test("an index-shaped URL path (matching the existing common-path vocabulary) is preferred over a same-scoring individual event page", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/events/">Events</a><a href="/events/one-specific-gig-name/">One Specific Gig Name</a>' };
+  const fetchDocument = async (url) => (url === "https://arbitrary.example/events/" || url === "https://arbitrary.example/events/one-specific-gig-name/"
+    ? { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<div data-event-="a">Some Gig</div>' }
+    : { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/events/", "the index-shaped path must win the tie, not the detail-shaped slug");
+});
+
+test("a URL whose final path segment merely CONTAINS an index word as part of a longer compound (a real photo gallery, not a programme) does not receive the index-path bonus", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/photo-gallery/events-gallery/">Photos</a>' };
+  const fetchDocument = async (url) => ({ url, status: 200, at: "2026-09-20T00:00:00Z", body: "<p>2020 2021 2022 2023 2024 2025 photo archive</p>" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_UNRESOLVED", "a compound path segment ('events-gallery') must not match the index-word vocabulary");
+});
+
+test("an index-shaped path with a literally empty/contentless response never resolves on URL shape alone", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/events/">Events</a>' };
+  const fetchDocument = async (url) => ({ url, status: 200, at: "2026-09-20T00:00:00Z", body: "" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_UNRESOLVED");
+});
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real venue
+// (RNCM) links 29 same-scoring nav candidates, with its own real
+// listing landing at position 20 among them purely by alphabetical
+// chance — exactly AT the maxCandidates cutoff, so it was silently
+// excluded from ever being fetched at all, regardless of any later
+// content-based scoring. Deciding which candidates enter the bounded
+// budget must itself prefer an index-shaped path, not just alphabetise.
+test("an index-shaped candidate is never starved out of the bounded candidate budget by many same-scoring detail-shaped links sorting alphabetically ahead of it", async () => {
+  const detailLinks = Array.from({ length: 25 }, (_, i) => `<a href="/performance/artist-${String(i).padStart(2, "0")}">Artist ${i}</a>`).join("");
+  const homepage = { url: "https://arbitrary.example/", body: `${detailLinks}<a href="/whats-on/events/">Events</a>` };
+  const fetchDocument = async (url) => (url === "https://arbitrary.example/whats-on/events/"
+    ? { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<div class="event"><a href="/performance/a">A</a><time datetime="2026-10-01"></time></div><div class="event"><a href="/performance/b">B</a><time datetime="2026-10-02"></time></div>' }
+    : { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument, maxCandidates: 20 });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/whats-on/events/", "the real listing must be fetched (and win) even when outnumbered by 25 alphabetically-earlier detail links, all tied in score");
+});
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — a real venue
+// (manchestertheatres.com) has a client-rendered /whatson page carrying
+// dozens of incidental ISO-date-shaped substrings (embedded
+// config/hydration data, not real distinct events) — once this
+// package's own candidate-ordering fix correctly stopped starving it
+// out of consideration, its uncapped raw date count alone was enough to
+// outrank a genuinely working JSON_LD_EVENT individual event page.
+test("a client-rendered page's raw date-text COUNT alone, however large, cannot outrank a real JSON_LD_EVENT page — capped like every other bonus", async () => {
+  const manyDates = Array.from({ length: 40 }, (_, i) => `2026-10-${String((i % 28) + 1).padStart(2, "0")}`).join(" ");
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/whatson">Whats On</a><a href="/event/a">Real Event</a>' };
+  const fetchDocument = async (url) => {
+    if (url === "https://arbitrary.example/whatson") {
+      return { url, status: 200, at: "2026-09-20T00:00:00Z", body: `<div id="app"></div><script src="/app.js"></script><!-- ${manyDates} -->` };
+    }
+    if (url === "https://arbitrary.example/event/a") {
+      return { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<script type="application/ld+json">{"@type":"Event","name":"A","startDate":"2026-10-01","url":"/event/a"}</script>' };
+    }
+    return { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" };
+  };
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/event/a", "a real, working JSON_LD_EVENT page must not lose to a client-rendered page's sheer raw date-text volume");
+});
+
+test("a CLIENT_RENDERED_UNKNOWN page still resolves (honestly reaching BROWSER_REQUIRED downstream) when it is the only real candidate available, despite its own bonuses being withheld", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/whats-on">Whats On</a>' };
+  const fetchDocument = async (url) => (url === "https://arbitrary.example/whats-on"
+    ? { url, status: 200, at: "2026-09-20T00:00:00Z", body: '<div id="app"></div><script src="/app.js"></script>' }
+    : { url, status: 404, at: "2026-09-20T00:00:00Z", body: "" });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/whats-on");
+});
+
 test("resolver fails closed when no programme evidence crosses threshold", async () => {
   // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-AND-DISCOVERY-CORRECTION-01: the
   // resolver now ALSO always attempts robots.txt/sitemap.xml discovery

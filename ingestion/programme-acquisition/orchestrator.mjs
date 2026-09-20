@@ -99,7 +99,7 @@ export function collectAndProve({ source_id, venue_name, programme, detail_docum
   const documents = [programme, ...detail_documents].filter((document) => typeof document?.body === "string");
   const { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents, usableTribeApiEvents } = deriveEventRecords(programme, documents, { source_id, venue_name });
   if (!routing.selected || routing.residue_state) return { ...routing, state: routing.residue_state ?? "SOURCE_FINGERPRINT_UNSUPPORTED", observations: [], proofs: [], residue: true };
-  const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10) });
+  const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10), listingRecords: jsonLd.records });
   const proofIds = new Set(proofs.map((proof) => proof.source_record_id));
   const provenRecordIds = new Set(jsonLd.records.filter((record) => proofIds.has(record.source_record_id) || proofs.some((proof) => proof.event_url === record.event_url)).map((record) => record.source_record_id));
   const observations = jsonLd.observations.filter((observation) => provenRecordIds.has(observation.source_record_id));

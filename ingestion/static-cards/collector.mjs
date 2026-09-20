@@ -1,7 +1,15 @@
 import { toObservations } from "../json-ld/observation-adapter.mjs";
 import { extractMonthYearHeadings, inferNumericDateOrder, resolveCardDate } from "./card-date.mjs";
 
-const CARD_START = /<(article|li|div)\b([^>]*\bclass=["'][^"']*(?:event|programme|calendar)[^"']*(?:card|item)[^"']*["'][^>]*)>/gi;
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-04 — "event" as its
+// own whole CSS class token (e.g. RNCM's real `class="event tab-3
+// dts-3 cf"`) is now also recognised as a card boundary, matching the
+// SAME widening and the SAME reasoning as programme-fingerprint.mjs's
+// own STATIC_HTML_CARDS detection (see that file's own comment for the
+// full corpus-validated rationale — repeated here only where the
+// regex itself lives). "programme"/"calendar" deliberately keep the
+// original, narrower "word + card/item suffix" requirement only.
+const CARD_START = /<(article|li|div)\b([^>]*\bclass=["'](?:[^"']*\s)?event(?:\s[^"']*)?["'][^>]*|[^>]*\bclass=["'][^"']*(?:event|programme|calendar)[^"']*(?:card|item)[^"']*["'][^>]*)>/gi;
 const TITLE_LINK = /<a\b[^>]*href=["']([^"']+)["'][^>]*>\s*(?:<[^>]+>\s*)*([^<]{2,200})/i;
 const DATE = /<time\b[^>]*datetime=["'](\d{4}-\d{2}-\d{2}(?:[T ][^"']+)?)['"]/i;
 const plain = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
