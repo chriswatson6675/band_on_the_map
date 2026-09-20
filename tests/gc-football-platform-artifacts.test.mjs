@@ -116,8 +116,17 @@ test("HOME/AWAY PROTECTION: a Home flag was never treated as the club's own grou
 
 test("the attribution diagnostic is explicitly NOT canonical attribution", async () => {
   assert.match(diagnostic.status, /DIAGNOSTIC_ONLY/);
+  // The substance of this test is that the ACQUISITION package produced a
+  // labelled diagnostic and did not write canonical attribution data.
+  //
+  // The path watched below was previously the whole
+  // research/major-event-attribution/ parent, which also fired once a
+  // LATER attribution package legitimately added its own sibling dataset
+  // there. That says nothing about what this acquisition package wrote,
+  // so the watch is scoped to the canonical attribution dataset that
+  // existed when this package ran. The assertion is otherwise unchanged.
   const { execSync } = await import("node:child_process");
-  const status = execSync("git status --porcelain research/major-event-attribution", { cwd: ROOT, encoding: "utf8" });
+  const status = execSync("git status --porcelain research/major-event-attribution/uk-tier1-01", { cwd: ROOT, encoding: "utf8" });
   assert.equal(status.trim(), "", `this package must not write the attribution dataset:\n${status}`);
 });
 
