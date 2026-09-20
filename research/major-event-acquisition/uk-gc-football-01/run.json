@@ -1,0 +1,27 @@
+{
+  "artifact_type": "UK_GC_FOOTBALL_ACQUISITION_RUN",
+  "run_id": "uk-gc-football-01",
+  "started_at": "2026-09-20T21:08:32.916Z",
+  "finished_at": "2026-09-20T21:11:03.289Z",
+  "collector": "ingestion/gc-football-platform",
+  "population_criteria": {
+    "candidate_sources": 54,
+    "distinct_domains": 49,
+    "distinct_census_venues": 50
+  },
+  "note": "One generic collector, driven entirely by each tenant's own served configuration and the platform's public API. No per-club code path exists.",
+  "route_provenance": {
+    "discovered_from": "the club page's own first-party JS bundle",
+    "public_client_class": "FootballWeb",
+    "teams_route": "https://filters.football.web.gc.<services-host>/v2/filters",
+    "matches_route": "https://matches.football.web.gc.<services-host>/v2/opta?clientMatches=true&teamID=..&seasonID=..&pageSize=..&pageNumber=..",
+    "authentication": "none — the first-party public client calls both routes with no headers; verified live (HTTP 200 unauthenticated)",
+    "rejected_route": "matches.football.ADMIN.gc.<services-host>/v1|v2 — the authenticated CMS client's host; returns HTTP 403 without credentials and is NOT used"
+  },
+  "sources_attempted": 54,
+  "terminal_states": {
+    "ACQUISITION_PROVEN": 48,
+    "SOURCE_FINGERPRINT_UNSUPPORTED": 4,
+    "PROGRAMME_EMPTY": 2
+  }
+}
