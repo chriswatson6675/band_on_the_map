@@ -14,13 +14,42 @@ const DATE = /\b20\d{2}[-/.](?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\d|3[01])\b/g;
 // though their programme lived at one of these ordinary paths. Fixed,
 // small, never brute-forced/expanded per-venue — see resolveProgrammeSource's
 // own bounded-request-budget guarantee below.
-const COMMON_PROGRAMME_PATHS = ["/events", "/whats-on", "/whatson", "/programme", "/program", "/calendar", "/agenda", "/concerts", "/gigs", "/shows"];
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — "The Events
+// Calendar" WordPress plugin's own bundled REST API always lives at this
+// exact, fixed, plugin-defined path (see ingestion/events-calendar-api/
+// client.mjs's own DEFAULT_REST_PATH, already proven live against Centro
+// Cultural de Belém) — a deterministic common path exactly like the
+// other ten, never a per-venue guess. Trying it costs one bounded fetch
+// against every source's own origin; a non-WordPress site simply 404s
+// like any other absent common path, an honest, non-fatal outcome.
+const COMMON_PROGRAMME_PATHS = ["/events", "/whats-on", "/whatson", "/programme", "/program", "/calendar", "/agenda", "/concerts", "/gigs", "/shows", "/wp-json/tribe/events/v1/events/"];
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — a real
+// Manchester venue (The Warehouse Project) serves its homepage at
+// www.thewarehouseproject.com with NO redirect, while every one of its
+// own internal navigation links points to the bare
+// thewarehouseproject.com (no "www.") — the same real operator, the
+// same real site, just an ordinary, common inconsistency in which
+// subdomain a link author used. Strict origin equality (protocol + host
+// + port) treats these as two different origins and silently discards
+// every such link. This is deliberately narrow: it only ever treats
+// "www." and its own bare host as equivalent — never any other
+// subdomain, and never a genuinely different registrable domain (a
+// ticketing partner, a social platform, ...), so it cannot be used to
+// "follow out" to an unrelated site.
+function bareHost(hostname) {
+  return hostname.replace(/^www\./i, "");
+}
+function sameSite(a, b) {
+  return a.protocol === b.protocol && a.port === b.port && bareHost(a.hostname) === bareHost(b.hostname);
+}
 
 function links(html, baseUrl) {
   const seen = new Set(); const output = [];
+  const base = new URL(baseUrl);
   for (const match of String(html).matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
     let url; try { url = new URL(match[1], baseUrl); } catch { continue; }
-    if (url.origin !== new URL(baseUrl).origin || seen.has(url.href)) continue;
+    if (!sameSite(url, base) || seen.has(url.href)) continue;
     seen.add(url.href); output.push({ url: url.href, text: match[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() });
   }
   return output;
@@ -170,7 +199,17 @@ export async function resolveProgrammeSource({ homepage, fetchDocument, maxCandi
     // A single (or zero) entity gets none of this bonus, so a genuine
     // lone-event page is never penalised relative to today's behaviour.
     const listingBonus = eventEntityCount >= 2 ? Math.min(eventEntityCount, 20) * 15 : 0;
-    const evidenceScore = candidate.score + futureDates * 5 + listingBonus + (fingerprint.detected_mechanisms.includes("JSON_LD_EVENT") ? 40 : 0) + (fingerprint.detected_mechanisms.includes("LIST_TO_DETAIL_HTML") ? 25 : 0) + (fingerprint.detected_mechanisms.includes("ICS_OR_ICAL") ? 30 : 0);
+    // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — STATIC_HTML_CARDS
+    // was the one already-implemented, generically-reachable mechanism
+    // (confirmed by this package's own collector-dispatch-audit MATRIX
+    // test) with NO scoring bonus at all here: a page whose only signal
+    // is server-rendered event-card markup, with no JSON-LD and no
+    // ISO-date-regex match (a real Manchester case: RNCM's own
+    // /whats-on/events/ page uses plain "Sep 20th"-style text, no
+    // machine-readable date), could never clear the selection threshold
+    // even though the collector that would run on it already exists and
+    // already works — a selection-scoring gap, not a dispatch gap.
+    const evidenceScore = candidate.score + futureDates * 5 + listingBonus + (fingerprint.detected_mechanisms.includes("JSON_LD_EVENT") ? 40 : 0) + (fingerprint.detected_mechanisms.includes("LIST_TO_DETAIL_HTML") ? 25 : 0) + (fingerprint.detected_mechanisms.includes("ICS_OR_ICAL") ? 30 : 0) + (fingerprint.detected_mechanisms.includes("WORDPRESS_TRIBE_API") ? 30 : 0) + (fingerprint.detected_mechanisms.includes("STATIC_HTML_CARDS") ? 30 : 0);
     examined.push({ ...candidate, page, fingerprint, futureDates, eventEntityCount, evidenceScore });
   }
   const selected = examined.filter((item) => item.page?.status >= 200 && item.page.status < 300 && item.evidenceScore >= 50).sort((a, b) => b.evidenceScore - a.evidenceScore || a.url.localeCompare(b.url))[0] ?? null;

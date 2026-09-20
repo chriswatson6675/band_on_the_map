@@ -8,6 +8,41 @@ const plain = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const cardText = (card) => plain(card.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " "));
 
 /**
+ * BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — a real
+ * Manchester source (The Bridgewater Hall) uses card markup that nests
+ * further `<div>` elements INSIDE its own card wrapper (an image
+ * `<figure>`, a heading wrapper, a meta block that carries the card's
+ * own date/venue text, a CTA block) before the card's true closing tag.
+ * The previous `body.indexOf('</div>', ...)` found only the FIRST
+ * closing tag of the same element type — the innermost nested div's own
+ * close — silently truncating every such card down to just its title,
+ * discarding the very block that carries the date text. This is a
+ * fundamental HTML-nesting gap, not a Manchester quirk: nested divs of
+ * the same tag inside a card wrapper are a common, ordinary markup
+ * pattern. findMatchingClose() counts nested open/close tags of the
+ * SAME tag name to find the wrapper's own true end, exactly like a
+ * simple non-validating HTML depth counter — this can only ever
+ * ENLARGE what a card's own text/date/title extraction can see
+ * (never shrink it below what the old, narrower boundary already
+ * captured), so it cannot regress an already-working source.
+ */
+function findMatchingClose(body, tagName, searchFrom) {
+  const tagRe = new RegExp(`<${tagName}\\b|</${tagName}>`, "gi");
+  tagRe.lastIndex = searchFrom;
+  let depth = 1;
+  let match;
+  while ((match = tagRe.exec(body))) {
+    if (match[0][1] === "/") {
+      depth -= 1;
+      if (depth === 0) return match.index;
+    } else {
+      depth += 1;
+    }
+  }
+  return -1;
+}
+
+/**
  * Conservative, hostname-free extraction of self-contained static event cards.
  *
  * BEATMAPPED-STATIC-CARD-TEXT-DATE-ACQUISITION-01 widened ONLY where a card's
@@ -27,7 +62,7 @@ export function collectStaticCardEvents(document, { sourceId, venueName, cutoffD
   const dateSourceCounts = { MACHINE_READABLE_DATETIME: 0, COMPLETE_TEXT_DATE: 0, DETERMINISTIC_CONTEXT_YEAR: 0, DETERMINISTIC_CONTEXT_NUMERIC_ORDER: 0 };
   let rejectedNoResolvableDate = 0;
   for (const match of starts) {
-    const end = body.indexOf(`</${match[1]}>`, match.index + match[0].length); if (end < 0) continue;
+    const end = findMatchingClose(body, match[1], match.index + match[0].length); if (end < 0) continue;
     const card = body.slice(match.index, end + match[1].length + 3); const titleLink = TITLE_LINK.exec(card);
     const resolved = resolveCardDate({ machineReadable: DATE.exec(card)?.[1] ?? null, cardText: cardText(card), headings, cardIndex: match.index, numericOrder: numeric.order, numericOrderEvidence: numeric.evidence });
     if (!resolved) { rejectedNoResolvableDate += 1; continue; }

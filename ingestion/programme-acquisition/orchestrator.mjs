@@ -5,6 +5,7 @@ import { proofDateFromStartDate } from "./proof-date.mjs";
 import { collectEmbeddedStateEvents, discoverEmbeddedStateDetailLinks } from "../embedded-state/collector.mjs";
 import { collectStaticCardEvents } from "../static-cards/collector.mjs";
 import { collectIcsEvents } from "../ics/collector.mjs";
+import { collectTribeApiEvents } from "../events-calendar-api/collector.mjs";
 
 const RESIDUE_BY_MECHANISM = {
   ACCESS_BLOCKED: "ACCESS_BLOCKED",
@@ -74,8 +75,19 @@ function deriveEventRecords(programme, documents, { source_id, venue_name } = {}
     ? collectIcsEvents(programme, { sourceId: source_id, venueName: venue_name, cutoffDate: programme.at?.slice(0, 10) })
     : null;
   const usableIcsEvents = icsEvents?.records.length ? icsEvents : null;
-  const jsonLd = embedded ?? usableStaticCards ?? usableIcsEvents ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
-  return { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents };
+  // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — closes a
+  // second confirmed EXISTING_COLLECTOR_NOT_DISPATCHED gap, the SAME way
+  // ICS_OR_ICAL was closed above: programme-resolver.mjs's
+  // COMMON_PROGRAMME_PATHS now includes the plugin's own fixed REST
+  // path, so a Tribe-Events-Calendar-powered source's real, structured
+  // JSON is already the retained `programme` document by the time this
+  // runs — no second network fetch required.
+  const tribeApiEvents = routing.selected.mechanism === "WORDPRESS_TRIBE_API"
+    ? collectTribeApiEvents(programme, { sourceId: source_id, venueName: venue_name, cutoffDate: programme.at?.slice(0, 10) })
+    : null;
+  const usableTribeApiEvents = tribeApiEvents?.records.length ? tribeApiEvents : null;
+  const jsonLd = embedded ?? usableStaticCards ?? usableIcsEvents ?? usableTribeApiEvents ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
+  return { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents, usableTribeApiEvents };
 }
 
 /**
@@ -85,14 +97,14 @@ function deriveEventRecords(programme, documents, { source_id, venue_name } = {}
  */
 export function collectAndProve({ source_id, venue_name, programme, detail_documents = [] } = {}) {
   const documents = [programme, ...detail_documents].filter((document) => typeof document?.body === "string");
-  const { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents } = deriveEventRecords(programme, documents, { source_id, venue_name });
+  const { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents, usableTribeApiEvents } = deriveEventRecords(programme, documents, { source_id, venue_name });
   if (!routing.selected || routing.residue_state) return { ...routing, state: routing.residue_state ?? "SOURCE_FINGERPRINT_UNSUPPORTED", observations: [], proofs: [], residue: true };
   const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10) });
   const proofIds = new Set(proofs.map((proof) => proof.source_record_id));
   const provenRecordIds = new Set(jsonLd.records.filter((record) => proofIds.has(record.source_record_id) || proofs.some((proof) => proof.event_url === record.event_url)).map((record) => record.source_record_id));
   const observations = jsonLd.observations.filter((observation) => provenRecordIds.has(observation.source_record_id));
   const state = observations.length ? "ACQUISITION_PROVEN" : jsonLd.records.length ? "STABLE_IDENTITY_PROOF_FAILED" : "SUPPORTED_COLLECTOR_NO_VALID_EVENTS";
-  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? usableStaticCards?.routing_provenance ?? usableIcsEvents?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
+  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? usableStaticCards?.routing_provenance ?? usableIcsEvents?.routing_provenance ?? usableTribeApiEvents?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
 }
 
 // A fixed, internal-only placeholder — never persisted, never surfaced to

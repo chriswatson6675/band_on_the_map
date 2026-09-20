@@ -9,6 +9,32 @@ test("bounded resolver selects an event-rich same-origin page over misleading na
   assert.equal(result.selected.url, "https://arbitrary.example/whats-on");
 });
 
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — a real page
+// (RNCM's own /whats-on/events/) fingerprints as STATIC_HTML_CARDS
+// (server-rendered event-card markup) but carries no JSON-LD and no
+// ISO-date-regex-matching text (its own dates are plain "Sep 20th",
+// no year) — before this package, evidenceScore never rewarded that
+// fingerprint at all, so a genuine, already-collector-supported page
+// could never even be SELECTED as the programme source.
+test("a page with only STATIC_HTML_CARDS evidence (no JSON-LD, no regex-matching dates) still clears the selection threshold", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<a href="/whats-on/events">What\'s On</a>' };
+  const cardBody = '<div class="event-card"><a href="/performance/a">The Only King</a><div class="event-date">Sep 20<span>th</span></div></div>';
+  const result = await resolveProgrammeSource({ homepage, fetchDocument: async (url) => ({ url, status: 200, body: cardBody }) });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/whats-on/events");
+});
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — a real venue
+// (The Warehouse Project) serves its homepage at www.<domain> with no
+// redirect, while its own nav links point to the bare <domain> (no
+// "www.") — the same real site, an ordinary authoring inconsistency.
+test("a homepage's own nav link to its bare (non-www) host is followed when the homepage itself was fetched under www — the same site, not a different origin", async () => {
+  const homepage = { url: "https://www.arbitrary-whp.example/", body: '<a href="https://arbitrary-whp.example/events/">Events</a>' };
+  const result = await resolveProgrammeSource({ homepage, fetchDocument: async (url) => ({ url, status: 200, body: '<script type="application/ld+json">{"@type":"Event","name":"A","startDate":"2026-09-01","url":"/e/a"}</script>' }) });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary-whp.example/events/");
+});
+
 test("resolver fails closed when no programme evidence crosses threshold", async () => {
   // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-AND-DISCOVERY-CORRECTION-01: the
   // resolver now ALSO always attempts robots.txt/sitemap.xml discovery

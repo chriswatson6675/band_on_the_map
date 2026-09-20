@@ -97,3 +97,43 @@ test("runDiscoveryProviders never throws even when every provider fails", async 
   assert.ok(results[0].error);
   assert.deepEqual(results[0].candidates, []);
 });
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 (Phase 6/17) — the
+// 13-venue Manchester control set exists ONLY as forensic evaluation
+// truth (compared against what the pipeline discovers on its own) and
+// must never be fed into discovery/acquisition itself. A static scan of
+// this package's own GENERIC code (never the Manchester-specific
+// research/retest glue, which legitimately names Manchester venues) is
+// the deterministic, regression-proof way to guarantee that stays true.
+test("no control-venue name is hardcoded in executable logic anywhere in the generic multi-source discovery code (static scan)", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const CONTROL_VENUE_NAMES = [
+    "Albert Hall", "Band on the Wall", "Deaf Institute", "Manchester Academy",
+    "Bridgewater Hall", "Gorilla", "Night & Day", "O2 Ritz", "RNCM",
+    "Factory International", "Aviva Studios", "Warehouse Project",
+  ];
+  const genericFiles = [
+    "../../ingestion/future-city-wave/multi-source-discovery.mjs",
+    "../../ingestion/future-city-wave/candidate.mjs",
+    "../../ingestion/future-city-wave/controller.mjs",
+    "../../ingestion/venue-discovery/reconcile.mjs",
+    "../../ingestion/venue-discovery/normalise.mjs",
+    "../../ingestion/venue-discovery/providers/curated-directory.mjs",
+    "../../ingestion/venue-discovery/providers/overpass.mjs",
+  ];
+  const offenders = [];
+  for (const relPath of genericFiles) {
+    const raw = await readFile(new URL(relPath, import.meta.url), "utf8");
+    // Explanatory comments citing the real bug/venue that motivated a
+    // generic fix (this project's normal, healthy convention — see e.g.
+    // this same package's own commit message style) are not "hardcoding":
+    // the risk this test guards against is executable logic that
+    // special-cases a venue. Line and block comments are stripped before
+    // scanning so only real code is checked.
+    const codeOnly = raw.replace(/\r\n/g, "\n").replace(/\/\*[\s\S]*?\*\//g, "").split("\n").map((line) => line.replace(/\/\/.*$/, "")).join("\n");
+    for (const name of CONTROL_VENUE_NAMES) {
+      if (codeOnly.includes(name)) offenders.push(`${relPath}: contains "${name}" outside a comment`);
+    }
+  }
+  assert.deepEqual(offenders, [], `generic discovery code must never special-case a specific control venue:\n${offenders.join("\n")}`);
+});

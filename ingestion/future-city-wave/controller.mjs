@@ -26,6 +26,7 @@ import { WAVE_1_ID, WAVE_1_CITIES } from "./wave-config.mjs";
 import {
   recordCandidateState,
   loadCandidateStates,
+  resolveCandidateCheckpoint,
   recordCityState,
   loadCityStates,
   saveRunSummary,
@@ -139,7 +140,7 @@ export async function runFutureCityWave({
       let cityFutureEvents = 0;
 
       for (const candidate of candidates) {
-        const checkpoint = candidateCheckpoints.get(candidate.venue_id);
+        const checkpoint = resolveCandidateCheckpoint(candidateCheckpoints, candidate, candidates);
         if (checkpoint && isTerminalCandidateState(checkpoint)) {
           counters.resumed_skipped += 1;
           continue;
@@ -159,7 +160,7 @@ export async function runFutureCityWave({
             cityFutureEvents += eventCount;
             await recordCandidateState(
               runId,
-              candidate.venue_id,
+              candidate,
               { state: "T1_PROVEN", acquisition_result: verdict.acquisition_result, city_id: city.city_id, candidate: summarizeCandidate(candidate) },
               { root },
             );
@@ -168,7 +169,7 @@ export async function runFutureCityWave({
             cityDeferred += 1;
             await recordCandidateState(
               runId,
-              candidate.venue_id,
+              candidate,
               { state: verdict.status, defer_reason: verdict.defer_reason, city_id: city.city_id, candidate: summarizeCandidate(candidate) },
               { root },
             );
@@ -177,7 +178,7 @@ export async function runFutureCityWave({
           counters.failed_systemic += 1;
           await recordCandidateState(
             runId,
-            candidate.venue_id,
+            candidate,
             { state: "REJECTED", errors: [String(error?.stack ?? error)], city_id: city.city_id, candidate: summarizeCandidate(candidate) },
             { root },
           ).catch(() => {});

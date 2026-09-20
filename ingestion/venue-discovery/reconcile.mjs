@@ -33,18 +33,83 @@ function distanceMetres(a, b) {
 // independent conflict signals contradicts it. When coordinates are
 // available and close, that is dispositive (formatting differences in
 // address text from different providers must not block a real match).
-// When coordinates are unavailable (Infinity) and neither side reports a
-// conflicting address, there is no contradicting evidence at all — the
-// existing, still-tested "cross-provider, one side has no coordinates"
-// merge is preserved exactly.
+// When coordinates are unavailable (Infinity), whether there is
+// contradicting address evidence is decided by addressesConflict() below.
 const SAME_DOMAIN_MAX_DISTANCE_METRES = 150;
+
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — the
+// Correction-02 guard above compared full normalised address TEXT, which
+// is too literal: the real Manchester retest found it still failed to
+// merge "Islington Mill" (a free-text curated-directory address, "James
+// Street, Salford M3 5HW") with "Islington Mill Arts Club" (OSM's own
+// structured addr:housename/addr:street/addr:city/addr:postcode tags,
+// which normalise.mjs assembles into different text) — genuinely the
+// same real building, reported with differently *structured*, not
+// differently *located*, address text. A POSTCODE comparison is far more
+// robust to this: it is a short, standardised token both a free-text
+// address and structured OSM tags reliably carry, so it survives street-
+// order/abbreviation/punctuation differences that defeat literal text
+// equality — normalise.mjs's extractPostcode() is now country-aware
+// (was previously US-ZIP-only, silently null for every UK candidate).
+// Postcode is preferred when BOTH sides have one. When only one side
+// carries an extractable postcode (e.g. one provider's raw address text
+// simply omits it — a real, confirmed shape: OSM's own addr:* tags for
+// several real Manchester venues carry no addr:postcode at all), that is
+// missing precision on one side, not disagreement — comparing full
+// address TEXT in that situation is exactly the brittle formatting-
+// sensitive comparison postcode matching exists to avoid, so it is
+// treated as not comparable rather than a conflict. Full-address-text
+// equality remains the fallback only when NEITHER side has an
+// extractable postcode at all (e.g. a country/address format not yet
+// covered by extractPostcode()'s pattern table).
+function addressesConflict(a, b) {
+  if (a.postcode && b.postcode) return a.postcode !== b.postcode;
+  if (a.postcode || b.postcode) return false;
+  if (a.normalised_address && b.normalised_address) return a.normalised_address !== b.normalised_address;
+  return false; // nothing to compare on at least one side is not itself a conflict
+}
 
 function domainMatchIsStrong(a, b) {
   const distance = distanceMetres(a, b);
   if (distance <= SAME_DOMAIN_MAX_DISTANCE_METRES) return true;
   if (distance !== Infinity) return false;
-  const bothReportAddresses = Boolean(a.normalised_address) && Boolean(b.normalised_address);
-  return !bothReportAddresses || a.normalised_address === b.normalised_address;
+  return !addressesConflict(a, b);
+}
+
+/**
+ * A conservative, non-fuzzy "compatible name" check: exact match, or one
+ * name is a substring of the other (e.g. "Islington Mill" / "Islington
+ * Mill Arts Club") — the SAME convention possibleMatch() below already
+ * uses for its own, weaker REVIEW tier; reused here (not loosened
+ * further) for the one CONFIDENT-tier case that needs it: a shared
+ * postcode plus a compatible name. Never edit-distance/fuzzy similarity.
+ */
+function namesCompatible(a, b) {
+  if (!a.normalised_name || !b.normalised_name) return false;
+  if (a.normalised_name === b.normalised_name) return true;
+  return a.normalised_name.includes(b.normalised_name) || b.normalised_name.includes(a.normalised_name);
+}
+
+// An exact name match is applied the SAME "strong unless contradicted"
+// treatment as a shared domain (domainMatchIsStrong, above) rather than
+// requiring real, close coordinates unconditionally: a real Manchester
+// case ("Aatma", "The Abbey") had one provider (a coordinate-less
+// curated-directory record) report no coordinates at all, which
+// previously made an otherwise-exact name match impossible to confirm no
+// matter how likely it was. distance <= 40m remains dispositive on its
+// own when both sides do report coordinates. When neither reports
+// coordinates, an exact name match ALONE is deliberately still not
+// enough — two candidates with nothing but an identical name and no
+// other evidence at all (the pre-existing "ambiguous name-only matches"
+// test) must stay a POSSIBLE_DUPLICATE_REVIEW, not a confident merge; at
+// least one side reporting real, non-conflicting address evidence is
+// required too.
+function exactNameMatchIsStrong(a, b) {
+  const distance = distanceMetres(a, b);
+  if (distance <= 40) return true;
+  if (distance !== Infinity) return false;
+  const hasSomeAddressEvidence = Boolean(a.normalised_address || b.normalised_address);
+  return hasSomeAddressEvidence && !addressesConflict(a, b);
 }
 
 function strongMatch(a, b) {
@@ -52,8 +117,8 @@ function strongMatch(a, b) {
   if (a.discovery_provider === b.discovery_provider && a.provider_record_id === b.provider_record_id) return true;
   if (a.official_domain_candidate && a.official_domain_candidate === b.official_domain_candidate && domainMatchIsStrong(a, b)) return true;
   if (a.normalised_address && a.normalised_address === b.normalised_address && a.normalised_name === b.normalised_name) return true;
-  if (a.postcode && a.postcode === b.postcode && a.normalised_name === b.normalised_name) return true;
-  return a.normalised_name === b.normalised_name && distanceMetres(a, b) <= 40;
+  if (a.postcode && a.postcode === b.postcode && namesCompatible(a, b)) return true;
+  return Boolean(a.normalised_name) && a.normalised_name === b.normalised_name && exactNameMatchIsStrong(a, b);
 }
 
 function possibleMatch(a, b) {

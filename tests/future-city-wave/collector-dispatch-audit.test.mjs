@@ -60,12 +60,39 @@ test("MATRIX: PER_EVENT_ICS — implementation exists (ingestion/per-event-ics/)
   // that absence IS the finding. See this package's own FINAL REPORT §7/§10.
 });
 
-test("MATRIX: WORDPRESS_TRIBE_API — implementation exists (ingestion/events-calendar-api/, proven live vs. CCB Lisbon), capability metadata claims zero-code, but generic acquireSource() cannot reach it: it is config-driven (a per-source base-URL config) and does its OWN paginated fetching (fetchAllEvents), structurally incompatible with deriveEventRecords()'s single already-fetched-document, no-fetchDocument design", () => {
-  assert.equal(routeCollectorCapability("WORDPRESS_TRIBE_API"), "EXISTING_COLLECTOR_ZERO_CODE", "capability metadata says zero-code");
+test("MATRIX: WORDPRESS_TRIBE_API — FIXED by this package (BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03). Was NOT dispatched before; now genuinely reaches ACQUISITION_PROVEN with corroboration, via the plugin's own real REST JSON (no second network fetch — see programme-resolver.mjs's COMMON_PROGRAMME_PATHS and ingestion/events-calendar-api/collector.mjs)", () => {
+  assert.equal(routeCollectorCapability("WORDPRESS_TRIBE_API"), "EXISTING_COLLECTOR_ZERO_CODE", "sanity: capability metadata claims zero-code");
+  const tribeBody = JSON.stringify({
+    events: [{
+      id: 12345,
+      title: "A",
+      url: "https://arbitrary.example/event/a/",
+      rest_url: "https://arbitrary.example/wp-json/tribe/events/v1/events/12345",
+      start_date: "2099-09-01 20:00:00",
+      utc_start_date: "2099-09-01 19:00:00",
+      end_date: "2099-09-01 22:00:00",
+      utc_end_date: "2099-09-01 21:00:00",
+      timezone: "Europe/London",
+      cost: "",
+      venue: [],
+      categories: [],
+      tags: [],
+    }],
+    rest_url: "https://arbitrary.example/wp-json/tribe/events/v1/events/?page=1",
+    total: 1,
+    total_pages: 1,
+  });
+  const programme = { url: "https://arbitrary.example/wp-json/tribe/events/v1/events/", body: tribeBody, content_type: "application/json", status: 200, at: NOW };
+  const result = proveWith(programme, [detailPageFor("https://arbitrary.example/event/a/", "A")]);
+  assert.equal(result.mechanism, "WORDPRESS_TRIBE_API");
+  assert.equal(result.state, "ACQUISITION_PROVEN", "ingestion/events-calendar-api/client.mjs's own parseEventsPage/normalizeEventRecord is now actually invoked by the generic dispatcher — see ingestion/events-calendar-api/collector.mjs and orchestrator.mjs's deriveEventRecords()");
+});
+
+test("MATRIX: WORDPRESS_TRIBE_API — a page that merely MENTIONS Tribe markup in ordinary HTML (not the plugin's real REST JSON) correctly still yields nothing: fingerprinting the marker text is not the same as the response actually being parseable Tribe JSON", () => {
   const programme = { url: "https://arbitrary.example/events", body: "<p>the-events-calendar tribe-events wp-json/tribe/events</p>", content_type: "text/html", status: 200, at: NOW };
   const result = proveWith(programme, []);
   assert.equal(result.mechanism, "WORDPRESS_TRIBE_API");
-  assert.notEqual(result.state, "ACQUISITION_PROVEN", "confirms the gap: the real Tribe REST client is never actually called for this mechanism by the generic dispatcher");
+  assert.notEqual(result.state, "ACQUISITION_PROVEN", "the collector runs but parseEventsPage() correctly rejects non-JSON, non-Tribe-shaped text rather than fabricating events from it");
 });
 
 test("MATRIX: PUBLIC_REST_JSON — capability metadata claims zero-code, but no single generic REST-JSON parser exists in this repository (every site's JSON shape differs) — correctly NOT auto-dispatched; closer to a genuine NEW_REUSABLE_COLLECTOR_FAMILY case than an existing-but-unwired one", () => {

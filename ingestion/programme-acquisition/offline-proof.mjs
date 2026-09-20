@@ -17,6 +17,26 @@ function absoluteUrl(value, baseUrl) {
   }
 }
 
+/**
+ * BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03 — true only when
+ * both already-absolute URLs share an origin. Used to narrow
+ * canonicalProofs()'s own JSON-LD-url-must-match-canonical check (see
+ * that function's own comment): a real Manchester run found two
+ * genuine, real detail pages (The Deaf Institute, Gorilla) whose own
+ * canonical link correctly self-identifies the page, but whose Event
+ * JSON-LD `url` field points to a third-party ticketing platform
+ * (fatsoma.com) rather than back to the page itself — a common,
+ * generic, real-world publishing pattern (independent venues widely use
+ * external ticketing platforms), not a Manchester-specific quirk.
+ */
+function sameOrigin(a, b) {
+  try {
+    return new URL(a).origin === new URL(b).origin;
+  } catch {
+    return false;
+  }
+}
+
 /** Return the source-published canonical URL from retained HTML, if present. */
 export function canonicalUrlFromHtml(html, documentUrl) {
   if (typeof html !== "string" || !documentUrl) return null;
@@ -122,7 +142,21 @@ export function proveCanonicalDetailEvents(documents, { cutoffDate } = {}) {
   return [...new Map(proofs.map((proof) => [proof.source_record_id, proof])).values()];
 }
 
-/** The pre-existing canonical proof, unchanged. */
+/**
+ * The pre-existing canonical proof, with one narrowing added by
+ * BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-03: the Event
+ * node's own `url` disagreeing with the page's self-matching canonical
+ * only rejects the proof when that URL is on the SAME origin as the
+ * document — the real "this JSON-LD actually belongs to a different
+ * page on this site" listing-page risk the check exists to catch (see
+ * this function's own original doc comment above canonicalProofs, and
+ * sameOrigin()'s own comment). A cross-origin `url` (a third-party
+ * ticketing platform, e.g. fatsoma.com) does not indicate that risk at
+ * all — the canonical-matches-itself check already independently
+ * proved this document is about exactly one event — so it no longer
+ * blocks the proof. Every other requirement (title, date, cutoff,
+ * canonical-matches-document) is completely unchanged.
+ */
 function canonicalProofs(document, documentUrl, canonicalUrl, cutoff) {
   const proofs = [];
   for (const node of extractEventNodes(document.body)) {
@@ -130,7 +164,8 @@ function canonicalProofs(document, documentUrl, canonicalUrl, cutoff) {
     const startRaw = nonEmpty(node?.startDate);
     const nodeUrl = absoluteUrl(typeof node?.url === "string" ? node.url : node?.url?.url, documentUrl);
     const jsonLdId = absoluteUrl(node?.["@id"], documentUrl);
-    if (!title || !startRaw || (nodeUrl && nodeUrl !== canonicalUrl)) continue;
+    const nodeUrlDisagreesSameOrigin = nodeUrl && nodeUrl !== canonicalUrl && sameOrigin(nodeUrl, canonicalUrl);
+    if (!title || !startRaw || nodeUrlDisagreesSameOrigin) continue;
     const date = proofDateFromStartDate(startRaw);
     if (cutoff && (!date || date < cutoff)) continue;
     proofs.push({
