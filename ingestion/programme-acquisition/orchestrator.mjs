@@ -4,6 +4,7 @@ import { proveCanonicalDetailEvents } from "./offline-proof.mjs";
 import { proofDateFromStartDate } from "./proof-date.mjs";
 import { collectEmbeddedStateEvents, discoverEmbeddedStateDetailLinks } from "../embedded-state/collector.mjs";
 import { collectStaticCardEvents } from "../static-cards/collector.mjs";
+import { collectIcsEvents } from "../ics/collector.mjs";
 
 const RESIDUE_BY_MECHANISM = {
   ACCESS_BLOCKED: "ACCESS_BLOCKED",
@@ -44,7 +45,7 @@ export function routeProgrammeSource(programme) {
  */
 function deriveEventRecords(programme, documents, { source_id, venue_name } = {}) {
   const routing = routeProgrammeSource(programme);
-  if (!routing.selected || routing.residue_state) return { routing, jsonLd: null, embedded: null, usableStaticCards: null };
+  if (!routing.selected || routing.residue_state) return { routing, jsonLd: null, embedded: null, usableStaticCards: null, usableIcsEvents: null };
   const embedded = /^EMBEDDED_|OTHER_EMBEDDED_APP_STATE$/.test(routing.selected.mechanism)
     ? collectEmbeddedStateEvents(programme, { sourceId: source_id, venueName: venue_name, cutoffDate: programme.at?.slice(0, 10) })
     : null;
@@ -63,8 +64,18 @@ function deriveEventRecords(programme, documents, { source_id, venue_name } = {}
   // on the programme page at all). Only a static-card result that
   // actually carries records may win the chain.
   const usableStaticCards = staticCards?.records.length ? staticCards : null;
-  const jsonLd = embedded ?? usableStaticCards ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
-  return { routing, jsonLd, embedded, usableStaticCards };
+  // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-02 — closes a
+  // confirmed EXISTING_COLLECTOR_NOT_DISPATCHED gap: routeCollectorCapability()
+  // already classified ICS_OR_ICAL as zero-code (ingestion/ics/parse.mjs
+  // already existed and was already proven live for other sources), but
+  // nothing generic ever actually called it. Same "ran but empty is not
+  // usable" rule as static cards, for the same reason.
+  const icsEvents = routing.selected.mechanism === "ICS_OR_ICAL"
+    ? collectIcsEvents(programme, { sourceId: source_id, venueName: venue_name, cutoffDate: programme.at?.slice(0, 10) })
+    : null;
+  const usableIcsEvents = icsEvents?.records.length ? icsEvents : null;
+  const jsonLd = embedded ?? usableStaticCards ?? usableIcsEvents ?? proveJsonLdEvents(documents, { sourceId: source_id, venueName: venue_name, retrievedAt: programme.at, cutoffDate: programme.at?.slice(0, 10) });
+  return { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents };
 }
 
 /**
@@ -74,14 +85,14 @@ function deriveEventRecords(programme, documents, { source_id, venue_name } = {}
  */
 export function collectAndProve({ source_id, venue_name, programme, detail_documents = [] } = {}) {
   const documents = [programme, ...detail_documents].filter((document) => typeof document?.body === "string");
-  const { routing, jsonLd, embedded, usableStaticCards } = deriveEventRecords(programme, documents, { source_id, venue_name });
+  const { routing, jsonLd, embedded, usableStaticCards, usableIcsEvents } = deriveEventRecords(programme, documents, { source_id, venue_name });
   if (!routing.selected || routing.residue_state) return { ...routing, state: routing.residue_state ?? "SOURCE_FINGERPRINT_UNSUPPORTED", observations: [], proofs: [], residue: true };
   const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10) });
   const proofIds = new Set(proofs.map((proof) => proof.source_record_id));
   const provenRecordIds = new Set(jsonLd.records.filter((record) => proofIds.has(record.source_record_id) || proofs.some((proof) => proof.event_url === record.event_url)).map((record) => record.source_record_id));
   const observations = jsonLd.observations.filter((observation) => provenRecordIds.has(observation.source_record_id));
   const state = observations.length ? "ACQUISITION_PROVEN" : jsonLd.records.length ? "STABLE_IDENTITY_PROOF_FAILED" : "SUPPORTED_COLLECTOR_NO_VALID_EVENTS";
-  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? usableStaticCards?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
+  return { ...routing, state, observations, records: jsonLd.records, proofs, collector_provenance: embedded?.routing_provenance ?? usableStaticCards?.routing_provenance ?? usableIcsEvents?.routing_provenance ?? null, residue: state !== "ACQUISITION_PROVEN" };
 }
 
 // A fixed, internal-only placeholder — never persisted, never surfaced to

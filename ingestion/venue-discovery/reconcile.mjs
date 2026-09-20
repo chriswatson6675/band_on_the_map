@@ -8,10 +8,49 @@ function distanceMetres(a, b) {
   return Math.sqrt(x * x + y * y) * 6371000;
 }
 
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-02 — a real Manchester
+// discovery run confirmed a genuine cross-city bug, in two distinct
+// shapes, both sharing one root cause: sharing an official_domain_candidate
+// is real, strong evidence for "the same physical venue reported twice"
+// ONLY when it isn't contradicted by other evidence both sides report.
+// Multi-venue operators are common (theatre groups, festival brands,
+// Academy Music Group) and often run every venue's booking page off one
+// shared domain:
+//   1. Manchester Opera House (Quay Street) and Palace Theatre (Oxford
+//      Street) are two genuinely distinct, ~800m-apart buildings sharing
+//      manchestertheatres.com — both sides report real, distant
+//      coordinates, so a distance guard alone catches this shape.
+//   2. O2 Ritz Manchester (Whitworth Street West) and O2 Apollo Manchester
+//      (Stockport Road, Ardwick — several km away) share
+//      academymusicgroup.com but were BOTH sourced from a
+//      coordinate-less provider (a curated directory), so distanceMetres()
+//      is Infinity on both sides — a pure distance guard cannot see this
+//      shape at all. Both sides DO independently report a real, differing
+//      address, which is exactly the evidence a distance guard misses;
+//      checking for that conflict closes this second shape without
+//      requiring coordinates.
+// A shared domain is treated as strong evidence unless one of these two
+// independent conflict signals contradicts it. When coordinates are
+// available and close, that is dispositive (formatting differences in
+// address text from different providers must not block a real match).
+// When coordinates are unavailable (Infinity) and neither side reports a
+// conflicting address, there is no contradicting evidence at all — the
+// existing, still-tested "cross-provider, one side has no coordinates"
+// merge is preserved exactly.
+const SAME_DOMAIN_MAX_DISTANCE_METRES = 150;
+
+function domainMatchIsStrong(a, b) {
+  const distance = distanceMetres(a, b);
+  if (distance <= SAME_DOMAIN_MAX_DISTANCE_METRES) return true;
+  if (distance !== Infinity) return false;
+  const bothReportAddresses = Boolean(a.normalised_address) && Boolean(b.normalised_address);
+  return !bothReportAddresses || a.normalised_address === b.normalised_address;
+}
+
 function strongMatch(a, b) {
   if (a.country_code !== b.country_code || normaliseText(a.city) !== normaliseText(b.city)) return false;
   if (a.discovery_provider === b.discovery_provider && a.provider_record_id === b.provider_record_id) return true;
-  if (a.official_domain_candidate && a.official_domain_candidate === b.official_domain_candidate) return true;
+  if (a.official_domain_candidate && a.official_domain_candidate === b.official_domain_candidate && domainMatchIsStrong(a, b)) return true;
   if (a.normalised_address && a.normalised_address === b.normalised_address && a.normalised_name === b.normalised_name) return true;
   if (a.postcode && a.postcode === b.postcode && a.normalised_name === b.normalised_name) return true;
   return a.normalised_name === b.normalised_name && distanceMetres(a, b) <= 40;

@@ -125,6 +125,28 @@ export async function sitemapCandidates(baseUrl, fetchDocument) {
  * budget, never an unbounded crawl and never recursive (no candidate's
  * own page is ever itself scanned for further links).
  */
+const JSON_LD_EVENT_ENTITY = /"@type"\s*:\s*"(?:Event|MusicEvent|TheaterEvent|Festival)"/gi;
+const ICS_VEVENT_ENTITY = /BEGIN:VEVENT/gi;
+
+/**
+ * BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-02 — the deterministic
+ * "listing vs. one individual event page" signal Phase 7 of this
+ * package's brief asks for. A real calibration run found the resolver
+ * repeatedly selecting a single event's own detail page over the venue's
+ * actual programme/listing index, because JSON_LD_EVENT's fixed +40 bonus
+ * rewards ANY page carrying at least one Event block equally, whether it
+ * carries one or fifty. Counting distinct event entities (JSON-LD
+ * Event/MusicEvent/TheaterEvent/Festival blocks, or ICS VEVENT blocks) is
+ * a direct, structural count — never inferred from URL shape or guessed —
+ * so a page with many distinct events scores meaningfully higher than one
+ * with exactly one, without ever penalising the single-event page itself
+ * (it may legitimately be the only candidate available).
+ */
+function countEventEntities(body) {
+  const text = String(body ?? "");
+  return Math.max((text.match(JSON_LD_EVENT_ENTITY) ?? []).length, (text.match(ICS_VEVENT_ENTITY) ?? []).length);
+}
+
 export async function resolveProgrammeSource({ homepage, fetchDocument, maxCandidates = 20 } = {}) {
   const navCandidates = rankProgrammeCandidates(homepage);
   const pathCandidates = commonPathCandidates(homepage.url);
@@ -141,9 +163,16 @@ export async function resolveProgrammeSource({ homepage, fetchDocument, maxCandi
     let page; try { page = await fetchDocument(candidate.url); } catch (error) { examined.push({ ...candidate, error: String(error) }); continue; }
     const fingerprint = fingerprintProgrammeSurface(page);
     const futureDates = (page.body.match(DATE) ?? []).length;
-    const evidenceScore = candidate.score + futureDates * 5 + (fingerprint.detected_mechanisms.includes("JSON_LD_EVENT") ? 40 : 0) + (fingerprint.detected_mechanisms.includes("LIST_TO_DETAIL_HTML") ? 25 : 0) + (fingerprint.detected_mechanisms.includes("ICS_OR_ICAL") ? 30 : 0);
-    examined.push({ ...candidate, page, fingerprint, futureDates, evidenceScore });
+    const eventEntityCount = countEventEntities(page.body);
+    // A page carrying 2+ distinct event entities is structural evidence
+    // this is the recurring programme/listing index, not one event's own
+    // page — rewarded meaningfully (capped, still deterministic/bounded).
+    // A single (or zero) entity gets none of this bonus, so a genuine
+    // lone-event page is never penalised relative to today's behaviour.
+    const listingBonus = eventEntityCount >= 2 ? Math.min(eventEntityCount, 20) * 15 : 0;
+    const evidenceScore = candidate.score + futureDates * 5 + listingBonus + (fingerprint.detected_mechanisms.includes("JSON_LD_EVENT") ? 40 : 0) + (fingerprint.detected_mechanisms.includes("LIST_TO_DETAIL_HTML") ? 25 : 0) + (fingerprint.detected_mechanisms.includes("ICS_OR_ICAL") ? 30 : 0);
+    examined.push({ ...candidate, page, fingerprint, futureDates, eventEntityCount, evidenceScore });
   }
   const selected = examined.filter((item) => item.page?.status >= 200 && item.page.status < 300 && item.evidenceScore >= 50).sort((a, b) => b.evidenceScore - a.evidenceScore || a.url.localeCompare(b.url))[0] ?? null;
-  return { state: selected ? "PROGRAMME_SOURCE_RESOLVED" : "PROGRAMME_SOURCE_UNRESOLVED", selected: selected ? { url: selected.page.url, discovery: selected.source ?? "HOMEPAGE_NAVIGATION_LINK", evidence: selected.evidence, score: selected.evidenceScore } : null, considered: examined.map(({ page, ...item }) => ({ ...item, status: page?.status ?? null })) };
+  return { state: selected ? "PROGRAMME_SOURCE_RESOLVED" : "PROGRAMME_SOURCE_UNRESOLVED", selected: selected ? { url: selected.page.url, discovery: selected.source ?? "HOMEPAGE_NAVIGATION_LINK", evidence: selected.evidence, score: selected.evidenceScore, event_entity_count: selected.eventEntityCount } : null, considered: examined.map(({ page, ...item }) => ({ ...item, status: page?.status ?? null })) };
 }

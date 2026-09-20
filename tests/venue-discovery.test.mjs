@@ -47,6 +47,35 @@ test("strong domain match merges providers and retains every observation", () =>
   assert.deepEqual(group.observations.map((item) => item.discovery_evidence[0].value), ["1", "1"]);
 });
 
+// BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-02 — regression tests
+// for a real bug found in a live Manchester run: a shared operator domain
+// (e.g. a theatre group or multi-venue promoter's one booking site) must
+// NOT be trusted as a strong match when there is real conflicting
+// evidence that the two candidates are actually different physical
+// venues, in either shape that evidence can arrive.
+
+test("shared domain does NOT merge two candidates with real, distant coordinates (different physical venues under one operator's shared booking domain)", () => {
+  const a = candidate({ reported_name: "Manchester Opera House", reported_website: "https://www.manchestertheatres.com/operahouse.htm", reported_address: "Quay Street, Manchester M3 3HP", reported_latitude: 53.4788967, reported_longitude: -2.2513533 });
+  const b = candidate({ candidate_id: "cand-b-palace", discovery_provider: "PROVIDER_B", provider_record_id: "palace", reported_name: "Palace Theatre", reported_website: "https://www.manchestertheatres.com/palacetheatre.htm", reported_address: "Oxford Street, Manchester M1 6FT", reported_latitude: 53.4750736, reported_longitude: -2.2409311 });
+  const groups = reconcileCandidates([a, b]);
+  assert.equal(groups.length, 2, "two ~800m-apart real venues sharing one operator domain must remain distinct candidates");
+});
+
+test("shared domain does NOT merge two coordinate-less candidates that report conflicting addresses (a distance guard alone cannot see this shape)", () => {
+  const a = candidate({ reported_name: "O2 Ritz Manchester", reported_website: "https://www.academymusicgroup.com/o2ritzmanchester", reported_address: "Whitworth Street West, Manchester M1 5NQ", reported_latitude: null, reported_longitude: null });
+  const b = candidate({ candidate_id: "cand-b-apollo", discovery_provider: "PROVIDER_B", provider_record_id: "apollo", reported_name: "O2 Apollo Manchester", reported_website: "https://www.academymusicgroup.com/o2apollomanchester", reported_address: "Stockport Road, Ardwick, Manchester M12 6AP", reported_latitude: null, reported_longitude: null });
+  const groups = reconcileCandidates([a, b]);
+  assert.equal(groups.length, 2, "two coordinate-less venues sharing one operator domain but reporting different addresses must remain distinct candidates");
+});
+
+test("shared domain still merges when neither side's evidence conflicts (no coordinates, no conflicting address) — the legitimate cross-provider case is preserved", () => {
+  const a = candidate({ reported_website: "https://www.samevenue.example/", reported_latitude: null, reported_longitude: null });
+  const b = candidate({ candidate_id: "cand-b-same", discovery_provider: "PROVIDER_B", provider_record_id: "same", reported_website: "https://www.samevenue.example/", reported_address: null, reported_latitude: null, reported_longitude: null });
+  const [group] = reconcileCandidates([a, b]);
+  assert.equal(group.reconciliation_status, "SAME_CANDIDATE_CONFIDENT");
+  assert.equal(group.provider_count, 2);
+});
+
 test("ambiguous name-only matches do not merge and are flagged", () => {
   const a = candidate({ reported_address: null, reported_website: null, reported_latitude: null, reported_longitude: null });
   const b = candidate({ candidate_id: "cand-b-2", discovery_provider: "PROVIDER_B", provider_record_id: "2", reported_address: null, reported_website: null, reported_latitude: null, reported_longitude: null });

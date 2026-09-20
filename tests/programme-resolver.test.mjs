@@ -103,6 +103,36 @@ test("a sitemap INDEX (sitemapindex, listing sub-sitemaps) is followed one bound
   assert.equal(result.selected.url, "https://arbitrary.example/events/some-gig-2026-09-01/", "must select a real page from the sub-sitemap's own <loc> entries, never the sub-sitemap's raw XML itself");
 });
 
+test("PHASE 7 (Manchester Correction-02): a real listing/index page with multiple distinct events is preferred over an individual event's own detail page, when both are candidates", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<nav><a href="/events/some-gig-2026">Some Gig 2026</a><a href="/events">Events</a></nav>' };
+  const singleEventPage = (url) => ({
+    url, at: "2026-01-01T00:00:00.000Z", status: 200, content_type: "text/html",
+    body: '<script type="application/ld+json">{"@type":"Event","name":"Some Gig","startDate":"2099-09-01T20:00:00Z"}</script>',
+  });
+  const listingPage = (url) => ({
+    url, at: "2026-01-01T00:00:00.000Z", status: 200, content_type: "text/html",
+    body: Array.from({ length: 8 }, (_, i) => `<script type="application/ld+json">{"@type":"Event","name":"Gig ${i}","startDate":"2099-09-0${(i % 9) + 1}T20:00:00Z"}</script>`).join(""),
+  });
+  const result = await resolveProgrammeSource({
+    homepage,
+    fetchDocument: async (url) => (url.endsWith("/events") ? listingPage(url) : singleEventPage(url)),
+  });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.url, "https://arbitrary.example/events", "the multi-event listing must win over the single event's own detail page");
+  assert.equal(result.selected.event_entity_count, 8);
+});
+
+test("PHASE 7: a single event's own detail page can still resolve when it is the ONLY candidate available (never penalised in isolation)", async () => {
+  const homepage = { url: "https://arbitrary.example/", body: '<nav><a href="/events/some-gig-2026">Some Gig 2026</a></nav>' };
+  const singleEventPage = (url) => ({
+    url, at: "2026-01-01T00:00:00.000Z", status: 200, content_type: "text/html",
+    body: '<script type="application/ld+json">{"@type":"Event","name":"Some Gig","startDate":"2099-09-01T20:00:00Z"}</script>',
+  });
+  const result = await resolveProgrammeSource({ homepage, fetchDocument: async (url) => (url.startsWith("https://arbitrary.example/events/") ? singleEventPage(url) : { url, status: 404, body: "" }) });
+  assert.equal(result.state, "PROGRAMME_SOURCE_RESOLVED");
+  assert.equal(result.selected.event_entity_count, 1);
+});
+
 test("resolveProgrammeSource stays within a bounded, fixed request budget (no unbounded/recursive crawl)", async () => {
   const homepage = {
     url: "https://arbitrary.example/",

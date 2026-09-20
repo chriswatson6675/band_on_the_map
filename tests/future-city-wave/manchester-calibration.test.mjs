@@ -17,18 +17,26 @@ import { routeProgrammeSource, collectAndProve } from "../../ingestion/programme
 
 const CALIBRATION_CITY = { name: "Testville", city_id: "testville-tv", country: "Testland", country_code: "TV", wave_id: "calibration" };
 
-test("CANARY (documents a confirmed, deliberately-unfixed gap): ICS_OR_ICAL is classified EXISTING_COLLECTOR_ZERO_CODE by routeCollectorCapability, but orchestrator.mjs's own dispatch never actually runs the real ICS parser for it", () => {
+test("FIXED (BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-02): ICS_OR_ICAL is now actually dispatched to the real ICS parser, not silently routed through the JSON-LD-only fallback", () => {
   const programme = { url: "https://arbitrary.example/calendar.ics", body: "BEGIN:VCALENDAR\nBEGIN:VEVENT\nUID:1\nDTSTART:20990901T190000Z\nSUMMARY:A Real Gig\nURL:https://arbitrary.example/events/a\nEND:VEVENT\nEND:VCALENDAR", content_type: "text/calendar", status: 200, at: "2026-01-01T00:00:00.000Z" };
   const routing = routeProgrammeSource(programme);
   assert.equal(routing.selected.mechanism, "ICS_OR_ICAL", "sanity: the fingerprint must select ICS_OR_ICAL for real ICS content");
   assert.equal(routing.selected.collector_route, "EXISTING_COLLECTOR_ZERO_CODE", "routeCollectorCapability() genuinely claims this is already zero-code — see ingestion/venue-discovery/programme-fingerprint.mjs");
 
-  const outcome = collectAndProve({ source_id: "canary", venue_name: "Canary Venue", programme, detail_documents: [] });
-  // If this ever starts passing (state === "ACQUISITION_PROVEN"), the
-  // generic dispatch gap this package's report classifies as
-  // EXISTING_COLLECTOR_NOT_DISPATCHED has been closed — update this test
-  // (and the report's own finding) rather than leaving it stale.
-  assert.notEqual(outcome.state, "ACQUISITION_PROVEN", "documents the confirmed gap: real ICS content that routeProgrammeSource() itself calls EXISTING_COLLECTOR_ZERO_CODE is not actually run through ingestion/ics/parse.mjs by orchestrator.mjs's deriveEventRecords() — it silently falls through to the JSON-LD-only default path and fails, even though a real, working, generic ICS parser already exists in this repository");
+  // Real ICS content, with no independently-fetched detail page: records
+  // ARE now genuinely produced by the real parser (proving dispatch is
+  // wired), but the SAME detail-page-corroboration proof bar every other
+  // collector family already requires still applies — deliberately never
+  // weakened just to make ICS "work".
+  const noDetailDocs = collectAndProve({ source_id: "canary", venue_name: "Canary Venue", programme, detail_documents: [] });
+  assert.equal(noDetailDocs.records.length, 1, "the real ICS parser must actually run and produce a record — this is what was broken before");
+  assert.equal(noDetailDocs.state, "STABLE_IDENTITY_PROOF_FAILED", "without independent detail-page corroboration, the same proof bar as every other family applies — not weakened for ICS");
+
+  // With a real, independently-fetched detail page corroborating the same event_url:
+  const detailPage = { url: "https://arbitrary.example/events/a", body: '<script type="application/ld+json">{"@type":"Event","name":"A Real Gig","startDate":"2099-09-01T19:00:00Z","url":"https://arbitrary.example/events/a"}</script>', content_type: "text/html", status: 200, at: "2026-01-01T00:00:00.000Z" };
+  const withDetailDoc = collectAndProve({ source_id: "canary", venue_name: "Canary Venue", programme, detail_documents: [detailPage] });
+  assert.equal(withDetailDoc.state, "ACQUISITION_PROVEN", "with real corroborating evidence, ICS now genuinely reaches ACQUISITION_PROVEN through the real, existing ingestion/ics/parse.mjs — never reachable before this fix");
+  assert.equal(withDetailDoc.observations.length, 1);
 });
 
 test("end-to-end calibration shape: an arena (leisure=stadium, no amenity tag) is discovered via the corrected nwr query, prioritised ahead of a community centre, and proven via JSON-LD — reproducing the real AO Arena result with zero venue-specific code", async () => {
