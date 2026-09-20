@@ -1,0 +1,125 @@
+CENSUS DATA-QUALITY FLAGS — uk-major-event-census-01
+Recorded 2026-09-20. Retained evidence, not a scratchpad note.
+
+These are DEFECTS FOUND IN THE CENSUS ITSELF. They are recorded here and
+deliberately NOT silently corrected: substituting a replacement URL would
+mean inventing an identity this package has not proven. Each needs a
+targeted, evidenced follow-up pass.
+
+--------------------------------------------------------------------------
+A. official_url values that do not belong to the venue
+--------------------------------------------------------------------------
+
+Flagged by the football calendar-completion pass, then INDEPENDENTLY
+RE-FETCHED and verified here (HTTP 200 unless stated, <title> quoted):
+
+  The Camrose (Basingstoke Town)
+    http://www.basingstoketown.net/
+    -> "Basingstoketown - Berita Sepakbola Inggris Basingstoke Town FC"
+       Indonesian-language football-news SEO farm on the lapsed domain.
+
+  Harlaw Park (Bower Hinton / Inverurie Loco Works listing)
+    https://bowerhintonbears.co.uk/
+    -> "TOTO12: Pilihan Situs Paling Rekomendasi Saat Ini Karna Lengkap"
+       Indonesian gambling affiliate. Spam markers matched.
+
+  North Lodge Park (Formartine United)
+    http://www.formartineutd.com/
+    -> "乐投体育·乐投官方网站-乐投体育(中国)"
+       Chinese sports-betting portal on the lapsed domain.
+
+  The Airfield (Airbus UK Broughton)
+    https://www.airbusfc.com/
+    -> "Fast Withdrawal Casinos 2025 - Best Instant Payout Casino Sites"
+       Casino affiliate spam. Spam markers matched.
+
+  Claggan Park (Fort William FC)
+    https://santiagofutsal.com/
+    -> served 200 with an empty <title>. Domain is unrelated to the venue
+       on its face; nothing here establishes it as the club's site.
+
+  The Shay (FC Halifax Town)
+    https://www.halifaxafc.co.uk/
+    -> "Halifax Town AFC - History and Demise"
+       A history site for the DEFUNCT predecessor club (Halifax Town AFC,
+       wound up 2008), not the current tenant FC Halifax Town.
+
+  Fortwilliam Park
+    https://dns.google/
+    -> Not a venue website at all. A DNS-resolver URL captured as though
+       it were the venue's homepage — a research-tooling artifact.
+
+NOT CONFIRMED: the same pass also named penybontfc.com. No census venue
+records that domain, so that part of the report could not be reproduced
+and is not carried forward as a finding.
+
+CONSEQUENCE: `with_official_url: 514` counts RECORDED urls, not VERIFIED
+ones. At least 7 are wrong. The true figure is unknown because only these
+flagged ones were re-fetched — the remainder have not been audited.
+
+Note also that compile.mjs falls back to official_url as a venue's sole
+cited evidence when a researcher cited nothing else. For any venue in the
+list above that relies on that fallback, the "evidence" is a squatted
+domain. A follow-up pass should re-verify identity for these venues from
+a source other than the domain.
+
+--------------------------------------------------------------------------
+B. Calendar sources not gathered, and why
+--------------------------------------------------------------------------
+
+The football calendar pass did not patch venues that ALREADY had calendar
+sources, because it was unsure whether the patch merge would append or
+overwrite. The merge in run-census.mjs `loadWorkstreams()` is genuinely
+additive — it matches on name+city, skips any source_url already present,
+and can only ADD — so that caution was unnecessary but harmless.
+
+Consequence: requested non-football CONCERTS calendars for Wembley,
+Tottenham Hotspur Stadium, Anfield, Etihad Stadium, Principality Stadium
+and Hampden Park were not added. Anfield and Etihad were additionally
+reported as having no distinct non-football events page. These remain
+genuine gaps, not failures.
+
+--------------------------------------------------------------------------
+C. Hosts that would not fingerprint, and the actual reason for each
+--------------------------------------------------------------------------
+
+These carry acquisition_readiness SOURCE_REVIEW_REQUIRED — attempted and
+failed, NOT unattempted.
+
+They were originally all recorded as the single opaque string "fetch
+failed", which is what Node's fetch reports for almost every transport
+problem. That flattened a cookie-consent redirect loop, an expired
+certificate and a domain that does not resolve into one indistinguishable
+bucket, and made live venues look dead. fingerprint-sources.mjs now
+records error.cause as well, and a retry produced real diagnoses:
+
+  https://www.boltonarena.co.uk/
+    TLS alert internal error (SSL alert 80) — server-side TLS fault.
+
+  https://www.thelowry.com/whats-on
+  https://www.trch.co.uk/whats-on/
+    Redirect loop against a cookie-less fetch. These sites bounce through
+    a cookie/consent redirect that a plain fetch cannot satisfy. The
+    venues are live and DO publish programmes — this is a limitation of
+    our fetcher, not an absence of data. A cookie jar would resolve them.
+
+  https://ffoslasracecourse.com/
+    Certificate has expired.
+
+  https://www.swanseaarena.co.uk/whats-on
+    getaddrinfo ENOTFOUND — the domain does not resolve. This CORROBORATES
+    the identity_review flag already on Swansea Building Society Arena:
+    two researchers recorded two different official sites for it, and this
+    confirms the un-hyphenated spelling is the dead one. The live site is
+    https://www.swansea-arena.co.uk/.
+
+  https://www.cooplive.com/events
+    Still a bare "fetch failed" with no cause exposed. Co-op Live is
+    plainly a live 23,500-capacity arena, so this is unexplained rather
+    than evidence of anything.
+
+  http://www.olympia.co.uk/whats-on
+    Succeeded on retry and is no longer in this list — it WAS transient.
+
+Nothing in this section should be read as "the venue publishes no
+calendar". Not one of these was shown to lack a programme.

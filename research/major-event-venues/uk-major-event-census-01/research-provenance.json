@@ -1,0 +1,60 @@
+{
+  "artifact_type": "UK_MAJOR_EVENT_VENUE_CENSUS__RESEARCH_PROVENANCE",
+  "framework_version": "1.0",
+  "census_id": "uk-major-event-census-01",
+  "generated_at": "2026-09-20T16:11:05.716Z",
+  "counts": {
+    "records": 6
+  },
+  "method": "Per-venue-class research workstreams, each independently searched and required to cite a fetched URL for every capacity figure and calendar URL. Compiled deterministically; identity reconciled conservatively; nothing admitted to any production registry.",
+  "workstreams": [
+    {
+      "workstream": "CONCERT_HALLS_AND_THEATRES",
+      "generated_at": "2026-09-20T15:28:25.587Z",
+      "method_notes": "Breadth-first census of UK concert halls, theatres and auditoria with capacity >= 1,000 across all four nations, compiled 2026-09-20 from pages actually fetched in-session. Most capacities are GRADE_B (Wikipedia article wikitext retrieved via the MediaWiki API; the exact API URL fetched is cited as capacity_source), with GRADE_A first-party confirmation where a venue or operator site could be fetched (e.g. Usher Hall 2,200 from cultureedinburgh.com, Sheffield City Hall operator from sheffieldcityhall.co.uk). Roughly 22 candidate venues were verified to be under 1,000 and excluded: 19 West End houses (Ambassadors 444, Apollo 658, Arts 350, Criterion 588, Duchess 494, Fortune 432, Garrick 718, Gielgud 994, Harold Pinter 796, Lyric 915, Noel Coward 942, Playhouse 550, @sohoplace 602, St Martin’s 550, Theatre Royal Haymarket 888, Tom Stoppard 640, Trafalgar 630, Vaudeville 690, Wyndham’s 799) plus Eden Court Empire Theatre 840, Dundee Rep c.455 and Theatr Clwyd 570; numerous sub-1,000 studio/second spaces inside included complexes (Lilian Baylis 200, Sage Two 600, Barbican Pit 200, Lyttelton 890, Dorfman 400, Spa Theatre 675, Sheffield Memorial Hall 500 and others) are noted in capacity_configuration rather than listed separately. Known limitations: several official sites (royalalberthall.com, southbankcentre.co.uk, lwtheatres.co.uk, trafalgarentertainment.com) returned 403/404/bot-detection so no first-party evidence was obtained for them; capacities marked CAPACITY_REVIEW_REQUIRED are venues confirmed to exist on a fetched operator directory but whose size was not verified, and Theatre Royal Brighton in particular may prove sub-1,000 on review. St David’s Hall Cardiff is recorded with operational_status STATUS_REVIEW_REQUIRED rather than OPERATIONAL because the fetched Wikipedia article states it closed in September 2023 due to RAAC in the roof and was \"not expected to reopen until 2026\" — whether it has now reopened was not verified.",
+      "venues_supplied": 128,
+      "venues_accepted": 128,
+      "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "CONFERENCE_AND_EXHIBITION",
+      "generated_at": "2026-09-20T00:00:00Z",
+      "method_notes": "Every capacity figure, square-metre figure, address and URL recorded below was read from a page that was actually fetched during this research pass; figures that appeared only in search-engine result summaries were deliberately NOT recorded, and those fields are left null with capacity_confidence CAPACITY_REVIEW_REQUIRED. Official first-party venue sites were preferred (GRADE_A); no third-party venue-directory figures were used as a capacity source. Calendar sources were only recorded where a fetched page listed actual forthcoming NAMED events; venues whose only public page was a 'hire our venue' / event-types marketing page were given zero calendar_sources and a no_public_calendar_reason. Operators were recorded only where a fetched page stated them, so several are null rather than guessed.",
+      "venues_supplied": 29,
+      "venues_accepted": 29,
+      "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "FOOTBALL_STADIUMS",
+      "generated_at": "2026-09-20T15:42:46.172Z",
+      "method_notes": "Breadth-first census built entirely from pages fetched during this task: four Wikipedia stadium lists (England, Scotland, Wales-by-capacity, Northern Ireland) plus the 2026-27 Cymru Premier and NIFL Premiership club/ground tables were downloaded as rendered HTML and parsed mechanically (rowspans resolved, capacity templates expanded), so every name, capacity and city here was read from a real table cell rather than recalled. Coordinates, street addresses and official-website URLs came from the Wikidata API keyed on those articles' enwiki titles; 407 resulting official club/venue homepages were then fetched (357 returned 200) and every calendar URL recorded below was extracted from that fetched HTML, never guessed, then itself fetched (355 of 360 returned 200). Manchester City refused the bulk probe with HTTP 403 and was re-fetched by hand, so the Etihad Stadium entry is evidenced the same way as the rest. Coverage: all four nations, the top four English tiers plus National League/North/South grounds above ~5,000, every Scottish ground at or above 1,000, all NIFL Premiership and Cymru Premier grounds, and the national stadiums. Limitations to read honestly: capacity is almost entirely GRADE_C (Wikipedia tables, sometimes corroborated by Wikidata P1083) because the official club and stadium pages checked - Wembley, Hampden, Windsor Park, Old Trafford, Spurs, Etihad, Emirates, Ibrox, Wrexham - publish no capacity figure in fetchable HTML; only Swansea.com Stadium yielded a GRADE_A official figure. Where two fetched sources disagree (notably NIFL's current licensed capacities vs the NI stadium list) the current-season club table was preferred and the conflict is recorded with capacity_confidence LOW. events_currently_present is a mechanical signal (schema.org Event blocks or date-like strings in the fetched HTML), left null where a page returned 200 but was client-rendered. Murrayfield Stadium and Kingston Park appear in football-stadium source lists but were excluded because every tenant evidenced is a rugby organisation; Principality Stadium is included because the brief names it, flagged in its evidence as having no football use evidenced. Non-football venues in the Welsh general stadium list (rugby, cricket, ice hockey) were excluded. Only \"Current stadiums\" sections were used, so no closed or under-construction grounds are listed.",
+      "venues_supplied": 285,
+      "venues_accepted": 285,
+      "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "INDOOR_ARENAS",
+      "generated_at": "2026-09-20T00:00:00Z",
+      "method_notes": "Breadth-first census of UK indoor arenas with capacity >= 1,000 across England, Scotland, Wales and Northern Ireland, compiled 2026-09-20 from live WebSearch/WebFetch only. Population was seeded from the Wikipedia 'List of indoor arenas in the United Kingdom' (which only covers >= 5,000) and then extended downward using the Elite Ice Hockey League arena table, Planet Ice / council leisure operators, and convention-centre operators to reach the 1,000-9,999 band. Capacity figures are graded honestly: GRADE_A means the figure was read off a page on the venue's or operator's own site that I fetched; GRADE_C means a Wikipedia infobox or a WebSearch result summary. Where two sources disagree (common, because arenas have concert / sport / half-house configurations) the principal figure is in `capacity` and the rest in `additional_capacities`, with the conflict noted; where nothing could be verified the capacity is null and flagged CAPACITY_REVIEW_REQUIRED. Every URL in this file was returned by a search or fetch performed in this session - none are recalled from memory. This is research only: no source registry or public data was touched.",
+      "venues_supplied": 56,
+      "venues_accepted": 56,
+      "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "RACING_MOTORSPORT_OTHER_SPORT",
+      "generated_at": "2026-09-20T15:37:40.608Z",
+      "method_notes": "Breadth-first census compiled 2026-09-20 from live fetches of operator, venue and governing-body sites, with Wikipedia used only where a first-party figure was unavailable (marked GRADE_B). The 59-course British racecourse list was taken from the Wikipedia List of British racecourses table and cross-checked against the RCA/BHA count (Jockey Club 14, ARC 16, 27 independent); Down Royal and Downpatrick were added for Northern Ireland, giving 61 racecourses. Racecourses, circuits and greyhound stadiums almost never publish a single spectator capacity, so capacity_value is null and capacity_confidence is CAPACITY_REVIEW_REQUIRED for the large majority; where a venue stated an attendance band or licensed figure (Taunton 10,000 licensed; Salisbury 2,000-9,000; Chester 20,000+ per race day; Fakenham 1,500-4,500+; Epsom 28,000+ on Derby Day) that wording is preserved verbatim in scale_description rather than converted into a number. Three operators share one site platform each, which matters for ingestion: Jockey Club Racecourses (thejockeyclub.co.uk/<course>/events-tickets/, verified on Cheltenham, Aintree, Epsom, Newmarket, Haydock, Sandown), Arena Racing Company (per-course domains with /whats-on and /popular-events/live-music, verified on Doncaster and Chepstow) and MotorSport Vision (per-circuit domains with /calendar, verified on Brands Hatch, Donington, Oulton Park, Snetterton, Cadwell Park). Where a sibling venue site was not individually fetched, the calendar_sources note says so explicitly.",
+      "venues_supplied": 107,
+      "venues_accepted": 107,
+      "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "RUGBY_AND_CRICKET",
+      "generated_at": "2026-09-20T00:00:00Z",
+      "method_notes": "Breadth-first census built entirely from pages fetched live on 2026-09-20 via WebFetch/WebSearch: three Wikipedia capacity-list pages (rugby union stadiums, rugby league stadiums, cricket grounds by capacity) for population discovery, then per-venue Wikipedia infobox fetches for capacity, address, owner/operator and coordinates, then official venue sites for first-party calendar/event URLs. No capacity, URL, coordinate or venue name in this file was written from model memory: every figure traces to an 'evidence' entry naming a URL that was actually fetched. Authority grading is honest — GRADE_A means the venue's own site stated it, GRADE_B a per-venue Wikipedia infobox, GRADE_C an aggregate list page or a search-result summary. Known limitations: (1) coordinates and first-party calendar URLs are missing for most Championship-level rugby league grounds and several smaller county cricket grounds, because the time-box was spent on breadth rather than depth; (2) the Wikipedia rugby union list page is visibly stale (it still shows pre-rename stadium names and pre-2023 Premiership membership), so venues sourced only from it carry LOW confidence; (3) Stormont (Northern Ireland cricket) is included with a null capacity pending direct verification; (4) concert/conference calendar sources were only captured where a fetched official page actually exposed them.",
+      "venues_supplied": 67,
+      "venues_accepted": 67,
+      "venues_rejected_incomplete": 0
+    }
+  ]
+}

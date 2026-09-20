@@ -1,0 +1,935 @@
+{
+  "patch_for": "concert-halls-theatres.json",
+  "generated_at": "2026-09-20T15:43:38.895Z",
+  "method_notes": "Worked from the 61 venues in concert-halls-theatres.json that had an empty calendar_sources array. For each I derived candidate What's On paths from the venue's official_url (plus targeted web searches where the guess failed) and fetched every candidate; nothing was recorded from an unfetched pattern, and redirects were followed to their real destination before being accepted. Sites whose listings are JavaScript-rendered or that reject plain HTTP fetches (Academy Music Group, LW Theatres, Royal Albert Hall, Southbank Centre, National Theatre, Swansea council venues, Portsmouth Guildhall, Brighton Centre, Blackpool Grand, Stockport Plaza, Bridlington Spa, Millennium Forum, The Lowry, Factory International) were re-fetched in a headless browser and only recorded once dated forthcoming events were actually visible. Five shared operator platforms were CONFIRMED by fetching each member venue individually: Academy Music Group at academymusicgroup.com/<venue-slug>/events (5 venues here - O2 Shepherd's Bush Empire, O2 Apollo Manchester, O2 City Hall Newcastle, O2 Guildhall Southampton, O2 Academy Glasgow - with the o2<venue>.co.uk domains 301-redirecting into it), LW Theatres at lwtheatres.co.uk/theatres/<slug>/whats-on/ (5 venues - Cambridge, Gillian Lynne, His Majesty's, London Palladium, Theatre Royal Drury Lane), Trafalgar Entertainment at trafalgartickets.com/<venue-slug>/en-GB (3 venues - Wycombe Swan, Southend/Cliffs Pavilion, New Theatre Cardiff - reached by 302 from the venue-branded domains), Nederlander UK at nederlander.co.uk/<theatre> (3 venues - Adelphi, Aldwych, Dominion, with a combined /whats-on/ listing), and the City and County of Swansea CMS serving Swansea Grand and Brangwyn Hall; BH Live (Bournemouth Pavilion, BIC) and Sheffield Theatres, Royal & Derngate, Ipswich Theatres, Anvil Arts, Winter Gardens Blackpool and SEC each publish one multi-venue, venue-tagged listing. 58 of the 61 venues got a confirmed calendar URL. Three were not recorded: Theatre Royal, Newcastle (theatreroyal.co.uk serves an expired TLS certificate - ERR_CERT_DATE_INVALID - to both plain fetch and browser, so nothing could be verified), Leeds Town Hall (site is live but carries no programme at all; the venue is closed for refurbishment and directs enquiries elsewhere), and St David's Hall, Cardiff (stdavidshallcardiff.co.uk does not resolve - NXDOMAIN - and the hall is reported closed following the RAAC discovery). Shaftesbury Theatre's official /whats-on/ page is recorded but with events_currently_present false, because it lists the programme by title only and renders no dates on the listing page itself.",
+  "calendar_patches": [
+    {
+      "canonical_name": "Adelphi Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nederlander.co.uk/adelphi/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Nederlander UK shared operator platform (nederlander.co.uk/<theatre>/). Per-theatre programme page; saw The Comedy About Spies (until 26 September 2026), The Lives of Others (14 Oct 2026 - 9 Jan 2027), Billy Elliot the Musical (12 Feb - 31 Jul 2027). Adelphi is co-owned with LW Theatres.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Aldwych Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nederlander.co.uk/aldwych-theatre",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Nederlander UK shared operator platform. Saw Sinatra The Musical (until 10 April 2027), The Oneness Experience (Sun 25 Oct 2026), A Sinatra Christmas By Candlelight (Sun 6 Dec 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cambridge Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://lwtheatres.co.uk/theatres/cambridge/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "LW Theatres shared operator platform (lwtheatres.co.uk/theatres/<slug>/whats-on/). Blocks plain HTTP fetches with 403; confirmed via headless browser. Saw Matilda The Musical, Showstopper! (12 Oct 2026 - 26 Jul 2027), The Shamrocks (19 Oct 2026), An Audience with Christian Horner (26 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Dominion Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nederlander.co.uk/dominion-theatre",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Nederlander UK shared operator platform. Saw The Devil Wears Prada (booking until 25 Sep 2027), W*nkernomics (22 Nov 2026), The Elvis Years At Christmas (20 Dec 2026), Vanessa Williams (28 Feb 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Gillian Lynne Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://lwtheatres.co.uk/theatres/gillian-lynne/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "LW Theatres shared operator platform; confirmed via headless browser (403 to plain fetch). Saw My Neighbour Totoro, The Dolly Show (23 Nov 2026), Magic Queen (30 Nov 2026), The Traitors - Acts of Betrayal (11 May - 31 Jul 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "His Majesty's Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://lwtheatres.co.uk/theatres/his-majestys/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "LW Theatres shared operator platform; confirmed via headless browser (403 to plain fetch). Saw Phantom of the Opera, Take a Bow (25 Oct and 1 Nov 2026), Gotta Sing Gotta Dance (10 Jan 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "London Palladium",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://lwtheatres.co.uk/theatres/the-london-palladium/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "LW Theatres shared operator platform; confirmed via headless browser (403 to plain fetch). Saw Jon Anderson & The Band Geeks (20 Sep 2026), Ward Thomas (23 Sep 2026), The Prat Pack's Back (25-26 Sep 2026), David Essex (29 Sep 2026), Michael Ball (1 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Shaftesbury Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.shaftesburytheatre.com/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official first-party What's On index. Lists the current programme by title only (Avenue Q, Public Tours) with no dates rendered on the listing page itself - dates live on the individual show pages, so no dated forthcoming events were observed on this URL.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Theatre Royal, Drury Lane",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://lwtheatres.co.uk/theatres/theatre-royal-drury-lane/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "LW Theatres shared operator platform; confirmed via headless browser (403 to plain fetch). Saw The Last Ship (22 Sep - 3 Oct 2026), Jesus Christ Superstar (16 Oct 2026 - 9 Jan 2027), MODI (1 Nov 2026), Andy Serkis (15 Nov 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Royal Albert Hall",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.royalalberthall.com/tickets/list",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Full 'What's on: Everything' listing (130 results) with venue/category filters. Site blocks plain HTTP fetches; confirmed via headless browser. Saw Magic at the Musicals (20 Sep 2026), Snow Patrol (21-24 Sep 2026), Royal Philharmonic Orchestra at 80 (23 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Royal Festival Hall",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.southbankcentre.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Southbank Centre site-wide What's On; individual events are venue-tagged, including 'Royal Festival Hall'. Blocks plain HTTP fetches; confirmed via headless browser. Saw TONIC FLOW (20 Sep 2026, Royal Festival Hall), Gift to the Future (20-27 Sep 2026), Quentin Blake: The Southbank Parade (20 Sep - 8 Nov 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Royal Opera House",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.rbo.org.uk/tickets-and-events",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party Royal Ballet and Opera programme listing. Saw Don Giovanni (21 Sep - 15 Oct 2026), Alcina (23 Sep - 3 Oct 2026), Recitals at Lunch (21 Sep - 21 Dec 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sadler's Wells Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sadlerswells.com/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw English National Ballet - Rhythm Riot (24 Sep - 3 Oct 2026), National Dance Company Wales - Blue | Glas (24-26 Sep 2026), Breakin' Convention Open Art Surgery (26 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Eventim Apollo",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.eventimapollo.com/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party venue events listing. Saw My Hero Academia in Concert (20 Sep 2026), Judas Priest (21 Sep 2026), Megan Moroney (23 Sep 2026), Ella Mai (25 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Alexandra Palace",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.alexandrapalace.com/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing covering the whole estate (Great Hall, West Hall, theatre). Saw London Squash Classic (2-6 Sep 2026), Annie Mac (12 Sep 2026), Boris Brejcha (19 Sep 2026), I Prevail (25 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Shepherd's Bush Empire",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2shepherdsbushempire/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Academy Music Group shared operator platform (academymusicgroup.com/<venue-slug>/events). The venue-branded domain o2shepherdsbushempire.co.uk/events/ 301-redirects here. Listings are JavaScript-rendered; confirmed via headless browser. Saw Harold Melvins Bluenotes (25 Sep 2026), Poets Of The Fall (27 Sep 2026), Matt Maeson (30 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Troxy",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.troxy.co.uk/whats-on/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw LiSA (22.09.26), Death Cab for Cutie (25.09.26 and 26.09.26), The Lemonheads (02.10.26).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Olivier Theatre",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nationaltheatre.org.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "National Theatre site-wide What's On; productions are auditorium-tagged, including 'Olivier Theatre'. Blocks plain HTTP fetches (403); confirmed via headless browser. Saw The Story (until 24 Oct 2026, Olivier Theatre), Electra/Persona (until 10 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hackney Empire",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://hackneyempire.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw Laughter to the Rafters (21 Sept), The Nature of Forgetting (8 Oct), Simon Amstell (9 Oct), Adam Rowe (10 Oct).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Apollo Manchester",
+      "city": "Manchester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2apollomanchester/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Academy Music Group shared operator platform (academymusicgroup.com/<venue-slug>/events). JavaScript-rendered; confirmed via headless browser. Saw Anastacia (21 Sep 2026), Ricky Gervais (22-23 Sep 2026), Megan Moroney (26 Sep 2026), Jill Scott (1 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Albert Hall, Manchester",
+      "city": "Manchester",
+      "calendar_sources": [
+        {
+          "source_url": "https://alberthallmanchester.com/events/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party events listing. Saw Meera Syal (22.10.26), Lake Street Dive (24.10.26), CAT POWER (04.11.26), Adam F (14.11.26).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Aviva Studios",
+      "city": "Manchester",
+      "calendar_sources": [
+        {
+          "source_url": "https://factoryinternational.org/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Factory International first-party What's On for its Aviva Studios home (page title names Aviva Studios). Grid view shows titles only; the LIST view renders dates - saw APPLICATION 39 (9-10 Oct 2026) and further dated entries. Confirmed via headless browser.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Lowry",
+      "city": "Salford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.thelowry.com/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing, auditorium-tagged (Lyric Theatre, Quays Theatre). Plain HTTP fetch hit a redirect loop; confirmed via headless browser. Saw Jonathan Pie (20 Sep 2026, Lyric), Larry Dean (20 Sep 2026, Quays), High Society (22 Sep - 3 Oct 2026, Lyric).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Stockport Plaza",
+      "city": "Stockport",
+      "calendar_sources": [
+        {
+          "source_url": "https://stockportplaza.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On calendar. Intermittently returns HTTP 425 to plain fetches; confirmed via headless browser. Saw Andy Powell's Monday Matinee Cabaret (Mon 21 September 2026), NT Live: The Misanthrope (22-23 September 2026), Behind The Scenes Tour (23 September 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Blackpool Opera House",
+      "city": "Blackpool",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.wintergardensblackpool.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Winter Gardens Blackpool estate-wide What's On; entries are venue-tagged and several are explicitly Opera House. Saw The World Famous Elvis (25 Sep 2026, Opera House), Miss Americana (26 Sep 2026, Opera House), Peter Kay Live (27 Sep 2026, Opera House).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Grand Theatre, Blackpool",
+      "city": "Blackpool",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.blackpoolgrand.co.uk/events",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party events listing (/whats-on/ redirects here). JavaScript-rendered; confirmed via headless browser. Saw Last Night Of The Proms (Sun 20 Sep 2026), Surinderella (22-26 Sep 2026), The Opera Boys with Paul Potts (27 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Grand Theatre, Wolverhampton",
+      "city": "Wolverhampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.grandtheatre.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw Fastlove (20 Sep 2026), Adam Garcia's Emerald Storm (23 Sep 2026), Operation MI6 (24 Sep 2026), We Will Rock You (29 Sep - 3 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Butterworth Hall",
+      "city": "Coventry",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.warwickartscentre.co.uk/whats-on/events/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Warwick Arts Centre first-party events listing (the /whats-on/ hub itself is a gateway; /whats-on/events/ carries the dated entries). Saw NT Live: The Misanthrope (22-27 Sep 2026), Ward Thomas (24 Sep 2026), Caitlin Moran (25 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "De Montfort Hall",
+      "city": "Leicester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.demontforthall.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw Banff Mountain Film Festival (Wed 23 Sep 2026), The Phantoms starring Lee Mead (24 Sep 2026), Daniel O'Reilly (25 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Derngate",
+      "city": "Northampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.royalandderngate.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Royal & Derngate first-party What's On covering both auditoria. Saw GenFest 2026: Spool (Fri 18 Sep 26), The Big Top Boxing Extravaganza (Sat 19 Sep 26), Tez Ilyas (Sat 19 Sep 26).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Lyceum Theatre, Sheffield",
+      "city": "Sheffield",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sheffieldtheatres.co.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Sheffield Theatres trust-wide What's On, venue-tagged per show. Saw MAMMA MIA! (Tue 15 - Sat 26 Sept, Lyceum Theatre), SELENE (Wed 23 Sept, Playhouse).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "York Barbican",
+      "city": "York",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.yorkbarbican.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing (ASM Global-operated). Saw National Brass Band Championships (19-20 Sept 2026), David Essex (24 Sept 2026), Thompson Twins' Tom Bailey + Blancmange (26 Sept 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Grimsby Auditorium",
+      "city": "Grimsby",
+      "calendar_sources": [
+        {
+          "source_url": "https://grimsbyauditorium.org.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw The Robbie Williams Tribute Concert Live (Fri 18 Sep 2026), NORTHERN LIVE (19 Sep 2026), Emerald Storm (22 Sep 2026), New Dawn Fades (23 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bridlington Spa",
+      "city": "Bridlington",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bridspa.com/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "East Riding of Yorkshire Council box-office platform, filtered to Bridlington Spa (a venue picker lists the council's other venues). JavaScript-rendered; confirmed via headless browser. Saw British Open Darts Qualifiers (Sun 20 September), Picturehouse (Tue 22 September - Tue 27 April), Line Dancing with Michelle Hatton (Wed 23 September).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scarborough Spa Grand Hall",
+      "city": "Scarborough",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.scarboroughspa.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw Lipstick on Your Collar (Sun 20 Sep 2026), Scarborough Jazz Festival 2026 (25-27 Sep 2026), Stewart Lee (Thu 01 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Glasshouse International Centre for Music",
+      "city": "Gateshead",
+      "calendar_sources": [
+        {
+          "source_url": "https://theglasshouseicm.org/whats-on/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing with times. Saw Death Cab for Cutie (Mon 21 September 2026, 7:30pm), Saint Etienne (24 September 2026), Ward Thomas (25 September 2026), Jazz Sabbath (25 September 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Newcastle City Hall",
+      "city": "Newcastle upon Tyne",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2cityhallnewcastle/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Academy Music Group shared operator platform (academymusicgroup.com/<venue-slug>/events); venue trades as O2 City Hall Newcastle. JavaScript-rendered; confirmed via headless browser. Saw Roger Taylor (21 Sep 2026), Luther Live (24 Sep 2026), The Music of Whitney (25 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Brighton Dome",
+      "city": "Brighton",
+      "calendar_sources": [
+        {
+          "source_url": "https://brightondome.org/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing. Saw Heritage Open Day 2026 (Sun 20 Sep), Michael Ball (Tue 22 Sep), Jonathan Pie (Wed 23 & Thu 24 Sep).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Brighton Centre",
+      "city": "Brighton",
+      "calendar_sources": [
+        {
+          "source_url": "https://brightoncentre.co.uk/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On, grouped by month. The static HTML renders an empty search result; the populated month-by-month listing only appears in a browser, so confirmed via headless browser. Saw Westlife (16 Oct), Professor Brian Cox (28 Oct), Peter Kay (13-14 Nov), Royal Blood (4 Dec).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Guildhall Southampton",
+      "city": "Southampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2guildhallsouthampton/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Academy Music Group shared operator platform; o2guildhallsouthampton.co.uk/events/ 301-redirects here. JavaScript-rendered; confirmed via headless browser. Saw Jonathan Pie (25 Sep 2026), The bEAT (3 Oct 2026), Day Fever (10 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Marlowe Theatre",
+      "city": "Canterbury",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.marlowetheatre.com/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On listing with venue filters (Main House, Studio, Kit). Saw Lenny Henry (Sun 20 Sep 2026), Barnum: The Circus Musical (22-26 Sep 2026), The Alternative Comedy Show (23 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Pavilion Theatre, Bournemouth",
+      "city": "Bournemouth",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bournemouthpavilion.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "BH Live first-party What's On for the Pavilion. Saw Alan Davies (Tue 22 Sept 2026), Nurse Georgie Carroll (23 Sept 2026), Michael Ball: Glow (26 Sept 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Windsor Hall",
+      "city": "Bournemouth",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bic.co.uk/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "BH Live first-party What's On for Bournemouth International Centre, whose main auditorium is Windsor Hall; the listing does not name the individual hall. Saw Jane McDonald (Thu 24 Sept 2026), South Coast Darts Showdown (26 Sept 2026), Westlife (14 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Portsmouth Guildhall",
+      "city": "Portsmouth",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.portsmouthguildhall.org.uk/whats-on/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On, space-tagged (Main Auditorium, The Lens Studio, The Box). JavaScript-rendered; confirmed via headless browser. Saw Illusion Impossible (23rd Sep 2026, Main Auditorium), The Drifters (26th Sep 2026, Main Auditorium), Jonathan Pie (27th Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Anvil",
+      "city": "Basingstoke",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.anvilarts.org.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Anvil Arts charity-wide What's On, venue-tagged across The Anvil, The Haymarket and The Forge. Saw An Audience with Lucy Worsley (Wed 23 Sep, The Anvil), The ELO Show (24 Sep, The Anvil), Troy Hawke (26 Sep, The Anvil).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Wycombe Swan",
+      "city": "High Wycombe",
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/wycombe-swan-theatre/en-GB",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Trafalgar Entertainment shared operator platform (trafalgartickets.com/<venue-slug>/en-GB); wycombeswan.co.uk/whats-on/ 302-redirects here. Saw Operation Mincemeat (28 Sep - 3 Oct 2026), Twelve Angry Men (13-17 Oct 2026), Dog Man - The Musical (26-28 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cliffs Pavilion",
+      "city": "Westcliff-on-Sea, Southend",
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/southend-theatres/en-GB/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Trafalgar Entertainment shared operator platform; southendtheatres.org.uk/whats-on/ 302-redirects here. Entries are venue-tagged across Cliffs Pavilion and Palace Theatre. Saw Be Like Blippi (Sun 20 Sep 2026, Cliffs Pavilion), Georgie Carroll (22 Sep 2026, Cliffs Pavilion), Tom Davis (26 Sep 2026, Cliffs Pavilion).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Regent Theatre, Ipswich",
+      "city": "Ipswich",
+      "calendar_sources": [
+        {
+          "source_url": "https://ipswichtheatres.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Ipswich Borough Council's Ipswich Theatres What's On, covering the Regent and the Corn Exchange, with a 'By Venue' filter. Saw Jeremy Bowen (Tue 22 Sep 2026), The Prat Pack (18-22 Sep 2026), Paul Smith: Happy (23 Sep 2026), Phil Wang (25 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cambridge Corn Exchange",
+      "city": "Cambridge",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.cornex.co.uk/events/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party events listing (/whats-on/ returns 404; /events/ is the live path). Saw Ward Thomas (Sun 20 Sept 2026), Lenny Henry (22 Sept 2026), Jeremy Bowen (23 Sept 2026), Marillion (24 Sept 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Barrowland Ballroom",
+      "city": "Glasgow",
+      "calendar_sources": [
+        {
+          "source_url": "https://ballroom.barrowland.co.uk/collections/gig-list",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Barrowland gig list (barrowland-ballroom.co.uk/events/ 301-redirects to barrowland.co.uk, whose homepage links to this gig list). Saw Saint Etienne (20 September 2026), Cammy Barnes (24 and 25 September 2026), Beartooth (6 October 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "SEC Armadillo",
+      "city": "Glasgow",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sec.co.uk/whats-on",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Scottish Event Campus estate-wide What's On, venue-tagged across SEC Armadillo, SEC Centre and OVO Hydro. Saw Anastacia (Sun 20 Sep 2026, SEC Armadillo), Europe (Wed 30 Sep 2026, SEC Armadillo), The Revival 2026 (1-2 Oct 2026, SEC Armadillo).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Glasgow",
+      "city": "Glasgow",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academyglasgow/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Academy Music Group shared operator platform; o2academyglasgow.co.uk/events/ 301-redirects here. JavaScript-rendered; confirmed via headless browser. Saw I Prevail (20 Sep 2026), Jamie Webster (22 Sep 2026), Megan Moroney (27-28 Sep 2026), The HU (29 Sep 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Caird Hall",
+      "city": "Dundee",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.leisureandculturedundee.com/events/venue/37",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Leisure & Culture Dundee official events listing filtered to the Caird Hall venue record. Saw The Illegal Eagles (25th Sep 19:30), Friends of the Caird Hall Organ: Come and Sing (26th Sep 19:00), An Evening with Sir Chris Hoy (2nd Oct 19:30).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Perth Concert Hall",
+      "city": "Perth",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.horsecross.co.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Horsecross Arts What's On covering Perth Concert Hall and Perth Theatre. Saw Perth Concert Hall Voices (Mon 14 Sep - Mon 21 Jun), Perth Concert Series: Scottish Chamber Orchestra (Wed 23 Sep 19:00), The Celine Experience (Sun 20 Sep 19:30).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "New Theatre, Cardiff",
+      "city": "Cardiff",
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/new-theatre-cardiff/en-GB",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Trafalgar Entertainment shared operator platform; newtheatrecardiff.co.uk/whats-on/ 302-redirects here. Saw The Other Side Of Murder (22-26 Sep 2026), Banff Mountain Film Festival (30 Sep 2026), Freya Ridings (1 Oct 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Swansea Grand Theatre",
+      "city": "Swansea",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.swanseagrand.co.uk/article/1495/Whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "City and County of Swansea first-party What's On with a month selector. Returns 403 to plain HTTP fetches; confirmed via headless browser. Saw Operation Mincemeat (21-26 September 2026), Kind Hearts and Coronets (25 September 2026), Opera Boys (29 September 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Brangwyn Hall",
+      "city": "Swansea",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.brangwyn.co.uk/whatson",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "City and County of Swansea first-party What's On (note: /whats-on/ 404s, the live path is /whatson). Same council CMS as Swansea Grand; returns 403 to plain HTTP fetches, confirmed via headless browser. Saw Lunchtime Organ Recital (22 September 2026), Tea Dance (23 September 2026), BBC NOW - Fantastique (3 October 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Millennium Forum",
+      "city": "Derry/Londonderry",
+      "calendar_sources": [
+        {
+          "source_url": "https://millenniumforum.co.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party What's On (95 results, filterable). JavaScript-rendered - static fetches return only the page chrome; confirmed via headless browser. Saw PCA Irish Classics (Sun 20 Sept 2026), Nip & Tuck (Thu 24 Sept 2026), The Cat Laughs Comedy Festival (25-26 Sept 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    }
+  ]
+}
