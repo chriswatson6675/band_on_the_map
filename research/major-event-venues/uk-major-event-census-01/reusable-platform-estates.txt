@@ -66,3 +66,79 @@ The EMBEDDED_NUXT_STATE family is verified by the presence of a
 members demonstrably have, so this particular estate is expected to
 survive that audit. The audit result, not this expectation, is the
 authority.
+
+==========================================================================
+COMPLETENESS-03 RE-VERIFICATION (Phases 13-14), 2026-09-20
+==========================================================================
+
+--------------------------------------------------------------------------
+THE "gc" FOOTBALL ESTATE — RE-VERIFIED, UNCHANGED AT 47
+--------------------------------------------------------------------------
+
+Recomputed deterministically from the final calendar-sources.json:
+
+  sources matching /matches AND fingerprinted EMBEDDED_NUXT_STATE ..... 47
+  distinct VENUES ..................................................... 47
+  distinct DOMAINS .................................................... 46
+  acquisition_readiness ............... TIER2_REUSABLE_FAMILY, all 47
+  source-family audit verdict ......... CONFIRMED, all 47 (0% false positive)
+
+PHASE 13 ASKED WHETHER ONE DOMAIN REPRESENTS MORE THAN ONE VENUE. It does,
+exactly once: evertonfc.com serves TWO census venues (Everton's former and
+current grounds). A collector keyed on domain alone would therefore
+mis-attribute; it must key on the venue, not the club domain.
+
+No club was found to have migrated off the platform. The estate is stable
+between Completeness-02 and Completeness-03.
+
+Still NOT verified and still not claimed: the public Opta JSON endpoint.
+It was not exercised in this package either. Phase 13 explicitly forbids
+aggressive probing of undocumented endpoints, and the reuse case does not
+depend on it — the Nuxt payload is already present and confirmed.
+
+--------------------------------------------------------------------------
+OTHER LARGE ESTATES — census-level consistency
+--------------------------------------------------------------------------
+
+Computed by host from the final census, with the audited source family:
+
+  host                      venues  sources  source-family consistency
+  --------------------------------------------------------------------
+  "gc" football platform        47       47  EMBEDDED_NUXT_STATE  (uniform)
+  atgtickets.com                28       28  EMBEDDED_NEXT_DATA   (uniform)
+  academymusicgroup.com         18       18  EMBEDDED_NEXT_DATA   (uniform)
+  thejockeyclub.co.uk           14       20  MIXED — JSON_LD_EVENT,
+                                             STATIC_HTML_CARDS,
+                                             CLIENT_RENDERED_UNKNOWN
+  highlandfootballleague.com    13       13  CLIENT_RENDERED_UNKNOWN
+  champrugby.com                10       10  ACCESS_BLOCKED
+  fixtures.scottishrugby.org    10       10  CLIENT_RENDERED_UNKNOWN
+  my.wru.wales                  10       10  CLIENT_RENDERED_UNKNOWN
+  trafalgartickets.com           9        9  EMBEDDED_NEXT_DATA   (uniform)
+  glasgowlife.org.uk             6        6  MIXED
+  lwtheatres.co.uk               5        5  ACCESS_BLOCKED
+  delfontmackintosh.co.uk        5        5  STATIC_HTML_CARDS    (uniform)
+
+READ THIS CAREFULLY BEFORE PLANNING ACQUISITION:
+
+- UNIFORM family means one implementation plausibly covers the estate.
+  That applies to gc (47), ATG (28), AMG (18), Trafalgar (9) and Delfont
+  Mackintosh (5) — 107 venues across five implementations.
+
+- The Jockey Club estate is NOT uniform: 14 venues across 20 sources
+  spanning three different families. One adapter will not cover it.
+
+- champrugby.com (10) and lwtheatres.co.uk (5) fingerprint ACCESS_BLOCKED.
+  They are blocked to a plain fetch, not absent. A previous pass reported
+  both render normally in a browser, so these are a browser-capability
+  question, not a data-availability one.
+
+- The three shared league platforms (Highland League, Scottish Rugby, WRU)
+  total 33 venues but all fingerprint CLIENT_RENDERED_UNKNOWN, and a
+  previous pass noted the WRU and Scottish Rugby list views show no venue
+  name. Venue attribution, not fetching, is the hard part there.
+
+ARC racecourses do NOT appear in this host table because the ARC platform
+uses per-course domains (<course>-racecourse.co.uk) rather than one shared
+host. The shared-pattern claim stands, but it is a URL-pattern estate
+rather than a single-host estate, and any collector must treat it as such.

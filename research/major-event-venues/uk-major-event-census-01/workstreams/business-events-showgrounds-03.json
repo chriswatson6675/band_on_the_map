@@ -1,0 +1,2687 @@
+{
+  "workstream": "BUSINESS_EVENTS_AND_SHOWGROUNDS_03",
+  "generated_at": "2026-09-20T18:14:02.661Z",
+  "method_notes": "TASK A - BUSINESS-EVENT CAPABILITY AT SPORT VENUES. Read the census venues.json programmatically and extracted the 531 records whose venue_type is RACECOURSE, FOOTBALL_STADIUM, RUGBY_STADIUM, CRICKET_GROUND, INDOOR_ARENA or MOTORSPORT_CIRCUIT, plus their canonical_name/city/alternative_names, as the Task A candidate pool. Because the census already holds 811 venues including the whole purpose-built conference/exhibition estate (ExCeL, Olympia London, The ICC Birmingham, Telford International Centre, Harrogate Convention Centre, Manchester Central, Scottish Event Campus, P&J Live, ICC Belfast, ICC Wales, Bournemouth International Centre, Brighton Centre and others), the gap this workstream addresses is specifically the business-event layer inside sport venues. Examined in depth: 30 sport venues - 8 racecourses (Cheltenham, Doncaster, Aintree, Sandown Park, Newbury, Epsom Downs, Ascot, York), 13 football stadiums (Wembley, Tottenham Hotspur Stadium, Emirates, Stamford Bridge, Old Trafford, Etihad, Anfield, St James' Park, Villa Park, Elland Road, Ashton Gate, London Stadium, Hampden Park, Principality Stadium), 3 rugby stadiums (Allianz Stadium Twickenham, Scottish Gas Murrayfield, Sandy Park) and 5 cricket grounds (Emirates Old Trafford, Lord's, The Kia Oval, Edgbaston, Trent Bridge). Representation: exactly ONE (A1) separate sub-venue record was created - The Centaur at Cheltenham Racecourse - because it is the only sport-venue business-event facility found that is separately named, separately marketed on its own web estate AND separately calendared with its own public what's-on of named forthcoming events. Every other venue is recorded as (A2) business-event capability against the parent, re-listed with the exact canonical_name and city from venues.json and with the principal capacity deliberately null + CAPACITY_REVIEW_REQUIRED so the parent's proven spectator capacity is not displaced. Two sport-venue conference complexes were checked and found ALREADY HELD as separate census records, so no new record was made: Silverstone International Conference and Exhibition Centre (already a sub-venue of Silverstone Circuit) and Coventry Building Society Arena (already a MULTI_PURPOSE_EVENT_COMPLEX parent with its Indoor Arena as a sub-venue; its 6,000 sqm exhibition halls therefore already sit inside the census). SCHEMA CAVEAT: the workstream record schema's venue_type enum has no CRICKET_GROUND value, although cricket grounds were in scope as Task A candidates. The five cricket-ground (A2) records therefore carry venue_type MULTI_PURPOSE_EVENT_COMPLEX as the closest allowed value, and each one states in scale_description that the census parent's type is CRICKET_GROUND and that this is not a reclassification claim. The compiler should not treat these as venue_type election evidence. CALENDAR FINDING (the hire-page distinction): of the 30 sport venues examined, only 7 publish a genuine listing of named forthcoming BUSINESS or non-sport events - The Centaur (Cheltenham), Doncaster Racecourse, Sandown Park, Aintree, Epsom Downs, Ascot and Sandy Park. All 7 are recorded with calendar_sources. The other 23 publish venue-hire marketing only: capacity charts, floor plans, room galleries and enquiry forms, with their public what's-on covering stadium-bowl sport and concerts that the census already captures. That is the expected and honest result - conference, exhibition and banqueting bookings at stadiums are overwhelmingly private corporate events that are never published - and each such record carries a no_public_calendar_reason instead of a fabricated calendar. No hire page, capacity chart or enquiry form was recorded as a calendar.  TASK B - SHOWGROUND ESTATE AUDIT. Established programmatically that the census already held 17 permanent agricultural-society showgrounds: South of England Event Centre (Ardingly), Westpoint Exeter (Devon County Showground), Great Yorkshire Events Centre (Harrogate), Trinity Park (Ipswich/Suffolk), NAEC Stoneleigh, Lincolnshire Showground, Kent Event Centre (Detling), Three Counties Showground (Malvern), Newark Showground, Norfolk Showground, East of England Arena and Events Centre (Peterborough), Royal Bath & West Showground, Staffordshire County Showground, Royal Cornwall Events Centre, Eikon Exhibition Centre / Balmoral Park (Royal Ulster), Royal Highland Centre (Ingliston) and Royal Welsh Showground (Builth Wells). ASAO NEGATIVE FINDING: ASAO does not publish a member directory of shows or showgrounds. asao.co.uk/members/ returns HTTP 404, and the live directory at asao.co.uk/organisations/ lists only 8 organisations on the page (Welsh Pony & Cob Society, British Show Jumping, NFYFC, National Sheep Association, North West Federation of Show Societies, Royal Agricultural Society of England, Royal Windsor Show and London International Horse Show, Yeovil Agricultural Society) - none of which is a showground census. Wikipedia has no \"List of agricultural shows in the United Kingdom\" article (HTTP 404). The estate therefore had to be enumerated society-by-society from Wikipedia's agricultural-show categories and then corroborated against each society's own site; there is no authoritative national register to check against, which is itself the central limit on any completeness claim here. ADDED: 14 permanent showgrounds absent from the census - England: Cheshire Showground (Tabley/Knutsford), Newbury Showground, Westmorland County Show Ground (Crooklands), The West Mid Showground (Shrewsbury), Hertfordshire County Showground (Redbourn), Driffield Showground, Bakewell Showground. Wales: The Anglesey Showground (Gwalchmai/Mona), Carmarthen Showground (Nantyci), Monmouthshire Showground, Haverfordwest Showground (Pembrokeshire). Scotland: Borders Events Centre (Springwood Park, Kelso), Mannsfield Showground (Black Isle, Muir of Ord), The Haughs (Turriff). Northern Ireland: nothing further qualified beyond Balmoral Park, already held. The single most significant miss was the Borders Events Centre at Kelso - a 1,000 sqm purpose-built function hall seating 1,000 theatre style on a 40-acre permanent showground, with a live public events calendar. It is the largest permanent agricultural-society events building in Scotland after the Royal Highland Centre. EXCLUDED with reasons: Essex County Showground, Great Leighs (converted to a racecourse in 2008, no longer a society showground); Weedon Park, Aylesbury (Bucks County Show - society-held show field, no venue-hire or events offer found); New Park, Brockenhurst (New Forest Show - permanent ground but the society publishes no venue-hire or year-round events offer); Stoke Park, Guildford (Surrey County Show - council public park); North Somerset Agricultural Society (no showground venue identity; the show is moving site in 2027); Dorset County Show, Dorchester (no showground name, operator or hire offer published); Dorset Show Ground at West Stour (a private family equestrian centre, not an agricultural society showground - not to be confused with the Dorset County Show); Moreton Show, Honiton Show and Turnpike Showground, Motcombe (permanent or society-owned but no year-round venue business published - Honiton in particular is a genuine borderline, a society-owned 140-acre site with a show-only web presence); Denbigh & Flint, Dumfries (show fields); Clogher Valley Show and Omagh Show / Tyrone Farming Society in Northern Ireland (permanent grounds but single annual shows with no hire offer or what's-on); Ballymena Showgrounds (a council football stadium, already in the census as such); Nantwich (Dorfold Hall), Northumberland County Show (Bywell), Cumberland Show (Carlisle Racecourse), Newport Show (Chetwynd Deer Park), Vale of Glamorgan (Fonmon Castle) and Tendring Hundred (Lawford) - all staged on rented estate or racecourse land with no persistent venue identity. UNRESOLVED / COULD NOT FETCH: Royal Lancashire Show (royallancashireshow.org.uk does not resolve - historically a moving show); Stithians Show, Cornwall (TLS handshake failure); Keith Show, Moray (no response); Yeovil Agricultural Society, an actual ASAO member, whose domain now resolves to an unrelated commercial site. Thainstone Centre, Inverurie was considered and set aside as a commercial livestock-mart/exhibition centre operated by ANM Group rather than an agricultural society showground, but it was not fetched. VERDICT ON THE SHOWGROUND ESTATE: with 17 already held plus 14 added, the census now carries 31 permanent UK showgrounds and I judge the estate PLAUSIBLE BUT NOT PROVEN COMPLETE. Every large first-tier county/royal showground I could identify from society sources is now present in England, Wales and Scotland, and Northern Ireland's single qualifying ground was already held. The remaining risk is concentrated in the second tier - county societies that own a permanent ground but market it only as a show site - where the inclusion boundary is genuinely a judgement call, and in the four sites above that could not be fetched at all. I did NOT establish completeness: no national register of showgrounds exists to check against, ASAO publishes no member list, and the enumeration therefore rests on society-by-society discovery which cannot be proved exhaustive. Scotland and Wales are the thinnest coverage and would repay a further pass.  EVIDENCE DISCIPLINE: every capacity, square-metre, acreage, address and postcode in this file was read on a page I fetched myself, and the exact URL is cited in capacity_source and/or evidence. Where a first-party page published no figure, the field is null rather than filled from a third-party directory - notably Carmarthen (official 52 acres, not the 100 acres third parties quote), Anglesey (official 136 acres, not 160) and Pembrokeshire (no official figures at all, so the widely quoted 60 acres and Pavilion 250/400 capacities are deliberately NOT recorded). Allianz Stadium Twickenham carries a first-party \"over 7,000 sqm\" total against a trade-body \"12,000m2\"; the first-party figure is recorded and the conflict is noted. Sites that block plain HTTP fetchers (unitedcounties.org returns 403, pembsshow.org returns malformed headers) and calendars delivered through cross-origin widgets (Driffield) were read in a real browser. Latitude and longitude are null throughout.",
+  "venues": [
+    {
+      "canonical_name": "The Centaur",
+      "alternative_names": [
+        "Centaur Arena",
+        "The Centaur, Cheltenham Racecourse"
+      ],
+      "parent_complex": "Cheltenham Racecourse",
+      "operator": "Jockey Club Racecourses",
+      "city": "Cheltenham",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://cheltenhamevents.thejockeyclub.co.uk/spaces-suites/the-centaur/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2200,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "Theatre layout maximum stated on the venue's own spaces-and-suites page (\"Theatre: 2200 People\")",
+        "capacity_source": "https://cheltenhamevents.thejockeyclub.co.uk/spaces-suites/the-centaur/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 3000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Reception (standing) layout, stated as \"Reception: 3000 People\"",
+          "capacity_source": "https://cheltenhamevents.thejockeyclub.co.uk/spaces-suites/the-centaur/"
+        },
+        {
+          "capacity_value": 660,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Dinner layout, stated as \"Dinner: 660 People\"",
+          "capacity_source": "https://cheltenhamevents.thejockeyclub.co.uk/spaces-suites/the-centaur/"
+        },
+        {
+          "capacity_value": 2200,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Centaur is a single large auditorium; largest-room figure equals its theatre capacity",
+          "capacity_source": "https://cheltenhamevents.thejockeyclub.co.uk/spaces-suites/the-centaur/"
+        }
+      ],
+      "largest_room_capacity": 2200,
+      "total_event_space_sqm": 1300,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Centaur is Cheltenham Racecourse's purpose-built 1,300 sqm auditorium and exhibition hall, separately branded and separately programmed from the racing operation. Stated layouts: theatre 2,200, reception 3,000, dinner 660, dinner-and-dance 610, cabaret 356. It runs its own public what's-on programme of concerts, touring shows, fairs and consumer exhibitions alongside private conference hire.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://cheltenhamevents.thejockeyclub.co.uk/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Genuine what's-on listing of named forthcoming events at the Centaur/Cheltenham events site, not hire marketing. Events seen: \"Daylesford Archive Sale\" 22-24 Sep 2026; \"Professor Brian Cox - World Wide Tour\" 4 Nov 2026; \"Fireworks & Film Spectacular\" 7 Nov 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://cheltenhamevents.thejockeyclub.co.uk/spaces-suites/the-centaur/",
+          "note": "Cheltenham Racecourse events site, The Centaur space page. Stated verbatim: Theatre 2200 People, Cabaret 356 People, Dinner 660 People, Dinner & dance 610 People, Reception 3000 People, floor area 1300 m2."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://cheltenhamevents.thejockeyclub.co.uk/whats-on/",
+          "note": "Proved the Centaur has a genuine public event calendar (named forthcoming events with dates), which is why it qualifies as a separately-calendared major sub-venue rather than parent capability."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.thejockeyclub.co.uk/cheltenham/venue-hire/spaces-suites/the-centaur/",
+          "note": "Original Jockey Club path; returned HTTP 301 redirect to the cheltenhamevents.thejockeyclub.co.uk subdomain, confirming the Centaur is marketed on a dedicated events estate."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Doncaster Racecourse",
+      "alternative_names": [
+        "Doncaster Racecourse Exhibition Centre",
+        "Doncaster Racecourse Conference & Events"
+      ],
+      "parent_complex": null,
+      "operator": "Arena Racing Company (ARC)",
+      "city": "Doncaster",
+      "nation": "England",
+      "address": "Doncaster Racecourse, Leger Way, Doncaster, DN2 6BB",
+      "postcode": "DN2 6BB",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.doncaster-racecourse.co.uk",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 10000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Exhibition Hall stated \"10,000 Visitor Capacity\" for trade/consumer exhibitions",
+          "capacity_source": "https://www.doncaster-racecourse.co.uk/venue-hire/exhibition-hall"
+        },
+        {
+          "capacity_value": 3000,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Exhibition Hall stated \"3,000 Seated Guest Capacity\"",
+          "capacity_source": "https://www.doncaster-racecourse.co.uk/venue-hire/exhibition-hall"
+        },
+        {
+          "capacity_value": 3000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest single room is the purpose-built Exhibition Hall (3,400 sqm); seated-guest figure used as the largest-room number",
+          "capacity_source": "https://www.doncaster-racecourse.co.uk/venue-hire/exhibition-hall"
+        }
+      ],
+      "largest_room_capacity": 3000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 3400,
+      "scale_description": "Doncaster Racecourse Exhibition Centre: a purpose-built 3,400 sqm Exhibition Hall — the largest permanent exhibition hall attached to a British racecourse — stated to take a 10,000 visitor exhibition or 3,000 seated guests, alongside \"a selection of 40 suites and private boxes spread throughout the complex\". Marketed nationally as an exhibition and conference venue in its own right.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.doncaster-racecourse.co.uk/whats-on",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Genuine listing of named forthcoming non-racing events with dates, mixed into the racecourse what's-on. Seen: \"Oktoberfest Doncaster\" 2-3 Oct 2026; \"Toy Collectors Fair\" 11 Oct 2026; \"Antiques and Collectors Fair\" 18 Oct 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.doncaster-racecourse.co.uk/venue-hire/exhibition-hall",
+          "note": "First-party Exhibition Hall page. Stated verbatim: \"3,400 square metres of Exhibition Space\", \"10,000 Visitor Capacity\", \"3,000 Seated Guest Capacity\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://your-venue.co.uk/venues/doncaster-racecourse",
+          "note": "ARC venue-hire estate page (redirect target of doncaster-racecourse.co.uk/venue-hire). Stated \"a selection of 40 suites and private boxes spread throughout the complex\", exhibition hall \"3,400 square metres\", and the address \"Doncaster Racecourse, Leger Way, Doncaster, DN2 6BB\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.doncaster-racecourse.co.uk/whats-on",
+          "note": "Proved a genuine public non-racing event calendar exists (named consumer shows with dates), not just hire marketing."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Aintree Racecourse",
+      "alternative_names": [
+        "Aintree Racecourse Conference and Events"
+      ],
+      "parent_complex": null,
+      "operator": "Jockey Club Racecourses",
+      "city": "Liverpool",
+      "nation": "England",
+      "address": "Ormskirk Rd, Aintree, Merseyside, L9 5AS",
+      "postcode": "L9 5AS",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.thejockeyclub.co.uk/aintree/",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 600,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Stated \"Indoor capacity for up to 600 delegates\" across the conference estate",
+          "capacity_source": "https://aintreeevents.thejockeyclub.co.uk/"
+        },
+        {
+          "capacity_value": 5000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Stated \"Outdoor capacity for up to 5,000 delegates\" for outdoor business events",
+          "capacity_source": "https://aintreeevents.thejockeyclub.co.uk/"
+        },
+        {
+          "capacity_value": 500,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Rum & Ginger Exhibition Hall, theatre layout (\"Theatre: 500 People\")",
+          "capacity_source": "https://aintreeevents.thejockeyclub.co.uk/spaces-suites/rum-ginger-exhibition-hall/"
+        },
+        {
+          "capacity_value": 500,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest single indoor room is the Rum & Ginger Exhibition Hall (928 m2), theatre 500",
+          "capacity_source": "https://aintreeevents.thejockeyclub.co.uk/spaces-suites/rum-ginger-exhibition-hall/"
+        }
+      ],
+      "largest_room_capacity": 500,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 928,
+      "scale_description": "Aintree runs a dedicated conference-and-events estate (aintreeevents.thejockeyclub.co.uk) with 13 named suites across four grandstands. The principal business-event room is the Rum & Ginger Exhibition Hall, 928 m2, theatre 500 / reception 350 / dinner-and-dance 300 / cabaret 250. Stated overall: indoor 600 delegates, outdoor 5,000 delegates, free parking for 1,800 cars.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.thejockeyclub.co.uk/aintree/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Racecourse site carries an \"Other Events\" section naming forthcoming non-racing events (\"Young Driver\", \"North West Ambulance Service\", \"The North West Wedding Show\") and \"Celebrate Christmas at Aintree\" on 5 Dec 2026 and 11 Dec 2026. Named events are present but most non-racing entries do not show dates in the listing itself.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://aintreeevents.thejockeyclub.co.uk/",
+          "note": "Aintree dedicated events site (redirect target of thejockeyclub.co.uk/aintree/venue-hire/). Stated verbatim: \"Outdoor capacity for up to 5,000 delegates\", \"Indoor capacity for up to 600 delegates\", \"Free parking for up to 1,800 cars\", address \"Ormskirk Rd, Aintree, Merseyside, L9 5AS\"; lists 13 named spaces."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://aintreeevents.thejockeyclub.co.uk/spaces-suites/rum-ginger-exhibition-hall/",
+          "note": "Rum & Ginger Exhibition Hall space page. Stated verbatim: Theatre 500 People, Reception 350 People, Dinner & dance 300 People, Cabaret 250 People, floor area 928 m2."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.thejockeyclub.co.uk/aintree/",
+          "note": "Confirmed an \"Other Events\" non-racing listing exists on the racecourse site."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sandown Park Racecourse",
+      "alternative_names": [
+        "Sandown Park Racecourse and Exhibition Centre",
+        "Sandown Park Exhibition Centre"
+      ],
+      "parent_complex": null,
+      "operator": "Jockey Club Racecourses",
+      "city": "Esher",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.thejockeyclub.co.uk/sandown/",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 800,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Surrey Hall, theatre layout, stated maximum 800",
+          "capacity_source": "https://www.thejockeyclub.co.uk/sandown/venue-hire/spaces-suites/surrey-hall/"
+        },
+        {
+          "capacity_value": 800,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Surrey Hall, banquet layout, stated maximum 800",
+          "capacity_source": "https://www.thejockeyclub.co.uk/sandown/venue-hire/spaces-suites/surrey-hall/"
+        },
+        {
+          "capacity_value": 1500,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Surrey Hall, reception layout, stated maximum 1500",
+          "capacity_source": "https://www.thejockeyclub.co.uk/sandown/venue-hire/spaces-suites/surrey-hall/"
+        },
+        {
+          "capacity_value": 800,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Surrey Hall is the largest single room (2,740 sqm); seated maximum 800",
+          "capacity_source": "https://www.thejockeyclub.co.uk/sandown/venue-hire/spaces-suites/surrey-hall/"
+        }
+      ],
+      "largest_room_capacity": 800,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 2740,
+      "scale_description": "Surrey Hall is Sandown Park's purpose-built ground-floor exhibition hall: \"101m x 30m (2,740 sqm, excluding the Food Market)\" with a 4.1m maximum ceiling height. Stated layouts: theatre 800, banquet 800, classroom 500, cabaret 504, reception 1,500. It is the reason Sandown Park is marketed as \"Sandown Park Racecourse and Exhibition Centre\" and it hosts long-running national consumer and trade shows.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.thejockeyclub.co.uk/sandown/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Racecourse site lists named forthcoming non-racing exhibitions and consumer shows. Seen: \"The Baby & Toddler Show\" Fri 25 - Sun 27 Sep; plus Christian Resources Exhibition, The National Honey Show, a wedding show and \"Christmas in Surrey\" 2026 in the events navigation, and \"Christmas Parties\" 12 Dec 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.thejockeyclub.co.uk/sandown/venue-hire/spaces-suites/surrey-hall/",
+          "note": "First-party Surrey Hall page. Stated verbatim: \"101m x 30m (2,740 sqm, excluding the Food Market)\", maximum ceiling height 4.1m, Theatre 800, Classroom 500, Cabaret 504, Banquet 800, Reception 1500."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.thejockeyclub.co.uk/sandown/",
+          "note": "Proved a genuine public listing of named forthcoming non-racing exhibitions/shows exists at Sandown Park."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://sandownevents.thejockeyclub.co.uk/",
+          "note": "Attempted the Jockey Club events subdomain used by Cheltenham/Aintree/Epsom; it returned only a maintenance notice (\"We apologise for the the downtime. New site coming soon.\"), so no figures were taken from it."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Newbury Racecourse",
+      "alternative_names": [
+        "Newbury Racecourse Conference and Events"
+      ],
+      "parent_complex": null,
+      "operator": "Independent",
+      "city": "Newbury",
+      "nation": "England",
+      "address": null,
+      "postcode": "RG14 7NZ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://newburyracecourse.co.uk/",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1000,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Grandstand Ground Floor, stated \"a capacity of up to 1,000 delegates\" for exhibitions or large conferences",
+          "capacity_source": "https://newburyracecourse.co.uk/conference-and-events/event-spaces/"
+        },
+        {
+          "capacity_value": 550,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Grandstand Second Floor, stated capacity 550 (pillar-free, 780+ sqm)",
+          "capacity_source": "https://newburyracecourse.co.uk/conference-and-events/event-spaces/"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest single space is the Grandstand Ground Floor at 1,000",
+          "capacity_source": "https://newburyracecourse.co.uk/conference-and-events/event-spaces/"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Dubai Duty Free Grandstand is Newbury's conference centre. The ground floor is described as \"a blank canvas for any event but ideal for exhibitions or large conferences with a capacity of up to 1,000 delegates\"; the second floor is a pillar-free 780+ sqm conference/dining/exhibition floor for 550. Twelve listed spaces in total across the Grandstand, Hampshire Stand, Berkshire Stand (ground floor 510 sqm / 250) and the Owners' Club (240).",
+      "no_public_calendar_reason": "Newbury publishes a racedays fixture list but no public listing of its conference, exhibition or banqueting bookings. The business-event pages are hire marketing and an enquiry route only; the great majority of bookings are private corporate events that are never published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newburyracecourse.co.uk/conference-and-events/event-spaces/",
+          "note": "First-party event-spaces page. Stated capacities: Grandstand Ground Floor 1,000; Grandstand First Floor 400; Grandstand Second Floor 550 with 780+ sqm; Hampshire Stand Ground 300 / First 150 / Second 300; Berkshire Stand Ground 250 with 510 sqm, First 200, Suites 100; Owners' Club 240; Royal Box 50; Native River 20."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newburyracecourse.co.uk/conference-and-events/",
+          "note": "Conference-and-events landing page. Names the spaces but states no capacities; the only dated listings on it are racedays (e.g. \"BetVictor Flat Finale with Oktoberfest (Friday) | Fri 23 Oct\"), confirming no business-event calendar is published."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Epsom Downs Racecourse",
+      "alternative_names": [
+        "Epsom Downs Racecourse Conference Centre",
+        "The Queen's Stand, Epsom Downs"
+      ],
+      "parent_complex": null,
+      "operator": "Jockey Club Racecourses",
+      "city": "Epsom",
+      "nation": "England",
+      "address": null,
+      "postcode": "KT18 5LQ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.thejockeyclub.co.uk/epsom/",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 800,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Oaks Hall, theatre layout (\"Theatre: 800 People\")",
+          "capacity_source": "https://epsomdownsevents.thejockeyclub.co.uk/spaces-suites/oaks-hall/"
+        },
+        {
+          "capacity_value": 700,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Oaks Hall, dinner layout (\"Dinner: 700 People\")",
+          "capacity_source": "https://epsomdownsevents.thejockeyclub.co.uk/spaces-suites/oaks-hall/"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Oaks Hall, reception layout (\"Reception: 1000 People\")",
+          "capacity_source": "https://epsomdownsevents.thejockeyclub.co.uk/spaces-suites/oaks-hall/"
+        },
+        {
+          "capacity_value": 800,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Oaks Hall is the largest single space (1,117 m2); seated theatre maximum 800",
+          "capacity_source": "https://epsomdownsevents.thejockeyclub.co.uk/spaces-suites/oaks-hall/"
+        }
+      ],
+      "largest_room_capacity": 800,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 1117,
+      "scale_description": "Oaks Hall is Epsom Downs' purpose-built events hall and its largest space: 1,117 m2, theatre 800, dinner 700, reception 1,000, cabaret 330. It sits alongside the Queen's Stand conference suites (Derby Suite, Blue Riband, Diomed Suite, Gallops Suite, Downs View Suite, Mezzanine, The Views, board room and private boxes) on a dedicated events estate at epsomdownsevents.thejockeyclub.co.uk.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.thejockeyclub.co.uk/epsom/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Racecourse site carries an \"Other Events\" section naming forthcoming non-racing events (\"Art Surrey\", \"Care Roadshow South\") and dated Christmas Parties (27 Nov 2026, 28 Nov 2026, 4 Dec 2026). Named events are present; the non-racing entries mostly do not carry dates in the listing itself.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://epsomdownsevents.thejockeyclub.co.uk/spaces-suites/oaks-hall/",
+          "note": "Epsom Downs dedicated events site, Oaks Hall page. Stated verbatim: Theatre 800 People, Dinner 700 People, Reception 1000 People, Cabaret 330 People, floor area 1117 m2."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://epsomdownsevents.thejockeyclub.co.uk/",
+          "note": "Epsom Downs events estate home page. Names Oaks Hall as the space that gives \"larger conferences, exhibitions and events the scale they need\" for \"up to 1,000 guests\", plus Derby Suite, Blue Riband, Diomed Suite, The Views, Gallops Suite, Mezzanine, Downs View Suite, The Jockey Club Room, Board Room and private boxes."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.thejockeyclub.co.uk/epsom/",
+          "note": "Confirmed an \"Other Events\" non-racing listing exists on the racecourse site."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Ascot Racecourse",
+      "alternative_names": [
+        "Ascot Racecourse Conference & Events"
+      ],
+      "parent_complex": null,
+      "operator": "Ascot Racecourse Ltd (independent)",
+      "city": "Ascot",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.ascot.com/",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 3000,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Stated business-event range \"Host from 10 to 3,000 delegates\"",
+          "capacity_source": "https://www.prestigevenuesandevents.sodexo.com/venues/ascot-racecourse/occasions/meetings-conferences"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Pavilion 2 and the Furlong Club each stated at 1,000 theatre style in the venue capacity chart",
+          "capacity_source": "https://www.prestigevenuesandevents.sodexo.com/venues/ascot-racecourse/details"
+        },
+        {
+          "capacity_value": 1500,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Furlong Club (July to October) stated at 1,500 for a reception - the largest single stated figure",
+          "capacity_source": "https://www.prestigevenuesandevents.sodexo.com/venues/ascot-racecourse/details"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest stated seated room capacity across the 22 listed spaces (Pavilion 2 / Furlong Club / Exhibition Hall each 1,000)",
+          "capacity_source": "https://www.prestigevenuesandevents.sodexo.com/venues/ascot-racecourse/details"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 4000,
+      "scale_description": "Ascot's Grandstand is one of the largest business-event estates attached to a British racecourse: \"over 4000 sq m of exhibition space\" and \"Many meeting rooms and suites, including 200+ private boxes\", hosting \"from 10 to 3,000 delegates\". The venue capacity chart lists 22 distinct spaces including Pavilions 1-3, an Exhibition Hall (1,000) and the seasonal Furlong Club (1,000 theatre / 1,500 reception).",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.ascot.com/non-racing-events",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "First-party non-racing events page. It does publish named forthcoming non-racing events but the listing was thin at the check: only one fully dated entry was visible (\"90s Silent Disco at Ascot Racecourse\", Saturday 11 April 2026). The page states Ascot \"hosts a range of non-racing events each year, from sparkling parties to art fairs and expos\". Conference and exhibition bookings themselves are not listed.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.prestigevenuesandevents.sodexo.com/venues/ascot-racecourse/occasions/meetings-conferences",
+          "note": "Sodexo Prestige Venues & Events (Ascot's appointed events operator). Stated verbatim: \"Host from 10 to 3,000 delegates\", \"Many meeting rooms and suites, including 200+ private boxes\", \"over 4000 sq m of exhibition space\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.prestigevenuesandevents.sodexo.com/venues/ascot-racecourse/details",
+          "note": "Ascot venue capacity chart listing 22 spaces with layout capacities. Largest stated: Furlong Club (July to October) 1,000 theatre / 1,500 reception; Pavilion 2 1,000 theatre; Exhibition Hall 1,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.ascot.com/conferences-events",
+          "note": "Ascot's own conferences-and-meetings page: navigation and an ENQUIRE NOW route only, with no capacities or floor areas published - i.e. hire marketing, not a calendar."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.ascot.com/venue-hire",
+          "note": "Ascot venue-hire page fetched; returned \"0 Results\" and contact details only, confirming no first-party capacity chart is published on ascot.com."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.ascot.com/non-racing-events",
+          "note": "Proved Ascot publishes a (thin) named non-racing events listing."
+        }
+      ]
+    },
+    {
+      "canonical_name": "York Racecourse",
+      "alternative_names": [
+        "York Racecourse Conference and Events",
+        "Conference and Events York"
+      ],
+      "parent_complex": null,
+      "operator": "Independent",
+      "city": "York",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.yorkracecourse.co.uk/",
+      "venue_type": "RACECOURSE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 650,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Stated \"up to 650 delegates\" for conferences and corporate dining",
+          "capacity_source": "https://www.yorkracecourse.co.uk/conference-events.html"
+        },
+        {
+          "capacity_value": 650,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Voltigeur Suite, theatre layout 650 (also 650 dinner, 550 dinner-dance)",
+          "capacity_source": "https://www.conferenceandeventsyork.co.uk/our-event-spaces/"
+        },
+        {
+          "capacity_value": 650,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Voltigeur Suite is the largest room in the room-capacity chart",
+          "capacity_source": "https://www.conferenceandeventsyork.co.uk/our-event-spaces/"
+        }
+      ],
+      "largest_room_capacity": 650,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 2000,
+      "scale_description": "York Racecourse markets a dedicated conference and events business with \"2,000m2 of flexible exhibition space\" and conferences/corporate dining for \"up to 650 delegates\". The largest room is the Voltigeur Suite (theatre 650, dinner 650, dinner-dance 550); others are the Ebor Suite (400 dinner), Dante Suite (250 theatre / 300 dinner), Acomb Suite (200 dinner), Ebor Exhibition Hall (150 theatre) and Eclipse Suite (80 theatre), plus the open Knavesmire for marquees and touring shows.",
+      "no_public_calendar_reason": "York publishes racing fixtures only. Its conference and exhibition business is sold through a separate marketing site (conferenceandeventsyork.co.uk) that carries room-capacity charts and an enquiry route but no listing of forthcoming client events - these are private corporate bookings that are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.yorkracecourse.co.uk/conference-events.html",
+          "note": "First-party conference and events page. Stated verbatim: \"up to 650 delegates\" and \"2,000m2 of flexible exhibition space\". The only dated listing on the page was a racing fixture (October Meeting 2026, Fri 9 - Sat 10 October), confirming no business-event calendar."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.conferenceandeventsyork.co.uk/our-event-spaces/",
+          "note": "York Racecourse conference-and-events room capacity chart: Voltigeur Suite 650 theatre / 650 dinner / 550 dinner-dance; Ebor Suite 400 dinner; Dante Suite 250 theatre; Acomb Suite 200 dinner; Ebor Exhibition Hall 150 theatre; Eclipse Suite 80 theatre; Parade Ring 100 dinner."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.yorkracecourse.co.uk/exhibitions.html",
+          "note": "Attempted first-party exhibitions page; returned HTTP 404, so the exhibition sqm figure was taken from conference-events.html instead."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Wembley Stadium",
+      "alternative_names": [
+        "Wembley Stadium connected by EE"
+      ],
+      "parent_complex": null,
+      "operator": "England national football team",
+      "city": "Wembley, London",
+      "nation": "England",
+      "address": null,
+      "postcode": "HA9 0WS",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.wembleystadium.com/",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity. Wembley publishes room floor areas but not guest capacities for its conference and banqueting rooms.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 2080,
+      "scale_description": "Wembley Stadium operates a very large conference and banqueting estate inside the stadium bowl. Published room floor areas: The Great Hall 2,080 m2 (the largest), The Bobby Moore Room 1,922 m2, Three Lions 1,409 m2, The Atrium 1,400 m2, The Arc 952 m2 (two split-level venues), The Wembley Suite 616 m2, the Pitch View Room 313 m2, plus \"over 160 Corporate Suites\" of 61 m2 each. Guest capacities per room are not published; enquirers are directed to the venue.",
+      "no_public_calendar_reason": "Wembley publishes a public what's-on for stadium-bowl sport and concerts only. Its conference, exhibition and banqueting bookings in the Great Hall, Bobby Moore Room and other suites are private corporate events and are not published anywhere on the site.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.wembleystadium.com/venue-hire",
+          "note": "First-party venue-hire pages. Stated room floor areas verbatim: Great Hall 2,080m2, Bobby Moore Room 1,922m2, Three Lions 1,409m2, The Atrium 1,400m2, The Arc 952m2, Wembley Suite 616m2, Pitch View Room 313m2, \"over 160 Corporate Suites\" at 61m2 each. No per-room guest capacities are published."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Tottenham Hotspur Stadium",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Tottenham Hotspur F.C.",
+      "city": "Tottenham, London",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.tottenhamhotspurstadium.com/",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 2000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The Market Place, standing capacity 2,000 - the largest indoor business-event space",
+          "capacity_source": "https://www.tottenhamhotspurstadium.com/venue-hire/explore-our-spaces/"
+        },
+        {
+          "capacity_value": 850,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Club SI: Level Three, theatre layout 850 (1,000 standing, 450 seated dining, 400 cabaret)",
+          "capacity_source": "https://www.tottenhamhotspurstadium.com/venue-hire/explore-our-spaces/"
+        },
+        {
+          "capacity_value": 450,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Club SI: Level Three, seated dining 450",
+          "capacity_source": "https://www.tottenhamhotspurstadium.com/venue-hire/explore-our-spaces/"
+        },
+        {
+          "capacity_value": 2000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Market Place at 2,000 standing is the largest single indoor room in the published chart",
+          "capacity_source": "https://www.tottenhamhotspurstadium.com/venue-hire/explore-our-spaces/"
+        }
+      ],
+      "largest_room_capacity": 2000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Tottenham Hotspur Stadium markets a purpose-designed business-event estate of 11 charted spaces. Published capacities: The Market Place 2,000 standing; Park Lane Square 3,500 (outdoor); Club SI Level Three 1,000 standing / 850 theatre / 450 dining / 400 cabaret; Club SI Level Two 1,000 standing / 300 theatre; The Cover Club 750 standing; Stratus East and West 350; NFL Locker Room 200 standing / 150 theatre; plus private suites and 41 executive loges used as breakouts.",
+      "no_public_calendar_reason": "The stadium publishes a public events calendar for football, NFL and concerts only. Conference, exhibition and banqueting bookings in Club SI, the Market Place and the loges are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.tottenhamhotspurstadium.com/venue-hire/explore-our-spaces/",
+          "note": "First-party room capacity chart. Stated verbatim: Market Place 2,000 standing; Park Lane Square 3,500 outdoor; Club SI Level Three 1,000 standing / 450 seated dining / 400 cabaret / 850 theatre; Club SI Level Two 1,000 standing / 180 dining / 144 cabaret / 300 theatre; The Cover Club 750 standing / 100 dining; NFL Locker Room 200 standing / 150 theatre; Stratus East and West 350; The H Club 150; Beavertown Tap Room 200."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.tottenhamhotspurstadium.com/venue-hire/",
+          "note": "Venue-hire landing page: hire marketing and an enquiry form, with no client-event listing - confirms no business-event calendar is published."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Emirates Stadium",
+      "alternative_names": [
+        "Arsenal Football Club - Emirates Stadium"
+      ],
+      "parent_complex": null,
+      "operator": "Arsenal F.C.",
+      "city": "Holloway, London",
+      "nation": "England",
+      "address": null,
+      "postcode": "N7 7AJ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.arsenal.com/",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1200,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Stated \"four large meeting and event spaces all capable of holding up to 1200 guests in a reception style format\"",
+          "capacity_source": "https://www.arsenal.com/meeting-and-events/our-spaces"
+        },
+        {
+          "capacity_value": 550,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Royal Oak, theatre style 550 (1,200 reception, 450 dinner)",
+          "capacity_source": "https://stadiumexperience.com/clubs/arsenal-football-club/"
+        },
+        {
+          "capacity_value": 1200,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest single room capacity (Royal Oak, reception style)",
+          "capacity_source": "https://stadiumexperience.com/clubs/arsenal-football-club/"
+        }
+      ],
+      "largest_room_capacity": 1200,
+      "total_event_space_sqm": 6958,
+      "exhibition_space_sqm": 6958,
+      "scale_description": "Emirates Stadium has \"four large meeting and event spaces all capable of holding up to 1200 guests in a reception style format\" - Woolwich, The Avenell Club, Royal Oak and Dial Square - plus Highbury, The WM, the Diamond Club and the Corner Bars. Royal Oak takes 1,200 reception / 550 theatre / 450 dinner. 15 event spaces and 130 smaller meeting rooms/boxes; 6,958 m2 of exhibition space.",
+      "no_public_calendar_reason": "Arsenal publishes a public fixture list for football only. Conference, exhibition and banqueting bookings at Emirates Stadium are private corporate events and are not published; the meetings-and-events pages are hire marketing with an enquiry route.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.arsenal.com/meeting-and-events/our-spaces",
+          "note": "First-party meetings-and-events spaces page. Stated verbatim: \"Emirates Stadium has four large meeting and event spaces all capable of holding up to 1200 guests in a reception style format\". Names eight spaces: Woolwich, The WM, The Avenell Club, Royal Oak, Diamond Club, Dial Square, Highbury, Corner Bars. No per-room capacity chart published."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/arsenal-football-club/",
+          "note": "Stadium Experience (the UK stadium-events trade association) venue record. Stated verbatim: \"15 NUMBER OF EVENT SPACES\", \"130 SMALLER MEETING ROOMS/BOXES\", \"6,958m2 TOTAL EXHIBITION SPACE AVAILABLE\"; Royal Oak \"1200 guests for a reception, 450 for a dinner, or 550 theatre style\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Stamford Bridge",
+      "alternative_names": [
+        "Chelsea FC Stamford Bridge"
+      ],
+      "parent_complex": null,
+      "operator": "Chelsea F.C.",
+      "city": "Fulham, London",
+      "nation": "England",
+      "address": null,
+      "postcode": "SW6 1HS",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.chelseafc.com/en",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The Great Hall, stated \"up to 1000 guests in a variety of layouts\"",
+          "capacity_source": "https://stadiumexperience.com/clubs/chelsea-football-club/"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Great Hall is the largest single room (1,400 m2 load-bearing floor, 3.9m ceilings)",
+          "capacity_source": "https://stadiumexperience.com/clubs/chelsea-football-club/"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 1400,
+      "scale_description": "Stamford Bridge's principal business-event room is The Great Hall: \"high ceilings of 3.9m and 1400m2 of load bearing floor space\", taking \"up to 1000 guests in a variety of layouts\". The wider stadium estate is stated at 85 event spaces and 60 smaller meeting rooms/boxes with 1,400 m2 of exhibition space.",
+      "no_public_calendar_reason": "Chelsea publishes a public fixture list for football only. Conference and banqueting bookings in The Great Hall and the stadium suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/chelsea-football-club/",
+          "note": "Stadium Experience venue record for Stamford Bridge. Stated verbatim: \"85 NUMBER OF EVENT SPACES\", \"60 SMALLER MEETING ROOMS/BOXES\", \"1,400m2 TOTAL EXHIBITION SPACE AVAILABLE\"; The Great Hall \"up to 1000 guests in a variety of layouts\", \"high ceilings of 3.9m and 1400m2 of load bearing floor space\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Old Trafford",
+      "alternative_names": [
+        "Manchester United - Old Trafford"
+      ],
+      "parent_complex": null,
+      "operator": "Manchester United F.C.",
+      "city": "Old Trafford, Stretford",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.manutd.com/en/club/visit-old-trafford",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1100,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The Manchester Suite, stated \"Maximum capacity: 1100\"",
+          "capacity_source": "https://stadiumexperience.com/clubs/manchester-united-football-club/"
+        },
+        {
+          "capacity_value": 1100,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Manchester Suite (1,390 sq. metres) is the largest single room",
+          "capacity_source": "https://stadiumexperience.com/clubs/manchester-united-football-club/"
+        }
+      ],
+      "largest_room_capacity": 1100,
+      "total_event_space_sqm": 6000,
+      "exhibition_space_sqm": 6000,
+      "scale_description": "Old Trafford is one of the largest stadium conference estates in the UK: 29 event spaces and 120 smaller meeting rooms/boxes, with 6,000 m2 of total exhibition space. The Manchester Suite is the principal room - \"one of the largest purpose-built facilities in the North West\" - at 1,390 sq. metres and a maximum capacity of 1,100.",
+      "no_public_calendar_reason": "Manchester United publishes a public fixture list for football only. Conference, exhibition and banqueting bookings in the Manchester Suite and the stadium's other suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/manchester-united-football-club/",
+          "note": "Stadium Experience venue record for Old Trafford. Stated verbatim: \"29 NUMBER OF EVENT SPACES\", \"120 SMALLER MEETING ROOMS/BOXES\", \"6,000m2 TOTAL EXHIBITION SPACE AVAILABLE\"; Manchester Suite \"Maximum capacity: 1100\", \"Space: 1390sq. meters\", \"one of the largest purpose-built facilities in the North West\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Etihad Stadium",
+      "alternative_names": [
+        "Etihad Campus",
+        "City of Manchester Stadium"
+      ],
+      "parent_complex": null,
+      "operator": "Manchester City F.C.",
+      "city": "Bradford, Manchester",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.mancity.com/etihad-stadium",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 897,
+      "scale_description": "The Etihad Campus is marketed as a conference and exhibition estate of 22 event spaces plus 52 smaller meeting rooms/boxes. The Legends Lounge is stated to be the largest suite and \"offers 897m2 of open exhibition space\"; other named large spaces are City Hall (described as a column-free space for large conferences and exhibitions), 93:20 (divisible into three), the Commonwealth Suite and the Citizens Suite. Guest-capacity fields on the published venue record were blank at the check, so no delegate figure is recorded here.",
+      "no_public_calendar_reason": "Manchester City publishes a public fixture list for football and a separate listing for stadium concerts. Conference and exhibition bookings on the Etihad Campus are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/manchester-city-football-club/",
+          "note": "Stadium Experience venue record for the Etihad Stadium. Stated verbatim: \"22 number of event spaces\", \"52 smaller meeting rooms/boxes\", and for the largest suite \"Our Legends suite offers 897m2 of open exhibition space\". Theatre-style and banquet-style maximum-capacity fields were published as 0 (unpopulated), so no delegate capacity was taken."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.mancity.com/venue-hire/suites",
+          "note": "First-party venue-hire suites page attempted; returned HTTP 403 Forbidden, so no figures were taken from mancity.com itself."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Anfield",
+      "alternative_names": [
+        "Anfield Stadium Conference and Events"
+      ],
+      "parent_complex": null,
+      "operator": "Liverpool F.C.",
+      "city": "Anfield, Liverpool",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.liverpoolfc.com/info/anfield",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 2000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Whole-venue business-event capacity, stated \"catering for up to 2,000 guests\"",
+          "capacity_source": "https://events.liverpoolfc.com/venue-hire/conference-events"
+        },
+        {
+          "capacity_value": 600,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Lounges, stated \"up to 500 people for a corporate dinner or 600 in a theatre style setting\"",
+          "capacity_source": "https://events.liverpoolfc.com/venue-hire/conference-events"
+        },
+        {
+          "capacity_value": 500,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Lounges, corporate dinner 500",
+          "capacity_source": "https://events.liverpoolfc.com/venue-hire/conference-events"
+        }
+      ],
+      "largest_room_capacity": 600,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Anfield runs a dedicated conference and events business across the Main Stand and the Sir Kenny Dalglish Stand, \"catering for up to 2,000 guests\" in total. The lounges take \"up to 500 people for a corporate dinner or 600 in a theatre style setting\". Individual room floor areas are not published.",
+      "no_public_calendar_reason": "Liverpool FC publishes a public fixture list for football and a separate listing for stadium concerts. Conference and banqueting bookings in the Anfield lounges are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://events.liverpoolfc.com/venue-hire/conference-events",
+          "note": "Liverpool FC's own events site, conference-and-events page. Stated verbatim: \"catering for up to 2,000 guests\" and \"The lounges are able to host up to 500 people for a corporate dinner or 600 in a theatre style setting\". Names the Main Stand and Sir Kenny Dalglish Stand event spaces. No sqm figures published."
+        }
+      ]
+    },
+    {
+      "canonical_name": "St James' Park",
+      "alternative_names": [
+        "St. James' Park Conference and Events"
+      ],
+      "parent_complex": null,
+      "operator": "Newcastle United F.C.",
+      "city": "Newcastle upon Tyne",
+      "nation": "England",
+      "address": null,
+      "postcode": "NE1 4ST",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.newcastleunited.com/en/st-james-park",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 4500,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Whole-venue business-event capacity, stated \"capacity for 4,500 delegates across a wide range of flexible spaces\"",
+          "capacity_source": "https://www.newcastleunited.com/en/st-james-park/meetings-and-conferences"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The Barracks, stated \"Max capacity: 1000\"",
+          "capacity_source": "https://www.newcastleunited.com/en/st-james-park/meetings-and-conferences"
+        },
+        {
+          "capacity_value": 900,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "The Barracks, dinner layout 900",
+          "capacity_source": "https://stadiumexperience.com/clubs/newcastle-united-football-club/"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Barracks is the largest single room, \"one of the largest single conference and banqueting facilities in the North East\"",
+          "capacity_source": "https://www.newcastleunited.com/en/st-james-park/meetings-and-conferences"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 1264,
+      "scale_description": "St James' Park is the largest stadium conference estate in North East England, with \"capacity for 4,500 delegates across a wide range of flexible spaces\" and \"over 100 Executive Boxes\". Nine named suites are published - The Barracks (max 1,000; 900 for dinner), Platinum Suite, Moncur Suite, Heroes Club, Magpie, Four Corners, Partner's Lounge, Stelrad Suite and Nest - with 1,264 m2 of exhibition space.",
+      "no_public_calendar_reason": "Newcastle United publishes a public fixture list for football only. Conference and banqueting bookings in The Barracks and the stadium suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.newcastleunited.com/en/st-james-park/meetings-and-conferences",
+          "note": "First-party meetings-and-conferences page. Stated verbatim: \"capacity for 4,500 delegates across a wide range of flexible spaces\", \"over 100 Executive Boxes\", The Barracks \"Max capacity: 1000\". Lists nine named event spaces and single/double/triple executive box options (10/16/24 delegates)."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/newcastle-united-football-club/",
+          "note": "Stadium Experience venue record for St James' Park. Stated verbatim: \"13\" event spaces, \"100\" smaller meeting rooms/boxes, \"1,264m2\" total exhibition space; The Barracks 900 for dinner, \"one of the largest single conference and banqueting facilities in the North East\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Villa Park",
+      "alternative_names": [
+        "Destination Villa Park",
+        "Aston Villa Hospitality & Events"
+      ],
+      "parent_complex": null,
+      "operator": "Aston Villa F.C.",
+      "city": "Aston, Birmingham",
+      "nation": "England",
+      "address": null,
+      "postcode": "B6 6HE",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.avfc.co.uk/villa-park",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 700,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The Lower Grounds (formerly the Holte Suite), theatre style 700",
+          "capacity_source": "https://stadiumexperience.com/clubs/aston-villa-football-club/"
+        },
+        {
+          "capacity_value": 604,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "The Lower Grounds, dining layout 604",
+          "capacity_source": "https://www.bigvenuebook.com/venue/532/"
+        },
+        {
+          "capacity_value": 700,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Lower Grounds is the largest single room; it has its own car park, private entrance, reception, two bars and a mezzanine lounge",
+          "capacity_source": "https://stadiumexperience.com/clubs/aston-villa-football-club/"
+        }
+      ],
+      "largest_room_capacity": 700,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 929,
+      "scale_description": "Villa Park's conference centre is built around The Lower Grounds (formerly the Holte Suite), the largest room at 700 theatre style / 700 reception / 604 dining, with its own car park, private entrance, reception area, two bars and mezzanine lounge. The published stadium record gives 117 event spaces, 90 smaller meeting rooms/boxes and 929 m2 of exhibition space; other named spaces include The Oak Room, The Cross, William McGregor's and the 82 Champions Club.",
+      "no_public_calendar_reason": "Aston Villa publishes a public fixture list for football only. Conference and banqueting bookings in The Lower Grounds and the other Villa Park suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/aston-villa-football-club/",
+          "note": "Stadium Experience venue record for Villa Park. Stated verbatim: \"117\" event spaces, \"90\" smaller meeting rooms/boxes, \"929m2\" total exhibition space; largest suite \"The Lower Grounds\" at \"700 Theatre Style\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.bigvenuebook.com/venue/532/",
+          "note": "Aston Villa Hospitality & Events venue record. Stated verbatim for the Lower Ground Suite (formerly the Holte Suite): \"Theatre: 700\", \"Dining: 604\", \"Reception: 700\"; \"96 Executive Boxes seating 6-16 guests\"; \"it can be split into two separate areas but as a whole it holds 700 delegates in theatre style or for a drinks reception, 640 for a gala dinner and 460 in cabaret arrangement\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.destinationvillapark.com/",
+          "note": "Villa Park's own events-brand site. Confirms the named facilities (Executive Boxes, William McGregor's, Sports Bar, The Lower Grounds, The Oak Room, The Cross, 82 Champions Club) but publishes no capacities or floor areas."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Elland Road",
+      "alternative_names": [
+        "Centenary Pavilion, Elland Road"
+      ],
+      "parent_complex": null,
+      "operator": "Leeds United F.C.",
+      "city": "Beeston, Leeds",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.leedsunited.com/en",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1200,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Whole-venue business-event range, stated as up to 1,200 people",
+          "capacity_source": "https://stadiumexperience.com/clubs/leeds-united-football-club/"
+        },
+        {
+          "capacity_value": 1200,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Centenary Pavilion, \"one of the largest and most versatile venues in the region\", over 2,000 square metres",
+          "capacity_source": "https://stadiumexperience.com/clubs/leeds-united-football-club/"
+        }
+      ],
+      "largest_room_capacity": 1200,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 2018,
+      "scale_description": "The Centenary Pavilion at Elland Road is a free-standing conference and banqueting hall of \"over 2000 square metres\", described as \"one of the largest and most versatile venues in the region\". Elland Road as a whole offers \"14 + rooms available, suitable for conferences, gala dinners, exhibitions or small meetings\" plus 40 executive boxes, with 2,018 m2 of exhibition space and events from 10 to 1,200 people.",
+      "no_public_calendar_reason": "Leeds United publishes a public fixture list for football only. Conference, exhibition and banqueting bookings in the Centenary Pavilion are private bookings and are not published on the club site.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/leeds-united-football-club/",
+          "note": "Stadium Experience venue record for Elland Road. Stated verbatim: \"14 + rooms available, suitable for conferences, gala dinners, exhibitions or small meetings\", Centenary Pavilion \"one of the largest and most versatile venues in the region\" with \"over 2000 square metres\", \"2,018m2 TOTAL EXHIBITION SPACE AVAILABLE\", \"40 executive boxes\", events from 10 guests up to 1,200 people."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Ashton Gate Stadium",
+      "alternative_names": [
+        "Ashton Gate Stadium Conference and Events Centre",
+        "Lansdown Suite, Ashton Gate"
+      ],
+      "parent_complex": null,
+      "operator": "Bristol City F.C.",
+      "city": "Bristol",
+      "nation": "England",
+      "address": null,
+      "postcode": "BS3 2EJ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.bcfc.co.uk/",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1000,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The Lansdown Suite, stated \"1,000 people theatre style\"",
+          "capacity_source": "https://stadiumexperience.com/clubs/bristol-city-football-club/"
+        },
+        {
+          "capacity_value": 800,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "The Lansdown Suite, stated \"800 for a dinner\"",
+          "capacity_source": "https://stadiumexperience.com/clubs/bristol-city-football-club/"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Lansdown Suite is the largest single room; pillar-free and divisible into three breakout rooms",
+          "capacity_source": "https://stadiumexperience.com/clubs/bristol-city-football-club/"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 3550,
+      "scale_description": "Ashton Gate markets itself as the largest events venue in Bristol and the South West: 38 event spaces, 18 smaller meeting rooms/boxes and 3,550 m2 of total exhibition space. The Lansdown Suite is the principal conference hall - pillar-free, divisible into three - at 1,000 theatre style or 800 for a dinner. The stadium bowl itself is \"27,000 capacity in sports mode and 32,000 in concert mode\".",
+      "no_public_calendar_reason": "Ashton Gate publishes a public what's-on for sport and stadium concerts. Its conference, exhibition and banqueting bookings in the Lansdown Suite and other spaces are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/bristol-city-football-club/",
+          "note": "Stadium Experience venue record for Ashton Gate Stadium. Stated verbatim: \"38 NUMBER OF EVENT SPACES\", \"18 SMALLER MEETING ROOMS/BOXES\", \"3,550m2 TOTAL EXHIBITION SPACE AVAILABLE\"; Lansdown Suite \"1,000 people theatre style or 800 for a dinner\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.ashtongatestadium.co.uk/",
+          "note": "Ashton Gate's own stadium site. Stated verbatim: \"27,000 capacity in sports mode and 32,000 in concert mode\", \"22 executive boxes\" and \"an array of meeting/function spaces\"; names the Lansdown Suite and Pravha Lounge but publishes no per-room capacity chart on the home page."
+        }
+      ]
+    },
+    {
+      "canonical_name": "London Stadium",
+      "alternative_names": [
+        "London Stadium Events"
+      ],
+      "parent_complex": null,
+      "operator": "West Ham United F.C.",
+      "city": "Stratford, London",
+      "nation": "England",
+      "address": null,
+      "postcode": "E20 2ST",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.london-stadium.com/index.html",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity. London Stadium names its business-event spaces but publishes no capacities or floor areas for them.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "London Stadium markets eight named business-event spaces for conferences, dinners and exhibitions - The Deck, The Great Briton and the Academy, The Forge, The Arnold Hills, The Royal East, BM6, The Boleyn and the Executive Boxes - but publishes no capacity or floor-area figures for any of them. Recorded here as confirmed business-event capability with scale unproven; capacity requires review.",
+      "no_public_calendar_reason": "The stadium publishes a public what's-on for football, athletics and concerts only. Conference and banqueting bookings in its named event spaces are private corporate events and are not published, and no capacity data is published either.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.london-stadium.com/events/event-spaces",
+          "note": "First-party event-spaces page. Names eight business-event spaces (The Deck, The Great Briton and the Academy, The Forge, The Arnold Hills, The Royal East, BM6, Executive Boxes, The Boleyn) but publishes no capacity numbers or square-metre figures for any of them."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.london-stadium.com/venue-hire",
+          "note": "Attempted venue-hire path; returned the site's 404 page, confirming event-spaces is the live route."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hampden Park",
+      "alternative_names": [
+        "Hampden Park Stadium",
+        "Scotland's National Stadium"
+      ],
+      "parent_complex": null,
+      "operator": "Scotland national football team",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": null,
+      "postcode": "G42 9BA",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.hampdenpark.co.uk/",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 500,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The Hampden Suites, stated to \"accommodate 500 delegates each in a theatre style set up\"",
+          "capacity_source": "https://www.hampdenpark.co.uk/hampden-events/corporate-events/conferences.html"
+        },
+        {
+          "capacity_value": 500,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Hampden Suites are the largest rooms; each splits into three sound-proof sections for 100-300 guests",
+          "capacity_source": "https://www.hampdenpark.co.uk/hampden-events/corporate-events/conferences.html"
+        }
+      ],
+      "largest_room_capacity": 500,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Hampden Park, Scotland's national stadium, runs a corporate conference and exhibition business. The Hampden Suites are the principal rooms, each accommodating 500 delegates theatre style and splitting into three sound-proofed sections for smaller conferences of 100-300. Other published spaces are Club Hampden, the Skyboxes and the Superbox.",
+      "no_public_calendar_reason": "Hampden publishes a public what's-on for football internationals, cup finals and stadium concerts only. Conference and exhibition bookings in the Hampden Suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.hampdenpark.co.uk/hampden-events/corporate-events/conferences.html",
+          "note": "First-party conferences page. Stated verbatim: the Hampden Suites \"can accommodate 500 delegates each in a theatre style set up\" and \"can also be split into three sound proof sections to be utilised for smaller conferences of between 100 and 300 guests\". Names four event spaces: Superbox, Skyboxes, Club Hampden, Hampden Suites."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Principality Stadium",
+      "alternative_names": [
+        "Millennium Stadium",
+        "Principality Stadium Cardiff"
+      ],
+      "parent_complex": null,
+      "operator": "Wales national rugby union team",
+      "city": "Cardiff",
+      "nation": "Wales",
+      "address": null,
+      "postcode": "CF10 1NS",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.principalitystadium.wales/",
+      "venue_type": "FOOTBALL_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 320,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "The Millennium Lounge, the stadium's largest lounge, stated at \"Up to 320 delegates\"",
+          "capacity_source": "https://stadiumexperience.com/clubs/principality-stadium/"
+        },
+        {
+          "capacity_value": 320,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Millennium Lounge is the biggest single space in the stadium estate",
+          "capacity_source": "https://stadiumexperience.com/clubs/principality-stadium/"
+        }
+      ],
+      "largest_room_capacity": 320,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Principality Stadium offers \"6 spacious lounges within the stadium\" plus \"113 hospitality suites on the prestigious Level 5\". The Millennium Lounge is the biggest single space at up to 320 delegates - modest relative to the stadium bowl, so Principality is a many-small-rooms conference estate rather than a large-hall one.",
+      "no_public_calendar_reason": "Principality Stadium publishes a public what's-on for rugby internationals, football and stadium concerts only. Conference and banqueting bookings in its lounges and Level 5 suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/principality-stadium/",
+          "note": "Stadium Experience venue record for Principality Stadium. Stated verbatim: \"6 spacious lounges within the stadium\", \"113 hospitality suites on the prestigious Level 5\", Millennium Lounge \"Up to 320 delegates\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Allianz Stadium, Twickenham",
+      "alternative_names": [
+        "Twickenham Stadium",
+        "Allianz Stadium Twickenham Conference & Events"
+      ],
+      "parent_complex": null,
+      "operator": "Rugby Football Union",
+      "city": "London",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://allianzstadiumtwickenham.com/",
+      "venue_type": "RUGBY_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1200,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Whole-venue conference range, stated \"able to cater from 2 to 1200 delegates\"",
+          "capacity_source": "https://allianzstadiumtwickenham.com/conferences"
+        },
+        {
+          "capacity_value": 1200,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The Rose Suite, stated \"up to 1,200 delegates theatre style\"",
+          "capacity_source": "https://allianzstadiumtwickenham.com/exhibitions"
+        },
+        {
+          "capacity_value": 600,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The Live Room, the stadium's purpose-built auditorium, \"for up to 600 delegates\"",
+          "capacity_source": "https://allianzstadiumtwickenham.com/conferences"
+        },
+        {
+          "capacity_value": 1200,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Rose Suite is the largest event space (1,180 sqm of carpeted exhibition space)",
+          "capacity_source": "https://allianzstadiumtwickenham.com/exhibitions"
+        }
+      ],
+      "largest_room_capacity": 1200,
+      "total_event_space_sqm": 7000,
+      "exhibition_space_sqm": 1180,
+      "scale_description": "Allianz Stadium Twickenham is one of the largest purpose-built stadium conference estates in the UK: \"over 7,000 sqm. of superbly integrated conference and exhibition space\", \"34 dedicated large conference and event rooms for hire as well as 150 pitch-view Executive Boxes\", and an on-site hotel. The Rose Suite is the largest room - 1,180 sqm of carpeted exhibition space, up to 1,200 delegates theatre style - and The Live Room is a purpose-built auditorium for up to 600. (A third-party trade listing gives a larger 12,000 m2 total exhibition figure; the lower first-party 7,000 sqm figure is recorded here.)",
+      "no_public_calendar_reason": "The stadium publishes a public what's-on, but it lists rugby fixtures and stadium-bowl events only (e.g. Red Roses v New Zealand 26 Sep 2026, England v Australia 8 Nov 2026, Big Game 18 on 28 Dec 2026). Its conference and exhibition bookings are private client events and are not published, so no business-event calendar is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://allianzstadiumtwickenham.com/exhibitions",
+          "note": "First-party exhibitions page. Stated verbatim: \"over 7,000 sqm. of superbly integrated conference and exhibition space\"; Rose Suite \"1180 sqm. of carpeted exhibition space\" and \"up to 1,200 delegates theatre style\"; Spirit of Rugby \"can hold up to 62 stands with a maximum of 400 visitors at one time\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://allianzstadiumtwickenham.com/conferences",
+          "note": "First-party conferences page. Stated verbatim: \"able to cater from 2 to 1200 delegates\", \"34 dedicated large conference and event rooms for hire as well as 150 pitch-view Executive Boxes\", and \"The Live Room is our purpose built auditorium\" \"for up to 600 delegates\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://allianzstadiumtwickenham.com/whats-on",
+          "note": "Checked the public what's-on: it lists rugby fixtures and stadium events only (Red Roses v New Zealand 26 Sep 2026; England v Australia 8 Nov 2026; Big Game 18 on 28 Dec 2026), not conference or exhibition bookings."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stadiumexperience.com/clubs/allianz-stadium-twickenham/",
+          "note": "Stadium Experience venue record. Gives \"34\" event spaces, \"150\" executive boxes at 10-26 delegates, and a conflicting \"12,000m2\" total exhibition figure against the venue's own \"over 7,000 sqm\" - the first-party figure was preferred."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scottish Gas Murrayfield Stadium",
+      "alternative_names": [
+        "Murrayfield Stadium",
+        "Murrayfield Experience"
+      ],
+      "parent_complex": null,
+      "operator": "Scottish Rugby Union",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": null,
+      "postcode": "EH12 5PJ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://murrayfieldexperience.com/murrayfield-conferences-and-events/",
+      "venue_type": "RUGBY_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1500,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The West Stand (Thistle Suite and President's Suite combined), stated \"Up to 1,500 guests\"",
+          "capacity_source": "https://murrayfieldexperience.com/murrayfield-conferences-and-events/venue-spaces/"
+        },
+        {
+          "capacity_value": 600,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Thistle Suite 600 and President's Suite 600 individually",
+          "capacity_source": "https://murrayfieldexperience.com/murrayfield-conferences-and-events/venue-spaces/"
+        },
+        {
+          "capacity_value": 1500,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The combined West Stand is the largest space in the Murrayfield estate",
+          "capacity_source": "https://murrayfieldexperience.com/murrayfield-conferences-and-events/venue-spaces/"
+        }
+      ],
+      "largest_room_capacity": 1500,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Scottish Gas Murrayfield is one of the largest conference and banqueting venues in eastern Scotland. Published spaces and maximums: West Stand (Thistle Suite and President's Suite combined) 1,500; President's Suite 600; Thistle Suite 600; Centenary Club 200; The Clubhouse 130; Cap & Thistle 130; Moncreiff Suite 60; 1925 Rooms 36; Murrayfield Boxes 20. Spaces \"can always be combined and split\".",
+      "no_public_calendar_reason": "Scottish Rugby publishes a public fixture list for rugby and a separate listing for stadium concerts. Conference and banqueting bookings in the Murrayfield suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://murrayfieldexperience.com/murrayfield-conferences-and-events/venue-spaces/",
+          "note": "Murrayfield Experience (Scottish Rugby's official events brand) venue-spaces page. Stated maximums verbatim: West Stand 1,500 (\"combines our two largest suites, Thistle Suite and President's Suite\"); President's Suite 600; Thistle Suite 600; Centenary Club 200; The Clubhouse 130; Cap & Thistle 130; Moncreiff Suite 60; 1925 Rooms 36; Murrayfield Boxes 20. No sqm figures published."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.scottishrugby.org/scottish-gas-murrayfield/conferences-events/",
+          "note": "Attempted the union's own conferences-and-events path; returned HTTP 404, so the Murrayfield Experience events site was used instead."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sandy Park Stadium",
+      "alternative_names": [
+        "Sandy Park",
+        "Sandy Park Conference and Banqueting Centre"
+      ],
+      "parent_complex": null,
+      "operator": "Exeter Chiefs",
+      "city": "Exeter",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.sandypark.co.uk/",
+      "venue_type": "RUGBY_STADIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity. Sandy Park names its suites but publishes no per-room capacity chart or floor areas on the pages reachable at the check.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Sandy Park describes itself as \"the South West's leading conference, banqueting and events centre\" and markets at least seven named business-event spaces - the Exeter Suite, County Suite, Estuary Suite, Chiefs Suite, Baxter Suite, Seminar Suites and Boardroom. No capacities or floor areas are published on the first-party pages reachable at the check, so business-event scale requires review. Notable as one of the few sport venues in this workstream that publishes a genuine public listing of its non-sport events.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sandypark.co.uk/events/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Genuine listing of named forthcoming events with dates, including business events rather than just rugby. Seen: \"Exeter Jobs Fair\" 18 September 2026; \"Pasty & Pint Night - Celebrating 20 Years of Sandy Park\" 24 September 2026; \"Chris Bentley - An evening with Ben Cohen & Chris Robshaw\" 12 November 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.sandypark.co.uk/",
+          "note": "First-party home page. States Sandy Park is \"the South West's leading conference, banqueting and events centre\" and names the Exeter Suite, County Suite, Estuary Suite, Chiefs Suite, Baxter Suite, Seminar Suites and Boardroom. No square metres or capacities published."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.sandypark.co.uk/events/",
+          "note": "Proved a genuine public events listing exists with named forthcoming events and dates, including non-rugby business events (Exeter Jobs Fair, 18 September 2026)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Emirates Old Trafford",
+      "alternative_names": [
+        "Old Trafford Cricket Ground",
+        "Lancashire Cricket, Emirates Old Trafford"
+      ],
+      "parent_complex": null,
+      "operator": "Lancashire County Cricket Club",
+      "city": "Manchester",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://emiratesoldtrafford.lancashirecricket.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The Point, stated capacity 1,000 guests; whole-venue range \"space for 10 to 1,000 guests\"",
+          "capacity_source": "https://emiratesoldtrafford.lancashirecricket.co.uk/hire/"
+        },
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Point is the largest single space - \"a blank canvas to inspire creativity\"",
+          "capacity_source": "https://emiratesoldtrafford.lancashirecricket.co.uk/hire/"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Point is Emirates Old Trafford's award-winning purpose-built conference and exhibition hall and the largest space on the ground, taking up to 1,000 guests. Nine event spaces are published in total: The Point, The Pavilion, Members' Suite, 1864 Suite, The Emirates Lounge, Club Suite, The Boardroom, Executive Boxes and The Edge, with an on-site Hilton Garden Inn. Census parent venue_type is CRICKET_GROUND; this record uses MULTI_PURPOSE_EVENT_COMPLEX only because the business-events workstream schema enum has no CRICKET_GROUND value. It is not a venue_type reclassification claim.",
+      "no_public_calendar_reason": "Lancashire Cricket publishes a public fixture list for cricket and a separate listing for stadium concerts. Conference and exhibition bookings in The Point and the Pavilion suites are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://emiratesoldtrafford.lancashirecricket.co.uk/hire/",
+          "note": "First-party venue-hire page. Stated verbatim: The Point capacity \"1,000 guests\", \"a blank canvas to inspire creativity and can host a wide range of large-scale events\", whole-venue \"space for 10 to 1,000 guests\". Lists nine event spaces. No total sqm figure published on this page."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Lord's Cricket Ground",
+      "alternative_names": [
+        "Lord's",
+        "Nursery Pavilion, Lord's"
+      ],
+      "parent_complex": null,
+      "operator": "Marylebone Cricket Club (MCC)",
+      "city": "London",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.lords.org/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 900,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Nursery Pavilion, reception layout, stated \"900 max capacity\"",
+          "capacity_source": "https://www.lords.org/lords/conferences-and-events/nursery-pavilion"
+        },
+        {
+          "capacity_value": 550,
+          "capacity_type": "BANQUET",
+          "capacity_configuration": "Nursery Pavilion, seated meal, stated \"550 max capacity\"",
+          "capacity_source": "https://www.lords.org/lords/conferences-and-events/nursery-pavilion"
+        },
+        {
+          "capacity_value": 900,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The Nursery Pavilion is the largest event space at Lord's (1,000 sqm, 72m x 15m)",
+          "capacity_source": "https://www.lords.org/lords/conferences-and-events/nursery-pavilion"
+        }
+      ],
+      "largest_room_capacity": 900,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 1000,
+      "scale_description": "The Nursery Pavilion is Lord's largest conference and exhibition space: \"1,000 square metres of event space\", 72m x 15m, ceiling height 2.95m - 6.7m, partitionable, with maximums of 900 reception, 550 seated meal and 400 cabaret. It sits alongside the ground's heritage rooms (Long Room and pavilion spaces) used for smaller corporate events. Census parent venue_type is CRICKET_GROUND; this record uses MULTI_PURPOSE_EVENT_COMPLEX only because the business-events workstream schema enum has no CRICKET_GROUND value. It is not a venue_type reclassification claim.",
+      "no_public_calendar_reason": "MCC publishes a public fixture list for cricket and ticketed ground events only. Conference, exhibition and banqueting bookings in the Nursery Pavilion and the pavilion rooms are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.lords.org/lords/conferences-and-events/nursery-pavilion",
+          "note": "First-party Nursery Pavilion page. Stated verbatim: \"1,000 square metres of event space\", size \"72m x 15m\", ceiling height \"2.95m - 6.7m\", Reception \"900 max capacity\", Seated Meal \"550 max capacity\", Cabaret \"400 max capacity\", Room Only \"900 max capacity\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Kia Oval",
+      "alternative_names": [
+        "Kia Oval",
+        "The Oval, Kennington"
+      ],
+      "parent_complex": null,
+      "operator": "Surrey County Cricket Club",
+      "city": "London",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.kiaoval.com/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 700,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The 175 Suite, stated to \"hold up to 700 people theatre style\"; the England Club also \"boasts capacity for 700 people theatre-style\"",
+          "capacity_source": "https://www.kiaoval.com/events/event-types/conferences/"
+        },
+        {
+          "capacity_value": 700,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest conference rooms are the 175 Suite and the England Club, each 700 theatre style",
+          "capacity_source": "https://www.kiaoval.com/events/event-types/conferences/"
+        }
+      ],
+      "largest_room_capacity": 700,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Kia Oval is one of London's larger stadium conference venues. Its two biggest conference rooms are the 175 Suite (\"can hold up to 700 people theatre style\", floor-to-ceiling pitch-facing glass) and the England Club (also 700 theatre style), supported by the covered outdoor Corinthian Roof Terrace at the top of the JM Finn Stand. Census parent venue_type is CRICKET_GROUND; this record uses MULTI_PURPOSE_EVENT_COMPLEX only because the business-events workstream schema enum has no CRICKET_GROUND value. It is not a venue_type reclassification claim.",
+      "no_public_calendar_reason": "Surrey CCC publishes a public fixture list for cricket and ticketed ground events only. Conference and banqueting bookings in the 175 Suite and England Club are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.kiaoval.com/events/event-types/conferences/",
+          "note": "First-party conferences page (redirect target of events.kiaoval.com/events/conferences/). Stated verbatim: the 175 Suite \"can hold up to 700 people theatre style and has floor-to-ceiling glass windows along the pitch facing walls\"; the England Club \"boasts capacity for 700 people theatre-style\"; \"over five options for conferences\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Edgbaston Cricket Ground",
+      "alternative_names": [
+        "Edgbaston Stadium",
+        "Edgbaston Events"
+      ],
+      "parent_complex": null,
+      "operator": "Warwickshire County Cricket Club",
+      "city": "Birmingham",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.edgbaston.com/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 800,
+          "capacity_type": "DELEGATE",
+          "capacity_configuration": "Stated business-event range \"From private boardrooms to conferences for 800, there's room to grow without changing venue\"",
+          "capacity_source": "https://www.edgbaston.com/events/meetings-conferences"
+        },
+        {
+          "capacity_value": 800,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Largest published conference configuration at the ground",
+          "capacity_source": "https://www.edgbaston.com/events/meetings-conferences"
+        }
+      ],
+      "largest_room_capacity": 800,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Edgbaston Stadium runs a substantial conference and banqueting business alongside Test cricket, taking events \"From private boardrooms to conferences for 800\". Per-room capacities and floor areas are not published on the first-party site; enquirers are routed to the events team. Census parent venue_type is CRICKET_GROUND; this record uses MULTI_PURPOSE_EVENT_COMPLEX only because the business-events workstream schema enum has no CRICKET_GROUND value. It is not a venue_type reclassification claim.",
+      "no_public_calendar_reason": "Warwickshire CCC publishes a public fixture list for cricket and ticketed ground events only. Conference and banqueting bookings at Edgbaston are private corporate events and are not published; the meetings pages are hire marketing with a phone and booking-system route.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.edgbaston.com/events/meetings-conferences",
+          "note": "First-party meetings-and-conferences page. Stated verbatim: \"From private boardrooms to conferences for 800, there's room to grow without changing venue\". No per-room capacities or sqm figures are published; the page routes enquiries to 0121 369 1994 and smallmeetings.co.uk."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Trent Bridge",
+      "alternative_names": [
+        "Trent Bridge Cricket Ground",
+        "Trent Bridge Meetings and Events"
+      ],
+      "parent_complex": null,
+      "operator": "Nottinghamshire County Cricket Club",
+      "city": "Nottingham",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.trentbridge.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Business-event workstream record: principal capacity intentionally left null so the parent venue's already-proven spectator capacity in the census is not overwritten. Business-event scale is carried in additional_capacities / largest_room_capacity.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 250,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "The Sobers Hall and The Hadlee Hall, each stated at 250 - the joint-largest rooms",
+          "capacity_source": "https://www.trentbridge.co.uk/events-our-rooms.html"
+        },
+        {
+          "capacity_value": 200,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "The Derek Randall Suite, theatre style 200",
+          "capacity_source": "https://www.trentbridge.co.uk/events-our-rooms.html"
+        },
+        {
+          "capacity_value": 250,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Joint-largest rooms are the Sobers Hall and Hadlee Hall at 250 each",
+          "capacity_source": "https://www.trentbridge.co.uk/events-our-rooms.html"
+        }
+      ],
+      "largest_room_capacity": 250,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Trent Bridge is a small-to-mid-scale stadium conference venue rather than a large-hall one. Published rooms: The Sobers Hall 250, The Hadlee Hall 250, the Derek Randall Suite 200 theatre style, The Boundary's Edge 100 dinner/reception, Restaurant Six 45 private dining, The Scoreboard Suite 16, plus 19 individual boxes in the Radcliffe Road Stand. No floor-area figures are published. Census parent venue_type is CRICKET_GROUND; this record uses MULTI_PURPOSE_EVENT_COMPLEX only because the business-events workstream schema enum has no CRICKET_GROUND value. It is not a venue_type reclassification claim.",
+      "no_public_calendar_reason": "Nottinghamshire CCC publishes a public fixture list for cricket only. Conference and banqueting bookings in the Sobers and Hadlee Halls are private corporate events and are not published.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.trentbridge.co.uk/events-our-rooms.html",
+          "note": "First-party event-rooms page. Stated verbatim: The Sobers Hall 250; The Hadlee Hall 250; Derek Randall Suite 200 theatre style; The Boundary's Edge 100 dinner/reception; Restaurant Six 45 private dining / 60 cricket hospitality; The Scoreboard Suite 16 guests; Radcliffe Road Stand 19 individual boxes. No square-footage or square-metre figures on the page."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cheshire Showground",
+      "alternative_names": [
+        "Royal Cheshire Showground",
+        "Cheshire County Showground",
+        "Tabley Showground"
+      ],
+      "parent_complex": null,
+      "operator": "The Cheshire Agricultural Society CIO (CASCIO)",
+      "city": "Knutsford",
+      "nation": "England",
+      "address": "Clay House Farm, Flittogate Lane, Tabley, Knutsford, Cheshire, WA16 0HJ",
+      "postcode": "WA16 0HJ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://royalcheshireshow.org/showground-hire/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Cheshire Showground is the permanent home of the Royal Cheshire County Show and a year-round hire venue: \"The Cheshire Showground has over 250 acres available and includes an extensive infrastructure of access gates, trackways and utility points\", with the society advertising \"300 acres of countryside & 5,000 sqft building\" for event hire. It runs a continuous programme of shows, mass-participation events, driving schools and livestock events.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://royalcheshireshow.org/showground-hire/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The showground-hire page carries a genuine list of named forthcoming events with dates alongside the hire information. Seen: Salvage Show 26 Sep & 17 Oct 2026; Calf Show 27 Sep 2026; Tough Mudder Manchester 10-11 Oct 2026; Flyball Competition UKFL 31 Oct - 1 Nov 2026; Driving School 27 Sep, 7 Nov, 6 Dec 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.cheshirecountyshowground.co.uk/",
+          "note": "Showground domain fetched; returns HTTP 301 to royalcheshireshow.org/showground-hire/, confirming the showground is marketed as a venue under the society's site."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://royalcheshireshow.org/showground-hire/",
+          "note": "Cheshire Agricultural Society showground-hire page. Stated verbatim: \"The Cheshire Showground has over 250 acres available and includes an extensive infrastructure of access gates, trackways and utility points\"; operator \"The Cheshire Agricultural Society CIO (CASCIO)\", registered charity 1151672; site \"approximately 2 miles from M6 Junction 19\". Lists named dated forthcoming events."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://royalcheshireshow.org/",
+          "note": "Society home page. Stated verbatim: \"300 acres of countryside & 5,000 sqft building\" available for event hire."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://royalcheshireshow.org/contact/",
+          "note": "Society contact page. Stated verbatim: \"Our postal address is Clay House Farm, Flittogate Lane, Tabley, Knutsford, Cheshire, WA16 0HJ.\""
+        }
+      ]
+    },
+    {
+      "canonical_name": "Newbury Showground",
+      "alternative_names": [
+        "Priors Court Showground",
+        "Royal County of Berkshire Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Newbury and District Agricultural Society (NADAS)",
+      "city": "Newbury",
+      "nation": "England",
+      "address": "Newbury Showground, Priors Court Road, Hermitage, Thatcham",
+      "postcode": "RG18 9QZ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://newburyshowground.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": 3200,
+      "exhibition_space_sqm": null,
+      "scale_description": "Newbury Showground is the permanent 150-acre showground of the Newbury and District Agricultural Society (charity 1003898) and the home of the Newbury Show, the Royal County of Berkshire's county show. Stated scale: \"Spread over 150 acres\", a permanent Society Building described as a \"3,200m2 structure\", and a show footprint of up to 50 temporary structures, 1,000 sheep, 600 horses, five horse arenas, 400 cattle, a 140m craft marquee, a 75m pig marquee, 460 trade stands and eight car parks.",
+      "no_public_calendar_reason": "The society runs a what's-on page but the only named forthcoming event visible on it at the check was the society's own Newbury Show (19-20 September 2026); no third-party bookings are listed, so no calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newburyshowground.co.uk/",
+          "note": "First-party showground site. Stated verbatim: operator \"Newbury and District Agricultural Society (NADAS)\"; address \"Priors Court Road, Hermitage, Thatcham\", postcode \"RG18 9QZ\"; Newbury Show \"Saturday 19th & Sunday 20th September 2026\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newburyshowground.co.uk/newbury-showground/",
+          "note": "Showground detail page. Stated verbatim: charity number 1003898; \"Spread over 150 acres\"; Society Building a \"3,200m2 structure\"; \"50 temporary structures\", \"1,000 sheep\", \"600 horses\", \"five horse arenas\", \"400 cattle\", \"140m craft marquee\", \"75m pig marquee\", \"400 stewards\", \"460 trade stands\", \"eight car parks\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newburyshowground.co.uk/showground-event-calendar/",
+          "note": "Attempted the event-calendar path linked from the home page; returned HTTP 404, so no calendar source URL could be confirmed."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Westmorland County Show Ground",
+      "alternative_names": [
+        "Westmorland Showground",
+        "Lane Farm, Crooklands",
+        "Westmorland County Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Westmorland County Agricultural Society",
+      "city": "Crooklands",
+      "nation": "England",
+      "address": "Lane Farm, Crooklands, Milnthorpe, Cumbria",
+      "postcode": "LA7 7NH",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://westmorlandshow.co.uk/venue-hire/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 50,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Westmorland Room, stated to \"comfortably fit 50 delegates (theatre style)\" - the largest of the showground's three permanent meeting rooms",
+          "capacity_source": "https://westmorlandshow.co.uk/venue-hire/"
+        },
+        {
+          "capacity_value": 50,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "Westmorland Room is the largest indoor meeting room; Kendal Room 18-20 boardroom, Farleton Room 8 boardroom",
+          "capacity_source": "https://westmorlandshow.co.uk/venue-hire/"
+        }
+      ],
+      "largest_room_capacity": 50,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Westmorland County Agricultural Society's permanent showground at Lane Farm, Crooklands (5 minutes from M6 Junction 36) is the home of the Westmorland County Show and Country Fest. It has three permanent indoor meeting rooms hired year-round - the Westmorland Room (50 delegates theatre style), the Kendal Room (18-20 boardroom) and the Farleton Room (8 boardroom) - alongside open showground hire. Indoor business-event scale is therefore small; the outdoor showground is the major-event asset. No acreage figure is published.",
+      "no_public_calendar_reason": "The society publishes its own events (Westmorland County Show 9-10 September 2026, Country Fest) but its all-events listing was not current at the check - the only dated entry was the Westmorland Harvest Ball on Saturday 18 October 2025, a past date. No maintained third-party event calendar is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.westmorlandshow.co.uk/",
+          "note": "Westmorland County Agricultural Society site. Stated: site \"Lane Farm\" at \"Crooklands, Cumbria\", postcode \"LA7 7NH\"; \"Venue Hire\" listed as a service; Westmorland County Show \"9th & 10th September 2026\"; Country Fest \"annually in early June\"; Westmorland Harvest Ball \"Saturday 18th October 2025\" (sold out - a stale listing)."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://westmorlandshow.co.uk/venue-hire/",
+          "note": "Venue-hire page. Stated verbatim: \"Westmorland County Agricultural Society, Lane Farm, Crooklands, Milnthorpe, Cumbria, LA7 7NH\"; \"5 minutes from Junction 36 of the M6\"; Westmorland Room \"comfortably fit 50 delegates (theatre style)\"; Kendal Room \"up to 18-20 delegates\" boardroom; Farleton Room \"up to 8 delegates\" boardroom; flipchart, screen, projector and laptop provided, Wi-Fi on request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "West Midlands Showground",
+      "alternative_names": [
+        "West Mid Showground",
+        "Shropshire County Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Shropshire & West Midland Agricultural Society",
+      "city": "Shrewsbury",
+      "nation": "England",
+      "address": "Berwick Road, Shrewsbury",
+      "postcode": "SY1 2PF",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.westmidshowground.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The West Midlands Showground at Berwick Road, Shrewsbury is the Shropshire & West Midland Agricultural Society's permanent showground: \"nearly 100 acres\" of which about 60 acres is campsite. Beyond the Shropshire County Show it is the standing site for Shrewsbury Folk Festival, Shrewsbury Live, the Shrewsbury Half Marathon, a Bonfire and Fireworks Spectacular, concerts, dog shows, weekly car boot sales and private hire - a genuinely year-round major-event site.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.westmidshowground.co.uk/whats-on/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Genuine what's-on listing of named forthcoming events with dates. Seen: \"Sep 27 2026 - Shrewsbury Half Marathon\"; \"Oct 2 2026 - be U Festival\"; \"Nov 7 2026 - Bonfire and Firework Spectacular\".",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.westmidshowground.com/",
+          "note": "Alternate showground domain fetched; returns HTTP 301 to westmidshowground.co.uk, confirming the venue's own web estate."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.westmidshowground.co.uk/",
+          "note": "First-party showground site. Stated verbatim: operator \"Shropshire & West Midland Agricultural Society\" (registered charity 702372); address \"Berwick Road, Shrewsbury, SY1 2PF\"; \"nearly 100 acres\" total with \"approximately 60 acres\" campsite; hosts Shropshire County Show, Shrewsbury Live, Bonfire and Fireworks Spectacular, Shrewsbury Folk Festival, Shrewsbury Half Marathon, concerts, dog shows, private hire and weekly Car Boot Sales."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.westmidshowground.co.uk/hire/outdoor-venue-hire/",
+          "note": "Outdoor venue-hire page. Stated verbatim: \"The West Mid Showground, Berwick Road, Shrewsbury, SY1 2PF\"; \"The near 100-acre ground\"; \"a fully licensed venue\"; \"ample parking for more than 2,000 cars\"; \"more than 100 toilets, including disabled\"; covered bar area and a pavilion with balcony overlooking the main ring. No delegate capacity stated."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.westmidshowground.co.uk/whats-on/",
+          "note": "Proved a genuine dated public event calendar exists."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hertfordshire County Showground",
+      "alternative_names": [
+        "The Showground, Redbourn",
+        "Herts County Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Hertfordshire Agricultural Society",
+      "city": "Redbourn",
+      "nation": "England",
+      "address": "The Showground, Dunstable Road, Redbourn, Hertfordshire",
+      "postcode": "AL3 7PT",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://hertsshow.com/showground-hire/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Hertfordshire Agricultural Society's permanent \"70 acre site\" at Redbourn is the home of the Hertfordshire County Show and is hired out for private and public events year-round. Published permanent infrastructure: tarmac roads, hard standing areas, secure fencing, lockable gates, mains electric, drinking water outlets, cesspit drainage and five post-and-rail fenced grass arenas.",
+      "no_public_calendar_reason": "The society maintains a \"Showground Events\" section, but the only dated entry visible at the check was its own Hertfordshire County Show (29-30 May 2027); no listing of named third-party bookings with dates was confirmed, so no calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.hertsshow.com/",
+          "note": "Hertfordshire Agricultural Society site. Stated verbatim: \"The Showground, Dunstable Road, Redbourn, Hertfordshire, AL3 7PT\"; operator Hertfordshire Agricultural Society, registered charity 291037; dedicated \"Showground Hire\" and \"Showground Events\" sections present."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://hertsshow.com/showground-hire/",
+          "note": "Showground-hire page. Stated verbatim: \"70 acre site\"; permanent infrastructure listed as tarmac roads, hard standing areas, secure fencing, lockable gates, mains electric, drinking water outlets, cesspit drainage and five post and rail fenced grass arenas; hosts both private and public events; Hertfordshire County Show \"Saturday 29 - Sunday 30 May 2027\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Driffield Showground",
+      "alternative_names": [
+        "Kelleythorpe Showground",
+        "Driffield Agricultural Society Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Driffield Agricultural Society",
+      "city": "Driffield",
+      "nation": "England",
+      "address": "Driffield Road, Kelleythorpe, Driffield, East Yorkshire",
+      "postcode": "YO25 9FB",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.driffieldshowground.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted. Driffield names three hireable spaces but publishes their specifications only in linked PDFs, which were not opened.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Driffield Showground at Kelleythorpe is the Driffield Agricultural Society's permanent showground and a year-round \"Event Centre\". Three hireable spaces are published: The Rix Pavilion, The Show Pavilion and The Showground itself, described as having high ceilings, open-air grounds and ample free parking. The venue is explicitly marketed as \"a versatile venue for weddings, celebrations, charity functions, conferences, training delivery and seminars\", and it does host business events - the Driffield Business Expo is held in The Rix Pavilion. No numeric capacities or floor areas are published on the web pages (only in linked PDFs, which were not opened).",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.driffieldshowground.co.uk/full-event-calendar",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Genuine event calendar of named forthcoming third-party events with dates, delivered through an embedded eventscalendar.co widget (a plain HTTP fetch shows an empty page; read here in a real browser). Events seen: \"Sheepdog Training Course\" Friday, September 25, 2026 9:00am; \"Hornsea Amateur Radio club - Annual Rally\" Sunday, October 11, 2026, all day; \"Driffield Business Expo\" Friday, October 16, 2026 10:00am.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.driffieldshow.co.uk/",
+          "note": "Society show site. Stated verbatim: \"Driffield Road, Kelleythorpe, Driffield, East Yorkshire YO25 9FB\"; operator Driffield Agricultural Society; \"a versatile venue for weddings, celebrations, charity functions, conferences, training delivery and seminars\"; Driffield Show \"21st JULY, 2027\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.driffieldshowground.co.uk/",
+          "note": "Showground venue site. Confirms the venue name \"Driffield Showground\", the address \"Driffield Road, Kelleythorpe, Driffield, East Yorkshire YO25 9FB\", and that it is \"an Event Centre & Home of Driffield Show\" with \"a diverse calendar of events\". No capacity or floor-area figures stated."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.driffieldshowground.co.uk/site-venue-hire",
+          "note": "Site-and-venue-hire page. Names three hireable spaces - \"The Rix Pavilion\", \"The Show Pavilion\" and \"The Showground\" - with high ceilings, open-air grounds and ample free parking. No numeric capacity or floor area is published on the page; specifications sit behind PDF links which were not opened."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.driffieldshowground.co.uk/full-event-calendar",
+          "note": "Event calendar read in a real browser (the listing is inside a cross-origin eventscalendar.co iframe). Confirmed named dated third-party events including a business event at The Rix Pavilion."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Borders Events Centre",
+      "alternative_names": [
+        "BEC",
+        "Springwood Park",
+        "Border Union Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Border Union Agricultural Society",
+      "city": "Kelso",
+      "nation": "Scotland",
+      "address": "Springwood Park, Kelso",
+      "postcode": "TD5 8LS",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://borderseventscentre.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "The multi-purpose function hall, stated to \"seat up to 1,000 people theatre style\"",
+        "capacity_source": "https://borderseventscentre.co.uk/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1000,
+          "capacity_type": "LARGEST_ROOM",
+          "capacity_configuration": "The 1,000 sqm multi-purpose function hall is the venue's single large room",
+          "capacity_source": "https://borderseventscentre.co.uk/"
+        }
+      ],
+      "largest_room_capacity": 1000,
+      "total_event_space_sqm": 1000,
+      "exhibition_space_sqm": 1000,
+      "scale_description": "The Borders Events Centre is the Border Union Agricultural Society's purpose-branded year-round events venue on the permanent Springwood Park showground at Kelso: a \"1,000 sqm multi-purpose function hall\" that \"can seat up to 1,000 people theatre style\", set in \"40 acres of parkland\". It is the most substantial permanent agricultural-society events building found outside the Royal Highland Centre in Scotland, and it runs a live public events programme.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://borderseventscentre.co.uk/events/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Genuine events listing of named forthcoming events with dates. Seen verbatim: \"Antiques Fair & Fleamarket\" 03.10.26 9:00 am - 04.10.26 4:00 pm; \"Border Union Bonfire Night\" November 5, 5:30 pm - 8:00 pm; \"Antiques Fair & Fleamarket\" 07.11.26 9:00 am - 08.11.26 4:00 pm.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://borderseventscentre.co.uk/",
+          "note": "First-party venue site. Stated verbatim: name \"Borders Events Centre (BEC)\"; operator \"Border Union Agricultural Society\"; address \"Springwood Park, Kelso, TD5 8LS\"; \"1,000 sqm multi-purpose function hall\"; \"40 acres of parkland\"; \"can seat up to 1,000 people theatre style\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://borderseventscentre.co.uk/events/",
+          "note": "Proved a genuine dated public events calendar exists at the venue."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Carmarthen Showground",
+      "alternative_names": [
+        "United Counties Showground",
+        "Nantyci Showground",
+        "The Showground, Nantyci"
+      ],
+      "parent_complex": null,
+      "operator": "United Counties Agricultural and Hunters Society",
+      "city": "Carmarthen",
+      "nation": "Wales",
+      "address": "The Showground, Nantyci, Carmarthen",
+      "postcode": "SA33 5DR",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.unitedcounties.org/hire/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Carmarthen (United Counties) Showground at Nantyci is the United Counties Agricultural and Hunters Society's permanent showground and a genuine year-round hire venue: \"From a single room, to our whole 52 acre showground, our massive range of facilities means you can be sure we'll have something that will suit you\", with showground rentals \"starting from just £700 per day\". Home of the Welsh Dairy Show and a regular antiques/flea market and Sunday car boot programme. Note: several third-party directories claim 100 acres; the society's own figure is 52 acres and that is the figure recorded.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.unitedcounties.org/hire/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The \"Upcoming events you might enjoy\" block on this page is a genuine listing of named forthcoming events with dates: \"Welsh Dairy Show 2026\" 20 October 2026; \"Antiques & Flea Market\" 15 November 2026 at 9:00 am - 4:00 pm; \"Night Owl\" 27 March 2029 at 5:00 pm - 8:30 pm. The site returns HTTP 403 to non-browser clients, so this was read in a real browser. The site also carries a dedicated /whats-on/ path in its navigation, but that page was NOT fetched and is deliberately not recorded here.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.unitedcounties.org/hire/",
+          "note": "First-party hire page (HTTP 403 to plain fetchers; read in a real browser). Stated verbatim: \"Hire the United Counties Showground\"; \"Whatever the size of your event, the Carmarthen Showground has the perfect space for you\"; \"the rentals for the showground starting from just £700 per day\"; \"From a single room, to our whole 52 acre showground\"; footer \"United Counties Agricultural and Hunters Society / The Showground, Nantyci, Carmarthen, SA33 5DR\"; upcoming events Welsh Dairy Show 2026 (20 October 2026), Antiques & Flea Market (15 November 2026), Night Owl (27 March 2029); banner \"There will be no Sunday Car Boots through September and October\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Monmouthshire Showground",
+      "alternative_names": [
+        "Redbrook Road Showground",
+        "Monmouth Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Monmouthshire Show",
+      "city": "Monmouth",
+      "nation": "Wales",
+      "address": "Monmouthshire Showground, Redbrook Road, Monmouth",
+      "postcode": "NP25 4LG",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.monmouthshow.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Monmouthshire Showground on Redbrook Road is a permanent society showground covering \"96 acres of prime land in the heart of the Wye Valley\". Beyond the Monmouthshire Show it is hired to third parties - the showground-hire page names the Sealed Knot Siege of Monmouth, the German Shepherd Dog Club of Wales Show, Dubs on the Wye and Walk the Wye as events it has hosted. No capacity or built floor-area figure is published.",
+      "no_public_calendar_reason": "The showground-hire page names third-party events the ground has hosted but lists them as past/recent events with no forthcoming dates. The only dated forthcoming entry was the society's own Monmouthshire Show (Sunday 16 August 2026), so no forward-looking calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.monmouthshow.co.uk/",
+          "note": "First-party site (page title itself reads \"Monmouthshire Show | Agricultural Show | Monmouthshire Showground, Redbrook Road, Monmouth, NP25 4LG\"). Stated verbatim: \"96 acres of showground\" and \"It covers 96 acres of prime land in the heart of the Wye Valley\"; showground address \"Redbrook Road, Monmouth, NP25 4LG\"; society office \"c/o St. Dials Farm, Mitchel Troy, Monmouth, Monmouthshire NP25 4HY\"; Monmouthshire Show 2026 \"Sunday 16th August 2026\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Haverfordwest Showground",
+      "alternative_names": [
+        "Pembrokeshire County Showground",
+        "Pembrokeshire Showground",
+        "Withybush Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Pembrokeshire Agricultural Society",
+      "city": "Haverfordwest",
+      "nation": "Wales",
+      "address": "Haverfordwest Showground, Pembrokeshire, Wales",
+      "postcode": "SA62 4BW",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.pembsshow.org/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Haverfordwest Showground is the Pembrokeshire Agricultural Society's permanent showground and the home of the Pembrokeshire County Show, which the society describes as \"Wales' largest County Agricultural Show\". The society publishes a showground map and maintains an \"Other Events\" section for non-show use. No acreage, capacity or floor-area figure is published anywhere on the official site; third-party directories quote 60 acres and Pavilion capacities of 250 banquet / 400 buffet, but none of those figures appear on the society's own site and none is recorded here.",
+      "no_public_calendar_reason": "The society maintains an \"Other Events\" page at /other-events/ but it was completely empty at the check - it renders a heading and the site footer with no events listed at all. No forthcoming named third-party events are published, so no calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.pembsshow.org/",
+          "note": "First-party society site (returns malformed HTTP headers that break standard fetchers; read in a real browser). Stated verbatim in the footer: \"Pembrokeshire Agricultural Society / Haverfordwest Showground / Pembrokeshire / Wales / SA62 4BW\"; Pembrokeshire County Show \"19th & 20th August 2026\"; \"Wales' largest County Agricultural Show\"; a download link titled \"Pembrokeshire Showground Map 2025\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.pembsshow.org/other-events/",
+          "note": "Society \"Other Events\" page read in a real browser: the page exists but lists no events whatsoever - only the heading, sponsor strip and footer. Confirms the showground publishes no third-party event calendar."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bakewell Showground",
+      "alternative_names": [
+        "Bakewell Agricultural & Horticultural Society Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Bakewell Agricultural & Horticultural Society",
+      "city": "Bakewell",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.bakewellahs.co.uk/events",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Bakewell Showground is the Bakewell Agricultural & Horticultural Society's permanent showground in the Peak District, home of the Bakewell Show, the Bakewell Country Festival and Bakewell Christmas Sparkle. The society states it \"host[s] third-party events on Bakewell Showground\", so the ground has a genuine year-round hire business. Address deliberately left null: the society publishes its own address as \"Agricultural Business Centre, Agricultural Way, Bakewell, Derbyshire DE45 1AH\", but the Agricultural Business Centre is a separately operated building (Derbyshire Dales District Council) adjacent to the showground, so that address is not asserted here as the showground's own. No acreage or capacity figure is published.",
+      "no_public_calendar_reason": "The society's events page states it hosts third-party events and embeds an events calendar, but the embedded calendar returned \"No upcoming events\" at the check (2026-09-20) and the society's own named events (Bakewell Country Festival, Bakewell Christmas Sparkle) carry no dates on that page. No calendar source is recorded because no named forthcoming event was visible.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.bakewellahs.co.uk/events",
+          "note": "First-party society events page. Stated verbatim: showground name \"Bakewell Showground\"; operator \"Bakewell Agricultural & Horticultural Society\"; society address \"Agricultural Business Centre, Agricultural Way, Bakewell, Derbyshire DE45 1AH\"; \"We run our own Society events and host third-party events on Bakewell Showground\"; \"Third party events are subject to change\". No named dated forthcoming events were listed and the embedded calendar showed none."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.bakewellshow.org/",
+          "note": "Formerly the show's domain; it now returns HTTP 301 to an unrelated commercial site (phonewiza.com), i.e. the old domain has lapsed. Recorded so the census does not adopt it as an official URL."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Haughs, Turriff",
+      "alternative_names": [
+        "Turriff Showground",
+        "The Haughs"
+      ],
+      "parent_complex": null,
+      "operator": "Turriff District Agricultural Association",
+      "city": "Turriff",
+      "nation": "Scotland",
+      "address": "The Haughs, Queens Road, Turriff, Aberdeenshire",
+      "postcode": "AB53 4EF",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.turriffshow.org/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Haughs at Turriff is the Turriff District Agricultural Association's permanent showground and the site of the Turriff Show, Scotland's largest two-day agricultural show. It is included as a persistent, named, society-held showground with fixed infrastructure, but the association publishes no venue-hire offer, no acreage or capacity figures, and no year-round events programme - so its status as a bookable major-event venue is unproven.",
+      "no_public_calendar_reason": "The association's site has no venue-hire page and no third-party events page. The only forthcoming named dated event is its own show (\"2027 Turriff Show: Saturday 31st July & Sunday 1st August\"), so no calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.turriffshow.org/contact-us/",
+          "note": "Society contact page. Stated verbatim: operator \"Turriff District Agricultural Association\"; address \"The Haughs, Queens Road, Turriff, Aberdeenshire, AB53 4EF\". No acreage or capacity figures published."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Anglesey Showground",
+      "alternative_names": [
+        "Mona Showground",
+        "Maes Sioe Mon",
+        "Gwalchmai Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Anglesey Agricultural Society (Cymdeithas Amaethyddol Mon)",
+      "city": "Gwalchmai",
+      "nation": "Wales",
+      "address": "Ty Glyn Williams, The Showground, Gwalchmai, Holyhead, Anglesey",
+      "postcode": "LL65 4RW",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.angleseyshow.org.uk/showground-hire/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The Anglesey Showground at Gwalchmai is a \"136-acre site\" with permanent buildings available for hire: the Jones Bros Pavilion (multi-functioning, with kitchen, meeting room and toilets), Cadarn Hall (with toilets and showers), the Leprino Small Pavilion (with kitchen and toilets), a shearing shed, sheep pens, car parking fields and camping fields, with three-phase electric and water and electricity supply throughout the main fields. Home of the Anglesey Show and the Winter Show.",
+      "no_public_calendar_reason": "The society site references an \"Upcoming Events\" section but no named forthcoming third-party events with dates were visible on the pages fetched, so no calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.angleseyshow.org.uk/",
+          "note": "Anglesey Agricultural Society home page. Stated location \"Gwalchmai, Holyhead LL65 4RW\"; operator \"Anglesey Agricultural Society (Cymdeithas Amaethyddol Mon)\"; sections for The Anglesey Show, The Winter Show, The Society and Showground Hire & Events."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.angleseyshow.org.uk/showground-hire/",
+          "note": "Showground-hire page. Stated verbatim: address \"Ty Glyn Williams, The Showground, Gwalchmai, Holyhead, Anglesey, LL65 4RW\"; \"The 136-acre site boasts a wide range of facilities available to hire\"; named permanent buildings Jones Bros Pavilion, Cadarn Hall, Leprino Small Pavilion, shearing shed, sheep pens, car parking fields, camping fields; 3-phase electric and water/electricity throughout main fields."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mannsfield Showground",
+      "alternative_names": [
+        "Black Isle Showground",
+        "Black Isle Farmers Society Showground"
+      ],
+      "parent_complex": null,
+      "operator": "Black Isle Farmers' Society",
+      "city": "Muir of Ord",
+      "nation": "Scotland",
+      "address": "Mannsfield Showground, Muir of Ord, Ross-shire",
+      "postcode": "IV6 7RS",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://blackisleshow.com/venue-hire/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": null,
+        "capacity_configuration": "Permanent showground: the society publishes site area rather than a headline attendance or delegate capacity. No capacity figure was stated on any page fetched, so none is asserted.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Mannsfield Showground at Muir of Ord is the permanent showground of the Black Isle Farmers' Society and the home of the Black Isle Show, described by the society as \"the largest agricultural show in the north\". It is the only permanent agricultural showground of any scale in the census north of the Central Belt besides the Royal Highland Centre. Hireable permanent structures published: the Food & Craft Shed, the Education Shed and the Commentary Unit, with seasonal toilet hire. No acreage or capacity figure is published.",
+      "no_public_calendar_reason": "The society publishes its own events (Black Isle Show 4-5 August 2027, Black Isle Ploughing Match 2026) but no listing of named third-party bookings at the showground, so no calendar source is recorded.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.blackisleshow.com/",
+          "note": "Black Isle Farmers Society site. Stated: registered charity SC022355; \"the largest agricultural show in the north\"; a Venue hire section exists; Black Isle Show Thursday 5 August 2027 with preview Wednesday 4 August 2027; Black Isle Ploughing Match 2026."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://blackisleshow.com/venue-hire/",
+          "note": "Venue-hire page. Names the hireable permanent structures: \"Food & Craft Shed\", \"Education Shed\", \"Commentary Unit\", plus seasonal toilet hire. No address, postcode or acreage stated on this page."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://blackisleshow.com/contact/",
+          "note": "Society contact page. Stated verbatim: \"Black Isle Farmers' Society Mannsfield Showground Muir of Ord Ross-shire IV6 7RS\"."
+        }
+      ]
+    }
+  ]
+}

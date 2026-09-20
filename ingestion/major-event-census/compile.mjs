@@ -11,7 +11,7 @@ import {
   CENSUS_ARTIFACT_TYPE, CENSUS_FRAMEWORK_VERSION, CAPACITY_THRESHOLD,
   createVenueCensusId, createCalendarSourceId, VENUE_TYPES,
   CONVENTION_CLASS_VENUE_TYPES, SCALE_EXCEPTION_SPORTING_VENUE_TYPES,
-  OFFICIAL_URL_STATUSES,
+  OFFICIAL_URL_STATUSES, NON_OPERATIONAL_STATUSES,
   CAPACITY_TYPES, CAPACITY_SOURCE_AUTHORITIES, CAPACITY_CONFIDENCE,
   CALENDAR_SOURCE_TYPES, SPORTS,
 } from "./contract.mjs";
@@ -30,6 +30,13 @@ const text = (value) => (typeof value === "string" && value.trim() !== "" ? valu
 function normaliseOperationalStatus(raw) {
   const value = String(raw ?? "").toUpperCase().trim();
   if (value === "OPERATIONAL") return "OPERATIONAL";
+  // Order matters: DERELICT and "no longer an event venue" are distinct
+  // from CLOSED and must not be flattened into it. A derelict ground whose
+  // stands still stand has not been demolished, and saying so would assert
+  // something no source established.
+  if (/DERELICT/.test(value)) return "DERELICT";
+  if (/REDEVELOP/.test(value)) return "REDEVELOPED";
+  if (/NO_LONGER|NOT_AN_EVENT|NO LONGER/.test(value)) return "NO_LONGER_EVENT_VENUE";
   if (/CLOSED|DEMOLISH|DEFUNCT/.test(value)) return "CLOSED";
   if (/CONSTRUCTION|PLANNED|PROPOSED|UNBUILT/.test(value)) return "UNDER_CONSTRUCTION";
   return "STATUS_REVIEW_REQUIRED";
@@ -365,6 +372,15 @@ function mergeVenueInto(existing, venue) {
       existing.official_url = venue.official_url !== existing.official_url_quarantined ? venue.official_url : null;
     }
     existing.parent_complex = existing.parent_complex ?? venue.parent_complex;
+  // Business-event scale is usually researched by a LATER, different pass
+  // than the one that first found the venue — a stadium's conference
+  // suites are not what a football researcher records. Without merging
+  // these, that later evidence is silently discarded because the first
+  // record wins with its nulls.
+  existing.largest_room_capacity = existing.largest_room_capacity ?? venue.largest_room_capacity;
+  existing.total_event_space_sqm = existing.total_event_space_sqm ?? venue.total_event_space_sqm;
+  existing.exhibition_space_sqm = existing.exhibition_space_sqm ?? venue.exhibition_space_sqm;
+  existing.scale_description = existing.scale_description ?? venue.scale_description;
   existing.provenance.evidence = [...existing.provenance.evidence, ...venue.provenance.evidence];
   existing.provenance.workstream = [...new Set(String(existing.provenance.workstream).split("+").concat(venue.provenance.workstream))].sort().join("+");
   existing.__mergedFrom = [...(existing.__mergedFrom ?? []), venue.venue_census_id, ...(venue.__mergedFrom ?? [])];
@@ -481,9 +497,9 @@ export function compileCensus(workstreamDocuments, { generatedAt, censusId = "uk
   // Phase 2 exclusions: closed venues and venues not yet operational are
   // out of scope for the census population, but are retained separately
   // so the record shows they were researched and deliberately excluded.
-  const venues = reconciled.filter((venue) => venue.operational_status === "OPERATIONAL" || venue.operational_status === "STATUS_REVIEW_REQUIRED");
+  const venues = reconciled.filter((venue) => !NON_OPERATIONAL_STATUSES.has(venue.operational_status));
   const excludedNonOperational = reconciled
-    .filter((venue) => venue.operational_status === "CLOSED" || venue.operational_status === "UNDER_CONSTRUCTION")
+    .filter((venue) => NON_OPERATIONAL_STATUSES.has(venue.operational_status))
     .map((venue) => ({ venue_census_id: venue.venue_census_id, canonical_name: venue.canonical_name, city: venue.city, nation: venue.nation, venue_type: venue.venue_type, operational_status: venue.operational_status }));
 
   const capacityEvidence = [];

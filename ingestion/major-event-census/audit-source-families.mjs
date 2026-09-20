@@ -37,6 +37,16 @@ export const TIER2_CONTRIBUTING_FAMILIES = new Set([
   "SQUARESPACE_CALENDAR",
   "WEBFLOW",
   "PUBLIC_GRAPHQL",
+  // The READY_TIER1 families. These matter MOST: they are the sources a
+  // first acquisition wave would start from, on the claim that an existing
+  // collector already applies with no new engineering. A wrong
+  // classification here sends the first wave at pages that cannot be
+  // collected, so they are verified rather than trusted.
+  "JSON_LD_EVENT",
+  "WORDPRESS_TRIBE_API",
+  // READY_WITH_CONFIGURATION. The configuration-only route presumes
+  // server-rendered dated content actually exists on the page.
+  "STATIC_HTML_CARDS",
 ]);
 
 /**
@@ -108,6 +118,44 @@ export function verifyFamilyClaim(family, html) {
       return { confirmed: /itemtype\s*=\s*["']https?:\/\/schema\.org\/(Event|[A-Za-z]*Event)["']/i.test(text), detail: "schema.org Event microdata" };
     case "PUBLIC_GRAPHQL":
       return { confirmed: /graphql/i.test(text), detail: "GraphQL endpoint reference" };
+    case "JSON_LD_EVENT": {
+      // The claim is a JSON-LD block describing Events. Parse the blocks
+      // rather than regex-matching "Event" anywhere on the page, because
+      // the word appears in ordinary copy constantly.
+      const eventTyped = scripts.some((script) => {
+        if (!/ld\+json/i.test(script.attributes)) return false;
+        try {
+          const parsed = JSON.parse(script.body.trim());
+          return JSON.stringify(parsed).match(/"@type"\s*:\s*"[^"]*Event[^"]*"/i) !== null;
+        } catch {
+          // Malformed JSON-LD is common; fall back to a scoped check
+          // INSIDE the ld+json block only, never the whole document.
+          return /"@type"\s*:\s*"[^"]*Event[^"]*"/i.test(script.body);
+        }
+      });
+      return { confirmed: eventTyped, detail: eventTyped ? "JSON-LD block with an Event @type" : "no ld+json block declaring an Event @type" };
+    }
+    case "WORDPRESS_TRIBE_API": {
+      const tribe = /\/wp-json\/tribe\/events/i.test(text) || /tribe-events/i.test(text) || /tribe_events/i.test(text);
+      return { confirmed: tribe, detail: tribe ? "The Events Calendar (tribe) markers present" : "no tribe/The Events Calendar markers" };
+    }
+    case "STATIC_HTML_CARDS": {
+      // The configuration-only route presumes dated event content is
+      // actually server-rendered. Three or more distinct date-like strings
+      // in the delivered HTML is the honest precondition.
+      const datePatterns = [
+        /\b\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/gi,
+        /\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+\d{1,2}\b/gi,
+        /\b\d{4}-\d{2}-\d{2}\b/g,
+        /datetime\s*=\s*["'][^"']+["']/gi,
+      ];
+      const hits = new Set();
+      for (const pattern of datePatterns) for (const match of text.match(pattern) ?? []) hits.add(match.toLowerCase());
+      return {
+        confirmed: hits.size >= 3,
+        detail: `${hits.size} distinct date-like strings in the server-rendered HTML`,
+      };
+    }
     case "OTHER_EMBEDDED_APP_STATE":
       // The claim is "there is reusable embedded application state here".
       // That requires a substantive embedded JSON payload that is not the

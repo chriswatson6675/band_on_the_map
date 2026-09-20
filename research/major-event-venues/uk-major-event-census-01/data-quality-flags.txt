@@ -260,3 +260,135 @@ six stale sponsor names, a wrong city for Cae-y-Castell (Flint, not
 Connah's Quay — one row was silently covering two Cymru Premier clubs),
 St Helen's Swansea no longer a cricket venue, and a scrape artifact
 ("Warrenpoint F.C.?action=edit&redlink=1" recorded as an operator).
+
+==========================================================================
+COMPLETENESS-03 (2026-09-20) — FINAL SWEEP BEFORE FREEZE
+==========================================================================
+
+--------------------------------------------------------------------------
+I. THE CAMROSE — RESOLVED as DERELICT
+--------------------------------------------------------------------------
+
+The census carried it OPERATIONAL at 6,000 purely because an old capacity
+source existed. That was wrong — and so is CLOSED or DEMOLISHED.
+
+Basingstoke & Deane Cabinet report, 11 February 2025 (read in full, 13
+pages, democracy.basingstoke.gov.uk):
+  para 2.4 "The original stands, terraces and hard standing areas
+  associated with its previous use for footballing purposes STILL REMAIN,
+  although are proposed to be demolished. The use of the site as a
+  football ground ceased before 2019."
+  para 4.5 the structures "are no longer fit for their original or indeed
+  any other purpose."
+Corroborated by the club's own btfc.co.uk/savecamrose/ (evicted April
+2019; "unused, vandalised and left to rot") and by the new freeholder
+calling it the "former Camrose Stadium site".
+
+Recorded as DERELICT. Not DEMOLISHED: every demolition reference is
+future-tense and the last direct physical statement is that the stands
+still stand. No demolition date was invented to tidy the answer.
+
+The 6,000 capacity is RETAINED as historical evidence, relabelled. The
+defect was never the number — a capacity figure evidences PAST scale and
+can never evidence PRESENT operation. Three new operational statuses
+(DERELICT, NO_LONGER_EVENT_VENUE, REDEVELOPED) exist so that distinction
+can be recorded rather than flattened into CLOSED.
+
+--------------------------------------------------------------------------
+J. OFFICIAL-URL INTEGRITY SWEEP — all 654 recorded URLs
+--------------------------------------------------------------------------
+
+  VALID_OFFICIAL        607
+  REVIEW_REQUIRED        30
+  SUPERSEDED_OFFICIAL    13
+  DEAD_DOMAIN             2
+  HIJACKED_DOMAIN         2
+
+Only 4 URLs must not stand as current truth. All four were quarantined:
+  The Halls Wolverhampton  .com does not resolve -> REPLACED with the
+                           live .co.uk (title "University of Wolverhampton
+                           at The Halls"), verified by fetch
+  Donegal Celtic Park      dc-fc.com now serves "Daily Casino"
+                           -> REVIEW_REQUIRED (candidate did not resolve)
+  The Showgrounds, Limavady audenza.com serves "Non GamStop Casino Sites"
+                           -> REVIEW_REQUIRED (candidate did not resolve)
+  St David's Hall, Cardiff stdavidshallcardiff.co.uk does not resolve
+                           -> venue independently proven CLOSED (RAAC)
+
+TWO CORRECTIONS TO THE COMPLETENESS-02 REPORT, both in the direction of
+having OVERSTATED the problem:
+
+1. Four of the six "further bad URLs" reported then are NOT RECORDED
+   AGAINST ANY CENSUS VENUE at all — manchestersportandleisure.org,
+   eastbournetennis.com, neathrugby.co.uk, penybontfc.com. They were real
+   observations about real squatted domains, but they were never census
+   defects. Completeness-02 presented them as if they were.
+
+2. "The lapsed-football-domain problem is SYSTEMIC" was too strong. Of 654
+   recorded URLs, 2 are hijacked and 2 dead. The problem is real and worth
+   the standing sweep, but it is not systemic at the scale claimed.
+
+--------------------------------------------------------------------------
+K. A LIMITATION OF THE SWEEP, STATED PLAINLY
+--------------------------------------------------------------------------
+
+THE SWEEP CANNOT DETECT WRONG_ENTITY. Separating "the venue's own official
+site" from "a page that legitimately mentions the venue" is beyond a text
+check.
+
+Worked example, found and fixed by hand: Gander Green Lane was recorded
+with https://www.cpfc.co.uk/palace-women/ — a page titled "Crystal Palace
+Women FC" which never names Gander Green Lane. Crystal Palace Women play
+there as tenants; the ground is Sutton United's. It is quarantined, and
+left OFFICIAL_URL_REVIEW_REQUIRED because suttonunited.net returns a
+Cloudflare 403 and a domain resembling a club's name is not evidence.
+
+An attempt to automate this detection — by requiring the page to match the
+venue's OWN name rather than its city or operator — produced 51
+WRONG_ENTITY verdicts, nearly all false: a ground recorded against its
+RESIDENT club's official site is legitimate (that is what
+VALID_OPERATOR_OR_CLUB_OFFICIAL means), and venues such as "The Den" and
+"The Old Vic" leave no usable token once generic words are stripped. A
+rule that condemns 51 valid records to catch 1 invalid one is a worse
+instrument than admitting the limit. WRONG_ENTITY is therefore only ever
+assigned from manually evidenced findings.
+
+--------------------------------------------------------------------------
+L. FURTHER DEFECTS FOUND, REPORTED NOT PATCHED
+--------------------------------------------------------------------------
+
+From the high-value recovery pass, each needing the same evidence standard
+before any correction:
+  Valley Greyhound Stadium  official_url is an explicitly RETIRED archive
+                            site that says so on its face; live site is
+                            valleygreyhounds.com
+  Preston Guild Hall        prestonguildhall.co.uk is abandoned and still
+                            serving September 2018 listings; live site is
+                            guildhallpreston.co.uk
+  Leeds Town Hall           carried OPERATIONAL but its own site shows it
+                            closed for major refurbishment
+  The Brentwood Centre      official domain carries injected gambling spam;
+                            its onward referral brentwood-live.co.uk is a
+                            parked domain for sale
+  Edinburgh Arena           carried UNDER_CONSTRUCTION, but the cited
+                            evidence describes PRE-construction (no main
+                            contractor appointed)
+
+--------------------------------------------------------------------------
+M. SOURCE-FAMILY AUDIT — the acquisition-ready population is verified
+--------------------------------------------------------------------------
+
+677 sources audited: 570 CONFIRMED, 102 NOT_CONFIRMED, 5 UNREACHABLE.
+The 102 are conservatively downgraded to SOURCE_REVIEW_REQUIRED.
+
+THE RESULT THAT MATTERS FOR A FREEZE — both READY_TIER1 families are
+100% confirmed, verified structurally rather than trusted:
+  JSON_LD_EVENT        36 confirmed, 0 not confirmed   (0%)
+  WORDPRESS_TRIBE_API   6 confirmed, 0 not confirmed   (0%)
+JSON-LD was verified by PARSING each ld+json block and requiring an Event
+@type — not by matching the word "Event", which appears in ordinary page
+copy constantly.
+
+Measured false-positive rates elsewhere:
+  OTHER_EMBEDDED_APP_STATE  22%      STATIC_HTML_CARDS  25%
+  MICRODATA                 26%      all embedded-framework families 0%

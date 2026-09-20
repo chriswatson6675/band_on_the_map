@@ -1,0 +1,905 @@
+{
+  "workstream": "SCOTLAND_03",
+  "generated_at": "2026-09-20T18:05:00Z",
+  "method_notes": "Targeted gap-closing pass on the Scottish NON-SPORT >=1,000 estate, run against the 148 Scottish records already in venues.json (89 football stadiums, 12 rugby, 5 cricket, 5 racecourses, 2 motorsport, 1 other sport = 114 sport; 34 non-sport). All existing Scottish canonical_name+city pairs and alternative_names were extracted programmatically from venues.json before research and used as the de-duplication key set (231 keys). POPULATIONS WORKED THROUGH: (1) Operator portfolios - Capital Theatres (Festival Theatre, King's, The Studio), ATG (Edinburgh Playhouse), Academy Music Group (O2 Academy Glasgow, O2 Academy Edinburgh = Corn Exchange, O2 ABC Glasgow), AEG (Edinburgh Park Arena), ASM Global (P&J Live), Glasgow Life (full venue-hire estate enumerated from https://www.glasgowlife.org.uk/venue-hire), Aberdeen Performing Arts, Horsecross Arts (Perth), Eden Court, Dundee Rep, OnFife, Culture NL, South Lanarkshire Leisure & Culture, East Ayrshire Leisure, OneRen, Inverclyde Leisure, Live Active Leisure. (2) Council venue estates - Glasgow, Edinburgh, Aberdeen, Dundee, Stirling, Perth & Kinross, Highland, Fife, Falkirk, North and South Lanarkshire, Renfrewshire, Inverclyde, East/South Ayrshire, Dumfries & Galloway, Moray, Orkney. (3) Convention bureaux - Convention Edinburgh / Meeting Edinburgh (driven in a real browser: its venue search exposes a minRoomCapacity + roomConfiguration filter and returned EXACTLY 7 Edinburgh venues with a single room of >=1,000 theatre-style, which is the single most useful negative result in this pass); Glasgow Convention Bureau (visitglasgow.org.uk, capacity>=1000 filter returned 9 venues, all of which proved to be whole-venue totals, not >=1,000 single rooms); VisitScotland Business Events. (4) Royal Highland & Agricultural Society showground estate. (5) Scottish university venue estates - Glasgow, Edinburgh, Strathclyde, St Andrews, Aberdeen, Heriot-Watt, Dundee. (6) Major arts organisations and festival operators (Edinburgh International Festival, Assembly Festival, Edinburgh Festival Fringe, DF Concerts, Royal Edinburgh Military Tattoo). JUDGEMENT ON THE TRUE SCOTTISH ESTATE: the previous pass's instinct was broadly right but it stopped ~20 venues short. Scotland's genuine non-sport >=1,000 estate is small by English standards and is overwhelmingly concentrated in Glasgow and Edinburgh, but it is materially larger than 17 theatres/concert halls + 2 conference venues. The additions here fall into five families the earlier passes missed entirely: (a) large-capacity non-theatre music venues (SWG3 Galvanizers 1,250); (b) OUTDOOR council-run major event venues, which are among the biggest audiences in Scotland and had zero representation - Glasgow Green (TRNSMT, 50,000/day), Bellahouston Park (35,000), Slessor Gardens Dundee (12,000 approved), Edinburgh Castle Esplanade (8,800), Ross Bandstand (2,500), Kelvingrove Bandstand (2,200); (c) ceremonial/university and independent-school auditoria at 1,000-1,150 (Bute Hall 1,100, Assembly Hall 1,100, George Watson's Assembly Hall 1,040) - a family the census had touched only via McEwan Hall; (d) the closed/demolished estate that a census must still carry (AECC 8,500, O2 ABC 1,300, Motherwell Concert Hall, Grand Hall Kilmarnock closed to 2028); (e) the pipeline (Edinburgh Arena 8,500, Dunard Centre 1,000). Outside the central belt the >=1,000 estate is genuinely thin and I evidenced that rather than assumed it: Inverness tops out at Eden Court's 840-850 seat Empire Theatre; Fife's only >=1,000 house is the Alhambra Dunfermline (1,232 seated / 2,100 standing) with Rothes Halls at 596 and Adam Smith at 475; Ayrshire's Grand Hall main hall is 900 seated and currently closed; Moray, the Borders, Argyll and the Western Isles have nothing at >=1,000; Orkney's Pickaquoy Centre (1,600) is the only island venue at scale. Non-sport >=1,000 conference/exhibition capacity in Scotland is confirmed to be just six sites: SEC, EICC, P&J Live, Royal Highland Centre, Macdonald Aviemore Resort (Osprey Arena 1,150) and Easterbrook Hall Dumfries (1,000) - every other Scottish academic/hotel/unique venue checked topped out below 1,000 in a single room (Strathclyde TIC 450, Heriot-Watt James Watt Centre 465, Aberdeen Elphinstone Hall 400, St Andrews Younger Hall 958, Dundee Bonar Hall 476, Glasgow Burrell 300, Riverside 800 whole-museum, Engine Works 650, Kelvingrove Art Gallery Centre Hall 600, Mitchell Complex 90). SCOPE BOUNDARY TAKEN: outdoor urban event spaces with a regular, promoted, ticketed major-event programme (Glasgow Green, Bellahouston, Slessor Gardens, the two bandstands, the Castle Esplanade) are included; private-estate one-weekend festival sites (Strathallan Castle, Belladrum, Balado) are NOT, and neither are sport venues. Two hotel/resort records (Macdonald Aviemore, Prestonfield) are included only because each has an evidenced >=1,000 SINGLE-ROOM event space; no hotel was admitted on a whole-property total. One record re-lists an existing census venue (Royal Highland Centre, Edinburgh) with the exact same canonical_name and city purely to attach first-party hall-level capacities and the verified postcode. NOTHING here activates a source; no registry, sources/*.json, venues/*.json or data/* file was read for write or modified.",
+  "venues": [
+    {
+      "canonical_name": "SWG3",
+      "alternative_names": ["SWG3 Galvanizers", "Galvanizers", "SWG3 Glasgow", "Studio Warehouse Glasgow"],
+      "parent_complex": null,
+      "operator": "SWG3",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "100 Eastvale Place, Glasgow",
+      "postcode": "G3 8QG",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://swg3.tv/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1250,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Galvanizers - the principal INDOOR hall and the venue's main auditorium-equivalent space; 1,250 standing / 600 seated / 500 dinner across 6,000 sq ft. The larger outdoor Galvanizers Yard and the TV Studio are recorded separately in additional_capacities and are NOT summed into this number.",
+        "capacity_source": "https://swg3.tv/explore/venue-hire-spaces/swg3-galvanizers/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 4000, "capacity_type": "STANDING", "capacity_configuration": "Galvanizers Yard - outdoor yard, 'capable of hosting up to 4000 people'", "capacity_source": "https://swg3.tv/explore/venue-hire-spaces/"},
+        {"capacity_value": 1000, "capacity_type": "STANDING", "capacity_configuration": "TV Studio - 'capable of holding up to 1000 people'", "capacity_source": "https://swg3.tv/explore/venue-hire-spaces/"},
+        {"capacity_value": 600, "capacity_type": "SEATED", "capacity_configuration": "Galvanizers, seated configuration", "capacity_source": "https://swg3.tv/explore/venue-hire-spaces/swg3-galvanizers/"},
+        {"capacity_value": 125, "capacity_type": "STANDING", "capacity_configuration": "The Poetry Club", "capacity_source": "https://swg3.tv/explore/venue-hire-spaces/"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Multi-space arts and events complex in Glasgow's west end with three spaces at or above 1,000 capacity (Galvanizers Yard 4,000 outdoor, Galvanizers 1,250 indoor, TV Studio 1,000). Programmes national and international touring concerts alongside club nights, corporate events and film shoots.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://swg3.tv/whats-on/", "source_type": "CONCERTS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": true, "notes": "Fetched 2026-09-20 and returned a dense dated list of named concerts through December 2026 - e.g. The Afghan Whigs (22 Sep), The Maine (23 Sep), The Snuts (4 Oct, early and main performances), The Lemonheads (6 Oct), James Blake (21 Oct), Twin Atlantic (23 Oct), OK Go (12 Nov), Teenage Fanclub (21 Nov), Portugal. The Man (9 Dec), Ladytron (17 Dec). Server-rendered.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://swg3.tv/explore/venue-hire-spaces/swg3-galvanizers/", "note": "First-party Galvanizers hire page: stated 1,250 standing / 600 seated / 500 dinner, '6000 square feet of concrete, iron and steel', and the address 100 Eastvale Place, Glasgow G3 8QG."},
+        {"kind": "FETCHED_URL", "value": "https://swg3.tv/explore/venue-hire-spaces/", "note": "First-party spaces index: Galvanizers Yard 'capable of hosting up to 4000 people', TV Studio 'capable of holding up to 1000 people', The Poetry Club 125."},
+        {"kind": "FETCHED_URL", "value": "https://swg3.tv/whats-on/", "note": "First-party what's-on proving a live, server-rendered, named-and-dated concert calendar."}
+      ]
+    },
+    {
+      "canonical_name": "Bute Hall",
+      "alternative_names": ["Bute Hall, University of Glasgow", "University of Glasgow Bute Hall"],
+      "parent_complex": "University of Glasgow (Gilbert Scott Building)",
+      "operator": "University of Glasgow",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "1A The Square, University of Glasgow, Glasgow",
+      "postcode": "G12 8QQ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.gla.ac.uk/myglasgow/eventsconferences/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1100,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "Main ceremonial hall, theatre style including fixed pew seating - the principal auditorium. Falls to 450 theatre style on the flat floor only. Other University of Glasgow rooms (Hunter Halls 500, Kelvin Gallery 200, etc.) are separate rooms and are not summed in.",
+        "capacity_source": "https://www.visitglasgow.org.uk/find-a-venue-or-service/university-of-glasgow/",
+        "capacity_source_authority": "GRADE_B",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 500, "capacity_type": "OTHER_EXPLICIT", "capacity_configuration": "Bute Hall, reception", "capacity_source": "https://www.visitglasgow.org.uk/find-a-venue-or-service/university-of-glasgow/"},
+        {"capacity_value": 250, "capacity_type": "BANQUET", "capacity_configuration": "Bute Hall, formal dining", "capacity_source": "https://www.visitglasgow.org.uk/find-a-venue-or-service/university-of-glasgow/"},
+        {"capacity_value": 500, "capacity_type": "THEATRE_STYLE", "capacity_configuration": "Hunter Halls (separate adjacent hall in the same building)", "capacity_source": "https://www.visitglasgow.org.uk/find-a-venue-or-service/university-of-glasgow/"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The University of Glasgow's principal ceremonial hall in the Gilbert Scott Building, used for graduations, concerts, conference plenaries and large public lectures. At 1,100 theatre style it is the largest single university public event room in Glasgow - larger than Strathclyde's Technology & Innovation Centre main auditorium (450).",
+      "no_public_calendar_reason": "No first-party publicly accessible dated what's-on calendar exists for Bute Hall as a venue. The University publishes an events index but it is an institution-wide listing that is not filterable to this room, and the conferences and events site is an enquiry/hire funnel, not a calendar.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.visitglasgow.org.uk/find-a-venue-or-service/university-of-glasgow/", "note": "Glasgow Convention Bureau's room-by-room capacity grid for the University of Glasgow: Bute Hall theatre 1100 / reception 500 / banquet 250; Hunter Halls 500/600/360; Kelvin Gallery 200/300/120; James McCune Smith 438 A/B 500 theatre. Also gave the address 1A The Square, University of Glasgow, Glasgow G12 8QQ."},
+        {"kind": "FETCHED_URL", "value": "https://www.visitglasgow.org.uk/find-a-venue-or-service/?search-type=venues&capacity=71392bcc9661418c807a75ff2b193fa3", "note": "Glasgow Convention Bureau venue search driven in a browser with the 1000+ capacity filter applied; returned 9 venues (1599 RCPSG, 200 Conference & Events, Burrell Collection, Mitchell Complex, Old Fruitmarket & City Halls, Riverside Museum, SEC, TIC Strathclyde, The Engine Works). Confirms the bureau filter is a whole-venue total, not a single-room capacity."},
+        {"kind": "FETCHED_URL", "value": "https://www.gla.ac.uk/myglasgow/eventsconferences/", "note": "University of Glasgow Events & Conferences landing page fetched; confirms the University operates this estate but publishes no room-level dated calendar."}
+      ]
+    },
+    {
+      "canonical_name": "Kelvingrove Bandstand and Amphitheatre",
+      "alternative_names": ["Kelvingrove Bandstand", "Kelvingrove Park Bandstand"],
+      "parent_complex": "Kelvingrove Park",
+      "operator": "Glasgow Life (Glasgow City Council)",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "Kelvin Way, Kelvingrove Park, Glasgow",
+      "postcode": "G3 7TA",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.glasgowlife.org.uk/arts-music-and-culture/venues/kelvingrove-bandstand-and-amphitheatre",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2200,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Maximum capacity of the open-air amphitheatre (single bowl, terraced stone seating facing the bandstand stage); no separate rooms exist to sum.",
+        "capacity_source": "https://www.glasgowlife.org.uk/venue-hire/kelvingrove-bandstand",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Restored 1925 open-air bandstand and natural-gradient amphitheatre in Kelvingrove Park, operated by Glasgow Life. Seasonal venue, available April-September. Has hosted Tom Jones, Van Morrison and Texas as well as Glasgow Mela and outdoor cinema.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.glasgowlife.org.uk/whats-on", "source_type": "CONCERTS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "SHARED OPERATOR PLATFORM - this single Glasgow Life what's-on feed covers the whole Glasgow Life estate (Glasgow Royal Concert Hall, City Halls & Old Fruitmarket, Tramway, Kelvingrove Art Gallery, Burrell Collection, Riverside Museum, Kelvingrove Bandstand, Glasgow Green, Bellahouston Park) with named dated events and per-event venue labels; individual events resolve to https://www.glasgowlife.org.uk/event/<id>/<slug>. Fetched 2026-09-20 and it did return named dated events (Freya Ridings 23 Sep, RSNO Return of the Jedi in Concert 26 Sep, Van Morrison 2 Nov, all at Glasgow Royal Concert Hall) but NONE at Kelvingrove Bandstand - consistent with its April-September season having ended.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.glasgowlife.org.uk/venue-hire/kelvingrove-bandstand", "note": "Glasgow Life first-party hire page stating 'The maximum capacity of Kelvingrove Bandstand is 2200', the address Kelvin Way Glasgow G3 7TA, and the April-September availability window."},
+        {"kind": "FETCHED_URL", "value": "https://www.glasgowlife.org.uk/arts-music-and-culture/venues/kelvingrove-bandstand-and-amphitheatre", "note": "Glasgow Life venue page; gives capacity as 'over 2,000 people' and the address as Kelvingrove Park, Glasgow G12 8NR. The G12 8NR value conflicts with G3 7TA on the hire page; the hire page (a capacity/address specification page) is preferred and the conflict is recorded here rather than silently resolved."},
+        {"kind": "FETCHED_URL", "value": "https://www.glasgowlife.org.uk/venue-hire", "note": "Glasgow Life venue-hire index, enumerated to establish the full Glasgow Life hireable estate and confirm no further >=1,000 Glasgow Life venue was missed."},
+        {"kind": "FETCHED_URL", "value": "https://www.whatsonglasgow.co.uk/listings/kelvingrove-bandstand-and-amphitheatre/", "note": "Third-party listings check, fetched 2026-09-20: 'Sorry, but we have no upcoming events for Kelvingrove Bandstand and Amphitheatre' - corroborates the empty out-of-season calendar."}
+      ]
+    },
+    {
+      "canonical_name": "Glasgow Green",
+      "alternative_names": ["Glasgow Green Festival Site", "TRNSMT site"],
+      "parent_complex": null,
+      "operator": "Glasgow City Council / Glasgow Life",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "Glasgow Green, Glasgow",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.glasgowlife.org.uk/whats-on",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 50000,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Daily audience capacity of the TRNSMT festival build on Glasgow Green (four stages within one licensed site). This is an event-build capacity for the park, not a fixed permanent venue capacity.",
+        "capacity_source": "https://en.wikipedia.org/wiki/TRNSMT",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Glasgow's principal city-centre outdoor major-event site, owned by Glasgow City Council. Home of TRNSMT (DF Concerts), Scotland's largest annual urban music festival, running 2017-2019 and 2022 onwards at a stated daily capacity of 50,000 across four stages. No permanent built auditorium; capacity is licence- and build-dependent.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://trnsmtfest.com/", "source_type": "CONCERTS", "sport": null, "first_party": false, "publicly_accessible": true, "events_currently_present": false, "notes": "Promoter (DF Concerts) site for the site's flagship event. Fetched 2026-09-20: it displayed the 19-21 June 2026 edition with artist imagery (Lewis Capaldi, Amy Macdonald, Loyle Carner, CMAT), which is already past at the date of checking, and no future dated edition was confirmed in the fetched HTML. Set false deliberately rather than counting the past edition.", "last_checked": "2026-09-20"},
+        {"source_url": "https://www.glasgowlife.org.uk/whats-on", "source_type": "PUBLIC_SHOWS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "SHARED OPERATOR PLATFORM (same Glasgow Life feed noted on Kelvingrove Bandstand). Returned named dated events for the Glasgow Life estate on 2026-09-20 but none at Glasgow Green.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/TRNSMT", "note": "States the venue as Glasgow Green, 'a daily capacity of 50,000', and active years '2017-2019, 2022-'."},
+        {"kind": "FETCHED_URL", "value": "https://trnsmtfest.com/", "note": "Promoter site confirming Glasgow Green as the venue and the 19-21 June 2026 edition."}
+      ]
+    },
+    {
+      "canonical_name": "Bellahouston Park",
+      "alternative_names": ["Bellahouston Park, Glasgow", "Glasgow Summer Sessions site"],
+      "parent_complex": null,
+      "operator": "Glasgow City Council / Glasgow Life",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "Bellahouston Park, Glasgow",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.glasgowlife.org.uk/whats-on",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 35000,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Audience capacity of the Glasgow Summer Sessions concert build in Bellahouston Park (single main-stage bowl). Event-build capacity for the park, not a fixed permanent venue capacity.",
+        "capacity_source": "https://en.wikipedia.org/wiki/Glasgow_Summer_Sessions",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Southside Glasgow park used as a large outdoor concert site, principally for DF Concerts' Glasgow Summer Sessions, at a stated 35,000 capacity over 2-3 nights drawing up to 100,000 people a year. Historically also used for very large one-off concerts.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.dfconcertsandevents.com/summer-sessions", "source_type": "CONCERTS", "sport": null, "first_party": false, "publicly_accessible": true, "events_currently_present": false, "notes": "Promoter (DF Concerts) Summer Sessions page. Fetched 2026-09-20: describes the Glasgow/Edinburgh/Dundee/Stirling series and lists past performers, but the fetched HTML carried no named dated forthcoming event, so recorded as false.", "last_checked": "2026-09-20"},
+        {"source_url": "https://www.glasgowlife.org.uk/whats-on", "source_type": "PUBLIC_SHOWS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "SHARED OPERATOR PLATFORM (same Glasgow Life feed). No Bellahouston Park events present on 2026-09-20.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/Glasgow_Summer_Sessions", "note": "States the venue as Bellahouston Park, Glasgow, capacity 35,000, an annual late-June/early-July series drawing up to 100,000 attendees across dates."},
+        {"kind": "FETCHED_URL", "value": "https://www.dfconcertsandevents.com/summer-sessions", "note": "Promoter page confirming Summer Sessions runs at Glasgow alongside Edinburgh, Dundee and Stirling editions."}
+      ]
+    },
+    {
+      "canonical_name": "O2 ABC Glasgow",
+      "alternative_names": ["ABC Glasgow", "ABC1", "The ABC", "Glasgow ABC"],
+      "parent_complex": null,
+      "operator": "Academy Music Group (former)",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "286-326 Sauchiehall Street, Glasgow",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "CLOSED",
+      "capacity": {
+        "capacity_value": 1300,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "ABC1, the main hall - the principal auditorium. ABC2 (350) was a separate smaller room and is recorded in additional_capacities, not summed.",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_ABC_Glasgow",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 350, "capacity_type": "STANDING", "capacity_configuration": "ABC2, secondary room", "capacity_source": "https://en.wikipedia.org/wiki/O2_ABC_Glasgow"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Academy Music Group's second Glasgow venue on Sauchiehall Street, opened as a music venue in 2005 in an 1875 building. Severely damaged by the Glasgow School of Art fire on 15 June 2018, which collapsed the main roof; it has not reopened. Glasgow City Council served a demolition notice on 7 August 2024 requiring all unstable sections to be demolished by 9 December 2024. Recorded as CLOSED rather than omitted.",
+      "no_public_calendar_reason": "Venue has been closed since June 2018 following fire damage and is under a demolition notice; no calendar exists.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/O2_ABC_Glasgow", "note": "Gave capacities ABC1 1,300 and ABC2 350, the address 286-326 Sauchiehall Street, Glasgow, the 15 June 2018 fire and roof collapse, closure, and the 7 August 2024 demolition notice with a 9 December 2024 deadline."}
+      ]
+    },
+    {
+      "canonical_name": "Alhambra Theatre",
+      "alternative_names": ["Alhambra Theatre Dunfermline", "The Alhambra Theatre, Dunfermline", "Alhambra Dunfermline"],
+      "parent_complex": null,
+      "operator": "Alhambra Theatre Trust",
+      "city": "Dunfermline",
+      "nation": "Scotland",
+      "address": "33-35 Canmore Street, Dunfermline",
+      "postcode": "KY12 7NX",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://alhambradunfermline.com/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1232,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Main auditorium fully seated across stalls and balcony - the principal auditorium and the only performance space in the building. The 2,100 figure is the same room converted to standing and is recorded in additional_capacities, not added.",
+        "capacity_source": "https://www.cvent.com/venues/dundee/entertainment-venue/alhambra-theatre/venue-76e0cf9c-fdb4-4de8-9ff0-1bd44e920ac6",
+        "capacity_source_authority": "GRADE_B",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 2100, "capacity_type": "STANDING", "capacity_configuration": "Main auditorium, standing configuration (same room as the principal capacity)", "capacity_source": "https://www.cvent.com/venues/dundee/entertainment-venue/alhambra-theatre/venue-76e0cf9c-fdb4-4de8-9ff0-1bd44e920ac6"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Fife's largest performance auditorium and the only >=1,000 house in the OnFife/Fife theatre landscape (Rothes Halls Hall A is 596 theatre, Adam Smith Theatre 475, Carnegie Hall Dunfermline 500, Lochgelly Centre 412). Highly flexible: the venue itself states capacity ranges from 250 to 2,100 depending on configuration.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://alhambradunfermline.com/whats-on/", "source_type": "PERFORMING_ARTS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": true, "notes": "Fetched 2026-09-20 and returned named dated events through November 2026 and beyond - Copacabana Magic: The Barry Manilow Show (Wed 23 Sep 7.30pm), UK Pink Floyd Experience (Fri 25 Sep), Illegal Eagles (Sat 26 Sep), Crown Ballet Swan Lake (Sun 27 Sep), Justin Hayward (Sat 17 Oct), MANIA: The ABBA Tribute (Fri 23 Oct), plus multi-date runs of Joseph, Dinosaur World Live! and The Steamie. Server-rendered.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.cvent.com/venues/dundee/entertainment-venue/alhambra-theatre/venue-76e0cf9c-fdb4-4de8-9ff0-1bd44e920ac6", "note": "Industry venue directory record giving standing capacity 2,100, seating capacity 1,232, 'capacity ranging from 250 - 2100', and the address 33 Canmore Street, Dunfermline, KY12 7NX."},
+        {"kind": "FETCHED_URL", "value": "https://alhambradunfermline.com/hire-the-alhambra/", "note": "First-party hire page. Confirmed the address as 'Alhambra Theatre, 33-35 Canmore Street KY12 7NX' but did NOT publish capacity figures on the page (it routes capacity enquiries to a downloadable Promoters Pack), which is why the capacity is cited to the directory record rather than claimed as first-party."},
+        {"kind": "FETCHED_URL", "value": "https://alhambradunfermline.com/whats-on/", "note": "First-party calendar proving a live named-and-dated programme."}
+      ]
+    },
+    {
+      "canonical_name": "Macdonald Aviemore Resort",
+      "alternative_names": ["Macdonald Aviemore Highland Resort", "Aviemore Conference Centre", "Osprey Arena", "Aviemore Resort"],
+      "parent_complex": null,
+      "operator": "Macdonald Hotels & Resorts",
+      "city": "Aviemore",
+      "nation": "Scotland",
+      "address": "Aviemore, Highland",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.macdonaldhotels.co.uk/aviemore/venue/meetings-and-events",
+      "venue_type": "CONFERENCE_CENTRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1150,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "Osprey Arena - the resort's principal single event room and the only space at the resort at or above 1,000. Stated maximum capacity 1150; theatre layout 1150; room size 1,260 m2 (40m x 31.5m). The separate 650-seat auditorium and the Peregrine Suite are other rooms and are NOT summed in.",
+        "capacity_source": "https://www.macdonaldhotels.co.uk/aviemore/venue/meetings-and-events/meeting-and-event-suites/osprey-arena",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 700, "capacity_type": "BANQUET", "capacity_configuration": "Osprey Arena, banquet layout", "capacity_source": "https://www.macdonaldhotels.co.uk/aviemore/venue/meetings-and-events/meeting-and-event-suites/osprey-arena"},
+        {"capacity_value": 610, "capacity_type": "OTHER_EXPLICIT", "capacity_configuration": "Osprey Arena, classroom layout", "capacity_source": "https://www.macdonaldhotels.co.uk/aviemore/venue/meetings-and-events/meeting-and-event-suites/osprey-arena"},
+        {"capacity_value": 550, "capacity_type": "OTHER_EXPLICIT", "capacity_configuration": "Osprey Arena, cabaret layout", "capacity_source": "https://www.macdonaldhotels.co.uk/aviemore/venue/meetings-and-events/meeting-and-event-suites/osprey-arena"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The largest purpose-built conference facility in the Scottish Highlands and the only >=1,000 single-room conference space in Scotland outside Glasgow, Edinburgh, Aberdeen and Dumfries. The Osprey Arena is a 1,260 m2 flat-floor hall used for exhibitions, trade fairs, concerts and vehicle launches. Included on the strength of a single evidenced >=1,000 room, not on a whole-property total.",
+      "no_public_calendar_reason": "No publicly accessible dated event calendar. The resort's meetings and events pages are an enquiry/hire funnel with per-room capacity and layout tables only; there is no what's-on listing of named dated third-party events at the Osprey Arena.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.macdonaldhotels.co.uk/aviemore/venue/meetings-and-events/meeting-and-event-suites/osprey-arena", "note": "First-party room page (fetched in a browser after WebFetch was refused with HTTP 403). Stated Maximum Capacity 1150, Room Size 1260m2, Room Length 40m, Room Width 31.5m, and a layout table: Theatre 1150, Classroom 610, Banquet 700, Cabaret 550, Boardroom 300, U-shaped 300. Also stated it can be 'creatively transformed into a dining facility, capable of holding up to 700 delegates'."}
+      ]
+    },
+    {
+      "canonical_name": "Edinburgh Castle Esplanade",
+      "alternative_names": ["Castle Esplanade", "Edinburgh Castle Bandstand", "Royal Edinburgh Military Tattoo arena", "The Esplanade, Edinburgh Castle"],
+      "parent_complex": "Edinburgh Castle",
+      "operator": "The Royal Edinburgh Military Tattoo (event operator); Historic Environment Scotland (site)",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "Castlehill, Edinburgh",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.edintattoo.co.uk/",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 8800,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Capacity of the temporary grandstand structure erected on the Castle Esplanade for the Royal Edinburgh Military Tattoo - a single arena bowl, not a sum of rooms. The esplanade itself has no permanent seating.",
+        "capacity_source": "https://en.wikipedia.org/wiki/Royal_Edinburgh_Military_Tattoo",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Scotland's largest regularly-used non-sport seated auditorium by a wide margin. Host of the Royal Edinburgh Military Tattoo every August since 1950 (the 1949 inaugural year was at the Ross Bandstand). Just over 220,000 people see the Tattoo live each year, equating to 8,800 each evening; the event sold out for 22 consecutive seasons from 1998. The grandstand is a demountable temporary structure - the £16m 2011 stands cut build time from two months to one.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.edintattoo.co.uk/", "source_type": "OTHER_MAJOR_EVENTS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": true, "notes": "Fetched 2026-09-20. States the next Tattoo as 6-28 August 2027 at the Edinburgh Castle Esplanade - a named, dated forthcoming event run. Per-night performer schedules are behind the ticketing/show-details sections rather than on the landing page.", "last_checked": "2026-09-20"},
+        {"source_url": "https://www.edintattoo.co.uk/the-show/the-venue", "source_type": "OTHER_MAJOR_EVENTS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "First-party venue page with the arena seating plan (Band A+, A, B, C, D, Premier Seats, The Royal Gallery, accessible and wheelchair seating) but no capacity total and no dated listings - which is why the capacity here is cited to a secondary source rather than claimed as first-party.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/Royal_Edinburgh_Military_Tattoo", "note": "States the venue as the Esplanade of Edinburgh Castle since 1950, the 2018 temporary grandstands as having 'a capacity of 8,800', the £16m 2011 stands, and 'just over 220,000 people see the Tattoo live on the esplanade' equating to '8,800 each evening'."},
+        {"kind": "FETCHED_URL", "value": "https://www.edintattoo.co.uk/", "note": "First-party site confirming the venue and the 6-28 August 2027 dates."},
+        {"kind": "FETCHED_URL", "value": "https://www.edintattoo.co.uk/the-show/the-venue", "note": "First-party venue page - confirms the arena structure and seating bands but publishes no capacity figure."}
+      ]
+    },
+    {
+      "canonical_name": "Ross Bandstand",
+      "alternative_names": ["Ross Theatre", "The Ross Bandstand", "Ross Band Stand, Princes Street Gardens"],
+      "parent_complex": "West Princes Street Gardens",
+      "operator": "City of Edinburgh Council (Culture Edinburgh)",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "West Princes Street Gardens, Edinburgh",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://cultureedinburgh.com/our-venues/ross-bandstand",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2500,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Open-air bandstand and terraced auditorium in West Princes Street Gardens, 'Seating up to 2,500 people' - a single bowl, no rooms to sum.",
+        "capacity_source": "https://cultureedinburgh.com/our-venues/ross-bandstand",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Edinburgh's principal open-air city-centre performance venue, beneath Edinburgh Castle. The current bandstand and terraced area date from 1935 (a bandstand stood on the site from 1877). Setting for the Edinburgh International Festival fireworks concert each August and the Hogmanay Concert in the Gardens, and the venue for the inaugural 1949 Royal Edinburgh Military Tattoo.",
+      "no_public_calendar_reason": "No first-party dated what's-on calendar for the venue. The Culture Edinburgh venue page is a descriptive/hire page; programming at the Ross is published by individual promoters (Edinburgh International Festival, Underbelly's Edinburgh's Hogmanay) on their own sites rather than through a venue calendar.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://cultureedinburgh.com/our-venues/ross-bandstand", "note": "City of Edinburgh Council culture site: 'Seating up to 2,500 people', location West Princes Street Gardens, operator Culture Edinburgh. No full postal address or postcode is published, so both are left null here."},
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/List_of_Edinburgh_music_venues", "note": "Corroborating secondary list giving Ross Bandstand as 2,500 seated, used as a cross-check against the Culture Edinburgh figure."}
+      ]
+    },
+    {
+      "canonical_name": "Assembly Hall",
+      "alternative_names": ["Assembly Hall, Edinburgh", "General Assembly Hall of the Church of Scotland", "The Mound Assembly Hall"],
+      "parent_complex": "New College, The Mound",
+      "operator": "Church of Scotland",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "Mound Place, Edinburgh",
+      "postcode": "EH1 2LX",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.edfringe.com/tickets/venues/assembly-hall",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1100,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Main Assembly Hall, maximum seated capacity in the oval tiered galleries - the principal auditorium. The adjoining Rainy Hall (150) is a separate room and is not summed in.",
+        "capacity_source": "https://www.cvent.com/venues/edinburgh/special-event-venue/assembly-hall/venue-dceb5565-2a18-48c3-8def-b65e4264f78d",
+        "capacity_source_authority": "GRADE_B",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 1000, "capacity_type": "SEATED", "capacity_configuration": "Main hall 'can seat up to 1,000 people in its tiered galleries' - the lower of two figures given on the same source page", "capacity_source": "https://www.cvent.com/venues/edinburgh/special-event-venue/assembly-hall/venue-dceb5565-2a18-48c3-8def-b65e4264f78d"},
+        {"capacity_value": 150, "capacity_type": "SEATED", "capacity_configuration": "Rainy Hall, secondary room", "capacity_source": "https://www.cvent.com/venues/edinburgh/special-event-venue/assembly-hall/venue-dceb5565-2a18-48c3-8def-b65e4264f78d"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Neo-Gothic hall of 1858-59 by David Bryce, the meeting place of the General Assembly of the Church of Scotland and the temporary debating chamber of the Scottish Parliament from 1999 to 2004 (after which modern auditorium-style seating was installed). Staged the Edinburgh International Festival's first dramatic success in 1948 and is now one of the largest Edinburgh Festival Fringe venues, operated during August by Assembly Festival across the Main Hall, Rainy Hall and Baillie Room. Confidence is MEDIUM because the source page itself gives both 1,100 (specification table) and 1,000 (prose) and no first-party capacity is published.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.edfringe.com/tickets/venues/assembly-hall", "source_type": "PERFORMING_ARTS", "sport": null, "first_party": false, "publicly_accessible": true, "events_currently_present": false, "notes": "Edinburgh Festival Fringe venue page - the nearest thing to a dated calendar for this venue, but it is festival-scoped (August only) and was empty of forthcoming dated shows when fetched on 2026-09-20, the Fringe having ended. It did confirm the address as 'Mound Place, EH1 2LU', which conflicts with the EH1 2LX given by the capacity source; the conflict is recorded rather than resolved.", "last_checked": "2026-09-20"},
+        {"source_url": "https://assemblyfestival.com/venues", "source_type": "PERFORMING_ARTS", "sport": null, "first_party": false, "publicly_accessible": true, "events_currently_present": false, "notes": "Assembly Festival venue index, fetched 2026-09-20: lists Assembly Hall as one of seven Assembly Edinburgh venues (with Assembly George Square Studios, Assembly @ St Andrew Square, Assembly George Square Gardens, Assembly Roxy, Assembly Rooms, Assembly @ Dance Base) but carries no capacities and no dated listings out of season.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.cvent.com/venues/edinburgh/special-event-venue/assembly-hall/venue-dceb5565-2a18-48c3-8def-b65e4264f78d", "note": "Industry venue directory: address 'Mound Place, Edinburgh, Scotland, EH1 2LX'; Main Assembly Hall seated 1,100 (standing 150); Rainy Hall seated 150; prose note that the oval main hall 'can seat up to 1,000 people in its tiered galleries'."},
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/General_Assembly_Hall_of_the_Church_of_Scotland", "note": "Confirmed owner (Church of Scotland), location between Castlehill and Mound Place, use as the 1999-2004 Scottish Parliament debating chamber and as an Edinburgh Festival Fringe venue. Explicitly did NOT state a capacity, which is why the capacity is cited to the directory record."},
+        {"kind": "FETCHED_URL", "value": "https://www.edfringe.com/tickets/venues/assembly-hall", "note": "Edinburgh Festival Fringe venue page giving the address as 'Mound Place, EH1 2LU' and describing it as one of the most prestigious Fringe venues."}
+      ]
+    },
+    {
+      "canonical_name": "George Watson's College",
+      "alternative_names": ["George Watson's College Assembly Hall", "Watson's Assembly Hall"],
+      "parent_complex": null,
+      "operator": "George Watson's College",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "Colinton Road, Edinburgh",
+      "postcode": "EH10 5EG",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.meetingedinburgh.com/George-Watsons-College-30540",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1040,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "Assembly Hall, theatre style, 380 m2 - the principal indoor auditorium. The 1,000-capacity Grandstand is a sports structure and the Dining Hall (320), Music Auditorium (215) and Lecture Theatre (157) are separate rooms; none are summed in.",
+        "capacity_source": "https://www.meetingedinburgh.com/George-Watsons-College-30540",
+        "capacity_source_authority": "GRADE_B",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 484, "capacity_type": "BANQUET", "capacity_configuration": "Assembly Hall, banquet layout", "capacity_source": "https://www.meetingedinburgh.com/George-Watsons-College-30540"},
+        {"capacity_value": 320, "capacity_type": "THEATRE_STYLE", "capacity_configuration": "Dining Hall, 290 m2", "capacity_source": "https://www.meetingedinburgh.com/George-Watsons-College-30540"},
+        {"capacity_value": 215, "capacity_type": "THEATRE_STYLE", "capacity_configuration": "Music Auditorium", "capacity_source": "https://www.meetingedinburgh.com/George-Watsons-College-30540"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Independent school in Edinburgh whose Assembly Hall is listed by Convention Edinburgh, the city's official convention bureau, as a 1,040 theatre-style event space with on-site catering, AV and free parking. It is one of only seven Edinburgh venues the bureau's own >=1,000 theatre-capacity filter returns, and the only one of those that is neither a purpose-built conference centre, a university ceremonial hall nor a commercial events venue. Confidence MEDIUM: the figure is from the bureau's capacity grid, not from a first-party school page.",
+      "no_public_calendar_reason": "No publicly accessible dated calendar of major events. The school publishes a school-community events listing, not a promoted public programme, and the Convention Edinburgh listing is a capacity grid plus an enquiry form.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.meetingedinburgh.com/George-Watsons-College-30540", "note": "Convention Edinburgh / Meeting Edinburgh room capacity grid: Assembly Hall theatre 1040, reception 380, banquet 484, area 380m2; Dining Hall 320/320/230 at 290m2; Grandstand theatre 1000; Lecture Theatre 157 at 74m2; Music Auditorium 215. Address Colinton Road, Edinburgh, EH10 5EG."},
+        {"kind": "FETCHED_URL", "value": "https://www.meetingedinburgh.com/Venues", "note": "Meeting Edinburgh venue search driven in a browser with minRoomCapacity=1000 and roomConfiguration=THEATRE. Returned EXACTLY 7 records: University of Edinburgh Old Town Campus (1139), McEwan Hall (1139), George Watson's College (1040), University of Edinburgh Pollock Estate, EICC (2000), Prestonfield (1000) and Edinburgh Corn Exchange (1500). This is the authoritative negative result bounding Edinburgh's >=1,000 single-room bureau-listed estate."}
+      ]
+    },
+    {
+      "canonical_name": "Prestonfield",
+      "alternative_names": ["Prestonfield House", "The Prestonfield Pavilion", "Prestonfield House Hotel"],
+      "parent_complex": null,
+      "operator": "Prestonfield (Group-owned)",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "Priestfield Road, Edinburgh",
+      "postcode": "EH16 5UT",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.meetingedinburgh.com/Prestonfield-662",
+      "venue_type": "CONFERENCE_CENTRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "The Prestonfield Pavilion - the largest single event room (theatre 1,000; reception 2,000; banquet 1,000). The Stables is a separate 540 m2 room also rated at 1,000 theatre and is listed in additional_capacities; the two are NOT summed.",
+        "capacity_source": "https://www.meetingedinburgh.com/Prestonfield-662",
+        "capacity_source_authority": "GRADE_B",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 2000, "capacity_type": "OTHER_EXPLICIT", "capacity_configuration": "The Prestonfield Pavilion, reception layout", "capacity_source": "https://www.meetingedinburgh.com/Prestonfield-662"},
+        {"capacity_value": 1000, "capacity_type": "THEATRE_STYLE", "capacity_configuration": "The Stables, 540 m2 (separate room; reception 750, banquet 500)", "capacity_source": "https://www.meetingedinburgh.com/Prestonfield-662"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Historic house hotel on the south side of Edinburgh with two large dedicated event spaces - the Prestonfield Pavilion and The Stables - each listed at 1,000 theatre style by Convention Edinburgh, plus seven smaller rooms. Included on the strength of an evidenced >=1,000 single room, not on a whole-property total; it is one of only seven Edinburgh venues the bureau's >=1,000 theatre filter returns.",
+      "no_public_calendar_reason": "No publicly accessible dated calendar of major events; the venue is hired for private and corporate functions and its own site is a hotel/booking funnel rather than a what's-on listing.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.meetingedinburgh.com/Prestonfield-662", "note": "Convention Edinburgh room capacity grid: The Prestonfield Pavilion theatre 1000 / reception 2000 / banquet 1000; The Stables theatre 1000 / reception 750 / banquet 500 at 540m2; plus Garden Room 75, Italian Room 40, Rhubarb Restaurant 200 reception, Tapestry & Leather 100 banquet, Stuart Room 25. Address Priestfield Road, Edinburgh, Midlothian, EH16 5UT."}
+      ]
+    },
+    {
+      "canonical_name": "National Museum of Scotland",
+      "alternative_names": ["NMS", "National Museum of Scotland Grand Gallery", "Royal Museum, Edinburgh"],
+      "parent_complex": null,
+      "operator": "National Museums Scotland",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.nms.ac.uk/venue-hire/national-museum-of-scotland",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Grand Gallery, drinks reception - 'Up to 1500 guests'. This is the single largest space in the building; the Entrance Hall beneath it (700 reception) is a separate space and is not summed in.",
+        "capacity_source": "https://www.nms.ac.uk/venue-hire/national-museum-of-scotland/grand-gallery-and-entrance-hall",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 1200, "capacity_type": "BANQUET", "capacity_configuration": "Grand Gallery, seated dinner - 'Up to 1200 seated guests'", "capacity_source": "https://www.nms.ac.uk/venue-hire/national-museum-of-scotland/grand-gallery-and-entrance-hall"},
+        {"capacity_value": 700, "capacity_type": "OTHER_EXPLICIT", "capacity_configuration": "Grand Gallery, dinner dance", "capacity_source": "https://www.nms.ac.uk/venue-hire/national-museum-of-scotland/grand-gallery-and-entrance-hall"},
+        {"capacity_value": 700, "capacity_type": "OTHER_EXPLICIT", "capacity_configuration": "Entrance Hall, pre-dinner drinks reception", "capacity_source": "https://www.nms.ac.uk/venue-hire/national-museum-of-scotland/grand-gallery-and-entrance-hall"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Scotland's largest banqueting and reception space. The Grand Gallery's glass-roofed atrium hosts dinners of up to 1,200 seated and receptions of up to 1,500, with product launches and awards ceremonies taken at 'any number'. Included as a major event venue on the strength of a >=1,000 single-space banqueting/reception capacity, which exceeds the largest dedicated banqueting room in either the EICC or the Corn Exchange. Address and postcode left null because no page fetched in this pass published them.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.nms.ac.uk/national-museum-of-scotland/whats-on", "source_type": "OTHER_MAJOR_EVENTS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": true, "notes": "Fetched 2026-09-20 and returned named dated events - Creative Workshop: Drop Spinning (Sat 26 Sep 10:30-12:30), In Conversation: Understanding Prehistoric Lives Beyond Conflict (Sat 26 Sep 14:30-16:00), We Were Here: Film Screening (Fri 16 Oct 2026 19:00-21:00), Magic Carpet (7 Sep 2026 - 15 Mar 2027), Short Courses with the University of Edinburgh (1 Oct 2026 - 28 May 2027). IMPORTANT CAVEAT: these are the museum's own public-programme events (workshops, talks, relaxed mornings), NOT the >=1,000-capacity Grand Gallery hires. Privately hired banquets and receptions in the Grand Gallery are not published anywhere first-party.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.nms.ac.uk/venue-hire/national-museum-of-scotland/grand-gallery-and-entrance-hall", "note": "First-party National Museums Scotland venue-hire page: Grand Gallery dinners 'Up to 1200 seated guests', receptions 'Up to 1500 guests', dinner dances 'Up to 700 guests'; Entrance Hall pre-dinner drinks 'Up to 700 guests'. No address or postcode published on the page."},
+        {"kind": "FETCHED_URL", "value": "https://www.nms.ac.uk/national-museum-of-scotland/whats-on", "note": "First-party public-programme calendar, proving a live dated listing exists but that it does not surface large private hires."}
+      ]
+    },
+    {
+      "canonical_name": "The Dunard Centre",
+      "alternative_names": ["Dunard Centre", "Edinburgh Concert Hall", "IMPACT Centre"],
+      "parent_complex": null,
+      "operator": "International Music and Performing Arts Charitable Trust (IMPACT) Scotland",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "36 St Andrew Square, Edinburgh",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://dunardcentre.co.uk/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "UNDER_CONSTRUCTION",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Planned main auditorium, 1,000 seats - a single flexible concert hall. Design capacity, not an in-use measurement.",
+        "capacity_source": "https://en.wikipedia.org/wiki/The_Dunard_Centre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Edinburgh's first purpose-built concert hall in a century, under construction behind the Category-A listed Dundas House on St Andrew Square. Designed by David Chipperfield Architects with Reiach and Hall, acoustics by Nagata Acoustics. A four-year construction programme began in December 2025 with a groundbreaking attended by the First Minister; opening is projected for early 2029 following contractor changes announced in March 2025. Will be the home of the Scottish Chamber Orchestra and a key Edinburgh International Festival venue; a partnership with London's Wigmore Hall was announced in March 2026.",
+      "no_public_calendar_reason": "Venue is under construction and has not opened; no programme or calendar exists yet.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/The_Dunard_Centre", "note": "States a '1000-seat auditorium', the address '36 St Andrew Square, Edinburgh', delivery by IMPACT Scotland, home of the Scottish Chamber Orchestra, construction underway as of June 2026, opening 'early in 2029', and the March 2026 Wigmore Hall partnership."}
+      ]
+    },
+    {
+      "canonical_name": "Edinburgh Arena",
+      "alternative_names": ["Edinburgh Park Arena", "Carlton Arena", "AEG Edinburgh Arena"],
+      "parent_complex": "Edinburgh Park",
+      "operator": "Anschutz Entertainment Group (AEG)",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "Edinburgh Park, South Gyle, Edinburgh",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "INDOOR_ARENA",
+      "operational_status": "UNDER_CONSTRUCTION",
+      "capacity": {
+        "capacity_value": 8500,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Planned arena bowl, 8,500 with standing / 6,450 all seated. Consented design capacity, not an in-use measurement.",
+        "capacity_source": "https://en.wikipedia.org/wiki/Edinburgh_Arena",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 6450, "capacity_type": "SEATED", "capacity_configuration": "Planned all-seated configuration of the same bowl", "capacity_source": "https://en.wikipedia.org/wiki/Edinburgh_Arena"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "AEG's planned Edinburgh indoor arena at Edinburgh Park in South Gyle, designed by HOK and estimated at around £80m, covering 18,500 square metres across three levels. Planning permission was granted by City of Edinburgh Council in June 2024; it was known as the 'Carlton Arena' at planning stage with naming rights to be sold before opening. Programme has slipped: AEG Europe had not appointed a main contractor as at the most recent update, with groundbreaking projected for Q1 2026 and opening projected 2027-2028. Would become Scotland's second-largest purpose-built indoor arena after the OVO Hydro. Recorded as UNDER_CONSTRUCTION on the basis of consent plus an active construction programme; note that the evidence describes pre-construction enabling status, so operational_status should be re-checked before any downstream use.",
+      "no_public_calendar_reason": "Venue not built; no programme or calendar exists.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/Edinburgh_Arena", "note": "States capacity '8,500 (with standing) 6,450 (all seated)', location Edinburgh Park business park, South Gyle, operator AEG, architect HOK, that AEG Europe 'had yet to hire a main contractor and supply chain', groundbreaking projected Q1 2026 and opening projected 2027-2028."}
+      ]
+    },
+    {
+      "canonical_name": "Slessor Gardens",
+      "alternative_names": ["Dundee Slessor Gardens", "Slessor Gardens, Dundee Waterfront"],
+      "parent_complex": "Dundee Central Waterfront",
+      "operator": "Dundee City Council",
+      "city": "Dundee",
+      "nation": "Scotland",
+      "address": "Dundee Waterfront, Dundee",
+      "postcode": "DD1 1AR",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.dundeecity.gov.uk/events/venue/1141",
+      "venue_type": "OTHER_MAJOR_EVENT_VENUE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 12000,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Council-approved event capacity for the 2022 Dundee Summer Sessions concerts in the park - a single open field build, not a sum of spaces. This is a licensed event capacity, not a fixed permanent venue capacity; other events on the site have been approved at much lower figures (Sausage and Cider Festival just under 5,000; Winterfest up to 1,000 at one time).",
+        "capacity_source": "https://www.thecourier.co.uk/fp/news/dundee/3290888/slessor-gardens-dundee-concerts-council-money/",
+        "capacity_source_authority": "GRADE_B",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 5000, "capacity_type": "STANDING", "capacity_configuration": "Approved capacity for the 2022 Sausage and Cider Festival ('just under 5,000')", "capacity_source": "https://www.thecourier.co.uk/fp/news/dundee/3290888/slessor-gardens-dundee-concerts-council-money/"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "The main parkland area of Dundee's central waterfront, over 10,000 sq m, designed by Dundee City Council as a multi-functional space able to host large events. Dundee's largest outdoor concert site and the city's only major-event venue above the 2,000-capacity Caird Hall. Hosts the Dundee edition of DF Concerts' Summer Sessions.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.dundeecity.gov.uk/events/venue/1141", "source_type": "PUBLIC_SHOWS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "SHARED PLATFORM PATTERN - Dundee City Council and Leisure & Culture Dundee run the same events engine at https://www.dundeecity.gov.uk/events/venue/<id> and https://www.leisureandculturedundee.com/events/venue/<id>, with venue 1141 = Slessor Gardens. Fetched 2026-09-20: the venue-scoped page rendered only generic site-wide listings (Scottish Design Galleries, Catwalk: The Art of the Fashion Show, A History of Paper - all museum exhibitions elsewhere in the city) and no Slessor Gardens event, so the venue filter is not working as published. Recorded false.", "last_checked": "2026-09-20"},
+        {"source_url": "https://www.leisureandculturedundee.com/events/venue/1141", "source_type": "PUBLIC_SHOWS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "Mirror of the same shared platform on the Leisure & Culture Dundee domain; same venue id 1141, same non-venue-specific output when fetched on 2026-09-20.", "last_checked": "2026-09-20"},
+        {"source_url": "https://www.songkick.com/venues/3449904-slessor-gardens", "source_type": "CONCERTS", "sport": null, "first_party": false, "publicly_accessible": true, "events_currently_present": true, "notes": "Third-party aggregator, recorded only because both first-party council pages fail to surface this venue's programme. Fetched 2026-09-20 and did carry a named dated forthcoming event: Discovery Festival: 80's Calling! 2027 on Saturday 24 July 2027 with Level 42, Marc Almond, Haircut One Hundred, Jaki Graham and Tony Hadley. Also gave the address as 'SLESSOR GARDENS, DUNDEE, DD1 1AR'.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.thecourier.co.uk/fp/news/dundee/3290888/slessor-gardens-dundee-concerts-council-money/", "note": "Reports Dundee City Council's approved event capacities for the site: 12,000 for the 2022 Dundee Summer Sessions, just under 5,000 for the 2022 Sausage and Cider Festival, up to 1,000 at one time for Winterfest 2021. Also states the council does not hold actual attendance figures."},
+        {"kind": "FETCHED_URL", "value": "https://www.dundee.com/see-do/slessor-gardens", "note": "Destination site: gives the size as 'Over 10,000sqm', the location as the main parkland area of the central waterfront, and the operator as Dundee City Council. Explicitly published NO capacity figure, which is why the capacity is cited to the council-sourced press report instead."},
+        {"kind": "FETCHED_URL", "value": "https://www.songkick.com/venues/3449904-slessor-gardens", "note": "Supplied the postcode DD1 1AR and a named dated 2027 event."}
+      ]
+    },
+    {
+      "canonical_name": "Easterbrook Hall",
+      "alternative_names": ["Easterbrook Hall, The Crichton", "The Crichton Easterbrook Hall"],
+      "parent_complex": "The Crichton",
+      "operator": "The Crichton Trust",
+      "city": "Dumfries",
+      "nation": "Scotland",
+      "address": "The Crichton, Dumfries",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.crichton.co.uk/businesses/easterbrook-hall/",
+      "venue_type": "CONFERENCE_CENTRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "DELEGATE",
+        "capacity_configuration": "Main Hall, stated as taking '100 - 1,000' delegates - the principal single room. The five other rooms (Gilchrist 300, Duncan 3 250, Duncan 2 100, Duncan 1 70) are separate and are NOT summed into this figure.",
+        "capacity_source": "https://www.crichton.co.uk/events/organise-an-event/easterbrook-hall/facilities-at-easterbrook-hall/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 300, "capacity_type": "DELEGATE", "capacity_configuration": "Gilchrist Room (50-300 delegates)", "capacity_source": "https://www.crichton.co.uk/events/organise-an-event/easterbrook-hall/facilities-at-easterbrook-hall/"},
+        {"capacity_value": 250, "capacity_type": "DELEGATE", "capacity_configuration": "Duncan Room 3 (50-250 delegates)", "capacity_source": "https://www.crichton.co.uk/events/organise-an-event/easterbrook-hall/facilities-at-easterbrook-hall/"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Art deco hall in 100 acres of landscaped grounds at the Crichton, providing over 3,000 sq m of flexible event space. The largest events venue in the south of Scotland and the only >=1,000 conference space in Dumfries & Galloway or the Borders. Doubles as a touring concert venue - the Crichton's own calendar carries Skerryvore, the Red Hot Chilli Pipers, Tide Lines, The Proclaimers (sold out) and Nathan Carter.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.crichton.co.uk/events/whats-on/", "source_type": "CONFERENCES", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": true, "notes": "Fetched 2026-09-20 and returned a dense dated list running to May 2027 - RSGS: Anne Strathie (21 Sep 7:30pm), The Crichton Foundation AGM (23 Sep), Yoga and Qigong Retreat Weekend (26-27 Sep), Absolute Classics: Clemence de Forceville et al (27 Sep 2:30pm), The Tumbling Paddies (9 Oct 7:30pm-10:30pm), Vivacity Wellness Festival (17 Oct), RSGS: Mark Wedgwood (26 Oct 7:30pm), plus Skerryvore, Red Hot Chilli Pipers, Tide Lines, The Proclaimers (sold out) and Nathan Carter. Site-wide for The Crichton campus rather than Easterbrook-only, but Easterbrook Hall is the campus's main event space.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.crichton.co.uk/events/organise-an-event/easterbrook-hall/facilities-at-easterbrook-hall/", "note": "First-party room list: Main Hall 100-1,000 delegates; Gilchrist Room 50-300; Duncan Room 3 50-250; Duncan Room 2 50-100; Duncan Room 1 10-70; Easterbrook Bistro. The only postal address on the page was the Crichton Trust's own office (Grierson House, The Crichton, Dumfries, DG1 4ZE), which is not the hall, so the hall's postcode is left null rather than guessed."},
+        {"kind": "FETCHED_URL", "value": "https://www.crichton.co.uk/events/whats-on/", "note": "First-party dated calendar."},
+        {"kind": "FETCHED_URL", "value": "https://www.crichton.co.uk/events/", "note": "Events landing page - confirms a year-round events calendar exists but publishes no dated listings itself; used to locate the what's-on URL."}
+      ]
+    },
+    {
+      "canonical_name": "The Pickaquoy Centre",
+      "alternative_names": ["Pickaquoy Centre", "The Picky", "Pickaquoy Centre Kirkwall"],
+      "parent_complex": null,
+      "operator": "The Pickaquoy Centre Trust (owned by Orkney Islands Council)",
+      "city": "Kirkwall",
+      "nation": "Scotland",
+      "address": "Muddisdale Road, Kirkwall, Orkney",
+      "postcode": "KW15 1LR",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.pickaquoy.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1600,
+        "capacity_type": "CONCERT",
+        "capacity_configuration": "Main arena in concert configuration (also stated as 1,600 for conferences). Single hall with retractable bleacher seating; the swimming pool, climbing wall and squash courts are not event spaces and are not summed.",
+        "capacity_source": "https://en.wikipedia.org/wiki/The_Pickaquoy_Centre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Orkney's principal indoor event venue and the only >=1,000 non-sport event space anywhere in the Scottish islands. Opened 16 April 1999 by HRH The Princess Royal; the arena's bleacher seating condenses to give a large flat-floor hall used for concerts, conferences and the Orkney Folk Festival, alongside sports use. Included as a non-sport major event venue because the same hall is Orkney's concert and conference arena; the centre's sports use is out of scope for this workstream.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.pickaquoy.co.uk/events/whats-on/", "source_type": "PUBLIC_SHOWS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": false, "notes": "First-party what's-on page fetched 2026-09-20. The page is the correct venue calendar route (linked from the homepage as /events/whats-on/ alongside /events/special-events/) but the fetched HTML contained no named dated events - the listings appear to be client-rendered or loaded from a separate widget. Recorded false rather than claiming events that were not seen.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/The_Pickaquoy_Centre", "note": "States a '1,600-capacity sports arena with bleacher seating', concerts and conferences both at 1,600 capacity (basketball 1,200), ownership by Orkney Islands Council, operation by The Pickaquoy Centre, and the 16 April 1999 opening."},
+        {"kind": "FETCHED_URL", "value": "https://www.pickaquoy.co.uk/", "note": "First-party homepage giving the address 'The Pickaquoy Centre, Muddisdale Road, Kirkwall, Orkney, KW15 1LR' and the what's-on route /events/whats-on/."}
+      ]
+    },
+    {
+      "canonical_name": "Aberdeen Exhibition and Conference Centre",
+      "alternative_names": ["AECC", "Aberdeen Exhibition & Conference Centre", "AECC Arena", "GE Oil & Gas Arena"],
+      "parent_complex": null,
+      "operator": "SMG Europe (former)",
+      "city": "Aberdeen",
+      "nation": "Scotland",
+      "address": "Bridge of Don, Aberdeen",
+      "postcode": "AB23 8BL",
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "EXHIBITION_CENTRE",
+      "operational_status": "CLOSED",
+      "capacity": {
+        "capacity_value": 8500,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Main arena, standing capacity for concerts (4,750 seated for concerts; up to 8,000 for other events). Single arena bowl, not a sum of halls.",
+        "capacity_source": "https://en.wikipedia.org/wiki/Aberdeen_Exhibition_and_Conference_Centre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {"capacity_value": 4750, "capacity_type": "SEATED", "capacity_configuration": "Main arena, seated concert configuration", "capacity_source": "https://en.wikipedia.org/wiki/Aberdeen_Exhibition_and_Conference_Centre"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Aberdeen's exhibition, conference and arena complex at Bridge of Don, opened 1985 and closed in June 2019 when it was replaced by P&J Live / The Event Complex Aberdeen (TECA). The arena was demolished from March 2020; a church bought part of the Ellon Road frontage in September 2020 for £1.79m and by October 2021 the arena site was being marketed for around 500 homes. Recorded as CLOSED rather than omitted because it was the north-east's principal arena and exhibition venue for 34 years and appears throughout historic event data.",
+      "no_public_calendar_reason": "Venue closed in June 2019 and the arena has been demolished; no calendar exists. Its successor P&J Live is already in the census.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/Aberdeen_Exhibition_and_Conference_Centre", "note": "States arena 'standing capacity of 8,500 and 4,750 seated for concerts and up to 8,000 for other events', the address Bridge of Don, Aberdeen AB23 8BL, opening 1985, closure June 2019, demolition from March 2020, the September 2020 sale of part of the building, and replacement by TECA / P&J Live in August 2019."}
+      ]
+    },
+    {
+      "canonical_name": "Motherwell Concert Hall and Theatre",
+      "alternative_names": ["Motherwell Concert Hall", "Motherwell Theatre", "Motherwell Concert Hall & Theatre Complex", "Motherwell Civic Theatre"],
+      "parent_complex": "Motherwell Civic Centre",
+      "operator": "North Lanarkshire Culture (Culture NL) for North Lanarkshire Council",
+      "city": "Motherwell",
+      "nation": "Scotland",
+      "address": "Civic Centre, Windmillhill Street, Motherwell",
+      "postcode": "ML1 1AB",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.northlanculture.co.uk/entertainment/motherwell-concert-hall-theatre/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "CLOSED",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "No single authoritative capacity figure could be evidenced. Theatres Trust records the complex as '400 (ADJACENT PUBLIC HALL ACCOMMODATING OVER 1,000 PEOPLE)', i.e. a 400-seat theatre plus a concert hall of over 1,000 - it states a threshold, not a number. Neither North Lanarkshire Culture nor North Lanarkshire Council publishes a capacity for the closed venue.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {"capacity_value": 400, "capacity_type": "SEATED", "capacity_configuration": "Motherwell Theatre auditorium, fixed seats (the smaller of the two spaces)", "capacity_source": "https://www.theatrestrust.org.uk/how-we-help/theatres-at-risk/2561-motherwell-concert-hall-and-theatre"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "North Lanarkshire's principal concert and theatre complex, part of Motherwell Civic Centre and owned by North Lanarkshire Council. Theatres Trust records a 400-seat theatre with an adjacent public hall (the Concert Hall) 'accommodating over 1,000 people', placing the concert hall above the 1,000 threshold for this census even though no exact figure is published. Closed with immediate effect on 12 September 2023 after reinforced autoclaved aerated concrete (RAAC) was found in a deteriorated condition - water ingress, exposed reinforcement, compromised structural performance - assessed as a high-to-critical structural risk and ultimately found in 95% of the roof area. Repair was costed at over £10m and judged economically unviable; demolition was approved, planning and listed building consent applications were submitted in 2025 and a further application in May 2026, with a replacement planned at Ravenscraig. The Culture NL events team relocated to Airdrie Town Hall (515 seated / 650 standing plus 83 balcony), which is itself below the census threshold.",
+      "no_public_calendar_reason": "Venue has been closed since 12 September 2023 and is to be demolished; North Lanarkshire Culture's page for it carries no programme. Culture NL's live what's-on now covers Airdrie Town Hall instead.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.theatrestrust.org.uk/how-we-help/theatres-at-risk/2561-motherwell-concert-hall-and-theatre", "note": "Theatres Trust Theatres at Risk record: capacity '400 (ADJACENT PUBLIC HALL ACCOMMODATING OVER 1,000 PEOPLE)'; address Civic Centre, Windmillhill Street, Motherwell ML1 1AB; owner North Lanarkshire Council; closed 12 September 2023 due to RAAC; high-to-critical structural risk; 2025 planning and listed building consent applications for full demolition."},
+        {"kind": "FETCHED_URL", "value": "https://www.northlanculture.co.uk/entertainment/motherwell-concert-hall-theatre/", "note": "Operator's own page confirming the venue 'had to close due to structural issues' and that the events team has relocated to Airdrie Town Hall. Publishes no capacity."},
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/Motherwell_Civic_Centre", "note": "Confirms the Windmillhill Street location, closure since September 2023 over RAAC collapse risk, a repair cost of at least £10 million, the decision to demolish, and a planned replacement at Ravenscraig. Publishes no capacity."}
+      ]
+    },
+    {
+      "canonical_name": "Grand Hall",
+      "alternative_names": ["The Grand Hall, Kilmarnock", "Grand Hall Kilmarnock", "Palace Theatre and Grand Hall Complex", "Kilmarnock Grand Hall"],
+      "parent_complex": "Palace Theatre and Grand Hall Complex",
+      "operator": "East Ayrshire Leisure for East Ayrshire Council",
+      "city": "Kilmarnock",
+      "nation": "Scotland",
+      "address": "9 Green Street, Kilmarnock",
+      "postcode": "KA1 3BN",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://ayrshire360.com/venue/the-grand-hall/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "CLOSED",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "No standing capacity could be evidenced from any first-party or authoritative source. The only figure I could cite is a seated maximum of 900 (including 300 balcony seats) for the Main Hall, which is below the 1,000 census threshold; multiple third-party listings claim 1,200-1,300 for standing concerts but none of them state a source and I would not write an unevidenced number. Flagged for review rather than admitted or discarded on a guess.",
+        "capacity_source": null,
+        "capacity_source_authority": null,
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [
+        {"capacity_value": 900, "capacity_type": "SEATED", "capacity_configuration": "Main Hall, maximum seated capacity including 300 balcony seats", "capacity_source": "https://venues4hire.org/venue/details/5445/grand-hall-palace-theatre-complex"},
+        {"capacity_value": 250, "capacity_type": "SEATED", "capacity_configuration": "Pillared Hall", "capacity_source": "https://venues4hire.org/venue/details/5445/grand-hall-palace-theatre-complex"},
+        {"capacity_value": 500, "capacity_type": "SEATED", "capacity_configuration": "Palace Theatre (the adjoining theatre in the same complex; approx 200 standing)", "capacity_source": "https://en.wikipedia.org/wiki/Palace_Theatre,_Kilmarnock"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": null,
+      "scale_description": "Ayrshire's principal large-concert hall, part of the council-owned Palace Theatre and Grand Hall Complex in central Kilmarnock, operated by East Ayrshire Leisure. Has hosted Gerry Cinnamon, Calvin Harris, Kevin Bridges, The View, Johnny Marr, Primal Scream, Kasabian, the Happy Mondays, Paul Heaton & Jacqui Abbott and Billy Connolly - a programme consistent with a standing capacity well above 1,000, which is why it is carried here for review rather than silently excluded on the 900-seated figure. CURRENTLY CLOSED for a £26m redevelopment (improved seating, upgraded technical facilities, enhanced accessibility, refreshed public realm) with contractor McLaughlin & Harvey; reopening stated as early 2028. A capacity re-check should be made against the reopened venue, and against East Ayrshire Leisure's technical specification, which is not published online.",
+      "no_public_calendar_reason": "Venue is closed for a £26m redevelopment until early 2028; no forward programme is published.",
+      "calendar_sources": [],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://venues4hire.org/venue/details/5445/grand-hall-palace-theatre-complex", "note": "Room list: Main Hall 'maximum capacity of 900 seated including 300 balcony seats'; Pillared Hall 250; Art Hall 1 150; Art Hall 2 150. NOTE the address given here (London Road, Kilmarnock, KA3 7AA) conflicts with the operator's own 9 Green Street, KA1 3BN and is not used."},
+        {"kind": "FETCHED_URL", "value": "https://ayrshire360.com/venue/the-grand-hall/", "note": "East Ayrshire Leisure's own destination site (eastayrshireleisure.com/venues/ 301-redirects here): address '9 Green Street Kilmarnock KA1 3BN', described as 'Kilmarnock's number one venue for large scale gigs and events'. Publishes no capacity."},
+        {"kind": "FETCHED_URL", "value": "https://projectscot.com/2025/12/progress-made-on-26m-revamp-of-kilmarnocks-palace-theatre-and-grand-hall/", "note": "Establishes the current CLOSED status: closed for refurbishment with internal make-safe works underway, a £26 million redevelopment delivering improved seating, upgraded technical facilities and enhanced accessibility, contractor McLaughlin & Harvey, reopening early 2028."},
+        {"kind": "FETCHED_URL", "value": "https://www.whatsonglasgow.co.uk/listings/the-grand-hall/", "note": "Listings page corroborating the 9 Green Street, Kilmarnock KA1 3BN address. Publishes no capacity."},
+        {"kind": "FETCHED_URL", "value": "https://theatresonline.com/theatres/kilmarnock-theatres/the-grand-hall-kilmarnock", "note": "Checked for a capacity figure; states only that the Grand Hall forms part of the Palace Theatre and Grand Hall Complex. No capacity and no address published - recorded to show the search for a capacity source was genuine and came up empty."}
+      ]
+    },
+    {
+      "canonical_name": "Royal Highland Centre",
+      "alternative_names": ["RHC", "Royal Highland Centre Ingliston", "Highland Hall", "Lowland Hall", "Ingliston"],
+      "parent_complex": null,
+      "operator": "Royal Highland and Agricultural Society of Scotland (RHASS)",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "Royal Highland Centre, Ingliston, Edinburgh",
+      "postcode": "EH28 8NB",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.royalhighlandcentre.co.uk/",
+      "venue_type": "EXHIBITION_CENTRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 9000,
+        "capacity_type": "CONCERT",
+        "capacity_configuration": "Highland Hall in concert configuration - the largest single INDOOR hall (8,400 sq m). Also rated 10,500 max for conference and 5,000 max for banqueting. The Lowland Hall and the outdoor arenas are separate spaces recorded in additional_capacities and are NOT summed into this figure.",
+        "capacity_source": "https://www.royalhighlandcentre.co.uk/hire-event/highland-hall",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {"capacity_value": 10500, "capacity_type": "DELEGATE", "capacity_configuration": "Highland Hall, conference maximum", "capacity_source": "https://www.royalhighlandcentre.co.uk/hire-event/highland-hall"},
+        {"capacity_value": 5000, "capacity_type": "BANQUET", "capacity_configuration": "Highland Hall, banqueting maximum", "capacity_source": "https://www.royalhighlandcentre.co.uk/hire-event/highland-hall"},
+        {"capacity_value": 6000, "capacity_type": "CONCERT", "capacity_configuration": "Lowland Hall, concert maximum (4,200 sq m; conference 5,250; banqueting 2,500)", "capacity_source": "https://www.royalhighlandcentre.co.uk/hire-event/lowland-hall"},
+        {"capacity_value": 35000, "capacity_type": "STANDING", "capacity_configuration": "South Arena, outdoor", "capacity_source": "https://en.wikipedia.org/wiki/Royal_Highland_Centre"},
+        {"capacity_value": 27000, "capacity_type": "STANDING", "capacity_configuration": "Main Ring, outdoor", "capacity_source": "https://en.wikipedia.org/wiki/Royal_Highland_Centre"},
+        {"capacity_value": 25000, "capacity_type": "STANDING", "capacity_configuration": "West Arena, outdoor", "capacity_source": "https://en.wikipedia.org/wiki/Royal_Highland_Centre"},
+        {"capacity_value": 15000, "capacity_type": "STANDING", "capacity_configuration": "North Arena, outdoor", "capacity_source": "https://en.wikipedia.org/wiki/Royal_Highland_Centre"}
+      ],
+      "largest_room_capacity": null,
+      "total_event_space_sqm": null,
+      "exhibition_space_sqm": 12600,
+      "scale_description": "RE-LISTED to enrich the existing census record (same canonical_name and city) with first-party hall-level capacities, floor areas and the verified postcode, which were not previously captured. Scotland's largest indoor and outdoor venue: a 300-acre site at Ingliston next to Edinburgh Airport, opened 1960, with a £75m upgrade from 2010 and over 1 million visitors a year. Home of the Royal Highland Show (over 200,000 visitors). Indoor: Highland Hall 8,400 sq m and Lowland Hall 4,200 sq m (12,600 sq m combined across the two main halls, against an often-quoted site total of over 18,000 sq m of indoor space). Outdoor arenas run to 35,000. exhibition_space_sqm records only the two evidenced main halls, not the whole-site 18,000 sq m figure.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {"source_url": "https://www.royalhighlandcentre.co.uk/", "source_type": "EXHIBITIONS", "sport": null, "first_party": true, "publicly_accessible": true, "events_currently_present": true, "notes": "Fetched 2026-09-20 and carried named dated events on the landing page - Elrow: Hallucinarium (26 September 2026, from £64.80), UCAS Discovery Edinburgh (22 September 2026, free), Young Driver Training 2026 (various dates), Ingliston SuperCar Driving Experience (various dates). Server-rendered.", "last_checked": "2026-09-20"}
+      ],
+      "evidence": [
+        {"kind": "FETCHED_URL", "value": "https://www.royalhighlandcentre.co.uk/hire-event/highland-hall", "note": "First-party hall page: Highland Hall '8,400 Sq. m'; Conference '10,500 max'; Concert '9,000 max'; Banqueting '5,000 max'. Also gave the site address 'Royal Highland Centre Ingliston, Edinburgh, EH28 8NB'."},
+        {"kind": "FETCHED_URL", "value": "https://www.royalhighlandcentre.co.uk/hire-event/lowland-hall", "note": "First-party hall page: Lowland Hall '4,200 Sq. m'; Concert '6,000 max'; Conference '5,250 max'; Banqueting '2,500 max'."},
+        {"kind": "FETCHED_URL", "value": "https://en.wikipedia.org/wiki/Royal_Highland_Centre", "note": "Outdoor arena capacities (South Arena 35,000, Main Ring 27,000, West Arena 25,000, North Arena 15,000), Highland Hall 9,000 and Lowland Hall 6,000 corroborated, 300-acre site, opened 1960, £75m upgrade from 2010, operator RHASS, over 1 million visitors annually and the Royal Highland Show at over 200,000 visitors."},
+        {"kind": "FETCHED_URL", "value": "https://www.royalhighlandcentre.co.uk/", "note": "First-party landing page with a live dated event listing."}
+      ]
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import {
 import { compileCensus, reconcileVenues, electPrincipalCapacity, electVenueType } from "../ingestion/major-event-census/compile.mjs";
 import { readinessFromFingerprint, fingerprintCalendarSources } from "../ingestion/major-event-census/fingerprint-sources.mjs";
 import { verifyFamilyClaim, auditSourceFamilies, applyAuditVerdicts } from "../ingestion/major-event-census/audit-source-families.mjs";
+import { classifyOfficialUrl } from "../ingestion/major-event-census/audit-official-urls.mjs";
 
 const GENERATED_AT = "2026-09-20T00:00:00.000Z";
 
@@ -432,6 +433,125 @@ test("one source's audit failure never changes another source's verdict", async 
   // An unreachable source keeps its existing readiness — it is not evidence of anything.
   const { downgraded } = applyAuditVerdicts(sources, verdicts);
   assert.equal(downgraded, 0, "UNREACHABLE must never be treated as a failed claim");
+});
+
+test("an official URL is never called valid on HTTP 200 alone — the page must name the venue", () => {
+  const venue = { canonical_name: "Harlaw Park", city: "Inverurie", official_url: "https://bowerhinton.test/", alternative_names: [], operator: null };
+  const ok = (body, finalUrl = "https://bowerhinton.test/") => ({ ok: true, status: 200, finalUrl, body, error: null });
+
+  // Gambling spam returning 200 is not valid.
+  assert.equal(classifyOfficialUrl(venue, ok("TOTO12: Pilihan Situs Paling Rekomendasi bandar togel judi gacor")).verdict, "HIJACKED_DOMAIN");
+  // A 200 shell that names nothing is unproven, not valid AND not condemned.
+  assert.equal(classifyOfficialUrl(venue, ok("<div id=root>Loading…</div>")).verdict, "REVIEW_REQUIRED");
+  // Naming the venue is what makes it valid.
+  assert.equal(classifyOfficialUrl(venue, ok("Fixtures at Harlaw Park, Inverurie")).verdict, "VALID_OFFICIAL");
+
+  // A racecourse legitimately mentions betting. Spam markers must only
+  // condemn a page that ALSO fails to identify the venue, or every
+  // racecourse and greyhound track would be falsely flagged.
+  const racecourse = { canonical_name: "Ascot Racecourse", city: "Ascot", official_url: "https://ascot.test/", alternative_names: [], operator: null };
+  assert.equal(classifyOfficialUrl(racecourse, ok("Ascot Racecourse racedays. Online casino partners and betting.", "https://ascot.test/")).verdict, "VALID_OFFICIAL");
+});
+
+test("a ground recorded with its RESIDENT club's official site is valid, not a wrong entity", () => {
+  // The defect this guards: an attempt to auto-detect WRONG_ENTITY by
+  // requiring the page to match the venue's OWN name condemned 51 records
+  // where a ground is legitimately recorded against its resident club's
+  // website — and also condemned venues whose names leave no usable token
+  // once generic words are stripped ("The Den", "The Old Vic").
+  const ok = (body, finalUrl) => ({ ok: true, status: 200, finalUrl, body, error: null });
+
+  const crownGround = { canonical_name: "Crown Ground", city: "Accrington", official_url: "https://accringtonstanley.test/", alternative_names: [], operator: "Accrington Stanley" };
+  assert.equal(classifyOfficialUrl(crownGround, ok("Accrington Stanley FC official site", "https://accringtonstanley.test/")).verdict, "VALID_OFFICIAL");
+
+  const theDen = { canonical_name: "The Den", city: "Bermondsey, London", official_url: "https://millwallfc.test/", alternative_names: [], operator: "Millwall FC" };
+  assert.equal(classifyOfficialUrl(theDen, ok("Millwall Football Club, Bermondsey", "https://millwallfc.test/")).verdict, "VALID_OFFICIAL");
+
+  // And the sweep must NOT claim to detect wrong-entity cases: it cannot
+  // separate a venue's own site from a page that merely mentions it.
+  assert.equal(classifyOfficialUrl(theDen, ok("<div id=root>Loading…</div>", "https://millwallfc.test/")).verdict, "REVIEW_REQUIRED");
+});
+
+test("a transport failure is not a dead domain — only a domain that does not resolve is", () => {
+  // The defect this guards: the first version mapped every fetch error to
+  // DEAD_DOMAIN, which declared Olympia London, Co-op Live, The Lowry and
+  // Caird Hall dead. They are live venues with TLS faults, cookie-consent
+  // redirect loops and timeouts.
+  const venue = { canonical_name: "The Lowry", city: "Salford", official_url: "https://thelowry.test/", alternative_names: [], operator: null };
+  const failed = (error) => ({ ok: false, status: null, finalUrl: null, body: "", error });
+
+  assert.equal(classifyOfficialUrl(venue, failed("fetch failed: getaddrinfo ENOTFOUND thelowry.test")).verdict, "DEAD_DOMAIN");
+  assert.equal(classifyOfficialUrl(venue, failed("fetch failed: redirect count exceeded")).verdict, "REVIEW_REQUIRED");
+  assert.equal(classifyOfficialUrl(venue, failed("fetch failed: certificate has expired")).verdict, "REVIEW_REQUIRED");
+  assert.equal(classifyOfficialUrl(venue, failed("fetch failed: Connect Timeout Error")).verdict, "REVIEW_REQUIRED");
+
+  // A block is not disproof either.
+  assert.equal(classifyOfficialUrl(venue, { ok: false, status: 403, finalUrl: "https://thelowry.test/", body: "Forbidden", error: null }).verdict, "REVIEW_REQUIRED");
+});
+
+test("a quarantined URL cannot resurface as ANOTHER venue's current official site", () => {
+  const bad = "https://squatted.test/";
+  const quarantining = rawVenue({
+    canonical_name: "Venue A", city: "Alpha", official_url: "https://real-a.test/",
+    official_url_status: "OFFICIAL_URL_REPLACED", official_url_quarantined: bad,
+    official_url_quarantine_reason: "casino spam",
+  });
+  const reusingIt = rawVenue({ canonical_name: "Venue B", city: "Beta", official_url: bad });
+  const { venues, capacityEvidence, calendarSources } = compileCensus(
+    [workstream([quarantining], "A"), workstream([reusingIt], "B")], { generatedAt: GENERATED_AT },
+  );
+  const errors = validateCensusArtifact({
+    venues: venues.venues,
+    calendarSources: calendarSources.calendar_sources,
+    capacityEvidence: capacityEvidence.capacity_evidence,
+  });
+  assert.ok(
+    errors.some((error) => /quarantined as invalid by/.test(error)),
+    `a domain quarantined by one venue must not stand as another's truth; got: ${errors.join("; ")}`,
+  );
+});
+
+test("the READY_TIER1 families are verified structurally, not by the word 'Event' appearing on a page", () => {
+  // These are the sources a first acquisition wave would start from, so a
+  // false positive here sends that wave at pages it cannot collect.
+  const realEvent = `<html><script type="application/ld+json">{"@context":"https://schema.org","@type":"Event","name":"Gig","startDate":"2026-10-01"}</script></html>`;
+  const orgOnly = `<html><script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Venue Ltd"}</script></html>`;
+  const prose = `<html><body>Our next Event is coming soon. See all Event listings.</body></html>`;
+
+  assert.equal(verifyFamilyClaim("JSON_LD_EVENT", realEvent).confirmed, true);
+  assert.equal(verifyFamilyClaim("JSON_LD_EVENT", orgOnly).confirmed, false, "JSON-LD that describes an Organization is not an Event feed");
+  assert.equal(verifyFamilyClaim("JSON_LD_EVENT", prose).confirmed, false, "the word 'Event' in body copy proves nothing");
+
+  assert.equal(verifyFamilyClaim("WORDPRESS_TRIBE_API", `<html><a href="/wp-json/tribe/events/v1/events">x</a></html>`).confirmed, true);
+  assert.equal(verifyFamilyClaim("WORDPRESS_TRIBE_API", prose).confirmed, false);
+
+  // STATIC_HTML_CARDS presumes dated content is actually server-rendered.
+  assert.equal(verifyFamilyClaim("STATIC_HTML_CARDS", `<div>12 October 2026</div><div>19 Oct 2026</div><div>2026-11-05</div>`).confirmed, true);
+  assert.equal(verifyFamilyClaim("STATIC_HTML_CARDS", `<div id="root">Loading…</div>`).confirmed, false);
+});
+
+test("a derelict venue is not flattened into CLOSED, and a capacity never keeps it operational", () => {
+  // The defect this guards: The Camrose was carried OPERATIONAL at 6,000
+  // purely because an old capacity source existed, while its council's
+  // Cabinet report recorded that football use ceased before 2019. It is
+  // also NOT demolished — that report says the stands "still remain" — so
+  // collapsing it into CLOSED would assert something no source establishes.
+  const derelict = rawVenue({
+    canonical_name: "Old Ground", city: "Exampleton",
+    venue_type: "FOOTBALL_STADIUM", operational_status: "DERELICT",
+    capacity: { capacity_value: 6000, capacity_type: "SPECTATOR", capacity_source: "https://example.test/history", capacity_source_authority: "GRADE_B", capacity_confidence: "MEDIUM" },
+  });
+  const { venues } = compileCensus([workstream([derelict])], { generatedAt: GENERATED_AT });
+
+  assert.equal(venues.venues.length, 0, "a derelict venue leaves the census POPULATION");
+  assert.equal(venues.excluded_non_operational.length, 1, "but is retained as an explicit exclusion, never silently dropped");
+  assert.equal(venues.excluded_non_operational[0].operational_status, "DERELICT", "DERELICT must survive as itself, not be flattened to CLOSED");
+
+  // The distinct states stay distinct.
+  for (const [input, expected] of [["REDEVELOPED", "REDEVELOPED"], ["NO_LONGER_EVENT_VENUE", "NO_LONGER_EVENT_VENUE"], ["DEMOLISHED", "CLOSED"], ["PERMANENTLY_CLOSED", "CLOSED"]]) {
+    const compiled = compileCensus([workstream([rawVenue({ canonical_name: `V ${input}`, operational_status: input })])], { generatedAt: GENERATED_AT });
+    assert.equal(compiled.venues.excluded_non_operational[0].operational_status, expected, `${input} should normalise to ${expected}`);
+  }
 });
 
 test("SAFETY: the census modules never import any production registry, admission, publication or deployment path", async () => {

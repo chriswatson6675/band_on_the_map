@@ -1,0 +1,627 @@
+{
+  "workstream": "HIGH_VALUE_RECOVERY_03",
+  "generated_at": "2026-09-20T17:58:30.930Z",
+  "method_notes": "Two tasks. (1) THE CAMROSE: established current physical and operational truth from the club's own Save The Camrose account, Basingstoke and Deane Borough Council's 11 February 2025 Cabinet report (read in full as a PDF, not summarised from search), the developer's own press release and the planning agent's project page. (2) HIGH-VALUE NO-CALENDAR RECOVERY: the 116 no-calendar venues were derived programmatically - every venue in venues.json whose venue_census_id appears in no record of calendar-sources.json - then segmented strictly by the required priority order: tier 1 proven principal capacity >= 10,000 by joining capacity-evidence.json on venue_census_id where is_principal is true (only 3 venues qualify); tier 2 INDOOR_ARENA and MULTI_PURPOSE_EVENT_COMPLEX of any size (9); tier 3 CONFERENCE_CENTRE, CONVENTION_CENTRE, EXHIBITION_CENTRE and CONFERENCE_EXHIBITION_COMPLEX (9); tier 4 THEATRE, CONCERT_HALL and AUDITORIUM at >= 1,500 by principal capacity or largest_room_capacity (12); tier 5 motorsport circuits and greyhound stadiums with expected published schedules (7). All 40 venues in tiers 1-5 were attempted; the 76 remaining venues (mostly sub-1,500 Northern Irish, Scottish and Welsh non-league football grounds and county cricket outgrounds) were deliberately not attempted, as instructed. Third-party ticket marketplaces (Ticketmaster, Skiddle, Ents24, Songkick, See Tickets, TicketSource, Resident Advisor, Live Nation) were excluded as source truth throughout; operator platforms tied to a specific venue (Academy Music Group, Trafalgar Entertainment, Spedeworth, a students' union box office) were accepted as first-party and recorded with the venue-specific URL. events_currently_present is true only where named forthcoming dated events were actually seen. Where a plain fetch returned a JavaScript shell on a venue that justified the cost, a real browser was used and the result is stated explicitly in the note (The Forum Bath, HERE at Outernet, Cheshire Oaks Arena, Leeds Town Hall). Where a site returned 403 or failed DNS and nothing could be read, the outcome is SOURCE_REVIEW_REQUIRED or OFFICIAL_SITE_MISSING rather than a guess.",
+  "camrose_finding": {
+    "canonical_name": "The Camrose",
+    "city": "Basingstoke",
+    "resolved_status": "DERELICT",
+    "reasoning": "The census carries The Camrose as OPERATIONAL purely on the strength of an old Wikipedia capacity row; the current evidence contradicts that decisively, and the correct status is DERELICT. Basingstoke Town F.C.'s own site states the club was evicted in April 2019, that the ground is 'currently unused, vandalised and left to rot', that the freehold passed to Basron Developments in 2016 and that planning permission for housing and a care home was granted on appeal on 6 May 2022; the club has rented the Hampshire FA ground at Winklebury since October 2020. Basingstoke and Deane Borough Council's Cabinet report of 11 February 2025 (The Camrose - disposal of council owned land and removal from list of Assets of Community Value) is decisive on the physical question and settles DERELICT over both DEMOLISHED and OPERATIONAL. Para 2.4: 'The original stands, terraces and hard standing areas associated with its previous use for footballing purposes still remain, although are proposed to be demolished. The use of the site as a football ground ceased before 2019.' Para 4.5: 'The current structures on the site are deteriorating and unsightly and are no longer fit for their original or indeed any other purpose.' Para 10.2: 'the site has not been fit for purpose for some time.' So the structures were still standing as at February 2025 - it is NOT demolished - but the site has not functioned as a venue since 2019. Redevelopment is consented and progressing but not built: outline permissions 19/01110/OUT (85 dwellings) and 19/02889/OUT (70-bed care home plus 6 dwellings) were both allowed on appeal in May 2022, each expressly 'following the demolition of the existing buildings and structures on the site'; a demolition prior-notification application 24/00047/DEM was determined on 2 February 2024; Sovereign Housing Developments acquired the freehold of the main site in December 2024 and the council resolved to sell its adjoining 29% and to strike the site from the Assets of Community Value list because 'there is no longer a realistic prospect of a future community use of the Camrose site as it will be developed out for affordable housing'. Para 7.1 anticipated a planning application later in 2025 and commencement of works in 2026, and the Sovereign Hill Partnership subsequently consulted in October 2025 on a revised scheme of circa 100 affordable homes, working towards a planning application in early 2026. I could NOT find evidence that demolition has actually taken place, so DEMOLISHED and REDEVELOPED are both unproven and are not claimed. DERELICT is the precise status: structures extant, unused, vandalised and deteriorating, sold for housing, ACV removed. NO_LONGER_EVENT_VENUE is equally true but less specific, and it is entailed by DERELICT. The venue should also lose OPERATIONAL status in the census and its operator field reviewed - Basingstoke Town F.C. has not occupied this ground since 2019.",
+    "historical_capacity_note": "The 6,000 figure must be RETAINED, not deleted, and re-labelled as HISTORICAL rather than current. It is a genuine record of the ground's spectator capacity while in football use up to 2019 and remains the correct historical value; the single capacity-evidence record for ukmec-england-basingstoke-the-camrose (is_principal true, 6000, SPECTATOR, GRADE_C, MEDIUM confidence, sourced from the Wikipedia List of football stadiums in England) should be kept but marked historical, with capacity_observed_at understood as an inherited list value rather than a 2026 observation. The defect to correct is not the number but the inference drawn from it: the venue is carried as OPERATIONAL merely because a capacity source exists. A capacity figure evidences past scale, never present operation. Going forward the figure should not be treated as a live spectator capacity, and it must not on its own requalify the site for CAPACITY_THRESHOLD_MET inclusion as an operational venue.",
+    "evidence": [
+      {
+        "kind": "FETCHED_URL",
+        "value": "https://btfc.co.uk/savecamrose/",
+        "note": "Basingstoke Town F.C.'s own Save The Camrose page. Proved the club's eviction and the ground's abandonment in the operator's own words: Rafi Razzak 'evicted the newly formed Community Club from The Camrose in April 2019'; 'The Camrose Stadium across the town is currently unused, vandalised and left to rot by ex-Chairman Rafi Razzak'; 'In 2016, whilst Rafi Razzak was Chairman and owner of the football club, the freehold of The Camrose land was purchased by Basron Developments, also owned by Rafi Razzak'; 'May 6th 2022 - The National Planning Inspectorate informed the community club that despite our fight, permission has been granted for Basron's housing and care home on the land of The Camrose'; and that 'Since October 2020 the Community Club has been renting the shared Hampshire FA ground at Winklebury Football Complex in Basingstoke'. Establishes that the named operator does not use this ground."
+      },
+      {
+        "kind": "FETCHED_URL",
+        "value": "https://democracy.basingstoke.gov.uk/documents/s35878/Camrose%20Cabinet%20report%20final%20280125.pdf",
+        "note": "Basingstoke and Deane Borough Council, REPORT TO CABINET, 11 February 2025, 'The Camrose-disposal of council owned land and removal from list of Assets of Community Value'. Retrieved and read in full as a 13-page PDF. This is the decisive evidence and is what distinguishes DERELICT from DEMOLISHED. Para 2.4 proves the structures still stand and that venue use has ceased: 'The original stands, terraces and hard standing areas associated with its previous use for footballing purposes still remain, although are proposed to be demolished. The use of the site as a football ground ceased before 2019.' Para 4.5 proves dereliction: 'The current structures on the site are deteriorating and unsightly and are no longer fit for their original or indeed any other purpose.' Para 10.2 adds 'the site has not been fit for purpose for some time. Basingstoke Town Football Club has been playing at Hampshire FA in Winklebury.' Paras 2.6-2.8 give the consents: outline applications 19/01110/OUT (85 dwellings) and 19/02889/OUT (70-bed care home and 6 dwellings), both allowed on appeal in May 2022, each 'following the demolition of the existing buildings and structures on the site'. Para 2.10 records demolition prior-notification 24/00047/DEM determined on 2 February 2024. Para 3 of the Background records that 'In December 2024, SHD acquired the freehold interest of the former Camrose site'. Para 6.9 justifies ACV removal: 'there is no longer a realistic prospect of a future community use of the Camrose site as it will be developed out for affordable housing'. Para 6.5 notes the ACV listing was due to expire on 5 October 2025. Para 7.1 sets the timetable: disposal completed by late spring 2025, 'A planning application is expected later in 2025, and commencement of works in 2026.' Para 9.1: the land 'currently remains vacant and undeveloped'."
+      },
+      {
+        "kind": "FETCHED_URL",
+        "value": "https://www.sng.org.uk/press-release/affordable-homes-development-on-former-camrose-stadium-site",
+        "note": "Sovereign Network Group's own press release (published 20 January 2025) on its purchase of the site on 17 December 2024. Independently corroborates the council report from the new freeholder's side and confirms the site is treated as former and derelict: it refers throughout to the 'former Camrose Stadium site', describes the site as derelict, and states 'The site, which has been vacant for some time, currently has planning permission for 85 homes and a 70-bedroom care home.' Confirms the buyer's identity and that redevelopment had not yet begun."
+      },
+      {
+        "kind": "FETCHED_URL",
+        "value": "https://www.bell-cornwell.co.uk/projects/basingstoke-football-grounds-redevelopment/",
+        "note": "Planning agent Bell Cornwell's own project page for the redevelopment. Corroborates the consent position from the applicant's side: 'Two outline planning permissions secured for up to 95 dwellings and a 70 bed care home', allowed by the Planning Inspectorate after a four-day public inquiry following the local Planning Committee's refusal against officer recommendation, and records that Basingstoke Town F.C. secured an alternative permanent home at the upgraded Winklebury Football Complex. Confirms the ground's football use was formally replaced elsewhere rather than retained."
+      },
+      {
+        "kind": "ANALYSIS",
+        "value": "Why DERELICT rather than DEMOLISHED, REDEVELOPED or OPERATIONAL",
+        "note": "OPERATIONAL is excluded: the site has hosted no football since 2019 (council para 2.4), the operator plays elsewhere (club site; council para 10.2), and the council formally removed the ACV on the basis that no community use remains realistic (para 6.9). DEMOLISHED is NOT asserted because no retained evidence shows demolition has actually occurred: the last direct physical statement (council, February 2025) is that the stands and terraces 'still remain', and demolition is consistently described in the future tense ('proposed to be demolished', 'SHD are expected to cover demolition costs'). REDEVELOPED is NOT asserted because the consented scheme was still unbuilt - a fresh planning application for a revised circa-100-home scheme was only being worked towards in early 2026 following an October 2025 consultation, and works were anticipated to commence in 2026. No source was found confirming either demolition or construction on the ground, and none was invented. DERELICT captures exactly what is proven: structures extant but unused, vandalised and deteriorating, freehold sold for housing, ACV removed. If a later probe evidences actual demolition, the status should move to DEMOLISHED; that evidence does not exist in this pass."
+      }
+    ]
+  },
+  "calendar_patches": [
+    {
+      "canonical_name": "Alexander Stadium",
+      "city": "Birmingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.alexander-stadium.co.uk/whats-on-at-alexander-stadium/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Venue's own What's On page (the site's homepage does not link it; /whats-on/ returns 404). Fetched HTTP 200; rendered a dated 2026 event schedule for the stadium including English Schools, the European Athletics Championships, the Special Olympics and the World Supercross British Grand Prix on 10 October. Not a ticket marketplace.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cheshire Oaks Arena",
+      "city": "Ellesmere Port",
+      "calendar_sources": [
+        {
+          "source_url": "https://cheshirephoenix.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "basketball",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Anchor-tenant club's own fixtures route (Cheshire Phoenix, Super League Basketball; the club site is this venue's census official_url). Verified in a real browser on 2026-09-20, not just a plain fetch: the page loads but renders no fixture rows at all - 2026/27 fixtures not yet published. Correct first-party route, currently empty.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Victoria Warehouse",
+      "city": "Old Trafford, Manchester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2victoriawarehousemanchester/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Academy Music Group's venue-specific page for O2 Victoria Warehouse Manchester (AMG operates the venue's music programme; the venue's own site defers music enquiries to AMG). Fetched and rendered 15 named forthcoming dated shows including I Prevail (22 Sep 2026), The Wonder Stuff + Inspiral Carpets (2 Oct 2026), The Mary Wallopers (23 Oct 2026), The Kid LAROI (29 Oct 2026) and Tove Lo (5 Nov 2026). Note the deeper path /events/music/ returns 404; /events is the working listing.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Preston Guild Hall",
+      "city": "Preston",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.guildhallpreston.co.uk/guildlounge",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The live Guild Hall Preston site's what's-on listing (operator: Preston City Council). Fetched and rendered 11 named forthcoming dated shows including Two Cities One Symphony (19 Sep 2026), Beatlemania (26 Sep 2026), Oasiz (10 Oct 2026), Cinderella (16-31 Dec 2026) and Psychic Sally (8 Sep 2027). Scope caveat: these are the Guild Lounge programme within the Guild Hall complex, not necessarily every room. Separately confirmed that prestonguildhall.co.uk is a stale site still serving 2018 listings and must not be used.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Halls Wolverhampton",
+      "city": "Wolverhampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.thehallswolverhampton.co.uk/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own what's-on listing. Fetched and rendered 14 named forthcoming dated shows across both halls, including Anastacia (23 Sep 2026), REIGN: DeGale vs Portman (26 Sep 2026), Europe (2 Oct 2026), Jonathan Pie (10 Oct 2026), Amon Amarth (11 Oct 2026) and Brandi Carlile (11 Apr 2027). Data-quality note: the census official_url for this venue is the .com domain, which does not resolve (DNS ENOTFOUND); the live site is .co.uk.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Forum",
+      "city": "Bath",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bathforum.co.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own what's-on listing (The Forum Bath, run by Bath Forum Ltd / Life Church Bath). Plain HTTP fetch hits a redirect loop, so this was confirmed in a real browser on 2026-09-20: the page loads with category filters and renders named forthcoming dated shows including Money for Nothing (22 Sep 2026), Alan Davies (23 Sep 2026), Fastlove (24 Sep 2026), John Barrowman (25 Sep 2026), Peter Pan on Ice (23 Dec 2026 - 3 Jan 2027) and Emeli Sande (16 Feb 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bradford Live",
+      "city": "Bradford",
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/bradford-live-bradford/en-GB",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Trafalgar Entertainment's venue-specific page for Bradford Live - Trafalgar is this venue's operator of record, and bradfordlive.co.uk issues an HTTP 301 permanent redirect to exactly this URL. Fetched and rendered 12 named forthcoming dated shows including Georgie Carroll (25 Sep 2026), Jeff Wayne's War of The Worlds (15 Oct 2026), The Proclaimers (17 Oct 2026), Alison Moyet (13 Nov 2026) and Johannes Radebe (19 May 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Great Hall, University of Exeter",
+      "city": "Exeter",
+      "calendar_sources": [
+        {
+          "source_url": "https://liveevents.exeter.ac.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The University of Exeter's own Live @ Exeter what's-on listing (first-party; the university operates the Great Hall). Fetched and rendered a large dated programme, with entries explicitly marked Great Hall including The Rock Orchestra by Candlelight (13 Oct 2026), Sam Campbell (17 Oct 2026), Chris Williamson (21 Oct 2026), The Archers Live at 75 (3 Nov 2026), Fin Taylor (25 Nov 2026) and Mo Gilligan (2 Apr 2027). Scope caveat: the feed covers several campus venues (e.g. Lemon Grove) as well as the Great Hall, so consumers must filter on the venue field.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mountford Hall",
+      "city": "Liverpool",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.liverpoolguild.org/ents/eventlist/gigs/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Liverpool Guild of Students' own gig listing (the Guild is this venue's operator of record). Fetched and rendered five named forthcoming dated gigs, each explicitly attributed to 'Mountford Hall, Liverpool Guild of Students': Don Broco (3 Oct), Shed Seven (4 Dec), KNEECAP (10 Dec), Keyside (12 Dec) and Belle & Sebastian (18 Dec), all with door times. Room-level attribution is carried in the listing itself.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "HERE at Outernet",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://hereldn.com/events/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "The venue's own What's On page (Outernet London Limited). Verified in a real browser on 2026-09-20, not merely by plain fetch: the page loads and shows the heading \"What's On - Check out below to see what's happening at the venue\" but renders zero event entries. Genuinely empty at time of checking rather than a JavaScript-rendering failure, so events_currently_present is false while the acquisition route is correct.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rock City",
+      "city": "Nottingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://rock-city.co.uk/gig-guide/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own gig guide (operator DHP Family). Note /whats-on/ returns 404; /gig-guide/ is the working listing. Fetched and rendered named forthcoming dated gigs including YONAKA (8 Oct 2026), The Amity Affliction (12 Oct 2026), Skindred Night 2 (23 Oct 2026), Nia Archives (24 Nov 2026) and Overpass (30 Apr 2027), each with door times, alongside recurring weekly club nights.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scarborough Open Air Theatre",
+      "city": "Scarborough",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.scarboroughopenairtheatre.com/whatson",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own what's-on listing (operator Cuffe and Taylor for North Yorkshire Council). Fetched and rendered named forthcoming dated concerts with on-sale status: Jack Savoretti & James Morrison (Fri 9 July), Ronan Keating & Blue (Sun 18 July) and Simply Red (Tue 17 August). Honesty note: the listing as rendered showed day-and-month with on-sale dates; the season year was not independently verified here and is not asserted. Ticket fulfilment is via Ticketmaster but the recorded source is the venue's own page, not the marketplace.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Leith Theatre",
+      "city": "Edinburgh",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.leiththeatre.co.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own what's-on page (operator Leith Theatre Trust). Fetched and rendered named forthcoming dated events with times and rooms: September Heritage Tour (24 Sep 2026, 18:00-19:30), PORNO Fundraiser (10 Oct 2026, 14:30-17:00, Main Auditorium) and the Irvine Welsh Fundraising Event (10 Oct 2026, 20:00, Main Auditorium). The same feed also retains past-dated entries, so consumers must filter forward.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Great Hall, Cardiff University Students' Union",
+      "city": "Cardiff",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.cardiffboxoffice.com/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Cardiff University Students' Union's own box office - the union is this venue's operator of record, so this is first-party, not a ticket marketplace. Fetched and rendered 26 named forthcoming dated shows explicitly attributed to The Great Hall, including Amble (6 Oct), The Wonder Stuff & Inspiral Carpets (15 Oct), The Mary Wallopers (16 Oct), Del Amitri (13 Nov), Paris Paloma (14 Nov), Shed Seven (26 Nov), Belle & Sebastian (13 Dec), Black Stone Cherry (31 Jan) and The Fratellis (6 Mar).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Gurston Down Speed Hill Climb",
+      "city": "Broad Chalke",
+      "calendar_sources": [
+        {
+          "source_url": "https://gurstondown.org/events/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "motorsport",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own events page (British Automobile Racing Club). Fetched and rendered a full dated season schedule of hillclimb championship rounds and experience days - as rendered, the forthcoming season listed runs April to August 2027 (Championship Rounds 1-4 on 17-18 April, British Hillclimb Championship and Gurston Masters 29-30 May, Rounds 5-8 on 19-20 June, Rounds 9-12 on 10-11 July, Rounds 13-16 on 31 July-1 August, Rounds 17-20 on 28-29 August), the 2026 season having already closed. Dates are taken from the page as rendered and not inferred.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Harewood Hillclimb",
+      "city": "Harewood",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.harewoodhill.com/events-list",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "motorsport",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own events list (BARC Yorkshire Centre). Fetched and rendered the full dated 2026 season of 13 meetings including Spring Championship Hillclimb (12 Apr), Harewood Open (9 May), British Hillclimb Championship (10 May and 4-5 Jul), Classic & Vintage (23 Aug), Greenwood Cup (26 Sep), Mike Wilson Hillclimb (27 Sep) and Rallye Harewood (12 Dec), with entry-status notes such as 'This event is full with a large reserve list and is now closed'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mildenhall Stadium",
+      "city": "Mildenhall, Suffolk",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.spedeworth.co.uk/fixtures.php",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "motorsport",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Operator Spedeworth Motorsports' own published fixture list (Spedeworth International is this venue's operator of record and the stadium has no separate site). Fetched and rendered dated Mildenhall meetings with race-class detail: Sat 26 Sep 2026 16:00 (National Bangers 2ltr ORCi World Championship, 1600cc Bangers World of Shale Championship), Sat 10 Oct 2026 17:00 (Bangers Back To Basics Unlimited, BriSCA F2 Stock Cars, National Saloon Stock Cars) and Sat 17 Oct 2026 17:00 (Bangers Back To Basics, BriSCA F1 Stock Cars Shootout Round). The 26 Sep 2026 meeting is independently corroborated on Spedeworth's own ticketing page, spedeworthtickets.co.uk/mildenhall-stadium-31-c.asp.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Shelsley Walsh Speed Hill Climb",
+      "city": "Shelsley Walsh",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.shelsleywalsh.com/events",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "motorsport",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own events calendar (Midland Automobile Club). Fetched and rendered named dated events: Cars in the Valley (17 Sep 2026), Chill on the Hill (19 Sep 2026), MAC 125th Celebration (26 Sep 2026) and Breakfast Club (11 Oct 2026). Caveat for consumers: the same feed also carries off-site club appearances (e.g. the Classic Motor Show at the NEC, 13-15 Nov 2026), so entries must be filtered on location, and this is a mixed motorsport-and-social calendar rather than pure competition fixtures.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Valley Greyhound Stadium",
+      "city": "Ystrad Mynach, Caerphilly",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.valleygreyhounds.com/racing",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The current official stadium site's racing section, carrying dated race meetings and per-meeting race cards. Fetched: the site rendered dated meetings including Thursday 17 September 2026 (first race 17:34, last 21:26), Sunday AM 20 September 2026 (10:11 to 14:54) and Tuesday 22 September 2026 (14:26 to 17:21), with race cards published per meeting. Important data-quality note: the census official_url for this venue (valleygreyhounds.org) is a RETIRED archive site that says so on its face and points readers to this .com domain; the .org should not be used as a source.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    }
+  ],
+  "no_calendar_outcomes": [
+    {
+      "canonical_name": "Alexander Stadium",
+      "city": "Birmingham",
+      "segment": "CAPACITY_10K",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Stadium's own What's On page. Homepage has no events link; the listing lives at /whats-on-at-alexander-stadium/, fetched HTTP 200 and rendering named dated 2026 stadium events (English Schools, European Athletics Championships, Special Olympics, and the World Supercross British Grand Prix on 10 October)."
+    },
+    {
+      "canonical_name": "All England Lawn Tennis and Croquet Club",
+      "city": "London",
+      "segment": "CAPACITY_10K",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "wimbledon.com is unambiguously the AELTC first-party site, but three separate plain fetches (/en_GB/atoz/calendar.html, /en_GB/atoz/index.html, /en_GB/tickets/index.html) each returned only a page title and no rendered body, so no dated event listing could actually be SEEN. The Championships dates are certainly published somewhere first-party, but I will not record a URL whose event content I did not observe. Needs a browser-rendered re-probe."
+    },
+    {
+      "canonical_name": "Crystal Palace National Sports Centre",
+      "city": "London",
+      "segment": "CAPACITY_10K",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "No venue-owned site (census official_url is null). Operator GLL/Better publishes a leisure-centre page and a news page for CPNSC; the news page (fetched) carries only promotional articles (National Fitness Day 03 Sep 2026, Summer Holiday Activities 15 Jul 2026), not a dated events calendar. Class/swim booking is activity scheduling, not an event calendar."
+    },
+    {
+      "canonical_name": "Planet Ice Altrincham",
+      "city": "Altrincham",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "Operator Planet Ice's Altrincham location page (planet-ice.co.uk/locations/altrincham/) was fetched and lists no Altrincham-specific dated events; its events link goes to the iceaccount.co.uk global booking system, not a venue calendar. Corroborating search evidence indicates Planet Ice did not renew Manchester Storm's licence for 2026/27, so the previous anchor tenant fixture list is no longer a valid source for this rink."
+    },
+    {
+      "canonical_name": "Bath Pavilion",
+      "city": "Bath",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "The census official_url is operator GLL/Better's venue-hire page; fetched and confirmed to be a hire/sales page ('the perfect place to hold your special day', capacity up to 1,000) plus recurring roller-skating session times. No named dated public events. A separate bathpavilion.co.uk does not resolve (DNS ENOTFOUND)."
+    },
+    {
+      "canonical_name": "The Brentwood Centre",
+      "city": "Brentwood",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "brentwood-centre.co.uk presents as the venue's own site but both the homepage and /events were fetched and found to carry injected gambling spam links (non-GamStop betting sites, multiple languages) alongside the genuine navigation - a strong sign the domain is compromised or parked-adjacent. Neither page lists a single dated event; /events redirects visitors to brentwood-live.co.uk, which was fetched and is a parked domain displaying 'This domain may be for sale'. The remaining route is ticketsource.co.uk, a third-party ticketing marketplace, which is excluded. Identity and integrity of the official domain need review before any source is recorded."
+    },
+    {
+      "canonical_name": "Cheshire Oaks Arena",
+      "city": "Ellesmere Port",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "OFFICIAL_FIXTURE_SOURCE_FOUND",
+      "note": "Resident club Cheshire Phoenix (Super League Basketball) is the venue's anchor tenant and its site is the census official_url. The /fixtures/ route is the correct first-party fixture source but is genuinely empty: checked both by plain fetch and in a real browser on 2026-09-20, the page renders only chrome and boilerplate with no fixture rows. Corroborating search text says the 2026/27 fixtures are 'coming soon'. Route recorded; events_currently_present set false."
+    },
+    {
+      "canonical_name": "Victoria Warehouse",
+      "city": "Old Trafford, Manchester",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "OPERATOR_CALENDAR_FOUND",
+      "note": "The venue's own site (victoriawarehouse.com) has no event listing and refers music enquiries to Academy Music Group. AMG's venue-specific page for O2 Victoria Warehouse Manchester was fetched and rendered 15 named dated shows. This is the operator's shared platform page for this specific venue, not a ticket marketplace."
+    },
+    {
+      "canonical_name": "East of England Arena and Events Centre",
+      "city": "Peterborough",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No working first-party site found. The venue has no census official_url; the domain cited for it in search results (showground.org.uk) failed DNS resolution on repeated attempts (EAI_AGAIN, with and without www). The only reachable related site is aepguk.com, the site of site owner/developer Asset Earning Power Group, which was fetched and carries redevelopment press material with no event listings at all. Venue reported to be closed/limited pending redevelopment of the showground."
+    },
+    {
+      "canonical_name": "Preston Guild Hall",
+      "city": "Preston",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Identity caution resolved: prestonguildhall.co.uk is a stale abandoned site (fetched; its shows page still serves September 2018 listings). The live venue site is guildhallpreston.co.uk, whose what's-on page was fetched and rendered 11 named forthcoming dated shows. Those listings are for the complex's Guild Lounge programme; recorded as such rather than claimed as whole-complex coverage."
+    },
+    {
+      "canonical_name": "The Halls Wolverhampton",
+      "city": "Wolverhampton",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Census official_url (thehallswolverhampton.com) fails DNS resolution; the working domain is thehallswolverhampton.co.uk. Its /events page was fetched and rendered 14 named forthcoming dated shows across the Civic Hall and Wulfrun Hall."
+    },
+    {
+      "canonical_name": "The Telegraph Building",
+      "city": "Belfast",
+      "segment": "ARENA_OR_COMPLEX",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No first-party venue website located. The venue has no census official_url and targeted searching surfaced only third-party marketplaces (Ticketmaster, Skiddle, Songkick, Ents24, RA, glistrr), which are excluded by policy. The one plausibly non-marketplace route, promoter MCD's venue page (mcd.ie/venues/telegraph-building-belfast), returned HTTP 403 so I could neither read its listings nor verify whether MCD is the venue's operator rather than merely its promoter - so nothing is recorded."
+    },
+    {
+      "canonical_name": "The Eastside Rooms",
+      "city": "Birmingham",
+      "segment": "CONFERENCE",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "eastsiderooms.com/social-events/ returned HTTP 403, so I could not read the venue's own pages directly. Available search-result text describes a purpose-built conference and events centre hired for conferences, weddings and corporate events rather than a venue publishing a public dated programme, but I did not observe that first-hand and so will not assert NO_PUBLIC_CALENDAR_CONFIRMED."
+    },
+    {
+      "canonical_name": "The ICC Birmingham",
+      "city": "Birmingham",
+      "segment": "CONFERENCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "theicc.co.uk homepage fetched (HTTP 200); /whats-on returns 404. The site promotes venue hire plus undated seasonal party packages (Winter Carnival, Jingle & Mingle) and carries no dated listing of public events taking place at the centre. As an NEC Group conference/convention venue its programme is client-booked and not publicly calendared."
+    },
+    {
+      "canonical_name": "Central Hall Westminster",
+      "city": "London",
+      "segment": "CONFERENCE",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "c-h-w.com/whats-on returned HTTP 403, so the venue's own pages could not be read at all. No determination made either way; needs a re-probe with a different client."
+    },
+    {
+      "canonical_name": "Evolution London",
+      "city": "London",
+      "segment": "CONFERENCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "evolutionlondon.com fetched (HTTP 200). The site is a venue-hire proposition listing the event TYPES it hosts (awards, conferences, premieres, fashion shows, exhibitions) with no calendar or listing page anywhere. The only dated references are retrospective social posts about past events."
+    },
+    {
+      "canonical_name": "Old Billingsgate",
+      "city": "London",
+      "segment": "CONFERENCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "oldbillingsgate.co.uk fetched (HTTP 200); /whats-on returns 404. The site is purely a venue-hire platform - space galleries, past-event imagery and an 'enquire now' funnel. No public events calendar exists."
+    },
+    {
+      "canonical_name": "QEII Centre",
+      "city": "London",
+      "segment": "CONFERENCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "qeiicentre.london fetched (HTTP 200); /whats-on/ returns 404. The 'Events' navigation lists event TYPES the centre hosts, not dated events; the rest is news and an enquiry funnel. A client-booked conference centre with no published public programme."
+    },
+    {
+      "canonical_name": "Silverstone International Conference and Exhibition Centre",
+      "city": "Silverstone, Northamptonshire",
+      "segment": "CONFERENCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "The census official_url for this venue is silverstone.co.uk/business/exhibition-space, an exhibition-space hire page. silverstone.co.uk/events WAS fetched and does carry a rich dated calendar - but that is the CIRCUIT's motorsport programme (BTCC, BRSCC, MotoGP, F1 British Grand Prix), and 'Silverstone Circuit' is a separate census venue that already holds a calendar source. Attaching the circuit calendar to the conference and exhibition centre would mis-attribute motorsport events to a building that does not host them, so it is deliberately NOT recorded here. The ICEC itself publishes no dated programme of its own."
+    },
+    {
+      "canonical_name": "Sir William Whitla Hall",
+      "city": "Belfast",
+      "segment": "CONFERENCE",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Both the census official_url (qub.ac.uk/events-at-queens/venues/whitla-hall/) and the parent venues index returned HTTP 403, so nothing on Queen's University Belfast's own site could be read. No determination made."
+    },
+    {
+      "canonical_name": "McEwan Hall",
+      "city": "Edinburgh",
+      "segment": "CONFERENCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "The census official_url (uoecollection.com McEwan Hall page) was fetched and is unambiguously a venue-hire page: delegate capacities, AV facilities, seminar rooms and an 'Enquire now' button. The hall is let for conferences, graduations and ceremonies; no public dated programme is published."
+    },
+    {
+      "canonical_name": "The Forum",
+      "city": "Bath",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Plain fetches of bathforum.co.uk hit a redirect loop, so this was verified in a real browser: both the homepage and /whats-on load and render a full dated programme. Recorded the /whats-on listing, confirmed loaded in-browser on 2026-09-20."
+    },
+    {
+      "canonical_name": "The Forum Hertfordshire",
+      "city": "Hatfield",
+      "segment": "PERFORMANCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "forumhertfordshire.co.uk fetched (HTTP 200) and is a private-hire page for its two spaces (The Loft, Seventy7) with no events calendar and no link to one. The students' union route hertssu.com/whats-on/ returns 404. The venue's public output is recurring weekly student club nights rather than a published dated programme."
+    },
+    {
+      "canonical_name": "Bradford Live",
+      "city": "Bradford",
+      "segment": "PERFORMANCE",
+      "outcome": "OPERATOR_CALENDAR_FOUND",
+      "note": "bradfordlive.co.uk issues a 301 straight to the operator's own platform. Trafalgar Entertainment is this venue's operator of record in the census, and its venue-specific Bradford Live page was fetched and rendered 12 named dated shows. First-party operator platform, not a marketplace."
+    },
+    {
+      "canonical_name": "Great Hall, University of Exeter",
+      "city": "Exeter",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "The University of Exeter's own Live @ Exeter platform carries the Great Hall programme. The venue landing page alone shows no dates, but the /whats-on/ listing was fetched and rendered a large dated programme with individual entries explicitly attributed to the Great Hall."
+    },
+    {
+      "canonical_name": "Leeds Town Hall",
+      "city": "Leeds",
+      "segment": "PERFORMANCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "Checked in a real browser on 2026-09-20, not just by fetch. leedstownhall.co.uk loads, but /whats-on returns HTTP 404 even though the homepage's own 'Show all upcoming events' link and every category filter point at it. The homepage's event tabs render no events, and the entire live site is about the refurbishment and the organ renewal project ('behind the hoardings'), with ticketing deferred to Leeds Ticket Hub. Material finding: the census carries this venue as OPERATIONAL, but its own site indicates the hall is closed to the public for a major refurbishment - operational_status warrants review."
+    },
+    {
+      "canonical_name": "Mountford Hall",
+      "city": "Liverpool",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Liverpool Guild of Students is this venue's operator of record and publishes its own gig listing. Fetched and rendered five named dated gigs, each explicitly labelled 'Mountford Hall, Liverpool Guild of Students' - unusually clean room-level attribution."
+    },
+    {
+      "canonical_name": "HERE at Outernet",
+      "city": "London",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "hereldn.com/events/ is the venue's own What's On page and was confirmed in a real browser on 2026-09-20. It loads correctly under the heading \"What's On - Check out below to see what's happening at the venue\" but renders no events whatsoever - this is a genuinely empty calendar, not a fetch artefact. Correct route recorded with events_currently_present false."
+    },
+    {
+      "canonical_name": "Rock City",
+      "city": "Nottingham",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Venue's own gig guide (operator DHP Family). /whats-on/ 404s; the listing is at /gig-guide/, which was fetched and rendered named dated gigs plus the recurring weekly club nights."
+    },
+    {
+      "canonical_name": "Scarborough Open Air Theatre",
+      "city": "Scarborough",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Venue's own what's-on listing (promoter/operator Cuffe and Taylor for North Yorkshire Council), fetched and rendering named dated concerts with on-sale information. Ticketing is fulfilled by Ticketmaster but the listing itself is the venue's own page, which is what is recorded."
+    },
+    {
+      "canonical_name": "Leith Theatre",
+      "city": "Edinburgh",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Venue's own what's-on page (Leith Theatre Trust), fetched and rendering named dated events with times and room attribution."
+    },
+    {
+      "canonical_name": "Great Hall, Cardiff University Students' Union",
+      "city": "Cardiff",
+      "segment": "PERFORMANCE",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Cardiff University Students' Union is this venue's operator of record, and cardiffboxoffice.com is the union's OWN box office (not a third-party marketplace). Fetched and rendered 26 named dated shows explicitly attributed to The Great Hall - the single richest recovery in this pass."
+    },
+    {
+      "canonical_name": "St David's Hall",
+      "city": "Cardiff",
+      "segment": "PERFORMANCE",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "The census official_url (stdavidshallcardiff.co.uk) fails DNS resolution on both www and apex. Academy Music Group's own announcement page was fetched and confirms AMG has only 'entered into an agreement' to re-open the hall, that it needs substantial remedial work including a new roof because of RAAC, and that no reopening date is given; AMG's venue navigation does not yet list St David's Hall. The hall has been closed since 2023 and has no published programme. Consistent with the census already flagging it STATUS_REVIEW_REQUIRED."
+    },
+    {
+      "canonical_name": "Gurston Down Speed Hill Climb",
+      "city": "Broad Chalke",
+      "segment": "RACING",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Venue's own events page, fetched and rendering a full dated season schedule of championship rounds and experience days."
+    },
+    {
+      "canonical_name": "Doncaster Greyhound Stadium",
+      "city": "Doncaster",
+      "segment": "RACING",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "Venue's own site fetched (HTTP 200). It publishes only a recurring weekly racing pattern with first-race times (Monday 14:33, Wednesday 14:33, Saturday AM 10:41, Saturday evening 18:11, Sunday 10:32) and no dated fixture list or calendar page anywhere; no /fixtures route exists (404). A recurring weekly pattern is not a dated event calendar, so nothing is recorded."
+    },
+    {
+      "canonical_name": "Harewood Hillclimb",
+      "city": "Harewood",
+      "segment": "RACING",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Venue's own events list, fetched and rendering the full dated season of 13 meetings including two rounds of the Motorsport UK British Hillclimb Championship."
+    },
+    {
+      "canonical_name": "Kinsley Greyhound Stadium",
+      "city": "Kinsley, West Yorkshire",
+      "segment": "RACING",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "The census official_url (kinsleydogs.co.uk) was fetched and returned only a 'Loading...' shell with no content at all - a client-side-rendered site that a plain fetch cannot read. I did not get a browser pass onto it within this bounded run, so no determination is made either way and no source is recorded. Needs a browser-rendered re-probe."
+    },
+    {
+      "canonical_name": "Mildenhall Stadium",
+      "city": "Mildenhall, Suffolk",
+      "segment": "RACING",
+      "outcome": "OPERATOR_CALENDAR_FOUND",
+      "note": "Operator Spedeworth International publishes its own fixture list. The stadium has no separate site of its own; Spedeworth's fixtures page was fetched and renders dated Mildenhall meetings with full race-class detail, and its ticketing page corroborates the 26 September 2026 meeting."
+    },
+    {
+      "canonical_name": "Shelsley Walsh Speed Hill Climb",
+      "city": "Shelsley Walsh",
+      "segment": "RACING",
+      "outcome": "OFFICIAL_CALENDAR_FOUND",
+      "note": "Venue's own events calendar (Midland Automobile Club), fetched and rendering named dated events with descriptions."
+    },
+    {
+      "canonical_name": "Valley Greyhound Stadium",
+      "city": "Ystrad Mynach, Caerphilly",
+      "segment": "RACING",
+      "outcome": "OFFICIAL_FIXTURE_SOURCE_FOUND",
+      "note": "Identity correction: the census official_url (valleygreyhounds.org) was fetched and is an explicitly retired archive site - it states it 'will remain active for a while as a reminder of our decades of flapping' and redirects readers to the current site. The live official site is valleygreyhounds.com, whose pages were fetched and carry dated race meetings and race cards."
+    }
+  ]
+}

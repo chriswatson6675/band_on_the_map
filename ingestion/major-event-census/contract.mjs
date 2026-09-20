@@ -63,7 +63,26 @@ export const SCALE_EXCEPTION_SPORTING_VENUE_TYPES = new Set([
   "RACECOURSE", "MOTORSPORT_CIRCUIT", "GREYHOUND_STADIUM",
 ]);
 
-export const OPERATIONAL_STATUSES = new Set(["OPERATIONAL", "CLOSED", "UNDER_CONSTRUCTION", "STATUS_REVIEW_REQUIRED"]);
+/**
+ * Operational states. DERELICT, NO_LONGER_EVENT_VENUE and REDEVELOPED were
+ * added in Completeness-03 (Phase 9): The Camrose was carried OPERATIONAL
+ * at 6,000 purely because an old capacity source existed, while the
+ * council's own Cabinet report recorded that football use ceased before
+ * 2019 and the structures, though still standing, are "no longer fit for
+ * their original or indeed any other purpose". Neither CLOSED nor
+ * DEMOLISHED describes that accurately, and forcing it into one of them
+ * would have asserted something the evidence does not say.
+ */
+export const OPERATIONAL_STATUSES = new Set([
+  "OPERATIONAL", "CLOSED", "UNDER_CONSTRUCTION",
+  "DERELICT", "NO_LONGER_EVENT_VENUE", "REDEVELOPED",
+  "STATUS_REVIEW_REQUIRED",
+]);
+
+/** States that remove a venue from the census POPULATION (but never from the record). */
+export const NON_OPERATIONAL_STATUSES = new Set([
+  "CLOSED", "UNDER_CONSTRUCTION", "DERELICT", "NO_LONGER_EVENT_VENUE", "REDEVELOPED",
+]);
 
 /**
  * Why this venue is in the census at all. A spectator venue qualifies on
@@ -293,6 +312,25 @@ export function validateCensusArtifact({ venues, calendarSources, capacityEviden
   // an error rather than a presentational quirk.
   for (const [venueCensusId, count] of principalCount) {
     if (count > 1) errors.push(`venue ${venueCensusId} has ${count} principal capacity records — exactly one may be principal`);
+  }
+
+  // A URL proven not to belong to ANY venue must not reappear as ANOTHER
+  // venue's current official site. Per-record validation cannot catch that,
+  // because each record looks fine on its own — the conflict only exists
+  // across the census. This is how a squatted domain would quietly come
+  // back after being quarantined somewhere else.
+  const quarantined = new Map();
+  for (const venue of venues ?? []) {
+    if (text(venue?.official_url_quarantined)) quarantined.set(venue.official_url_quarantined, venue.venue_census_id);
+  }
+  if (quarantined.size) {
+    for (const venue of venues ?? []) {
+      if (!text(venue?.official_url)) continue;
+      const quarantinedBy = quarantined.get(venue.official_url);
+      if (quarantinedBy && quarantinedBy !== venue.venue_census_id) {
+        errors.push(`venue ${venue.venue_census_id} presents ${venue.official_url} as current, but it is quarantined as invalid by ${quarantinedBy}`);
+      }
+    }
   }
 
   // Every venue must carry capacity evidence OR declare an explicit

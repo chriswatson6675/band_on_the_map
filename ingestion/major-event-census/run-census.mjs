@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { compileCensus, countCalendars, familyLabel } from "./compile.mjs";
 import { fingerprintCalendarSources, readinessFromFingerprint } from "./fingerprint-sources.mjs";
 import { auditSourceFamilies, applyAuditVerdicts } from "./audit-source-families.mjs";
+import { auditOfficialUrls, INVALID_URL_VERDICTS } from "./audit-official-urls.mjs";
 import { validateCensusArtifact } from "./contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -60,6 +61,8 @@ async function loadWorkstreams() {
     let unmatched = 0;
     let identityApplied = 0;
     let identityUnmatched = 0;
+    let statusApplied = 0;
+    let statusUnmatched = 0;
     for (const { file, document } of patches) {
       for (const patch of document.calendar_patches ?? []) {
         const venue = index.get(patchKey(patch.canonical_name, patch.city));
@@ -96,10 +99,35 @@ async function loadWorkstreams() {
         ];
         identityApplied += 1;
       }
+
+      // Status findings correct a venue's operational state on evidence.
+      // A capacity figure evidences PAST scale; it never evidences present
+      // operation. The Camrose was carried OPERATIONAL at 6,000 solely
+      // because an old capacity source existed, while its council's own
+      // Cabinet report recorded that football use ceased before 2019.
+      const statusFindings = [
+        ...(Array.isArray(document.status_findings) ? document.status_findings : []),
+        ...(document.camrose_finding ? [document.camrose_finding] : []),
+      ];
+      for (const finding of statusFindings) {
+        const venue = index.get(patchKey(finding.canonical_name, finding.city));
+        if (!venue || !finding.resolved_status) { statusUnmatched += venue ? 0 : 1; continue; }
+        venue.operational_status = finding.resolved_status;
+        venue.evidence = [
+          ...(venue.evidence ?? []),
+          { kind: "STATUS_FINDING", value: finding.resolved_status, note: `${file}: ${finding.reasoning ?? "operational status corrected on evidence"}` },
+          ...(finding.historical_capacity_note ? [{ kind: "HISTORICAL_NOTE", value: finding.historical_capacity_note, note: `${file}: the recorded capacity describes past use, not present operation` }] : []),
+          ...(Array.isArray(finding.evidence) ? finding.evidence : []),
+        ];
+        statusApplied += 1;
+      }
     }
     console.log(`calendar patches applied: ${applied}${unmatched ? ` (${unmatched} patch entries matched no census venue and were ignored)` : ""}`);
     if (identityApplied || identityUnmatched) {
       console.log(`identity findings applied: ${identityApplied}${identityUnmatched ? ` (${identityUnmatched} matched no census venue and were ignored)` : ""}`);
+    }
+    if (statusApplied || statusUnmatched) {
+      console.log(`operational-status findings applied: ${statusApplied}${statusUnmatched ? ` (${statusUnmatched} matched no census venue and were ignored)` : ""}`);
     }
   }
 
@@ -407,12 +435,51 @@ async function auditFamilies(argv) {
   console.log(`downgraded to SOURCE_REVIEW_REQUIRED: ${downgraded}`);
 }
 
+/**
+ * Phase 7: sweep every recorded official_url and classify it. Legitimacy is
+ * never inferred from HTTP 200 — a URL is only called valid when the page
+ * it serves actually identifies the venue.
+ *
+ * This step REPORTS. It does not rewrite venue records, because choosing a
+ * replacement URL needs evidence about the venue's real identity, which is
+ * research, not a status code.
+ */
+async function auditUrls(argv) {
+  const concurrency = Number(argv.find((arg) => arg.startsWith("--concurrency="))?.split("=")[1] ?? 6);
+  const venuesDoc = await readJson(resolve(CENSUS_DIR, "venues.json"));
+
+  const results = await auditOfficialUrls(venuesDoc.venues, {
+    concurrency,
+    onProgress: (done, total) => { if (done % 50 === 0 || done === total) console.log(`  ${done}/${total}`); },
+  });
+
+  const tally = {};
+  for (const result of results) tally[result.verdict] = (tally[result.verdict] ?? 0) + 1;
+  const invalid = results.filter((result) => INVALID_URL_VERDICTS.has(result.verdict));
+
+  await writeJson(resolve(CENSUS_DIR, "official-url-audit.json"), {
+    artifact_type: "UK_MAJOR_EVENT_VENUE_CENSUS__OFFICIAL_URL_AUDIT",
+    generated_at: new Date().toISOString(),
+    method: "Every recorded official_url fetched once and classified against the venue it claims to belong to. Legitimacy is never inferred from HTTP 200: a URL is called valid only when the served page contains a distinctive token identifying the venue. Gambling/SEO markers condemn a page only when it ALSO fails to identify the venue, so a racecourse legitimately mentioning betting is not false-positived. A 403/429/5xx is REVIEW_REQUIRED rather than condemned, because a block is not disproof.",
+    checked: results.length,
+    by_verdict: Object.fromEntries(Object.entries(tally).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))),
+    invalid_count: invalid.length,
+    results: results.sort((a, b) => a.venue_census_id.localeCompare(b.venue_census_id)),
+  });
+
+  console.log(`checked: ${results.length}`);
+  console.log(`by verdict: ${JSON.stringify(tally, null, 2)}`);
+  console.log(`\nURLs that must not stand as current truth (${invalid.length}):`);
+  for (const result of invalid) console.log(`  ${result.verdict.padEnd(18)} ${result.canonical_name} (${result.city}) -> ${result.official_url}`);
+}
+
 const [command, ...argv] = process.argv.slice(2);
 if (command === "compile") await compile();
 else if (command === "fingerprint") await fingerprint(argv);
 else if (command === "audit-families") await auditFamilies(argv);
+else if (command === "audit-urls") await auditUrls(argv);
 else if (command === "summarise") await summarise();
 else {
-  console.error("usage: run-census.mjs <compile|fingerprint|audit-families|summarise>");
+  console.error("usage: run-census.mjs <compile|fingerprint|audit-families|audit-urls|summarise>");
   process.exitCode = 1;
 }
