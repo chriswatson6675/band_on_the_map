@@ -51,6 +51,28 @@ For these, the census records `largest_room_capacity`,
 never fabricated to force such a venue through rule A.** These records
 carry `inclusion_basis: MAJOR_CONVENTION_EXHIBITION_INFRASTRUCTURE`.
 
+### B2. Major sporting infrastructure — the racecourse/circuit exception
+
+Racecourses, motorsport circuits and greyhound stadiums are major
+permanent event infrastructure that mostly does **not** publish a single
+seated capacity. Census-01 flagged 92 of them `CAPACITY_REVIEW_REQUIRED`
+as a result, which understated the estate rather than describing it.
+
+Such a venue may instead be admitted on `MAJOR_SPORTING_INFRASTRUCTURE`.
+The qualifying evidence is a **cited public fixture/race calendar** —
+positive proof that it actually stages public events.
+
+It is deliberately **not** `scale_description`. An earlier draft of this
+rule keyed off that field, which admitted racecourses whose researcher had
+written *"No capacity figure published"* — a sentence recording the
+**absence** of evidence. Admitting on that turns the exception into a way
+to admit any uncertain venue. The exception is also confined to those
+three venue classes.
+
+This basis does **not** assert a proven >= 1,000 capacity. It asserts
+documented major sporting infrastructure, and is counted separately from
+`CAPACITY_THRESHOLD_MET` for exactly that reason.
+
 ### C. Multi-use complexes
 
 A complex may contain several named halls or arenas. The census
@@ -124,11 +146,36 @@ reconciliation is conservative in **both** directions:
   sites) are flagged `identity_review` with a reason, never silently
   resolved either way.
 
+### Quarantined official URLs
+
+A recorded `official_url` sometimes turns out not to belong to its venue
+at all — a lapsed club domain re-registered as gambling or casino spam, a
+defunct predecessor club's site, or a research-tooling artifact.
+
+Such a URL is **quarantined, never deleted**:
+
+| Field | Meaning |
+| --- | --- |
+| `official_url_quarantined` | the URL proven not to belong to the venue |
+| `official_url_quarantine_reason` | what it actually serves, as observed |
+| `official_url_status` | `OFFICIAL_URL_VERIFIED`, `OFFICIAL_URL_REPLACED` or `OFFICIAL_URL_REVIEW_REQUIRED` |
+
+Validation enforces that a quarantined URL is never also the current
+`official_url`, that it carries a reason, and that a quarantined venue is
+never still marked verified. A merge cannot reinstate a quarantined URL
+from a second researcher who still had the bad value.
+
+A replacement is accepted **only** on strong evidence. "No trustworthy
+replacement found" (`OFFICIAL_URL_REVIEW_REQUIRED`) is a legitimate
+outcome — a domain is never treated as official merely because its name
+resembles the venue.
+
 ## Calendar sources
 
 A venue may have several official calendars, each classified by what it
 publishes: `SPORT_FIXTURES`, `CONCERTS`, `CONFERENCES`, `CONVENTIONS`,
-`EXHIBITIONS`, `TRADE_SHOWS`, `PERFORMING_ARTS`, `OTHER_MAJOR_EVENTS`.
+`EXHIBITIONS`, `TRADE_SHOWS`, `PUBLIC_SHOWS`, `PERFORMING_ARTS`,
+`OTHER_MAJOR_EVENTS`.
 
 A **"hire our venue" / "book an event with us" page is not a calendar.**
 Only a surface listing actual forthcoming named events counts. First-party
@@ -154,6 +201,39 @@ thing it would mean in the real pipeline.
 **A source is never called ready because it returned HTTP 200.** Readiness
 is derived from what the fingerprint engine structurally detected.
 
+### The source-family audit
+
+Fingerprinting alone over-states reusability. A page whose only
+`application/json` script is the WordPress emoji settings block is not a
+reusable data surface, but it fingerprinted as `OTHER_EMBEDDED_APP_STATE`
+— which is why Census-01 had to report `TIER2_REUSABLE_FAMILY` as an
+**upper bound** rather than a count.
+
+`audit-source-families.mjs` converts that bound into a measured number.
+Every source in a family that feeds the TIER2 headline is re-fetched once
+and checked against **that family's own structural marker** —
+`__NEXT_DATA__` for `EMBEDDED_NEXT_DATA`, a `window.__NUXT__` payload for
+`EMBEDDED_NUXT_STATE`, schema.org Event microdata for `MICRODATA`, and for
+`OTHER_EMBEDDED_APP_STATE` a substantive embedded JSON payload that is not
+boilerplate. Each family verifies its own marker, so one family can never
+launder another's error.
+
+Rules:
+
+- A claim the live page does not support is downgraded to
+  `SOURCE_REVIEW_REQUIRED`, with the reason retained. **Honest "needs
+  review" beats false Tier-2 confidence.**
+- The audit only ever **removes** confidence. A confirmed source is left
+  exactly as it was; nothing is ever promoted.
+- `UNREACHABLE` is never treated as a failed claim — an unreachable page
+  is not evidence of anything, so readiness is left untouched.
+- Families that are already the conservative answer
+  (`CLIENT_RENDERED_UNKNOWN`, `ACCESS_BLOCKED`) are not audited, because
+  over-classifying *into* them costs nothing.
+
+Verdicts are retained in `source-family-audit.json` and survive a
+recompile, so a downgraded readiness never loses its reason.
+
 ## Artifacts
 
 Under `research/major-event-venues/uk-major-event-census-01/`:
@@ -164,17 +244,37 @@ Under `research/major-event-venues/uk-major-event-census-01/`:
 | `venues.json` | The census venue records |
 | `calendar-sources.json` | Every official calendar source, with family and readiness |
 | `capacity-evidence.json` | Every capacity figure with its own cited source |
-| `research-provenance.json` | Per-workstream method notes and accept/reject counts |
+| `research-provenance.json` | Per-workstream method notes, accept/reject counts, and calendar-recovery outcomes |
 | `census-summary.json` | Deterministic analytical summaries, coverage matrix, operator estates, priority table |
+| `source-family-audit.json` | Per-source verdicts from the Phase 15 family audit |
+| `data-quality-flags.txt` | Known defects IN the census, as retained evidence |
+| `fingerprint-precision-sample.txt` | The original spot audit that exposed family over-classification |
+| `reusable-platform-estates.txt` | Re-verification of the large shared-platform estates |
 
 ## Rebuilding
 
 ```bash
-node ingestion/major-event-census/run-census.mjs compile      # pure, offline
-node ingestion/major-event-census/run-census.mjs fingerprint  # bounded live GETs, one per calendar URL
-node ingestion/major-event-census/run-census.mjs summarise     # deterministic summaries
+node ingestion/major-event-census/run-census.mjs compile         # pure, offline
+node ingestion/major-event-census/run-census.mjs fingerprint     # bounded live GETs, one per calendar URL
+node ingestion/major-event-census/run-census.mjs audit-families  # bounded live re-check of TIER2 family claims
+node ingestion/major-event-census/run-census.mjs summarise       # deterministic summaries
 ```
 
 `compile` and `summarise` are deterministic: the same inputs produce
-byte-identical outputs. `fingerprint` is the only networked step, and it
-acquires no events.
+byte-identical outputs. `fingerprint` and `audit-families` are the only
+networked steps, they issue one GET per source, and neither acquires any
+events.
+
+`fingerprint` is incremental — a source already fingerprinted is not
+re-fetched, so a later research pass that ADDS calendar sources only costs
+requests for the genuinely new ones. Run `audit-families` AFTER
+fingerprinting so newly added sources are audited too.
+
+### Calendar patch files
+
+`workstreams/*-calendars.json` and recovery files are **additive patches**,
+not workstreams. A patch matches a venue on name+city and can only ADD a
+calendar source it does not already have, or quarantine an official URL
+via `identity_findings`. It can never invent a venue, change a capacity or
+remove anything — so a later calendar pass can never damage completed
+venue research.

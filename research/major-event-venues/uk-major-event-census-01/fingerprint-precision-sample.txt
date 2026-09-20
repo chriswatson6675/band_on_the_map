@@ -77,3 +77,58 @@ the same unchanged engine — but that is an expectation, not a measurement.
 The conclusion is unchanged and applies to the final numbers: the
 TIER2_REUSABLE_FAMILY total of 366 is an UPPER BOUND on genuinely
 Tier-2-reusable sources, not a count of them.
+
+==========================================================================
+SUPERSEDED BY MEASUREMENT — Completeness-02 (2026-09-20)
+==========================================================================
+
+This file recorded a 14-source SAMPLE. Completeness-02 replaced it with a
+CENSUS: every source in every family that feeds TIER2_REUSABLE_FAMILY was
+re-fetched once and checked against that family's own structural marker.
+See `source-family-audit.json` and the `audit-families` command.
+
+Audited 521 sources. Result: 444 CONFIRMED, 75 NOT_CONFIRMED, 2 UNREACHABLE.
+
+  family                     confirmed  not-confirmed  false-positive rate
+  OTHER_EMBEDDED_APP_STATE         241             65                  21%
+  MICRODATA                         34             10                  23%
+  EMBEDDED_NEXT_DATA                80              0                   0%
+  EMBEDDED_NUXT_STATE               58              0                   0%
+  PUBLIC_GRAPHQL                    18              0                   0%
+  EMBEDDED_SVELTEKIT_DATA            6              0                   0%
+  WEBFLOW                            4              0                   0%
+  SQUARESPACE_CALENDAR               3              0                   0%
+
+THE SAMPLE ABOVE OVERSTATED THE PROBLEM. It estimated roughly 57%
+misclassification in OTHER_EMBEDDED_APP_STATE; measured across the whole
+family the rate is 21%. A 14-source sample was too small to carry, and
+this is recorded rather than quietly replaced — the earlier number was
+honestly derived and honestly wrong.
+
+The 75 NOT_CONFIRMED sources were conservatively downgraded to
+SOURCE_REVIEW_REQUIRED, with the reason retained per source.
+
+--------------------------------------------------------------------------
+A FALSE NEGATIVE THIS AUDIT PRODUCED, AND HOW IT WAS CAUGHT
+--------------------------------------------------------------------------
+
+The audit's FIRST run reported EMBEDDED_NEXT_DATA as 9 confirmed / 71 not
+confirmed — an 89% failure rate. That was not a finding about the sources;
+it was a bug in the verification rule, which checked only for
+`__NEXT_DATA__`. That marker belongs to the Next.js Pages Router. The App
+Router streams its payload onto `self.__next_f` instead.
+
+Re-fetching five of the "failures" (atgtickets.com, leedsunited.com,
+academymusicgroup.com) confirmed all five carried `self.__next_f`. They
+were correctly classified all along.
+
+An over-strict audit UNDER-states readiness exactly as dishonestly as a
+loose fingerprint over-states it. The rule now accepts both shapes, and
+`/_next/static` is explicitly NOT accepted — it proves the framework built
+the page, not that data is embedded in it.
+
+Because of this the audit was made IDEMPOTENT: it resets any prior
+downgrade (recomputing readiness from the retained fingerprint fields,
+with no re-fetch) before applying current verdicts, so a corrected rule
+can give a source its readiness back. Without that, the 71 false
+downgrades would have been permanent.

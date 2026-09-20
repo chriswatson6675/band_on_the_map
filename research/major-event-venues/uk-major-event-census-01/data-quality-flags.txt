@@ -123,3 +123,140 @@ records error.cause as well, and a retry produced real diagnoses:
 
 Nothing in this section should be read as "the venue publishes no
 calendar". Not one of these was shown to lack a programme.
+
+==========================================================================
+COMPLETENESS-02 (2026-09-20) — RESOLUTIONS AND NEW FINDINGS
+==========================================================================
+
+--------------------------------------------------------------------------
+D. The 7 bad official_url values — RESOLVED
+--------------------------------------------------------------------------
+
+All seven are now quarantined. The bad URL is retained on the record in
+`official_url_quarantined` with a reason; it is never presented as the
+venue's current site, and validation blocks that.
+
+  RESOLVED with an evidenced replacement (5):
+    The Shay           -> https://shaystadium.com/
+    Claggan Park       -> https://fortwilliamfc.com/
+    Harlaw Park        -> https://inverurielocos.com/
+    North Lodge Park   -> https://www.formartineunitedfc.co.uk/
+    The Airfield       -> https://www.airbusukfc.com/
+
+  NO TRUSTWORTHY REPLACEMENT — left OFFICIAL_URL_REVIEW_REQUIRED (2):
+    The Camrose        (Basingstoke)
+    Fortwilliam Park   (Tobermore)
+
+Four of the five replacements were INDEPENDENTLY re-fetched here and
+confirmed to identify the venue (titles: "The Shay stadium - Halifax",
+"Home - Fort William FC", "Formartine United FC | Highland League",
+"Airbus UK Broughton FC"). The fifth, inverurielocos.com, returns 403 to
+this checker; it is NOT unverified, because the research pass retained
+fetched evidence showing the site carries the ground's own address
+("Harlaw Park, Harlaw Road, Inverurie, AB51 4SF") and fixtures played at
+Harlaw Park, corroborated by the Highland League fixture list.
+
+ROOT CAUSE FOUND for the dns.google artifact: https://tobermoreunitedfc.co.uk/
+answers HTTP 302 with `Location: https://dns.google/`. A redirect-following
+crawler recorded the resolver page as the club homepage. That is a crawler
+failure mode worth knowing about generally, not a one-off typo.
+
+THE CAMROSE NEEDS MORE THAN A URL. Basingstoke Town FC's own site states
+the club was evicted in April 2019, the ground is "currently unused,
+vandalised and left to rot", the freehold was sold, and housing permission
+was granted in 2022. The census still carries the venue as OPERATIONAL at
+6,000. Recording btfc.co.uk as its official_url would assert an occupancy
+that same source disproves. Its `operational_status` and `operator` need a
+dedicated review — this is flagged, not silently corrected.
+
+--------------------------------------------------------------------------
+E. Previously "NOT CONFIRMED" item — now CLOSED
+--------------------------------------------------------------------------
+
+Census-01 could not reproduce a report that `penybontfc.com` was squatted,
+because no census venue recorded that domain. Completeness-02 confirms the
+domain IS real and squatted (302s to slot spam) — it simply is not held
+against any census venue (Bryntirion Park has no official_url). Both halves
+of the original report were right; they were about different things.
+
+--------------------------------------------------------------------------
+F. FURTHER bad official_url values found (NOT yet resolved)
+--------------------------------------------------------------------------
+
+Reported by the recovery pass and recorded here rather than patched, since
+each needs the same evidence standard applied as the first seven:
+
+  manchestersportandleisure.org  (Manchester Regional Arena operator)
+                                 -> now Indonesian gambling spam
+  eastbournetennis.com           -> 302 to a slot-gambling site
+  stdavidshallcardiff.co.uk      -> no DNS resolution
+  pitchero.com/clubs/merthyrtown/ (Penydarren Park)
+                                 -> Pitchero placeholder, "Club not live"
+  cpfc.co.uk/palace-women/       recorded as Gander Green Lane's official
+                                 url — a VISITING club's page, not the
+                                 ground's
+  neathrugby.co.uk               -> betting content farm; Neath RFC's real
+                                 site is neathrfc.com
+
+Also two venue renames to carry forward: Emirates Arena now redirects to
+Glasgow Life's "Glasgow International Arena"; Keepmoat -> Eco-Power ->
+Club Doncaster Sports Village.
+
+The lapsed-football-domain problem is clearly SYSTEMIC, not a handful of
+cases. A dedicated sweep of every recorded official_url is warranted
+before any activation.
+
+--------------------------------------------------------------------------
+G. Venue identity defects found and FIXED in compilation
+--------------------------------------------------------------------------
+
+1. DUPLICATE VENUES UNDER DIFFERENT HEADLINE NAMES. Exact-name matching
+   missed records that two workstreams filed under different names, e.g.
+   "Aviva Arena" vs "Aviva Arena Bristol" (both listing the aliases "YTL
+   Arena Bristol" and "Bristol Arena") and "ICC Belfast" vs "ICC Belfast /
+   Belfast Waterfront" (each naming the other). Reconciliation now also
+   merges on a SHARED ALTERNATIVE NAME within the same city+nation. 13
+   duplicate pairs were merged, including the Keepmoat / Club Doncaster
+   Sports Village pair independently reported by the sport audit, and six
+   stale-sponsor-name duplicates.
+
+   A declared parent/sub-venue pair is explicitly protected: "Indoor Arena,
+   Coventry Building Society Arena" correctly survives as its own record
+   alongside its parent. Alias merges are flagged `identity_review` because
+   the evidence is weaker than an exact match.
+
+2. VENUE CLASS DECIDED BY FILENAME ORDER. A merged record took its
+   `venue_type` from whichever workstream file sorted first. Coventry
+   Building Society Arena — a 32,609-capacity Premier League stadium —
+   was therefore presented as an EXHIBITION_CENTRE, because
+   conference-exhibition.json sorts before football-stadiums.json.
+
+   Class is now ELECTED: researchers disagreeing across activity families
+   means the venue genuinely does several things (now
+   MULTI_PURPOSE_EVENT_COMPLEX, 34 venues); disagreeing within one family
+   elects the best-evidenced largest configuration. Every claim is retained
+   in `venue_type_claims`, so a dual-code football/rugby ground never loses
+   the fact that it is one. 40 venues had their class elected.
+
+--------------------------------------------------------------------------
+H. Corrections applied to existing census records
+--------------------------------------------------------------------------
+
+GREYHOUND — the census was WRONG, not merely incomplete. It carried 18
+active tracks; GBGB licenses 16. Independently verified here by fetching
+gbgb.org.uk/tracks/, which states "16 licensed tracks" and lists neither
+Oxford nor Mildenhall:
+  Oxford Stadium      -> CLOSED (closed 3 April 2026)
+  Mildenhall Stadium  -> retyped OTHER_SPORTS_VENUE, still OPERATIONAL
+                         (greyhound racing ceased 2 April 2026, but
+                         speedway and stock cars continue — marking a live
+                         motorsport venue CLOSED would be as wrong as
+                         leaving a defunct track active)
+The census now holds 15 greyhound stadiums plus Mildenhall reclassified,
+matching GBGB's own count.
+
+Also reported by the sport audit and carried in the workstream records:
+six stale sponsor names, a wrong city for Cae-y-Castell (Flint, not
+Connah's Quay — one row was silently covering two Cymru Premier clubs),
+St Helen's Swansea no longer a cricket venue, and a scrape artifact
+("Warrenpoint F.C.?action=edit&redlink=1" recorded as an operator).

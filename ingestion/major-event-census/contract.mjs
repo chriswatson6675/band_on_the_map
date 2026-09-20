@@ -26,12 +26,41 @@ export const CAPACITY_THRESHOLD = 1000;
 
 export const UK_NATIONS = new Set(["England", "Scotland", "Wales", "Northern Ireland"]);
 
+/**
+ * Venue classes, chosen to answer "what KIND of large event activity
+ * happens here?" rather than for taxonomic neatness.
+ *
+ * CONFERENCE_EXHIBITION_COMPLEX and MULTI_PURPOSE_EVENT_COMPLEX were added
+ * in Completeness-02. The first census produced CONFERENCE_CENTRE = 0
+ * despite obvious real conference infrastructure, because researchers had
+ * no way to express a campus that does conferences AND exhibitions at
+ * scale and so forced everything into CONVENTION_CENTRE/EXHIBITION_CENTRE.
+ */
 export const VENUE_TYPES = new Set([
   "FOOTBALL_STADIUM", "RUGBY_STADIUM", "CRICKET_GROUND", "OTHER_SPORTS_VENUE",
   "RACECOURSE", "MOTORSPORT_CIRCUIT", "GREYHOUND_STADIUM",
   "INDOOR_ARENA", "CONCERT_HALL", "THEATRE", "AUDITORIUM",
   "CONVENTION_CENTRE", "CONFERENCE_CENTRE", "EXHIBITION_CENTRE",
+  "CONFERENCE_EXHIBITION_COMPLEX", "MULTI_PURPOSE_EVENT_COMPLEX",
   "MULTI_PURPOSE_COMPLEX", "OTHER_MAJOR_EVENT_VENUE",
+]);
+
+/** Venue classes that qualify on convention/exhibition scale (Phase 3). */
+export const CONVENTION_CLASS_VENUE_TYPES = new Set([
+  "CONVENTION_CENTRE", "CONFERENCE_CENTRE", "EXHIBITION_CENTRE",
+  "CONFERENCE_EXHIBITION_COMPLEX",
+]);
+
+/**
+ * Venue classes where a single seated capacity is genuinely not a
+ * meaningful number (Phase 14). A racecourse, circuit or greyhound track
+ * is major permanent event infrastructure whether or not anyone publishes
+ * a seat count, and the first census flagged 92 of them for capacity
+ * review as a result — which understated the estate rather than
+ * describing it.
+ */
+export const SCALE_EXCEPTION_SPORTING_VENUE_TYPES = new Set([
+  "RACECOURSE", "MOTORSPORT_CIRCUIT", "GREYHOUND_STADIUM",
 ]);
 
 export const OPERATIONAL_STATUSES = new Set(["OPERATIONAL", "CLOSED", "UNDER_CONSTRUCTION", "STATUS_REVIEW_REQUIRED"]);
@@ -46,12 +75,21 @@ export const OPERATIONAL_STATUSES = new Set(["OPERATIONAL", "CLOSED", "UNDER_CON
 export const INCLUSION_BASES = new Set([
   "CAPACITY_THRESHOLD_MET",
   "MAJOR_CONVENTION_EXHIBITION_INFRASTRUCTURE",
+  "MAJOR_SPORTING_INFRASTRUCTURE",
   "CAPACITY_REVIEW_REQUIRED",
 ]);
 
+/**
+ * Capacity configurations. The Completeness-02 additions exist so that
+ * venue classes which do not publish a seat count can still present REAL
+ * cited scale evidence instead of a fabricated seated figure: a grandstand
+ * capacity, a documented attendance, or a stated whole-site event capacity
+ * are each honest and different things.
+ */
 export const CAPACITY_TYPES = new Set([
   "SPECTATOR", "SEATED", "STANDING", "CONCERT", "THEATRE_STYLE",
   "DELEGATE", "AUDITORIUM", "LARGEST_ROOM", "OTHER_EXPLICIT",
+  "GRANDSTAND", "RECORDED_ATTENDANCE", "SITE_EVENT_CAPACITY", "BANQUET",
 ]);
 
 /** Capacity evidence authority grades (Phase 8). GRADE_A is first-party/official. */
@@ -62,7 +100,31 @@ export const CAPACITY_CONFIDENCE = new Set(["HIGH", "MEDIUM", "LOW", "CAPACITY_R
 /** What KIND of scheduled activity a calendar publishes (Phase 9). */
 export const CALENDAR_SOURCE_TYPES = new Set([
   "SPORT_FIXTURES", "CONCERTS", "CONFERENCES", "CONVENTIONS",
-  "EXHIBITIONS", "TRADE_SHOWS", "PERFORMING_ARTS", "OTHER_MAJOR_EVENTS",
+  "EXHIBITIONS", "TRADE_SHOWS", "PUBLIC_SHOWS", "PERFORMING_ARTS",
+  "OTHER_MAJOR_EVENTS",
+]);
+
+/**
+ * What happened when a venue's official identity was re-examined
+ * (Phase 10). A URL proven NOT to belong to its venue is quarantined
+ * rather than deleted: the census must keep the original bad evidence as
+ * historical provenance, so a later pass can see the domain was checked
+ * and rejected rather than never considered.
+ */
+export const OFFICIAL_URL_STATUSES = new Set([
+  "OFFICIAL_URL_VERIFIED",
+  "OFFICIAL_URL_REPLACED",
+  "OFFICIAL_URL_REVIEW_REQUIRED",
+]);
+
+/** Outcome of a bounded calendar-recovery attempt on a no-calendar venue (Phase 11). */
+export const CALENDAR_RECOVERY_OUTCOMES = new Set([
+  "CALENDAR_FOUND",
+  "FIXTURE_SOURCE_FOUND",
+  "NO_PUBLIC_CALENDAR_CONFIRMED",
+  "OFFICIAL_SITE_MISSING",
+  "IDENTITY_REVIEW_REQUIRED",
+  "SOURCE_REVIEW_REQUIRED",
 ]);
 
 export const SPORTS = new Set([
@@ -161,6 +223,19 @@ export function validateVenueCensusRecord(record) {
   if (typeof record.latitude === "number" && (record.latitude < -90 || record.latitude > 90)) errors.push("latitude out of range");
   if (typeof record.longitude === "number" && (record.longitude < -180 || record.longitude > 180)) errors.push("longitude out of range");
   if (!nullableText(record.official_url)) errors.push("official_url must be a string or null");
+  if (!OFFICIAL_URL_STATUSES.has(record.official_url_status)) errors.push(`official_url_status invalid: ${record.official_url_status}`);
+  if (!nullableText(record.official_url_quarantined)) errors.push("official_url_quarantined must be a string or null");
+  if (!nullableText(record.official_url_quarantine_reason)) errors.push("official_url_quarantine_reason must be a string or null");
+  // A quarantined URL must say WHY it was rejected, and must never still
+  // be presented as the venue's current official site.
+  if (text(record.official_url_quarantined)) {
+    if (!text(record.official_url_quarantine_reason)) errors.push("official_url_quarantined requires official_url_quarantine_reason");
+    if (record.official_url_quarantined === record.official_url) errors.push("a quarantined official_url must not also be the current official_url");
+    if (record.official_url_status === "OFFICIAL_URL_VERIFIED") errors.push("a venue with a quarantined URL cannot be OFFICIAL_URL_VERIFIED");
+  }
+  if (record.official_url_status === "OFFICIAL_URL_REPLACED" && !text(record.official_url)) {
+    errors.push("OFFICIAL_URL_REPLACED requires a replacement official_url");
+  }
   if (!VENUE_TYPES.has(record.venue_type)) errors.push(`venue_type invalid: ${record.venue_type}`);
   if (!OPERATIONAL_STATUSES.has(record.operational_status)) errors.push(`operational_status invalid: ${record.operational_status}`);
   if (!INCLUSION_BASES.has(record.inclusion_basis)) errors.push(`inclusion_basis invalid: ${record.inclusion_basis}`);

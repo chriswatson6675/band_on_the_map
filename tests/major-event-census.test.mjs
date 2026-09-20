@@ -10,8 +10,9 @@ import {
   validateVenueCensusRecord, validateCalendarSource, validateCapacityEvidence,
   validateCensusArtifact,
 } from "../ingestion/major-event-census/contract.mjs";
-import { compileCensus, reconcileVenues, electPrincipalCapacity } from "../ingestion/major-event-census/compile.mjs";
+import { compileCensus, reconcileVenues, electPrincipalCapacity, electVenueType } from "../ingestion/major-event-census/compile.mjs";
 import { readinessFromFingerprint, fingerprintCalendarSources } from "../ingestion/major-event-census/fingerprint-sources.mjs";
+import { verifyFamilyClaim, auditSourceFamilies, applyAuditVerdicts } from "../ingestion/major-event-census/audit-source-families.mjs";
 
 const GENERATED_AT = "2026-09-20T00:00:00.000Z";
 
@@ -94,6 +95,75 @@ test("principal capacity is elected by evidence quality, never by whichever figu
   // Election is order-independent.
   const reversed = electPrincipalCapacity([...entries].reverse()).filter((item) => item.is_principal);
   assert.equal(reversed[0].capacity_value, 10000);
+});
+
+test("the sporting-infrastructure exception needs a CITED calendar, not a note saying no capacity was published", () => {
+  // The defect this guards: the exception first keyed off scale_description,
+  // so a racecourse whose researcher wrote "No capacity figure published"
+  // was admitted on a sentence recording the ABSENCE of evidence.
+  const base = {
+    canonical_name: "Example Racecourse", city: "Exampleton", nation: "England",
+    venue_type: "RACECOURSE", operational_status: "OPERATIONAL",
+    capacity: { capacity_value: null, capacity_type: "SPECTATOR", capacity_source: null, capacity_confidence: "CAPACITY_REVIEW_REQUIRED" },
+    evidence: [{ kind: "FETCHED_URL", value: "https://example-racecourse.test/", note: "official site" }],
+  };
+
+  const absenceOnly = compileCensus([workstream([{
+    ...base, scale_description: "No capacity figure published on the official homepage.", calendar_sources: [],
+  }])], { generatedAt: GENERATED_AT });
+  assert.equal(absenceOnly.venues.venues[0].inclusion_basis, "CAPACITY_REVIEW_REQUIRED", "a note about missing evidence must never admit a venue");
+
+  const withCalendar = compileCensus([workstream([{
+    ...base,
+    calendar_sources: [{ source_url: "https://example-racecourse.test/racedays", source_type: "SPORT_FIXTURES", sport: "horse_racing", first_party: true, publicly_accessible: true, events_currently_present: true, last_checked: "2026-09-20" }],
+  }])], { generatedAt: GENERATED_AT });
+  assert.equal(withCalendar.venues.venues[0].inclusion_basis, "MAJOR_SPORTING_INFRASTRUCTURE", "a cited public fixture calendar is positive evidence and does qualify");
+
+  // The exception is confined to classes where a seat count is genuinely
+  // not meaningful — it must not leak into ordinary uncertain venues.
+  const ordinary = compileCensus([workstream([{
+    ...base, venue_type: "THEATRE",
+    calendar_sources: [{ source_url: "https://example-racecourse.test/whats-on", source_type: "PERFORMING_ARTS", sport: null, first_party: true, publicly_accessible: true, events_currently_present: true, last_checked: "2026-09-20" }],
+  }])], { generatedAt: GENERATED_AT });
+  assert.equal(ordinary.venues.venues[0].inclusion_basis, "CAPACITY_REVIEW_REQUIRED", "a theatre with no proven capacity is never admitted on the sporting exception");
+});
+
+test("a proven official URL that turns out to be squatted is quarantined, never silently dropped or reinstated", () => {
+  const bad = "https://lapsed-domain.test/";
+  const quarantined = rawVenue({
+    official_url: "https://real-venue.test/",
+    official_url_status: "OFFICIAL_URL_REPLACED",
+    official_url_quarantined: bad,
+    official_url_quarantine_reason: "domain now serves casino affiliate spam",
+  });
+  const { venues, capacityEvidence, calendarSources } = compileCensus([workstream([quarantined])], { generatedAt: GENERATED_AT });
+  const venue = venues.venues[0];
+  assert.equal(venue.official_url, "https://real-venue.test/");
+  assert.equal(venue.official_url_quarantined, bad, "the rejected domain must be retained as historical provenance");
+  assert.notEqual(venue.official_url, venue.official_url_quarantined);
+  assert.deepEqual(validateCensusArtifact({
+    venues: venues.venues,
+    calendarSources: calendarSources.calendar_sources,
+    capacityEvidence: capacityEvidence.capacity_evidence,
+  }), []);
+
+  // A second researcher still carrying the bad URL must not reinstate it.
+  const naive = rawVenue({ official_url: bad });
+  const merged = compileCensus([workstream([quarantined], "A"), workstream([naive], "B")], { generatedAt: GENERATED_AT }).venues.venues;
+  assert.equal(merged.length, 1);
+  assert.notEqual(merged[0].official_url, bad, "a merge must never reinstate a URL already proven wrong");
+  assert.equal(merged[0].official_url_quarantined, bad);
+});
+
+test("validation rejects a quarantined URL that is still presented as the venue's current official site", () => {
+  const bad = "https://lapsed-domain.test/";
+  const { venues } = compileCensus([workstream([rawVenue({
+    official_url: bad, official_url_status: "OFFICIAL_URL_REPLACED",
+    official_url_quarantined: bad, official_url_quarantine_reason: "squatted",
+  })])], { generatedAt: GENERATED_AT });
+  // compileCensus keeps the record shape; validation is what must object.
+  const errors = validateCensusArtifact({ venues: venues.venues, calendarSources: [], capacityEvidence: [] });
+  assert.ok(errors.some((error) => /must not also be the current official_url/.test(error)), `expected a quarantine conflict error, got: ${errors.join("; ")}`);
 });
 
 test("a convention/exhibition venue with no single capacity still qualifies on the documented scale exception", () => {
@@ -211,6 +281,157 @@ test("one source's fetch failure never affects another source's fingerprint resu
   assert.equal(good.acquisition_readiness, "READY_TIER1");
   assert.equal(bad.acquisition_readiness, "SOURCE_REVIEW_REQUIRED");
   assert.match(bad.fingerprint_error, /simulated unreachable/);
+});
+
+test("a venue class is elected on evidence, never by which workstream file sorted first", () => {
+  // The defect this guards: four workstreams classified Coventry Building
+  // Society Arena differently, and the winner was whichever filename came
+  // first alphabetically — which presented a 32,609-capacity Premier
+  // League stadium as an EXHIBITION_CENTRE.
+  const crossFamily = electVenueType([
+    { venue_type: "EXHIBITION_CENTRE", capacity_value: 10000 },
+    { venue_type: "FOOTBALL_STADIUM", capacity_value: 32609 },
+  ]);
+  assert.equal(crossFamily.venueType, "MULTI_PURPOSE_EVENT_COMPLEX", "a venue evidenced as both a stadium and an exhibition centre genuinely is both");
+
+  // Within one activity family it is a classification nuance, not
+  // multi-purpose: elect the best-evidenced largest configuration.
+  const withinFamily = electVenueType([
+    { venue_type: "RUGBY_STADIUM", capacity_value: 26462 },
+    { venue_type: "FOOTBALL_STADIUM", capacity_value: 27000 },
+  ]);
+  assert.equal(withinFamily.venueType, "FOOTBALL_STADIUM");
+  assert.equal(withinFamily.multiPurpose, false);
+
+  // Order must not change the answer.
+  assert.equal(electVenueType([
+    { venue_type: "FOOTBALL_STADIUM", capacity_value: 27000 },
+    { venue_type: "RUGBY_STADIUM", capacity_value: 26462 },
+  ]).venueType, "FOOTBALL_STADIUM");
+
+  // No disagreement, no election.
+  assert.equal(electVenueType([{ venue_type: "THEATRE", capacity_value: 1200 }]).venueType, "THEATRE");
+});
+
+test("a sub-venue inside a complex is never collapsed into its parent, but true aliases are merged", () => {
+  const parent = rawVenue({
+    canonical_name: "Example Complex", city: "Exampleton", venue_type: "EXHIBITION_CENTRE",
+    alternative_names: ["Example Arena Complex"], parent_complex: null,
+  });
+  const child = rawVenue({
+    canonical_name: "Indoor Arena, Example Complex", city: "Exampleton", venue_type: "INDOOR_ARENA",
+    alternative_names: ["Example Complex"], parent_complex: "Example Complex",
+  });
+  const kept = compileCensus([workstream([parent], "A"), workstream([child], "B")], { generatedAt: GENERATED_AT }).venues.venues;
+  assert.equal(kept.length, 2, "a declared sub-venue must survive as its own record");
+
+  // But two records for ONE building, arriving under different headline
+  // names that share an alias, ARE the same venue.
+  const a = rawVenue({ canonical_name: "Aviva Arena", city: "Bristol", alternative_names: ["YTL Arena Bristol"], parent_complex: null });
+  const b = rawVenue({ canonical_name: "Aviva Arena Bristol", city: "Bristol", alternative_names: ["YTL Arena Bristol"], parent_complex: null });
+  const merged = compileCensus([workstream([a], "A"), workstream([b], "B")], { generatedAt: GENERATED_AT }).venues.venues;
+  assert.equal(merged.length, 1, "records sharing an alias in the same city are one venue");
+  assert.ok(merged[0].identity_review, "an alias-based merge is weaker evidence and must stay visible for review");
+});
+
+test("the family audit rejects the exact shapes that inflated TIER2 — emoji-only JSON and no JSON at all", () => {
+  const emojiOnly = `<html><head><script type="application/json" id="x">{"concatemoji":"https://s/wp-includes/js/wp-emoji-release.min.js","source":{"wpemoji":"x"}}</script></head><body>events</body></html>`;
+  const noJson = `<html><head><script src="/app.js"></script></head><body>fixtures</body></html>`;
+  const real = `<html><script type="application/json">{"props":{"events":[{"title":"Gig A","date":"2026-10-01"},{"title":"Gig B","date":"2026-10-08"},{"title":"Gig C","date":"2026-11-02"}]}}</script></html>`;
+
+  assert.equal(verifyFamilyClaim("OTHER_EMBEDDED_APP_STATE", emojiOnly).confirmed, false, "the WordPress emoji block is not reusable app state");
+  assert.equal(verifyFamilyClaim("OTHER_EMBEDDED_APP_STATE", noJson).confirmed, false, "no application/json script at all cannot confirm embedded app state");
+  assert.equal(verifyFamilyClaim("OTHER_EMBEDDED_APP_STATE", real).confirmed, true);
+
+  // Each family must verify ITS OWN marker — a Next.js page must never
+  // confirm a Nuxt claim, or the audit would just launder the error.
+  const next = `<html><script id="__NEXT_DATA__" type="application/json">{"props":{}}</script></html>`;
+  assert.equal(verifyFamilyClaim("EMBEDDED_NEXT_DATA", next).confirmed, true);
+  assert.equal(verifyFamilyClaim("EMBEDDED_NUXT_STATE", next).confirmed, false);
+});
+
+test("the audit accepts BOTH Next.js payload shapes — an over-strict rule under-states readiness", () => {
+  // The defect this guards: the rule originally checked only
+  // __NEXT_DATA__ (Pages Router) and so reported 71 of 80 genuine Next.js
+  // sources as misclassified. Those sites were real; they use the App
+  // Router, which streams RSC chunks onto self.__next_f instead. A false
+  // downgrade understates readiness just as badly as over-classification
+  // overstates it.
+  const pagesRouter = `<html><script id="__NEXT_DATA__" type="application/json">{"props":{}}</script></html>`;
+  const appRouter = `<html><script>self.__next_f.push([1,"a:[\\"events\\"]"])</script></html>`;
+  const frameworkOnly = `<html><link rel="preload" href="/_next/static/chunks/main.js"></html>`;
+
+  assert.equal(verifyFamilyClaim("EMBEDDED_NEXT_DATA", pagesRouter).confirmed, true);
+  assert.equal(verifyFamilyClaim("EMBEDDED_NEXT_DATA", appRouter).confirmed, true, "App Router RSC payloads are embedded data too");
+  assert.equal(verifyFamilyClaim("EMBEDDED_NEXT_DATA", frameworkOnly).confirmed, false, "/_next/static proves the framework built the page, not that data is embedded in it");
+});
+
+test("the audit is idempotent — a corrected rule can give back readiness a flawed run took away", async () => {
+  const downgradedByFlawedRun = [{
+    calendar_source_id: "a", source_url: "https://a.test/x", source_family: "EMBEDDED_NEXT_DATA",
+    collector_route: "GENERIC_CAPABILITY_WIDENING", http_status: 200,
+    acquisition_readiness: "SOURCE_REVIEW_REQUIRED",
+    family_audit_verdict: "NOT_CONFIRMED", family_audit_detail: "stale rule", family_audit_checked_at: "2026-09-20T00:00:00.000Z",
+  }];
+  const verdicts = await auditSourceFamilies(downgradedByFlawedRun, {
+    fetchDocument: async () => ({ status: 200, body: `<html><script>self.__next_f.push([1,"x"])</script></html>` }),
+  });
+  assert.equal(verdicts[0].verdict, "CONFIRMED");
+
+  const { sources, downgraded } = applyAuditVerdicts(downgradedByFlawedRun, verdicts, {
+    resetReadiness: (source) => readinessFromFingerprint({ ok: true, mechanism: source.source_family, collectorRoute: source.collector_route }),
+  });
+  assert.equal(downgraded, 0);
+  assert.equal(sources[0].acquisition_readiness, "TIER2_REUSABLE_FAMILY", "readiness must be restored from the retained fingerprint, not left downgraded");
+  assert.equal(sources[0].family_audit_verdict, undefined, "the stale verdict must be cleared, not kept alongside a restored readiness");
+});
+
+test("the family audit only ever REMOVES false confidence — it never promotes a source", async () => {
+  const sources = [
+    { calendar_source_id: "a", source_url: "https://a.test/x", source_family: "OTHER_EMBEDDED_APP_STATE", acquisition_readiness: "TIER2_REUSABLE_FAMILY" },
+    { calendar_source_id: "b", source_url: "https://b.test/x", source_family: "OTHER_EMBEDDED_APP_STATE", acquisition_readiness: "TIER2_REUSABLE_FAMILY" },
+    { calendar_source_id: "c", source_url: "https://c.test/x", source_family: "CLIENT_RENDERED_UNKNOWN", acquisition_readiness: "TIER3_BROWSER_OR_COMPLEX" },
+  ];
+  const bodies = {
+    "https://a.test/x": `<html><script type="application/json">{"props":{"pageProps":{"events":[{"title":"Gig One","startDate":"2026-10-01","venue":"Example Arena"},{"title":"Gig Two","startDate":"2026-10-08","venue":"Example Arena"},{"title":"Gig Three","startDate":"2026-11-02","venue":"Example Arena"}]}}}</script></html>`,
+    "https://b.test/x": `<html><head><script type="application/json">{"concatemoji":"wp-emoji-release.min.js"}</script></head></html>`,
+  };
+  const verdicts = await auditSourceFamilies(sources, {
+    concurrency: 2,
+    fetchDocument: async (url) => ({ status: 200, body: bodies[url] ?? "" }),
+  });
+
+  // CLIENT_RENDERED_UNKNOWN is already the conservative answer and is not audited.
+  assert.equal(verdicts.length, 2, "only TIER2-contributing families are audited");
+  assert.equal(verdicts.find((v) => v.calendar_source_id === "a").verdict, "CONFIRMED");
+  assert.equal(verdicts.find((v) => v.calendar_source_id === "b").verdict, "NOT_CONFIRMED");
+
+  const { sources: updated, downgraded } = applyAuditVerdicts(sources, verdicts);
+  assert.equal(downgraded, 1);
+  assert.equal(updated.find((s) => s.calendar_source_id === "a").acquisition_readiness, "TIER2_REUSABLE_FAMILY", "a confirmed source is left exactly as it was");
+  assert.equal(updated.find((s) => s.calendar_source_id === "b").acquisition_readiness, "SOURCE_REVIEW_REQUIRED");
+  assert.ok(updated.find((s) => s.calendar_source_id === "b").family_audit_detail, "the downgrade must retain its reason");
+  assert.equal(updated.find((s) => s.calendar_source_id === "c").acquisition_readiness, "TIER3_BROWSER_OR_COMPLEX", "an unaudited source is untouched");
+});
+
+test("one source's audit failure never changes another source's verdict", async () => {
+  const sources = [
+    { calendar_source_id: "boom", source_url: "https://boom.test/x", source_family: "EMBEDDED_NEXT_DATA", acquisition_readiness: "TIER2_REUSABLE_FAMILY" },
+    { calendar_source_id: "fine", source_url: "https://fine.test/x", source_family: "EMBEDDED_NEXT_DATA", acquisition_readiness: "TIER2_REUSABLE_FAMILY" },
+  ];
+  const verdicts = await auditSourceFamilies(sources, {
+    concurrency: 2,
+    fetchDocument: async (url) => {
+      if (url.includes("boom")) throw new Error("connection reset");
+      return { status: 200, body: `<html><script id="__NEXT_DATA__" type="application/json">{"props":{}}</script></html>` };
+    },
+  });
+  assert.equal(verdicts.find((v) => v.calendar_source_id === "boom").verdict, "UNREACHABLE");
+  assert.equal(verdicts.find((v) => v.calendar_source_id === "fine").verdict, "CONFIRMED");
+
+  // An unreachable source keeps its existing readiness — it is not evidence of anything.
+  const { downgraded } = applyAuditVerdicts(sources, verdicts);
+  assert.equal(downgraded, 0, "UNREACHABLE must never be treated as a failed claim");
 });
 
 test("SAFETY: the census modules never import any production registry, admission, publication or deployment path", async () => {

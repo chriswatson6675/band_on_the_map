@@ -2,12 +2,20 @@
   "artifact_type": "UK_MAJOR_EVENT_VENUE_CENSUS__RESEARCH_PROVENANCE",
   "framework_version": "1.0",
   "census_id": "uk-major-event-census-01",
-  "generated_at": "2026-09-20T16:11:05.716Z",
+  "generated_at": "2026-09-20T17:27:57.451Z",
   "counts": {
-    "records": 6
+    "records": 10
   },
   "method": "Per-venue-class research workstreams, each independently searched and required to cite a fetched URL for every capacity figure and calendar URL. Compiled deterministically; identity reconciled conservatively; nothing admitted to any production registry.",
   "workstreams": [
+    {
+      "workstream": "ARENA_AND_SPORT_AUDIT_02",
+      "generated_at": "2026-09-20T00:00:00Z",
+      "method_notes": "Independent cross-check of two never-verified census populations (INDOOR_ARENA n=41; GREYHOUND_STADIUM n=18, all 18 capacity-review-flagged) plus the arena-adjacent sporting populations (ice hockey, basketball, athletics, tennis). Existing census venues were extracted programmatically from research/major-event-venues/uk-major-event-census-01/venues.json (642 venues; 41 INDOOR_ARENA, 18 GREYHOUND_STADIUM, 14 OTHER_SPORTS_VENUE) and every candidate below was name+city+alternative-name matched against the full 642 before being proposed, so nothing here is a known duplicate. REFERENCE POPULATIONS CHECKED: (1) National Arenas Association member list (fetched https://www.nationalarenasassociation.com/ - 23 members incl. one Irish); (2) Wikipedia List of indoor arenas in the United Kingdom (operational, under-construction and former sections); (3) Elite Ice Hockey League 2025-26 season venue list (10 venues); (4) Super League Basketball 2025-26 season venue list (9 venues); (5) Greyhound Board of Great Britain's own published licensed-track count (fetched https://www.gbgb.org.uk/racing/race-courses/ and https://www.gbgb.org.uk/rules-regulation/licensing/tracks/ - BOTH state 16 licensed stadia) cross-read against the named 16-track list and then confirmed track-by-track against each track's own official site; (6) UK greyhound openings/closures register maintained by the trade publication Greyhound Racing Times; (7) major permanent tennis tournament venues; (8) major athletics stadium population. VERDICT - INDOOR_ARENA: UNDERCOUNTED. The top-tier concert/entertainment arena estate is in fact substantially covered by the census as a whole - every NAA member arena except one, and every operational arena on the Wikipedia UK indoor arena list, reconciles to an existing census record - but several of them sit under a DIFFERENT venue_type and so are excluded from the 41 (P&J Live Aberdeen is CONVENTION_CENTRE; Brighton Centre, Swansea Building Society Arena, Alexandra Palace and Windsor Hall/Bournemouth are AUDITORIUM; Olympia London and The NEC are EXHIBITION_CENTRE; Royal Albert Hall is CONCERT_HALL; Emirates Arena Glasgow is OTHER_SPORTS_VENUE). Those are classification questions, not gaps, and are reported rather than re-listed here so as not to create duplicates. The REAL undercount is in the mid-scale (1,400-3,500 capacity) purpose-built sporting/entertainment arena tier: only 2 of the 9 Super League Basketball venues (Copper Box Arena, Playsport Arena) were in the census at all, and 1 of the 10 EIHL venues (Planet Ice Altrincham) was missing. Six operational arena-type venues and one under-construction arena are added below, plus one genuinely missing NAA member arena (East of England Arena, Peterborough) classified as MULTI_PURPOSE_EVENT_COMPLEX. VERDICT - GREYHOUND_STADIUM: MATERIALLY WRONG, NOT MERELY INCOMPLETE. GBGB itself states 16 licensed tracks; the census carries 18 active ones. Both surplus records are corrected below: Oxford Stadium closed on 3 April 2026 and is set CLOSED; Mildenhall Stadium's greyhound operation closed on 2 April 2026 while the site itself continues as a Spedeworth speedway/stock-car venue, so it is re-typed OTHER_SPORTS_VENUE and left OPERATIONAL rather than being falsely killed off or falsely preserved as an active track. All 18 existing greyhound records are re-listed (same canonical_name + city) because all 18 carried CAPACITY_REVIEW_REQUIRED and six carried no official URL at all; this pass supplies verified official URLs, addresses and fixture calendars. VERDICT - ICE HOCKEY: PLAUSIBLY_COMPLETE after one addition (9 of 10 EIHL venues already present). VERDICT - BASKETBALL: UNDERCOUNTED (5 of 9 top-tier venues added; 2 more fall below the 1,000 threshold and are excluded with cited figures). VERDICT - ATHLETICS: PLAUSIBLY_COMPLETE - Alexander Stadium, London Stadium, Manchester Regional Arena, Gateshead International Stadium, Crystal Palace NSC, Scotstoun Stadium, Cardiff International Sports Stadium and the indoor Emirates/Glasgow International Arena are all already in the census; no >=1,000 athletics venue was established as missing. VERDICT - TENNIS: UNDERCOUNTED BY ONE - AELTC, Queen's Club, Devonshire Park and Nottingham Tennis Centre were present; Edgbaston Priory Club (Lexus Birmingham Open) was not and is added. EXCLUSIONS ARE STATED EXPLICITLY in each excluded venue's absence and in the report: Surrey Sports Park (970), SGS College/WISE Arena Bristol (750) and Lee Valley Athletics Centre (500 permanent seats) are all below the 1,000 threshold; Dundonald International Ice Bowl is a public leisure ice rink and Belfast Giants training/secondary venue with no established spectator capacity; Edinburgh Arena at Edinburgh Park has planning consent but construction had NOT started as of July 2026, so no permitted operational_status honestly applies and it is deliberately omitted; the remaining Planet Ice community rinks (Blackburn, Bristol, Gillingham, Gosport, Hemel Hempstead, Leeds, Peterborough, Solihull, Uttoxeter, Widnes) were not evidenced as >=1,000 major-event infrastructure and are omitted. NO capacity, address, postcode, date or URL below is asserted without a URL that was actually fetched; where no figure was found the capacity is null with CAPACITY_REVIEW_REQUIRED rather than guessed. Latitude/longitude are null throughout by instruction.",
+      "venues_supplied": 27,
+      "venues_accepted": 27,
+      "venues_rejected_incomplete": 0
+    },
     {
       "workstream": "CONCERT_HALLS_AND_THEATRES",
       "generated_at": "2026-09-20T15:28:25.587Z",
@@ -22,6 +30,14 @@
       "method_notes": "Every capacity figure, square-metre figure, address and URL recorded below was read from a page that was actually fetched during this research pass; figures that appeared only in search-engine result summaries were deliberately NOT recorded, and those fields are left null with capacity_confidence CAPACITY_REVIEW_REQUIRED. Official first-party venue sites were preferred (GRADE_A); no third-party venue-directory figures were used as a capacity source. Calendar sources were only recorded where a fetched page listed actual forthcoming NAMED events; venues whose only public page was a 'hire our venue' / event-types marketing page were given zero calendar_sources and a no_public_calendar_reason. Operators were recorded only where a fetched page stated them, so several are null rather than guessed.",
       "venues_supplied": 29,
       "venues_accepted": 29,
+      "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "CONFERENCE_AND_EXHIBITION_02",
+      "generated_at": "2026-09-20T00:00:00Z",
+      "method_notes": "Dedicated second-pass national census of UK major business-event infrastructure, run because the first pass admitted only 22 conference/convention/exhibition venues (10 CONVENTION_CENTRE + 12 EXHIBITION_CENTRE, and CONFERENCE_CENTRE zero times). METHOD: (1) The 642 existing census records in venues.json were read programmatically and reduced to a canonical_name+city+nation+venue_type index; every candidate below was checked against that index before research, so venues already carried by other workstreams (e.g. Winter Gardens Blackpool, Venue Cymru, Westpoint Exeter, Brangwyn Hall, Caird Hall, Glasgow Royal Concert Hall, Music Hall Aberdeen, Usher Hall, Ulster Hall, Millennium Forum, Donald Gordon Theatre, The Glasshouse International Centre for Music, Brighton Dome, St George's Hall Bradford, Butterworth Hall, Bolton Arena, Silverstone Circuit) were deliberately NOT re-listed. (2) POPULATIONS ACTUALLY CHECKED, deliberately overlapping and never treated as truth on their own: Association of Event Venues full member directory (aev.org.uk/about-us/venue-members, 56 records across 6 pages, fetched); London & Partners / London Convention Bureau conference-venues directory (conventionbureau.london, all 6 pages); Unique Venues of London full member list (uniquevenuesoflondon.co.uk); Convention Edinburgh / Meeting Edinburgh searchable venue directory (meetingedinburgh.com/venues, 114 records with Max Theatre / Reception / Banqueting columns); Glasgow Life venue-hire directory (glasgowlife.org.uk/venue-hire, 3 pages); VisitScotland Business Events (businessevents.visitscotland.com - venue directory path is 404; only the conferences-and-exhibitions inspiration page carries capacities); VisitAberdeenshire business events (business.visitabdn.com - names no venues, lead-capture only); Business Events Wales / Meet in Wales (meetinwales.com - /venues is 404 and the search is client-rendered, but individual product pages carry structured capacity fields); Visit Cardiff / Meet Cardiff (meetcardiff.com/venues and /highlights/ pages); Visit Belfast business events (visitbelfastbusiness.events - client-rendered, static HTML exposes only 4 featured listings and its sitemap contains no venue pages: a genuine unswept population); NewcastleGateshead Convention Bureau; the agricultural-society / county-showground estate reached venue-by-venue from official society sites; and the official venue websites themselves, which were the primary evidence source throughout. (3) EVIDENCE RULE APPLIED: every non-null capacity_value cites the exact URL fetched that states it. Where a venue publishes only floor area, or only standing figures, or nothing, that is recorded honestly rather than guessed - six records carry capacity_value null with CAPACITY_REVIEW_REQUIRED. No coordinates were guessed; latitude/longitude are null throughout. Addresses and postcodes appear only where a fetched page stated them. (4) CALENDAR RULE APPLIED: venue-hire pages, capacity charts and floor plans were NOT recorded as calendars. Only pages listing actual named forthcoming events were recorded, and events_currently_present is true only where named forthcoming events with dates were actually seen in the fetched page. (5) CONSISTENT EXCLUSION RULE: hotel-integrated ballrooms and function suites were excluded even at 1,000+ (InterContinental London - The O2 / Arora Ballroom 3,100 theatre; JW Marriott Grosvenor House Great Room 1,300 theatre; Novotel London West Champagne Suite 1,400 theatre; Hilton Birmingham Metropole; Celtic Manor Resort Caernarfon Suite 1,200 theatre; Macdonald Aviemore Resort Osprey Arena 1,150 theatre; Prestonfield Edinburgh 1,000 theatre). These are evidenced and named in the hand-back report so the census owner can reverse that judgement in one pass. (6) LIMITATION: the session's WebSearch budget (200 calls) was exhausted partway through, so later discovery was WebFetch-only, navigating from official sites. Several sites refused automated fetches entirely (c-h-w.com, eastsiderooms.com, qub.ac.uk, swansea.gov.uk, ulster.ac.uk, visitpeterborough.com, cardiff.ac.uk) - where a figure could still be obtained it is marked with its real source grade, and where it could not, the gap is stated rather than filled.",
+      "venues_supplied": 27,
+      "venues_accepted": 27,
       "venues_rejected_incomplete": 0
     },
     {
@@ -41,6 +57,14 @@
       "venues_rejected_incomplete": 0
     },
     {
+      "workstream": "PERFORMANCE_VENUES_02",
+      "generated_at": "2026-09-20T17:10:15.178Z",
+      "method_notes": "Targeted national pass for UK performance venues with capacity >= 1,000, run 2026-09-20 against the existing 642-venue census. RECONCILIATION: research/major-event-venues/uk-major-event-census-01/venues.json was parsed programmatically (never eyeballed) and every existing canonical_name + alternative_names + city combination was extracted before any candidate was written. The file grew from 642 to 676 records while this pass was running, so the de-duplication was re-run against the final 676-record state across ALL venue_types (not just performance types) using normalised name matching that strips punctuation, case and a leading definite article. That second pass caught four candidates already present under conference/multi-purpose classifications - Central Hall Westminster (London), Tobacco Dock (London), Edinburgh Corn Exchange (Edinburgh) and McEwan Hall (Edinburgh) - and they were removed from this file rather than duplicated. No venue in this file collides with any existing census record on name+city. OPERATOR PORTFOLIOS CHECKED AND RECONCILED LINE BY LINE: ATG Entertainment (full UK list via en.wikipedia.org/wiki/Ambassador_Theatre_Group - ALL 33 UK venues already in the census, zero gaps); Trafalgar Entertainment / former HQ Theatres (19 UK venues via en.wikipedia.org/wiki/Trafalgar_Entertainment - 6 gaps found and added: Congress Theatre, Winter Garden Eastbourne, G Live, Fareham Live, Pavilion Theatre Glasgow, Bradford Live); Nimax Theatres (only the Palace Theatre is >= 1,000 and it is already present); LW Theatres / Really Useful Group (all six >= 1,000 houses already present); Delfont Mackintosh (all six >= 1,000 houses already present); Nederlander UK (Adelphi, Aldwych, Dominion all present); Academy Music Group (full venue table via en.wikipedia.org/wiki/Academy_Music_Group - 10 gaps >= 1,000 added; O2 Academy Glasgow, O2 Shepherd’s Bush Empire and Newcastle City Hall were already present); AEG (The Halls Wolverhampton added; The O2, OVO Arena Wembley, Eventim Apollo already present; indigo at The O2 added as a distinct room); NEC Group (NEC, ICC, Symphony Hall, Utilita Arena Birmingham, bp pulse LIVE all present); ASM Global / Sheffield Theatres / Birmingham Hippodrome / Capital Theatres / Bradford Theatres (no >= 1,000 gaps found). POPULATIONS SWEPT: (a) en.wikipedia.org/wiki/West_End_theatre full capacity table - every West End house at or above 1,000 seats was already in the census, so the suspected West End gap does not exist; (b) the complete \"Indoor theatres and halls\" table of en.wikipedia.org/wiki/List_of_venues_in_the_United_Kingdom read as raw wikitext and filtered to >= 1,000; (c) a Wikidata SPARQL capacity query (P1083 >= 1000, P131* within England/Scotland/Wales/Northern Ireland) returning 864 rows, of which 86 distinct performance-venue-typed records were cross-checked; (d) MediaWiki revisions-API retrieval of 210 individual venue articles for infobox capacity, address, owner and operator; (e) 230 direct fetches of official venue and local-authority sites for first-party capacity and what’s-on pages. LARGE LOCAL-AUTHORITY ESTATES CHECKED: Croydon, Watford, St Albans, Tunbridge Wells, Eastbourne, Hastings, Bexhill (Rother), Wolverhampton, Blackburn with Darwen, Preston, Warrington, Carlisle, Middlesbrough, Kirklees, Calderdale, North Lincolnshire, East Lindsey, Harrogate/North Yorkshire, Scarborough, Cornwall, BCP/Poole, Portsmouth, Guildford, Fareham, Peterborough, Glasgow Life, City of Edinburgh, Aberdeen City, Stirling, Renfrewshire, Denbighshire, Belfast. NATIONS: Scotland, Wales and Northern Ireland were swept deliberately and separately rather than as a by-product of a London/England sweep. CAPACITY RULE APPLIED: the principal capacity_value is always a single main auditorium, never a sum of a building’s rooms; secondary rooms go to additional_capacities. Where a venue is admitted on a standing rather than seated configuration (Alban Arena, Engine Shed, Exeter Great Hall) that is stated explicitly in capacity_configuration. DELIBERATE EXCLUSIONS ON EVIDENCE: Royal Hall Harrogate was investigated and EXCLUDED because the official Harrogate Convention Centre venue page states a theatre capacity of 978, below the 1,000 threshold. O2 Academy Edinburgh was EXCLUDED because its AMG slug returned HTTP 404 when probed live, indicating it is no longer an operating AMG venue, despite appearing in the AMG Wikipedia table at 3,000. Sub-1,000 houses confirmed and skipped include Gielgud (994), Noel Coward (942), Lyric Shaftesbury Avenue (915), Wyndham’s (799), Theatre Royal Haymarket (888), Sheffield Crucible (980), Orchard Theatre Dartford (956), Churchill Theatre Bromley (785), Devonshire Park Theatre (873), Cheltenham Town Hall (978), Weymouth Pavilion (988) and Queen’s Hall Edinburgh (801). HONEST NULLS: seven venues are recorded with capacity_value null and capacity_confidence CAPACITY_REVIEW_REQUIRED (Hall for Cornwall, Huddersfield Town Hall, Parr Hall, The Sands Centre, Albert Halls Stirling, Paisley Town Hall, Rhyl Pavilion Theatre) because no fetched page stated a figure. They are NOT asserted to meet the >= 1,000 threshold. SHARED CALENDAR PLATFORMS RECORDED: academymusicgroup.com/<venue-slug>/events (11 live slugs confirmed by live HTTP probe; pattern opened in a real browser at O2 Academy Brixton and confirmed to render named dated events); trafalgartickets.com/<venue-slug>/en-GB (4 venues here, covering 5 auditoria); betterboxoffice.co.uk/<venue-slug> (GLL/Better); everyonetheatres.com/theatres/<venue-slug>/ (Everyone Active); bwdvenues.com (Blackburn with Darwen, multi-venue); boxoffice.middlesbrough.gov.uk (Middlesbrough, multi-venue); glasgowlife.org.uk/whats-on/glasgow-life-tickets (Glasgow Life, multi-venue); scunthorpetheatres.co.uk (North Lincolnshire, multi-venue); eastbournetheatres.co.uk via trafalgartickets (multi-venue).",
+      "venues_supplied": 71,
+      "venues_accepted": 71,
+      "venues_rejected_incomplete": 0
+    },
+    {
       "workstream": "RACING_MOTORSPORT_OTHER_SPORT",
       "generated_at": "2026-09-20T15:37:40.608Z",
       "method_notes": "Breadth-first census compiled 2026-09-20 from live fetches of operator, venue and governing-body sites, with Wikipedia used only where a first-party figure was unavailable (marked GRADE_B). The 59-course British racecourse list was taken from the Wikipedia List of British racecourses table and cross-checked against the RCA/BHA count (Jockey Club 14, ARC 16, 27 independent); Down Royal and Downpatrick were added for Northern Ireland, giving 61 racecourses. Racecourses, circuits and greyhound stadiums almost never publish a single spectator capacity, so capacity_value is null and capacity_confidence is CAPACITY_REVIEW_REQUIRED for the large majority; where a venue stated an attendance band or licensed figure (Taunton 10,000 licensed; Salisbury 2,000-9,000; Chester 20,000+ per race day; Fakenham 1,500-4,500+; Epsom 28,000+ on Derby Day) that wording is preserved verbatim in scale_description rather than converted into a number. Three operators share one site platform each, which matters for ingestion: Jockey Club Racecourses (thejockeyclub.co.uk/<course>/events-tickets/, verified on Cheltenham, Aintree, Epsom, Newmarket, Haydock, Sandown), Arena Racing Company (per-course domains with /whats-on and /popular-events/live-music, verified on Doncaster and Chepstow) and MotorSport Vision (per-circuit domains with /calendar, verified on Brands Hatch, Donington, Oulton Park, Snetterton, Cadwell Park). Where a sibling venue site was not individually fetched, the calendar_sources note says so explicitly.",
@@ -55,6 +79,538 @@
       "venues_supplied": 67,
       "venues_accepted": 67,
       "venues_rejected_incomplete": 0
+    },
+    {
+      "workstream": "SPORT_COMPLETENESS_AUDIT_02",
+      "generated_at": "2026-09-20T17:11:36.730Z",
+      "method_notes": "SPORT_COMPLETENESS_AUDIT_02 - audit of the SPORTING estate of the UK major-event venue census (census baseline 642 venues). Scope covered: rugby union, rugby league, cricket, horse racing, motorsport, and a systematic-gap spot-audit of football. Indoor arenas, greyhound, ice hockey, basketball, athletics and tennis were OUT OF SCOPE for this workstream (handled separately) and were deliberately not worked on.\n\nTHIS FILE CONTAINS 92 RECORDS: 80 NEW VENUES and 12 CORRECTION RECORDS. New venues break down as 36 rugby union grounds, 22 cricket grounds, 9 motorsport venues (5 circuits + 4 speed hillclimbs), 7 rugby league grounds and 6 football stadiums. 0 racecourses were added - horse racing was audited and found genuinely complete. Every correction record deliberately reuses the census's EXACT existing canonical_name and city so it reconciles onto the record it corrects, and asserts no capacity unless it is correcting one.\n\n=== PER-SPORT AUTHORITATIVE POPULATIONS CHECKED, AND VERDICTS ===\n\n1) HORSE RACING - VERDICT: PLAUSIBLY_COMPLETE. Population checked: the operating Great Britain racecourse estate (via greatbritishracing.com/racecourses/, which reports 59 results, and the Wikipedia List of British racecourses, which states 59 operating in Great Britain as of 17 September 2026), plus Northern Ireland's two courses, plus the two operator portfolios (thejockeyclub.co.uk lists 14 racecourses; arenaracingcompany.co.uk/racing/horse-racing/our-racecourses lists 16). Expected population 59 GB + 2 NI = 61. Census had 61. ADDED 0. The census's 59 GB courses were diffed name-by-name against the authoritative 59 and match EXACTLY. Both operator attributions also reconcile exactly: the census's 14 Jockey Club courses and 16 ARC courses match the operators' own published portfolios. NO CLOSED COURSE IS WRONGLY RETAINED - Folkestone (last raced 18 December 2012) and Towcester (closed 2018) are both correctly absent, and Hereford, which closed in 2012 and reopened in 2016, is correctly present as OPERATIONAL. This sport needed correction in neither direction.\n\n2) MOTORSPORT - VERDICT: UNDERCOUNTED. Population checked: the Motorsport UK / operator-portfolio permanent circuit estate (msv.com, barc.net/about/, motorsportuk.org, motorsportni.org). EXPECTED_POPULATION_UNKNOWN - no governing body publishes a definitive count of licensed permanent circuits with public spectator calendars. Census had 14. ADDED 9 (5 circuits: Mallory Park, Lydden Hill, Kirkistown, Three Sisters, Crail Raceway; plus 4 speed hillclimbs: Shelsley Walsh, Prescott, Harewood, Gurston Down). The most material gap is KIRKISTOWN - the census contained NO Northern Irish motorsport circuit at all. Rockingham Motor Speedway (closed 24 November 2018) and Arena Essex/Lakeside (last meeting 4 November 2018) were verified closed and are correctly ABSENT from the census, so no closed circuit is wrongly retained. Bedford Autodrome was examined and deliberately EXCLUDED: MSV operate it, but its own site shows it is a PalmerSport corporate/track-day venue \"with no requirement for crowd-protecting safety barriers\", i.e. not a public spectator race facility. Blyton Park and Teesside Autodrome were excluded on the same basis.\n\n3) RUGBY UNION - VERDICT: UNDERCOUNTED, and the census was a SEASON OUT OF DATE. Populations checked: PREM Rugby (premrugby.com/clubs/, 10 clubs); Champ Rugby, English tier 2 (the RFU-operated champrugby.com plus the 2026-27 Champ Rugby teams-and-stadia table, 14 clubs); the URC's UK clubs; and the Welsh and Scottish club estates via the two unions' own shared fixture platforms (my.wru.wales/fixtures-results and fixtures.scottishrugby.org/club-rugby). Census had 40 RUGBY_STADIUM records (covering both codes). ADDED 36 rugby union venues - 13 in England (Champ Rugby), 1 PREM Rugby, 13 in Wales and 9 in Scotland. Findings: (a) PREM Rugby - exactly ONE gap, StoneX Stadium (Saracens); the other nine clubs' grounds were all present, several under FOOTBALL_STADIUM (Ashton Gate, Principality). (b) URC - COMPLETE; all seven UK clubs' grounds present. (c) Champ Rugby - 10 of 14 grounds missing. CRITICAL: the obvious source (the 2025-26 season table) is STALE - Cambridge and London Scottish have been relegated out, and Blackheath (Well Hall) and Rotherham Titans (Clifton Lane) promoted in; Coventry's ground was renamed from Butts Park Arena to the Nick Newbold Stadium with effect from 21 March 2026. The 2026-27 table was used instead. (d) WALES - 11 major grounds >= 1,000 missing, including Newport Stadium, which a NAME COLLISION was hiding: it is Newport RFC's actual regular home since October 2021 and is a DIFFERENT venue from Rodney Parade, which the census already held. (e) SCOTLAND - 8 grounds missing, including The Greenyards (home of the Melrose Sevens) and Raeburn Place (site of the first rugby international, 27 March 1871).\n\n4) RUGBY LEAGUE - VERDICT: UNDERCOUNTED. Population checked: superleague.co.uk/clubs (14 clubs, 12 UK after excluding Catalans Dragons and Toulouse Olympique) and the 2026 Betfred Championship (rugby-league.com plus the 2026 RFL Championship article). STRUCTURAL FINDING: RFL LEAGUE 1 NO LONGER EXISTS for 2026 - rugby-league.com states \"Following confirmation of a merger of the Championship and League 1 competitions at the end of last season, 2026 will include 21 teams\", reduced to 20 after Featherstone Rovers were removed following December 2025 administration. So the expected population is 12 UK Super League grounds + 20 Championship grounds. ADDED 7 grounds (Steel City Stadium, South Leeds Stadium, Morson Stadium, Stadiwm Eirias, Victoria Pleasure Grounds, Crow Trees Ground, Avery Fields). All 12 UK Super League grounds were already present.\n\n5) CRICKET - VERDICT: UNDERCOUNTED, materially. Populations checked: the 18 first-class county headquarters; the county outground/festival estate via each county's own grounds pages (Kent, Surrey, Sussex, Middlesex, Lancashire, Derbyshire, Yorkshire, Gloucestershire, Worcestershire); Cricket Scotland and the Wikipedia list of cricket grounds in Scotland; and Cricket Ireland's international grounds. The census's 20 comprise all 18 first-class county HQs plus Stormont and The Grange - i.e. the HQ layer was complete but the ENTIRE non-HQ layer was missing. ADDED 22 cricket grounds. Highlights: North Marine Road Scarborough (the principal English outground), Arundel Castle (a genuine international venue with the richest outground calendar found anywhere in this audit), and AO FARINGTON - Lancashire CCC's purpose-built SECOND HOME, opened 2026 on a 250-year lease, which is the most significant new non-HQ cricket venue in the UK. Scotland went from 1 cricket ground to 5 (Mannofield Park Aberdeen is larger than The Grange by the cited figures); Northern Ireland from 1 to 4.\n\n6) FOOTBALL (spot-audit for systematic gaps only - the long tail was deliberately NOT ground through) - VERDICT: the top tiers are NEARLY complete but contain one severe classification gap. Populations checked: Premier League (20), EFL Championship (24), League One (24), League Two (24), National League (24), SPFL Premiership/Championship/League One/League Two (12/10/10/10), Cymru Premier and NIFL Premiership (12). Census had 284 FOOTBALL_STADIUM records. ADDED 6 football stadiums, plus 6 football-side correction records (Coventry Building Society Arena, Keepmoat Stadium, York Street, Cae-y-Castell, Spotland, Plough Lane). Per-league: Premier League MISSING 1; EFL Championship, League One and League Two COMPLETE; National League MISSING 5 (Meadow Park Borehamwood, Hornchurch Stadium, The Lamb Ground, Grosvenor Vale, Woodside Road); Scottish Premiership and Championship COMPLETE; Scottish League One MISSING 1 (K-Park, East Kilbride); Scottish League Two MISSING 1 (Meadowbank Stadium); Cymru Premier COMPLETE; NIFL Premiership COMPLETE.\n  - THE HEADLINE FOOTBALL FINDING: Coventry City were promoted to the Premier League for 2026-27, and the census holds the Coventry Building Society Arena ONLY as an EXHIBITION_CENTRE (with a second record for the indoor arena inside it). The 32,609-capacity stadium bowl is entirely absent from the census's football estate. This is a CLASSIFICATION gap, not a missing venue, which is why a football-stadium-list diff alone would report it as \"present\".\n  - A CORRECTION TO THE TASK'S OWN PREMISE: the Cymru Premier is 16 clubs in 2026-27, not 12 - it expanded this season. Coverage is nonetheless complete (15 distinct grounds; Connah's Quay Nomads and Flint Town United share Cae-y-Castell).\n  - DELIBERATE SUB-THRESHOLD EXCLUSION: K-Park Training Academy (East Kilbride, SPFL League One) is a genuine gap but its only cited capacity is 700, below this census's 1,000 threshold, so it is reported here and NOT added as a venue record.\n\n=== VENUES FOUND WRONGLY RECORDED IN THE EXISTING CENSUS ===\nRe-listed here as correction records using the census's EXACT existing canonical_name and city so they reconcile onto the same record:\n - DUPLICATE: \"Keepmoat Stadium\" (RUGBY_STADIUM, Doncaster) and \"Club Doncaster Sports Village\" (FOOTBALL_STADIUM, Doncaster) are the SAME physical stadium held twice under two names and two venue_types. The name is also two sponsor generations stale (Keepmoat 2006-2021, Eco-Power 2021-2026, Club Doncaster Sports Village from 2026) and the RUGBY_STADIUM classification is wrong - it is owned and operated by Doncaster Rovers F.C.\n - DUPLICATE CLUB ATTRIBUTION: \"York Street\" (Boston) is attributed to Boston United F.C., but the club moved to the Boston Community Stadium (opened December 2020), which the census ALSO holds attributed to the same club.\n - WRONG CITY AND WRONG PRIMARY CLUB: \"Cae-y-Castell, at Flint\" is recorded with city \"Connah's Quay\"; the ground is in Flint, and it is Flint Town United's home, with Connah's Quay Nomads a groundshare tenant. Both clubs are in the Cymru Premier, so one row silently covers two top-flight clubs.\n - NO LONGER A CRICKET VENUE: \"St Helen's Rugby and Cricket Ground\" (Swansea) - Glamorgan announced in July 2024 it would not return, and the final cricket match was played on 31 August 2025. Rugby use is unaffected.\n - SCRAPE ARTIFACT: \"Milltown Park\" (Warrenpoint) has the operator \"Warrenpoint F.C.?action=edit&redlink=1\" - a raw Wikipedia redlink query string. Two milder artifacts of the same scrape exist elsewhere and are reported but not separately recorded: \"Airdrieonians F.C. (2002)\" and \"Everton F.C. (women)\".\n - STALE SPONSOR NAMES (6 rugby league grounds, all confirmed against Sheffield Eagles' own 2026 fixture list): Craven Park Barrow -> Northern Competitions Stadium; Recreation Ground Whitehaven -> The Ortus Rec; Crown Flatt -> FLAIR Stadium; Derwent Park -> Fibrus Community Stadium; Spotland -> Crown Oil Arena; Plough Lane -> Cherry Red Records Stadium.\n - CLUB-NO-LONGER-THERE (venues remain valid; only the implied rugby league tenancy is stale, so these are reported not re-listed): Kingston Park (Newcastle Thunder left for Crow Trees Ground); Queensway Stadium Wrexham (North Wales Crusaders are at Stadiwm Eirias); Twickenham Stoop (London Broncos are at Plough Lane); Post Office Road Featherstone (Featherstone Rovers removed from the 2026 season).\n\n=== SHARED OPERATOR/LEAGUE CALENDAR PLATFORMS FOUND (high value for collector reuse) ===\n - ARC (16 racecourses): https://www.<course>-racecourse.co.uk/whats-on/ - verified with dated meetings at Doncaster and Bath. Exceptions to the pattern: ffoslasracecourse.com, fontwellpark.co.uk, lingfieldpark.co.uk.\n - JOCKEY CLUB (14 racecourses): https://www.thejockeyclub.co.uk/<course>/events-tickets/ - verified with dated meetings at Cheltenham.\n - MOTORSPORT VISION (5 UK circuits in ONE feed): https://www.msv.com/calendar - verified with dated events. Each circuit domain serves the same group-wide calendar, e.g. https://www.cadwellpark.co.uk/calendar lists all MSV circuits. NOTE: /calendar works, /calendar/ 404s; Donington is donington-park.co.uk (hyphenated).\n - CHAMP RUGBY (all 14 clubs, RFU-operated): champrugby.com embeds an Oval-Hub widget resolving to a public JSON endpoint returning 188 matches for 2026/27 with stable matchId UUIDs, ISO-8601 UTC kickoffs AND venue names. The single highest-value artefact found; full call details are in the calendar_sources notes on every Champ Rugby venue here.\n - ANICC / NORTHERN IRELAND MOTORSPORT: https://www.motorsportni.org/wp-json/tribe/events/v1/events - a public WordPress JSON REST API covering ALL NI motorsport venues. The cleanest acquisition path found in this audit. Use the API, not the HTML (/events/ times out; /venues/ 404s).\n - WRU (all Welsh club leagues): https://my.wru.wales/fixtures-results - JavaScript-rendered, and shows NO venue name in list view.\n - SCOTTISH RUGBY (200+ clubs, seasons to 2026/2027): https://fixtures.scottishrugby.org/club-rugby - stable per-competition URLs; also JavaScript-rendered with no venue name in list view.\n - BRITISH SPEEDWAY (all clubs, multi-stadium): https://britishspeedway.co.uk/calendar/2026-fixtures-results/ - verified with dated cross-club fixtures. Individual speedway club domains are largely dead or parked.\n - BARC: https://www.barc.net/events/ is an ORGANISER calendar spanning circuits BARC does not own (Silverstone, Brands Hatch, Goodwood, even Le Mans) - useful as a cross-check, dangerous if treated as a venue feed. NOTE barc.net fails TLS chain verification in some fetchers but serves correctly to curl.\n\n=== EVIDENCE-QUALITY CAVEATS, STATED HONESTLY ===\n - SEASONAL TIMING: today is 2026-09-20. The 2026 rugby league season has FINISHED and the English cricket season is in its final week, so many first-party calendars legitimately show no forthcoming fixtures. Every such case is recorded events_currently_present:false with the reason stated - this reflects calendar timing, not an absent calendar, and these sources are worth re-checking in November/December 2026.\n - NO OFFICIAL CAPACITY EXISTS FOR WHOLE CLASSES OF VENUE. Established as a systematic finding, not an excuse: no county club or ECB page states a capacity for ANY non-headquarters cricket ground; no Champ Rugby club site states a capacity for any of the 13 grounds checked; and neither the WRU nor Scottish Rugby publishes ground capacities. Those capacities are therefore GRADE_C/LOW by necessity and must not be laundered into club-sourced facts.\n - HONEST NULLS: 25 records carry capacity_value null with capacity_confidence CAPACITY_REVIEW_REQUIRED. 16 of those are new venues where no number could honestly be cited, and each carries documented scale facts instead: all 5 new circuits, all 4 hillclimbs, The Greenyards and Myreside (sources conflicting by more than an order of magnitude), The Lamb Ground, Crow Trees Ground, Avery Fields, AO Farington and College Ground Cheltenham. Two of those 16 (Crow Trees Ground, Avery Fields) carry an EXPLICIT REVIEWER WARNING that the 1,000 threshold is NOT established on cited evidence and that a reviewer may legitimately reject them. The other 9 nulls are correction records that deliberately assert no capacity so the census's existing figure is left untouched.\n - NO RECORD IN THIS FILE CARRIES A CAPACITY BELOW THE 1,000 THRESHOLD. Where a documented figure fell below it - K-Park Training Academy (700) and AO Farington's official 700 fixed seats - it is reported in prose or in additional_capacities and was NOT used as a principal capacity.\n - UNRESOLVED CONFLICTS RETAINED, NEVER AVERAGED: Scarborough 9,000 vs 11,500; Titwood 6,000 vs 5,000; AO Farington 700 official fixed seats vs 5,000 third-party; Stadiwm Eirias 6,080 vs 5,500; The Gnoll 6,000 vs 7,500; Talbot Athletic Ground 8,000 vs 10,000; Hornchurch 3,500 vs 3,000; Tamworth 4,000 vs 4,565; Meadowbank 1,320 vs 1,280; Ealing 5,388 vs 5,000; Bedwas 3,000 vs 2,000; The Greenyards 1,174 vs 16,024; Myreside 13,799 vs 5,500.\n - DATES NEVER INFERRED: Surrey's Guildford match-day guide names a fixture \"Wednesday, 19 August\" with NO YEAR, and Carmarthen Quins' site shows \"Saturday 26 September\" with no year. No year was inferred for either; both are recorded events_currently_present:false.\n - ONE DISCREPANCY DELIBERATELY NOT NORMALISED: Bedford Blues' own fixture list gives \"Olney Field\" as the venue for Ampthill's 21 Nov 2026 home match, where RFU league data gives \"Dillingham Park\" for all 13 Ampthill home matches.\n - A HIJACKED DOMAIN TO BLOCKLIST: neathrugby.co.uk is NOT Neath RFC - it now serves a rugby-betting content farm. The real site is neathrfc.com.\n\n=== RESIDUAL GAPS NOT CLOSED (no completeness is claimed for these) ===\n - English rugby union tier 3 (National League 1) grounds were treated as outside \"major Championship and representative venues\" and were NOT enumerated. Cambridge (now \"Ellgia Fields\", a sponsor rename) and London Scottish drop into this tier for 2026-27 and are therefore not added here.\n - 13 cricket grounds qualify structurally but NO capacity could be established for any of them, so they were not admitted: Trafalgar Road Southport (Lancashire, active to 2026), Clifton Park York, Brunton Memorial Ground Radlett, Merchant Taylors' Northwood, Horsham, Forthill Dundee, Cambusdoon New Ground Ayr, Spytty Park Newport, Sedbergh School, Polo Farm Canterbury, Newclose (Isle of Wight), Castle Park Colchester, Wallace Park Lisburn.\n - 5 rugby union grounds staging Premiership/National-1 rugby have NO establishable capacity and were not admitted: Millbrae (Ayr - the current Scottish champions), Braidholm (GHA), Riverside Park (Jed-Forest), Lewis Lloyd Ground (Narberth), The Welfare Ground (Newbridge).\n - 3 Welsh grounds were left out as TOO SUSPECT to admit without a dedicated investigation: Abertillery Park (a 15,250 figure for a tier-3 club), Bargoed Park, Mount Pleasant Park Beddau.\n - THE SPEEDWAY STADIUM ESTATE IS NOT COVERED HERE. British Speedway's own 2026 club indexes give 6 SGB Premiership and 9 SGB Championship clubs, and several of their stadiums (e.g. Foxhall Ipswich, National Speedway Stadium Manchester, Shielfield Park Berwick) are absent from the census. It was left out deliberately because speedway stadiums overlap heavily with the greyhound-stadium estate being handled by a separate workstream, and duplicating it risked colliding records. IMPORTANT TRAP recorded for whoever takes it: owlertonstadium.co.uk is the GREYHOUND stadium's site and its /whats-on/ calendar is greyhound racing, not Sheffield Tigers speedway.\n - Motorsport items left unresolved: Shakespeare County Raceway's status (absent from 2026 drag listings but closure NOT evidenced - do not record it as closed); Bishopscourt Racing Circuit (its official domain now serves an unrelated store); Melbourne Raceway, Manston Raceway Park and Elvington (no resolvable official sites); Somerset Oak Tree Arena (redirect loop).\n - Sheffield Eagles' secondary home venue, The MEPS International Home of Football Stadium (Sheffield FC, Dronfield), has no establishable capacity and was not admitted.\n - Isle of Man TT / Mountain Course: explicitly dispositioned as OUT OF UK SCOPE - the Isle of Man is a Crown Dependency, not part of the UK, and the course is a closed-public-road circuit rather than a permanent one. Same reasoning excludes the NI road races (North West 200, Dundrod).\n - NOT AUDITED AT ALL, by instruction: indoor arenas, greyhound stadiums, ice hockey, basketball, athletics and tennis.\n\n=== METHOD/TOOLING LIMITS ===\nEvery capacity, address, postcode and calendar claim in this file cites a URL that was actually fetched; where a fact could not be established it is recorded as null with the absence itself evidenced, rather than guessed. OpenStreetMap was NOT used for completeness anywhere. The session's web-search budget (200 calls) was exhausted partway through, after which enumeration relied on direct fetches of known governing-body, league and operator URLs; this limited discovery of venues for which no candidate URL was already held, and is the main reason the residual gaps above remain open.",
+      "venues_supplied": 92,
+      "venues_accepted": 92,
+      "venues_rejected_incomplete": 0
     }
-  ]
+  ],
+  "calendar_recovery": {
+    "attempts": 64,
+    "by_outcome": {
+      "FIXTURE_SOURCE_FOUND": 23,
+      "CALENDAR_FOUND": 13,
+      "SOURCE_REVIEW_REQUIRED": 11,
+      "OFFICIAL_SITE_MISSING": 9,
+      "NO_PUBLIC_CALENDAR_CONFIRMED": 8
+    },
+    "outcomes": [
+      {
+        "canonical_name": "Academy Stadium",
+        "city": "Manchester",
+        "segment": "A",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "Operator is Manchester City W.F.C. mancity.com is Cloudflare-protected (plain fetch HTTP 403). Loaded in a real browser: https://www.mancity.com/fixtures renders forthcoming dated fixtures (Sun 11 Oct, Wed 14 Oct ... Sat 21 Nov) but is the MEN'S schedule and never names the Academy Stadium (or its sponsored name) anywhere on the page. https://www.mancity.com/womens/fixtures returns HTTP 404. I could not locate the women's/EDS fixture route that actually maps to this ground, so nothing was added rather than attaching a fixture list for matches played elsewhere.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Alexander Stadium",
+        "city": "Birmingham",
+        "segment": "A",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "Official site https://www.alexander-stadium.co.uk/ fetched HTTP 200, title \"Welcome | Alexander Stadium\"; the /our-stadium/ page (which the operator host www.birminghamleisure.com/alexander-stadium/our-stadium/ redirects to) says the venue \"continues to host world-class and community events on a regular basis\" and claims the European Athletics Championships 2026. But the whole site carries NO what's-on or event-listing page: every link is to fitness/membership, venue hire, policies, or single promotional pages (/world-supercross/, /christmas-festive-party-nights/). No dated event list is published, so nothing could be added without inventing a third-party source.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "All England Lawn Tennis and Croquet Club",
+        "city": "London",
+        "segment": "A",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "https://www.wimbledon.com/ fetched HTTP 200, title \"The Championships, Wimbledon - Official Website by IBM\", but it renders no dated event listing at all to a plain fetch, and https://www.wimbledon.com/en_GB/atoz/calendar.html redirects to /en_GB/about (title \"About - The Championships, Wimbledon\"). I could not locate a first-party dated calendar page for the venue, and I will not record a ticket-marketplace or third-party tournament page as the venue calendar. Needs a browser-capable retry.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Bayview Stadium",
+        "city": "Methil",
+        "segment": "B",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "East Fife F.C. (SPFL). The census official_url https://eastfifefc.info/ is live and its /fixtures/ route returns HTTP 200, but renders no title and no content to a plain fetch (client-side rendering), so no fixture content could be evidenced. The SPFL divisional fixture pages (spfl.co.uk/league/league-one|league-two/fixtures) render dated rounds but their server HTML mentions every club, so I could not establish from them which division this club is in and did not record a possibly-wrong league page.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Beechwood Park",
+        "city": "Sauchie",
+        "segment": "A",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "Reached segment A only on a soft 5,000 capacity figure for a junior-level ground (Sauchie Juniors F.C.); the census holds no official_url for it. No first-party club site was verified and the club is not in the Highland League grid, so the correct league fixture list was not established within this pass. Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Bellslea Park",
+        "city": "Fraserburgh",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Fraserburgh FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Brighton and Hove Greyhound Stadium",
+        "city": "Hove, Brighton",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Track's own site (Brighton & Hove Racing) lists forthcoming dated meetings with first-race times on its landing page. The census holds no official_url for this venue - https://brightonandhovegreyhounds.co.uk/ is the verified first-party site.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Bryntirion Park",
+        "city": "Bridgend",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "Penybont F.C.'s ground. IMPORTANT NEGATIVE FINDING: https://www.penybontfc.com/ - the domain named in the census data-quality flags as unreproducible - now 302s to https://www.mufonbrazosvalley.com/ serving slot-gambling spam (title \"CIPIT88: Situs Slot777 Link Slot Gacor Terbaru Puncak Maxwin Hari Ini 2026\"). It must never be recorded for this venue. This also closes out the \"NOT CONFIRMED\" penybontfc.com item in data-quality-flags.txt: the domain is real and is squatted, it simply is not recorded against any census venue. No trustworthy first-party site was found, so nothing was added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Central Park Stadium",
+        "city": "Sittingbourne, Kent",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "ARC track site publishes a first-party dated What's On schedule.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Claggan Park",
+        "city": "Fort William",
+        "segment": "B",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "Club identity repaired (see identity_findings): https://fortwilliamfc.com/ is verified first-party and names Claggan Park and the North Caledonian Football League. However no fixtures page or dated fixture content was found on that site, and no verified North Caledonian League fixture list was established in this pass, so no calendar source was added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Cougar Park",
+        "city": "Keighley",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Club site verified at keighleycougars.uk (title \"Keighley Cougars\"); its /fixtures/ route redirects to a fixtures-list calendar page. No forthcoming dates render today (season end). Worth noting for later: the club homepage carries concert listings for this ground (\"JLS + UB40 Ft. ALI CAMPBELL JULY 24-25\"), so Cougar Park has a non-sport programme too.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Crown Flatt",
+        "city": "Dewsbury",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Dewsbury Rams official fixtures page renders a genuine dated fixture list (31 dates, 2025-12-26 to 2026-08-29). Season complete, so nothing forthcoming today; source added with events_currently_present false.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Crystal Palace National Sports Centre",
+        "city": "London",
+        "segment": "A",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "Operator is GLL/Better. The Wikipedia-cited official URL www.gll.org/centre/crystal-palace-national-sports-centre.asp is dead (HTTP 404). The live operator page is https://www.better.org.uk/leisure-centre/london/crystal-palace/crystal-palace-national-sports-centre (HTTP 200, title \"Crystal Palace National Sports Centre | Better\"); it publishes opening times (\"Opening times for week commencing September 14, 2026\") and activity/class booking, but no dated event or fixture listing for the 15,500-seat athletics stadium. A \"/whats-on\" path under that centre returns 404.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Derwent Park",
+        "city": "Workington",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Workington Town RLFC match centre verified as the right first-party page (site footer gives Derwent Park, Workington). Only one dated entry was rendered today (20 September 2026) as the rugby league season has ended. Source added with events_currently_present false.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Devonshire Park",
+        "city": "Eastbourne",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "No first-party venue calendar exists, but the LTA (national governing body) publishes the venue's flagship event with dates - the Lexus Eastbourne Open, completed edition 20-29 June 2026 and next edition dated 19-26 June 2027 on the page. Added as a preference-4 governing-body schedule. IMPORTANT NEGATIVE FINDING: the plausible-looking domain eastbournetennis.com now 302s to https://www.slotbirumacau.com/ (title \"SLOTBIRU : Link Bandar Slot Gacor...\") - gambling spam that must never be recorded for this venue.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Doncaster Greyhound Stadium",
+        "city": "Doncaster",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "No first-party site could be verified. The name-matching candidate www.doncastergreyhoundstadium.co.uk returns HTTP 403 Forbidden with no content, so it could not be confirmed as belonging to this track and was not recorded. (The track is at Stainforth near Doncaster and is distinct from the Club Doncaster stadium.)",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Downpatrick Racecourse",
+        "city": "Downpatrick",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Racecourse's own all-fixtures page with named dated meetings including a forthcoming 9 October 2026 date. Acquisition caveat recorded: the host serves an incomplete certificate chain and a standard fetch fails to verify it.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Dudgeon Park",
+        "city": "Brora",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Brora Rangers FC confirmed in the Breedon Highland Football League fixture grid (e.g. \"Saturday 26 Sep 2026 ... Brora Rangers FC v Keith FC\"). League fixture list added. The census official_url https://brorarangers.co.uk/ was not verified in this pass, so no first-party source was added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Dunstall Park Greyhound Stadium",
+        "city": "Wolverhampton",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "ARC track site publishes a first-party dated What's On schedule.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Emirates Arena",
+        "city": "Glasgow",
+        "segment": "A",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Venue what's-on found on the operator's site. Also an identity finding: www.emiratesarena.co.uk now redirects to the Glasgow Life page titled \"Glasgow International Arena\" - the arena has been renamed, and the census canonical_name \"Emirates Arena\" is now the former name. The census record's official_url is empty, so nothing invalid needed correcting, but the rename should be reviewed.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Fortwilliam Park",
+        "city": "Tobermore",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "No first-party site exists to carry a calendar: the club domain 302s to dns.google (see identity_findings), the NI Football League club page is HTTP 403 to fetchers, and Wikipedia lists no club website. The club also appears to have dropped below NIFL into the Ballymena & Provincial Football League, whose fixture list was not verified here. Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Gander Green Lane",
+        "city": "Sutton, London",
+        "segment": "A",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "https://www.suttonunited.net/ is Cloudflare-protected (HTTP 403, title \"Just a moment...\") to a plain fetch and was not read. SEPARATE DEFECT WORTH FLAGGING: this venue's recorded official_url in the census is https://www.cpfc.co.uk/palace-women/ - a Crystal Palace Women page, i.e. a tenant/visitor club's page rather than the ground's or Sutton United's own site. It was not in the brief's list of seven, so it is reported here rather than patched.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Glebe Park",
+        "city": "Brechin",
+        "segment": "B",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "Brechin City F.C. https://www.brechincity.co.uk/ fails TLS with \"tlsv1 alert internal error (SSL alert number 80)\" - a server-side TLS fault, the same failure class the census already documented for boltonarena.co.uk. The club is not in the Breedon Highland Football League fixture grid, so its current league was not established and no league fixture list was recorded.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Grant Park",
+        "city": "Lossiemouth",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Lossiemouth FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Grant Street Park",
+        "city": "Inverness",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Clachnacuddin FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Harlaw Park",
+        "city": "Inverurie",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Two sources added: the club's own fixtures page (forthcoming dated home fixtures explicitly at Harlaw Park) and the official league fixture list. This venue is also one of the seven identity repairs - see identity_findings.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Harlow Greyhound Stadium",
+        "city": "Harlow, Essex",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Track's own site lists a long forthcoming dated schedule (every Wednesday and Friday into November 2026). The census holds no official_url for this venue.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Harmsworth Park",
+        "city": "Wick",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Wick Academy FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Keepmoat Stadium",
+        "city": "Doncaster",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Shared stadium: Doncaster Rovers F.C. (football) and Doncaster RLFC (rugby league) both play here - the RL club's own footer gives its address as this stadium. Two sources added: the Rovers fixtures page (40 forthcoming dated kick-offs in embedded state) and the Doncaster RL fixtures route (right page, renders no dates to a plain fetch, season at its play-off end). Note the venue has been renamed more than once (Keepmoat -> Eco-Power -> Club Doncaster Sports Village); the census name is retained here unchanged, but the naming history is worth a separate review.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Kinsley Greyhound Stadium",
+        "city": "Kinsley, West Yorkshire",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "No first-party site verified. Candidate hosts www.kinsleygreyhounds.co.uk and www.kinsleygreyhoundstadium.co.uk both fail DNS resolution (getaddrinfo ENOTFOUND). Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Kynoch Park",
+        "city": "Keith",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Keith FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Leeds Town Hall",
+        "city": "Leeds",
+        "segment": "C",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "The venue's own site https://www.leedstownhall.co.uk/ is live (HTTP 200) and its navigation links to /whats-on/ and to filtered variants (/whats-on/?eventfilter=category&category=NN), but every one of those URLs returns a genuine HTTP 404 from the origin (nginx, WordPress; verified by response headers, not just page text). /whatson-venue/leeds-city-centre/ returns HTTP 200 but renders a \"What's On\" shell with no events and visible PHP debug output. The council's programme site https://www.leedsconcertseason.co.uk/whats-on does render forthcoming dated concerts (Sun 27 Sep, Mon 5 Oct, Wed 14 Oct, Sat 17 Oct ...) but the fetched HTML never names Leeds Town Hall, so I could not evidence it as this venue's calendar and did not record it. The venue's listing pages appear to be broken and need a retry.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Manchester Regional Arena",
+        "city": "Manchester",
+        "segment": "A",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "The operator-named domain https://www.manchestersportandleisure.org/ now serves Indonesian gambling spam - HTTP 200, title \"Joker123 Judi Slot Resmi Dan Agen Togel Online Terpercaya Deposit Ovo\", newest posts dated 2022-2023. It must NOT be recorded for this venue. No replacement first-party site for the Manchester Regional Arena (the Etihad Campus athletics arena, 6,500) was verified in this pass, so no calendar source was added. This is an eighth bad-domain case beyond the seven in the brief and should be flagged in the census.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Mattioli Woods Welford Road",
+        "city": "Leicester",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Leicester Tigers (rugby union) home ground and the largest no-calendar venue in the census at 25,849. Club fixtures route verified in a real browser (a plain fetch gets a Cloudflare interstitial): forthcoming dated fixtures naming this ground, e.g. \"Sunday 27 September 2026 15:00 at Mattioli Woods Welford Road Stadium\". Source added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Mildenhall Stadium",
+        "city": "Mildenhall, Suffolk",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "No first-party site verified; the candidate host www.mildenhallstadium.com fails DNS resolution (getaddrinfo ENOTFOUND). Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Monmore Green Stadium",
+        "city": "Wolverhampton",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Track's own Monmore Racing site publishes dated advance racecards; only a short forward window is exposed at a time. The census holds no official_url for this venue - https://monmoregreyhounds.com/ is the verified first-party site.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Mount Pleasant",
+        "city": "Batley",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Batley Bulldogs official fixtures page verified; the club homepage renders the full 2026 dated season list but its latest date is 2026-09-06, so nothing is forthcoming as at 2026-09-20. Source added with events_currently_present false.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "New Central Park",
+        "city": "Kelty",
+        "segment": "B",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "Kelty Hearts F.C. (SPFL). The census official_url host responds, but https://keltyhearts.co.uk/fixtures/ returns HTTP 403 Forbidden to a plain fetch, so nothing could be verified. Same SPFL division ambiguity as Bayview - no league page recorded rather than guessing.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Newcastle Greyhound Stadium",
+        "city": "Newcastle upon Tyne",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "ARC track site publishes a first-party dated What's On schedule. (The census already held the correct official_url for this venue.)",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "North Lodge Park",
+        "city": "Pitmedden",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Two sources added: the club's own fixtures page (14 dated fixtures, several forthcoming) and the official league fixture list. This venue is also one of the seven identity repairs - see identity_findings.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Nottingham Greyhound Stadium",
+        "city": "Nottingham",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "ARC track site publishes a first-party dated What's On schedule including named feature finals.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Oxford Stadium",
+        "city": "Oxford",
+        "segment": "B",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "The stadium's own site https://oxford-stadium.co.uk/ is a holding page: \"A New Era for Oxford Stadium. Oxford Stadium is entering an exciting new chapter. We are working to revive this historic venue and develop its future as a destination for sport, entertainment, events and the wider Oxford community. More information will be announced soon.\" Its /racecards-results route returns HTTP 200 but renders no title and no content. No dated programme is currently published by the venue, so nothing was added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Penydarren Park",
+        "city": "Merthyr Tydfil",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "The census official_url https://www.pitchero.com/clubs/merthyrtown/ resolves to a Pitchero placeholder: HTTP 200, title \"Club not live\", body \"The Merthyr Town FC website isn't ready yet...\". Its /fixtures route returns HTTP 404. So the recorded official site publishes nothing and is effectively a dead placeholder - another official_url worth reviewing beyond the brief's seven. Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Post Office Road",
+        "city": "Featherstone",
+        "segment": "A",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "The club domain https://www.featherstonerovers.net/ returns Cloudflare HTTP 522 (\"522: Connection timed out\") - the origin server is down, so no first-party page could be read. Separately, reporting indicates Featherstone Rovers were not granted RFL membership for the 2026 season after entering administration, with the women's team continuing at the ground; I did not retain a first-party source for that, so it is flagged rather than asserted. Nothing could be verified and nothing was added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "QEII Centre",
+        "city": "London",
+        "segment": "C",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "https://qeiicentre.london/ fetched HTTP 200; /whats-on returns HTTP 404. Everything under /events/ is a venue-hire category page (AGMs, award ceremonies, conferences, exhibitions, fashion shows, graduation ceremonies, meetings ...), i.e. \"hire this venue\" marketing, not an event calendar. Per the brief, a hire page is not a calendar, so nothing was added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Queensway Stadium",
+        "city": "Wrexham",
+        "segment": "A",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "Identity established: the stadium is operated by Freedom Leisure - https://www.freedom-leisure.co.uk/centres/queensway-stadium/ fetched HTTP 200, title \"Queensway Stadium | Wrexham | Freedom Leisure\". That page offers facilities, timetables and memberships only, with no event or fixture listing. Current users per Wikipedia are Wrexham Athletics Club and FC Queens Park (North Wales Crusaders left for Eirias Stadium, Colwyn Bay in 2021); no verified first-party fixture page was found for either, and FC Queens Park's Pitchero club page was not verified. Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Recreation Ground, Whitehaven",
+        "city": "Whitehaven",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Whitehaven RLFC fixtures route added. Two real acquisition caveats recorded in the source notes: the apex host fails TLS (SSL alert 40) and only www works, and the club has publicly closed its 2026 season (\"Thank You For Your Support In 2026 / Check back soon for more information regarding the 2027 season\").",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Seafield Park",
+        "city": "Grantown-on-Spey",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Strathspey Thistle FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Sir Chris Hoy Velodrome",
+        "city": "Glasgow",
+        "segment": "B",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "The velodrome is a facility inside the arena complex at this site; Glasgow Life publishes it at /sport/venues/glasgow-international-arena/glasgow-international-arena-facilities/sir-chris-hoy-velodrome, which is a facilities description with no event listing. The complex's what's-on block sits on the arena venue page, which is recorded against the separate Emirates Arena census venue. No velodrome-specific dated calendar is published, so nothing was added here rather than duplicating the arena's listing onto this record.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Spain Park",
+        "city": "Aberdeen",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Banks o' Dee FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "St David's Hall",
+        "city": "Cardiff",
+        "segment": "C",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "The census official_url https://www.stdavidshallcardiff.co.uk does not resolve - getaddrinfo ENOTFOUND. The census already records the operator as Academy Music Group under a conditional 45-year lease, and AMG has published news of taking over the hall, but no live first-party St David's Hall site or what's-on page was verified in this pass. Treated as an official-site gap, not as an absence of programme; this venue also needs an official_url correction (an eighth-plus bad URL beyond the brief's seven).",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Star Pelaw",
+        "city": "Chester-le-Street, County Durham",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Track's own site found at pelawgrange.co.uk (starpelaw.co.uk redirects to it), carrying a dated advance card. The census holds no official_url for this venue.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Station Park",
+        "city": "Nairn",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Nairn County FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Sunderland Greyhound Stadium",
+        "city": "Sunderland",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "ARC track site publishes a first-party dated What's On schedule.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "The Airfield",
+        "city": "Broughton",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Club identity repaired (see identity_findings) and the club's own matches route added. The month-scoped calendar rendered \"No events to show\" for September 2026 to a plain fetch, so events_currently_present is false; the Cymru Premier league fixture list would be the natural second source and was not verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "The Camrose",
+        "city": "Basingstoke",
+        "segment": "A",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "No calendar exists because the ground is not in use. Basingstoke Town F.C.'s own site states the club was evicted in April 2019, that the stadium is \"currently unused, vandalised and left to rot\", and that the club has played at Winklebury Football Complex since October 2020, with planning permission granted in 2022 for housing on the site. See the identity finding for this venue; its operational_status also needs review.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "The Grange",
+        "city": "Edinburgh",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Grange Cricket Club fixtures/results page added (season-organised, latest block April-September 2026, nothing forthcoming at Scottish season end). The members' club site thegrangeclub.com was also verified and states the ground \"regularly hosts Scotland's international matches\", but publishes no calendar - a Cricket Scotland international schedule would be the natural second source and was not pursued in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "The Haughs",
+        "city": "Turriff",
+        "segment": "B",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Turriff United FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "The ICC Birmingham",
+        "city": "Birmingham",
+        "segment": "C",
+        "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+        "note": "https://www.theicc.co.uk/ fetched HTTP 200. /whats-on returns HTTP 404 (\"The resource you are looking for has been removed...\"). Every navigable link on the site is organiser/exhibitor/visitor information, space search, venue hire, catering or Christmas packages - there is no public event listing. The /visitor/ page (title \"Visiting the ICC | The ICC, Birmingham\") contains only bare month names from a date-picker widget, not events. As an NEC Group conference and exhibition venue its bookings are organiser-led and not published as a venue calendar.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Theatre Royal, Newcastle",
+        "city": "Newcastle upon Tyne",
+        "segment": "C",
+        "outcome": "CALENDAR_FOUND",
+        "note": "First-party What's On listing with named forthcoming dated runs through November 2026 and beyond. Acquisition caveat recorded on the source: the site's TLS certificate has expired, so a standard fetcher will fail until it is renewed - this is exactly the class of failure the census flagged elsewhere as an opaque \"fetch failed\".",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Valley Greyhound Stadium",
+        "city": "Ystrad Mynach, Caerphilly",
+        "segment": "B",
+        "outcome": "OFFICIAL_SITE_MISSING",
+        "note": "No first-party site verified; the candidate host www.valleygreyhoundstadium.co.uk fails DNS resolution (getaddrinfo ENOTFOUND). Nothing added.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Victoria Park",
+        "city": "Buckie",
+        "segment": "A",
+        "outcome": "FIXTURE_SOURCE_FOUND",
+        "note": "Buckie Thistle F.C. confirmed as a current Breedon Highland Football League member in the league's own fixture grid, which carries forthcoming dated rounds. League fixture list added (preference 3); no first-party club fixtures page was verified in this pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "White Hart Lane Community Sports Centre",
+        "city": "London",
+        "segment": "A",
+        "outcome": "SOURCE_REVIEW_REQUIRED",
+        "note": "Identity established: this is the same facility as New River Stadium in Haringey; primary tenant London Skolars (rugby league), also Enfield and Haringey AC, Haringey Rhinos (rugby union), Park View F.C., and it hosted Britbowl in 2019 and 2022. No venue-operator site was found. The Skolars site https://www.skolarsrl.com/ is live (HTTP 200, title \"London Skolars\") but its newest dated content is from June/July 2025 and it exposes no forthcoming fixtures - stale, so nothing was added. A multi-tenant venue like this needs a per-tenant pass.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      },
+      {
+        "canonical_name": "Yarmouth Stadium",
+        "city": "Great Yarmouth, Norfolk",
+        "segment": "B",
+        "outcome": "CALENDAR_FOUND",
+        "note": "Stadium's own site lists named forthcoming dated meetings with start times on the landing page; note the venue runs banger/stock-car racing as well as greyhounds. The census holds no official_url for this venue.",
+        "reported_by": "identity-and-calendar-recovery-02.json"
+      }
+    ]
+  }
 }

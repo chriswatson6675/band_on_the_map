@@ -10,6 +10,8 @@
 import {
   CENSUS_ARTIFACT_TYPE, CENSUS_FRAMEWORK_VERSION, CAPACITY_THRESHOLD,
   createVenueCensusId, createCalendarSourceId, VENUE_TYPES,
+  CONVENTION_CLASS_VENUE_TYPES, SCALE_EXCEPTION_SPORTING_VENUE_TYPES,
+  OFFICIAL_URL_STATUSES,
   CAPACITY_TYPES, CAPACITY_SOURCE_AUTHORITIES, CAPACITY_CONFIDENCE,
   CALENDAR_SOURCE_TYPES, SPORTS,
 } from "./contract.mjs";
@@ -35,6 +37,16 @@ function normaliseOperationalStatus(raw) {
 const num = (value) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 const bool = (value) => (typeof value === "boolean" ? value : null);
 
+/**
+ * True when a raw record cites at least one public event/fixture calendar.
+ * This is the positive evidence that a venue actually stages public events,
+ * as opposed to a prose note about what could not be found.
+ */
+function stagesPublicEvents(raw) {
+  return (Array.isArray(raw?.calendar_sources) ? raw.calendar_sources : [])
+    .some((source) => text(source?.source_url) && source?.publicly_accessible !== false);
+}
+
 /** Normalise one raw researched venue into the census venue record shape. */
 function normaliseVenue(raw, workstream) {
   const canonicalName = text(raw?.canonical_name);
@@ -59,12 +71,27 @@ function normaliseVenue(raw, workstream) {
   // convention/exhibition venue without one qualifies on the documented
   // scale exception; anything else is explicitly flagged for review
   // rather than silently admitted.
-  const isConventionClass = ["CONVENTION_CENTRE", "CONFERENCE_CENTRE", "EXHIBITION_CENTRE"].includes(venueType);
+  const hasConventionScale = num(raw?.largest_room_capacity) !== null || num(raw?.total_event_space_sqm) !== null || num(raw?.exhibition_space_sqm) !== null || text(raw?.scale_description);
   let inclusionBasis;
   if (capacityValue !== null && capacityValue >= CAPACITY_THRESHOLD && capacityConfidence !== "CAPACITY_REVIEW_REQUIRED") {
     inclusionBasis = "CAPACITY_THRESHOLD_MET";
-  } else if (isConventionClass && (num(raw?.largest_room_capacity) !== null || num(raw?.total_event_space_sqm) !== null || num(raw?.exhibition_space_sqm) !== null || text(raw?.scale_description))) {
+  } else if (CONVENTION_CLASS_VENUE_TYPES.has(venueType) && hasConventionScale) {
     inclusionBasis = "MAJOR_CONVENTION_EXHIBITION_INFRASTRUCTURE";
+  } else if (SCALE_EXCEPTION_SPORTING_VENUE_TYPES.has(venueType) && stagesPublicEvents(raw)) {
+    // A racecourse, circuit or greyhound track is major permanent event
+    // infrastructure whether or not anyone publishes a seat count.
+    //
+    // The qualifying evidence is a CITED public fixture/race calendar —
+    // positive proof that the venue actually stages public events. It is
+    // deliberately NOT scale_description, because a researcher writing
+    // "no capacity figure published" is recording the ABSENCE of evidence,
+    // and admitting a venue on that sentence would turn this exception
+    // into a way to admit any uncertain venue.
+    //
+    // Note this basis does not assert a proven >=1,000 capacity. It
+    // asserts documented major sporting infrastructure, and is reported
+    // separately from CAPACITY_THRESHOLD_MET for exactly that reason.
+    inclusionBasis = "MAJOR_SPORTING_INFRASTRUCTURE";
   } else {
     inclusionBasis = "CAPACITY_REVIEW_REQUIRED";
   }
@@ -90,6 +117,12 @@ function normaliseVenue(raw, workstream) {
     latitude: num(raw?.latitude),
     longitude: num(raw?.longitude),
     official_url: text(raw?.official_url),
+    // A URL proven NOT to belong to this venue is quarantined, never
+    // deleted: the census must show the domain was checked and rejected,
+    // not that it was never considered. See Phase 10.
+    official_url_status: OFFICIAL_URL_STATUSES.has(raw?.official_url_status) ? raw.official_url_status : "OFFICIAL_URL_VERIFIED",
+    official_url_quarantined: text(raw?.official_url_quarantined),
+    official_url_quarantine_reason: text(raw?.official_url_quarantine_reason),
     venue_type: venueType,
     operational_status: normaliseOperationalStatus(raw?.operational_status),
     inclusion_basis: inclusionBasis,
@@ -100,6 +133,9 @@ function normaliseVenue(raw, workstream) {
     identity_review: false,
     identity_review_reason: null,
     provenance: { workstream, evidence: provenanceEvidence },
+    // Retained through reconciliation so a merged record can elect its
+    // class on evidence instead of on workstream file order.
+    __typeClaims: [{ venue_type: venueType, capacity_value: capacityValue, workstream }],
   };
 }
 
@@ -228,21 +264,81 @@ function originOf(url) {
   try { return new URL(url).origin.toLowerCase().replace("://www.", "://"); } catch { return null; }
 }
 
-export function reconcileVenues(venues) {
-  const byKey = new Map();
-  const merged = [];
-  for (const venue of venues) {
-    const nameKey = `${normaliseName(venue.canonical_name)}|${String(venue.city).toLowerCase().trim()}|${venue.nation}`;
-    const existing = byKey.get(nameKey);
-    if (!existing) {
-      byKey.set(nameKey, venue);
-      merged.push(venue);
-      continue;
-    }
-    // Same normalised name in the same city+nation: one venue, two
-    // researchers. Merge, keeping the richer record and retaining BOTH
-    // provenance trails.
-    const existingOrigin = originOf(existing.official_url);
+/**
+ * Which broad kind of event activity a venue class represents. Used only
+ * to decide whether two researchers' disagreement is a nuance within one
+ * kind of activity, or genuine evidence that the venue does several.
+ * The multi-purpose and catch-all classes carry no family of their own.
+ */
+const VENUE_TYPE_FAMILIES = new Map([
+  ["FOOTBALL_STADIUM", "SPORT"], ["RUGBY_STADIUM", "SPORT"], ["CRICKET_GROUND", "SPORT"],
+  ["OTHER_SPORTS_VENUE", "SPORT"], ["RACECOURSE", "SPORT"], ["MOTORSPORT_CIRCUIT", "SPORT"],
+  ["GREYHOUND_STADIUM", "SPORT"],
+  ["INDOOR_ARENA", "PERFORMANCE"], ["CONCERT_HALL", "PERFORMANCE"], ["THEATRE", "PERFORMANCE"],
+  ["AUDITORIUM", "PERFORMANCE"],
+  ["CONVENTION_CENTRE", "BUSINESS"], ["CONFERENCE_CENTRE", "BUSINESS"],
+  ["EXHIBITION_CENTRE", "BUSINESS"], ["CONFERENCE_EXHIBITION_COMPLEX", "BUSINESS"],
+]);
+
+/**
+ * Elect one venue class for a record several workstreams classified
+ * differently.
+ *
+ * Without this the class was decided by whichever workstream file sorted
+ * first — which is how Coventry Building Society Arena, a 32,609-capacity
+ * Premier League stadium, came to be presented as an EXHIBITION_CENTRE.
+ *
+ * Two distinct rules, because two distinct situations:
+ *  - Researchers disagree ACROSS activity families (a stadium that is also
+ *    an exhibition centre): the venue genuinely does several things, so it
+ *    becomes MULTI_PURPOSE_EVENT_COMPLEX. That is the honest answer to
+ *    "what kind of large event activity happens here?", not a tie-break.
+ *  - They disagree WITHIN one family (a dual-code football/rugby ground,
+ *    or auditorium vs indoor arena): elect the class of the best-evidenced
+ *    largest configuration, since that is the venue's principal use.
+ *
+ * Every claim is retained on the record either way, so a dual-code ground
+ * never loses the fact that it is one.
+ */
+export function electVenueType(claims) {
+  const distinct = [...new Set(claims.map((claim) => claim.venue_type))];
+  if (distinct.length <= 1) return { venueType: distinct[0] ?? "OTHER_MAJOR_EVENT_VENUE", multiPurpose: false };
+
+  const families = new Set(claims.map((claim) => VENUE_TYPE_FAMILIES.get(claim.venue_type)).filter(Boolean));
+  if (families.size > 1) return { venueType: "MULTI_PURPOSE_EVENT_COMPLEX", multiPurpose: true };
+
+  const counts = new Map();
+  for (const claim of claims) counts.set(claim.venue_type, (counts.get(claim.venue_type) ?? 0) + 1);
+  const ranked = [...claims].sort((a, b) =>
+    (b.capacity_value ?? -1) - (a.capacity_value ?? -1) ||
+    (counts.get(b.venue_type) ?? 0) - (counts.get(a.venue_type) ?? 0) ||
+    String(a.venue_type).localeCompare(String(b.venue_type)));
+  return { venueType: ranked[0].venue_type, multiPurpose: false };
+}
+
+/** Every name this record is known by, normalised — canonical plus aliases. */
+function nameAliases(venue) {
+  return new Set([venue.canonical_name, ...(venue.alternative_names ?? [])].map(normaliseName).filter(Boolean));
+}
+
+/**
+ * True when one record declares the other as its parent complex. A named
+ * sub-venue inside a complex (e.g. "Indoor Arena, Coventry Building
+ * Society Arena" within "Coventry Building Society Arena") is a SEPARATE
+ * venue by design — Rule C of the census — so it must never be collapsed
+ * into its parent just because they share a name.
+ */
+function isParentChildPair(a, b) {
+  const parents = [normaliseName(a.parent_complex), normaliseName(b.parent_complex)].filter(Boolean);
+  if (!parents.length) return false;
+  const aNames = nameAliases(a);
+  const bNames = nameAliases(b);
+  return parents.some((parent) => aNames.has(parent) || bNames.has(parent));
+}
+
+/** Merge `venue` into `existing`, retaining both provenance trails. */
+function mergeVenueInto(existing, venue) {
+  const existingOrigin = originOf(existing.official_url);
     const incomingOrigin = originOf(venue.official_url);
     if (existingOrigin && incomingOrigin && existingOrigin !== incomingOrigin) {
       // Same name and city but genuinely different official sites — real
@@ -257,12 +353,99 @@ export function reconcileVenues(venues) {
     existing.latitude = existing.latitude ?? venue.latitude;
     existing.longitude = existing.longitude ?? venue.longitude;
     existing.official_url = existing.official_url ?? venue.official_url;
+    // A quarantine finding from EITHER researcher must survive the merge —
+    // otherwise a second record carrying the same bad domain silently
+    // reinstates a URL that was already proven wrong.
+    if (venue.official_url_status !== "OFFICIAL_URL_VERIFIED" && existing.official_url_status === "OFFICIAL_URL_VERIFIED") {
+      existing.official_url_status = venue.official_url_status;
+    }
+    existing.official_url_quarantined = existing.official_url_quarantined ?? venue.official_url_quarantined;
+    existing.official_url_quarantine_reason = existing.official_url_quarantine_reason ?? venue.official_url_quarantine_reason;
+    if (existing.official_url && existing.official_url === existing.official_url_quarantined) {
+      existing.official_url = venue.official_url !== existing.official_url_quarantined ? venue.official_url : null;
+    }
     existing.parent_complex = existing.parent_complex ?? venue.parent_complex;
-    existing.provenance.evidence = [...existing.provenance.evidence, ...venue.provenance.evidence];
-    existing.provenance.workstream = [...new Set(String(existing.provenance.workstream).split("+").concat(venue.provenance.workstream))].sort().join("+");
-    existing.__mergedFrom = [...(existing.__mergedFrom ?? []), venue.venue_census_id];
+  existing.provenance.evidence = [...existing.provenance.evidence, ...venue.provenance.evidence];
+  existing.provenance.workstream = [...new Set(String(existing.provenance.workstream).split("+").concat(venue.provenance.workstream))].sort().join("+");
+  existing.__mergedFrom = [...(existing.__mergedFrom ?? []), venue.venue_census_id, ...(venue.__mergedFrom ?? [])];
+  existing.__typeClaims = [...(existing.__typeClaims ?? []), ...(venue.__typeClaims ?? [])];
+}
+
+export function reconcileVenues(venues) {
+  const byKey = new Map();
+  const merged = [];
+  for (const venue of venues) {
+    const nameKey = `${normaliseName(venue.canonical_name)}|${String(venue.city).toLowerCase().trim()}|${venue.nation}`;
+    const existing = byKey.get(nameKey);
+    if (!existing) {
+      byKey.set(nameKey, venue);
+      merged.push(venue);
+      continue;
+    }
+    // Same normalised name in the same city+nation: one venue, two
+    // researchers. Merge, keeping the richer record and retaining BOTH
+    // provenance trails.
+    mergeVenueInto(existing, venue);
   }
-  return merged;
+
+  // Second pass — ALIAS reconciliation.
+  //
+  // Exact-name matching alone missed real duplicates that arrive from two
+  // workstreams under different headline names: "Aviva Arena" vs "Aviva
+  // Arena Bristol" (both listing the aliases "YTL Arena Bristol" and
+  // "Bristol Arena"), and "ICC Belfast" vs "ICC Belfast / Belfast
+  // Waterfront" (each naming the other). They are one building each.
+  //
+  // Merging needs a SHARED NAME, not merely a shared city, and a declared
+  // parent/sub-venue pair is explicitly protected. Because this is weaker
+  // evidence than an exact match, the survivor is flagged for identity
+  // review so the decision stays visible rather than silently made.
+  const absorbed = new Set();
+  const groups = new Map();
+  for (const venue of merged) {
+    const key = `${String(venue.city).toLowerCase().trim()}|${venue.nation}`;
+    groups.set(key, [...(groups.get(key) ?? []), venue]);
+  }
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    // Sorted so the outcome never depends on workstream ordering.
+    const ordered = [...group].sort((a, b) => a.venue_census_id.localeCompare(b.venue_census_id));
+    for (let i = 0; i < ordered.length; i += 1) {
+      if (absorbed.has(ordered[i].venue_census_id)) continue;
+      for (let j = i + 1; j < ordered.length; j += 1) {
+        if (absorbed.has(ordered[j].venue_census_id)) continue;
+        const keeper = ordered[i];
+        const candidate = ordered[j];
+        if (isParentChildPair(keeper, candidate)) continue;
+        const shared = [...nameAliases(candidate)].filter((alias) => nameAliases(keeper).has(alias));
+        if (!shared.length) continue;
+        mergeVenueInto(keeper, candidate);
+        keeper.identity_review = true;
+        keeper.identity_review_reason = `merged with a separately-researched record ("${candidate.canonical_name}") on a shared alternative name; verify they are one venue`;
+        absorbed.add(candidate.venue_census_id);
+      }
+    }
+  }
+
+  const survivors = merged.filter((venue) => !absorbed.has(venue.venue_census_id));
+  for (const venue of survivors) {
+    const claims = venue.__typeClaims ?? [];
+    const { venueType, multiPurpose } = electVenueType(claims);
+    const distinct = [...new Set(claims.map((claim) => claim.venue_type))].sort();
+    venue.venue_type = venueType;
+    // Always retained, so a dual-code ground never loses the fact that two
+    // researchers classified it differently.
+    venue.venue_type_claims = distinct;
+    if (distinct.length > 1 && !multiPurpose) {
+      venue.venue_type_election = `elected from ${distinct.join(", ")} by best-evidenced largest configuration`;
+    } else if (multiPurpose) {
+      venue.venue_type_election = `classified multi-purpose: researchers evidenced ${distinct.join(", ")}`;
+    } else {
+      venue.venue_type_election = null;
+    }
+    delete venue.__typeClaims;
+  }
+  return survivors;
 }
 
 /** Compile workstream documents into the four census artifacts. */

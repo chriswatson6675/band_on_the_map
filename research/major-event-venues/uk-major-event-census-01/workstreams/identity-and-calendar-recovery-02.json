@@ -1,0 +1,1260 @@
+{
+  "workstream": "IDENTITY_AND_CALENDAR_RECOVERY_02",
+  "generated_at": "2026-09-20T17:04:59.632Z",
+  "method_notes": "TASK 1 (identity). For each of the seven flagged official_url values I first re-fetched the bad URL myself rather than trusting the census note, then researched the ground's current occupant, then fetched each candidate replacement and required it to identify THIS GROUND (address, ground name, or explicit statement of where the club plays) - not merely to carry a similar club name. Five replacements met that bar; two did not and are left as OFFICIAL_URL_REVIEW_REQUIRED with the reason recorded. Every bad URL is preserved in invalid_official_url with what it actually served on 2026-09-20. TASK 2 (no-calendar recovery). The 106-venue list was derived programmatically: venues.json venue_census_ids absent from every record in calendar-sources.json (642 venues, 730 sources, 106 with no source - matches the brief). Segmentation: A = principal capacity (capacity-evidence.json, is_principal true) of 5,000 or more, or a nationally significant arena/complex; B = a sport venue with an expected fixture source (greyhound tracks, a racecourse, and senior national-league football grounds); C = conference/exhibition and major public-programme cultural venues with an expected event calendar (I extended C beyond strict conference/exhibition to cover the concert hall and theatre in the list, which belong to the same \"expected published programme\" tier); D = smaller >=1,000-capacity grounds with a weak public programme, mostly Scottish junior and Northern Irish intermediate football, which were deliberately NOT worked. The 106 split A 22 / B 37 / C 5 / D 42. ATTEMPTED: A 22 of 22, B 37 of 37, C 5 of 5, D 0 of 42 - D was deliberately left, per the brief. Segment A was worked in descending principal-capacity order from 25,849 downward. Verification rule applied throughout: a source was only recorded after I fetched it and saw either the venue/club identified on the page or dated event content. events_currently_present is true only where I saw named forthcoming dated events; where the page is the right one but renders nothing to a plain fetch, or the season has ended, it is false and the note says which. Several rugby league club pages are legitimately empty on 2026-09-20 because the 2026 season has just finished - that is recorded as a season state, not as an absent calendar. Sources NOT used: ticket marketplaces, aggregator fixture sites, and any domain I could not fetch. Three further squatted or dead domains were found and are recorded as negative findings so they are never adopted: manchestersportandleisure.org (gambling spam), eastbournetennis.com (redirects to a slot site), penybontfc.com (redirects to slot spam) - plus dead/placeholder official_urls at stdavidshallcardiff.co.uk (no DNS), pitchero.com/clubs/merthyrtown (Pitchero \"Club not live\"), and cpfc.co.uk/palace-women recorded against Gander Green Lane. Tooling note: WebSearch quota was exhausted partway through, after which discovery used the DuckDuckGo HTML endpoint and the Wikipedia search API, with all confirmation still done by direct fetch. Cloudflare-protected sites (leicestertigers.com, mancity.com) were read in a real browser. Sites with TLS faults (theatreroyal.co.uk expired certificate, downpatrickracecourse.co.uk incomplete chain, whitehavenrl.co.uk apex handshake failure, brechincity.co.uk SSL alert 80) are recorded with the exact fault.",
+  "calendar_patches": [
+    {
+      "canonical_name": "Mattioli Woods Welford Road",
+      "city": "Leicester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.leicestertigers.com/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Leicester Tigers official fixtures route. A plain fetch is blocked by a Cloudflare interstitial (HTTP 403, title \"Just a moment...\"), so this was loaded in a real browser: it redirects to /fixtures/all?season=2027, title \"All Fixtures | Leicester Tigers\", and renders forthcoming dated fixtures that name this ground, e.g. \"Sunday 27 September 2026 15:00 at Mattioli Woods Welford Road Stadium\", then monthly blocks SEPTEMBER 2026 through DECEMBER 2026 and beyond. Acquisition will need a browser/JS-capable fetcher.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Keepmoat Stadium",
+      "city": "Doncaster",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.doncasterroversfc.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Doncaster Rovers F.C. official fixtures page for this stadium (the club that plays here), fetched HTTP 200. Same shared \"gc\" club-site platform already fingerprinted elsewhere in this census: VUE_APP_CLUB_ID=\"doncasterroversfc\", and the inline application state carries 50 dated kick-offs of the form kickOff:\"YYYY-MM-DD HH:MM:SS\" with matchIDs, of which 40 are after 2026-09-20 (2026-10-03 15:00:00 onwards through 2027-05-08). No server-rendered HTML title.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.doncasterrugbyleague.co.uk/matches/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Doncaster RLFC (the stadium's rugby league tenant) official fixtures route, fetched HTTP 200, title \"Doncaster Rugby League\"; the site footer gives the address as \"Doncaster RLFC, Eco-Power Stadium, Stadium Way, Doncaster, DN4 5JW\", which is this venue. The fixtures route itself renders no dated rows to a plain fetch (JS-driven). The club homepage does render dated match copy, e.g. \"The Dons have an elimination quarter-final against Barrow Raiders at Club Doncaster Sports Village on Sunday 20 September (3pm KO)\", so the data exists but needs a JS-capable fetcher; and the 2026 rugby league season is at its play-off end, so nothing beyond 2026-09-20 was visible today.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Derwent Park",
+      "city": "Workington",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.townrlfc.com/match-centre",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Workington Town RLFC official match centre, fetched HTTP 200, title \"Workington Town RLFC\"; site footer address \"Workington Town RLFC / Derwent Park / Workington / Cumbria / CA14 2HG\" confirms this ground. /fixtures and /matches/fixtures both 404 on this site. The match centre rendered exactly one dated entry today, \"Sun 20th September 2026\" (today's date), and nothing later - the 2026 rugby league season has reached its end, so no forthcoming fixtures were visible.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cougar Park",
+      "city": "Keighley",
+      "calendar_sources": [
+        {
+          "source_url": "https://keighleycougars.uk/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Keighley Cougars official fixtures route, fetched HTTP 200; it redirects to https://keighleycougars.uk/calendar/fixtures-list, title \"Keighley Cougars Fixtures List - Keighley Cougars\". The page is a month-paged calendar currently showing \"September 2026\" with month tabs Mar-Sep; no forthcoming dated fixture rows were rendered to a plain fetch on 2026-09-20 (season end). The club homepage does render dated items and shows Cougar Park also hosts concerts (a \"JLS + UB40 Ft. ALI CAMPBELL JULY 24-25\" listing).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mount Pleasant",
+      "city": "Batley",
+      "calendar_sources": [
+        {
+          "source_url": "https://batleybulldogs.co.uk/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Batley Bulldogs official fixtures page, fetched HTTP 200, title \"Fixtures - Batley Bulldogs\". No dated rows render to a plain fetch on this route (JS-driven match centre). The club homepage does render the season's dated fixture list (\"SUN 26TH APRIL 2026\" ... \"SUN 6TH SEPTEMBER 2026\"); the latest date found anywhere on it is 2026-09-06, i.e. the 2026 season has finished and nothing is forthcoming as at 2026-09-20.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Recreation Ground, Whitehaven",
+      "city": "Whitehaven",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.whitehavenrl.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Whitehaven RLFC official fixtures route, fetched HTTP 200 (note: the apex https://whitehavenrl.co.uk/ fails TLS with \"ssl3_read_bytes: handshake failure, SSL alert 40\" - the www host must be used). No server-rendered title and no dated rows to a plain fetch. The club homepage states \"Thank You For Your Support In 2026 / Check back soon for more information regarding the 2027 season\", so there is genuinely nothing forthcoming to list today.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Crown Flatt",
+      "city": "Dewsbury",
+      "calendar_sources": [
+        {
+          "source_url": "https://dewsburyrams.co.uk/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Dewsbury Rams official fixtures page, fetched HTTP 200, title \"Fixtures - Dewsbury Rams RLFC\". It renders a real dated fixture list (31 distinct ISO dates, 2025-12-26 through 2026-08-29, each paired with a dd/mm/yyyy label). The maximum date is 2026-08-29, i.e. the 2026 season is complete; nothing is forthcoming as at 2026-09-20.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Devonshire Park",
+      "city": "Eastbourne",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.lta.org.uk/fan-zone/international/lexus-eastbourne-open/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "tennis",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "LTA (national governing body) official event page for the Lexus Eastbourne Open, the ATP/WTA tournament staged at Devonshire Park. Fetched HTTP 200, title \"Lexus Eastbourne Open tennis tournament 2026 | LTA\". It carries the completed 2026 edition (\"taking place between 20 - 29 June 2026\") and the next edition dated \"19 - 26 June 2027\" - the asterisk shown beside that date on the page indicates the LTA marks it provisional. Preference level 4 (governing-body schedule): no first-party Devonshire Park event calendar was found, and the domain eastbournetennis.com now redirects to a slot-gambling site and must not be used.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Emirates Arena",
+      "city": "Glasgow",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.glasgowlife.org.uk/sport/venues/glasgow-international-arena",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Operator (Glasgow Life) venue page for this arena. The census-era host www.emiratesarena.co.uk now 301/302s to this URL and the venue has been renamed: page title \"Glasgow International Arena - Glasgow Life\". Fetched HTTP 200. It carries a \"What's on at Glasgow International Arena\" block listing a named forthcoming event - \"Jessie Ware\", \"Friday 4 December\" - and links to /event/2/jessie-ware. The page does not print a year against that date, so no year is recorded here rather than inferred. The wider Glasgow Life /whats-on listing is dated and city-wide but exposes no venue filter in server-rendered HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Grange",
+      "city": "Edinburgh",
+      "calendar_sources": [
+        {
+          "source_url": "https://grangecricket.org/fixtures-results/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Grange Cricket Club official fixtures and results page for this ground, fetched HTTP 200, title \"Fixtures & Results - Grange Cricket\". Organised by season with month headings; the most recent season block runs April 2026 to September 2026. No forthcoming dated fixture rows rendered to a plain fetch on 2026-09-20 (Scottish season end). The wider members' club site is https://www.thegrangeclub.com/ (title \"Cricket :: Cricket\"), which states the ground \"regularly hosts Scotland's international matches\" but publishes no calendar.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Victoria Park",
+      "city": "Buckie",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Buckie Thistle FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Theatre Royal, Newcastle",
+      "city": "Newcastle upon Tyne",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.theatreroyal.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Newcastle Theatre Royal official What's On listing, HTTP 200, title \"What's On | Newcastle Theatre Royal\". Renders named forthcoming dated runs: \"Tue 22 Sep 2026\", \"Wed 23 Sep - Sun 11 Oct 2026\", \"Thu 15 - Sat 24 Oct 2026\", \"Wed 28 - Sat 31 Oct 2026\", \"Wed 4 - Fri 6 Nov 2026\", with individual show pages (/whats-on/mrs-doubtfire/, /whats-on/northern-ballet-cinderella/, etc.). CAVEAT for acquisition: the site's TLS certificate has EXPIRED - a normal fetch fails with \"certificate has expired\" and this page could only be read with certificate verification disabled.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Nottingham Greyhound Stadium",
+      "city": "Nottingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nottingham-greyhounds.co.uk/whats-on",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own What's On page (ARC), HTTP 200, title \"Whats On | Nottingham Greyhound Stadium\". Renders named forthcoming dated race nights: Mon 21 September 2026, Wed 23 September 2026, Thu 24 September 2026, Fri 25 September 2026, Mon 28 September 2026, Wed 30 September 2026, and later themed dates (e.g. \"Monday 30th November - Eclipse Final\", \"Friday 4th December - Festive Party Night\").",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Newcastle Greyhound Stadium",
+      "city": "Newcastle upon Tyne",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.newcastle-greyhounds.co.uk/whats-on",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own What's On page (ARC), HTTP 200, title \"Whats On | Newcastle Greyhound Stadium\". Renders named forthcoming dated race nights: Tue 22, Wed 23, Thu 24, Fri 25, Sat 26, Tue 29, Wed 30 September 2026, plus \"Thursday 29th October\".",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sunderland Greyhound Stadium",
+      "city": "Sunderland",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sunderland-greyhounds.co.uk/whats-on",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own What's On page (ARC), HTTP 200, title \"Whats On | Sunderland Greyhound Stadium\". Renders dated race meetings Sun 20, Mon 21, Tue 22, Wed 23 September 2026 onward.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Dunstall Park Greyhound Stadium",
+      "city": "Wolverhampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.dunstallpark-greyhounds.co.uk/whats-on",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own What's On page (ARC), HTTP 200, title \"Whats On | Dunstall Park Greyhound Stadium\". Renders dated race meetings labelled \"DUNS 2026 Monday 21 September\", then Wed 23, Thu 24, Sat 26, Mon 28, Wed 30 September 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Central Park Stadium",
+      "city": "Sittingbourne, Kent",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.centralpark-greyhounds.co.uk/whats-on",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own What's On page (ARC), HTTP 200, title \"Whats On | Central Park Greyhound Stadium\". Renders dated race meetings Mon 21, Tue 22, Thu 24, Fri 25, Sat 26, Mon 28, Tue 29 September 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Monmore Green Stadium",
+      "city": "Wolverhampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://monmoregreyhounds.com/racing/advance/races",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Monmore Racing (the track's own site, title \"Monmore Racing\") advance racecards route, HTTP 200. Renders forthcoming dated cards \"Mon, 21 Sept 2026\" and \"Tue, 22 Sept 2026\"; the site also advertises a dated hospitality event (\"Indian Night Menu Thursday October 15th\"). Only a short advance window is exposed at a time.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Brighton and Hove Greyhound Stadium",
+      "city": "Hove, Brighton",
+      "calendar_sources": [
+        {
+          "source_url": "https://brightonandhovegreyhounds.co.uk/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own site, HTTP 200, title \"Brighton & Hove Racing\". The landing page itself lists forthcoming dated meetings with first-race times: \"Wed 23 Sept 2026 - 2:00pm\", \"Thu 24 Sept 2026 - 5:30pm\", \"Sat 26 Sept 2026 - 5:30pm\".",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Harlow Greyhound Stadium",
+      "city": "Harlow, Essex",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.harlowgreyhounds.co.uk/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own site, HTTP 200, title \"Greyhounds | Harlow Greyhounds | England\". Renders a long forthcoming dated schedule: Wednesday 23rd September 2026, Friday 25th September 2026, then every Wednesday/Friday through \"Wednesday 18th November 2026\" and beyond.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Star Pelaw",
+      "city": "Chester-le-Street, County Durham",
+      "calendar_sources": [
+        {
+          "source_url": "https://pelawgrange.co.uk/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Track's own site, HTTP 200, title \"Star Pelaw - Star Pelaw Greyhound Racing\" (reached by following https://www.starpelaw.co.uk/, which redirects here). The landing page carries a dated advance card entry, \"Tuesday 22nd September ... Advance Card\".",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Yarmouth Stadium",
+      "city": "Great Yarmouth, Norfolk",
+      "calendar_sources": [
+        {
+          "source_url": "https://yarmouthstadium.co.uk/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "greyhound",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Stadium's own site, HTTP 200, title \"Great Yarmouth Greyhound and Banger & Stock Car Racing\". The landing page lists named forthcoming dated meetings with start times: 27/9/2026 @ 5pm, 11/10/2026 @ 5pm, 25/10/2026 @ 5pm, 29/10/2026 @ 6pm, 1/11/2026 @ 4pm, 27/12/2026 @ 1pm. (Its /advance-cards-results/ page, title \"Advance Cards / Results\", renders no dates to a plain fetch, so the landing page is the better acquisition target.) Note the venue also stages banger/stock-car racing as well as greyhounds.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Downpatrick Racecourse",
+      "city": "Downpatrick",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.downpatrickracecourse.co.uk/all-fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "horse_racing",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Racecourse's own fixture list, HTTP 200, title \"Downpatrick Racecourse - National Hunt Racing\". Renders named dated fixtures including the forthcoming \"Fri 09 Oct / Friday 9th October 2026\", alongside the season's earlier meetings (\"Festival Saturday - 13th June 2026\", \"Ladies Day- Bank Holiday Monday 31st August 2026\", \"Friday 18th September 2026\"). CAVEAT: the host serves an incomplete certificate chain - a normal fetch fails with \"unable to verify the first certificate\", and this was read with verification disabled.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Harlaw Park",
+      "city": "Inverurie",
+      "calendar_sources": [
+        {
+          "source_url": "https://inverurielocos.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Inverurie Loco Works F.C. official fixtures page, HTTP 200, title \"Inverurie Loco Works F.C.\". Lists named forthcoming dated fixtures with venues, including two at this ground: \"October 7, 2026 - Inverurie Loco Works vs Invergordon FC, 8:00 pm, Harlaw Park\" and \"October 10, 2026 - Inverurie Loco Works vs Formartine United FC, 3:00 pm, Harlaw Park\". The same site gives the club address as \"Harlaw Park, Harlaw Road, Inverurie, AB51 4SF\".",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Inverurie Loco Works FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "North Lodge Park",
+      "city": "Pitmedden",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.formartineunitedfc.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Formartine United F.C. official fixtures page, HTTP 200, title \"Fixtures | Formartine United FC\". Renders dated fixtures including forthcoming ones: 22/9/26, 23/9/26, 26/9/26, 28/9/26, 5/10/26, 7/10/26, 10/10/26, 12/10/26, 15/10/26, 26/10/26, 2/11/26, 9/11/26, 16/11/26, 30/11/26. The same site gives the ground as \"North Lodge Park, Old Meldrum Road, Pitmedden, Aberdeenshire AB41 7PA\".",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Formartine United FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Dudgeon Park",
+      "city": "Brora",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Brora Rangers FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Kynoch Park",
+      "city": "Keith",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Keith FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bellslea Park",
+      "city": "Fraserburgh",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Fraserburgh FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Grant Park",
+      "city": "Lossiemouth",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Lossiemouth FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Station Park",
+      "city": "Nairn",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Nairn County FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Harmsworth Park",
+      "city": "Wick",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Wick Academy FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Grant Street Park",
+      "city": "Inverness",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Clachnacuddin FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Haughs",
+      "city": "Turriff",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Turriff United FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Spain Park",
+      "city": "Aberdeen",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Banks o' Dee FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Seafield Park",
+      "city": "Grantown-on-Spey",
+      "calendar_sources": [
+        {
+          "source_url": "https://highlandfootballleague.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official Breedon Highland Football League fixtures/results page (title \"Highland Football League, Scotland - Fixtures and Results\"), fetched HTTP 200. Renders dated fixture blocks including forthcoming rounds \"Saturday 26 Sep 2026 - Breedon Highland Football League - Kick off 3.00pm\". Strathspey Thistle FC is a member club in the fixture grid, so this ground's home fixtures appear here; the grid names home and away clubs rather than the ground itself. League-wide list, not venue-specific - preference level 3 (official league fixture list) because no verified first-party fixtures page was found for this ground in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Airfield",
+      "city": "Broughton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.airbusukfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Airbus UK Broughton F.C. official matches page, HTTP 200, title \"September 2026 - Club matches - Airbus UK Broughton FC\". It is a month-scoped calendar and the September 2026 view rendered \"No events to show\" to a plain fetch, so no forthcoming dated fixtures were visible today even though the club is playing. The club site footer gives \"Airbus UK Broughton FC, The Hollingsworth Group Stadium, Broughton, Flintshire, CH4 0DR\", which is this ground (The Airfield / Hollingsworth Group International Airfield).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    }
+  ],
+  "identity_findings": [
+    {
+      "canonical_name": "The Camrose",
+      "city": "Basingstoke",
+      "invalid_official_url": "http://www.basingstoketown.net/",
+      "invalid_reason": "Re-fetched 2026-09-20: HTTP 200 with title \"Basingstoketown - Berita Sepakbola Inggris Basingstoke Town FC\" - an Indonesian-language football-news SEO farm squatting the lapsed club domain. Not the club's or the ground's site.",
+      "current_official_url": null,
+      "status": "OFFICIAL_URL_REVIEW_REQUIRED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "http://www.basingstoketown.net/",
+          "note": "Fetched HTTP 200; title \"Basingstoketown - Berita Sepakbola Inggris Basingstoke Town FC\". Indonesian-language SEO content farm on the lapsed domain, not the club."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://btfc.co.uk/savecamrose/",
+          "note": "Basingstoke Town F.C.'s own site (title \"The 'Save The Camrose' Story\") - verified as the live official site of the club named as this venue's operator, but it states the club does NOT use this ground: \"The Camrose Stadium across the town is currently unused, vandalised and left to rot by ex-Chairman Rafi Razzak\"; the club was \"evicted...from The Camrose in April 2019\" and \"Since October 2020 the Community Club has been renting the shared Hampshire FA ground at Winklebury Football Complex\". It also records the freehold sold to Basron Developments and planning permission granted in May 2022 for \"housing and care home on the land of The Camrose\"."
+        },
+        {
+          "kind": "ANALYSIS",
+          "value": "Why no replacement URL is recorded",
+          "note": "https://btfc.co.uk/ is strongly evidenced as the operator club's official site, but recording it as THE CAMROSE's official_url would assert an occupancy that the same source disproves - the club plays elsewhere and this ground is disused and consented for redevelopment. Recording it would import a false identity, so the venue is left for review. This venue's operator and operational_status fields should be reviewed too (the census carries it as OPERATIONAL with a 6,000 capacity)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Harlaw Park",
+      "city": "Inverurie",
+      "invalid_official_url": "https://bowerhintonbears.co.uk/",
+      "invalid_reason": "Re-fetched 2026-09-20: HTTP 200 with title \"TOTO12: Pilihan Situs Paling Rekomendasi Saat Ini Karna Lengkap\" - an Indonesian-language online-gambling affiliate site. Unrelated to this ground or to Inverurie Loco Works F.C.",
+      "current_official_url": "https://inverurielocos.com/",
+      "status": "OFFICIAL_URL_REPLACED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://bowerhintonbears.co.uk/",
+          "note": "Fetched HTTP 200; title \"TOTO12: Pilihan Situs Paling Rekomendasi Saat Ini Karna Lengkap\" - gambling affiliate spam."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://inverurielocos.com/",
+          "note": "Fetched HTTP 200; title \"Inverurie Loco Works F.C.\"; footer \"Copyright (c) 2026 Inverurie Loco Works FC\"; contact block gives the ground address \"Harlaw Park, Harlaw Road, Inverurie, AB51 4SF\" and the club email inverurielocoworksfc@highlandleague.com. This site identifies BOTH the club and this ground, so it is not a name-lookalike match."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://inverurielocos.com/fixtures/",
+          "note": "Same site's fixtures page lists forthcoming dated home fixtures explicitly at \"Harlaw Park\" (7 October 2026 v Invergordon FC; 10 October 2026 v Formartine United FC) - live, current, venue-naming content."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://highlandfootballleague.com/fixtures/",
+          "note": "Official league fixture grid lists \"Inverurie Loco Works FC\" as a current Breedon Highland Football League member, corroborating the club is active and this is its current identity."
+        }
+      ]
+    },
+    {
+      "canonical_name": "North Lodge Park",
+      "city": "Pitmedden",
+      "invalid_official_url": "http://www.formartineutd.com/",
+      "invalid_reason": "Re-fetched 2026-09-20: HTTP 200 with title \"乐投体育·乐投官方网站-乐投体育(中国)\" - a Chinese-language sports-betting portal on the lapsed domain. Not the club.",
+      "current_official_url": "https://www.formartineunitedfc.co.uk/",
+      "status": "OFFICIAL_URL_REPLACED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "http://www.formartineutd.com/",
+          "note": "Fetched HTTP 200; title is a Chinese sports-betting brand page. Not a football club site."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.formartineunitedfc.co.uk/",
+          "note": "Fetched HTTP 200; title \"Formartine United FC | Highland League\"; the site gives the ground address \"North Lodge Park, Old Meldrum Road, Pitmedden, Aberdeenshire AB41 7PA\" - it identifies this exact ground, not just a similar name."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.formartineunitedfc.co.uk/fixtures",
+          "note": "Same site's fixtures page (title \"Fixtures | Formartine United FC\") renders forthcoming dated fixtures (22/9/26, 26/9/26, 7/10/26, 10/10/26, 15/10/26, 2/11/26, 16/11/26, 30/11/26 ...), proving the site is live and maintained."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://highlandfootballleague.com/fixtures/",
+          "note": "Official league fixture grid lists \"Formartine United FC\" as a current Breedon Highland Football League member."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Airfield",
+      "city": "Broughton",
+      "invalid_official_url": "https://www.airbusfc.com/",
+      "invalid_reason": "Re-fetched 2026-09-20: now HTTP 403 \"403 - Forbidden / Access to this page is forbidden.\" The census recorded it serving casino-affiliate spam (\"Fast Withdrawal Casinos 2025 - Best Instant Payout Casino Sites\"); today it serves nothing at all. Either way it is not the club's site.",
+      "current_official_url": "https://www.airbusukfc.com/",
+      "status": "OFFICIAL_URL_REPLACED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.airbusfc.com/",
+          "note": "Fetched 2026-09-20: HTTP 403 Forbidden, body \"403 - Forbidden / Access to this page is forbidden.\" No club content."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.airbusukfc.com/",
+          "note": "Fetched HTTP 200; title \"Airbus UK Broughton FC\"; footer address \"Airbus UK Broughton FC, The Hollingsworth Group Stadium, Broughton, Flintshire, CH4 0DR\", and the site names Hollingsworth as the stadium sponsor. This ground is The Airfield, also known as the Hollingsworth Group International Airfield, in Broughton - so the site identifies the ground, not merely a similar club name."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.airbusukfc.com/matches",
+          "note": "Same site's matches route, title \"September 2026 - Club matches - Airbus UK Broughton FC\" - a live, club-operated calendar route (it rendered no events for the current month view to a plain fetch)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Claggan Park",
+      "city": "Fort William",
+      "invalid_official_url": "https://santiagofutsal.com/",
+      "invalid_reason": "Re-fetched 2026-09-20: HTTP 500 returning a WordPress fatal-error payload in Vietnamese (\"Đã có một lỗi nghiêm trọng trên trang web của bạn\") with the file path \"/www/wwwroot/santiagofutsal.com/wp-includes/class-wpdb.php\". An unrelated third-party WordPress site, broken; nothing connects it to Fort William F.C. or Claggan Park.",
+      "current_official_url": "https://fortwilliamfc.com/",
+      "status": "OFFICIAL_URL_REPLACED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://santiagofutsal.com/",
+          "note": "Fetched 2026-09-20: HTTP 500, WordPress internal_server_error JSON referencing /www/wwwroot/santiagofutsal.com/. Unrelated domain, not a venue site."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://fortwilliamfc.com/",
+          "note": "Fetched HTTP 200; title \"Home - Fort William FC\". The page states: \"Fort William Football Club was formed in 1974. The club are currently a licensed Scottish FA club and member of the North Caledonian Football League. The club play their home games at Claggan Park, situated on the outskirts of Fort William\" - it names this exact ground and the club's current league."
+        },
+        {
+          "kind": "ANALYSIS",
+          "value": "League status corroboration",
+          "note": "Fort William F.C. no longer appear in the Breedon Highland Football League fixture grid fetched at https://highlandfootballleague.com/fixtures/ (members seen there: Banks o' Dee, Brora Rangers, Buckie Thistle, Clachnacuddin, Deveronvale, Formartine United, Forres Mechanics, Fraserburgh, Huntly, Invergordon, Inverurie Loco Works, Keith, Lossiemouth, Nairn County, Rothes, Strathspey Thistle, Turriff United, Wick Academy), which is consistent with the club's own statement that it now plays in the North Caledonian Football League."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Shay",
+      "city": "Halifax",
+      "invalid_official_url": "https://www.halifaxafc.co.uk/",
+      "invalid_reason": "Re-fetched 2026-09-20: HTTP 200 with title \"Halifax Town AFC - History and Demise\". Its own opening text says \"Hello and welcome to this site dedicated to our beloved football club, Halifax Town AFC. The football club, as it were, is now defunct... it now operates under the name FC Halifax Town.\" It is a fan history site about the WOUND-UP predecessor club, not the site of this stadium or of its current tenant.",
+      "current_official_url": "https://shaystadium.com/",
+      "status": "OFFICIAL_URL_REPLACED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.halifaxafc.co.uk/",
+          "note": "Fetched HTTP 200; title \"Halifax Town AFC - History and Demise\"; self-describes as a site about the defunct predecessor club."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://shaystadium.com/",
+          "note": "Fetched HTTP 200; title \"Conference, Events - The Shay stadium - Halifax, England\". This is the STADIUM's own site: it describes the venue as \"Calderdale's premier conference and event centre\" and \"the home of FC Halifax town, Halifax Panthers\", gives the address Shaw Hill, HX1 2YZ, Halifax and phone 01422 264 747, and is run by Difference Group in partnership with Calderdale Council (the stadium's owner). It sells venue hire and Christmas party nights but publishes no dated public event calendar."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://shaystadium.com/the-shay-stadium",
+          "note": "Same site's stadium page, title \"The Shay Stadium | The Shay stadium\", naming FC Halifax Town and Halifax Panthers as the resident teams."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://fchalifaxtown.com/club/",
+          "note": "Corroboration from the current tenant club named as this venue's operator: title \"Club - FC Halifax Town\", address given as \"The Shay Stadium, Halifax, HX1 2YT (HX1 2YS for sat nav's)\", with its own fixtures page at https://fchalifaxtown.com/fixtures/. If the census prefers the operator club rather than the stadium company, https://fchalifaxtown.com/ is the equally-evidenced alternative."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Fortwilliam Park",
+      "city": "Tobermore",
+      "invalid_official_url": "https://dns.google/",
+      "invalid_reason": "Not a venue website. https://dns.google/ is Google Public DNS. Its presence in the census is now explained: the club's own domain https://tobermoreunitedfc.co.uk/ answers with HTTP 302 and a Location header of https://dns.google/, so a crawler that followed redirects recorded the resolver page as the club homepage. The lapsed club domain, not the venue, is the origin of the artifact.",
+      "current_official_url": null,
+      "status": "OFFICIAL_URL_REVIEW_REQUIRED",
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://tobermoreunitedfc.co.uk/",
+          "note": "Fetched 2026-09-20: HTTP 302 Found, Location: https://dns.google/ (confirmed twice, by HTTP-aware fetch and by curl). This is the mechanism that put dns.google into the census; the club domain no longer serves a site."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Tobermore_United_F.C.",
+          "note": "No website is listed in the club infobox. Ground given as Fortwilliam Park, Tobermore, capacity approx. 1,500; league given as the Ballymena & Provincial Football League Premier Division after relegation from the NIFL Premier Intermediate League."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.nifootballleague.com/all-clubs/tobermore-united/",
+          "note": "NI Football League club page could not be read: HTTP 403 Forbidden to both an HTTP-aware fetch and curl with a browser user-agent. It could not be used to confirm or supply a club website."
+        },
+        {
+          "kind": "ANALYSIS",
+          "value": "No trustworthy replacement found",
+          "note": "No first-party website for Tobermore United F.C. or Fortwilliam Park could be verified. The only first-party presences surfaced are social accounts (facebook.com/tobermoreunitedfc, x.com/TUFC1965), which were not fetched and are not a venue website. Guessing a lookalike domain (e.g. a .com variant - which does not resolve) would be exactly the error this pass exists to fix, so no replacement is recorded."
+        }
+      ]
+    }
+  ],
+  "no_calendar_outcomes": [
+    {
+      "canonical_name": "Mattioli Woods Welford Road",
+      "city": "Leicester",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Leicester Tigers (rugby union) home ground and the largest no-calendar venue in the census at 25,849. Club fixtures route verified in a real browser (a plain fetch gets a Cloudflare interstitial): forthcoming dated fixtures naming this ground, e.g. \"Sunday 27 September 2026 15:00 at Mattioli Woods Welford Road Stadium\". Source added."
+    },
+    {
+      "canonical_name": "Alexander Stadium",
+      "city": "Birmingham",
+      "segment": "A",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "Official site https://www.alexander-stadium.co.uk/ fetched HTTP 200, title \"Welcome | Alexander Stadium\"; the /our-stadium/ page (which the operator host www.birminghamleisure.com/alexander-stadium/our-stadium/ redirects to) says the venue \"continues to host world-class and community events on a regular basis\" and claims the European Athletics Championships 2026. But the whole site carries NO what's-on or event-listing page: every link is to fitness/membership, venue hire, policies, or single promotional pages (/world-supercross/, /christmas-festive-party-nights/). No dated event list is published, so nothing could be added without inventing a third-party source."
+    },
+    {
+      "canonical_name": "Crystal Palace National Sports Centre",
+      "city": "London",
+      "segment": "A",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "Operator is GLL/Better. The Wikipedia-cited official URL www.gll.org/centre/crystal-palace-national-sports-centre.asp is dead (HTTP 404). The live operator page is https://www.better.org.uk/leisure-centre/london/crystal-palace/crystal-palace-national-sports-centre (HTTP 200, title \"Crystal Palace National Sports Centre | Better\"); it publishes opening times (\"Opening times for week commencing September 14, 2026\") and activity/class booking, but no dated event or fixture listing for the 15,500-seat athletics stadium. A \"/whats-on\" path under that centre returns 404."
+    },
+    {
+      "canonical_name": "Keepmoat Stadium",
+      "city": "Doncaster",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Shared stadium: Doncaster Rovers F.C. (football) and Doncaster RLFC (rugby league) both play here - the RL club's own footer gives its address as this stadium. Two sources added: the Rovers fixtures page (40 forthcoming dated kick-offs in embedded state) and the Doncaster RL fixtures route (right page, renders no dates to a plain fetch, season at its play-off end). Note the venue has been renamed more than once (Keepmoat -> Eco-Power -> Club Doncaster Sports Village); the census name is retained here unchanged, but the naming history is worth a separate review."
+    },
+    {
+      "canonical_name": "All England Lawn Tennis and Croquet Club",
+      "city": "London",
+      "segment": "A",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "https://www.wimbledon.com/ fetched HTTP 200, title \"The Championships, Wimbledon - Official Website by IBM\", but it renders no dated event listing at all to a plain fetch, and https://www.wimbledon.com/en_GB/atoz/calendar.html redirects to /en_GB/about (title \"About - The Championships, Wimbledon\"). I could not locate a first-party dated calendar page for the venue, and I will not record a ticket-marketplace or third-party tournament page as the venue calendar. Needs a browser-capable retry."
+    },
+    {
+      "canonical_name": "Derwent Park",
+      "city": "Workington",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Workington Town RLFC match centre verified as the right first-party page (site footer gives Derwent Park, Workington). Only one dated entry was rendered today (20 September 2026) as the rugby league season has ended. Source added with events_currently_present false."
+    },
+    {
+      "canonical_name": "Post Office Road",
+      "city": "Featherstone",
+      "segment": "A",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "The club domain https://www.featherstonerovers.net/ returns Cloudflare HTTP 522 (\"522: Connection timed out\") - the origin server is down, so no first-party page could be read. Separately, reporting indicates Featherstone Rovers were not granted RFL membership for the 2026 season after entering administration, with the women's team continuing at the ground; I did not retain a first-party source for that, so it is flagged rather than asserted. Nothing could be verified and nothing was added."
+    },
+    {
+      "canonical_name": "Queensway Stadium",
+      "city": "Wrexham",
+      "segment": "A",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "Identity established: the stadium is operated by Freedom Leisure - https://www.freedom-leisure.co.uk/centres/queensway-stadium/ fetched HTTP 200, title \"Queensway Stadium | Wrexham | Freedom Leisure\". That page offers facilities, timetables and memberships only, with no event or fixture listing. Current users per Wikipedia are Wrexham Athletics Club and FC Queens Park (North Wales Crusaders left for Eirias Stadium, Colwyn Bay in 2021); no verified first-party fixture page was found for either, and FC Queens Park's Pitchero club page was not verified. Nothing added."
+    },
+    {
+      "canonical_name": "Devonshire Park",
+      "city": "Eastbourne",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "No first-party venue calendar exists, but the LTA (national governing body) publishes the venue's flagship event with dates - the Lexus Eastbourne Open, completed edition 20-29 June 2026 and next edition dated 19-26 June 2027 on the page. Added as a preference-4 governing-body schedule. IMPORTANT NEGATIVE FINDING: the plausible-looking domain eastbournetennis.com now 302s to https://www.slotbirumacau.com/ (title \"SLOTBIRU : Link Bandar Slot Gacor...\") - gambling spam that must never be recorded for this venue."
+    },
+    {
+      "canonical_name": "Cougar Park",
+      "city": "Keighley",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Club site verified at keighleycougars.uk (title \"Keighley Cougars\"); its /fixtures/ route redirects to a fixtures-list calendar page. No forthcoming dates render today (season end). Worth noting for later: the club homepage carries concert listings for this ground (\"JLS + UB40 Ft. ALI CAMPBELL JULY 24-25\"), so Cougar Park has a non-sport programme too."
+    },
+    {
+      "canonical_name": "Mount Pleasant",
+      "city": "Batley",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Batley Bulldogs official fixtures page verified; the club homepage renders the full 2026 dated season list but its latest date is 2026-09-06, so nothing is forthcoming as at 2026-09-20. Source added with events_currently_present false."
+    },
+    {
+      "canonical_name": "Recreation Ground, Whitehaven",
+      "city": "Whitehaven",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Whitehaven RLFC fixtures route added. Two real acquisition caveats recorded in the source notes: the apex host fails TLS (SSL alert 40) and only www works, and the club has publicly closed its 2026 season (\"Thank You For Your Support In 2026 / Check back soon for more information regarding the 2027 season\")."
+    },
+    {
+      "canonical_name": "Academy Stadium",
+      "city": "Manchester",
+      "segment": "A",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Operator is Manchester City W.F.C. mancity.com is Cloudflare-protected (plain fetch HTTP 403). Loaded in a real browser: https://www.mancity.com/fixtures renders forthcoming dated fixtures (Sun 11 Oct, Wed 14 Oct ... Sat 21 Nov) but is the MEN'S schedule and never names the Academy Stadium (or its sponsored name) anywhere on the page. https://www.mancity.com/womens/fixtures returns HTTP 404. I could not locate the women's/EDS fixture route that actually maps to this ground, so nothing was added rather than attaching a fixture list for matches played elsewhere."
+    },
+    {
+      "canonical_name": "Manchester Regional Arena",
+      "city": "Manchester",
+      "segment": "A",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "The operator-named domain https://www.manchestersportandleisure.org/ now serves Indonesian gambling spam - HTTP 200, title \"Joker123 Judi Slot Resmi Dan Agen Togel Online Terpercaya Deposit Ovo\", newest posts dated 2022-2023. It must NOT be recorded for this venue. No replacement first-party site for the Manchester Regional Arena (the Etihad Campus athletics arena, 6,500) was verified in this pass, so no calendar source was added. This is an eighth bad-domain case beyond the seven in the brief and should be flagged in the census."
+    },
+    {
+      "canonical_name": "Emirates Arena",
+      "city": "Glasgow",
+      "segment": "A",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Venue what's-on found on the operator's site. Also an identity finding: www.emiratesarena.co.uk now redirects to the Glasgow Life page titled \"Glasgow International Arena\" - the arena has been renamed, and the census canonical_name \"Emirates Arena\" is now the former name. The census record's official_url is empty, so nothing invalid needed correcting, but the rename should be reviewed."
+    },
+    {
+      "canonical_name": "The Camrose",
+      "city": "Basingstoke",
+      "segment": "A",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "No calendar exists because the ground is not in use. Basingstoke Town F.C.'s own site states the club was evicted in April 2019, that the stadium is \"currently unused, vandalised and left to rot\", and that the club has played at Winklebury Football Complex since October 2020, with planning permission granted in 2022 for housing on the site. See the identity finding for this venue; its operational_status also needs review."
+    },
+    {
+      "canonical_name": "Crown Flatt",
+      "city": "Dewsbury",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Dewsbury Rams official fixtures page renders a genuine dated fixture list (31 dates, 2025-12-26 to 2026-08-29). Season complete, so nothing forthcoming today; source added with events_currently_present false."
+    },
+    {
+      "canonical_name": "White Hart Lane Community Sports Centre",
+      "city": "London",
+      "segment": "A",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Identity established: this is the same facility as New River Stadium in Haringey; primary tenant London Skolars (rugby league), also Enfield and Haringey AC, Haringey Rhinos (rugby union), Park View F.C., and it hosted Britbowl in 2019 and 2022. No venue-operator site was found. The Skolars site https://www.skolarsrl.com/ is live (HTTP 200, title \"London Skolars\") but its newest dated content is from June/July 2025 and it exposes no forthcoming fixtures - stale, so nothing was added. A multi-tenant venue like this needs a per-tenant pass."
+    },
+    {
+      "canonical_name": "Victoria Park",
+      "city": "Buckie",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Buckie Thistle F.C. confirmed as a current Breedon Highland Football League member in the league's own fixture grid, which carries forthcoming dated rounds. League fixture list added (preference 3); no first-party club fixtures page was verified in this pass."
+    },
+    {
+      "canonical_name": "The Grange",
+      "city": "Edinburgh",
+      "segment": "A",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Grange Cricket Club fixtures/results page added (season-organised, latest block April-September 2026, nothing forthcoming at Scottish season end). The members' club site thegrangeclub.com was also verified and states the ground \"regularly hosts Scotland's international matches\", but publishes no calendar - a Cricket Scotland international schedule would be the natural second source and was not pursued in this pass."
+    },
+    {
+      "canonical_name": "Beechwood Park",
+      "city": "Sauchie",
+      "segment": "A",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Reached segment A only on a soft 5,000 capacity figure for a junior-level ground (Sauchie Juniors F.C.); the census holds no official_url for it. No first-party club site was verified and the club is not in the Highland League grid, so the correct league fixture list was not established within this pass. Nothing added."
+    },
+    {
+      "canonical_name": "Gander Green Lane",
+      "city": "Sutton, London",
+      "segment": "A",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "https://www.suttonunited.net/ is Cloudflare-protected (HTTP 403, title \"Just a moment...\") to a plain fetch and was not read. SEPARATE DEFECT WORTH FLAGGING: this venue's recorded official_url in the census is https://www.cpfc.co.uk/palace-women/ - a Crystal Palace Women page, i.e. a tenant/visitor club's page rather than the ground's or Sutton United's own site. It was not in the brief's list of seven, so it is reported here rather than patched."
+    },
+    {
+      "canonical_name": "The ICC Birmingham",
+      "city": "Birmingham",
+      "segment": "C",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "https://www.theicc.co.uk/ fetched HTTP 200. /whats-on returns HTTP 404 (\"The resource you are looking for has been removed...\"). Every navigable link on the site is organiser/exhibitor/visitor information, space search, venue hire, catering or Christmas packages - there is no public event listing. The /visitor/ page (title \"Visiting the ICC | The ICC, Birmingham\") contains only bare month names from a date-picker widget, not events. As an NEC Group conference and exhibition venue its bookings are organiser-led and not published as a venue calendar."
+    },
+    {
+      "canonical_name": "QEII Centre",
+      "city": "London",
+      "segment": "C",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "https://qeiicentre.london/ fetched HTTP 200; /whats-on returns HTTP 404. Everything under /events/ is a venue-hire category page (AGMs, award ceremonies, conferences, exhibitions, fashion shows, graduation ceremonies, meetings ...), i.e. \"hire this venue\" marketing, not an event calendar. Per the brief, a hire page is not a calendar, so nothing was added."
+    },
+    {
+      "canonical_name": "Leeds Town Hall",
+      "city": "Leeds",
+      "segment": "C",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "The venue's own site https://www.leedstownhall.co.uk/ is live (HTTP 200) and its navigation links to /whats-on/ and to filtered variants (/whats-on/?eventfilter=category&category=NN), but every one of those URLs returns a genuine HTTP 404 from the origin (nginx, WordPress; verified by response headers, not just page text). /whatson-venue/leeds-city-centre/ returns HTTP 200 but renders a \"What's On\" shell with no events and visible PHP debug output. The council's programme site https://www.leedsconcertseason.co.uk/whats-on does render forthcoming dated concerts (Sun 27 Sep, Mon 5 Oct, Wed 14 Oct, Sat 17 Oct ...) but the fetched HTML never names Leeds Town Hall, so I could not evidence it as this venue's calendar and did not record it. The venue's listing pages appear to be broken and need a retry."
+    },
+    {
+      "canonical_name": "St David's Hall",
+      "city": "Cardiff",
+      "segment": "C",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "The census official_url https://www.stdavidshallcardiff.co.uk does not resolve - getaddrinfo ENOTFOUND. The census already records the operator as Academy Music Group under a conditional 45-year lease, and AMG has published news of taking over the hall, but no live first-party St David's Hall site or what's-on page was verified in this pass. Treated as an official-site gap, not as an absence of programme; this venue also needs an official_url correction (an eighth-plus bad URL beyond the brief's seven)."
+    },
+    {
+      "canonical_name": "Theatre Royal, Newcastle",
+      "city": "Newcastle upon Tyne",
+      "segment": "C",
+      "outcome": "CALENDAR_FOUND",
+      "note": "First-party What's On listing with named forthcoming dated runs through November 2026 and beyond. Acquisition caveat recorded on the source: the site's TLS certificate has expired, so a standard fetcher will fail until it is renewed - this is exactly the class of failure the census flagged elsewhere as an opaque \"fetch failed\"."
+    },
+    {
+      "canonical_name": "Nottingham Greyhound Stadium",
+      "city": "Nottingham",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "ARC track site publishes a first-party dated What's On schedule including named feature finals."
+    },
+    {
+      "canonical_name": "Newcastle Greyhound Stadium",
+      "city": "Newcastle upon Tyne",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "ARC track site publishes a first-party dated What's On schedule. (The census already held the correct official_url for this venue.)"
+    },
+    {
+      "canonical_name": "Sunderland Greyhound Stadium",
+      "city": "Sunderland",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "ARC track site publishes a first-party dated What's On schedule."
+    },
+    {
+      "canonical_name": "Dunstall Park Greyhound Stadium",
+      "city": "Wolverhampton",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "ARC track site publishes a first-party dated What's On schedule."
+    },
+    {
+      "canonical_name": "Central Park Stadium",
+      "city": "Sittingbourne, Kent",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "ARC track site publishes a first-party dated What's On schedule."
+    },
+    {
+      "canonical_name": "Monmore Green Stadium",
+      "city": "Wolverhampton",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Track's own Monmore Racing site publishes dated advance racecards; only a short forward window is exposed at a time. The census holds no official_url for this venue - https://monmoregreyhounds.com/ is the verified first-party site."
+    },
+    {
+      "canonical_name": "Brighton and Hove Greyhound Stadium",
+      "city": "Hove, Brighton",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Track's own site (Brighton & Hove Racing) lists forthcoming dated meetings with first-race times on its landing page. The census holds no official_url for this venue - https://brightonandhovegreyhounds.co.uk/ is the verified first-party site."
+    },
+    {
+      "canonical_name": "Harlow Greyhound Stadium",
+      "city": "Harlow, Essex",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Track's own site lists a long forthcoming dated schedule (every Wednesday and Friday into November 2026). The census holds no official_url for this venue."
+    },
+    {
+      "canonical_name": "Star Pelaw",
+      "city": "Chester-le-Street, County Durham",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Track's own site found at pelawgrange.co.uk (starpelaw.co.uk redirects to it), carrying a dated advance card. The census holds no official_url for this venue."
+    },
+    {
+      "canonical_name": "Yarmouth Stadium",
+      "city": "Great Yarmouth, Norfolk",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Stadium's own site lists named forthcoming dated meetings with start times on the landing page; note the venue runs banger/stock-car racing as well as greyhounds. The census holds no official_url for this venue."
+    },
+    {
+      "canonical_name": "Oxford Stadium",
+      "city": "Oxford",
+      "segment": "B",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "The stadium's own site https://oxford-stadium.co.uk/ is a holding page: \"A New Era for Oxford Stadium. Oxford Stadium is entering an exciting new chapter. We are working to revive this historic venue and develop its future as a destination for sport, entertainment, events and the wider Oxford community. More information will be announced soon.\" Its /racecards-results route returns HTTP 200 but renders no title and no content. No dated programme is currently published by the venue, so nothing was added."
+    },
+    {
+      "canonical_name": "Doncaster Greyhound Stadium",
+      "city": "Doncaster",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No first-party site could be verified. The name-matching candidate www.doncastergreyhoundstadium.co.uk returns HTTP 403 Forbidden with no content, so it could not be confirmed as belonging to this track and was not recorded. (The track is at Stainforth near Doncaster and is distinct from the Club Doncaster stadium.)"
+    },
+    {
+      "canonical_name": "Kinsley Greyhound Stadium",
+      "city": "Kinsley, West Yorkshire",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No first-party site verified. Candidate hosts www.kinsleygreyhounds.co.uk and www.kinsleygreyhoundstadium.co.uk both fail DNS resolution (getaddrinfo ENOTFOUND). Nothing added."
+    },
+    {
+      "canonical_name": "Mildenhall Stadium",
+      "city": "Mildenhall, Suffolk",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No first-party site verified; the candidate host www.mildenhallstadium.com fails DNS resolution (getaddrinfo ENOTFOUND). Nothing added."
+    },
+    {
+      "canonical_name": "Valley Greyhound Stadium",
+      "city": "Ystrad Mynach, Caerphilly",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No first-party site verified; the candidate host www.valleygreyhoundstadium.co.uk fails DNS resolution (getaddrinfo ENOTFOUND). Nothing added."
+    },
+    {
+      "canonical_name": "Downpatrick Racecourse",
+      "city": "Downpatrick",
+      "segment": "B",
+      "outcome": "CALENDAR_FOUND",
+      "note": "Racecourse's own all-fixtures page with named dated meetings including a forthcoming 9 October 2026 date. Acquisition caveat recorded: the host serves an incomplete certificate chain and a standard fetch fails to verify it."
+    },
+    {
+      "canonical_name": "Harlaw Park",
+      "city": "Inverurie",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Two sources added: the club's own fixtures page (forthcoming dated home fixtures explicitly at Harlaw Park) and the official league fixture list. This venue is also one of the seven identity repairs - see identity_findings."
+    },
+    {
+      "canonical_name": "North Lodge Park",
+      "city": "Pitmedden",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Two sources added: the club's own fixtures page (14 dated fixtures, several forthcoming) and the official league fixture list. This venue is also one of the seven identity repairs - see identity_findings."
+    },
+    {
+      "canonical_name": "Dudgeon Park",
+      "city": "Brora",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Brora Rangers FC confirmed in the Breedon Highland Football League fixture grid (e.g. \"Saturday 26 Sep 2026 ... Brora Rangers FC v Keith FC\"). League fixture list added. The census official_url https://brorarangers.co.uk/ was not verified in this pass, so no first-party source was added."
+    },
+    {
+      "canonical_name": "Kynoch Park",
+      "city": "Keith",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Keith FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Bellslea Park",
+      "city": "Fraserburgh",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Fraserburgh FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Grant Park",
+      "city": "Lossiemouth",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Lossiemouth FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Station Park",
+      "city": "Nairn",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Nairn County FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Harmsworth Park",
+      "city": "Wick",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Wick Academy FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Grant Street Park",
+      "city": "Inverness",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Clachnacuddin FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "The Haughs",
+      "city": "Turriff",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Turriff United FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Spain Park",
+      "city": "Aberdeen",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Banks o' Dee FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "Seafield Park",
+      "city": "Grantown-on-Spey",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Strathspey Thistle FC confirmed as a current Highland League member in the league fixture grid. League fixture list added; no first-party club fixtures page verified in this pass."
+    },
+    {
+      "canonical_name": "The Airfield",
+      "city": "Broughton",
+      "segment": "B",
+      "outcome": "FIXTURE_SOURCE_FOUND",
+      "note": "Club identity repaired (see identity_findings) and the club's own matches route added. The month-scoped calendar rendered \"No events to show\" for September 2026 to a plain fetch, so events_currently_present is false; the Cymru Premier league fixture list would be the natural second source and was not verified in this pass."
+    },
+    {
+      "canonical_name": "Claggan Park",
+      "city": "Fort William",
+      "segment": "B",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Club identity repaired (see identity_findings): https://fortwilliamfc.com/ is verified first-party and names Claggan Park and the North Caledonian Football League. However no fixtures page or dated fixture content was found on that site, and no verified North Caledonian League fixture list was established in this pass, so no calendar source was added."
+    },
+    {
+      "canonical_name": "Fortwilliam Park",
+      "city": "Tobermore",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "No first-party site exists to carry a calendar: the club domain 302s to dns.google (see identity_findings), the NI Football League club page is HTTP 403 to fetchers, and Wikipedia lists no club website. The club also appears to have dropped below NIFL into the Ballymena & Provincial Football League, whose fixture list was not verified here. Nothing added."
+    },
+    {
+      "canonical_name": "Bayview Stadium",
+      "city": "Methil",
+      "segment": "B",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "East Fife F.C. (SPFL). The census official_url https://eastfifefc.info/ is live and its /fixtures/ route returns HTTP 200, but renders no title and no content to a plain fetch (client-side rendering), so no fixture content could be evidenced. The SPFL divisional fixture pages (spfl.co.uk/league/league-one|league-two/fixtures) render dated rounds but their server HTML mentions every club, so I could not establish from them which division this club is in and did not record a possibly-wrong league page."
+    },
+    {
+      "canonical_name": "New Central Park",
+      "city": "Kelty",
+      "segment": "B",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Kelty Hearts F.C. (SPFL). The census official_url host responds, but https://keltyhearts.co.uk/fixtures/ returns HTTP 403 Forbidden to a plain fetch, so nothing could be verified. Same SPFL division ambiguity as Bayview - no league page recorded rather than guessing."
+    },
+    {
+      "canonical_name": "Glebe Park",
+      "city": "Brechin",
+      "segment": "B",
+      "outcome": "SOURCE_REVIEW_REQUIRED",
+      "note": "Brechin City F.C. https://www.brechincity.co.uk/ fails TLS with \"tlsv1 alert internal error (SSL alert number 80)\" - a server-side TLS fault, the same failure class the census already documented for boltonarena.co.uk. The club is not in the Breedon Highland Football League fixture grid, so its current league was not established and no league fixture list was recorded."
+    },
+    {
+      "canonical_name": "Bryntirion Park",
+      "city": "Bridgend",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "Penybont F.C.'s ground. IMPORTANT NEGATIVE FINDING: https://www.penybontfc.com/ - the domain named in the census data-quality flags as unreproducible - now 302s to https://www.mufonbrazosvalley.com/ serving slot-gambling spam (title \"CIPIT88: Situs Slot777 Link Slot Gacor Terbaru Puncak Maxwin Hari Ini 2026\"). It must never be recorded for this venue. This also closes out the \"NOT CONFIRMED\" penybontfc.com item in data-quality-flags.txt: the domain is real and is squatted, it simply is not recorded against any census venue. No trustworthy first-party site was found, so nothing was added."
+    },
+    {
+      "canonical_name": "Penydarren Park",
+      "city": "Merthyr Tydfil",
+      "segment": "B",
+      "outcome": "OFFICIAL_SITE_MISSING",
+      "note": "The census official_url https://www.pitchero.com/clubs/merthyrtown/ resolves to a Pitchero placeholder: HTTP 200, title \"Club not live\", body \"The Merthyr Town FC website isn't ready yet...\". Its /fixtures route returns HTTP 404. So the recorded official site publishes nothing and is effectively a dead placeholder - another official_url worth reviewing beyond the brief's seven. Nothing added."
+    },
+    {
+      "canonical_name": "Sir Chris Hoy Velodrome",
+      "city": "Glasgow",
+      "segment": "B",
+      "outcome": "NO_PUBLIC_CALENDAR_CONFIRMED",
+      "note": "The velodrome is a facility inside the arena complex at this site; Glasgow Life publishes it at /sport/venues/glasgow-international-arena/glasgow-international-arena-facilities/sir-chris-hoy-velodrome, which is a facilities description with no event listing. The complex's what's-on block sits on the arena venue page, which is recorded against the separate Emirates Arena census venue. No velodrome-specific dated calendar is published, so nothing was added here rather than duplicating the arena's listing onto this record."
+    }
+  ]
+}
