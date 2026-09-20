@@ -1,0 +1,845 @@
+{
+  "patch_for": "rugby-cricket.json",
+  "generated_at": "2026-09-20T00:00:00Z",
+  "method_notes": "Additive calendar-source patch built entirely from live fetches on 2026-09-20. Method: for each venue in rugby-cricket.json I identified the resident club or county club, fetched candidate calendar paths directly (/fixtures, /matches, /whats-on, /fixture/list/<id>, /fixtures-and-results and site-navigation-derived paths), and where a guessed path 404'd I fetched the site root or ran a web search to recover the real path and then fetched that. Every source_url below was fetched in this task and returned a real, correctly-identified first-party fixtures or what's-on page; URLs that 404'd, redirected to parked/unrelated domains (bristolbears.co.uk, northantscricket.com), refused connections, or turned out to be stale archive pages were discarded and are not recorded. 48 of the 67 venues are patched with 55 calendar URLs; 38 of those URLs showed dated forthcoming events at the time of checking and are marked events_currently_present true. The remaining 17 are marked false and carry an honest note: they are the club's or ground's genuine recurring fixtures page, but the fetched static HTML either was client-rendered with no rows, or listed only a completed season (many rugby league and county cricket seasons end in September, so those pages were legitimately empty of forthcoming rows on 2026-09-20). No Level 3 browser probing was used, so client-rendered pages were not forced open. Not found: leicestertigers.com returns HTTP 403 to every fetch; wiganwarriors.com, hullcityafc.com and doncasterroversfc.co.uk returned pages too large for the fetch tool to surface any rows; and several lower-tier rugby league club domains (whitehavenrl.co.uk, keighleycougars.com, northwalescrusaders.co.uk, workingtontownrlfc.com, doncasterrlfc.co.uk, barrowraiders.com, rochdalehornets.co.uk) are dead or refused connection, while batleybulldogs.co.uk, dewsburyrams.com and featherstonerovers.co.uk served empty placeholder fixtures pages. Cricket Scotland exposed no fixtures listing page at all, and cricketireland.ie/events/ returned '0 events found', with no Stormont fixture, so The Grange and Stormont are left unpatched.",
+  "calendar_patches": [
+    {
+      "canonical_name": "Ashton Gate Stadium",
+      "city": "Bristol",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bristolbearsrugby.com/match-centre/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Bristol Bears match centre. Fetched: dated forthcoming fixtures including 'Bristol Bears vs Northampton Saints' Saturday 03 October at 15:05 BST at Ashton Gate, and 'Saracens vs Bristol Bears' Saturday 10 October 17:30. Note the older bristolbears.co.uk domain is now a parked sales lander and was rejected.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.ashtongatestadium.co.uk/whats-on",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Stadium's own what's-on calendar, mixing sport, conferences, expos and concerts. Fetched: '24 September 2026 @ 12 PM - 3 PM' Senior Reds Luncheon, '30 September 2026 @ 9 AM - 3:30 PM' National Landlord Investment Show, '09 - 10 November 2026' The Aesthetics & Beauty Education Expo.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "cinch Stadium at Franklin's Gardens",
+      "city": "Northampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.northamptonsaints.co.uk/fixture/list/114",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Northampton Saints senior-squad fixture list (path taken from the fetched club homepage's own navigation). Fetched: 'Northampton Saints vs Newcastle Red Bulls' 25/09/2026 - 19:45 at Franklin's Gardens, 'Northampton Saints vs Bath Rugby' 10/10/2026 - 15:05.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.northamptonsaints.co.uk/events/whats-franklins-gardens",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Non-sport what's-on listing for the stadium. Fetched: 'Sat 24 Oct - Disco for Grown Up's' (3pm-6.30pm, Rodber Bar) and 'Thu 10 Dec - Stadium Tours'. The separate franklinsgardens.co.uk venue domain was fetched too and carries only venue-hire marketing with no dated listings, so it is not recorded.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Recreation Ground, Bath",
+      "city": "Bath",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bathrugby.com/matches/men/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Bath Rugby men's fixtures page (path taken from the fetched bathrugby.com homepage navigation; /fixtures and /fixtures-and-results/ both 404). Fetched successfully and the page is correctly titled Fixtures with Results/Standings siblings, but the fixture rows are client-rendered and no dated entries appeared in the static HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Twickenham Stoop Stadium",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.quins.co.uk/matches/first-team-fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Harlequins first-team fixtures page (path taken from the fetched quins.co.uk homepage navigation; /fixtures and /fixtures-and-results both 404). Fetched successfully but only the site chrome was present in the static HTML — the fixture rows are client-rendered.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sixways Stadium",
+      "city": "Worcester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sixwaysstadium.co.uk/whats-on/events/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Stadium's own what's-on events listing (path taken from the fetched sixwaysstadium.co.uk homepage navigation). Fetched: one dated entry, 'Christmas at Sixways 2026' on 'Tuesday 01 December 2026'. The listing is thin but is a genuine dated-events page rather than a hire brochure.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "CorpAcq Stadium",
+      "city": "Salford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.salesharks.com/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Sale Sharks fixtures (Sale Sharks are the rugby union tenant at this ground). Fetched: '26 September 2026, Corpacq stadium, Sale Sharks vs Bristol Bears, 17:30pm' and '27 September 2026, Saracens Women vs Sale Sharks Women, 14:00pm'. The fetched corpacqstadium.co.uk site itself exposes only venue-hire pages with no dated listings; salfordreddevils.net fails TLS and salfordrlfc.co.uk exposes no fixtures page.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Kingston Park",
+      "city": "Newcastle upon Tyne",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.newcastleredbulls.com/en/collections/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Newcastle Red Bulls fixtures collection (path taken from the fetched club homepage navigation). Fetched: 'Round 2 · 19:45 · Kingston Park Stadium / Newcastle Red Bulls NEW 03 Oct Leicester Tigers LEI' and 'Round 1 · 19:45 · Franklin's Gardens ... 25 Sep'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Darlington Arena",
+      "city": "Darlington",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.mowdenpark.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Darlington Mowden Park RFC club matches calendar (the resident club at the Darlington Arena). Fetched successfully: a real month-view match calendar with team filters (1st XV, Ladies, Juniors), but it displayed 'No events to show' for September 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scottish Gas Murrayfield Stadium",
+      "city": "Edinburgh",
+      "calendar_sources": [
+        {
+          "source_url": "https://scottishrugby.org/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Scottish Rugby (the stadium's owner-operator) fixtures page, which names the venue on each row. Fetched: 'Scotland Men Nations Championship, Sat 7 Nov 2026 Scottish Gas Murrayfield, Scotland 2:10 pm Home New Zealand' and 'Sun 15 Nov 2026 Scottish Gas Murrayfield ... Home Australia'. Filterable by category/team/competition.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hive Stadium",
+      "city": "Edinburgh",
+      "calendar_sources": [
+        {
+          "source_url": "https://scottishrugby.org/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Same Scottish Rugby fixtures page also carries Hive Stadium rows with the venue named. Fetched: 'Scotland Women WXV Global Series, Sat 26 Sep 2026 Hive Stadium, Scotland 4:10 pm Home Australia Women'.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.edinburghrugby.org/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Edinburgh Rugby's own fixtures page (the club resident at Hive Stadium). Fetched successfully and contains a 'Fixture List'/'BKT URC FIXTURES' section and a 'Sync your calendar' control, but no individual dated fixture rows were present in the static HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scotstoun Stadium",
+      "city": "Glasgow",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.glasgowwarriors.org/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Glasgow Warriors 2026/27 fixtures. Fetched: 'Saturday 3 October' Warriors host Ulster at Scotstoun, 7:45pm; 'Friday 9 October' Connacht visit Scotstoun 7:45pm. Full schedule runs through May 2027.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Parc y Scarlets",
+      "city": "Llanelli",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.scarlets.wales/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Scarlets first-team fixtures, 2026-27 season. Fetched: 'SAT 26 SEP 26 GC 19:45' Scarlets v Cardiff Rugby (URC), 'SAT 10 OCT 26 GC 17:30' Scarlets v Benetton Rugby.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cardiff Arms Park",
+      "city": "Cardiff",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.cardiffrugby.wales/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Cardiff Rugby 2026/27 fixtures with venue on each row. Fetched: 'Fri 2nd Oct 2026 KO 19:45 BST' at Cardiff Arms Park, Cardiff Rugby v Zebre Parma (URC); 'Sat 12th Dec 2026 KO 20:00 GMT' at Cardiff Arms Park v Bath Rugby (European Cup).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Swansea.com Stadium",
+      "city": "Swansea",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.swanseacity.com/fixture/list/149",
+          "source_type": "SPORT_FIXTURES",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Swansea City AFC fixtures list (path taken from the fetched club homepage navigation; /fixtures 404s). Football, not rugby — the Ospreys tenancy has ended. Fetched: 'Saturday 10 October 2026 Swansea.com Stadium' Swansea v Norwich 12:30 and 'Saturday 17 October 2026 Swansea.com Stadium' Swansea v West Ham 15:00.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rodney Parade",
+      "city": "Newport",
+      "calendar_sources": [
+        {
+          "source_url": "https://dragonsrfc.wales/fixtures.html",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Dragons RFC fixtures (dragonsrugby.wales 301-redirects here). Fetched: 'Sat,3rd Oct 2026 15:00 Scarlets Rodney Parade, Newport URC' and 'Fri,9th Oct 2026 19:45 Ospreys Rodney Parade, Newport URC'. Schedule runs to May 2027.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "St Helen's Rugby and Cricket Ground",
+      "city": "Swansea",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.ospreysrugby.com/fixture/list/24",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Ospreys fixtures and results list (path taken from the fetched ospreysrugby.com homepage navigation; /fixtures and /fixtures-results both 404). Ospreys move their home matches to St Helen's from 2026/27. Fetched: 'Saturday 26 September 2026' Hollywoodbets Sharks v Ospreys, marked 'Fixture' with no result yet.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Affidea Stadium",
+      "city": "Belfast",
+      "calendar_sources": [
+        {
+          "source_url": "https://ulster.rugby/fixture/list/2",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_union",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Ulster Rugby fixtures list with venue on each row (path taken from the fetched ulster.rugby homepage; the ulsterrugby.com domain no longer resolves). Fetched: 'Ulster Rugby vs Edinburgh Rugby' 25/09/2026 at Affidea Stadium 19:45 and 'Ulster Rugby vs Munster Rugby' 10/10/2026 at Affidea Stadium 17:30. The separate /stadium/stadium-events page was fetched and is venue-hire marketing only, so it is not recorded.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bartercard Odsal Stadium",
+      "city": "Bradford",
+      "calendar_sources": [
+        {
+          "source_url": "https://bradfordbulls.co.uk/match-centre/mens-first-team/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Bradford Bulls men's first-team match centre (path taken from the fetched bradfordbulls.co.uk homepage; /fixtures 404s). Fetched: the full 2026 Betfred Super League season with results, e.g. 'Thu 03 Sep 21:00 Bradford Bulls 32 22 Castleford Tigers', but the page states 'Currently no scheduled matches' — the season has finished. The odsalstadium.co.uk /events page was fetched too and lists event types with no dates, so it is not recorded.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "MKM Stadium",
+      "city": "Kingston upon Hull",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.hullfc.com/team/first-team/fixtures-custom",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Hull FC first-team fixtures page (path taken from the fetched hullfc.com homepage navigation; /fixtures 404s). Fetched: a fully populated dated season list, e.g. 'Sat 14 Feb 17:30 Hull 27-20 Bulls' and 'Fri 27 Feb 20:00 Hull 16-17 Knights', but every listed 2026 match has already been played.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Accu Stadium",
+      "city": "Huddersfield",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.accustadium.com/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Stadium's own what's-on listing. Fetched: 'Monday 23rd November 2026 - Psychic night with Grant Harris - 7:30 pm - £17.00', 'Friday 04th December 2026 - Street Food & Bingo Christmas Party - 7:00 pm', 'Saturday 05th December 2026 - Festive Buffet Christmas Party - 7:00 pm'.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://giantsrl.com/matches?fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Huddersfield Giants fixtures view (path taken from the fetched giantsrl.com homepage navigation; huddersfieldgiants.com/fixtures serves an empty page). Fetched: the fixtures interface with competition/team filters renders, but it reported 'There are no matches matching your search' — the 2026 season has ended.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "AMT Headingley Rugby Stadium",
+      "city": "Leeds",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.therhinos.co.uk/mens-fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Leeds Rhinos men's fixtures (path taken from the fetched therhinos.co.uk homepage navigation; /fixtures returns the site's own 404 page). Fetched: one forthcoming dated entry, 'Fri 25th September 2026 Leeds Rhinos vs Warrington Wolves 20:00, Betfred Super League Round: Semi Finals, AMT Headingley Stadium'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "BrewDog Stadium",
+      "city": "St Helens",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.brewdogstadium.com/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Stadium's own what's-on listing, mixing football, rugby league and non-sport events. Fetched: 'Wed 23 Sep - Liverpool Women vs Sunderland Women', 'Sat 10 Oct - Bier & Brats 2026', 'Wed 21 Oct - Liverpool Women vs Manchester United Women'. The sibling /major-events/concerts/ page was fetched too but lists only past concerts (2022, 2023), so it is not recorded.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.saintsrlfc.com/matches/first-team/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "St Helens R.F.C. first-team matches page (path taken from the fetched saintsrlfc.com homepage navigation; /fixtures serves a stale 2014-season article). Fetched successfully and structurally a fixtures list, but only a single stale row appeared in the static HTML and no forthcoming 2026 fixture was visible.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Halliwell Jones Stadium",
+      "city": "Warrington",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.warringtonwolves.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Warrington Wolves matches page (path taken from the fetched warringtonwolves.com homepage navigation; /fixtures renders a loading state). Fetched: a full dated season plus a forthcoming 'Next Match' entry, '19:00 Fri 25 Sep | Leeds Rhinos vs Warrington Wolves' (Super League). The sibling /stadium-events page was fetched and is venue-hire marketing with no dates, so it is not recorded.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "DCBL Stadium",
+      "city": "Widnes",
+      "calendar_sources": [
+        {
+          "source_url": "https://widnesvikings.co.uk/first-team-fixtures-and-results/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Widnes Vikings first-team fixtures and results (path taken from the fetched widnesvikings.co.uk homepage navigation; /fixtures 404s). Fetched: a fully populated dated 2026 season, e.g. 'Warrington Wolves 50 - 12 Widnes Vikings 19:30, 9 January 2026', but all listed matches are completed.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Progress With Unity Stadium",
+      "city": "Leigh",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.leighleopards.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Leigh Leopards fixtures and results, covering men's, women's, reserves and academy. Fetched: dated rows with venues and scores, e.g. 'Leigh Leopards vs St Helens, Betfred Super League' 4 September 2026 48-10, but all entries shown were completed 2026/2025 matches.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sewell Group Craven Park Stadium",
+      "city": "Kingston upon Hull",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.hullkr.co.uk/team/first-team/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Hull Kingston Rovers first-team fixtures (path taken from the fetched hullkr.co.uk homepage menu; /fixtures shows only site chrome). Fetched: a full dated 2026 list with home/away markers, e.g. 'Sun 25 Jan 3:00 PM Wakefield Trinity (H) 6-34', but every listed match is completed.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The OneBore Stadium",
+      "city": "Castleford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.castlefordtigers.com/match-centre",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Castleford Tigers match centre (path taken from the fetched castlefordtigers.com homepage navigation; /fixtures 404s). Fetched: the fixtures framework with competition filters (Super League, Challenge Cup, Academy, Wheelchair) renders, but it reported 'There are no matches matching your search'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Shay",
+      "city": "Halifax",
+      "calendar_sources": [
+        {
+          "source_url": "https://halifaxpanthers.co.uk/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Halifax Panthers fixtures and results for the 2026 season, with venue on each row, e.g. 'Sunday 25th January / Betfred Challenge Cup Round 2 / London Chargers HOME / The Shay Stadium KO 3pm' (Won 88-0). Rows are dated and venue-bearing, but the retained fetch did not surface a row I could confirm as forthcoming as at 2026-09-20, so this is recorded conservatively as false rather than asserted.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "DIY Kitchens Stadium",
+      "city": "Wakefield",
+      "calendar_sources": [
+        {
+          "source_url": "https://wakefieldtrinity.com/tickets-and-fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Wakefield Trinity tickets-and-fixtures page (path taken from the fetched wakefieldtrinity.com homepage navigation; /fixtures serves a stale 2020-season page). Fetched: the page references a '2026 First Team Fixtures' section but the dated rows themselves are not in the static HTML — it acts as a hub pointing at the club's ticketing portal.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "York Community Stadium",
+      "city": "York",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.yorkrlfc.com/fixtures-results",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "York RLFC fixtures and results, venue named on each row (yorkrlfc.com/fixtures/ 404s). Fetched: completed rows such as 'Saturday, 17 January 2026 Huddersfield Giants York Knights 22-4 Accu Stadium' plus a forthcoming one, 'Sunday, 27 September 2026 Wigan Warriors York Valkyrie 5.30pm Brick Community Stadium' (Women's Super League Grand Final), with no result yet.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Spotland Stadium",
+      "city": "Rochdale",
+      "calendar_sources": [
+        {
+          "source_url": "https://hornetsrugbyleague.com/matches?fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Rochdale Hornets fixtures view (path taken from the fetched hornetsrugbyleague.com homepage; the older rochdalehornets.co.uk domain no longer resolves). Fetched: 'Sun 20th September 2026 Rochdale Hornets Women 14:00 Fryston Warriors' and 'Sun 11th October 2026 Rochdale Hornets Women 14:00 Illingworth', both forthcoming.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Craven Park, Barrow",
+      "city": "Barrow-in-Furness",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.barrowrlfc.com/fixtures/2026-barrow-raiders-fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "rugby_league",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Barrow Raiders 2026 fixtures (path taken from the fetched barrowrlfc.com homepage 'On The Pitch' menu; barrowraiders.com does not resolve). Fetched: completed rows such as '18 January 2026 Barrow Raiders vs Workington Town 40/00' plus a forthcoming entry, '20 September 2026 Doncaster RLFC vs Barrow Raiders 3:00 pm'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Lord's Cricket Ground",
+      "city": "London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.lords.org/lords/match-day/fixtures-and-results",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Lord's own fixtures and results page (path taken from the fetched lords.org homepage navigation; /lords/whats-on 404s). Fetched: forthcoming entries 'England v Bangladesh, Rothesay men's Test match, Friday 28 May - Tuesday 01 June' (2027) and 'England v Australia Rothesay Men's Ashes Test, Wednesday 30 June - Sunday 04 July' (2027), alongside the completed 'Middlesex v Northamptonshire' County Championship match of 24-27 September 2026.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Headingley Cricket Ground",
+      "city": "Leeds",
+      "calendar_sources": [
+        {
+          "source_url": "https://yorkshireccc.com/matches/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Yorkshire CCC matches page with venue on each row (yorkshireccc.com/fixtures 404s; path taken from the fetched homepage navigation). Fetched: 'England Men VS Sri Lanka | Thursday 24 September 2026 - 12:30 | Headingley, Leeds' and 'England Men VS Pakistan | Friday 21 May 2027 - 11:00 | Headingley, Leeds'.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.yorkshireccc.com/events",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Yorkshire CCC non-cricket events listing at Headingley. Fetched: 'End of Season Awards 2026 - Thursday 1 October 2026' and 'Beyond the Boundary: Women in Sport & Business - October 15'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Utilita Bowl",
+      "city": "Southampton (West End, Hampshire)",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.utilitabowl.com/cricket/fixtures-and-results/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Utilita Bowl / Hampshire Cricket fixtures page (hampshirecricket.co.uk refused the connection; this is the venue's own domain). Fetched: 'Hampshire v Sussex — Thu 24 Sep - Sun 27 Sep, Rothesay County Championship', plus forthcoming internationals 'England (M) v Pakistan — Sat 15 May' (Metro Bank ODI) and 'England (M) v Australia (M) — Wed 21 Jul - Sun 25 Jul' Test (2027).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Seat Unique Riverside",
+      "city": "Chester-le-Street",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.durhamcricket.co.uk/2026-fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Durham Cricket's current-season fixtures page (path taken from the fetched durhamcricket.co.uk homepage navigation; the bare /fixtures path serves an archive of 2018-19 results). Fetched successfully and correctly titled '2026 Fixtures & Results' with a printable fixture sheet link, but the fixture rows themselves were not present in the static HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Seat Unique Stadium, Bristol",
+      "city": "Bristol",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.gloscricket.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Gloucestershire Cricket fixtures page. Fetched successfully (HTTP 200, page title 'Gloucestershire Cricket | Fixtures') but the site is entirely client-rendered — no fixture rows, and the sibling /fixtures-and-results and /fixtures/mens paths behaved the same way.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Cooper Associates County Ground",
+      "city": "Taunton",
+      "calendar_sources": [
+        {
+          "source_url": "https://somersetcountycc.co.uk/fixtures-results/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Somerset CCC fixtures and results with venue on each row (path taken from the fetched homepage navigation; /fixtures 404s). Fetched: 'England vs India - T20, Tuesday 02 June 2026 18:30 pm, The Cooper Associates County Ground' and 'Somerset vs Glamorgan, 2nd XI Friendly, Monday 13 April 2026 11:00 am, Taunton Vale Cricket Club'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "County Cricket Ground, Derby",
+      "city": "Derby",
+      "calendar_sources": [
+        {
+          "source_url": "https://derbyshireccc.com/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Derbyshire CCC fixtures page with squad/competition filters and calendar + PDF download options. Fetched: one forthcoming dated row, 'Thu 24th September 2026, New Road, Worcestershire v Derbyshire Men'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "cinch County Ground, Northampton",
+      "city": "Northampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://nccc.co.uk/fixtures-results/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Northamptonshire CCC match centre / fixtures and results (the northantscricket.com domain 301-redirects to an unrelated commercial site and was rejected). Fetched successfully and correctly headed 'Fixtures and Results', but the dated rows are client-rendered and absent from the static HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "County Cricket Ground, Chelmsford",
+      "city": "Chelmsford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.essexcricket.org.uk/fixtures/mens/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Essex Cricket men's first XI fixtures (the bare /fixtures path is a hub page that links here). Fetched: forthcoming row 'Thu 24 Sep 2026 - Glamorgan vs Essex at Sophia Gardens, Cardiff - Rothesay County Championship - 10:30 am'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The 1st Central County Ground",
+      "city": "Hove",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.sussexcricket.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Sussex Cricket fixtures and results, fully populated with venue on each row. Fetched: 'Tuesday 15 September 2026 County Championship 2026 The County Ground, Hove Sussex 10.30 Nottinghamshire' and 'Thursday 24 September 2026 County Championship 2026 Utilita Bowl Hampshire 10.30 Sussex', plus entries extending into 2027.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Uptonsteel County Ground, Grace Road",
+      "city": "Leicester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.leicestershireccc.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Leicestershire CCC fixtures page with squad/competition filters. Fetched: one forthcoming dated row, 'AWAY Thursday 24 September 2026 · 10:30 Warwickshire vs Leicestershire Edgbaston'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Spitfire Ground, St Lawrence",
+      "city": "Canterbury",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.kentcricket.co.uk/fixtures-and-results/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Kent Cricket fixtures and results with venue on each row (path taken from the fetched kentcricket.co.uk homepage navigation; /fixtures 404s). Fetched: 'Kent vs. Gloucestershire, Thu 24 Sep - Sun 27 Sep 2026 at 10:30 am, St Lawrence Ground, Canterbury' and 'England Women vs. Bangladesh Women, Tue 21 Sep 2027 at 12:30 pm, St Lawrence Ground'.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.kentcricket.co.uk/events/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Kent Cricket events listing at the ground. Fetched: 'Spitfire Kent Cricket End of Season Dinner 2026, Wed 30 Sep 2026, 6:00 pm' and 'Kent Cricket's Fireworks Evening 2026, Thu 5 Nov 2026'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "New Road, Worcester",
+      "city": "Worcester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.wccc.co.uk/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Worcestershire CCC fixtures page with squad/competition filters. Fetched: one forthcoming dated row, 'Worcestershire Men vs Derbyshire Men, Rothesay County Championship, Thursday 24th September at 10:30, New Road, Worcester'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sophia Gardens",
+      "city": "Cardiff",
+      "calendar_sources": [
+        {
+          "source_url": "https://tickets.glamorgancricket.com/list/events?lang=en",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Glamorgan Cricket's own ticketing schedule-of-events listing, complementing the /content entry already in the census. Fetched: 'Glamorgan Matches, from Thursday, 24 September 2026 to Sunday, 27 September 2026' and the non-cricket 'Sophiaworks 2026, Thursday, 5 November 2026 19:00, fireworks display 19:00 - 19:20 hrs', both at Sophia Gardens. glamorgancricket.com itself exposed no separate fixtures path.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Emirates Old Trafford",
+      "city": "Manchester",
+      "calendar_sources": [
+        {
+          "source_url": "https://emiratesoldtrafford.lancashirecricket.co.uk/cricket-concerts/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "cricket",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "The venue's own combined 'Cricket and Concerts' listing, additional to the ticketing and hire URLs already in the census. Fetched: 'England Men v Pakistan, Metro Bank One Day International - Wednesday 19 May 2027', 'England Lions v Australia Men - Monday 7 - 10 June 2027', 'Lancashire Lightning v Yorkshire, Roses T20 - Friday 2 July 2027 (Date TBC)'. The dated rows observed were all cricket, though the page also covers stadium concerts.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Trent Bridge",
+      "city": "Nottingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.trentbridge.co.uk/whats-on/",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Trent Bridge's non-cricket what's-on listing, additional to the first-XI fixtures and meetings URLs already in the census. Fetched: 'TRENT BRIDGE WINE, CHAMPAGNE AND PROSECCO FESTIVAL: 8 - 10 October', 'NOTTINGHAM BEER AND CIDER FESTIVAL: 7 - 10 October', 'SKY KINGDOM THE DRONE LIGHT SHOW: 5 December'.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    }
+  ]
+}

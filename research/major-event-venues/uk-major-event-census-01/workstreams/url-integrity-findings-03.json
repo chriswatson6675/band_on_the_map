@@ -1,0 +1,87 @@
+{
+  "workstream": "URL_INTEGRITY_FINDINGS_03",
+  "generated_at": "2026-09-20T00:00:00.000Z",
+  "method_notes": "Identity findings from the Phase 7 official-URL integrity sweep (see official-url-audit.json) plus one case the automated sweep provably cannot detect. Every bad URL below was fetched and its served content observed directly. A replacement is recorded ONLY where a fetched page identifies the venue; where no replacement could be verified the record is left OFFICIAL_URL_REVIEW_REQUIRED rather than filled with a plausible-looking domain, because a domain resembling a venue's name is not evidence that it belongs to it.",
+  "identity_findings": [
+    {
+      "canonical_name": "The Halls Wolverhampton",
+      "city": "Wolverhampton",
+      "invalid_official_url": "https://www.thehallswolverhampton.com/",
+      "invalid_reason": "Fetched 2026-09-20: getaddrinfo ENOTFOUND — the .com domain does not resolve at all.",
+      "current_official_url": "https://www.thehallswolverhampton.co.uk/",
+      "status": "OFFICIAL_URL_REPLACED",
+      "evidence": [
+        {
+          "kind": "REJECTED_URL",
+          "value": "https://www.thehallswolverhampton.com/",
+          "note": "DNS does not resolve (ENOTFOUND). Recorded as the venue's official site but unreachable at the name-resolution layer, so it cannot be the live site."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.thehallswolverhampton.co.uk/",
+          "note": "Fetched HTTP 200; title 'University of Wolverhampton at The Halls | Home'. The .co.uk domain names both the venue ('The Halls') and its city, and reflects the University of Wolverhampton naming-rights partnership. This identifies the venue rather than merely resembling its name."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Donegal Celtic Park",
+      "city": "Belfast",
+      "invalid_official_url": "https://www.dc-fc.com/",
+      "invalid_reason": "Fetched 2026-09-20: HTTP 200 with title 'Daily Casino'. The lapsed club domain now serves casino affiliate content and says nothing about the ground.",
+      "current_official_url": null,
+      "status": "OFFICIAL_URL_REVIEW_REQUIRED",
+      "evidence": [
+        {
+          "kind": "REJECTED_URL",
+          "value": "https://www.dc-fc.com/",
+          "note": "Fetched HTTP 200; title 'Daily Casino'. Gambling affiliate content on a lapsed club domain."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.donegalceltic.com/",
+          "note": "Candidate replacement probed 2026-09-20 and did NOT resolve (fetch failed). No replacement is asserted: a domain that merely resembles the club's name is not evidence, and this one could not be reached at all."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Showgrounds",
+      "city": "Limavady",
+      "invalid_official_url": "https://audenza.com/",
+      "invalid_reason": "Fetched 2026-09-20: HTTP 200 with title 'Non GamStop Casino Sites - Casino Not on GamStop UK 2026'. An unrelated domain serving casino affiliate content; it has no connection to the ground.",
+      "current_official_url": null,
+      "status": "OFFICIAL_URL_REVIEW_REQUIRED",
+      "evidence": [
+        {
+          "kind": "REJECTED_URL",
+          "value": "https://audenza.com/",
+          "note": "Fetched HTTP 200; title 'Non GamStop Casino Sites'. Casino affiliate content, entirely unrelated to a Limavady football ground."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.limavadyunited.com/",
+          "note": "Candidate replacement probed 2026-09-20 and did NOT resolve (fetch failed). No replacement is asserted."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Gander Green Lane",
+      "city": "Sutton, London",
+      "invalid_official_url": "https://www.cpfc.co.uk/palace-women/",
+      "invalid_reason": "Fetched 2026-09-20: HTTP 200 with title 'Crystal Palace Women FC'. This is a VISITING club's page, not the ground's own site. It never mentions Gander Green Lane. The census's own operator field records the ground as Sutton United F.C.'s, so Crystal Palace's website cannot be its official site.",
+      "current_official_url": null,
+      "status": "OFFICIAL_URL_REVIEW_REQUIRED",
+      "evidence": [
+        {
+          "kind": "REJECTED_URL",
+          "value": "https://www.cpfc.co.uk/palace-women/",
+          "note": "Fetched HTTP 200; title 'Crystal Palace Women FC'. Mentions Sutton United as the host club but never names Gander Green Lane. A tenant club's page is not the venue's official site."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.suttonunited.net/",
+          "note": "Candidate replacement probed 2026-09-20: HTTP 403 behind a Cloudflare challenge ('Just a moment...'), so its content could not be read. The domain resembles the resident club's name, but resemblance is not evidence and the page could not be verified. Left for review rather than asserted."
+        }
+      ]
+    }
+  ]
+}

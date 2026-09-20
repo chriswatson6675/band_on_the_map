@@ -1,0 +1,326 @@
+NATIONAL COMPLETENESS MATRIX — uk-major-event-census-01
+Completeness-02, 2026-09-20. Retained evidence.
+
+Counts are computed mechanically from venues.json / calendar-sources.json.
+"Reference populations checked" records what each workstream actually
+fetched and reconciled against. Where no authoritative national total
+exists, the expected population is stated as EXPECTED_POPULATION_UNKNOWN
+rather than invented — and no completeness percentage is derived from an
+unknown denominator.
+
+--------------------------------------------------------------------------
+BY VENUE CLASS
+--------------------------------------------------------------------------
+
+class                          incl  review  idrev   cal  nocal   cov%
+FOOTBALL_STADIUM                 285       1      5    236     49    83%
+THEATRE                           96       7      0     94      2    98%
+RUGBY_STADIUM                     82       4      1     79      3    96%
+RACECOURSE                        61       0      0     61      0   100%
+AUDITORIUM                        47       0      0     37     10    79%
+CRICKET_GROUND                    41       3      0     27     14    66%
+CONCERT_HALL                      40       6      0     35      5    88%
+INDOOR_ARENA                      39       1      0     37      2    95%
+MULTI_PURPOSE_EVENT_COMPLEX       34       2     10     27      7    79%
+MOTORSPORT_CIRCUIT                23       3      0     20      3    87%
+EXHIBITION_CENTRE                 20       0      0     19      1    95%
+GREYHOUND_STADIUM                 15       8      0     11      4    73%
+OTHER_SPORTS_VENUE                14       5      0      6      8    43%
+CONFERENCE_CENTRE                  8       0      0      3      5    38%
+CONVENTION_CENTRE                  4       0      0      2      2    50%
+CONFERENCE_EXHIBITION_COMPLEX      2       0      0      1      1    50%
+                               -----                  -----
+TOTAL                            811                    695    116    86%
+
+"review" = inclusion_basis CAPACITY_REVIEW_REQUIRED (not admitted on a
+proven capacity). "idrev" = identity_review flag set.
+
+--------------------------------------------------------------------------
+REFERENCE POPULATIONS CHECKED, AND VERDICTS
+--------------------------------------------------------------------------
+
+HORSE RACING — 61 — PLAUSIBLY_COMPLETE
+  Checked: greatbritishracing.com (59 results), Wikipedia List of British
+  racecourses (59 operating at 17 Sep 2026), Jockey Club portfolio (14),
+  ARC portfolio (16).
+  Expected: 59 GB + 2 NI = 61. Census holds 61, matching name-for-name;
+  operator splits match Jockey Club's 14 and ARC's 16 exactly. Folkestone
+  and Towcester correctly absent; Hereford correctly present. 100%
+  calendar coverage. This class is the strongest in the census.
+
+GREYHOUND — 15 (+1 reclassified) — COMPLETE AND CORRECTED
+  Checked: GBGB licensed-track list (gbgb.org.uk/tracks/), independently
+  re-fetched during compilation; the page states "16 licensed tracks".
+  Census-01 carried 18 ACTIVE tracks — it was WRONG, not merely
+  incomplete. Oxford Stadium closed 3 April 2026; Mildenhall ceased
+  greyhound racing 2 April 2026 but continues as a speedway/stock-car
+  venue and is retyped OTHER_SPORTS_VENUE rather than marked closed.
+  Census now matches GBGB's own count.
+  8 of 15 remain CAPACITY_REVIEW_REQUIRED: no UK track publishes a
+  spectator capacity. That is a real property of the class, not a gap.
+
+MOTORSPORT — 23 — EXPECTED_POPULATION_UNKNOWN
+  Checked: MSV, BARC, Motorsport UK and ANICC portfolios. +9 added
+  (5 circuits, 4 hillclimbs), including Kirkistown — the census
+  previously held NO Northern Irish circuit at all.
+
+RUGBY UNION + RUGBY LEAGUE — 82 — UNDERCOUNTED, now materially improved
+  Checked: premrugby.com/clubs (10), 2026-27 Champ Rugby (14), URC UK
+  clubs, WRU and Scottish Rugby platforms, superleague.co.uk/clubs
+  (14; 12 UK), 2026 Betfred Championship (20).
+  +43 added. Census-01's source was a season stale (Cambridge and London
+  Scottish relegated out; Blackheath and Rotherham promoted in). RFL
+  League 1 no longer exists — merged into a 20-club Championship for 2026.
+  Below tier 2: EXPECTED_POPULATION_UNKNOWN.
+
+CRICKET — 41 — UNDERCOUNTED, now materially improved
+  Checked: 18 first-class county HQs, county ground pages, Cricket
+  Scotland, Cricket Ireland.
+  Census-01's 20 were exactly the 18 county HQs + Stormont + The Grange —
+  the entire non-HQ layer was missing. +22 added including Scarborough,
+  Arundel and AO Farington (Lancashire's second home, opened 2026).
+  Outgrounds: EXPECTED_POPULATION_UNKNOWN.
+  Systematic finding: NO official capacity exists for any non-HQ ground,
+  hence GRADE_C by necessity. 66% calendar coverage is the weakest of the
+  major sports, largely because the 2026 season had just ended.
+
+FOOTBALL — 285 — TOP TIERS NEAR-COMPLETE
+  Checked: PL, EFL x3, National League, SPFL x4, Cymru Premier, NIFL.
+  Only +6 added — the estate was already deep into non-league. One severe
+  CLASSIFICATION gap found: Coventry City were promoted for 2026-27 and
+  the census held their 32,609 stadium only as an EXHIBITION_CENTRE. A
+  list diff alone reports that as "present"; it was not.
+
+INDOOR ARENA — 39 — UNDERCOUNTED AT THE MID SCALE
+  Checked: National Arenas Association member list (23), Wikipedia List of
+  indoor arenas in the UK, EIHL 2025-26 venues (10), Super League
+  Basketball 2025-26 venues (9).
+  Every NAA member and every operational Wikipedia-listed arena reconciles
+  to a census record — but several sat under a DIFFERENT venue_type, so
+  the headline "41" understated arena coverage while the venues were
+  present. The real gap was the 1,400-3,500 purpose-built sporting arena
+  tier: only 2 of 9 Super League Basketball venues were held. +7 arenas.
+  Note the INDOOR_ARENA count now reads 39 rather than 41 because the
+  venue-class election reclassified several genuine multi-purpose
+  complexes (P&J Live, Brighton Centre, Harrogate) accordingly.
+
+CONFERENCE / CONVENTION / EXHIBITION — 34 across four classes
+  (+ business-event capacity inside MULTI_PURPOSE_EVENT_COMPLEX)
+  UNDERCOUNTED — materially improved, still incomplete.
+  Checked: AEV full member directory (56 records), London & Partners /
+  London Convention Bureau directory, Unique Venues of London, Convention
+  Edinburgh / Meeting Edinburgh (114 records with capacity columns),
+  Glasgow Life venue hire, VisitScotland Business Events, Business Events
+  Wales / Meet Cardiff, Visit Belfast, NewcastleGateshead Convention
+  Bureau, the agricultural-society showground estate, and official venue
+  sites throughout.
+  Census-01 held 22 and produced CONFERENCE_CENTRE = 0. That class is now
+  used 8 times, and CONFERENCE_EXHIBITION_COMPLEX exists for campuses
+  that genuinely do both.
+  The single biggest thing Census-01 missed: the AGRICULTURAL-SOCIETY /
+  COUNTY-SHOWGROUND ESTATE — a real national exhibition estate that was
+  entirely absent (Malvern, Newark, Detling, Shepton Mallet, Lincoln,
+  Norwich, Ipswich, Stafford, Harrogate, Ardingly, Wadebridge, Builth
+  Wells). Most run statically-readable first-party calendars.
+  EXPECTED_POPULATION_UNKNOWN — no authoritative national register of
+  >=1,000 business-event venues exists. The AEV directory is the closest
+  and is membership-based, not a census.
+
+LARGE PERFORMANCE (THEATRE / CONCERT_HALL / AUDITORIUM) — 183
+  UNDERCOUNTED — materially improved, still incomplete.
+  Checked line by line: ATG (33 venues, zero gaps), Trafalgar/ex-HQ (19,
+  6 gaps), Academy Music Group (12 gaps), Nimax, LW Theatres, Delfont
+  Mackintosh, Nederlander, AEG, NEC Group, ASM Global, Capital Theatres,
+  Bradford Theatres; the full "Indoor theatres and halls" table of
+  List_of_venues_in_the_United_Kingdom read as raw wikitext; a Wikidata
+  SPARQL capacity query (P1083 >= 1000) returning 864 rows; ~210
+  Wikipedia articles via the MediaWiki API; ~230 direct fetches; and 32
+  named local-authority estates.
+  CENSUS-01's STATED PREMISE WAS WRONG. It assumed the West End was the
+  gap. Every West End house >= 1,000 was ALREADY in the census; the ones
+  missing were all below threshold and correctly out of scope (Gielgud
+  994, Noel Coward 942, Lyric 915, Theatre Royal Haymarket 888 ...).
+  The real gap was regional England plus the devolved nations, and
+  specifically AMG's estate, large civic halls, and large university
+  public venues. +71.
+  EXPECTED_POPULATION_UNKNOWN.
+
+--------------------------------------------------------------------------
+NATION AUDIT
+--------------------------------------------------------------------------
+
+nation              total  sport  arena  thtr/conc  conf/exh  multi   cal%  review  idrev
+England               543    309     29        155        30     20    90%      32     10
+Scotland              148    114      7         17         2      8    81%       4      3
+Wales                  65     51      2          8         1      3    80%       3      2
+Northern Ireland       55     47      1          3         1      3    60%       1      1
+
+IMPLAUSIBLE GAPS — stated, not smoothed over:
+
+1. NORTHERN IRELAND's non-sporting estate is 3 theatre/concert venues and
+   1 conference/exhibition venue for the entire nation. That is not
+   credible as a description of NI; it is a description of how little was
+   reachable. Visit Belfast's venue directory is client-rendered and its
+   sitemap contains no venue pages; Tourism NI's business-events paths
+   404. NI is effectively UNSWEPT outside sport.
+
+2. NI calendar coverage (60%) is 30 points below England's. Same cause.
+
+3. SCOTLAND's 17 theatre/concert venues and WALES's 8 are thin. Both
+   research passes judged the genuine >=1,000 estate in those nations to
+   be small and mostly already held, but neither established that — both
+   exhausted their search budget first.
+
+4. CONFERENCE_CENTRE calendar coverage is 38% and CONVENTION_CENTRE 50%.
+   Business-event venues frequently publish venue-hire pages rather than
+   public event calendars, and a hire page is explicitly NOT accepted as a
+   calendar. Some of this gap is real absence rather than failure to find.
+
+5. OTHER_SPORTS_VENUE coverage is 43% — the lowest of any class. It is a
+   residual bucket, so this is expected rather than alarming, but it means
+   14 venues are poorly characterised.
+
+NO QUOTAS WERE IMPOSED. Nation totals reflect what was evidenced. England
+genuinely holds most of the UK's major event infrastructure; the gaps
+above are about SWEEP COVERAGE, not about forcing nations to be equal.
+
+
+==========================================================================
+COMPLETENESS-03 FINAL MATRIX (2026-09-20)
+==========================================================================
+
+855 venues. England 550, Scotland 166, Wales 78, Northern Ireland 61.
+988 calendar sources. 739 venues with a calendar (86%), 116 without.
+
+--------------------------------------------------------------------------
+BY VENUE CLASS
+--------------------------------------------------------------------------
+
+class                          incl review idrev   cal nocal nopub  cov%
+FOOTBALL_STADIUM                 284     15     6   236    48     4    83%
+THEATRE                           97      7     0    96     1     0    99%
+RUGBY_STADIUM                     82      7     1    79     3     0    96%
+RACECOURSE                        61      2     0    61     0     1   100%
+AUDITORIUM                        55      1     0    49     6     0    89%
+MULTI_PURPOSE_EVENT_COMPLEX       51     14    11    38    13     0    75%
+CRICKET_GROUND                    41      8     0    27    14     0    66%
+CONCERT_HALL                      40      6     0    35     5     0    88%
+INDOOR_ARENA                      39      1     0    38     1     0    97%
+MOTORSPORT_CIRCUIT                23      0     0    23     0     0   100%
+EXHIBITION_CENTRE                 20      0     0    19     1     1    95%
+GREYHOUND_STADIUM                 15      8     0    13     2     0    87%
+OTHER_SPORTS_VENUE                14      5     0     7     7     0    50%
+OTHER_MAJOR_EVENT_VENUE           14      4     0    11     3     0    79%
+CONFERENCE_CENTRE                 13      0     0     4     9     0    31%
+CONVENTION_CENTRE                  4      0     0     2     2     0    50%
+CONFERENCE_EXHIBITION_COMPLEX      2      0     0     1     1     0    50%
+                               -----                 ---   ---
+TOTAL                            855     78    18   739   116     6    86%
+
+CONFERENCE_CENTRE coverage of 31% is NOT a research failure. Business-event
+venues overwhelmingly host private corporate bookings that are never
+published, and a venue-hire page is explicitly refused as a calendar. "No
+public calendar" is the correct answer for much of this class.
+
+--------------------------------------------------------------------------
+REFERENCE POPULATIONS AND VERDICTS — COMPLETENESS-03 ADDITIONS
+--------------------------------------------------------------------------
+
+NORTHERN IRELAND, non-sport — GAP CLOSED AND EXPLAINED
+  Checked: Belfast City Council (incl. Licensing Committee papers), Derry
+  City & Strabane, Armagh/Banbridge/Craigavon, Causeway Coast & Glens, Mid
+  Ulster, Ards & North Down, Fermanagh & Omagh councils; QUB and Ulster
+  University estates in full; RUAS/Balmoral Park; Tourism NI's theatre
+  directory (server-rendered — a clean national sweep); Visit Belfast
+  rendered headless to defeat its client-rendered directory.
+  +10 records (7 new, 3 enrichments).
+  FINDING THAT MATTERS: the NI indoor non-sport >=1,000 estate is genuinely
+  small and is now ENUMERATED — about thirteen buildings, all named (O2
+  Belfast 11,200; ICC/Waterfront; Ulster Hall 1,850; Whitla Hall 1,200;
+  Telegraph Building 1,200; Grand Opera House 1,058; Millennium Forum
+  1,000; Assembly Buildings 1,000; Eikon 10,600 sqm; Green Pastures 1,600;
+  Whitewell c.3,000; plus closed King's Hall and Titanic Exhibition
+  Centre). The earlier "3 theatres + 1 conference venue" picture was an
+  ARTEFACT OF A BLOCKED DIRECTORY, not a description of the country.
+  Residual: outdoor major-event sites (Stormont, Titanic Slipways,
+  Ebrington Square) are under-evidenced because Belfast City Council
+  publishes no online entertainments-licence register. Hotel ballrooms are
+  excluded by a census-wide convention, not missed; at least three NI
+  hotels market >=1,000.
+
+SCOTLAND, non-sport — NO OBVIOUS GAP REMAINS, bounded by the cities' own data
+  Checked: 17 operator estates (Capital Theatres, ATG, AMG, AEG, ASM
+  Global, Glasgow Life enumerated in full, Aberdeen Performing Arts,
+  Horsecross, Eden Court, Dundee Rep, OnFife, Culture NL, SLLC, East
+  Ayrshire Leisure, OneRen, Inverclyde Leisure, Live Active); 16 councils;
+  Convention/Meeting Edinburgh driven in a real browser; Glasgow Convention
+  Bureau; VisitScotland Business Events; RHASS; 7 university estates.
+  +23 records.
+  EVIDENCE OF BOUNDING, not assumption: Edinburgh's own convention bureau
+  filtered at minRoomCapacity>=1000 returns exactly 7 venues, all resolved.
+  Glasgow's bureau 1000+ filter returned 9, all whole-venue totals rather
+  than >=1,000 rooms. Scotland's >=1,000 conference/exhibition estate is
+  confirmed at six sites (SEC, EICC, P&J Live, Royal Highland Centre,
+  Aviemore, Easterbrook). Inverness tops out at 840-850; Fife has exactly
+  one >=1,000 house; Moray, Borders, Argyll and the Western Isles have none.
+  Residual: private-estate festival sites (Strathallan, Belladrum, Balado,
+  Scone) deliberately out of scope — a real untouched family of
+  10,000-70,000 capacity sites. Grand Hall Kilmarnock unresolved at 900
+  seated. Leisure-centre arenas not swept (sport-primary).
+
+WALES, non-sport — NO OBVIOUS GAP REMAINS
+  Checked: all 22 council estates with deliberate weight on North, Mid and
+  West Wales; Business Events Wales product pages; operator portfolios;
+  Welsh showground estate; Welsh university estates.
+  +17 records, 11 of 17 OUTSIDE the south-east.
+  New: Royal International Pavilion Llangollen (6,300 — the largest
+  non-sport event space in North Wales), William Aston Hall Wrexham,
+  Aberystwyth Arts Centre, Rhyl Events Arena (~8,000), Selwyn Samuel
+  Centre, three county showgrounds.
+  Proven closures recorded rather than omitted: St David's Hall Cardiff
+  CLOSED since Sept 2023 (RAAC, 900+ roof panels, ~GBP 50m); Newport Centre
+  CLOSED and demolished — Newport has permanently lost its mid-scale indoor
+  concert venue. New Cardiff Bay Arena UNDER_CONSTRUCTION (16,500, 2028).
+  EVIDENCE OF BOUNDING: every other theatre/arts centre checked across all
+  22 councils sits in the 250-800 seat band, each with a cited figure.
+  Residual: three of four showgrounds carry no proven capacity; outdoor
+  sites (Blackweir Fields, Cardiff Castle) recorded with null capacity
+  because no fetched page states one.
+
+BUSINESS-EVENT INFRASTRUCTURE AT SPORT VENUES — GAP CLOSED
+  531 census sport records screened programmatically; 30 examined in depth
+  (8 racecourses, 13 football stadiums, 3 rugby stadiums, 5 cricket
+  grounds, Sandy Park).
+  Represented as ONE separately-marketed sub-venue and 29 parent
+  capabilities. The Centaur (Cheltenham Racecourse) is the only facility
+  that is separately named, separately marketed AND separately calendared
+  — 2,200 theatre / 3,000 reception / 1,300 sqm with its own what's-on.
+  Major infrastructure now recorded against its parent: Doncaster's
+  3,400 sqm exhibition hall (the largest permanent one on a British
+  racecourse), Ascot 4,000+ sqm, Twickenham 7,000+ sqm, Emirates Stadium
+  6,958 sqm, Old Trafford 6,000 sqm, Sandown Park's 2,740 sqm Surrey Hall,
+  Ashton Gate 3,550 sqm, Wembley's Great Hall 2,080 sqm.
+  THE HIRE-PAGE DISTINCTION HELD: only 7 of 30 publish a genuine listing
+  of named forthcoming business events. The other 23 publish capacity
+  charts, floor plans and enquiry forms only, and each carries a stated
+  `no_public_calendar_reason`. No hire page was recorded as a calendar.
+
+SHOWGROUND ESTATE — PLAUSIBLE BUT NOT PROVEN COMPLETE (31 grounds)
+  17 already held; +14 added (7 England, 4 Wales, 3 Scotland).
+  Standout miss now closed: Borders Events Centre, Kelso (1,000 sqm
+  function hall, 1,000 theatre, 40-acre Springwood Park, live calendar).
+  KEY NEGATIVE FINDING ABOUT THE SOURCES THEMSELVES: there is no national
+  register to check against. ASAO publishes NO member directory of
+  showgrounds — asao.co.uk/members/ is 404 and its live organisations page
+  lists just 8 bodies, none of them a showground operator. Wikipedia has
+  no "List of agricultural shows in the United Kingdom" article.
+  Enumeration therefore had to be society-by-society and CANNOT be proved
+  exhaustive. Every first-tier county/royal showground identifiable from
+  society sources is present across England, Wales and Scotland; NI's one
+  qualifying ground was already held.
+  Residual risk sits in the second tier — societies owning a permanent
+  ground marketed only as a show site. Four grounds could not be fetched
+  at all (Royal Lancashire — domain does not resolve; Stithians — TLS
+  failure; Keith Show — no response; Yeovil Agricultural Society — an
+  actual ASAO member whose domain now resolves to an unrelated commercial
+  site). EXPECTED_POPULATION_UNKNOWN.

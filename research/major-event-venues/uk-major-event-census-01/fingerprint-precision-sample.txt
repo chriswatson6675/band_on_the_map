@@ -1,0 +1,134 @@
+FINGERPRINT PRECISION SPOT-AUDIT — OTHER_EMBEDDED_APP_STATE
+BEATMAPPED-UK-MAJOR-EVENT-VENUE-CENSUS-01
+
+WHY: OTHER_EMBEDDED_APP_STATE was the largest single source family in the
+census fingerprint pass (214 of 586 sources), which would normally imply a
+very large TIER2_REUSABLE_FAMILY engineering opportunity. Before reporting
+that as fact, its precision was tested rather than assumed.
+
+METHOD: a deterministic even spread (every Nth record, not the head of the
+list) of 14 of the 214 sources was re-fetched, and each page checked for
+whether it actually carries a real <script type="application/json"> data
+island, or whether the fingerprint fired on something else.
+
+The detector on this branch (fresh origin/main) fires when the literal text
+"application/json" appears anywhere in the body AND any <script> tag exists.
+Two false-positive shapes follow from that:
+  1. WordPress's near-universal <script id="wp-emoji-settings"
+     type="application/json"> default, present regardless of content.
+  2. Pages with no application/json script at all, where the string merely
+     occurs in inline JS (e.g. a fetch() Content-Type header).
+
+RESULT (see raw output below): 3 of 14 were wp-emoji-only, and a further 5
+had no application/json script element at all — so 8 of 14 (57%) of this
+sample are misclassified. Only 6 of 14 carry a genuine embedded JSON island.
+
+CONSEQUENCE: the TIER2_REUSABLE_FAMILY total (314) and the
+OTHER_EMBEDDED_APP_STATE family total (214) should be read as UPPER BOUNDS,
+not settled figures. Both false-positive shapes are already fixed on the
+parked Manchester calibration branch (PR #41), which tightened this exact
+detector to require a real application/json script element and to ignore
+wp-emoji-settings. Landing those fixes would materially re-grade this
+census; this census is, independently, national-scale evidence that they
+matter beyond Manchester.
+
+Sample size is 14 — small. Treat the 57% as directional, not precise.
+
+--- RAW OUTPUT ---
+WP-EMOJI-ONLY : https://www.theshots.co.uk/tickets/
+REAL JSON x1 : https://www.port-vale.co.uk/link-ticketing-account
+NO JSON SCRIPT: https://www.chester-races.com/whats-on/
+REAL JSON x1 : https://www.exetercityfc.co.uk/match-tickets/fan-guides/family-match-day-guide
+NO JSON SCRIPT: https://hexham-racecourse.co.uk/racedays
+REAL JSON x1 : https://www.barbican.org.uk/whats-on
+NO JSON SCRIPT: https://tnsfc.co.uk/event/trefelin-bgc-vs-the-new-saints-fc/
+NO JSON SCRIPT: https://www.everyoneactive.com/news?centre=ponds-forge-international-sports-centre
+REAL JSON x1 : https://www.wba.co.uk/video/packages
+NO JSON SCRIPT: https://dungannonswiftsfc.com/match-day/
+REAL JSON x3 : https://deveronvale.co.uk/pages/first-team-fixtures
+REAL JSON x2 : https://www.heartsfc.co.uk/pages/tickets-terms-and-conditions
+WP-EMOJI-ONLY : https://kelso-races.co.uk/fixtures/
+WP-EMOJI-ONLY : https://stranraerfc.org/match/fixtures/
+
+sample=14 of 214 | wp-emoji-only=3 | real-embedded-json=6 | failed=0
+
+--------------------------------------------------------------------------
+ADDENDUM (2026-09-20, after the calendar-completion passes)
+
+The audit above was performed against the fingerprint snapshot of 586
+calendar sources, in which OTHER_EMBEDDED_APP_STATE held 214 and
+TIER2_REUSABLE_FAMILY held 314.
+
+Three calendar-completion passes subsequently added sources, and the final
+census population is LARGER:
+
+  calendar sources        586 -> 668
+  OTHER_EMBEDDED_APP_STATE 214 -> 245
+  TIER2_REUSABLE_FAMILY    314 -> 366
+
+The 14-source sample was NOT re-drawn against the larger population. The
+misclassification rate measured above (roughly 57% of the sampled
+OTHER_EMBEDDED_APP_STATE sources were not in fact reusable embedded app
+state) is therefore a measurement of the 214-source population, not of the
+245-source one. It is carried forward as the best available estimate
+because the added sources are of the same kinds and were fingerprinted by
+the same unchanged engine — but that is an expectation, not a measurement.
+
+The conclusion is unchanged and applies to the final numbers: the
+TIER2_REUSABLE_FAMILY total of 366 is an UPPER BOUND on genuinely
+Tier-2-reusable sources, not a count of them.
+
+==========================================================================
+SUPERSEDED BY MEASUREMENT — Completeness-02 (2026-09-20)
+==========================================================================
+
+This file recorded a 14-source SAMPLE. Completeness-02 replaced it with a
+CENSUS: every source in every family that feeds TIER2_REUSABLE_FAMILY was
+re-fetched once and checked against that family's own structural marker.
+See `source-family-audit.json` and the `audit-families` command.
+
+Audited 521 sources. Result: 444 CONFIRMED, 75 NOT_CONFIRMED, 2 UNREACHABLE.
+
+  family                     confirmed  not-confirmed  false-positive rate
+  OTHER_EMBEDDED_APP_STATE         241             65                  21%
+  MICRODATA                         34             10                  23%
+  EMBEDDED_NEXT_DATA                80              0                   0%
+  EMBEDDED_NUXT_STATE               58              0                   0%
+  PUBLIC_GRAPHQL                    18              0                   0%
+  EMBEDDED_SVELTEKIT_DATA            6              0                   0%
+  WEBFLOW                            4              0                   0%
+  SQUARESPACE_CALENDAR               3              0                   0%
+
+THE SAMPLE ABOVE OVERSTATED THE PROBLEM. It estimated roughly 57%
+misclassification in OTHER_EMBEDDED_APP_STATE; measured across the whole
+family the rate is 21%. A 14-source sample was too small to carry, and
+this is recorded rather than quietly replaced — the earlier number was
+honestly derived and honestly wrong.
+
+The 75 NOT_CONFIRMED sources were conservatively downgraded to
+SOURCE_REVIEW_REQUIRED, with the reason retained per source.
+
+--------------------------------------------------------------------------
+A FALSE NEGATIVE THIS AUDIT PRODUCED, AND HOW IT WAS CAUGHT
+--------------------------------------------------------------------------
+
+The audit's FIRST run reported EMBEDDED_NEXT_DATA as 9 confirmed / 71 not
+confirmed — an 89% failure rate. That was not a finding about the sources;
+it was a bug in the verification rule, which checked only for
+`__NEXT_DATA__`. That marker belongs to the Next.js Pages Router. The App
+Router streams its payload onto `self.__next_f` instead.
+
+Re-fetching five of the "failures" (atgtickets.com, leedsunited.com,
+academymusicgroup.com) confirmed all five carried `self.__next_f`. They
+were correctly classified all along.
+
+An over-strict audit UNDER-states readiness exactly as dishonestly as a
+loose fingerprint over-states it. The rule now accepts both shapes, and
+`/_next/static` is explicitly NOT accepted — it proves the framework built
+the page, not that data is embedded in it.
+
+Because of this the audit was made IDEMPOTENT: it resets any prior
+downgrade (recomputing readiness from the retained fingerprint fields,
+with no re-fetch) before applying current verdicts, so a corrected rule
+can give a source its readiness back. Without that, the 71 false
+downgrades would have been permanent.

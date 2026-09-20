@@ -1,0 +1,987 @@
+{
+  "patch_for": "football-stadiums.json",
+  "generated_at": "2026-09-20T15:57:16.858Z",
+  "method_notes": "Started from the 124 football-stadium records in football-stadiums.json that carried no calendar_sources entry, ordered by capacity, and worked down from the largest. Every club site was first fetched with a plain unauthenticated GET and fingerprinted (server, framework, inline config, referenced API hosts, own outbound links); sitemaps and the pages' own nav links were used to find fixture routes rather than guessing paths, and a browser render was used only where static HTML proved insufficient. The single biggest finding is a shared white-label club-site platform (\"gc\"): a Nuxt SPA served from S3/CloudFront with per-club config VUE_APP_CLUB_ID and per-club API hosts matches.football.admin.gc.<club>services.<tld> - 44 of these stadiums run it, all exposing forthcoming fixtures at the identical path https://<club-domain>/matches, with the page's own inline state carrying kickOff:\"YYYY-MM-DD HH:MM:SS\" values and a public JSON endpoint at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>&pageSize=100 (team IDs enumerated by filters.football.web.gc.<club>services.<tld>/v2/filters); 43 of the 44 were individually confirmed to list 27-43 forthcoming dated fixtures each, so one collector would unlock all of them. Two smaller shared platforms were also confirmed: YinzCam (Leicester City, Brighton & Hove Albion, Birmingham City - cmscdnus.yinzcam.com, /pages/en/ routes and match-centre?gameId=), and an /en/-prefixed CMS shared by Chelsea, Southampton and Brentford (match permalinks /en/match/<home>-vs-<away>-<competition>-<yyyy-mm-dd>). Sites that blocked or defeated this pass, and for which nothing was recorded: mancity.com (HTTP 403 Cloudflare, so Academy Stadium is unresolved), suttonunited.net (HTTP 403 Cloudflare challenge, so Gander Green Lane is unresolved), and the Merthyr Town Pitchero club site (\"Club not live\"). Several census official_url values are wrong or hijacked and were not used as evidence - basingstoketown.net, bowerhintonbears.co.uk, formartineutd.com, airbusfc.com, santiagofutsal.com and penybontfc.com now serve casino/SEO spam, dns.google is recorded for Fortwilliam Park, and halifaxafc.co.uk is a defunct different club (the live FC Halifax Town site was located and used instead). Most of the ~64 stadiums still without a calendar are sub-3,000-capacity non-league or Scottish/Northern Irish junior grounds with no official_url in the census at all; only no-calendar records were patched, so no existing calendar_sources entry can be overwritten by this file.",
+  "calendar_patches": [
+    {
+      "canonical_name": "Stadium of Light",
+      "city": "Monkwearmouth, Sunderland",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.safc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"safc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Villa Park",
+      "city": "Aston, Birmingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.avfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"avfc\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Goodison Park",
+      "city": "Walton, Liverpool",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.evertonfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"evertonfc\"). Fetched HTTP 200; the page's own inline application state listed 34 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hillsborough",
+      "city": "Owlerton, Sheffield",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.swfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"sheffieldwednesdayfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Riverside Stadium",
+      "city": "Middlesbrough",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.mfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"middlesbroughfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Ewood Park",
+      "city": "Blackburn",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.rovers.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"blackburnroversfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "City Ground",
+      "city": "West Bridgford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nottinghamforest.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"nffc\"). Fetched HTTP 200; the page's own inline application state listed 33 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "bet365 Stadium",
+      "city": "Stoke-on-Trent",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.stokecityfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"stokecityfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Brick Community Stadium",
+      "city": "Wigan",
+      "calendar_sources": [
+        {
+          "source_url": "https://wiganathletic.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"wiganathletic\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Valley Parade",
+      "city": "Bradford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.bradfordcityafc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"bradfordcityfc\"). Fetched HTTP 200; the page's own inline application state listed 43 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Madejski Stadium",
+      "city": "Reading",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.readingfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"readingfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Deepdale",
+      "city": "Preston",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.pnefc.net/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"prestonnorthendfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Oakwell",
+      "city": "Barnsley",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.barnsleyfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"barnsleyfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Vicarage Road",
+      "city": "Watford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.watfordfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"watfordfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Fratton Park",
+      "city": "Milton, Portsmouth",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.portsmouthfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"portsmouthfc\"). Fetched HTTP 200; the page's own inline application state listed 39 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Easter Road",
+      "city": "Edinburgh",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.hibernianfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"hibsfc\"). Fetched HTTP 200; the page's own inline application state listed 27 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Meadow Lane",
+      "city": "Nottingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.nottscountyfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"nottscountyfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Den",
+      "city": "Bermondsey, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.millwallfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"millwallfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Loftus Road",
+      "city": "White City, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.qpr.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"qprfc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bloomfield Road",
+      "city": "Blackpool",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.blackpoolfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"blackpoolfc\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "County Ground",
+      "city": "Swindon",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.swindontownfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"swindontownfc\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Prenton Park",
+      "city": "Birkenhead",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.tranmererovers.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"tranmereroversfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Boundary Park",
+      "city": "Oldham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.oldhamathletic.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"oldhamathleticafc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "East End Park",
+      "city": "Dunfermline",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.dafc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"dunfermlineathleticfc\"). Fetched HTTP 200; the page's own inline application state listed 29 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Dean Court",
+      "city": "Kings Park, Bournemouth",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.afcb.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"afcbournemouth\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bescot Stadium",
+      "city": "Bescot, Walsall",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.saddlers.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"walsallfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Edgeley Park",
+      "city": "Edgeley, Stockport",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.stockportcounty.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"stockportcountyfc\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "STōK CaeRas",
+      "city": "Wrexham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.wrexhamafc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"wrexhamafc\"). Fetched HTTP 200; the page's own inline application state listed 38 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Kenilworth Road",
+      "city": "Luton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.lutontown.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"lutontownfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Gresty Road",
+      "city": "Crewe",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.crewealex.net/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"crewealexandrafc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Adams Park",
+      "city": "High Wycombe",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.wwfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"wycombewanderersfc\"). Fetched HTTP 200; the page's own inline application state listed 40 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Field Mill",
+      "city": "Mansfield",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.mansfieldtown.net/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"mansfieldtownfc\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Plough Lane",
+      "city": "Wimbledon, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.afcwimbledon.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"afcwimbledon\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sixfields Stadium",
+      "city": "Northampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.ntfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"northamptontownfc\"). Fetched HTTP 200; the page's own inline application state listed 41 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Broadhall Way",
+      "city": "Stevenage",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.stevenagefc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"stevenagefc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Pirelli Stadium",
+      "city": "Burton-upon-Trent",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.burtonalbionfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"burtonalbionfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Whaddon Road",
+      "city": "Cheltenham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.ctfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"cheltenham\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mill Farm",
+      "city": "Wesham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.afcfylde.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"afcfylde\"). Fetched HTTP 200; the page's own inline application state listed 37 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Broadfield Stadium",
+      "city": "Crawley",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.crawleytownfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"crawleytownfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Crown Ground",
+      "city": "Accrington",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.accringtonstanley.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"accringtonstanleyfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Moor Lane",
+      "city": "Kersal, Salford",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.salfordcityfc.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"salfordcityfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Wetherby Road",
+      "city": "Harrogate",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.harrogatetownafc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"harrogatetownafc\"). Fetched HTTP 200; the page's own inline application state listed 37 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "New York Stadium",
+      "city": "Rotherham",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.themillers.co.uk/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"rotherhamunitedfc\"). Fetched HTTP 200; the page's own inline application state listed 42 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hill Dickinson Stadium",
+      "city": "Bramley-Moore Dock, Vauxhall, Liverpool",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.evertonfc.com/matches",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Club's own fixtures route on the shared \"gc\" club-site platform (Nuxt SPA served from S3/CloudFront; per-club config VUE_APP_CLUB_ID=\"evertonfc\"). Fetched HTTP 200; the page's own inline application state listed 34 forthcoming dated kick-offs (kickOff:\"YYYY-MM-DD HH:MM:SS\") for the 2026/27 season. Same platform confirmed on 44 clubs in this workstream; public JSON also at matches.football.web.gc.<club>services.<tld>/v2/opta?clientMatches=true&teamID=<optaTeamID>&seasonID=<year>, with team IDs listed by filters.football.web.gc.<club>services.<tld>/v2/filters. Everton FC now play home matches at Hill Dickinson Stadium, so these are this ground's fixtures; the stadium's own site (hilldickinsonstadium.com) carries no fixture list.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.hilldickinsonstadium.com/events",
+          "source_type": "OTHER_MAJOR_EVENTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Stadium's own first-party events page (\"UPCOMING EVENTS\"), on the same \"gc\" Nuxt platform. Rendered in a browser it listed one forthcoming dated non-football event: Magic Weekend rugby league, bank holiday weekend 1-2 May 2027. Thin but genuinely a dated forthcoming-event listing, not a venue-hire page.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Stamford Bridge",
+      "city": "Fulham, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.chelseafc.com/en/matches/mens-fixtures-and-results",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's fixtures listing. Client-rendered, so verified in a browser: 33 forthcoming dated fixtures (SAT 10 OCT 2026 Chelsea v Bournemouth 15:00 STAMFORD BRIDGE onwards), each with date, kick-off time, competition and venue. Shares a club-site platform with Southampton and Brentford (match permalinks /en/match/<home>-vs-<away>-<competition>-<yyyy-mm-dd>).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "St Mary's Stadium",
+      "city": "Southampton",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.southamptonfc.com/en/matches/mens-team",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's fixtures listing. Client-rendered; verified in a browser: 39 dated entries from SUN 11 OCT 2026 Southampton v Portsmouth 12:00 at St. Mary's Stadium onwards, with kick-off times, competitions and venues. Same /en/ club-site platform as Chelsea and Brentford.",
+          "last_checked": "2026-09-20"
+        },
+        {
+          "source_url": "https://www.southamptonfc.com/en/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Separate first-party non-football events calendar (\"Events at St Mary's ... concerts, comedy shows and more\"). Verified in a browser: dated forthcoming entries including Stadium Tour 21 September 2026 11:00, Stadium Tour 24 September 2026, R&B Sip N Paint Night 25 September 2026 19:30 (The Dell), each with date, time and space. Not a venue-hire page (venue hire is a separate link).",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "King Power Stadium",
+      "city": "Leicester",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.lcfc.com/fixtures-results?teamID=13&roundID=future",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official fixtures/results listing, linked from the club homepage; the \"roundID=future\" view is the forthcoming-fixtures tab. Fetched HTTP 200, title \"Fixtures & Results | LCFC\", 89 date-like strings server-rendered (e.g. \"22 September\"). Built on the YinzCam club platform (cmscdnus.yinzcam.com), shared with Brighton & Hove Albion and Birmingham City in this workstream.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Falmer Stadium",
+      "city": "Falmer, Brighton & Hove",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.brightonandhovealbion.com/fixtures-first-team-men",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's first-team fixtures page linked from the club homepage. Fetched HTTP 200, title \"Fixtures - First Team Men\", 41 server-rendered date strings running forward from 19 Sep through Oct 10/15/18/22/25/28 and beyond. YinzCam club platform (cmscdnus.yinzcam.com), shared with Leicester City and Birmingham City.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "St Andrew's",
+      "city": "Bordesley, Birmingham",
+      "calendar_sources": [
+        {
+          "source_url": "https://bcfc.com/pages/en/mens-fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's fixtures page, linked from the club homepage nav. Client-rendered; verified in a browser: season fixture list with 55 dated entries and an explicit \"Next Match | Saturday 10 October WBA (A)\" countdown, home games shown at \"St. Andrew's @ Knighthead Park\". YinzCam club platform (/pages/en/ routes, match-centre?gameId=), shared with Brighton and Leicester.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Selhurst Park",
+      "city": "Selhurst, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.cpfc.co.uk/matches/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official fixtures listing (title \"Fixtures, Men - Crystal Palace F.C.\"). Client-rendered (Next.js/Pulselive), so verified in a browser: 41 dated forthcoming entries from SUN 11 OCT 14:00 Crystal Palace v Nottingham Forest at SELHURST PARK onwards, each with competition, venue and kick-off.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Langtree Park",
+      "city": "St Helens",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.liverpoolfc.com/matches/womens-team/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Liverpool FC Women's official fixtures page (the resident club at this ground). Fetched HTTP 200; the static HTML carries 29 schema.org Event/SportsEvent JSON-LD blocks with explicit \"startDate\" values (e.g. 2027-05-30T13:00:00.000Z, 2027-05-09T13:00:00.000Z) and location names including \"St Helens Stadium\" — this ground under its current name. JSON-LD makes this a low-cost structured source.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Brentford Community Stadium",
+      "city": "Brentford, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.brentfordfc.com/en/matches/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's fixtures page, found via the club homepage nav. Client-rendered; verified in a browser: 33 dated forthcoming fixtures from SAT 10 OCT '26 onwards, home games shown at GTECH COMMUNITY STADIUM (this ground's sponsored name), with competition and kick-off time. Same /en/ club-site platform as Chelsea and Southampton.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "New Meadow",
+      "city": "Shrewsbury",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.shrewsburytown.com/matches/first-team/fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official first-team fixtures page. Fetched HTTP 200, title \"First Team Fixtures | Shrewsbury Town FC\", server-rendered with 40 human dates (22 September, 26 September, 3/10/17/20 October ...) and 124 ISO dates, plus per-match permalinks of the form /matches/first-team/fixtures/<home>-vs-<away>-<yyyy-mm-dd>. Not the \"gc\" platform despite a similar club-site look.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Shay",
+      "city": "Halifax",
+      "calendar_sources": [
+        {
+          "source_url": "https://fchalifaxtown.com/fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "FC Halifax Town's official fixtures page (note: the census official_url halifaxafc.co.uk is a different, defunct club site). Fetched HTTP 200, title \"Fixtures - FC Halifax Town\"; server-rendered season table showing forthcoming dated fixtures with kick-off times and H/A, e.g. \"Tuesday 29 Sep 2026 Boston United National League KO 19:45\", \"Saturday 10 Oct 2026 Gateshead KO 15:00\", through \"Tuesday 03 Nov 2026\". LiteSpeed/WordPress.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Globe Arena",
+      "city": "Morecambe",
+      "calendar_sources": [
+        {
+          "source_url": "https://morecambefc.com/mens-fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's fixtures page, found via the club homepage nav. Client-rendered; verified in a browser: h1 \"Fixtures\", \"2026/27 Fixtures\" with 37 dated forthcoming entries from SAT 26 SEPT 15:00 onwards, each with competition, kick-off and ground name.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Aggborough",
+      "city": "Kidderminster",
+      "calendar_sources": [
+        {
+          "source_url": "https://harriers.co.uk/matches?tab=fixtures",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official fixtures tab (title \"Fixtures & Results | Kidderminster Harriers\"). Client-rendered; verified in a browser: 37 dated forthcoming entries from \"KIDDERMINSTER HARRIERS 15:00 Sat 26 Sept Aggborough Stadium YEOVIL TOWN\" onwards, with venue and kick-off. Page also offers a \"Sync calendar\" control, suggesting an ICS export worth checking.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Kingsmeadow",
+      "city": "Kingston, London",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.chelseafc.com/en/matches/womens-team-fixtures-and-results",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Chelsea FC Women's official fixtures page (the resident club at this ground). Client-rendered; verified in a browser: 29 dated forthcoming fixtures from WED 23 SEPT 2026 20:00 Chelsea Women v Austria Wien Women onwards, with home matches shown at \"THE CHERRY RED RECORDS STADIUM\" — this ground's sponsored name — alongside some at Stamford Bridge.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Links Park",
+      "city": "Montrose",
+      "calendar_sources": [
+        {
+          "source_url": "https://montrosefc.co.uk/mens-fixtures/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official men's fixtures page linked from the club homepage. Fetched HTTP 200, title \"Men's Fixtures | Montrose Football Club\", server-rendered with 68 date strings; forthcoming entries include \"Saturday 10th October 26 (Home) 3:00 pm Links Park montrose V Ross County\", \"Tuesday 13th October 26 ... Links Park\", \"Saturday 31st ... Links Park montrose V Peterhead\" — date, kick-off time and ground per row. WordPress.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Stonebridge Road",
+      "city": "Northfleet, Gravesend",
+      "calendar_sources": [
+        {
+          "source_url": "https://ebbsfleetunited.co.uk/fixtures-results/",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official fixtures/results page (title \"Fixtures/Results 2026/27 ... Official Website of the Fleet\"), WordPress/Elementor. Genuinely the club's fixture listing, but it renders no fixtures until a month is chosen (\"Select month to view fixtures/results\" with July-May buttons), so no forthcoming dated fixture was actually observed on load in either a static fetch or a browser render. Recorded honestly as not-currently-showing rather than assumed. Page also advertises a \"Sync Now\" calendar export worth checking.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    },
+    {
+      "canonical_name": "Seaview",
+      "city": "Belfast",
+      "calendar_sources": [
+        {
+          "source_url": "https://www.crusadersfootballclub.com/fixtures/first-team",
+          "source_type": "SPORT_FIXTURES",
+          "sport": "football",
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Official first-team fixtures page, linked from the club homepage. Fetched HTTP 200, server-rendered; forthcoming dated fixtures visible in the HTML, e.g. \"Boylesports Premiership | 3 Oct 26 Carrick Rangers 03:00PM VS ... Taylors Avenue\" and \"Boylesports Premiership | 10 Oct 26 Crusaders 03:00PM VS ... Seaview\", each carrying date, kick-off time and ground. Fills a record that had no official_url in the census.",
+          "last_checked": "2026-09-20"
+        }
+      ]
+    }
+  ]
+}

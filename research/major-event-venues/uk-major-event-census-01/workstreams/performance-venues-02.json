@@ -1,0 +1,3816 @@
+{
+  "workstream": "PERFORMANCE_VENUES_02",
+  "generated_at": "2026-09-20T17:10:15.178Z",
+  "method_notes": "Targeted national pass for UK performance venues with capacity >= 1,000, run 2026-09-20 against the existing 642-venue census. RECONCILIATION: research/major-event-venues/uk-major-event-census-01/venues.json was parsed programmatically (never eyeballed) and every existing canonical_name + alternative_names + city combination was extracted before any candidate was written. The file grew from 642 to 676 records while this pass was running, so the de-duplication was re-run against the final 676-record state across ALL venue_types (not just performance types) using normalised name matching that strips punctuation, case and a leading definite article. That second pass caught four candidates already present under conference/multi-purpose classifications - Central Hall Westminster (London), Tobacco Dock (London), Edinburgh Corn Exchange (Edinburgh) and McEwan Hall (Edinburgh) - and they were removed from this file rather than duplicated. No venue in this file collides with any existing census record on name+city. OPERATOR PORTFOLIOS CHECKED AND RECONCILED LINE BY LINE: ATG Entertainment (full UK list via en.wikipedia.org/wiki/Ambassador_Theatre_Group - ALL 33 UK venues already in the census, zero gaps); Trafalgar Entertainment / former HQ Theatres (19 UK venues via en.wikipedia.org/wiki/Trafalgar_Entertainment - 6 gaps found and added: Congress Theatre, Winter Garden Eastbourne, G Live, Fareham Live, Pavilion Theatre Glasgow, Bradford Live); Nimax Theatres (only the Palace Theatre is >= 1,000 and it is already present); LW Theatres / Really Useful Group (all six >= 1,000 houses already present); Delfont Mackintosh (all six >= 1,000 houses already present); Nederlander UK (Adelphi, Aldwych, Dominion all present); Academy Music Group (full venue table via en.wikipedia.org/wiki/Academy_Music_Group - 10 gaps >= 1,000 added; O2 Academy Glasgow, O2 Shepherd’s Bush Empire and Newcastle City Hall were already present); AEG (The Halls Wolverhampton added; The O2, OVO Arena Wembley, Eventim Apollo already present; indigo at The O2 added as a distinct room); NEC Group (NEC, ICC, Symphony Hall, Utilita Arena Birmingham, bp pulse LIVE all present); ASM Global / Sheffield Theatres / Birmingham Hippodrome / Capital Theatres / Bradford Theatres (no >= 1,000 gaps found). POPULATIONS SWEPT: (a) en.wikipedia.org/wiki/West_End_theatre full capacity table - every West End house at or above 1,000 seats was already in the census, so the suspected West End gap does not exist; (b) the complete \"Indoor theatres and halls\" table of en.wikipedia.org/wiki/List_of_venues_in_the_United_Kingdom read as raw wikitext and filtered to >= 1,000; (c) a Wikidata SPARQL capacity query (P1083 >= 1000, P131* within England/Scotland/Wales/Northern Ireland) returning 864 rows, of which 86 distinct performance-venue-typed records were cross-checked; (d) MediaWiki revisions-API retrieval of 210 individual venue articles for infobox capacity, address, owner and operator; (e) 230 direct fetches of official venue and local-authority sites for first-party capacity and what’s-on pages. LARGE LOCAL-AUTHORITY ESTATES CHECKED: Croydon, Watford, St Albans, Tunbridge Wells, Eastbourne, Hastings, Bexhill (Rother), Wolverhampton, Blackburn with Darwen, Preston, Warrington, Carlisle, Middlesbrough, Kirklees, Calderdale, North Lincolnshire, East Lindsey, Harrogate/North Yorkshire, Scarborough, Cornwall, BCP/Poole, Portsmouth, Guildford, Fareham, Peterborough, Glasgow Life, City of Edinburgh, Aberdeen City, Stirling, Renfrewshire, Denbighshire, Belfast. NATIONS: Scotland, Wales and Northern Ireland were swept deliberately and separately rather than as a by-product of a London/England sweep. CAPACITY RULE APPLIED: the principal capacity_value is always a single main auditorium, never a sum of a building’s rooms; secondary rooms go to additional_capacities. Where a venue is admitted on a standing rather than seated configuration (Alban Arena, Engine Shed, Exeter Great Hall) that is stated explicitly in capacity_configuration. DELIBERATE EXCLUSIONS ON EVIDENCE: Royal Hall Harrogate was investigated and EXCLUDED because the official Harrogate Convention Centre venue page states a theatre capacity of 978, below the 1,000 threshold. O2 Academy Edinburgh was EXCLUDED because its AMG slug returned HTTP 404 when probed live, indicating it is no longer an operating AMG venue, despite appearing in the AMG Wikipedia table at 3,000. Sub-1,000 houses confirmed and skipped include Gielgud (994), Noel Coward (942), Lyric Shaftesbury Avenue (915), Wyndham’s (799), Theatre Royal Haymarket (888), Sheffield Crucible (980), Orchard Theatre Dartford (956), Churchill Theatre Bromley (785), Devonshire Park Theatre (873), Cheltenham Town Hall (978), Weymouth Pavilion (988) and Queen’s Hall Edinburgh (801). HONEST NULLS: seven venues are recorded with capacity_value null and capacity_confidence CAPACITY_REVIEW_REQUIRED (Hall for Cornwall, Huddersfield Town Hall, Parr Hall, The Sands Centre, Albert Halls Stirling, Paisley Town Hall, Rhyl Pavilion Theatre) because no fetched page stated a figure. They are NOT asserted to meet the >= 1,000 threshold. SHARED CALENDAR PLATFORMS RECORDED: academymusicgroup.com/<venue-slug>/events (11 live slugs confirmed by live HTTP probe; pattern opened in a real browser at O2 Academy Brixton and confirmed to render named dated events); trafalgartickets.com/<venue-slug>/en-GB (4 venues here, covering 5 auditoria); betterboxoffice.co.uk/<venue-slug> (GLL/Better); everyonetheatres.com/theatres/<venue-slug>/ (Everyone Active); bwdvenues.com (Blackburn with Darwen, multi-venue); boxoffice.middlesbrough.gov.uk (Middlesbrough, multi-venue); glasgowlife.org.uk/whats-on/glasgow-life-tickets (Glasgow Life, multi-venue); scunthorpetheatres.co.uk (North Lincolnshire, multi-venue); eastbournetheatres.co.uk via trafalgartickets (multi-venue).",
+  "venues": [
+    {
+      "canonical_name": "O2 Academy Brixton",
+      "alternative_names": [
+        "Brixton Academy",
+        "Brixton Astoria",
+        "Carling Academy Brixton"
+      ],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "London",
+      "nation": "England",
+      "address": "211 Stockwell Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academybrixton/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 4921,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium, combined standing stalls and seated balcony; single-room venue",
+        "capacity_source": "https://en.wikipedia.org/wiki/Brixton_Academy",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Largest dedicated live-music auditorium in London below arena scale; a 1929 cine-variety house.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academybrixton/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Opened in a real browser in this pass; rendered named dated forthcoming events (Capleton Sun 20 Sep 2026, RAWAYANA Mon 21 Sep 2026, Jill Scott Mon 28 Sep 2026, James Blake Tue 29 Sep 2026, Tyla Thu 15/16 Oct 2026). Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Brixton_Academy",
+          "note": "Infobox gave capacity 4,921, owner Academy Music Group, address 211 Stockwell Road. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "Academy Music Group venue table corroborated O2 Academy Brixton at 4,921, London."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.academymusicgroup.com/o2academybrixton/events",
+          "note": "Opened in a browser; rendered named dated forthcoming events, proving the AMG per-venue listing pattern is a real public calendar."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Forum Kentish Town",
+      "alternative_names": [
+        "The Forum",
+        "Town & Country Club",
+        "HMV Forum"
+      ],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "London",
+      "nation": "England",
+      "address": "9–17 Highgate Road",
+      "postcode": "NW5 1JY",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2forumkentishtown/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2300,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium, combined standing floor and seated balcony",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_Forum_Kentish_Town",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2forumkentishtown/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Forum_Kentish_Town",
+          "note": "Infobox gave capacity 2,300, address 9–17 Highgate Rd NW5 1JY, owner Academy Music Group, operator Live Nation. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table corroborated O2 Forum Kentish Town at 2,300."
+        }
+      ]
+    },
+    {
+      "canonical_name": "indigo at The O2",
+      "alternative_names": [
+        "IndigO2",
+        "indigO2"
+      ],
+      "parent_complex": "The O2",
+      "operator": "AEG Europe",
+      "city": "London",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.theo2.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2750,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "indigo auditorium only; The O2 arena (20,000) is a separate room and is already in the census",
+        "capacity_source": "https://en.wikipedia.org/wiki/The_O2",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Secondary live-music auditorium inside The O2 entertainment complex on Greenwich Peninsula.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.theo2.co.uk/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; the combined The O2 listing shows named dated forthcoming events tagged by room, including indigo at The O2 (e.g. \"7 Oct 2026 Uraz Kaygilaroglu Still Standing — indigo at The O2\"; \"9 Oct – 11 Oct 2026 Westlife\").",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/The_O2",
+          "note": "Article states \"Indigo at The O2 is a 2,750-capacity live music club\". Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.theo2.co.uk/events",
+          "note": "Official combined events listing; indigo-tagged forthcoming events observed."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Shakespeare's Globe",
+      "alternative_names": [
+        "Globe Theatre",
+        "The Globe"
+      ],
+      "parent_complex": null,
+      "operator": "The Shakespeare Globe Trust",
+      "city": "London",
+      "nation": "England",
+      "address": "New Globe Walk, Bankside",
+      "postcode": "SE1 9DT",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.shakespearesglobe.com/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1570,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Globe Theatre main house, combined galleried seating and standing yard; the indoor Sam Wanamaker Playhouse is a separate room and is excluded",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.shakespearesglobe.com/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming productions listed (dates observed to 31 January 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list (raw wikitext) tabulates Shakespeare's Globe Theatre, London, 1,570."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Shakespeare's_Globe",
+          "note": "Confirmed identity, address New Globe Walk, postcode SE1 9DT, owner The Shakespeare Globe Trust, opened June 1997. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.shakespearesglobe.com/whats-on/",
+          "note": "Official public what's-on listing (HTTP 200) with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Old Vic",
+      "alternative_names": [
+        "Old Vic Theatre"
+      ],
+      "parent_complex": null,
+      "operator": "Old Vic Theatre Trust 2000",
+      "city": "London",
+      "nation": "England",
+      "address": "The Cut, Waterloo",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.oldvictheatre.com/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1067,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, all seated",
+        "capacity_source": "https://en.wikipedia.org/wiki/The_Old_Vic",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": "No calendar recorded: https://www.oldvictheatre.com/whats-on and /whats-on/ both returned HTTP 404 in this pass, so no listing URL could be proven. The venue does publish a what's-on page; the correct path was not resolved here.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/The_Old_Vic",
+          "note": "Infobox gave capacity 1,067, address The Cut, London SE1, owner Old Vic Theatre Trust 2000. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list corroborates Old Vic, London, 1,067."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Regent's Park Open Air Theatre",
+      "alternative_names": [
+        "Open Air Theatre, Regent’s Park"
+      ],
+      "parent_complex": null,
+      "operator": "Regent’s Park Theatre Ltd",
+      "city": "London",
+      "nation": "England",
+      "address": "Inner Circle, Regent’s Park",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://openairtheatre.com/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1304,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "fixed amphitheatre-style auditorium, all seated; open-air, seasonal operation",
+        "capacity_source": "https://en.wikipedia.org/wiki/Regent's_Park_Open_Air_Theatre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Open-air amphitheatre operating a summer season only.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://openairtheatre.com/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200). Season-date values are present in the page markup but no named forthcoming production could be read from the fetched HTML in this pass, so events_currently_present is left false rather than asserted.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Regent's_Park_Open_Air_Theatre",
+          "note": "Infobox gave capacity 1,304 seats; body text \"one of the largest theatres in London, with 1,304 seats\". Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://openairtheatre.com/whats-on",
+          "note": "Official what's-on page exists (HTTP 200)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Fairfield Halls",
+      "alternative_names": [
+        "Fairfield Concert Hall",
+        "Fairfield Halls Croydon"
+      ],
+      "parent_complex": null,
+      "operator": "BH Live",
+      "city": "Croydon",
+      "nation": "England",
+      "address": "Park Lane, Croydon",
+      "postcode": "CR9 1DG",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.fairfield.co.uk/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1477,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Concert Hall (main auditorium) tiered seating, excluding choir seats; the Ashcroft Theatre and Arnhem Gallery are separate rooms",
+        "capacity_source": "https://www.fairfield.co.uk/venue-hire/concert-hall/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 783,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "Ashcroft Theatre, theatre-style seating",
+          "capacity_source": "https://www.fairfield.co.uk/venue-hire/ashcroft-theatre/"
+        }
+      ],
+      "scale_description": "Multi-room civic arts complex: Concert Hall, Ashcroft Theatre, Arnhem Gallery and studio spaces. Reopened 2019 after major refurbishment; the post-refurbishment official figure (1,477) is lower than older published figures near 1,800.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.fairfield.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (Mon 21 Sept 2026 onwards).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.fairfield.co.uk/venue-hire/concert-hall/",
+          "note": "Official venue page states \"Seating Capacity: 1,477 (Excluding choir seats)\" and \"tiered seating for 1,477 people\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.fairfield.co.uk/venue-hire/ashcroft-theatre/",
+          "note": "Official page states \"Seating Capacity: 783 (Theatre Style)\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Fairfield_Halls",
+          "note": "Gave address Park Lane, Croydon CR9 1DG and the older 1,801-seat figure. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.fairfield.co.uk/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "HERE at Outernet",
+      "alternative_names": [
+        "Outernet Live",
+        "HERE"
+      ],
+      "parent_complex": "Outernet London",
+      "operator": "Outernet Global",
+      "city": "London",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://hereldn.com/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2000,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main underground auditorium, standing; the 250-capacity Lower Third is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Outernet_London",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": "No calendar recorded: https://hereldn.com/whats-on and /events/ returned HTTP 404 in this pass. The homepage (https://hereldn.com/) returned HTTP 200 but no named dated forthcoming event could be read from the fetched HTML, so no listing URL is asserted.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Outernet_London",
+          "note": "Article describes \"Outernet Live – an underground 2,000-capacity music venue\" (HERE at Outernet). Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives HERE at Outernet, London, 1,600 — an unresolved conflict with the 2,000 figure recorded here."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://hereldn.com/",
+          "note": "Official site reachable (HTTP 200); no dated listing readable from static HTML."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Koko",
+      "alternative_names": [
+        "KOKO",
+        "Camden Palace",
+        "Camden Theatre",
+        "Music Machine"
+      ],
+      "parent_complex": null,
+      "operator": "The Mint Group",
+      "city": "London",
+      "nation": "England",
+      "address": "1A Camden High Street, Camden Town",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.koko.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main theatre auditorium, combined standing floor and galleried seating",
+        "capacity_source": "https://en.wikipedia.org/wiki/Koko_(music_venue)",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.koko.co.uk/whats-on",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; dense listing of named dated forthcoming shows (Sun 20 Sep, Wed 23 Sep, Thu 24 Sep 2026 onward).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Koko_(music_venue)",
+          "note": "Infobox gives capacity 1,500, owner The Mint Group, Camden Town NW1. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list corroborates Koko, London, 1,500."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.koko.co.uk/whats-on",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Watford Colosseum",
+      "alternative_names": [
+        "Watford Town Hall Assembly Rooms"
+      ],
+      "parent_complex": null,
+      "operator": "Global Entertainment Group",
+      "city": "Watford",
+      "nation": "England",
+      "address": "Rickmansworth Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.watfordcolosseum.co.uk/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2000,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium",
+        "capacity_source": "https://en.wikipedia.org/wiki/Watford_Colosseum",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "1938 civic concert hall, long used for orchestral and film-score recording; reopened after refurbishment in 2025.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.watfordcolosseum.co.uk/events/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; month-by-month listing with named dated forthcoming events (e.g. \"Sept 19th – Sept 20th 2026 The Prat Pack's Back\"), plus forward months to 2028.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Watford_Colosseum",
+          "note": "Infobox gives capacity 2,000, address Rickmansworth Road, Watford, opened 1938. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list corroborates Watford Colosseum, Watford, 2,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.watfordcolosseum.co.uk/events/",
+          "note": "Official events listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Alban Arena",
+      "alternative_names": [
+        "Alban Arena",
+        "St Albans City Hall",
+        "St Albans Civic Hall"
+      ],
+      "parent_complex": null,
+      "operator": "Everyone Active (Everyone Theatres)",
+      "city": "St Albans",
+      "nation": "England",
+      "address": "Civic Centre, St Albans",
+      "postcode": "AL1 3LD",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://everyonetheatres.com/theatres/the-alban-arena/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1200,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main auditorium in standing configuration; the same room seats 850+ when seated, which is below the 1,000 census threshold",
+        "capacity_source": "https://everyonetheatres.com/theatres/the-alban-arena/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 850,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "main auditorium, fully seated (\"over 850\")",
+          "capacity_source": "https://everyonetheatres.com/theatres/the-alban-arena/"
+        }
+      ],
+      "scale_description": "Admitted on its standing configuration; its seated configuration is below 1,000.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://everyonetheatres.com/theatres/the-alban-arena/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Operator venue page fetched (HTTP 200) and carries the venue's What's On navigation; no named dated forthcoming event could be read from the fetched HTML, so events_currently_present is not asserted. Everyone Theatres is a shared operator platform (https://everyonetheatres.com/theatres/<venue-slug>/).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://everyonetheatres.com/theatres/the-alban-arena/",
+          "note": "Operator page states \"Formally known as St Albans City Hall or Civic Hall, the theatre can host over 850 people seated and 1200 standing\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Alban_Arena",
+          "note": "Gave address Alban Arena, Civic Centre, St Albans AL1 3LD, opened June 1968. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Assembly Hall Theatre",
+      "alternative_names": [
+        "Tunbridge Wells Assembly Hall"
+      ],
+      "parent_complex": null,
+      "operator": "Tunbridge Wells Borough Council",
+      "city": "Royal Tunbridge Wells",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.assemblyhalltheatre.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1020,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, all seated",
+        "capacity_source": "https://en.wikipedia.org/wiki/Assembly_Hall_Theatre,_Tunbridge_Wells",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "LOW"
+      },
+      "additional_capacities": [],
+      "scale_description": "Unresolved capacity conflict inside the single cited source: the article lead states \"seating 1,020 people\" while its body states \"It now seats up to 993 people\". Recorded at 1,020 with LOW confidence; needs a first-party figure.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.assemblyhalltheatre.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Assembly_Hall_Theatre,_Tunbridge_Wells",
+          "note": "Article lead states the theatre seats 1,020; body text gives a conflicting 993. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.assemblyhalltheatre.co.uk/whats-on/",
+          "note": "Official what's-on page exists (HTTP 200)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Congress Theatre",
+      "alternative_names": [
+        "Eastbourne Congress Theatre"
+      ],
+      "parent_complex": "Eastbourne Theatres",
+      "operator": "Trafalgar Entertainment",
+      "city": "Eastbourne",
+      "nation": "England",
+      "address": "Carlisle Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.eastbournetheatres.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1689,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, all seated; Devonshire Park Theatre (873) and the Winter Garden are separate buildings",
+        "capacity_source": "https://en.wikipedia.org/wiki/Congress_Theatre_(Eastbourne)",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Grade II* listed 1963 theatre; one of the largest theatres in southern England. Owned by Eastbourne Borough Council, operated by Trafalgar Entertainment.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/eastbourne-theatres-eastbourne/en-GB/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events across the Eastbourne Theatres estate (Sun 20 Sep 2026, Thu 24 Sep 2026, Fri 25 Sep 2026 ...). Trafalgar Entertainment shared ticketing platform. Member venues publish at the pattern https://trafalgartickets.com/<venue-slug>/en-GB (optionally /whats-on).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Congress_Theatre_(Eastbourne)",
+          "note": "Infobox gives capacity 1689; body \"seating capacity of 1,689\"; owner Eastbourne Borough Council. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+          "note": "Trafalgar Entertainment venue table lists Congress Theatre, Eastbourne, 1,689."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://trafalgartickets.com/eastbourne-theatres-eastbourne/en-GB/whats-on",
+          "note": "Operator listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Winter Garden",
+      "alternative_names": [
+        "Eastbourne Winter Garden",
+        "Winter Garden Eastbourne"
+      ],
+      "parent_complex": "Eastbourne Theatres",
+      "operator": "Trafalgar Entertainment",
+      "city": "Eastbourne",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.eastbournetheatres.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main hall",
+        "capacity_source": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/eastbourne-theatres-eastbourne/en-GB/whats-on",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Shared Eastbourne Theatres listing covering the Winter Garden alongside the Congress and Devonshire Park theatres; named dated forthcoming events observed. Trafalgar Entertainment shared ticketing platform. Member venues publish at the pattern https://trafalgartickets.com/<venue-slug>/en-GB (optionally /whats-on).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+          "note": "Trafalgar Entertainment venue table lists Winter Garden, Eastbourne, 1,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://trafalgartickets.com/eastbourne-theatres-eastbourne/en-GB/whats-on",
+          "note": "Operator listing covering the Eastbourne estate."
+        }
+      ]
+    },
+    {
+      "canonical_name": "White Rock Theatre",
+      "alternative_names": [
+        "White Rock Pavilion"
+      ],
+      "parent_complex": null,
+      "operator": "Guildhall Trust (with Hastings Borough Council)",
+      "city": "Hastings",
+      "nation": "England",
+      "address": "White Rock",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://whiterocktheatre.org.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1066,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium (stalls and circle), all seated; the same room takes 1,670 in mixed standing/seated mode",
+        "capacity_source": "https://en.wikipedia.org/wiki/White_Rock_Theatre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1670,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "main auditorium, mixed standing/seated configuration",
+          "capacity_source": "https://en.wikipedia.org/wiki/White_Rock_Theatre"
+        }
+      ],
+      "scale_description": "The cited article carries internally inconsistent figures (1,066 vs 1,082 seated; 1,670 vs 1,620 standing) after a 2019 re-layout.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://whiterocktheatre.org.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/White_Rock_Theatre",
+          "note": "Infobox gives \"1066 seated or 1670 standing/seated\"; owner Guildhall Trust with Hastings Borough Council. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://whiterocktheatre.org.uk/whats-on/",
+          "note": "Official what's-on page exists (HTTP 200)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "De La Warr Pavilion",
+      "alternative_names": [
+        "DLWP"
+      ],
+      "parent_complex": null,
+      "operator": "De La Warr Pavilion Charitable Trust",
+      "city": "Bexhill-on-Sea",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.dlwp.com/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Grade I listed 1935 modernist seaside pavilion; auditorium plus galleries.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.dlwp.com/whats-on/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events and exhibitions listed.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates De La Warr Pavilion, Bexhill, 1,500."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.dlwp.com/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Chichester Festival Theatre",
+      "alternative_names": [
+        "CFT",
+        "Festival Theatre, Chichester"
+      ],
+      "parent_complex": null,
+      "operator": "Chichester Festival Theatre",
+      "city": "Chichester",
+      "nation": "England",
+      "address": "Oaklands Park",
+      "postcode": "PO19 6AP",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.cft.org.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1206,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Festival Theatre main house, all seated; the Minerva Theatre is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Chichester_Festival_Theatre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 283,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "Minerva Theatre studio auditorium",
+          "capacity_source": "https://en.wikipedia.org/wiki/Chichester_Festival_Theatre"
+        }
+      ],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.cft.org.uk/whats-on",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming productions listed (Fri 18 Sep, Sat 26 Sep, Sat 17 Oct ...).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Chichester_Festival_Theatre",
+          "note": "Infobox gives \"Festival Theatre: 1206 / Minerva Theatre: 283\"; address Oaklands Park, Chichester. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.cft.org.uk/whats-on",
+          "note": "Official what's-on listing with named dated events; postcode PO19 6AP read from the page footer."
+        }
+      ]
+    },
+    {
+      "canonical_name": "G Live",
+      "alternative_names": [
+        "Guildford G Live"
+      ],
+      "parent_complex": null,
+      "operator": "Trafalgar Entertainment",
+      "city": "Guildford",
+      "nation": "England",
+      "address": "London Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://glive.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1031,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Main Hall (main auditorium), fully seated; the Bellerby Studio (100) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/G_Live",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1700,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Main auditorium, maximum across all configurations (infobox range 1000–1700)",
+          "capacity_source": "https://en.wikipedia.org/wiki/G_Live"
+        }
+      ],
+      "scale_description": "Owned by Guildford Borough Council, operated by Trafalgar Entertainment. Seated capacity 1,031; higher figures (1,700) reflect standing/mixed layouts.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/g-live-guildford/en-GB",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events (Mon 21 Sep 2026, Wed 23 Sep 2026, Thu 24 Sep 2026 ...). Trafalgar Entertainment shared ticketing platform. Member venues publish at the pattern https://trafalgartickets.com/<venue-slug>/en-GB (optionally /whats-on).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/G_Live",
+          "note": "Infobox \"Main auditorium: 1000-1700\"; body \"The Main Hall features ... seating for up to 1031\". Owner Guildford Borough Council, operator Trafalgar Entertainment. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+          "note": "Trafalgar Entertainment venue table lists G Live, Guildford, 1,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://trafalgartickets.com/g-live-guildford/en-GB",
+          "note": "Operator listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Fareham Live",
+      "alternative_names": [
+        "Ferneham Hall"
+      ],
+      "parent_complex": null,
+      "operator": "Trafalgar Entertainment",
+      "city": "Fareham",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.farehamlive.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium",
+        "capacity_source": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Rebuilt civic theatre (formerly Ferneham Hall), reopened under Trafalgar Entertainment management.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/fareham-live-fareham/en-GB",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events (Sat 26 Sep 2026, Sun 27 Sep 2026, Mon 28 Sep 2026 ...). Trafalgar Entertainment shared ticketing platform. Member venues publish at the pattern https://trafalgartickets.com/<venue-slug>/en-GB (optionally /whats-on).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+          "note": "Trafalgar Entertainment venue table lists Fareham Live, Hampshire, 1,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://trafalgartickets.com/fareham-live-fareham/en-GB",
+          "note": "Operator listing with named dated events; reached by following the official farehamlive.co.uk redirect."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Oxford",
+      "alternative_names": [
+        "Carling Academy Oxford",
+        "The Zodiac"
+      ],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Oxford",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academyoxford/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1020,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room (Academy 1); O2 Academy2 Oxford (436) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "The individual Wikipedia article states an AMG refurbishment raised capacity \"from 750 to 1,150\"; the AMG venue table gives 1,020. Conflict unresolved.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academyoxford/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table lists O2 Academy Oxford 1,020 and O2 Academy2 Oxford 436."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Academy_Oxford",
+          "note": "States AMG refurbishment increased capacity from 750 to 1,150 — conflicting figure. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "New Theatre Peterborough",
+      "alternative_names": [
+        "Peterborough New Theatre",
+        "The Broadway Theatre, Peterborough"
+      ],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Peterborough",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://newtheatre-peterborough.com/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1079,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Main Auditorium, cinema-style seating",
+        "capacity_source": "https://newtheatre-peterborough.com/venue-hire/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://newtheatre-peterborough.com/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; dense listing of named dated forthcoming shows (Sat 19 Sep 2026 onward, forward to 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newtheatre-peterborough.com/venue-hire/",
+          "note": "Official hire page states \"Main Auditorium ... an impressive 1,079 cinema-style seats\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://newtheatre-peterborough.com/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "UEA LCR",
+      "alternative_names": [
+        "LCR",
+        "Lower Common Room",
+        "UEA Live",
+        "Union of UEA Students LCR"
+      ],
+      "parent_complex": "University of East Anglia Students’ Union",
+      "operator": "Union of UEA Students",
+      "city": "Norwich",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.ueaticketbookings.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1550,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main hall (LCR), standing",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "University students’ union hall that operates as a public national-touring concert venue.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.ueaticketbookings.co.uk/whats-on/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (Sat 19 September 2026 onward).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates UEA LCR, Norwich, 1,550."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.ueaticketbookings.co.uk/whats-on/",
+          "note": "Official UEA ticketing what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Forum Hertfordshire",
+      "alternative_names": [
+        "The Forum Hatfield",
+        "Forum Hertfordshire"
+      ],
+      "parent_complex": null,
+      "operator": "University of Hertfordshire Students’ Union",
+      "city": "Hatfield",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2250,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main auditorium, standing",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": "No calendar recorded: theforumhertfordshire.co.uk did not resolve in this pass (DNS/connection failure on both / and /whats-on).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates The Forum, Hertfordshire, 2,250."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Hatfield,_Hertfordshire",
+          "note": "Confirms The Forum Hertfordshire is a music venue in Hatfield. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Brentwood Centre",
+      "alternative_names": [
+        "Brentwood Centre"
+      ],
+      "parent_complex": null,
+      "operator": "Brentwood Borough Council",
+      "city": "Brentwood",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2000,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main arena hall",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": "No calendar recorded: thebrentwoodcentre.co.uk did not resolve in this pass (connection failure).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates Brentwood Centre at 2,000."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Birmingham",
+      "alternative_names": [
+        "Carling Academy Birmingham"
+      ],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Birmingham",
+      "nation": "England",
+      "address": "16–18 Horsefair, Bristol Street",
+      "postcode": "B1 1DB",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academybirmingham/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 3009,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main room (the Academy), 2,409 standing stalls plus 600 tiered seated balcony; Academy 2 and Academy 3 are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Birmingham",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 600,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "O2 Academy2 Birmingham",
+          "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Birmingham"
+        },
+        {
+          "capacity_value": 250,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "O2 Academy3 Birmingham",
+          "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Birmingham"
+        }
+      ],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academybirmingham/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Academy_Birmingham",
+          "note": "Infobox and body give 3,009 (Academy, of which 2,409 standing and 600 balcony), 600 (Academy 2), 250 (Academy 3); address 16–18 Horsefair, Bristol Street, B1 1DB. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table corroborates 3,009 / 600 / 250."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Institute Birmingham",
+      "alternative_names": [
+        "Digbeth Institute",
+        "The Institute",
+        "O2 Institute1"
+      ],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Birmingham",
+      "nation": "England",
+      "address": "78 Digbeth High Street, Digbeth",
+      "postcode": "B5 6DY",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2institutebirmingham/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium (O2 Institute1), standing floor with two seated upper balcony levels; Institute2 and Institute3 are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/Digbeth_Institute",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 600,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "O2 Institute2",
+          "capacity_source": "https://en.wikipedia.org/wiki/Digbeth_Institute"
+        },
+        {
+          "capacity_value": 250,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "O2 Institute3",
+          "capacity_source": "https://en.wikipedia.org/wiki/Digbeth_Institute"
+        }
+      ],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2institutebirmingham/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Digbeth_Institute",
+          "note": "Infobox gives 1,500 (O2 Institute1), 600 (Institute2), 250 (Institute3); address 78 Digbeth High St, B5 6DY. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table lists O2 Institute Birmingham at 1,500."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Halls Wolverhampton",
+      "alternative_names": [
+        "Wolverhampton Civic Hall",
+        "Civic Hall",
+        "Wulfrun Hall"
+      ],
+      "parent_complex": null,
+      "operator": "AEG Presents",
+      "city": "Wolverhampton",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.thehallswolverhampton.com/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 3400,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Civic Hall (main auditorium) only; the Wulfrun Hall and Slade Rooms are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/Wolverhampton_Civic_Hall",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1300,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Wulfrun Hall",
+          "capacity_source": "https://en.wikipedia.org/wiki/Wolverhampton_Civic_Hall"
+        }
+      ],
+      "scale_description": "Owned by City of Wolverhampton Council, operated by AEG Presents; reopened 2023 after a long closure. The Wikipedia UK venues list gives slightly different figures (3,404 Civic Hall, 1,289 Wulfrun Hall, 550 Slade Rooms).",
+      "no_public_calendar_reason": "No calendar recorded: thehallswolverhampton.com did not resolve in this pass (repeated connection failures on / and /venue-hire).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Wolverhampton_Civic_Hall",
+          "note": "Infobox gives \"3,400 (Civic Hall) / 1,300 (Wulfrun Hall)\"; owner City of Wolverhampton Council, operator AEG Presents. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives 3,404 (Civic Hall), 1,289 (Wulfrun Hall), 550 (Slade Rooms)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rock City",
+      "alternative_names": [
+        "Rock City Nottingham"
+      ],
+      "parent_complex": null,
+      "operator": "DHP Family",
+      "city": "Nottingham",
+      "nation": "England",
+      "address": "8 Talbot Street",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://rock-city.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2000,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room (Rock City), standing",
+        "capacity_source": "https://en.wikipedia.org/wiki/Rock_City_(venue)",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Major independent national-touring concert venue. The Wikipedia UK venues list gives a conflicting 2,450.",
+      "no_public_calendar_reason": "No calendar recorded: https://rock-city.co.uk/events/ and /whats-on/ both returned HTTP 404 in this pass, so no listing URL could be proven.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Rock_City_(venue)",
+          "note": "Infobox gives capacity 2,000 (Rock City); body \"with a capacity of 2,000\"; owner DHP Family Ltd; address 8 Talbot Street. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives a conflicting 2,450 for Rock City, Nottingham."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Leicester",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Leicester",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academyleicester/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1450,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room (Academy1); Academy2 (500) and Academy3 (250) are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Leicester",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academyleicester/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Academy_Leicester",
+          "note": "Infobox gives 1,450 (Academy1), 500 (Academy2), 250 (Academy3); opened 2010; owner Academy Music Group. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table corroborates O2 Academy Leicester at 1,450."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Bristol",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Bristol",
+      "nation": "England",
+      "address": "1-2 Frogmore Street",
+      "postcode": "BS1 5NA",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academybristol/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1600,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room (Academy 1); Academy 2 (250) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Bristol",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "The AMG venue table gives a slightly different 1,650.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academybristol/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Academy_Bristol",
+          "note": "Infobox gives \"1,600 (Academy 1) / 250 (Academy 2)\"; address 1-2 Frogmore St, Bristol BS1 5NA. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table gives 1,650 for O2 Academy Bristol — minor conflict."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Bournemouth",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Bournemouth",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academybournemouth/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1800,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academybournemouth/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table lists O2 Academy Bournemouth at 1,800."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list corroborates O2 Academy Bournemouth, Bournemouth, 1,800."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Forum",
+      "alternative_names": [
+        "Bath Forum",
+        "The Forum Bath"
+      ],
+      "parent_complex": null,
+      "operator": "Bath City Church",
+      "city": "Bath",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1640,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Grade II* listed 1934 art deco cinema, owned by Bath and North East Somerset Council and leased long-term; operates as a church and a commercial concert venue.",
+      "no_public_calendar_reason": "No calendar recorded: bathforum.co.uk did not resolve in this pass (repeated connection failures).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates The Forum, Bath, 1,640."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/The_Forum,_Bath",
+          "note": "Grade II* listed 1934 cinema in Bath, owned by Bath and North East Somerset Council, leased to Bath Christian Trust; originally seated 2,000. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bath Pavilion",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "GLL (Better)",
+      "city": "Bath",
+      "nation": "England",
+      "address": "North Parade Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.better.org.uk/venue-hire/venues/bath-pavilion",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1400,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main hall",
+        "capacity_source": "https://en.wikipedia.org/wiki/Bath_Pavilion",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": "No calendar recorded: the venue is marketed as a hire venue through the Better/GLL site and no first-party listing of named forthcoming events was proven in this pass.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Bath_Pavilion",
+          "note": "Infobox gives capacity 1400, address North Parade Road, Bath, website better.org.uk/venue-hire/venues/bath-pavilion. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list corroborates Bath Pavilion, Bath, 1,400."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Lighthouse",
+      "alternative_names": [
+        "Lighthouse, Poole",
+        "Poole Arts Centre",
+        "Lighthouse Poole"
+      ],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Poole",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.lighthousepoole.co.uk/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1476,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Concert Hall (main auditorium), including 459 balcony seats; the Theatre, Sherling Studio and Cinema are separate rooms",
+        "capacity_source": "https://www.lighthousepoole.co.uk/venue-hire/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 669,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "Theatre (proscenium arch)",
+          "capacity_source": "https://www.lighthousepoole.co.uk/venue-hire/"
+        },
+        {
+          "capacity_value": 130,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "Sherling Studio",
+          "capacity_source": "https://www.lighthousepoole.co.uk/venue-hire/"
+        },
+        {
+          "capacity_value": 103,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "Cinema",
+          "capacity_source": "https://www.lighthousepoole.co.uk/venue-hire/"
+        }
+      ],
+      "scale_description": "Largest arts centre in the UK outside London by number of performance spaces; home of the Bournemouth Symphony Orchestra.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.lighthousepoole.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.lighthousepoole.co.uk/venue-hire/",
+          "note": "Official hire page states \"Concert Hall 1,476 seats, including 459 balcony seats\", \"Theatre 669 seats\", \"Sherling Studio Seating for up to 130\", \"Cinema 103 seats\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.lighthousepoole.co.uk/whats-on/",
+          "note": "Official what's-on page exists (HTTP 200)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Hall for Cornwall",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Truro",
+      "nation": "England",
+      "address": "Boscawen Street",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.hallforcornwall.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Main auditorium capacity not proven. The venue reopened in 2021 after a £20m rebuild; no first-party page stating a capacity figure was reachable in this pass (/hire-us/, /venue-hire/ and /about-us/ returned 404 or carried no figure), and the Wikipedia article carries no capacity in its infobox.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "Cornwall’s principal large-scale receiving house, rebuilt 2018–2021. Included as a major touring venue; its capacity is unproven here and must not be assumed to be >= 1,000 until cited.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.hallforcornwall.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (Lord of the Dance Tue 22 – Sat 26 Sep 2026; Dick Whittington & his Mousehole Cat 04 Dec 2026 – 03 Jan 2027).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Hall_for_Cornwall",
+          "note": "Confirms identity, Boscawen Street, Truro, and a £20m rebuild begun June 2018; no capacity figure given. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.hallforcornwall.co.uk/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.hallforcornwall.co.uk/about-us/who-we-are/",
+          "note": "Official about page fetched; no capacity figure stated."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Kings Theatre",
+      "alternative_names": [
+        "Kings Theatre Southsea",
+        "King’s Theatre, Portsmouth"
+      ],
+      "parent_complex": null,
+      "operator": "Kings Theatre Trust Ltd",
+      "city": "Portsmouth",
+      "nation": "England",
+      "address": "Albert Road, Southsea",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.kingsportsmouth.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1400,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, all seated",
+        "capacity_source": "https://en.wikipedia.org/wiki/Kings_Theatre,_Southsea",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "1907 Frank Matcham theatre; large-scale touring house. Wikidata records a conflicting 1,600.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.kingsportsmouth.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Kings_Theatre,_Southsea",
+          "note": "Infobox gives capacity 1,400, owner Kings Theatre Trust Ltd, address Albert Road, Portsmouth, type \"Large Scale Touring Venue\". Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://query.wikidata.org/sparql?query=SELECT+%3Fitem+%3FitemLabel+%3FtypeLabel+%3Fcap+%3FnatLabel+%3Furl+WHERE+%7B%3Fitem+wdt%3AP1083+%3Fcap.FILTER(%3Fcap%3E%3D1000)%3Fitem+wdt%3AP131*+%3Fnat.VALUES+%3Fnat+%7Bwd%3AQ21+wd%3AQ22+wd%3AQ25+wd%3AQ26%7D%3Fitem+wdt%3AP31+%3Ftype.SERVICE+wikibase%3Alabel+%7Bbd%3AserviceParam+wikibase%3Alanguage+%22en%22.%7D%7D",
+          "note": "Wikidata capacity query returned Kings Theatre, England, 1,600 — unresolved conflict."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.kingsportsmouth.co.uk/whats-on/",
+          "note": "Official what's-on page exists (HTTP 200)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Great Hall, University of Exeter",
+      "alternative_names": [
+        "Exeter Great Hall"
+      ],
+      "parent_complex": "University of Exeter Streatham Campus",
+      "operator": "University of Exeter",
+      "city": "Exeter",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main hall, standing; the same room seats 650, below the census threshold",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 650,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "main hall, fully seated",
+          "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw"
+        }
+      ],
+      "scale_description": "University hall that operates as Exeter’s principal public concert venue. Admitted on its standing configuration.",
+      "no_public_calendar_reason": "No calendar recorded: the University of Exeter Great Hall pages returned HTTP 404 on every path tried in this pass.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates Great Hall, Exeter, \"1,500 standing; 650 seated\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Leeds",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Leeds",
+      "nation": "England",
+      "address": "55 Cookridge Street",
+      "postcode": "LS2 3AW",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academyleeds/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2300,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room; O2 Academy2 Leeds (400) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Leeds",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academyleeds/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Academy_Leeds",
+          "note": "Infobox gives capacity 2,300; address 55 Cookridge St, Leeds LS2 3AW; owner Academy Music Group. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table corroborates 2,300 (plus O2 Academy2 Leeds 400)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Bradford Live",
+      "alternative_names": [
+        "Bradford Odeon",
+        "New Victoria, Bradford",
+        "Gaumont, Bradford"
+      ],
+      "parent_complex": null,
+      "operator": "Trafalgar Entertainment (with NEC Group International)",
+      "city": "Bradford",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 3800,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "restored main auditorium, standing",
+        "capacity_source": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 3400,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "restored main auditorium, fully seated",
+          "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw"
+        }
+      ],
+      "scale_description": "Restoration of the 1930 New Victoria/Gaumont/Odeon as a single large auditorium. Wikipedia UK venues list gives \"4,000 standing; 3,400 seating\".",
+      "no_public_calendar_reason": "No calendar recorded: bradfordlive.com did not resolve in this pass (repeated connection failures).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+          "note": "Trafalgar Entertainment venue table lists Bradford Live, Bradford, 3,800."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives Bradford Live \"4,000 standing; 3,400 seating\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Bradford_Odeon",
+          "note": "Confirms the building history and the Bradford Live restoration scheme with NEC Group International. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Victoria Theatre",
+      "alternative_names": [
+        "Victoria Theatre Halifax",
+        "Halifax Victoria Theatre"
+      ],
+      "parent_complex": null,
+      "operator": "Calderdale Council",
+      "city": "Halifax",
+      "nation": "England",
+      "address": "2 Fountain Street",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.victoriatheatre.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1512,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, fully seated; 1,860 in part-standing configuration",
+        "capacity_source": "https://en.wikipedia.org/wiki/Victoria_Theatre,_Halifax",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1860,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "main auditorium, part-standing configuration",
+          "capacity_source": "https://en.wikipedia.org/wiki/Victoria_Theatre,_Halifax"
+        }
+      ],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.victoriatheatre.co.uk/whats-on",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (20–22 September 2026, 17 October 2026 ...).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Victoria_Theatre,_Halifax",
+          "note": "Infobox and body give \"1,512 Seated (1,860 part-standing)\"; owner Calderdale Council; address 2 Fountain Street. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list corroborates Victoria Theatre, Halifax, 1,512."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.victoriatheatre.co.uk/whats-on",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Huddersfield Town Hall",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Kirklees Council",
+      "city": "Huddersfield",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Concert hall capacity not proven. The Wikipedia article is a stub with no capacity in its infobox, the venue is not tabulated in the Wikipedia UK venues list, and both kirklees.gov.uk and kirkleestownhalls.uk paths tried in this pass returned 404 or failed to resolve.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "Victorian civic concert hall, home of the Huddersfield Choral Society and the Huddersfield Contemporary Music Festival. Widely cited around 1,200 seats, but no figure is cited here because none was fetched.",
+      "no_public_calendar_reason": "No calendar recorded: no Kirklees town halls listing URL resolved in this pass.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Huddersfield_Town_Hall",
+          "note": "Confirms identity and location (Huddersfield); no capacity figure present. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Sheffield",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Sheffield",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academysheffield/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2150,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main auditorium; O2 Academy2 Sheffield (500) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/O2_Academy_Sheffield",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "The same article quotes an alternative \"main auditorium with a capacity of 2,350\" from an older AMG page; 2,150 is the figure AMG currently publishes.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academysheffield/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/O2_Academy_Sheffield",
+          "note": "Infobox gives capacity 2,150 citing academymusicgroup.com; body quotes a conflicting 2,350. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table corroborates 2,150 (plus O2 Academy2 Sheffield 400)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Baths Hall",
+      "alternative_names": [
+        "Baths Hall",
+        "Scunthorpe Baths Hall"
+      ],
+      "parent_complex": null,
+      "operator": "North Lincolnshire Council (Scunthorpe Theatres)",
+      "city": "Scunthorpe",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.scunthorpetheatres.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1800,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main auditorium with floor standing; the same room holds 1,000 all-seated",
+        "capacity_source": "https://en.wikipedia.org/wiki/Baths_Hall",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1000,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "main auditorium, all seated",
+          "capacity_source": "https://en.wikipedia.org/wiki/Baths_Hall"
+        }
+      ],
+      "scale_description": "Wikipedia UK venues list gives \"1,800 standing; 1,021 seated\".",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.scunthorpetheatres.co.uk/whats-on/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events across the Scunthorpe Theatres estate (Wed 23 September 2026 onward).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Baths_Hall",
+          "note": "Infobox gives \"1,000 (all seated), 1,800 (with floor standing)\"; owner North Lincolnshire Council. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.scunthorpetheatres.co.uk/whats-on/",
+          "note": "Official operator what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Embassy Theatre",
+      "alternative_names": [
+        "Embassy Theatre Skegness",
+        "Embassy Auditorium"
+      ],
+      "parent_complex": null,
+      "operator": "East Lindsey District Council",
+      "city": "Skegness",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://embassytheatre.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1081,
+        "capacity_type": "THEATRE_STYLE",
+        "capacity_configuration": "Embassy Auditorium (main house), theatre-style layout with retractable seating",
+        "capacity_source": "https://embassytheatre.co.uk/your-visit/venue-hire/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://embassytheatre.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (Fri 25 Sep, Sat 26 Sep, Fri 2 Oct, Sat 3 Oct).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://embassytheatre.co.uk/your-visit/venue-hire/",
+          "note": "Official hire page states \"The Embassy Auditorium seats up to 1,081 guests in a theatre-style layout\" and describes retractable seating creating a 21m x 21m flat floor."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives a conflicting 1,168 for Embassy Theatre, Skegness."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://embassytheatre.co.uk/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Engine Shed",
+      "alternative_names": [
+        "Engine Shed Lincoln"
+      ],
+      "parent_complex": null,
+      "operator": "University of Lincoln Students’ Union",
+      "city": "Lincoln",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://engineshed.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1600,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main hall at maximum reception/standing capacity; the same room seats 962 in a seated layout, below the census threshold",
+        "capacity_source": "https://engineshed.co.uk/venue-hire/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 962,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "main hall, seated events",
+          "capacity_source": "https://engineshed.co.uk/venue-hire/"
+        }
+      ],
+      "scale_description": "Lincoln’s principal large live-music venue, run by the university students’ union. Admitted on its standing/reception configuration.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://engineshed.co.uk/whats-on",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://engineshed.co.uk/venue-hire/",
+          "note": "Official hire page states \"Seated Events up to 962 seats\", \"Reception up to 1,600 guests\", floor space 7,857 sq ft."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates The Engine Shed, Lincoln, 1,600."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scarborough Open Air Theatre",
+      "alternative_names": [
+        "Scarborough OAT",
+        "TK Maxx Presents Scarborough Open Air Theatre"
+      ],
+      "parent_complex": null,
+      "operator": "Cuffe and Taylor (North Yorkshire Council)",
+      "city": "Scarborough",
+      "nation": "England",
+      "address": "Northstead Manor Gardens, Burniston Road",
+      "postcode": "YO12 6PF",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.scarboroughopenairtheatre.com/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 8000,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "open-air auditorium, combined seated and standing",
+        "capacity_source": "https://en.wikipedia.org/wiki/Scarborough_Open_Air_Theatre",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Largest open-air theatre in Europe by capacity; seasonal summer operation.",
+      "no_public_calendar_reason": "No calendar recorded: https://www.scarboroughopenairtheatre.com/whats-on, /events and /venue-info all returned HTTP 404 in this pass. The homepage returned HTTP 200 but no named dated forthcoming event could be read from the fetched HTML.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Scarborough_Open_Air_Theatre",
+          "note": "Infobox gives capacity 8,000, address Northstead Manor Gardens, Burniston Road, YO12 6PF, opened 1932. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.scarboroughopenairtheatre.com/",
+          "note": "Official site reachable (HTTP 200)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Middlesbrough Town Hall",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Middlesbrough Council",
+      "city": "Middlesbrough",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1190,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, proscenium stage with balcony seating",
+        "capacity_source": "https://en.wikipedia.org/wiki/Middlesbrough_Town_Hall",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Well-preserved Victorian concert hall with a four-manual William Hill organ; reopened 2018 after refurbishment.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://boxoffice.middlesbrough.gov.uk/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; council box-office listing with named dated forthcoming events and an explicit \"Middlesbrough Town Hall\" venue filter (e.g. Jane Eyre Wed 23 September 2026; Country Superstars Thu 24 September 2026).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Middlesbrough_Town_Hall",
+          "note": "Article states \"Middlesbrough Town Hall has a 1,190-seat theatre with a proscenium stage and balcony seating\". Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://boxoffice.middlesbrough.gov.uk/",
+          "note": "Official council box office with named dated events for Middlesbrough Town Hall."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Tyne Theatre and Opera House",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Tyne Theatre and Opera House Preservation Trust",
+      "city": "Newcastle upon Tyne",
+      "nation": "England",
+      "address": "Westgate Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.tynetheatreandoperahouse.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1100,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, three tiers of balconies; the 1867 Hall (120 standing) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Tyne_Theatre_and_Opera_House",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 120,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "1867 Hall, standing (160 if used with the 1867 Cafe Bar)",
+          "capacity_source": "https://www.tynetheatreandoperahouse.uk/about/hire-us/"
+        }
+      ],
+      "scale_description": "Grade I listed 1867 Victorian theatre retaining its original stage machinery.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.tynetheatreandoperahouse.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Tyne_Theatre_and_Opera_House",
+          "note": "Infobox gives capacity 1,100; owner Tyne Theatre and Opera House Preservation Trust; address Westgate Road. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.tynetheatreandoperahouse.uk/about/hire-us/",
+          "note": "Official hire page gives the 1867 Hall secondary-space capacities (120 standing, 160 with cafe bar, approx. 80 seated)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Ritz Manchester",
+      "alternative_names": [
+        "The Ritz",
+        "O2 Ritz"
+      ],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Manchester",
+      "nation": "England",
+      "address": "Whitworth Street West",
+      "postcode": "M1 5NQ",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2ritzmanchester/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room, sprung dance floor",
+        "capacity_source": "https://en.wikipedia.org/wiki/The_Ritz_(Manchester)",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2ritzmanchester/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/The_Ritz_(Manchester)",
+          "note": "Infobox gives capacity 1,500; address Whitworth Street West M1 5NQ; owner Academy Music Group. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table corroborates O2 Ritz Manchester at 1,500."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Manchester Academy",
+      "alternative_names": [
+        "Manchester Academy 1",
+        "Academy 1"
+      ],
+      "parent_complex": "University of Manchester Students’ Union",
+      "operator": "University of Manchester Students’ Union",
+      "city": "Manchester",
+      "nation": "England",
+      "address": "Oxford Road",
+      "postcode": "M13 9PL",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.manchesteracademy.net/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2600,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Academy 1 (main room, standalone building); Academy 2, Club Academy and Academy 3 are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/Manchester_Academy",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 950,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "Academy 2",
+          "capacity_source": "https://en.wikipedia.org/wiki/Manchester_Academy"
+        },
+        {
+          "capacity_value": 650,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "Club Academy",
+          "capacity_source": "https://en.wikipedia.org/wiki/Manchester_Academy"
+        },
+        {
+          "capacity_value": 470,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "Academy 3",
+          "capacity_source": "https://en.wikipedia.org/wiki/Manchester_Academy"
+        }
+      ],
+      "scale_description": "University students’ union complex operating as one of Manchester’s principal public national-touring concert venues.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.manchesteracademy.net/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official site fetched (HTTP 200); /whats-on/ returned HTTP 404 and no named dated forthcoming event could be read from the homepage HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Manchester_Academy",
+          "note": "Infobox gives 2,600 (Academy 1), 950 (Academy 2), 650 (Club Academy), 470 (Academy 3); address Oxford Road M13 9PL; owner University of Manchester Students’ Union. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives 2,575 (Academy 1), 900 (Academy 2), 620 (Club Academy), 450 (Academy 3) — minor conflicts."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Victoria Warehouse",
+      "alternative_names": [
+        "O2 Victoria Warehouse",
+        "Victoria Warehouse Manchester"
+      ],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Old Trafford, Manchester",
+      "nation": "England",
+      "address": "Trafford Wharf Road, Old Trafford",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://victoriawarehouse.com/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 3500,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main event space, standing",
+        "capacity_source": "https://en.wikipedia.org/wiki/Victoria_Warehouse",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Former industrial warehouse operating as a large flexible event space and hotel. Its Academy Music Group slug (academymusicgroup.com/o2victoriawarehouse) returned HTTP 404 in this pass, so the O2/AMG branding appears to have lapsed; recorded under its own name.",
+      "no_public_calendar_reason": "No calendar recorded: victoriawarehouse.com/events/ returned HTTP 404 and the homepage carried no named dated forthcoming event in the fetched HTML.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Victoria_Warehouse",
+          "note": "Infobox gives capacity 3,500; location Trafford Wharf Rd, Old Trafford; opened 2012; operator Academy Music Group. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://victoriawarehouse.com/",
+          "note": "Official site reachable (HTTP 200)."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.academymusicgroup.com/whats-on",
+          "note": "Probed the AMG slug set from this page in a browser: o2victoriawarehouse returned HTTP 404, unlike the 11 live AMG venue slugs tested."
+        }
+      ]
+    },
+    {
+      "canonical_name": "King George's Hall",
+      "alternative_names": [
+        "King Georges Hall",
+        "KGH Blackburn"
+      ],
+      "parent_complex": null,
+      "operator": "Blackburn with Darwen Borough Council",
+      "city": "Blackburn",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://bwdvenues.com/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1800,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Concert Hall (main auditorium), seating up to 1,800; the Windsor Suite (750) and Blakey’s Cafe Bar (500) are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/King_George's_Hall,_Blackburn",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 750,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Windsor Suite",
+          "capacity_source": "https://en.wikipedia.org/wiki/King_George's_Hall,_Blackburn"
+        }
+      ],
+      "scale_description": "Wikipedia UK venues list gives a conflicting all-configuration figure of 3,500.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://bwdvenues.com/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; the council's shared BwD Venues site lists named dated forthcoming events tagged by venue (e.g. \"The K's — Sat 26 Sep 2026 / King George's Hall\"). Shared platform also covering Darwen Library Theatre.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/King_George's_Hall,_Blackburn",
+          "note": "Article states \"It contains three halls: the Concert Hall, seating up to 1800; the Windsor Suite (capacity 750), and Blakey’s Cafe Bar (capacity 500)\". Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives King George’s Hall, Blackburn, 3,500 — unresolved conflict."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://bwdvenues.com/",
+          "note": "Official council venues listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Preston Guild Hall",
+      "alternative_names": [
+        "Guild Hall Preston",
+        "Charter Theatre"
+      ],
+      "parent_complex": null,
+      "operator": "Preston Guild Hall Ltd",
+      "city": "Preston",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2034,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Grand Hall (main auditorium); the Charter Theatre (780) and Foyer (350) are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/Preston_Guild_Hall",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 780,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "Charter Theatre",
+          "capacity_source": "https://en.wikipedia.org/wiki/Preston_Guild_Hall"
+        }
+      ],
+      "scale_description": "OPERATIONAL STATUS NOT VERIFIED IN THIS PASS. The venue has had a troubled recent trading history; prestonguildhall.co.uk returned HTTP 404 and prestonguildhall.com redirected to a parked/advertising domain in this pass. Status is recorded as OPERATIONAL only because no evidence of closure was fetched; it needs checking before any activation.",
+      "no_public_calendar_reason": "No calendar recorded: no working first-party listing URL was found (prestonguildhall.co.uk/whats-on HTTP 404; prestonguildhall.com parked).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Preston_Guild_Hall",
+          "note": "Infobox gives \"2,034 (Grand Hall) / 780 (Charter Theatre) / 350 (Foyer)\"; owner Preston City Council; operator Preston Guild Hall Ltd; opened 1973. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Eventim Olympia",
+      "alternative_names": [
+        "Liverpool Olympia",
+        "The Olympia, Liverpool"
+      ],
+      "parent_complex": null,
+      "operator": "Ghostwriter Consultancy and Events",
+      "city": "Liverpool",
+      "nation": "England",
+      "address": "West Derby Road",
+      "postcode": "L6 9BY",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.liverpoololympia.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1917,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium, mixed standing/seated live-music configuration",
+        "capacity_source": "https://www.liverpoololympia.co.uk/venue-hire/",
+        "capacity_source_authority": "GRADE_A",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "HIGH"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 1223,
+          "capacity_type": "THEATRE_STYLE",
+          "capacity_configuration": "main auditorium, fully seated theatre style",
+          "capacity_source": "https://www.liverpoololympia.co.uk/venue-hire/"
+        },
+        {
+          "capacity_value": 1550,
+          "capacity_type": "STANDING",
+          "capacity_configuration": "club events, freeflow across stalls and lower balcony",
+          "capacity_source": "https://www.liverpoololympia.co.uk/venue-hire/"
+        }
+      ],
+      "scale_description": "1905 Frank Matcham purpose-built circus and variety theatre; one of very few surviving in the UK.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.liverpoololympia.co.uk/whats-on/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (25 September 2026, 29 September 2026, 7 October 2026 ...).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.liverpoololympia.co.uk/venue-hire/",
+          "note": "Official hire page states \"Mixed Standing/Seated – capacity 1917\", \"Theatre Style Fully Seated – capacity 1223\", \"Club Events ... capacity 1550\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Liverpool_Olympia",
+          "note": "Infobox gives capacity 1,960; address W Derby Rd, Liverpool L6 9BY; opened 1905. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.liverpoololympia.co.uk/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Royal Court Theatre",
+      "alternative_names": [
+        "Liverpool's Royal Court",
+        "Royal Court Liverpool"
+      ],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Liverpool",
+      "nation": "England",
+      "address": "1 Roe Street",
+      "postcode": "L1 1HL",
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://liverpoolsroyalcourt.com/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1186,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium: Stalls 290 (cabaret tables), Circle 403, Balcony 493; the 150-seat Studio is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Royal_Court_Theatre,_Liverpool",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": null,
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://liverpoolsroyalcourt.com/all-shows/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming shows listed (22 Sep 2026, 05 Oct 2026, 17 Oct 2026, 14 Dec 2026 ...).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Royal_Court_Theatre,_Liverpool",
+          "note": "Infobox gives \"1,186 seats\"; body \"The current capacity is 1,186 (Stalls 290 [cabaret], Circle 403, Balcony 493)\"; address 1 Roe Street. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://liverpoolsroyalcourt.com/all-shows/",
+          "note": "Official what's-on listing with named dated events; postcode L1 1HL read from the page header."
+        }
+      ]
+    },
+    {
+      "canonical_name": "O2 Academy Liverpool",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Academy Music Group",
+      "city": "Liverpool",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.academymusicgroup.com/o2academyliverpool/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1200,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main room (Academy 1); O2 Academy2 Liverpool (500) is a separate room",
+        "capacity_source": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Wikipedia UK venues list gives \"1,750; 1250 (Academy 1); 500 (Academy 2)\" — conflicting.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.academymusicgroup.com/o2academyliverpool/events",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Academy Music Group shared platform. Every AMG venue publishes its own listing at the identical pattern https://www.academymusicgroup.com/<venue-slug>/events . HTTP 200 confirmed for this slug in this pass. The pattern was opened in a real browser for O2 Academy Brixton and rendered named, dated forthcoming events (e.g. Capleton Sun 20 Sep 2026; Jill Scott Mon 28 Sep 2026; Tyla Thu 15 Oct 2026); listings on the other AMG slugs are client-rendered and were not individually opened in this pass.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Academy_Music_Group",
+          "note": "AMG venue table lists O2 Academy Liverpool 1,200 and O2 Academy2 Liverpool 500."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list gives a conflicting 1,750 total / 1,250 Academy 1."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mountford Hall",
+      "alternative_names": [],
+      "parent_complex": "Liverpool Guild of Students",
+      "operator": "Liverpool Guild of Students",
+      "city": "Liverpool",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 2300,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main hall, standing",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "University students’ union hall operating as a public national-touring concert venue.",
+      "no_public_calendar_reason": "No calendar recorded: liverpoolguild.org venue-hire and Mountford Hall paths all returned HTTP 404 in this pass.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates Mountford Hall, Liverpool, 2,300."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Liverpool_Guild_of_Students",
+          "note": "Confirms the Guild of Students building houses a theatre and event spaces after a £14.25m refurbishment. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Parr Hall",
+      "alternative_names": [
+        "Pyramid and Parr Hall"
+      ],
+      "parent_complex": null,
+      "operator": "Culture Warrington",
+      "city": "Warrington",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Capacity not proven. The Wikipedia article carries no capacity figure, the venue is not tabulated in the Wikipedia UK venues list, and pyramidparrhall.com returned HTTP 403 (and resolved to an unrelated domain) while warrington.gov.uk/parr-hall returned HTTP 404 in this pass.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "Warrington’s principal civic concert hall, commonly cited around 1,200 capacity; no figure recorded here because none was fetched.",
+      "no_public_calendar_reason": "No calendar recorded: no working first-party listing URL resolved in this pass.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Parr_Hall",
+          "note": "Confirms the venue exists as a Warrington concert hall; no capacity stated. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Sands Centre",
+      "alternative_names": [
+        "Sands Centre Carlisle"
+      ],
+      "parent_complex": null,
+      "operator": "GLL (Better)",
+      "city": "Carlisle",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.thesandscentre.co.uk/",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Capacity not proven. No first-party page stating a capacity figure was reachable in this pass (/venue-hire and /about both redirect to the Better box-office listing, which carries no capacity), and the venue is not tabulated in the Wikipedia UK venues list.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "Carlisle’s principal multi-purpose civic entertainment and sports venue, rebuilt and reopened 2022.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://betterboxoffice.co.uk/the-sands-centre",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (Ballroom & Commercial Dance Sunday 6 June 2027; Opera Sunday 7 March 2027; Musical Theatre Mon 24 – Sat 29 May 2027). Shared GLL/Better box-office platform at https://betterboxoffice.co.uk/<venue-slug>.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://betterboxoffice.co.uk/the-sands-centre",
+          "note": "Operator box-office listing for The Sands Centre with named dated events; reached by following the official thesandscentre.co.uk redirect."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Royal Shakespeare Theatre",
+      "alternative_names": [
+        "RST"
+      ],
+      "parent_complex": "Royal Shakespeare Company, Stratford-upon-Avon",
+      "operator": "Royal Shakespeare Company",
+      "city": "Stratford-upon-Avon",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.rsc.org.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Royal Shakespeare Theatre main house, thrust-stage auditorium; the Swan Theatre (469) and The Other Place are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 469,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "Swan Theatre, thrust stage",
+          "capacity_source": "https://en.wikipedia.org/wiki/Royal_Shakespeare_Company"
+        }
+      ],
+      "scale_description": "Rebuilt 2007–2010 as a thrust-stage auditorium; the pre-1932/pre-2010 proscenium house seated about 1,400.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.rsc.org.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming productions listed (21 September 2026, 23 October 2026, 28 November 2026, 3 January 2027 ...). Shared RSC platform covering the Royal Shakespeare Theatre, Swan Theatre and RSC London transfers.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates Royal Shakespeare Theatre, Stratford-upon-Avon, 1,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Royal_Shakespeare_Company",
+          "note": "Gives the Swan Theatre at capacity 469 and confirms the Stratford theatre estate. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Royal_Shakespeare_Theatre",
+          "note": "Confirms the pre-rebuild proscenium house seated about 1,400 on three tiers. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.rsc.org.uk/whats-on/",
+          "note": "Official what's-on listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Salisbury City Hall",
+      "alternative_names": [
+        "City Hall, Salisbury"
+      ],
+      "parent_complex": null,
+      "operator": "Wiltshire Council",
+      "city": "Salisbury",
+      "nation": "England",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1255,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main hall, standing; 1,355 in mixed configuration and 953 fully seated, the latter below the census threshold",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 953,
+          "capacity_type": "SEATED",
+          "capacity_configuration": "main hall, fully seated",
+          "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw"
+        }
+      ],
+      "scale_description": "Admitted on its standing/mixed configuration; its fully seated configuration is below 1,000.",
+      "no_public_calendar_reason": "No first-party what's-on listing was fetched for this venue in this pass, so none is asserted.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates \"City Hall, Salisbury, 1,255 standing; 1,355 mixed; 953 seated\"."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Pavilion Theatre",
+      "alternative_names": [
+        "Glasgow Pavilion",
+        "The Pavilion, Glasgow"
+      ],
+      "parent_complex": null,
+      "operator": "Trafalgar Entertainment",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": "125 Renfield Street",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.paviliontheatre.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1449,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "main auditorium, proscenium, all seated",
+        "capacity_source": "https://en.wikipedia.org/wiki/Pavilion_Theatre,_Glasgow",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "1904 Bertie Crewe music hall; Glasgow’s principal independent commercial variety theatre.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://trafalgartickets.com/pavilion-theatre-glasgow/en-GB",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": false,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; named dated forthcoming events listed (Mon 21 Sep 2026, Wed 23 Sep 2026, Thu 24 Sep 2026, Sat 26 Sep 2026 ...). Trafalgar Entertainment shared ticketing platform. Member venues publish at the pattern https://trafalgartickets.com/<venue-slug>/en-GB (optionally /whats-on).",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Pavilion_Theatre,_Glasgow",
+          "note": "Infobox gives capacity 1,449; address 125 Renfield Street; opened 1904; designed by Bertie Crewe. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Trafalgar_Entertainment",
+          "note": "Trafalgar Entertainment venue table lists The Pavilion, Glasgow, 1,449."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://trafalgartickets.com/pavilion-theatre-glasgow/en-GB",
+          "note": "Operator listing with named dated events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Glasgow City Halls",
+      "alternative_names": [
+        "City Halls",
+        "City Halls and Old Fruitmarket",
+        "Old Fruitmarket"
+      ],
+      "parent_complex": null,
+      "operator": "Glasgow Life",
+      "city": "Glasgow",
+      "nation": "Scotland",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.glasgowlife.org.uk/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1066,
+        "capacity_type": "SEATED",
+        "capacity_configuration": "Grand Hall (main \"shoebox\" auditorium), all seated; the Old Fruitmarket and Recital Room are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/Glasgow_City_Halls",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [
+        {
+          "capacity_value": 2000,
+          "capacity_type": "OTHER_EXPLICIT",
+          "capacity_configuration": "Old Fruitmarket, flexible capacity 1,000–2,000",
+          "capacity_source": "https://en.wikipedia.org/wiki/Glasgow_City_Halls"
+        }
+      ],
+      "scale_description": "Home of the BBC Scottish Symphony Orchestra. The Old Fruitmarket is a separate flexible hall within the same complex.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.glasgowlife.org.uk/whats-on/glasgow-life-tickets",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; Glasgow Life ticketing listing carrying dated forthcoming events (17 October 2026, 18 October 2026). Shared municipal platform covering the Glasgow Life venue estate including City Halls, the Old Fruitmarket and Glasgow Royal Concert Hall.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Glasgow_City_Halls",
+          "note": "Article states the Grand Hall is a traditional shoebox hall \"seating 1066 in total\", home of the BBC SSO; Old Fruitmarket \"flexible capacity of 1000-2000\"; Recital Room around 100. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates The Old Fruitmarket, Glasgow, 2,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.glasgowlife.org.uk/whats-on/glasgow-life-tickets",
+          "note": "Glasgow Life public ticketing listing (HTTP 200) with dated forthcoming events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Leith Theatre",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "Leith Theatre Trust",
+      "city": "Edinburgh",
+      "nation": "Scotland",
+      "address": "28-30 Ferry Road",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.leiththeatre.co.uk/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1500,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "main auditorium",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "1932 civic hall owned by City of Edinburgh Council, reactivated by the Leith Theatre Trust and used for Edinburgh International Festival and Hidden Door programming.",
+      "no_public_calendar_reason": "No calendar recorded: https://www.leiththeatre.co.uk/about and leiththeatretrust.org/whats-on returned HTTP 404 in this pass. The homepage (HTTP 200) carries news items rather than a dated listing.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates Leith Theatre, Edinburgh, 1,500."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Leith_Theatre",
+          "note": "Confirms address 28-30 Ferry Road and owner City of Edinburgh Council. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.leiththeatre.co.uk/",
+          "note": "Official site (HTTP 200); news item states \"This August, 1,500 people filled Leith Theatre\" for a Trainspotting 30th-anniversary event, independently corroborating the 1,500 figure."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Beach Ballroom",
+      "alternative_names": [
+        "Aberdeen Beach Ballroom"
+      ],
+      "parent_complex": null,
+      "operator": "Aberdeen City Council",
+      "city": "Aberdeen",
+      "nation": "Scotland",
+      "address": "Beach Promenade",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.aberdeencity.gov.uk/beach-ballroom",
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Main Ballroom only; the Star Ballroom (150), Northern Lights Room (100) and Promenade Room (50) are separate rooms",
+        "capacity_source": "https://en.wikipedia.org/wiki/Beach_Ballroom",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "1929 art deco seafront ballroom owned and operated by Aberdeen City Council.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.aberdeencity.gov.uk/beach-ballroom",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official council venue page fetched (HTTP 200) but returned only a thin shell (approx. 2.5 KB) with no named dated forthcoming events readable.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Beach_Ballroom",
+          "note": "Infobox gives \"1,000 (Main Ballroom) / 150 (Star Ballroom) / 100 (Northern Lights Room) / 50 (Promenade Room)\"; owner and operator Aberdeen City Council; opened 1929. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Albert Halls",
+      "alternative_names": [
+        "Albert Halls Stirling",
+        "Stirling Albert Halls"
+      ],
+      "parent_complex": null,
+      "operator": "Stirling Council (Stirling Events)",
+      "city": "Stirling",
+      "nation": "Scotland",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://stirlingevents.org/albert-halls/",
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Capacity not proven. No first-party page stating a capacity figure was reachable in this pass, the venue has no Wikipedia capacity infobox, and it is not tabulated in the Wikipedia UK venues list.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "Stirling’s principal civic concert hall, commonly cited around 1,000 capacity. Included for national coverage; capacity must be verified before it can be admitted on the >= 1,000 threshold.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://stirlingevents.org/albert-halls/",
+          "source_type": "PUBLIC_SHOWS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; the venue page carries an \"Upcoming Events THE ALBERT HALLS\" block with named dated events (e.g. \"Stirling Mini Melodies, Friday 21st August 2026 – Friday 9th October 2026\"). Shared Stirling Events platform also covering the Tolbooth.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://stirlingevents.org/albert-halls/",
+          "note": "Official Stirling Events venue page with named dated forthcoming events; no capacity figure stated."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Paisley Town Hall",
+      "alternative_names": [],
+      "parent_complex": null,
+      "operator": "OneRen (Renfrewshire Leisure)",
+      "city": "Paisley",
+      "nation": "Scotland",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "CONCERT_HALL",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Capacity not proven. The Wikipedia article carries no capacity figure, the venue is not tabulated in the Wikipedia UK venues list, and onerenevents.com / renfrewshire.gov.uk paths returned connection failures or HTTP 403 in this pass.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "Renfrewshire’s principal civic hall, reopened 2023 after major refurbishment; commonly cited above 1,000 capacity. Included for national coverage; capacity unproven.",
+      "no_public_calendar_reason": "No calendar recorded: no working first-party listing URL resolved in this pass.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Paisley_Town_Hall",
+          "note": "Confirms identity and location, Paisley, Renfrewshire. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Great Hall, Cardiff University Students' Union",
+      "alternative_names": [
+        "Cardiff University Great Hall",
+        "CUSU Great Hall",
+        "Y Plas"
+      ],
+      "parent_complex": "Cardiff University Students' Union",
+      "operator": "Cardiff University Students' Union",
+      "city": "Cardiff",
+      "nation": "Wales",
+      "address": "Park Place",
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1600,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "Great Hall, standing",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Cardiff’s principal mid-size public concert hall inside the university students’ union.",
+      "no_public_calendar_reason": "No calendar recorded: cardiffstudents.com Great Hall paths returned HTTP 404 in this pass; the reachable page (/our-venues/venue-hire/) is a hire page, not an event calendar.",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates \"Cardiff University Students’ Union Great Hall, Cardiff, 1,600\"."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/wiki/Cardiff_University_Students'_Union",
+          "note": "Confirms the Students’ Union is at Park Place, Cardiff. Article content retrieved in this pass via the MediaWiki revisions API (action=query&prop=revisions&rvslots=main) in batches of up to 20 titles, not as an individual page request."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.cardiffstudents.com/our-venues/venue-hire/",
+          "note": "Official venue-hire page reachable (HTTP 200); no capacity figure or event listing readable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Tramshed",
+      "alternative_names": [
+        "Tramshed Cardiff"
+      ],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Cardiff",
+      "nation": "Wales",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://www.tramshedcardiff.com/",
+      "venue_type": "AUDITORIUM",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1000,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main hall, standing",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Converted 1902 tram depot in Grangetown; Cardiff’s main independent mid-size live-music venue. Sits exactly on the 1,000 threshold.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://www.tramshedcardiff.com/",
+          "source_type": "CONCERTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": true,
+          "notes": "Fetched in this pass; homepage carries named dated forthcoming events (e.g. \"Clearwater Creedence Revival, Friday 26th November 2027\"; \"Cover Girl: Tribute Festival, Saturday 15th May\") with Live Music / Club Nights filters.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates Tramshed, Cardiff, 1,000."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://www.tramshedcardiff.com/",
+          "note": "Official site with named dated forthcoming events."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rhyl Pavilion Theatre",
+      "alternative_names": [
+        "Pafiliwn y Rhyl",
+        "Rhyl Pavilion"
+      ],
+      "parent_complex": null,
+      "operator": "Denbighshire County Council",
+      "city": "Rhyl",
+      "nation": "Wales",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": "https://rhylpavilion.co.uk/",
+      "venue_type": "THEATRE",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": null,
+        "capacity_type": "OTHER_EXPLICIT",
+        "capacity_configuration": "Capacity not proven. The venue is not tabulated in the Wikipedia UK venues list, has no Wikipedia article with a capacity infobox, and the official seating-plan and venue-hire pages carried no readable capacity figure (and /venue-hire/ returned HTTP 404) in this pass.",
+        "capacity_source": null,
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "CAPACITY_REVIEW_REQUIRED"
+      },
+      "additional_capacities": [],
+      "scale_description": "North Wales’ principal coastal receiving house, commonly cited around 1,000 seats. Included for national coverage; capacity unproven.",
+      "no_public_calendar_reason": null,
+      "calendar_sources": [
+        {
+          "source_url": "https://rhylpavilion.co.uk/whats-on/",
+          "source_type": "PERFORMING_ARTS",
+          "sport": null,
+          "first_party": true,
+          "publicly_accessible": true,
+          "events_currently_present": false,
+          "notes": "Official what's-on page fetched (HTTP 200, bilingual English/Cymraeg); listing is client-rendered and no named dated forthcoming event could be read from the fetched HTML.",
+          "last_checked": "2026-09-20"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://rhylpavilion.co.uk/whats-on/",
+          "note": "Official what's-on page exists (HTTP 200)."
+        },
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://rhylpavilion.co.uk/your-visit/seating-plan/",
+          "note": "Official seating-plan page reachable (HTTP 200); plan is served as an image/PDF with no capacity figure in the HTML."
+        }
+      ]
+    },
+    {
+      "canonical_name": "The Telegraph Building",
+      "alternative_names": [
+        "Telegraph Building Belfast"
+      ],
+      "parent_complex": null,
+      "operator": null,
+      "city": "Belfast",
+      "nation": "Northern Ireland",
+      "address": null,
+      "postcode": null,
+      "latitude": null,
+      "longitude": null,
+      "official_url": null,
+      "venue_type": "MULTI_PURPOSE_EVENT_COMPLEX",
+      "operational_status": "OPERATIONAL",
+      "capacity": {
+        "capacity_value": 1200,
+        "capacity_type": "STANDING",
+        "capacity_configuration": "main event space, standing",
+        "capacity_source": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+        "capacity_source_authority": "GRADE_C",
+        "capacity_observed_at": "2026-09-20",
+        "capacity_confidence": "MEDIUM"
+      },
+      "additional_capacities": [],
+      "scale_description": "Converted former Belfast Telegraph printworks; Belfast’s largest non-arena standing live-music space.",
+      "no_public_calendar_reason": "No calendar recorded: thetelegraphbuilding.com did not resolve in this pass (connection failure).",
+      "calendar_sources": [],
+      "evidence": [
+        {
+          "kind": "FETCHED_URL",
+          "value": "https://en.wikipedia.org/w/index.php?title=List_of_venues_in_the_United_Kingdom&action=raw",
+          "note": "Wikipedia UK venues list tabulates The Telegraph Building, Belfast, 1,200."
+        }
+      ]
+    }
+  ]
+}

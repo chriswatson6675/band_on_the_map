@@ -1,0 +1,144 @@
+REUSABLE PLATFORM ESTATES — VERIFICATION EVIDENCE
+uk-major-event-census-01 / Completeness-02 (Phase 16)
+Recorded 2026-09-20. Retained evidence, not a scratchpad note.
+
+Purpose: the Census-01 report named a "44-stadium white-label football
+platform" as the single largest reusable acquisition opportunity. That
+figure came from a research pass's own report. Phase 16 requires it to be
+RE-VERIFIED rather than repeated. This file records what was independently
+checked and what it actually showed.
+
+--------------------------------------------------------------------------
+1. THE "gc" WHITE-LABEL FOOTBALL PLATFORM
+--------------------------------------------------------------------------
+
+DERIVED FROM THE CENSUS (deterministic, recomputed from
+calendar-sources.json — not taken from any agent's report):
+
+  calendar sources whose URL matches the `/matches` pattern ....... 64
+  of those, fingerprinted EMBEDDED_NUXT_STATE ..................... 47
+  distinct VENUES behind those 47 sources ......................... 47
+  distinct DOMAINS behind those 47 sources ........................ 46
+  acquisition_readiness of all 47 ................ TIER2_REUSABLE_FAMILY
+
+CORRECTION TO THE CENSUS-01 REPORT: the estate is 47 venues, not 44. The
+earlier figure understated it.
+
+IMPORTANT CAVEAT — the URL pattern alone is NOT sufficient. Of the 64
+sources matching `/matches`, 17 are NOT on this platform:
+  EMBEDDED_NEXT_DATA 7, CLIENT_RENDERED_UNKNOWN 4,
+  OTHER_EMBEDDED_APP_STATE 3, MICRODATA 2, ACCESS_BLOCKED 1.
+Any collector must key off the platform's own markers, not the path.
+
+LIVE VERIFICATION (bounded sample of 4, fetched 2026-09-20):
+
+  HTTP  domain                        nuxt  VUE_APP_CLUB_ID      opta  gc
+  200   accringtonstanley.co.uk       yes   accringtonstanleyfc  yes   yes
+  200   barnsleyfc.co.uk              yes   barnsleyfc           yes   yes
+  200   tranmererovers.co.uk          yes   tranmereroversfc     yes   yes
+  200   blackpoolfc.co.uk             yes   blackpoolfc          yes   yes
+
+All four served a Nuxt hydration payload, a per-club `VUE_APP_CLUB_ID`
+slug, and references to both Opta and the gc platform. The estate is
+genuinely consistent: one implementation keyed on the shared platform
+markers plausibly covers all 47.
+
+NOT VERIFIED, and therefore NOT claimed: the public Opta JSON endpoint
+shape reported by the earlier pass
+(`matches.football.web.gc.<club>services.<tld>/v2/opta?...`) was NOT
+exercised in this package. Only the 4 HTML pages above were fetched. That
+endpoint remains an unverified lead, not an established fact.
+
+NO COLLECTOR WAS BUILT. Phase 20 of this package forbids it.
+
+--------------------------------------------------------------------------
+2. WHY THIS MATTERS FOR TIER-2 COUNTS
+--------------------------------------------------------------------------
+
+These 47 sources sit inside TIER2_REUSABLE_FAMILY, which the Census-01
+report correctly flagged as an UPPER BOUND rather than a count. Phase 15
+of this package re-checks every TIER2-contributing source against its
+family's own structural claim and conservatively downgrades the ones the
+live page does not support — see `source-family-audit.json`.
+
+The EMBEDDED_NUXT_STATE family is verified by the presence of a
+`window.__NUXT__` / `__NUXT_DATA__` payload, which all four sampled
+members demonstrably have, so this particular estate is expected to
+survive that audit. The audit result, not this expectation, is the
+authority.
+
+==========================================================================
+COMPLETENESS-03 RE-VERIFICATION (Phases 13-14), 2026-09-20
+==========================================================================
+
+--------------------------------------------------------------------------
+THE "gc" FOOTBALL ESTATE — RE-VERIFIED, UNCHANGED AT 47
+--------------------------------------------------------------------------
+
+Recomputed deterministically from the final calendar-sources.json:
+
+  sources matching /matches AND fingerprinted EMBEDDED_NUXT_STATE ..... 47
+  distinct VENUES ..................................................... 47
+  distinct DOMAINS .................................................... 46
+  acquisition_readiness ............... TIER2_REUSABLE_FAMILY, all 47
+  source-family audit verdict ......... CONFIRMED, all 47 (0% false positive)
+
+PHASE 13 ASKED WHETHER ONE DOMAIN REPRESENTS MORE THAN ONE VENUE. It does,
+exactly once: evertonfc.com serves TWO census venues (Everton's former and
+current grounds). A collector keyed on domain alone would therefore
+mis-attribute; it must key on the venue, not the club domain.
+
+No club was found to have migrated off the platform. The estate is stable
+between Completeness-02 and Completeness-03.
+
+Still NOT verified and still not claimed: the public Opta JSON endpoint.
+It was not exercised in this package either. Phase 13 explicitly forbids
+aggressive probing of undocumented endpoints, and the reuse case does not
+depend on it — the Nuxt payload is already present and confirmed.
+
+--------------------------------------------------------------------------
+OTHER LARGE ESTATES — census-level consistency
+--------------------------------------------------------------------------
+
+Computed by host from the final census, with the audited source family:
+
+  host                      venues  sources  source-family consistency
+  --------------------------------------------------------------------
+  "gc" football platform        47       47  EMBEDDED_NUXT_STATE  (uniform)
+  atgtickets.com                28       28  EMBEDDED_NEXT_DATA   (uniform)
+  academymusicgroup.com         18       18  EMBEDDED_NEXT_DATA   (uniform)
+  thejockeyclub.co.uk           14       20  MIXED — JSON_LD_EVENT,
+                                             STATIC_HTML_CARDS,
+                                             CLIENT_RENDERED_UNKNOWN
+  highlandfootballleague.com    13       13  CLIENT_RENDERED_UNKNOWN
+  champrugby.com                10       10  ACCESS_BLOCKED
+  fixtures.scottishrugby.org    10       10  CLIENT_RENDERED_UNKNOWN
+  my.wru.wales                  10       10  CLIENT_RENDERED_UNKNOWN
+  trafalgartickets.com           9        9  EMBEDDED_NEXT_DATA   (uniform)
+  glasgowlife.org.uk             6        6  MIXED
+  lwtheatres.co.uk               5        5  ACCESS_BLOCKED
+  delfontmackintosh.co.uk        5        5  STATIC_HTML_CARDS    (uniform)
+
+READ THIS CAREFULLY BEFORE PLANNING ACQUISITION:
+
+- UNIFORM family means one implementation plausibly covers the estate.
+  That applies to gc (47), ATG (28), AMG (18), Trafalgar (9) and Delfont
+  Mackintosh (5) — 107 venues across five implementations.
+
+- The Jockey Club estate is NOT uniform: 14 venues across 20 sources
+  spanning three different families. One adapter will not cover it.
+
+- champrugby.com (10) and lwtheatres.co.uk (5) fingerprint ACCESS_BLOCKED.
+  They are blocked to a plain fetch, not absent. A previous pass reported
+  both render normally in a browser, so these are a browser-capability
+  question, not a data-availability one.
+
+- The three shared league platforms (Highland League, Scottish Rugby, WRU)
+  total 33 venues but all fingerprint CLIENT_RENDERED_UNKNOWN, and a
+  previous pass noted the WRU and Scottish Rugby list views show no venue
+  name. Venue attribution, not fetching, is the hard part there.
+
+ARC racecourses do NOT appear in this host table because the ARC platform
+uses per-course domains (<course>-racecourse.co.uk) rather than one shared
+host. The shared-pattern claim stands, but it is a URL-pattern estate
+rather than a single-host estate, and any collector must treat it as such.
