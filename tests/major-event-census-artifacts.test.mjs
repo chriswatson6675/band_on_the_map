@@ -84,6 +84,66 @@ test("every venue carries provenance evidence — nothing is in the census witho
   assert.deepEqual(offenders, []);
 });
 
+test("the census summary is not STALE — every headline it publishes matches the artifacts it describes", async () => {
+  // The defect this guards: census-summary.json is written by a separate
+  // `summarise` step. When a later compile changed the artifacts, the
+  // summary silently kept the previous numbers — it reported 988 calendar
+  // sources while calendar-sources.json held 989, and that stale 988 was
+  // then carried into a freeze report as fact.
+  //
+  // A summary that disagrees with the artifacts it summarises is worse
+  // than no summary, because it reads like corroboration.
+  const summary = await readJson("census-summary.json");
+
+  assert.equal(summary.totals.venues, venues.length, "summary venue total must match venues.json");
+  assert.equal(summary.calendars.total, calendars.length, "summary calendar total must match calendar-sources.json");
+
+  const venuesWithCalendar = new Set(calendars.map((source) => source.venue_census_id)).size;
+  assert.equal(summary.totals.venues_with_any_calendar, venuesWithCalendar);
+  assert.equal(summary.totals.venues_without_any_calendar, venues.length - venuesWithCalendar);
+
+  const byNation = {};
+  for (const venue of venues) byNation[venue.nation] = (byNation[venue.nation] ?? 0) + 1;
+  assert.deepEqual(summary.totals.by_nation, byNation, "summary nation split must match the venue records");
+
+  assert.equal(summary.totals.identity_review, venues.filter((venue) => venue.identity_review).length);
+});
+
+test("the acquisition-ready population reconciles exactly, and 'verified' is never reported as 'population'", async () => {
+  // The defect this guards: a report stated READY_TIER1 as 43 sources in
+  // one table and 42 in another. 43 is the POPULATION; 42 was the count
+  // the family audit CONFIRMED. One source (Mallory Park, HTTP 500) is
+  // unreachable, so it is unverified — but unreachable is not disproof,
+  // so it correctly keeps its readiness. The two numbers measure different
+  // things and must never be presented interchangeably.
+  const audit = await readJson("source-family-audit.json");
+  const verdictById = new Map(audit.verdicts.map((verdict) => [verdict.calendar_source_id, verdict.verdict]));
+
+  const readyTier1 = calendars.filter((source) => source.acquisition_readiness === "READY_TIER1");
+  const byFamily = {};
+  for (const source of readyTier1) byFamily[source.source_family] = (byFamily[source.source_family] ?? 0) + 1;
+
+  // The population is the sum of its families — no unexplained remainder.
+  assert.equal(
+    Object.values(byFamily).reduce((total, count) => total + count, 0),
+    readyTier1.length,
+    `READY_TIER1 families must sum to the population: ${JSON.stringify(byFamily)}`,
+  );
+
+  // Every READY_TIER1 source must route through an existing zero-code
+  // collector — that is what the tier claims.
+  for (const source of readyTier1) {
+    assert.equal(source.collector_route, "EXISTING_COLLECTOR_ZERO_CODE", `${source.source_url} is READY_TIER1 but does not route to an existing collector`);
+  }
+
+  // Every one must have been audited, and none may be a failed claim.
+  for (const source of readyTier1) {
+    const verdict = verdictById.get(source.calendar_source_id);
+    assert.ok(verdict, `READY_TIER1 source was never audited: ${source.source_url}`);
+    assert.notEqual(verdict, "NOT_CONFIRMED", `a source whose family claim failed must not stay READY_TIER1: ${source.source_url}`);
+  }
+});
+
 test("SAFETY: the census artifacts contain no production registry mutation and no admitted/published state", async () => {
   // The census must never carry production-shaped admission fields.
   const forbiddenFields = ["active_status", "lifecycle_status", "published_at", "admitted_at", "source_registry_id"];
