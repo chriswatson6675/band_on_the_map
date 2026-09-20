@@ -125,7 +125,13 @@ test("SAFETY: attribution touched no production registry or public map data", as
 });
 
 test("SAFETY: the acquisition dataset on disk is unchanged by this package", async () => {
+  // Scoped to the dataset this package actually consumes. It previously
+  // watched the whole research/major-event-acquisition/ parent, which
+  // also fired when a LATER, unrelated acquisition package added its own
+  // sibling dataset there — an event that says nothing about whether
+  // these Observations were rewritten. The assertion below is the one
+  // this test was always making.
   const { execSync } = await import("node:child_process");
-  const status = execSync("git status --porcelain research/major-event-acquisition", { cwd: ROOT, encoding: "utf8" });
+  const status = execSync("git status --porcelain research/major-event-acquisition/uk-tier1-01", { cwd: ROOT, encoding: "utf8" });
   assert.equal(status.trim(), "", `source Observations are evidence and must not be rewritten:\n${status}`);
 });
