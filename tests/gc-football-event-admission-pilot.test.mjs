@@ -380,14 +380,31 @@ test("a third run still changes nothing", async (t) => {
 /* THE COMMITTED PILOT STATE                                         */
 /* ---------------------------------------------------------------- */
 
-test("the committed Event state is exactly the pilot, and validates", async () => {
+/**
+ * The pilot's own ten, identified by the policy that admitted them.
+ *
+ * These assertions used to read the WHOLE Event state, which was the same
+ * thing while the pilot was all there was. The full future admission
+ * (FOOTBALL_SCHEDULED_FIXTURE_ADMISSION_V1) added thousands more, so the
+ * pilot's invariants are now scoped to the pilot's own rows - every one
+ * of which must still hold exactly as it did on the day it shipped.
+ */
+async function pilotEvents(state) {
+  const pilotIds = new Set(
+    state.mappings.filter((m) => m.method === PILOT_POLICY && m.lifecycle === "ACTIVE").map((m) => m.event_id),
+  );
+  return state.events.filter((e) => pilotIds.has(e.event_id));
+}
+
+test("the committed pilot Events are intact, and the whole state validates", async () => {
   const state = await readValidatedState();
   assert.deepEqual(validateState(state), []);
-  assert.equal(state.events.length, 10);
-  assert.equal(state.mappings.length, 10);
-  assert.equal(state.scheduleHistory.length, 10);
 
-  for (const event of state.events) {
+  const pilot = await pilotEvents(state);
+  assert.equal(pilot.length, 10, "the pilot's ten Events must still be present");
+  assert.equal(state.mappings.filter((m) => m.method === PILOT_POLICY).length, 10);
+
+  for (const event of pilot) {
     assert.match(event.event_id, EVENT_ID_PATTERN);
     assert.equal(event.event_category, "SPORT");
     assert.equal(event.event_type, "FOOTBALL_FIXTURE");
@@ -400,8 +417,8 @@ test("the committed Event state is exactly the pilot, and validates", async () =
     assert.equal(event.end.certainty, "UNKNOWN", "no match duration was invented");
   }
 
-  assert.equal(state.events.filter((e) => e.venue_id !== null).length, 5);
-  assert.equal(state.events.filter((e) => e.venue_id === null).length, 5);
+  assert.equal(pilot.filter((e) => e.venue_id !== null).length, 5);
+  assert.equal(pilot.filter((e) => e.venue_id === null).length, 5);
 });
 
 test("every committed Event id is opaque and leaks no source identifier", async () => {
@@ -415,7 +432,8 @@ test("every committed Event id is opaque and leaks no source identifier", async 
     const mapping = byEvent.get(event.event_id);
     const id = event.event_id.toLowerCase();
     assert.equal(id.includes("dof1"), false);
-    assert.equal(id.includes(mapping.fingerprint.toLowerCase()), false);
+    // A single-source mapping legitimately has no fingerprint.
+    if (mapping.fingerprint) assert.equal(id.includes(mapping.fingerprint.toLowerCase()), false);
     if (event.venue_id) assert.equal(id.includes(event.venue_id.toLowerCase()), false);
     assert.equal(id.includes(event.start.iso.replace(/\D/g, "")), false);
     for (const ref of mapping.observations) {
@@ -426,12 +444,22 @@ test("every committed Event id is opaque and leaks no source identifier", async 
 
 test("every committed Event uses the generic foundation's mapping and schedule", async () => {
   const state = await readValidatedState();
+  const pilot = new Set((await pilotEvents(state)).map((e) => e.event_id));
+
   for (const event of state.events) {
     const mappings = state.mappings.filter((m) => m.event_id === event.event_id && m.lifecycle === "ACTIVE");
     assert.equal(mappings.length, 1);
-    assert.equal(mappings[0].basis_kind, "PROVIDER_FINGERPRINT");
-    assert.equal(mappings[0].method, PILOT_POLICY);
-    assert.ok(mappings[0].observations.length >= 2);
+
+    if (pilot.has(event.event_id)) {
+      // The pilot admitted only cross-publisher, fingerprint-backed
+      // occurrences, and that remains true of its own ten.
+      assert.equal(mappings[0].basis_kind, "PROVIDER_FINGERPRINT");
+      assert.equal(mappings[0].method, PILOT_POLICY);
+      assert.ok(mappings[0].observations.length >= 2);
+    } else {
+      assert.ok(["PROVIDER_FINGERPRINT", "SINGLE_OBSERVATION"].includes(mappings[0].basis_kind));
+      assert.ok(mappings[0].observations.length >= 1);
+    }
 
     const current = state.scheduleHistory.filter((a) => a.event_id === event.event_id && a.lifecycle === "CURRENT");
     assert.equal(current.length, 1);
@@ -502,10 +530,15 @@ test("admission-result.json admitted[] is exactly events/event-state.json events
   const mappingByEvent = new Map(state.mappings.map((m) => [m.event_id, m]));
   const eventById = new Map(state.events.map((e) => [e.event_id, e]));
 
+  // The guarantee is unchanged in spirit: a report must never cite an
+  // Event population the committed artifact does not contain. Its SCOPE
+  // is the pilot's own result artifact, which describes the pilot's ten -
+  // not the whole estate, which later packages legitimately grew.
+  const pilot = await pilotEvents(state);
   assert.deepEqual(
     result.admitted.map((a) => a.event_id).sort(),
-    state.events.map((e) => e.event_id).sort(),
-    "a future report must never again be able to cite a different Event population than the committed result artifact",
+    pilot.map((e) => e.event_id).sort(),
+    "the pilot result artifact must describe exactly the pilot's committed Events",
   );
 
   for (const row of result.admitted) {
