@@ -2,8 +2,11 @@
 // and schedule-history tests.
 //
 // Every admission here runs against a THROWAWAY registry root under the
-// OS temp directory. Nothing in this file touches the repository's own
-// events/*.json, which must stay empty — a control asserted at the end.
+// OS temp directory. Nothing in this file writes the repository's own
+// events/event-state.json; it is read once, at the end, only to assert
+// that whatever has been admitted into it is internally consistent.
+// (That control used to assert the file was EMPTY, which held until the
+// football admission pilot admitted real Events into it.)
 
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -1064,18 +1067,41 @@ test("a PROVIDER_FINGERPRINT mapping with exactly one Observation is structurall
 /* THE REPOSITORY'S OWN REGISTRIES STAY EMPTY                        */
 /* ---------------------------------------------------------------- */
 
-test("the repository's production Event state is empty and valid", async () => {
+test("the repository's production Event state is internally consistent", async () => {
+  // This assertion used to be "is empty", which was true while the
+  // foundation shipped with nothing admitted. The football admission
+  // pilot deliberately admits real Events, so emptiness is no longer the
+  // invariant - internal consistency is, and it holds at any size.
   const state = await readState({ root: REPO_ROOT });
-  assert.equal(state.events.length, 0, "no Event has been admitted by this package");
-  assert.equal(state.mappings.length, 0);
-  assert.equal(state.scheduleHistory.length, 0);
-  assert.deepEqual(validateState(state), [], "an empty state must validate");
+  assert.deepEqual(validateState(state), [], "the shipped state must validate");
 
   // The fail-closed load path must also accept the shipped file, not just
   // the loose readState() shape used above.
   await assert.doesNotReject(() => readValidatedState({ root: REPO_ROOT }));
 
-  const raw = await readFile(resolve(REPO_ROOT, EVENT_STATE_PATH), "utf8");
-  assert.equal(raw.includes("event-"), false, `${EVENT_STATE_PATH} must contain no Event id`);
-  assert.equal(raw.includes("dof1-"), false, `${EVENT_STATE_PATH} must contain no fingerprint`);
+  // Every Event is reachable from evidence and has exactly one current
+  // schedule; every mapping and assertion belongs to a real Event.
+  const eventIds = new Set(state.events.map((event) => event.event_id));
+  assert.equal(eventIds.size, state.events.length, "duplicate event_id in shipped state");
+
+  for (const mapping of state.mappings) {
+    assert.ok(eventIds.has(mapping.event_id), `mapping references unknown Event ${mapping.event_id}`);
+  }
+  for (const eventId of eventIds) {
+    const current = state.scheduleHistory.filter(
+      (assertion) => assertion.event_id === eventId && assertion.lifecycle === "CURRENT",
+    );
+    assert.equal(current.length, 1, `Event ${eventId} must have exactly one CURRENT schedule`);
+    assert.ok(
+      state.mappings.some((mapping) => mapping.event_id === eventId && mapping.lifecycle === "ACTIVE"),
+      `Event ${eventId} must have active evidence`,
+    );
+  }
+
+  // A fingerprint may appear as EVIDENCE in a mapping, but never inside an
+  // Event identity - rule 6, checked against the shipped file itself.
+  for (const event of state.events) {
+    assert.match(event.event_id, /^event-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    assert.equal(event.event_id.includes("dof1"), false);
+  }
 });
