@@ -1,0 +1,111 @@
+{
+  "artifact_type": "UK_GC_FOOTBALL_CANONICAL_EVENT_IDENTITY_SUMMARY",
+  "run_id": "uk-gc-football-01",
+  "derived_at": "2026-09-21T00:00:00.000Z",
+  "provenance": {
+    "reconciled_fixtures": "research/major-event-reconciliation/uk-gc-football-01/reconciled-fixtures.json",
+    "single_source": "research/major-event-reconciliation/uk-gc-football-01/single-source.json",
+    "upstream_source_observations": "research/major-event-acquisition/uk-gc-football-01/observations.json",
+    "upstream_venue_attributions": "research/major-event-attribution/uk-gc-football-01/attributions.json",
+    "identity_anchor": "provider namespace + platform_match_id + normalized kickoff instant — and nothing else",
+    "identity_inputs": [
+      "identity_version",
+      "provider_namespace",
+      "provider_event_key",
+      "occurrence_instant_utc"
+    ],
+    "identity_deliberately_excluded": [
+      "participant names and spellings",
+      "competition name and spelling",
+      "source venue text",
+      "governed venue id",
+      "venue evidence state",
+      "source count",
+      "publisher count",
+      "publisher domains",
+      "source urls",
+      "member count and member ordering",
+      "evidence class",
+      "home/away labels",
+      "research and generation timestamps"
+    ],
+    "creates_canonical_event_identity": true,
+    "publishes_events": false,
+    "mutates_upstream_artifacts": false,
+    "note": "A canonical event states that several reconciled source Observations are observations of ONE underlying occurrence, and gives that occurrence a stable id. It resolves no club identity, no competition identity and no naming vocabulary, and nothing here is published: the lifecycle on every record is DERIVED_GOVERNED_IDENTITY_NOT_PUBLISHED."
+  },
+  "identity_contract": {
+    "identity_scheme": "CANONICAL_OCCURRENCE_ANCHOR_V1",
+    "identity_version": "cev1",
+    "provider_namespace": "GC_FOOTBALL",
+    "event_type": "FOOTBALL_FIXTURE",
+    "id_format": "cev1-<provider slug>-<instant stamp>-<96-bit sha256 digest of the anchor>",
+    "stable_under": [
+      "a later source observation joining the group",
+      "improved or corrected venue attribution",
+      "a corrected team or competition spelling",
+      "a future canonicalisation of club or competition vocabulary",
+      "changed publisher evidence",
+      "any reordering of members"
+    ]
+  },
+  "accounting": {
+    "reconciled_groups_in": 898,
+    "canonical_event_identities_established": 898,
+    "canonical_identity_withheld": 0,
+    "groups_accounted_for": 898,
+    "distinct_canonical_event_ids": 898,
+    "single_source_match_ids_out_of_scope": 3239,
+    "canonical_identities_created_for_single_source": 0
+  },
+  "by_canonical_state": {
+    "CANONICAL_EVENT_ESTABLISHED": 898,
+    "CANONICAL_IDENTITY_WITHHELD": 0
+  },
+  "withheld_by_reason": {},
+  "evidence_classes": {
+    "CROSS_PUBLISHER_CORROBORATED": 674,
+    "SAME_PUBLISHER_MULTI_SOURCE": 224,
+    "total": 898,
+    "note": "Only the cross-publisher events are independently corroborated. The same-publisher events are one club's own calendar publishing a fixture twice; collapsing them is still correct, but they are NOT independent corroboration and must never be counted as such."
+  },
+  "venue": {
+    "with_governed_venue": 420,
+    "without_governed_venue": 478,
+    "by_venue_evidence_state": {
+      "NO_MEMBER_RESOLVED": 478,
+      "AGREED_BY_ALL_RESOLVED_MEMBERS": 420
+    },
+    "distinct_governed_venues": 56,
+    "venue_is_part_of_identity": false,
+    "note": "Venue is enrichment. An event whose venue is unresolved still has a safe occurrence identity, and resolving it later moves no id."
+  },
+  "participants_and_competition": {
+    "groups_with_multiple_home_team_spellings": 20,
+    "groups_with_multiple_away_team_spellings": 21,
+    "groups_with_multiple_competition_labels": 15,
+    "groups_with_multiple_source_venue_texts": 3,
+    "canonical_club_identities_introduced": 0,
+    "canonical_competition_identities_introduced": 0,
+    "note": "Every spelling is retained verbatim with its publishing member. This package chooses no canonical spelling and builds no club or competition registry."
+  },
+  "temporal": {
+    "future_events": 719,
+    "past_events": 179,
+    "unknown": 0
+  },
+  "multiplicity_distribution": {
+    "2_sources": 844,
+    "3_sources": 51,
+    "4_sources": 3
+  },
+  "production_impact": {
+    "source_observations_modified": 0,
+    "reconciliation_artifacts_modified": 0,
+    "production_events_created": 0,
+    "production_venues_modified": 0,
+    "production_sources_modified": 0,
+    "public_events_published": 0,
+    "deployment": "NONE"
+  }
+}
