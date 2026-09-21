@@ -106,10 +106,18 @@ test("a valid reconciled group derives an occurrence fingerprint", () => {
   assert.equal(event.lifecycle_state, LIFECYCLE_STATE);
   assert.equal(event.lifecycle_state, "DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY");
 
-  // And it claims no application entity identity of any kind.
-  assert.equal(event.application_canonical_event_id, null);
-  assert.equal(event.application_entity_state, "NOT_ADMITTED_TO_CANONICAL_EVENT");
-  assert.equal("canonical_event_id" in event, false);
+  // And it says NOTHING about downstream Event admission - not that it
+  // is admitted, and not that it is unadmitted. A record must carry no
+  // field whose truth depends on what events/event-state.json currently
+  // contains, or this reproducible evidence would go stale the moment an
+  // Event is admitted for it.
+  for (const field of Object.keys(event)) {
+    assert.equal(
+      /(^|_)event_id$|canonical_event|application_entity|admitted|admission/i.test(field),
+      false,
+      `${field} states downstream Event state inside evidence`,
+    );
+  }
 });
 
 test("the anchor on the record contains only the identity inputs", () => {

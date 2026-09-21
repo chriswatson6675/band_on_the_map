@@ -519,19 +519,26 @@ test("every record declares it is a derived anchor, not a published production e
 /*                                                                   */
 /* docs/ARCHITECTURE.md rule 6 forbids a source-specific identifier  */
 /* from becoming the application's canonical identity scheme, and    */
-/* rule 7 requires an Event id to be application-issued and minted   */
-/* once at a governed admission step. Event is now generic, so a     */
-/* football fixture IS eligible to be an Event - but eligibility is  */
-/* not admission, and this layer admits nothing.                     */
+/* rule 7 puts Event identity downstream, at a governed admission    */
+/* step. This layer is evidence on the UPSTREAM side of that line:   */
+/* it neither mints an Event nor reports whether one exists. The     */
+/* linkage lives in events/event-state.json only.                    */
 /* ---------------------------------------------------------------- */
 
-test("no record carries an application canonical event id, and the reason is stated", () => {
+test("no record states downstream Event admission, in either direction", () => {
+  const DOWNSTREAM = /(^|_)event_id$|canonical_event|application_entity|admitted|admission/i;
   for (const event of fingerprints) {
-    assert.equal(event.application_canonical_event_id, null);
-    assert.equal(event.application_entity_state, "NOT_ADMITTED_TO_CANONICAL_EVENT");
+    for (const field of Object.keys(event)) {
+      assert.equal(DOWNSTREAM.test(field), false, `${field} states downstream Event state`);
+    }
   }
-  assert.equal(summary.accounting.application_canonical_event_ids_created, 0);
-  assert.equal(summary.accounting.beatmapped_event_entities_created, 0);
+
+  // Nor does the accounting, which describes this corpus and must not
+  // answer "how many are admitted" - a question about a different file
+  // whose answer changes without any evidence changing.
+  for (const field of Object.keys(summary.accounting)) {
+    assert.equal(DOWNSTREAM.test(field), false, `accounting.${field} states downstream Event state`);
+  }
 });
 
 test("no artifact field is named canonical_event_id, the repository's forbidden identity field", () => {
@@ -558,7 +565,9 @@ test("the summary states plainly that it establishes no application identity and
   assert.equal(summary.provenance.creates_beatmapped_event_entity, false);
   assert.equal(summary.provenance.is_source_provider_dependent, true);
   assert.match(summary.provenance.architecture_note, /rule 6/);
-  assert.match(summary.provenance.architecture_note, /eligibility is not admission/);
+  assert.match(summary.provenance.architecture_note, /no record here states whether a canonical Event has been admitted/);
+  assert.equal(summary.provenance.reads_event_state, false);
+  assert.equal(summary.provenance.event_linkage_source_of_truth, "events/event-state.json -> event_occurrence_mappings");
 });
 
 test("the fingerprint value never advertises itself as a canonical event id", () => {
