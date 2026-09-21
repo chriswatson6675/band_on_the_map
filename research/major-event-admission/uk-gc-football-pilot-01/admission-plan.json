@@ -1,0 +1,805 @@
+{
+  "artifact_type": "UK_GC_FOOTBALL_EVENT_ADMISSION_PLAN",
+  "run_id": "uk-gc-football-pilot-01",
+  "policy": "FOOTBALL_CROSS_PUBLISHER_FINGERPRINT_PILOT_V1",
+  "policy_note": "PILOT policy, not permanent football admission policy. The >= 7 day buffer exists so a human can review these Events before any of them occurs; it is not a generic Event rule. Whether same-publisher or single-source football may ever be admitted remains undecided.",
+  "pilot_as_of": "2026-09-21T13:30:22.000Z",
+  "admission_cutoff_utc": "2026-09-28T13:30:22.000Z",
+  "max_events": 10,
+  "inputs": {
+    "occurrence_fingerprints": "research/major-event-occurrence-fingerprints/uk-gc-football-01/occurrence-fingerprints.json",
+    "reconciled_fixtures": "research/major-event-reconciliation/uk-gc-football-01/reconciled-fixtures.json",
+    "source_observations": "research/major-event-acquisition/uk-gc-football-01/observations.json"
+  },
+  "eligibility_criteria": [
+    "fingerprint_state = OCCURRENCE_FINGERPRINT_ESTABLISHED",
+    "evidence_class = CROSS_PUBLISHER_CORROBORATED",
+    "occurrence_type = FOOTBALL_FIXTURE",
+    "occurrence_fingerprint present and non-empty",
+    "occurrence_instant_utc present and valid",
+    "at least two retained source Observation refs",
+    "publisher_domain_count > 1",
+    "reconciliation_state = RECONCILED_MULTI_SOURCE (no upstream factual conflict)",
+    "venue_evidence_state is not CONFLICTING_RESOLVED_VENUES",
+    "no retained evidence says the fixture is cancelled, postponed or otherwise not scheduled",
+    "occurrence_instant_utc >= pilot_as_of + 7 days"
+  ],
+  "deterministic_sort": "occurrence_instant_utc ascending, then occurrence_fingerprint ascending",
+  "selection_note": "No hand-picking, no club preference, no geography balancing, and nothing derived from a team name. Reserves are the next five in the same deterministic order within the same stratum.",
+  "counts": {
+    "corpus": 898,
+    "eligible": 527,
+    "excluded": 371,
+    "primary_selected": 10,
+    "reserves_available": 10
+  },
+  "excluded_by_reason": {
+    "NOT_CROSS_PUBLISHER_CORROBORATED": 224,
+    "NOT_AT_LEAST_SEVEN_DAYS_FUTURE": 147
+  },
+  "strata": {
+    "WITH_GOVERNED_VENUE": {
+      "eligible_count": 252,
+      "requested": 5,
+      "shortfall": 0,
+      "primary": [
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-42a3d208f3702ed05e7b71bb",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2648458-20261003T140000Z",
+          "platform_match_id": "g2648458",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "ntfc.co.uk",
+            "oldhamathletic.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-northampton-sixfields-stadium--www-ntfc-co-uk-matches",
+              "source_record_id": "g2648458"
+            },
+            {
+              "source_id": "ukmec-england-oldham-boundary-park--www-oldhamathletic-co-uk-matches",
+              "source_record_id": "g2648458"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-northampton-sixfields-stadium",
+          "governed_venue_name": "Sixfields Stadium",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Northampton Town"
+            ],
+            "away_team_variants": [
+              "Oldham Athletic"
+            ],
+            "competition_variants": [
+              "English Football League - League Two"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-42ca8c80ea9a253045e2cd22",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647898-20261003T140000Z",
+          "platform_match_id": "g2647898",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "afcwimbledon.co.uk",
+            "stevenagefc.com"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-stevenage-broadhall-way--www-stevenagefc-com-matches",
+              "source_record_id": "g2647898"
+            },
+            {
+              "source_id": "ukmec-england-wimbledon-london-plough-lane--www-afcwimbledon-co-uk-matches",
+              "source_record_id": "g2647898"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-wimbledon-london-plough-lane",
+          "governed_venue_name": "Plough Lane",
+          "review_only_variants": {
+            "home_team_variants": [
+              "AFC Wimbledon"
+            ],
+            "away_team_variants": [
+              "Stevenage"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-d9a54d4226755d6563978ad5",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647909-20261003T140000Z",
+          "platform_match_id": "g2647909",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "mansfieldtown.net",
+            "wiganathletic.com"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-mansfield-field-mill--www-mansfieldtown-net-matches",
+              "source_record_id": "g2647909"
+            },
+            {
+              "source_id": "ukmec-england-wigan-brick-community-stadium--wiganathletic-com-matches",
+              "source_record_id": "g2647909"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-wigan-brick-community-stadium",
+          "governed_venue_name": "Brick Community Stadium",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Wigan Athletic"
+            ],
+            "away_team_variants": [
+              "Mansfield Town"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-fc2d378d44f31851d2ee87a6",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647904-20261003T140000Z",
+          "platform_match_id": "g2647904",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "doncasterroversfc.co.uk",
+            "lutontown.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-doncaster-club-doncaster-sports-village--www-doncasterroversfc-co-uk-fixtures",
+              "source_record_id": "g2647904"
+            },
+            {
+              "source_id": "ukmec-england-luton-kenilworth-road--www-lutontown-co-uk-matches",
+              "source_record_id": "g2647904"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-luton-kenilworth-road",
+          "governed_venue_name": "Kenilworth Road",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Luton Town"
+            ],
+            "away_team_variants": [
+              "Doncaster Rovers"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261006T180000Z-c3af0ecaa168eb68cc82eb31",
+          "occurrence_instant_utc": "2026-10-06T18:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2682325-20261006T180000Z",
+          "platform_match_id": "g2682325",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "blackpoolfc.co.uk",
+            "crewealex.net"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-blackpool-bloomfield-road--www-blackpoolfc-co-uk-matches",
+              "source_record_id": "g2682325"
+            },
+            {
+              "source_id": "ukmec-england-crewe-gresty-road--www-crewealex-net-matches",
+              "source_record_id": "g2682325"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-blackpool-bloomfield-road",
+          "governed_venue_name": "Bloomfield Road",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Blackpool"
+            ],
+            "away_team_variants": [
+              "Crewe Alexandra"
+            ],
+            "competition_variants": [
+              "English Football League Trophy"
+            ]
+          }
+        }
+      ],
+      "reserves": [
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261010T113000Z-700f05defe78416433187187",
+          "occurrence_instant_utc": "2026-10-10T11:30:00.000Z",
+          "reconciliation_group_id": "gcf-g2648467-20261010T113000Z",
+          "platform_match_id": "g2648467",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "accringtonstanley.co.uk",
+            "oldhamathletic.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-accrington-crown-ground--www-accringtonstanley-co-uk-matches",
+              "source_record_id": "g2648467"
+            },
+            {
+              "source_id": "ukmec-england-oldham-boundary-park--www-oldhamathletic-co-uk-matches",
+              "source_record_id": "g2648467"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-oldham-boundary-park",
+          "governed_venue_name": "Boundary Park",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Oldham Athletic"
+            ],
+            "away_team_variants": [
+              "Accrington Stanley"
+            ],
+            "competition_variants": [
+              "English Football League - League Two"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261010T140000Z-1e23121a467b7e0f49fa014b",
+          "occurrence_instant_utc": "2026-10-10T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647912-20261010T140000Z",
+          "platform_match_id": "g2647912",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "burtonalbionfc.co.uk",
+            "doncasterroversfc.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-burton-upon-trent-pirelli-stadium--www-burtonalbionfc-co-uk-matches",
+              "source_record_id": "g2647912"
+            },
+            {
+              "source_id": "ukmec-england-doncaster-club-doncaster-sports-village--www-doncasterroversfc-co-uk-fixtures",
+              "source_record_id": "g2647912"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-doncaster-club-doncaster-sports-village",
+          "governed_venue_name": "Club Doncaster Sports Village",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Doncaster Rovers"
+            ],
+            "away_team_variants": [
+              "Burton Albion"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261010T140000Z-83cbdd8cceb8e5068ef75db5",
+          "occurrence_instant_utc": "2026-10-10T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647920-20261010T140000Z",
+          "platform_match_id": "g2647920",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "barnsleyfc.co.uk",
+            "stockportcounty.com"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-barnsley-oakwell--www-barnsleyfc-co-uk-matches",
+              "source_record_id": "g2647920"
+            },
+            {
+              "source_id": "ukmec-england-edgeley-stockport-edgeley-park--www-stockportcounty-com-matches",
+              "source_record_id": "g2647920"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-edgeley-stockport-edgeley-park",
+          "governed_venue_name": "Edgeley Park",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Stockport County"
+            ],
+            "away_team_variants": [
+              "Barnsley"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261010T140000Z-d0110009bbdf5d4017b2e86f",
+          "occurrence_instant_utc": "2026-10-10T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647351-20261010T140000Z",
+          "platform_match_id": "g2647351",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "millwallfc.co.uk",
+            "pnefc.net"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-bermondsey-london-the-den--www-millwallfc-co-uk-matches",
+              "source_record_id": "g2647351"
+            },
+            {
+              "source_id": "ukmec-england-preston-deepdale--www-pnefc-net-matches",
+              "source_record_id": "g2647351"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-preston-deepdale",
+          "governed_venue_name": "Deepdale",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Preston North End"
+            ],
+            "away_team_variants": [
+              "Millwall"
+            ],
+            "competition_variants": [
+              "English Football League - Championship"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261010T140000Z-da530d5ab890541b34a5b8e5",
+          "occurrence_instant_utc": "2026-10-10T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647921-20261010T140000Z",
+          "platform_match_id": "g2647921",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "lutontown.co.uk",
+            "wwfc.com"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-high-wycombe-adams-park--www-wwfc-com-matches",
+              "source_record_id": "g2647921"
+            },
+            {
+              "source_id": "ukmec-england-luton-kenilworth-road--www-lutontown-co-uk-matches",
+              "source_record_id": "g2647921"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "AGREED_BY_ALL_RESOLVED_MEMBERS",
+          "governed_venue_census_id": "ukmec-england-high-wycombe-adams-park",
+          "governed_venue_name": "Adams Park",
+          "review_only_variants": {
+            "home_team_variants": [
+              "Wycombe Wanderers"
+            ],
+            "away_team_variants": [
+              "Luton Town"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        }
+      ]
+    },
+    "WITHOUT_GOVERNED_VENUE": {
+      "eligible_count": 275,
+      "requested": 5,
+      "shortfall": 0,
+      "primary": [
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20260929T100000Z-9018a05e2157b1c57f62134e",
+          "occurrence_instant_utc": "2026-09-29T10:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2680421-20260929T100000Z",
+          "platform_match_id": "g2680421",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "burtonalbionfc.co.uk",
+            "nottscountyfc.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-burton-upon-trent-pirelli-stadium--www-burtonalbionfc-co-uk-matches",
+              "source_record_id": "g2680421"
+            },
+            {
+              "source_id": "ukmec-england-nottingham-meadow-lane--www-nottscountyfc-co-uk-matches",
+              "source_record_id": "g2680421"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Burton Albion U18"
+            ],
+            "away_team_variants": [
+              "Notts County U18"
+            ],
+            "competition_variants": [
+              "English Football League Youth Alliance"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T100000Z-007e53db1d08f3e915b42f31",
+          "occurrence_instant_utc": "2026-10-03T10:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2680830-20261003T100000Z",
+          "platform_match_id": "g2680830",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "ntfc.co.uk",
+            "swindontownfc.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-northampton-sixfields-stadium--www-ntfc-co-uk-matches",
+              "source_record_id": "g2680830"
+            },
+            {
+              "source_id": "ukmec-england-swindon-county-ground--www-swindontownfc-co-uk-matches",
+              "source_record_id": "g2680830"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Northampton Town U18"
+            ],
+            "away_team_variants": [
+              "Swindon Town U18"
+            ],
+            "competition_variants": [
+              "English Football League Youth Alliance"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T100000Z-65e95179b5dead78420526fd",
+          "occurrence_instant_utc": "2026-10-03T10:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2680825-20261003T100000Z",
+          "platform_match_id": "g2680825",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "afcwimbledon.co.uk",
+            "wwfc.com"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-high-wycombe-adams-park--www-wwfc-com-matches",
+              "source_record_id": "g2680825"
+            },
+            {
+              "source_id": "ukmec-england-wimbledon-london-plough-lane--www-afcwimbledon-co-uk-matches",
+              "source_record_id": "g2680825"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "AFC Wimbledon U18"
+            ],
+            "away_team_variants": [
+              "Wycombe Wanderers U18"
+            ],
+            "competition_variants": [
+              "English Football League Youth Alliance"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T100000Z-81fada69c1bde37d6c9b7850",
+          "occurrence_instant_utc": "2026-10-03T10:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2680464-20261003T100000Z",
+          "platform_match_id": "g2680464",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "mansfieldtown.net",
+            "saddlers.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-bescot-walsall-bescot-stadium--www-saddlers-co-uk-matches",
+              "source_record_id": "g2680464"
+            },
+            {
+              "source_id": "ukmec-england-mansfield-field-mill--www-mansfieldtown-net-matches",
+              "source_record_id": "g2680464"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Mansfield Town U18"
+            ],
+            "away_team_variants": [
+              "Walsall U18"
+            ],
+            "competition_variants": [
+              "English Football League Youth Alliance"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T100000Z-d0edeb71feb361e419946b01",
+          "occurrence_instant_utc": "2026-10-03T10:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2680465-20261003T100000Z",
+          "platform_match_id": "g2680465",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "nottscountyfc.co.uk",
+            "pnefc.net"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-nottingham-meadow-lane--www-nottscountyfc-co-uk-matches",
+              "source_record_id": "g2680465"
+            },
+            {
+              "source_id": "ukmec-england-preston-deepdale--www-pnefc-net-matches",
+              "source_record_id": "g2680465"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Notts County U18"
+            ],
+            "away_team_variants": [
+              "Preston North End U18",
+              "Preston North End U19"
+            ],
+            "competition_variants": [
+              "English Football League Youth Alliance"
+            ]
+          }
+        }
+      ],
+      "reserves": [
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T103000Z-5dda636091124d940d139a9a",
+          "occurrence_instant_utc": "2026-10-03T10:30:00.000Z",
+          "reconciliation_group_id": "gcf-g2678735-20261003T103000Z",
+          "platform_match_id": "g2678735",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "ccfc.co.uk",
+            "qpr.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-coventry-coventry-building-society-arena--www-ccfc-co-uk-matches-fixtures",
+              "source_record_id": "g2678735"
+            },
+            {
+              "source_id": "ukmec-england-white-city-london-loftus-road--www-qpr-co-uk-matches",
+              "source_record_id": "g2678735"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "QPR U18",
+              "Queens Park Rangers U18"
+            ],
+            "away_team_variants": [
+              "Coventry City U18"
+            ],
+            "competition_variants": [
+              "English U18 Professional Development League"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-735ef6ce6aabd8ae43dde56d",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2647907-20261003T140000Z",
+          "platform_match_id": "g2647907",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "bradfordcityafc.com",
+            "readingfc.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-bradford-valley-parade--www-bradfordcityafc-com-matches",
+              "source_record_id": "g2647907"
+            },
+            {
+              "source_id": "ukmec-england-reading-madejski-stadium--www-readingfc-co-uk-matches",
+              "source_record_id": "g2647907"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Reading"
+            ],
+            "away_team_variants": [
+              "Bradford City"
+            ],
+            "competition_variants": [
+              "English Football League - League One"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-91b8d3d3ba1f1a2130769f62",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2648450-20261003T140000Z",
+          "platform_match_id": "g2648450",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "accringtonstanley.co.uk",
+            "ctfc.com"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-accrington-crown-ground--www-accringtonstanley-co-uk-matches",
+              "source_record_id": "g2648450"
+            },
+            {
+              "source_id": "ukmec-england-cheltenham-whaddon-road--www-ctfc-com-matches",
+              "source_record_id": "g2648450"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Accrington Stanley"
+            ],
+            "away_team_variants": [
+              "Cheltenham Town"
+            ],
+            "competition_variants": [
+              "English Football League - League Two"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261003T140000Z-a608bdc35f8fa6da7c47d3fb",
+          "occurrence_instant_utc": "2026-10-03T14:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2648461-20261003T140000Z",
+          "platform_match_id": "g2648461",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "crawleytownfc.com",
+            "saddlers.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-bescot-walsall-bescot-stadium--www-saddlers-co-uk-matches",
+              "source_record_id": "g2648461"
+            },
+            {
+              "source_id": "ukmec-england-crawley-broadfield-stadium--www-crawleytownfc-com-matches",
+              "source_record_id": "g2648461"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "Walsall"
+            ],
+            "away_team_variants": [
+              "Crawley Town"
+            ],
+            "competition_variants": [
+              "English Football League - League Two"
+            ]
+          }
+        },
+        {
+          "occurrence_fingerprint": "dof1-gc-football-20261006T120000Z-36f92255c5b4a3f45affcd11",
+          "occurrence_instant_utc": "2026-10-06T12:00:00.000Z",
+          "reconciliation_group_id": "gcf-g2678612-20261006T120000Z",
+          "platform_match_id": "g2678612",
+          "evidence_class": "CROSS_PUBLISHER_CORROBORATED",
+          "publisher_domains": [
+            "ccfc.co.uk",
+            "qpr.co.uk"
+          ],
+          "publisher_domain_count": 2,
+          "source_observations": [
+            {
+              "source_id": "ukmec-england-coventry-coventry-building-society-arena--www-ccfc-co-uk-matches-fixtures",
+              "source_record_id": "g2678612"
+            },
+            {
+              "source_id": "ukmec-england-white-city-london-loftus-road--www-qpr-co-uk-matches",
+              "source_record_id": "g2678612"
+            }
+          ],
+          "source_observation_count": 2,
+          "venue_evidence_state": "NO_MEMBER_RESOLVED",
+          "governed_venue_census_id": null,
+          "governed_venue_name": null,
+          "review_only_variants": {
+            "home_team_variants": [
+              "QPR Dev Squad",
+              "Queens Park Rangers U21"
+            ],
+            "away_team_variants": [
+              "Coventry City U21"
+            ],
+            "competition_variants": [
+              "English Professional Development League"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "creates_event_identity": false,
+  "note": "A plan proposes admissions. It mints no Event id and writes no Event state; execution does that, through ingestion/event/admission.mjs only."
+}
