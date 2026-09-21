@@ -108,7 +108,7 @@ test("a valid reconciled group derives an occurrence fingerprint", () => {
 
   // And it claims no application entity identity of any kind.
   assert.equal(event.application_canonical_event_id, null);
-  assert.equal(event.application_entity_state, "NOT_ADMITTED_NO_GOVERNED_ENTITY_FOR_NON_MUSIC_OCCURRENCE");
+  assert.equal(event.application_entity_state, "NOT_ADMITTED_TO_CANONICAL_EVENT");
   assert.equal("canonical_event_id" in event, false);
 });
 
