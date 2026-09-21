@@ -52,12 +52,21 @@ export const OCCURRENCE_TYPE = "FOOTBALL_FIXTURE";
 export const LIFECYCLE_STATE = "DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY";
 
 /**
- * Why no application entity id is present. There is no governed entity
- * in this repository a non-music occurrence could be admitted to, so the
- * slot stays null with the reason stated rather than being quietly
- * omitted.
+ * Why no application entity id is present.
+ *
+ * This state used to say a non-music occurrence had no governed entity to
+ * be admitted to. That premise is now false twice over:
+ * docs/ARCHITECTURE.md defines Event generically, and a football fixture
+ * is a peer Event of a gig rather than something the model excludes.
+ *
+ * The honest reason is simply that these records are EVIDENCE that has
+ * not been admitted. Admission is a separate, governed act
+ * (ingestion/event/admission.mjs) performed by a package that has decided
+ * the evidence is sufficient — a decision this layer does not make and
+ * this repository has not yet taken for any football fixture. So the slot
+ * stays null with that reason stated rather than being quietly omitted.
  */
-export const APPLICATION_ENTITY_STATE = "NOT_ADMITTED_NO_GOVERNED_ENTITY_FOR_NON_MUSIC_OCCURRENCE";
+export const APPLICATION_ENTITY_STATE = "NOT_ADMITTED_TO_CANONICAL_EVENT";
 
 /**
  * How a fingerprinted occurrence is supported by its sources. A FACT about where

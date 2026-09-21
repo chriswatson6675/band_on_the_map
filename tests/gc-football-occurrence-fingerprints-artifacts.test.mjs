@@ -519,14 +519,16 @@ test("every record declares it is a derived anchor, not a published production e
 /*                                                                   */
 /* docs/ARCHITECTURE.md rule 6 forbids a source-specific identifier  */
 /* from becoming the application's canonical identity scheme, and    */
-/* defines an Event as a canonical LIVE MUSIC occurrence. A football */
-/* fixture is neither, so this layer must claim neither.             */
+/* rule 7 requires an Event id to be application-issued and minted   */
+/* once at a governed admission step. Event is now generic, so a     */
+/* football fixture IS eligible to be an Event - but eligibility is  */
+/* not admission, and this layer admits nothing.                     */
 /* ---------------------------------------------------------------- */
 
 test("no record carries an application canonical event id, and the reason is stated", () => {
   for (const event of fingerprints) {
     assert.equal(event.application_canonical_event_id, null);
-    assert.equal(event.application_entity_state, "NOT_ADMITTED_NO_GOVERNED_ENTITY_FOR_NON_MUSIC_OCCURRENCE");
+    assert.equal(event.application_entity_state, "NOT_ADMITTED_TO_CANONICAL_EVENT");
   }
   assert.equal(summary.accounting.application_canonical_event_ids_created, 0);
   assert.equal(summary.accounting.beatmapped_event_entities_created, 0);
@@ -556,7 +558,7 @@ test("the summary states plainly that it establishes no application identity and
   assert.equal(summary.provenance.creates_beatmapped_event_entity, false);
   assert.equal(summary.provenance.is_source_provider_dependent, true);
   assert.match(summary.provenance.architecture_note, /rule 6/);
-  assert.match(summary.provenance.architecture_note, /LIVE MUSIC/);
+  assert.match(summary.provenance.architecture_note, /eligibility is not admission/);
 });
 
 test("the fingerprint value never advertises itself as a canonical event id", () => {
