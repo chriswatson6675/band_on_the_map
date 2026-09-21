@@ -1,12 +1,26 @@
-// BEATMAPPED-UK-GC-FOOTBALL-CANONICAL-EVENT-IDENTITY-01 — the football
-// adapter onto the generic canonical occurrence identity core.
+// BEATMAPPED-UK-GC-FOOTBALL-CANONICAL-IDENTITY-ARCHITECTURE-CONFORMANCE-01
+// — the football adapter onto the generic derived occurrence fingerprint
+// core.
 //
-// This is the ONLY football-aware part of the canonical identity layer.
-// It translates one reconciled fixture group into the domain-neutral
-// anchor the core understands, decides eligibility, and assembles the
-// derived canonical event record. The core
-// (ingestion/canonical-event-identity/contract.mjs) never learns what a
-// fixture, a club or a competition is.
+// This is the ONLY football-aware part of the fingerprint layer. It
+// translates one reconciled fixture group into the domain-neutral anchor
+// the core understands, decides eligibility, and assembles the derived
+// occurrence record. The core
+// (ingestion/derived-occurrence-fingerprint/contract.mjs) never learns
+// what a fixture, a club or a competition is.
+//
+// NO BEATMAPPED EVENT IS CREATED HERE.
+//
+// docs/ARCHITECTURE.md defines an Event as "a canonical live music
+// occurrence, such as a gig or festival". A football fixture is not a
+// live music occurrence, and this repository defines no MajorEvent,
+// Occurrence or sports sibling entity to admit one into — there is no
+// Supabase schema, no events table, and no governed admission step
+// anywhere. So every record below carries
+// application_canonical_event_id: null, deliberately and permanently
+// within this package. Widening the Event entity, or creating a sibling
+// for non-music occurrences, is a governed architecture decision this
+// package does not have and must not pre-empt.
 //
 // IDENTITY AND ENRICHMENT ARE SEPARATE.
 //
@@ -18,27 +32,35 @@
 // is the property that makes the identity usable by a later package.
 
 import {
-  IDENTITY_SCHEME,
-  IDENTITY_VERSION,
-  mintCanonicalEventIdentity,
+  FINGERPRINT_SCHEME,
+  FINGERPRINT_VERSION,
+  deriveOccurrenceFingerprint,
   normaliseOccurrenceInstant,
-} from "../canonical-event-identity/contract.mjs";
+} from "../derived-occurrence-fingerprint/contract.mjs";
 
 /** The provider namespace these fixtures were acquired from. */
 export const PROVIDER_NAMESPACE = "GC_FOOTBALL";
 
 /** What kind of occurrence a record in this layer describes. */
-export const EVENT_TYPE = "FOOTBALL_FIXTURE";
+export const OCCURRENCE_TYPE = "FOOTBALL_FIXTURE";
 
 /**
- * This layer is derived governed identity. It is not a production Event
- * store and nothing here is published; the lifecycle says so on every
- * record so the distinction cannot be lost downstream.
+ * This layer is a derived evidence anchor. It is not an entity, not a
+ * production Event store, and nothing here is published; the lifecycle
+ * says so on every record so the distinction cannot be lost downstream.
  */
-export const LIFECYCLE_STATE = "DERIVED_GOVERNED_IDENTITY_NOT_PUBLISHED";
+export const LIFECYCLE_STATE = "DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY";
 
 /**
- * How a canonical event is supported by its sources. A FACT about where
+ * Why no application entity id is present. There is no governed entity
+ * in this repository a non-music occurrence could be admitted to, so the
+ * slot stays null with the reason stated rather than being quietly
+ * omitted.
+ */
+export const APPLICATION_ENTITY_STATE = "NOT_ADMITTED_NO_GOVERNED_ENTITY_FOR_NON_MUSIC_OCCURRENCE";
+
+/**
+ * How a fingerprinted occurrence is supported by its sources. A FACT about where
  * the corroborating records came from — NOT a score, not a ranking, and
  * never an input to identity.
  *
@@ -56,24 +78,24 @@ export const EVIDENCE_CLASSES = new Set([
 ]);
 
 /**
- * Why a reconciled group received no canonical identity. Every group
- * ends at exactly one canonical state — established, or withheld with
- * one of these reasons. Nothing is dropped silently.
+ * Why a reconciled group received no fingerprint. Every group ends at
+ * exactly one fingerprint state — established, or withheld with one of
+ * these reasons. Nothing is dropped silently.
  */
 export const WITHHELD_REASONS = new Set([
   "NOT_RECONCILED_MULTI_SOURCE",
   "INSUFFICIENT_SOURCE_MULTIPLICITY",
   "MISSING_PLATFORM_MATCH_ID",
   "MISSING_OR_INVALID_KICKOFF",
-  "CANONICAL_IDENTITY_CONFLICT_MATCH_ID_KICKOFF",
-  "CANONICAL_IDENTITY_CONFLICT_RESOLVED_VENUE",
+  "FINGERPRINT_CONFLICT_MATCH_ID_KICKOFF",
+  "FINGERPRINT_CONFLICT_RESOLVED_VENUE",
   "UPSTREAM_FACTUAL_CONFLICT",
 ]);
 
 /** Every group ends at exactly one of these. */
-export const CANONICAL_STATES = new Set([
-  "CANONICAL_EVENT_ESTABLISHED",
-  "CANONICAL_IDENTITY_WITHHELD",
+export const FINGERPRINT_STATES = new Set([
+  "OCCURRENCE_FINGERPRINT_ESTABLISHED",
+  "OCCURRENCE_FINGERPRINT_WITHHELD",
 ]);
 
 /** Refusal causes the core can report, mapped to this domain's vocabulary. */
@@ -82,11 +104,11 @@ const CAUSE_TO_REASON = {
   MISSING_PROVIDER_NAMESPACE: "MISSING_PLATFORM_MATCH_ID",
   MISSING_OCCURRENCE_INSTANT: "MISSING_OR_INVALID_KICKOFF",
   INVALID_OCCURRENCE_INSTANT: "MISSING_OR_INVALID_KICKOFF",
-  CONFLICTING_OCCURRENCE_INSTANTS: "CANONICAL_IDENTITY_CONFLICT_MATCH_ID_KICKOFF",
+  CONFLICTING_OCCURRENCE_INSTANTS: "FINGERPRINT_CONFLICT_MATCH_ID_KICKOFF",
 };
 
 const withheld = (group, reason, detail = null) => ({
-  canonical_state: "CANONICAL_IDENTITY_WITHHELD",
+  fingerprint_state: "OCCURRENCE_FINGERPRINT_WITHHELD",
   reconciliation_group_id: group.reconciliation_group_id ?? null,
   platform_match_id: group.platform_match_id ?? null,
   withheld_reason: reason,
@@ -109,7 +131,7 @@ export function evidenceClass(group) {
 }
 
 /**
- * Is this reconciled group eligible for canonical occurrence identity?
+ * Is this reconciled group eligible for a derived occurrence fingerprint?
  *
  * Eligibility is deliberately narrow. A single-source fixture is not
  * eligible in this package — one calendar asserting a fixture is not the
@@ -134,7 +156,7 @@ export function eligibility(group) {
   // happened. This layer does not pick a winner, and it will not assert
   // one occurrence over an unresolved factual contradiction.
   if (group.venue_evidence_state === "CONFLICTING_RESOLVED_VENUES") {
-    return { eligible: false, reason: "CANONICAL_IDENTITY_CONFLICT_RESOLVED_VENUE" };
+    return { eligible: false, reason: "FINGERPRINT_CONFLICT_RESOLVED_VENUE" };
   }
   return { eligible: true };
 }
@@ -151,18 +173,18 @@ function occurrenceInstants(group) {
 }
 
 /**
- * Turn one reconciled fixture group into a canonical event record, or
- * withhold identity with a stated reason.
+ * Turn one reconciled fixture group into a derived occurrence record, or
+ * withhold a fingerprint with a stated reason.
  *
  * Pure: it reads the group and returns a new object. The input group is
  * never mutated, and nothing outside this function's return value is
  * touched.
  */
-export function canonicaliseGroup(group) {
+export function fingerprintGroup(group) {
   const eligible = eligibility(group);
   if (!eligible.eligible) return withheld(group, eligible.reason);
 
-  const minted = mintCanonicalEventIdentity({
+  const minted = deriveOccurrenceFingerprint({
     providerNamespace: PROVIDER_NAMESPACE,
     providerEventKey: group.platform_match_id,
     occurrenceInstants: occurrenceInstants(group),
@@ -178,14 +200,23 @@ export function canonicaliseGroup(group) {
   const hasVenue = group.venue_evidence_state === "AGREED_BY_ALL_RESOLVED_MEMBERS" && group.reconciled_venue_census_id != null;
 
   return {
-    canonical_state: "CANONICAL_EVENT_ESTABLISHED",
+    fingerprint_state: "OCCURRENCE_FINGERPRINT_ESTABLISHED",
 
-    /* ---- identity: derived from the anchor, and from nothing else ---- */
-    canonical_event_id: minted.canonical_event_id,
-    event_type: EVENT_TYPE,
-    identity_scheme: minted.identity_scheme,
-    identity_version: minted.identity_version,
-    identity_anchor: minted.anchor,
+    /* ---- fingerprint: derived from the anchor, and nothing else ----
+     *
+     * This is a provider-scoped evidence anchor, NOT the application's
+     * canonical entity id. The application slot below stays null: no
+     * governed entity exists for a non-music occurrence to be admitted
+     * to, and inventing one here would be exactly the claim rule 6 and
+     * the Event definition forbid.
+     */
+    occurrence_fingerprint: minted.occurrence_fingerprint,
+    application_canonical_event_id: null,
+    application_entity_state: APPLICATION_ENTITY_STATE,
+    occurrence_type: OCCURRENCE_TYPE,
+    fingerprint_scheme: minted.fingerprint_scheme,
+    fingerprint_version: minted.fingerprint_version,
+    fingerprint_anchor: minted.anchor,
     provider_namespace: PROVIDER_NAMESPACE,
     platform_match_id: group.platform_match_id,
     occurrence_instant_utc: minted.anchor.occurrence_instant_utc,
@@ -245,17 +276,17 @@ export function canonicaliseGroup(group) {
  * so that the accounting can prove each input ended at exactly one.
  *
  * Order in equals order out for the withheld list; established records
- * are sorted by canonical event id so the artifact is stable regardless
+ * are sorted by occurrence fingerprint so the artifact is stable regardless
  * of input ordering.
  */
-export function canonicaliseAll(groups) {
+export function fingerprintAll(groups) {
   const snapshot = JSON.stringify(groups);
   const established = [];
   const refused = [];
 
   for (const group of groups) {
-    const result = canonicaliseGroup(group);
-    if (result.canonical_state === "CANONICAL_EVENT_ESTABLISHED") established.push(result);
+    const result = fingerprintGroup(group);
+    if (result.fingerprint_state === "OCCURRENCE_FINGERPRINT_ESTABLISHED") established.push(result);
     else refused.push(result);
   }
 
@@ -263,10 +294,10 @@ export function canonicaliseAll(groups) {
     throw new Error("STOP: the reconciliation groups were mutated");
   }
 
-  established.sort((a, b) => a.canonical_event_id.localeCompare(b.canonical_event_id));
+  established.sort((a, b) => a.occurrence_fingerprint.localeCompare(b.occurrence_fingerprint));
   refused.sort((a, b) => String(a.reconciliation_group_id).localeCompare(String(b.reconciliation_group_id)));
 
   return { established, withheld: refused };
 }
 
-export { IDENTITY_SCHEME, IDENTITY_VERSION, normaliseOccurrenceInstant };
+export { FINGERPRINT_SCHEME, FINGERPRINT_VERSION, normaliseOccurrenceInstant };

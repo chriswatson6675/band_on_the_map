@@ -1,10 +1,13 @@
-// BEATMAPPED-UK-GC-FOOTBALL-CANONICAL-EVENT-IDENTITY-01 — run.
+// BEATMAPPED-UK-GC-FOOTBALL-CANONICAL-IDENTITY-ARCHITECTURE-CONFORMANCE-01
+// — run.
 //
-//   node ingestion/gc-football-canonical-events/run-canonical-events.mjs
+//   node ingestion/gc-football-occurrence-fingerprints/run-fingerprints.mjs
 //
 // Reads the committed reconciliation layer and writes a SEPARATE derived
-// canonical identity layer under
-// research/major-event-canonical/uk-gc-football-01/.
+// occurrence fingerprint layer under
+// research/major-event-occurrence-fingerprints/uk-gc-football-01/.
+//
+// It creates no BeatMapped Event and no application canonical entity id.
 //
 // Pure and offline. It fetches nothing, and it writes nothing outside its
 // own output directory: no Observation, no attribution, no reconciliation
@@ -20,18 +23,18 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  EVENT_TYPE,
-  IDENTITY_SCHEME,
-  IDENTITY_VERSION,
+  OCCURRENCE_TYPE,
+  FINGERPRINT_SCHEME,
+  FINGERPRINT_VERSION,
   LIFECYCLE_STATE,
   PROVIDER_NAMESPACE,
-  canonicaliseAll,
+  fingerprintAll,
 } from "./adapt.mjs";
-import { IDENTITY_EXCLUSIONS, IDENTITY_INPUTS } from "../canonical-event-identity/contract.mjs";
+import { FINGERPRINT_EXCLUSIONS, FINGERPRINT_INPUTS } from "../derived-occurrence-fingerprint/contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const RECON = resolve(ROOT, "research/major-event-reconciliation/uk-gc-football-01");
-const OUT = resolve(ROOT, "research/major-event-canonical/uk-gc-football-01");
+const OUT = resolve(ROOT, "research/major-event-occurrence-fingerprints/uk-gc-football-01");
 
 const writeJson = async (path, value) => {
   await mkdir(dirname(path), { recursive: true });
@@ -60,7 +63,7 @@ function derivedAtFromArgv() {
 /** Everything the artifacts contain, as a pure function of the inputs. */
 export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt) {
   const inputSnapshot = JSON.stringify(reconciledGroups);
-  const { established, withheld } = canonicaliseAll(reconciledGroups);
+  const { established, withheld } = fingerprintAll(reconciledGroups);
 
   if (JSON.stringify(reconciledGroups) !== inputSnapshot) {
     throw new Error("STOP: the reconciliation groups were mutated");
@@ -71,10 +74,15 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
     throw new Error("STOP: reconciled groups are not accounted for exactly once");
   }
 
-  const ids = established.map((event) => event.canonical_event_id);
+  const ids = established.map((event) => event.occurrence_fingerprint);
   const uniqueIds = new Set(ids);
   if (uniqueIds.size !== ids.length) {
-    throw new Error("STOP: duplicate canonical event ids were minted");
+    throw new Error("STOP: duplicate occurrence fingerprints were derived");
+  }
+
+  // Nothing in this layer may carry an application entity id.
+  if (established.some((event) => event.application_canonical_event_id != null)) {
+    throw new Error("STOP: an application canonical event id was populated");
   }
 
   const withGovernedVenue = established.filter((event) => event.governed_venue_census_id != null);
@@ -86,29 +94,34 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
     single_source: "research/major-event-reconciliation/uk-gc-football-01/single-source.json",
     upstream_source_observations: "research/major-event-acquisition/uk-gc-football-01/observations.json",
     upstream_venue_attributions: "research/major-event-attribution/uk-gc-football-01/attributions.json",
-    identity_anchor: "provider namespace + platform_match_id + normalized kickoff instant — and nothing else",
-    identity_inputs: IDENTITY_INPUTS,
-    identity_deliberately_excluded: IDENTITY_EXCLUSIONS,
-    creates_canonical_event_identity: true,
+    fingerprint_anchor: "provider namespace + platform_match_id + normalized kickoff instant — and nothing else",
+    fingerprint_inputs: FINGERPRINT_INPUTS,
+    fingerprint_deliberately_excluded: FINGERPRINT_EXCLUSIONS,
+    // The architectural boundary, stated as data so it cannot be lost.
+    establishes_application_canonical_event_identity: false,
+    is_source_provider_dependent: true,
+    creates_beatmapped_event_entity: false,
     publishes_events: false,
     mutates_upstream_artifacts: false,
+    architecture_note:
+      "This layer derives a provider-scoped occurrence FINGERPRINT, not an application canonical entity id. docs/ARCHITECTURE.md rule 6 says a source-specific identifier must never become the application's canonical identity scheme, and this value is a deterministic function of the provider's own event key: change that key and the fingerprint changes. Digesting the anchor hides the key, it does not remove the dependency. Separately, docs/ARCHITECTURE.md defines an Event as a canonical LIVE MUSIC occurrence, and this repository defines no sibling entity for non-music occurrences, so a football fixture cannot presently be a BeatMapped Event at all. Every record therefore carries application_canonical_event_id: null.",
     note:
-      "A canonical event states that several reconciled source Observations are observations of ONE underlying occurrence, and gives that occurrence a stable id. It resolves no club identity, no competition identity and no naming vocabulary, and nothing here is published: the lifecycle on every record is "
+      "A fingerprinted occurrence states that several reconciled source Observations are observations of ONE underlying occurrence, and gives that occurrence a stable derived anchor. It resolves no club identity, no competition identity and no naming vocabulary, and nothing here is published: the lifecycle on every record is "
       + `${LIFECYCLE_STATE}.`,
   };
 
   const summary = {
-    artifact_type: "UK_GC_FOOTBALL_CANONICAL_EVENT_IDENTITY_SUMMARY",
+    artifact_type: "UK_GC_FOOTBALL_OCCURRENCE_FINGERPRINT_SUMMARY",
     run_id: "uk-gc-football-01",
     derived_at: derivedAt,
     provenance,
 
-    identity_contract: {
-      identity_scheme: IDENTITY_SCHEME,
-      identity_version: IDENTITY_VERSION,
+    fingerprint_contract: {
+      fingerprint_scheme: FINGERPRINT_SCHEME,
+      fingerprint_version: FINGERPRINT_VERSION,
       provider_namespace: PROVIDER_NAMESPACE,
-      event_type: EVENT_TYPE,
-      id_format: "cev1-<provider slug>-<instant stamp>-<96-bit sha256 digest of the anchor>",
+      occurrence_type: OCCURRENCE_TYPE,
+      value_format: "dof1-<provider slug>-<instant stamp>-<96-bit sha256 digest of the anchor>",
       stable_under: [
         "a later source observation joining the group",
         "improved or corrected venue attribution",
@@ -121,17 +134,19 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
 
     accounting: {
       reconciled_groups_in: reconciledGroups.length,
-      canonical_event_identities_established: established.length,
-      canonical_identity_withheld: withheld.length,
+      occurrence_fingerprints_established: established.length,
+      fingerprints_withheld: withheld.length,
       groups_accounted_for: established.length + withheld.length,
-      distinct_canonical_event_ids: uniqueIds.size,
+      distinct_occurrence_fingerprints: uniqueIds.size,
       single_source_match_ids_out_of_scope: singleSourceEntries.length,
-      canonical_identities_created_for_single_source: 0,
+      fingerprints_created_for_single_source: 0,
+      application_canonical_event_ids_created: 0,
+      beatmapped_event_entities_created: 0,
     },
 
-    by_canonical_state: {
-      CANONICAL_EVENT_ESTABLISHED: established.length,
-      CANONICAL_IDENTITY_WITHHELD: withheld.length,
+    by_fingerprint_state: {
+      OCCURRENCE_FINGERPRINT_ESTABLISHED: established.length,
+      OCCURRENCE_FINGERPRINT_WITHHELD: withheld.length,
     },
 
     withheld_by_reason: tally(withheld, (entry) => entry.withheld_reason),
@@ -143,7 +158,7 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
       SAME_PUBLISHER_MULTI_SOURCE: samePublisher.length,
       total: established.length,
       note:
-        "Only the cross-publisher events are independently corroborated. The same-publisher events are one club's own calendar publishing a fixture twice; collapsing them is still correct, but they are NOT independent corroboration and must never be counted as such.",
+        "Only the cross-publisher occurrences are independently corroborated. The same-publisher ones are one club's own calendar publishing a fixture twice; collapsing them is still correct, but they are NOT independent corroboration and must never be counted as such.",
     },
 
     venue: {
@@ -151,8 +166,8 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
       without_governed_venue: established.length - withGovernedVenue.length,
       by_venue_evidence_state: tally(established, (event) => event.venue_evidence_state),
       distinct_governed_venues: new Set(withGovernedVenue.map((event) => event.governed_venue_census_id)).size,
-      venue_is_part_of_identity: false,
-      note: "Venue is enrichment. An event whose venue is unresolved still has a safe occurrence identity, and resolving it later moves no id.",
+      venue_is_part_of_fingerprint: false,
+      note: "Venue is enrichment. An occurrence whose venue is unresolved still has a safe fingerprint, and resolving it later moves no fingerprint.",
     },
 
     participants_and_competition: {
@@ -166,8 +181,8 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
     },
 
     temporal: {
-      future_events: established.filter((event) => event.is_future === true).length,
-      past_events: established.filter((event) => event.is_future === false).length,
+      future_occurrences: established.filter((event) => event.is_future === true).length,
+      past_occurrences: established.filter((event) => event.is_future === false).length,
       unknown: established.filter((event) => event.is_future == null).length,
     },
 
@@ -177,6 +192,7 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
       source_observations_modified: 0,
       reconciliation_artifacts_modified: 0,
       production_events_created: 0,
+      application_canonical_entities_created: 0,
       production_venues_modified: 0,
       production_sources_modified: 0,
       public_events_published: 0,
@@ -186,22 +202,22 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
 
   return {
     summary,
-    canonicalEvents: {
-      artifact_type: "UK_GC_FOOTBALL_CANONICAL_EVENTS",
+    occurrenceFingerprints: {
+      artifact_type: "UK_GC_FOOTBALL_OCCURRENCE_FINGERPRINTS",
       run_id: "uk-gc-football-01",
       derived_at: derivedAt,
       provenance,
       note:
-        "Derived governed occurrence identity. Not a production Event store, not published, and not consumed by the map.",
+        "Derived occurrence fingerprints: provider-scoped evidence anchors over reconciled Observations. NOT BeatMapped Events, NOT application canonical entity ids, not a production Event store, not published, and not consumed by the map.",
       count: established.length,
-      canonical_events: established,
+      occurrence_fingerprints: established,
     },
     withheld: {
-      artifact_type: "UK_GC_FOOTBALL_CANONICAL_IDENTITY_WITHHELD",
+      artifact_type: "UK_GC_FOOTBALL_OCCURRENCE_FINGERPRINT_WITHHELD",
       run_id: "uk-gc-football-01",
       derived_at: derivedAt,
       note:
-        "Reconciled groups that received NO canonical identity, each with the factual reason. Present even when empty, so that the accounting can show every input group ended at exactly one outcome.",
+        "Reconciled groups that received NO occurrence fingerprint, each with the factual reason. Present even when empty, so that the accounting can show every input group ended at exactly one outcome.",
       count: withheld.length,
       withheld,
     },
@@ -217,14 +233,15 @@ async function main() {
 
   const artifacts = buildArtifacts(reconciled, singleSource, derivedAt);
 
-  await writeJson(resolve(OUT, "canonical-events.json"), artifacts.canonicalEvents);
+  await writeJson(resolve(OUT, "occurrence-fingerprints.json"), artifacts.occurrenceFingerprints);
   await writeJson(resolve(OUT, "withheld.json"), artifacts.withheld);
   await writeJson(resolve(OUT, "summary.json"), artifacts.summary);
 
   const { accounting, evidence_classes: evidence, venue } = artifacts.summary;
   console.log(`reconciled groups in            : ${accounting.reconciled_groups_in}`);
-  console.log(`canonical identities established: ${accounting.canonical_event_identities_established}`);
-  console.log(`withheld                        : ${accounting.canonical_identity_withheld}`);
+  console.log(`occurrence fingerprints         : ${accounting.occurrence_fingerprints_established}`);
+  console.log(`withheld                        : ${accounting.fingerprints_withheld}`);
+  console.log(`application entity ids created  : ${accounting.application_canonical_event_ids_created}`);
   console.log(`cross-publisher corroborated    : ${evidence.CROSS_PUBLISHER_CORROBORATED}`);
   console.log(`same-publisher multi-source     : ${evidence.SAME_PUBLISHER_MULTI_SOURCE}`);
   console.log(`with governed venue             : ${venue.with_governed_venue}`);
@@ -232,6 +249,6 @@ async function main() {
   console.log(`single-source ids left untouched: ${accounting.single_source_match_ids_out_of_scope}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("run-canonical-events.mjs")) {
+if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("run-fingerprints.mjs")) {
   await main();
 }

@@ -1,7 +1,7 @@
-// BEATMAPPED-UK-GC-FOOTBALL-CANONICAL-EVENT-IDENTITY-01 — unit tests for
-// the football adapter. Pure and offline.
+// BEATMAPPED-UK-GC-FOOTBALL-CANONICAL-IDENTITY-ARCHITECTURE-CONFORMANCE-01
+// — unit tests for the football adapter. Pure and offline.
 //
-// The theme of this file is ONE property: the canonical event id is a
+// The theme of this file is ONE property: the occurrence fingerprint is a
 // function of the occurrence anchor alone. Every other fact a reconciled
 // group carries — team spellings, competition labels, venue text, the
 // governed venue, the publishers, the member list and its order — is
@@ -11,17 +11,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  CANONICAL_STATES,
-  EVENT_TYPE,
+  FINGERPRINT_STATES,
+  OCCURRENCE_TYPE,
   EVIDENCE_CLASSES,
   LIFECYCLE_STATE,
   PROVIDER_NAMESPACE,
   WITHHELD_REASONS,
-  canonicaliseAll,
-  canonicaliseGroup,
+  fingerprintAll,
+  fingerprintGroup,
   eligibility,
   evidenceClass,
-} from "../ingestion/gc-football-canonical-events/adapt.mjs";
+} from "../ingestion/gc-football-occurrence-fingerprints/adapt.mjs";
 
 const MATCH_ID = "013f5700-aaca-11f1-b783-1d1d94fe4064";
 const KICKOFF = "2026-11-04T14:00:00.000Z";
@@ -79,9 +79,9 @@ function group(overrides = {}) {
 }
 
 const idOf = (overrides) => {
-  const result = canonicaliseGroup(group(overrides));
-  assert.equal(result.canonical_state, "CANONICAL_EVENT_ESTABLISHED", result.withheld_reason);
-  return result.canonical_event_id;
+  const result = fingerprintGroup(group(overrides));
+  assert.equal(result.fingerprint_state, "OCCURRENCE_FINGERPRINT_ESTABLISHED", result.withheld_reason);
+  return result.occurrence_fingerprint;
 };
 
 const BASELINE = idOf({});
@@ -90,32 +90,37 @@ const BASELINE = idOf({});
 /* THE HAPPY PATH                                                    */
 /* ---------------------------------------------------------------- */
 
-test("a valid reconciled group mints a canonical event identity", () => {
-  const event = canonicaliseGroup(group());
+test("a valid reconciled group derives an occurrence fingerprint", () => {
+  const event = fingerprintGroup(group());
 
-  assert.equal(event.canonical_state, "CANONICAL_EVENT_ESTABLISHED");
-  assert.ok(CANONICAL_STATES.has(event.canonical_state));
-  assert.equal(event.event_type, EVENT_TYPE);
+  assert.equal(event.fingerprint_state, "OCCURRENCE_FINGERPRINT_ESTABLISHED");
+  assert.ok(FINGERPRINT_STATES.has(event.fingerprint_state));
+  assert.equal(event.occurrence_type, OCCURRENCE_TYPE);
   assert.equal(event.provider_namespace, PROVIDER_NAMESPACE);
   assert.equal(event.platform_match_id, MATCH_ID);
   assert.equal(event.occurrence_instant_utc, KICKOFF);
   assert.equal(event.reconciliation_group_id, `gcf-${MATCH_ID}-20261104T140000Z`);
-  assert.match(event.canonical_event_id, /^cev1-gc-football-20261104T140000Z-[0-9a-f]{24}$/);
+  assert.match(event.occurrence_fingerprint, /^dof1-gc-football-20261104T140000Z-[0-9a-f]{24}$/);
 
-  // It is derived governed identity, and says so.
+  // It is a derived evidence anchor, and says so.
   assert.equal(event.lifecycle_state, LIFECYCLE_STATE);
-  assert.equal(event.lifecycle_state, "DERIVED_GOVERNED_IDENTITY_NOT_PUBLISHED");
+  assert.equal(event.lifecycle_state, "DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY");
+
+  // And it claims no application entity identity of any kind.
+  assert.equal(event.application_canonical_event_id, null);
+  assert.equal(event.application_entity_state, "NOT_ADMITTED_NO_GOVERNED_ENTITY_FOR_NON_MUSIC_OCCURRENCE");
+  assert.equal("canonical_event_id" in event, false);
 });
 
 test("the anchor on the record contains only the identity inputs", () => {
-  const event = canonicaliseGroup(group());
-  assert.deepEqual(Object.keys(event.identity_anchor).sort(), [
-    "identity_version",
+  const event = fingerprintGroup(group());
+  assert.deepEqual(Object.keys(event.fingerprint_anchor).sort(), [
+    "fingerprint_version",
     "occurrence_instant_utc",
     "provider_event_key",
     "provider_namespace",
   ]);
-  assert.equal(event.identity_anchor.provider_event_key, MATCH_ID);
+  assert.equal(event.fingerprint_anchor.provider_event_key, MATCH_ID);
 });
 
 /* ---------------------------------------------------------------- */
@@ -128,13 +133,13 @@ test("the same match id and kickoff always mints the same id", () => {
 });
 
 test("a conflicting kickoff for one match id refuses rather than aliasing", () => {
-  const result = canonicaliseGroup(group({ kickoff_variants: [KICKOFF, "2026-11-04T16:00:00.000Z"] }));
+  const result = fingerprintGroup(group({ kickoff_variants: [KICKOFF, "2026-11-04T16:00:00.000Z"] }));
 
-  assert.equal(result.canonical_state, "CANONICAL_IDENTITY_WITHHELD");
-  assert.equal(result.withheld_reason, "CANONICAL_IDENTITY_CONFLICT_MATCH_ID_KICKOFF");
+  assert.equal(result.fingerprint_state, "OCCURRENCE_FINGERPRINT_WITHHELD");
+  assert.equal(result.withheld_reason, "FINGERPRINT_CONFLICT_MATCH_ID_KICKOFF");
   assert.ok(WITHHELD_REASONS.has(result.withheld_reason));
   assert.deepEqual(result.detail.conflicting_instants, [KICKOFF, "2026-11-04T16:00:00.000Z"]);
-  assert.equal(result.canonical_event_id, undefined, "no id may be minted over a conflict");
+  assert.equal(result.occurrence_fingerprint, undefined, "no id may be minted over a conflict");
 });
 
 test("different match ids at the same kickoff stay different events", () => {
@@ -208,7 +213,7 @@ test("a kickoff written with an equivalent offset mints the same id", () => {
 /* ---------------------------------------------------------------- */
 
 test("cross-publisher corroboration is classified and retained", () => {
-  const event = canonicaliseGroup(group({ publisher_domains: ["itfc.co.uk", "tottenhamhotspur.com"], publisher_domain_count: 2 }));
+  const event = fingerprintGroup(group({ publisher_domains: ["itfc.co.uk", "tottenhamhotspur.com"], publisher_domain_count: 2 }));
   assert.equal(event.evidence_class, "CROSS_PUBLISHER_CORROBORATED");
   assert.ok(EVIDENCE_CLASSES.has(event.evidence_class));
   assert.deepEqual(event.publisher_domains, ["itfc.co.uk", "tottenhamhotspur.com"]);
@@ -216,14 +221,14 @@ test("cross-publisher corroboration is classified and retained", () => {
 });
 
 test("same-publisher multi-calendar reconciliation is classified and retained", () => {
-  const event = canonicaliseGroup(group({ publisher_domains: ["itfc.co.uk"], publisher_domain_count: 1 }));
+  const event = fingerprintGroup(group({ publisher_domains: ["itfc.co.uk"], publisher_domain_count: 1 }));
   assert.equal(event.evidence_class, "SAME_PUBLISHER_MULTI_SOURCE");
   assert.notEqual(event.evidence_class, "CROSS_PUBLISHER_CORROBORATED");
   assert.deepEqual(event.publisher_domains, ["itfc.co.uk"]);
 });
 
 test("the evidence class is a class, not a score", () => {
-  const event = canonicaliseGroup(group());
+  const event = fingerprintGroup(group());
   assert.equal(typeof event.evidence_class, "string");
   for (const field of Object.keys(event)) {
     assert.ok(!/confidence|score|probability|likelihood/i.test(field), `${field} looks like a score`);
@@ -237,14 +242,14 @@ test("the evidence class is a class, not a score", () => {
 /* ---------------------------------------------------------------- */
 
 test("an unresolved venue does not block an otherwise valid identity", () => {
-  const event = canonicaliseGroup(group({ venue_evidence_state: "NO_MEMBER_RESOLVED" }));
-  assert.equal(event.canonical_state, "CANONICAL_EVENT_ESTABLISHED");
+  const event = fingerprintGroup(group({ venue_evidence_state: "NO_MEMBER_RESOLVED" }));
+  assert.equal(event.fingerprint_state, "OCCURRENCE_FINGERPRINT_ESTABLISHED");
   assert.equal(event.governed_venue_census_id, null);
   assert.equal(event.venue_evidence_state, "NO_MEMBER_RESOLVED");
 });
 
 test("an unresolved venue is reported as unresolved, never manufactured", () => {
-  const event = canonicaliseGroup(group({
+  const event = fingerprintGroup(group({
     venue_evidence_state: "NO_MEMBER_RESOLVED",
     source_venue_text_variants: ["Playford Road"],
   }));
@@ -257,7 +262,7 @@ test("an unresolved venue is reported as unresolved, never manufactured", () => 
 
 test("a governed venue is carried with the members that support it", () => {
   const supported = [{ source_id: "src-a", source_record_id: MATCH_ID }];
-  const event = canonicaliseGroup(group({
+  const event = fingerprintGroup(group({
     venue_evidence_state: "AGREED_BY_ALL_RESOLVED_MEMBERS",
     reconciled_venue_census_id: "ukmec-england-ipswich-portman-road",
     reconciled_venue_name: "Portman Road",
@@ -271,9 +276,9 @@ test("a governed venue is carried with the members that support it", () => {
 });
 
 test("a venue disagreement withholds identity rather than picking a winner", () => {
-  const result = canonicaliseGroup(group({ venue_evidence_state: "CONFLICTING_RESOLVED_VENUES" }));
-  assert.equal(result.canonical_state, "CANONICAL_IDENTITY_WITHHELD");
-  assert.equal(result.withheld_reason, "CANONICAL_IDENTITY_CONFLICT_RESOLVED_VENUE");
+  const result = fingerprintGroup(group({ venue_evidence_state: "CONFLICTING_RESOLVED_VENUES" }));
+  assert.equal(result.fingerprint_state, "OCCURRENCE_FINGERPRINT_WITHHELD");
+  assert.equal(result.withheld_reason, "FINGERPRINT_CONFLICT_RESOLVED_VENUE");
 });
 
 /* ---------------------------------------------------------------- */
@@ -281,31 +286,31 @@ test("a venue disagreement withholds identity rather than picking a winner", () 
 /* ---------------------------------------------------------------- */
 
 test("a single-source record cannot enter this canonicalisation path", () => {
-  const single = canonicaliseGroup(group({
+  const single = fingerprintGroup(group({
     reconciliation_state: "SINGLE_SOURCE_NOT_IN_SCOPE",
     member_detail: [member("src-a")],
   }));
-  assert.equal(single.canonical_state, "CANONICAL_IDENTITY_WITHHELD");
+  assert.equal(single.fingerprint_state, "OCCURRENCE_FINGERPRINT_WITHHELD");
   assert.equal(single.withheld_reason, "NOT_RECONCILED_MULTI_SOURCE");
-  assert.equal(single.canonical_event_id, undefined);
+  assert.equal(single.occurrence_fingerprint, undefined);
 });
 
 test("a group claiming reconciliation with only one source is still refused", () => {
-  const result = canonicaliseGroup(group({ member_detail: [member("src-a")] }));
-  assert.equal(result.canonical_state, "CANONICAL_IDENTITY_WITHHELD");
+  const result = fingerprintGroup(group({ member_detail: [member("src-a")] }));
+  assert.equal(result.fingerprint_state, "OCCURRENCE_FINGERPRINT_WITHHELD");
   assert.equal(result.withheld_reason, "INSUFFICIENT_SOURCE_MULTIPLICITY");
 });
 
 test("an upstream factual conflict withholds identity", () => {
-  const result = canonicaliseGroup(group({ conflict: { kind: "CONFLICT_OTHER_FACTUAL" } }));
-  assert.equal(result.canonical_state, "CANONICAL_IDENTITY_WITHHELD");
+  const result = fingerprintGroup(group({ conflict: { kind: "CONFLICT_OTHER_FACTUAL" } }));
+  assert.equal(result.fingerprint_state, "OCCURRENCE_FINGERPRINT_WITHHELD");
   assert.equal(result.withheld_reason, "UPSTREAM_FACTUAL_CONFLICT");
 });
 
 test("a missing match id or kickoff withholds identity", () => {
-  assert.equal(canonicaliseGroup(group({ platform_match_id: "" })).withheld_reason, "MISSING_PLATFORM_MATCH_ID");
-  assert.equal(canonicaliseGroup(group({ kickoff_variants: [], kickoff_utc: null })).withheld_reason, "MISSING_OR_INVALID_KICKOFF");
-  assert.equal(canonicaliseGroup(group({ kickoff_variants: ["nonsense"] })).withheld_reason, "MISSING_OR_INVALID_KICKOFF");
+  assert.equal(fingerprintGroup(group({ platform_match_id: "" })).withheld_reason, "MISSING_PLATFORM_MATCH_ID");
+  assert.equal(fingerprintGroup(group({ kickoff_variants: [], kickoff_utc: null })).withheld_reason, "MISSING_OR_INVALID_KICKOFF");
+  assert.equal(fingerprintGroup(group({ kickoff_variants: ["nonsense"] })).withheld_reason, "MISSING_OR_INVALID_KICKOFF");
 });
 
 test("every withheld reason is one the contract declares", () => {
@@ -319,8 +324,8 @@ test("every withheld reason is one the contract declares", () => {
     group({ conflict: { kind: "CONFLICT_OTHER_FACTUAL" } }),
   ];
   for (const candidate of refusals) {
-    const result = canonicaliseGroup(candidate);
-    assert.equal(result.canonical_state, "CANONICAL_IDENTITY_WITHHELD");
+    const result = fingerprintGroup(candidate);
+    assert.equal(result.fingerprint_state, "OCCURRENCE_FINGERPRINT_WITHHELD");
     assert.ok(WITHHELD_REASONS.has(result.withheld_reason), result.withheld_reason);
   }
   assert.equal(eligibility(group()).eligible, true);
@@ -331,7 +336,7 @@ test("every withheld reason is one the contract declares", () => {
 /* ---------------------------------------------------------------- */
 
 test("no canonical club or competition identity is invented", () => {
-  const event = canonicaliseGroup(group({
+  const event = fingerprintGroup(group({
     home_team_variants: ["Ipswich Town", "Ipswich Town FC", "Ipswich Town FC "],
     competition_variants: ["Premier League", "Premier League 2026/27"],
   }));
@@ -349,7 +354,7 @@ test("no canonical club or competition identity is invented", () => {
 });
 
 test("per-member provenance is retained so no variant is unattributable", () => {
-  const event = canonicaliseGroup(group({
+  const event = fingerprintGroup(group({
     member_detail: [
       member("src-a", { home_team_raw: "Ipswich Town" }),
       member("src-b", { home_team_raw: "Ipswich Town FC" }),
@@ -367,7 +372,7 @@ test("per-member provenance is retained so no variant is unattributable", () => 
 test("canonicalisation never mutates its input group", () => {
   const input = group();
   const before = JSON.stringify(input);
-  canonicaliseGroup(input);
+  fingerprintGroup(input);
   assert.equal(JSON.stringify(input), before);
 });
 
@@ -378,7 +383,7 @@ test("every input group ends at exactly one outcome", () => {
     group({ platform_match_id: "match-c", kickoff_variants: [KICKOFF, "2026-11-04T16:00:00.000Z"] }),
     group({ platform_match_id: "match-d", reconciliation_state: "SINGLE_SOURCE_NOT_IN_SCOPE" }),
   ];
-  const { established, withheld } = canonicaliseAll(groups);
+  const { established, withheld } = fingerprintAll(groups);
   assert.equal(established.length, 2);
   assert.equal(withheld.length, 2);
   assert.equal(established.length + withheld.length, groups.length);
@@ -386,8 +391,8 @@ test("every input group ends at exactly one outcome", () => {
 
 test("output ordering is stable regardless of input ordering", () => {
   const groups = ["match-a", "match-b", "match-c"].map((id) => group({ platform_match_id: id }));
-  const forwards = canonicaliseAll(groups).established.map((e) => e.canonical_event_id);
-  const backwards = canonicaliseAll([...groups].reverse()).established.map((e) => e.canonical_event_id);
+  const forwards = fingerprintAll(groups).established.map((e) => e.occurrence_fingerprint);
+  const backwards = fingerprintAll([...groups].reverse()).established.map((e) => e.occurrence_fingerprint);
   assert.deepEqual(forwards, backwards);
   assert.deepEqual(forwards, [...forwards].sort());
 });
