@@ -22,6 +22,8 @@
 // caller in a later package. Encoding a threshold here would bake one
 // domain's answer into a domain-neutral foundation.
 
+import { EVENT_ID_PATTERN } from "./contract.mjs";
+
 const isNonEmptyString = (value) => typeof value === "string" && value.trim() !== "";
 
 /**
@@ -49,9 +51,6 @@ export const BASIS_KINDS = new Set([
  * occurrence moves.
  */
 export const MAPPING_LIFECYCLES = new Set(["ACTIVE", "SUPERSEDED"]);
-
-const EVENT_ID_PATTERN =
-  /^event-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 /** A stable reference to one source Observation. */
 export function observationRef(sourceId, sourceRecordId) {
@@ -134,8 +133,17 @@ export function validateOccurrenceMapping(mapping) {
 
   const refCount = Array.isArray(mapping?.observations) ? mapping.observations.length : 0;
 
-  if (mapping?.basis_kind === "PROVIDER_FINGERPRINT" && !isNonEmptyString(mapping?.fingerprint)) {
-    errors.push("a PROVIDER_FINGERPRINT mapping requires a non-empty fingerprint");
+  if (mapping?.basis_kind === "PROVIDER_FINGERPRINT") {
+    if (!isNonEmptyString(mapping?.fingerprint)) {
+      errors.push("a PROVIDER_FINGERPRINT mapping requires a non-empty fingerprint");
+    }
+    // A fingerprint with no retained Observation is not traceable to any
+    // source evidence at all — this is a provenance floor, not an
+    // admission-sufficiency policy (that stays a later, domain-aware
+    // package's decision; see this module's own header).
+    if (refCount < 1) {
+      errors.push("a PROVIDER_FINGERPRINT mapping requires at least one Observation ref for traceability to retained source evidence");
+    }
   }
 
   // A music association has no provider key — that is the whole reason

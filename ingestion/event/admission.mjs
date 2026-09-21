@@ -33,7 +33,7 @@ import {
   validateOccurrenceMapping,
 } from "./occurrence-mapping.mjs";
 import { createScheduleAssertion } from "./schedule-history.mjs";
-import { readState, writeRegistries } from "./registry.mjs";
+import { readValidatedState, writeState } from "./registry.mjs";
 
 /**
  * An admission that found the evidence already linked reports
@@ -120,7 +120,9 @@ export async function admitEvent(request, { root, uuid } = {}) {
     throw new Error(`Invalid admission request: ${requestErrors.join("; ")}`);
   }
 
-  const state = await readState(root ? { root } : {});
+  // Fail-closed (Phase 6): an existing state that does not validate stops
+  // here, before any idempotency lookup or mint is even attempted.
+  const state = await readValidatedState(root ? { root } : {});
 
   // Idempotency. The key is derived purely from the caller's own evidence
   // association — no fuzzy matching, no similarity rule, no guessing that
@@ -179,9 +181,9 @@ export async function admitEvent(request, { root, uuid } = {}) {
     scheduleHistory: [...state.scheduleHistory, scheduleAssertion],
   };
 
-  // Validates the COMPLETE prospective state, then writes. An invalid
-  // admission never reaches the filesystem.
-  await writeRegistries(nextState, root ? { root } : {});
+  // Validates the COMPLETE prospective state, then writes it as one
+  // atomic commit. An invalid admission never reaches the filesystem.
+  await writeState(nextState, root ? { root } : {});
 
   return { outcome: "ADMITTED", event, mapping, schedule_assertion: scheduleAssertion };
 }
@@ -215,7 +217,9 @@ export async function attachOccurrenceEvidence(request, { root } = {}) {
     throw new Error("Invalid attachment request: request.attached_at is required");
   }
 
-  const state = await readState(root ? { root } : {});
+  // Fail-closed (Phase 6): an existing state that does not validate stops
+  // here, before this Event is even looked up.
+  const state = await readValidatedState(root ? { root } : {});
 
   const event = state.events.find((candidate) => candidate.event_id === request.event_id) ?? null;
   if (!event) {
@@ -260,7 +264,7 @@ export async function attachOccurrenceEvidence(request, { root } = {}) {
     scheduleHistory: state.scheduleHistory,
   };
 
-  await writeRegistries(nextState, root ? { root } : {});
+  await writeState(nextState, root ? { root } : {});
 
   return { outcome: "ATTACHED", event, mapping };
 }

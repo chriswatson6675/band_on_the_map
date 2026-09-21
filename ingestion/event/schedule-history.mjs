@@ -19,7 +19,7 @@
 // (detecting a move, superseding, re-asserting) is deliberately a later
 // package — the structure it will need is proven here, not the workflow.
 
-import { validateAdmissionBasis } from "./contract.mjs";
+import { EVENT_STATUSES, hasKnownTime, isEventId, validateAdmissionBasis, validateDateTime } from "./contract.mjs";
 
 const isNonEmptyString = (value) => typeof value === "string" && value.trim() !== "";
 
@@ -31,9 +31,6 @@ const isNonEmptyString = (value) => typeof value === "string" && value.trim() !=
  * to resolve.
  */
 export const SCHEDULE_LIFECYCLES = new Set(["CURRENT", "SUPERSEDED"]);
-
-const EVENT_ID_PATTERN =
-  /^event-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 /**
  * Build one schedule assertion. Throws if it fails
@@ -64,22 +61,42 @@ export function createScheduleAssertion(fields) {
   return assertion;
 }
 
-/** Return an array of validation error strings (empty if valid). */
+/**
+ * Return an array of validation error strings (empty if valid).
+ *
+ * start/end/status reuse the Event contract's OWN governed shapes
+ * (validateDateTime, EVENT_STATUSES) rather than a weaker duplicate: a
+ * schedule assertion that carried status "BANANA" or a start of
+ * `{ foo: "bar" }` used to pass this function. It no longer does.
+ *
+ * The one thing this function deliberately does NOT check is whether a
+ * RUN Event's end agrees with its start, or whether this assertion's
+ * start/end/status agree with its owning Event's current fields — both
+ * need the Event record, which only exists at complete-state validation
+ * (see ./registry.mjs's validateState()). A SUPERSEDED assertion is
+ * retained history and is expected to disagree with the Event's current
+ * fields; only complete-state validation can tell CURRENT from SUPERSEDED
+ * and hold only the former to that parity.
+ */
 export function validateScheduleAssertion(assertion) {
   const errors = [];
 
-  if (typeof assertion?.event_id !== "string" || !EVENT_ID_PATTERN.test(assertion.event_id)) {
+  if (!isEventId(assertion?.event_id)) {
     errors.push("event_id must be an application-issued Event id");
   }
 
-  if (assertion?.start === null || typeof assertion?.start !== "object" || Array.isArray(assertion?.start)) {
-    errors.push("start must be a date/time object");
-  }
-  if (assertion?.end !== null && (typeof assertion?.end !== "object" || Array.isArray(assertion?.end))) {
-    errors.push("end must be a date/time object or null");
+  validateDateTime(assertion?.start, "start", errors);
+  if (!hasKnownTime(assertion?.start)) {
+    errors.push("start must carry a genuinely known date or instant");
   }
 
-  if (!isNonEmptyString(assertion?.status)) errors.push("status is required");
+  if (assertion?.end !== null && assertion?.end !== undefined) {
+    validateDateTime(assertion.end, "end", errors);
+  }
+
+  if (!EVENT_STATUSES.has(assertion?.status)) {
+    errors.push(`status must be one of ${[...EVENT_STATUSES].join(", ")}`);
+  }
   if (!isNonEmptyString(assertion?.asserted_at)) errors.push("asserted_at is required");
 
   errors.push(...validateAdmissionBasis(assertion?.asserted_by, "asserted_by"));

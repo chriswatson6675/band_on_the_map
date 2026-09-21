@@ -155,8 +155,12 @@ export function hasKnownTime(dateTime) {
  * including that the stated certainty matches what is actually carried.
  * A record claiming UTC_INSTANT without an instant is a fabrication
  * waiting to happen.
+ *
+ * Exported so ./schedule-history.mjs can reuse this exact governed shape
+ * rather than declaring a second, independently-drifting one — a schedule
+ * assertion's start/end is held to the same rules as an Event's own.
  */
-function validateDateTime(dateTime, label, errors) {
+export function validateDateTime(dateTime, label, errors) {
   if (!isDateTimeShape(dateTime)) {
     errors.push(`${label} must be a date/time object`);
     return;

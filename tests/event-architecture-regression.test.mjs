@@ -113,12 +113,13 @@ test("no Event module imports a publication, deployment or transport path", asyn
   }
 });
 
-test("the only paths an Event module writes are the three Event registries", async () => {
+test("the only path an Event module writes is the single canonical Event-state file", async () => {
   const code = codeOnly(await readModule("ingestion/event/registry.mjs"));
   const literals = [...code.matchAll(/"(events\/[^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(
     [...new Set(literals)].sort(),
-    ["events/event-occurrence-mappings.json", "events/event-schedule-history.json", "events/events.json"],
+    ["events/event-state.json"],
+    "events, event_occurrence_mappings and schedule_history are one document now, not three files that could be torn apart by a crash between renames",
   );
 
   // And no other module writes at all.

@@ -7,12 +7,12 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { EVENT_ID_PATTERN } from "../ingestion/event/contract.mjs";
+import { EVENT_ID_PATTERN, createEvent } from "../ingestion/event/contract.mjs";
 import {
   BASIS_KINDS,
   createOccurrenceMapping,
@@ -24,15 +24,17 @@ import {
 import {
   createScheduleAssertion,
   currentAssertionFor,
+  validateScheduleAssertion,
   validateScheduleHistoryRegistry,
 } from "../ingestion/event/schedule-history.mjs";
 import {
-  EVENTS_PATH,
-  MAPPINGS_PATH,
-  SCHEDULE_PATH,
+  EVENT_STATE_PATH,
+  commitStagedState,
   readState,
+  readValidatedState,
+  stageState,
   validateState,
-  writeRegistries,
+  writeState,
 } from "../ingestion/event/registry.mjs";
 import { EventAdmissionConflictError, admitEvent, attachOccurrenceEvidence } from "../ingestion/event/admission.mjs";
 
@@ -40,6 +42,27 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 async function scratchRoot() {
   return mkdtemp(resolve(tmpdir(), "botm-event-admission-"));
+}
+
+/**
+ * Write a state document DIRECTLY to disk, bypassing writeState()'s own
+ * complete-state validation entirely. Used only to construct a malformed
+ * PERSISTED state for the fail-closed-read tests (Phase 14) — those tests
+ * exist precisely to prove that admitEvent()/attachOccurrenceEvidence()
+ * refuse to operate on such a state, so the state has to get onto disk by
+ * some route other than the validated one.
+ */
+async function seedRawState(root, { events = [], mappings = [], scheduleHistory = [] }) {
+  const finalPath = resolve(root, EVENT_STATE_PATH);
+  await mkdir(dirname(finalPath), { recursive: true });
+  const doc = {
+    schema_version: 1,
+    note: "seeded directly for a fail-closed-validation test; bypasses writeState's own validation on purpose",
+    events,
+    event_occurrence_mappings: mappings,
+    schedule_history: scheduleHistory,
+  };
+  await writeFile(finalPath, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
 }
 
 const utcInstant = (iso) => ({
@@ -553,7 +576,7 @@ test("an invalid prospective state is refused before anything is written", async
 
   await assert.rejects(
     () =>
-      writeRegistries(
+      writeState(
         {
           events: [],
           // A mapping referencing an Event that does not exist.
@@ -587,25 +610,25 @@ test("an admission that fails validation leaves the prior registry intact", asyn
   t.after(() => rm(root, { recursive: true, force: true }));
 
   const admitted = await admitEvent(musicRequest(), { root });
-  const before = await readFile(resolve(root, EVENTS_PATH), "utf8");
+  const before = await readFile(resolve(root, EVENT_STATE_PATH), "utf8");
 
   await assert.rejects(
     () => admitEvent(musicRequest({ event: { event_category: "BUSINESS", event_type: "CONFERENCE" }, basis: { observations: [observationRef("agendalx", "999")] } }), { root }),
     /Invalid Event/,
   );
 
-  assert.equal(await readFile(resolve(root, EVENTS_PATH), "utf8"), before, "the registry file is byte-identical");
+  assert.equal(await readFile(resolve(root, EVENT_STATE_PATH), "utf8"), before, "the state file is byte-identical");
   const state = await readState({ root });
   assert.equal(state.events.length, 1);
   assert.equal(state.events[0].event_id, admitted.event.event_id);
 });
 
-test("a corrupted registry is surfaced rather than silently overwritten", async (t) => {
+test("a corrupted state file is surfaced rather than silently overwritten", async (t) => {
   const root = await scratchRoot();
   t.after(() => rm(root, { recursive: true, force: true }));
 
   await admitEvent(musicRequest(), { root });
-  await writeFile(resolve(root, MAPPINGS_PATH), "{ not json", "utf8");
+  await writeFile(resolve(root, EVENT_STATE_PATH), "{ not json", "utf8");
 
   await assert.rejects(() => readState({ root }));
 });
@@ -636,19 +659,423 @@ test("admission reads no clock of its own", async (t) => {
 });
 
 /* ---------------------------------------------------------------- */
+/* CRASH CONSISTENCY — THE ATOMIC COMMIT BOUNDARY (Phase 13)         */
+/* ---------------------------------------------------------------- */
+
+test("a staged write is invisible to every reader until its rename commits, and the whole new state then appears together", async (t) => {
+  const root = await scratchRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  await admitEvent(musicRequest(), { root });
+  const before = await readFile(resolve(root, EVENT_STATE_PATH), "utf8");
+
+  const state = await readState({ root });
+  const eventId = "event-55555555-5555-4555-8555-555555555555";
+  const secondEvent = createEvent({
+    ...footballRequest().event,
+    event_id: eventId,
+    admitted_at: "2026-09-21T05:00:00.000Z",
+    admission_basis: { basis_kind: "PROVIDER_FINGERPRINT", method: "test" },
+  });
+  const secondMapping = createOccurrenceMapping({
+    event_id: eventId,
+    basis_kind: "PROVIDER_FINGERPRINT",
+    fingerprint: "dof1-staged-only-test-fixture",
+    observations: [observationRef("staged-only-source", "1")],
+    method: "test",
+    evidence: [],
+    decided_at: "2026-09-21T05:00:00.000Z",
+    lifecycle: "ACTIVE",
+  });
+  const secondSchedule = createScheduleAssertion({
+    event_id: eventId,
+    start: secondEvent.start,
+    end: secondEvent.end,
+    status: secondEvent.status,
+    asserted_by: { basis_kind: "PROVIDER_FINGERPRINT", method: "test" },
+    asserted_at: "2026-09-21T05:00:00.000Z",
+    lifecycle: "CURRENT",
+  });
+
+  const nextState = {
+    events: [...state.events, secondEvent],
+    mappings: [...state.mappings, secondMapping],
+    scheduleHistory: [...state.scheduleHistory, secondSchedule],
+  };
+
+  // Stage the write — the temp file exists on disk with the new state —
+  // but do NOT commit it yet. This is exactly the filesystem state a
+  // process death between the temp write and the rename would leave.
+  const staged = await stageState(nextState, { root });
+
+  const tmpContent = await readFile(staged.tmpPath, "utf8");
+  assert.ok(tmpContent.includes(eventId), "the staged temp file already holds the new Event");
+
+  assert.equal(
+    await readFile(resolve(root, EVENT_STATE_PATH), "utf8"),
+    before,
+    "staging a write must not mutate the one file every reader observes",
+  );
+  assert.equal((await readState({ root })).events.length, 1, "the staged Event is not yet visible to any reader");
+
+  await commitStagedState(staged);
+
+  // After the rename, the WHOLE new state is visible together — Events,
+  // mappings and schedule history all advance in the same instant.
+  const committed = await readState({ root });
+  assert.equal(committed.events.length, 2);
+  assert.equal(committed.mappings.length, 2);
+  assert.equal(committed.scheduleHistory.length, 2);
+  assert.deepEqual(validateState(committed), []);
+
+  await assert.rejects(() => readFile(staged.tmpPath, "utf8"), "the temp file no longer exists once renamed into place");
+});
+
+/* ---------------------------------------------------------------- */
+/* FAIL-CLOSED EXISTING-STATE VALIDATION (Phase 6 / 14)              */
+/* ---------------------------------------------------------------- */
+
+test("[A] a persisted Event with no CURRENT schedule assertion blocks admission and attachment", async (t) => {
+  const root = await scratchRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const admitted = await admitEvent(musicRequest(), { root });
+  const state = await readState({ root });
+  await seedRawState(root, { events: state.events, mappings: state.mappings, scheduleHistory: [] });
+
+  await assert.rejects(
+    () => admitEvent(footballRequest(), { root }),
+    /Refusing to operate on invalid persisted Event state/,
+  );
+  await assert.rejects(
+    () =>
+      attachOccurrenceEvidence(
+        { event_id: admitted.event.event_id, basis: footballRequest().basis, attached_at: "2026-09-21T06:00:00.000Z" },
+        { root },
+      ),
+    /Refusing to operate on invalid persisted Event state/,
+  );
+
+  // Neither refused call minted or wrote anything on top of the corruption.
+  const after = await readState({ root });
+  assert.equal(after.events.length, 1);
+  assert.equal(after.mappings.length, 1);
+  assert.equal(after.scheduleHistory.length, 0);
+});
+
+test("[B] a persisted mapping referencing an unknown Event blocks admission and attachment", async (t) => {
+  const root = await scratchRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const danglingMapping = createOccurrenceMapping({
+    event_id: "event-99999999-9999-4999-8999-999999999999",
+    basis_kind: "SINGLE_OBSERVATION",
+    observations: [observationRef("s", "1")],
+    method: "m",
+    evidence: [],
+    decided_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "ACTIVE",
+  });
+  await seedRawState(root, { events: [], mappings: [danglingMapping], scheduleHistory: [] });
+
+  await assert.rejects(() => admitEvent(musicRequest(), { root }), /Refusing to operate on invalid persisted Event state/);
+  await assert.rejects(
+    () =>
+      attachOccurrenceEvidence(
+        {
+          event_id: "event-99999999-9999-4999-8999-999999999999",
+          basis: musicRequest().basis,
+          attached_at: "2026-09-21T00:00:00.000Z",
+        },
+        { root },
+      ),
+    /Refusing to operate on invalid persisted Event state/,
+  );
+});
+
+test("[C] a persisted CURRENT schedule that disagrees with its Event's own status blocks admission and attachment", async (t) => {
+  const root = await scratchRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const admitted = await admitEvent(footballRequest(), { root }); // status COMPLETED
+  const state = await readState({ root });
+  const corruptedSchedule = state.scheduleHistory.map((assertion) =>
+    assertion.event_id === admitted.event.event_id ? { ...assertion, status: "SCHEDULED" } : assertion,
+  );
+  await seedRawState(root, { events: state.events, mappings: state.mappings, scheduleHistory: corruptedSchedule });
+
+  await assert.rejects(() => admitEvent(musicRequest(), { root }), /Refusing to operate on invalid persisted Event state/);
+  await assert.rejects(
+    () =>
+      attachOccurrenceEvidence(
+        { event_id: admitted.event.event_id, basis: musicRequest().basis, attached_at: "2026-09-21T06:00:00.000Z" },
+        { root },
+      ),
+    /Refusing to operate on invalid persisted Event state/,
+  );
+});
+
+test("[D] a persisted state with one active fingerprint mapped to two Events blocks admission and attachment", async (t) => {
+  const root = await scratchRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const first = await admitEvent(footballRequest(), { root });
+  const second = await admitEvent(musicRequest(), { root });
+  const state = await readState({ root });
+
+  // Corrupt the second Event's mapping to reuse the FIRST Event's
+  // fingerprint — one piece of active evidence, two Events.
+  const duplicateFingerprintMapping = createOccurrenceMapping({
+    event_id: second.event.event_id,
+    basis_kind: "PROVIDER_FINGERPRINT",
+    fingerprint: first.mapping.fingerprint,
+    observations: [observationRef("another-source", "1")],
+    method: "m",
+    evidence: [],
+    decided_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "ACTIVE",
+  });
+  const corruptedMappings = state.mappings.map((mapping) =>
+    mapping.event_id === second.event.event_id ? duplicateFingerprintMapping : mapping,
+  );
+  await seedRawState(root, { events: state.events, mappings: corruptedMappings, scheduleHistory: state.scheduleHistory });
+
+  await assert.rejects(() => admitEvent(musicRequest(), { root }), /Refusing to operate on invalid persisted Event state/);
+  await assert.rejects(
+    () =>
+      attachOccurrenceEvidence(
+        { event_id: second.event.event_id, basis: musicRequest().basis, attached_at: "2026-09-21T06:00:00.000Z" },
+        { root },
+      ),
+    /Refusing to operate on invalid persisted Event state/,
+  );
+});
+
+test("[E] a persisted schedule assertion with a malformed status blocks admission and attachment", async (t) => {
+  const root = await scratchRoot();
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const admitted = await admitEvent(musicRequest(), { root });
+  const state = await readState({ root });
+  const corruptedSchedule = state.scheduleHistory.map((assertion) =>
+    assertion.event_id === admitted.event.event_id ? { ...assertion, status: "BANANA" } : assertion,
+  );
+  await seedRawState(root, { events: state.events, mappings: state.mappings, scheduleHistory: corruptedSchedule });
+
+  await assert.rejects(() => admitEvent(footballRequest(), { root }), /Refusing to operate on invalid persisted Event state/);
+  await assert.rejects(
+    () =>
+      attachOccurrenceEvidence(
+        { event_id: admitted.event.event_id, basis: footballRequest().basis, attached_at: "2026-09-21T06:00:00.000Z" },
+        { root },
+      ),
+    /Refusing to operate on invalid persisted Event state/,
+  );
+});
+
+/* ---------------------------------------------------------------- */
+/* SCHEDULE CONTRACT HARDENING — REUSES THE EVENT CONTRACT (Phase 8) */
+/* ---------------------------------------------------------------- */
+
+const baseAssertion = () => ({
+  event_id: "event-11111111-1111-4111-8111-111111111111",
+  start: utcInstant("2026-07-18T13:00:00.000Z"),
+  end: null,
+  status: "SCHEDULED",
+  asserted_by: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+  asserted_at: "2026-09-21T00:00:00.000Z",
+  lifecycle: "CURRENT",
+  superseded_at: null,
+});
+
+test("a schedule assertion's status must be one of the Event contract's own statuses", () => {
+  const bad = validateScheduleAssertion({ ...baseAssertion(), status: "BANANA" });
+  assert.ok(bad.some((error) => error.includes("status must be one of")));
+
+  for (const status of ["SCHEDULED", "POSTPONED", "CANCELLED", "COMPLETED", "UNCONFIRMED"]) {
+    assert.deepEqual(validateScheduleAssertion({ ...baseAssertion(), status }), []);
+  }
+});
+
+test("a schedule assertion's start must be the Event contract's own certainty-bearing shape", () => {
+  const notAShape = validateScheduleAssertion({ ...baseAssertion(), start: { foo: "bar" } });
+  assert.ok(notAShape.some((error) => error.includes("certainty must be one of")));
+
+  const noIso = validateScheduleAssertion({
+    ...baseAssertion(),
+    start: { raw: "x", date: "2026-07-18", iso: null, is_utc: true, tzid: null, certainty: "UTC_INSTANT" },
+  });
+  assert.ok(noIso.some((error) => error.includes("start.iso is required when certainty is UTC_INSTANT")));
+
+  const fabricatedIso = validateScheduleAssertion({
+    ...baseAssertion(),
+    start: { raw: "x", date: "2026-07-18", iso: "2026-07-18T00:00:00.000Z", is_utc: null, tzid: null, certainty: "DATE_ONLY" },
+  });
+  assert.ok(fabricatedIso.some((error) => error.includes("start.iso must be null when certainty is DATE_ONLY")));
+});
+
+test("a schedule assertion's end, when present, is validated with the same governed shape — but a null end remains valid", () => {
+  const badEnd = validateScheduleAssertion({ ...baseAssertion(), end: { foo: "bar" } });
+  assert.ok(badEnd.some((error) => error.includes("end") && error.includes("certainty must be one of")));
+
+  assert.deepEqual(validateScheduleAssertion({ ...baseAssertion(), end: null }), []);
+});
+
+/* ---------------------------------------------------------------- */
+/* CROSS-STATE INVARIANT — CURRENT SCHEDULE PARITY (Phase 7 / 9)     */
+/* ---------------------------------------------------------------- */
+
+test("a CURRENT schedule assertion that disagrees with its own Event's status fails complete-state validation", () => {
+  const built = createEvent({
+    event_id: "event-11111111-1111-4111-8111-111111111111",
+    event_category: "SPORT",
+    event_type: "FOOTBALL_FIXTURE",
+    display_title: null,
+    occurrence_shape: "POINT_IN_TIME",
+    start: utcInstant("2026-07-18T13:00:00.000Z"),
+    end: null,
+    status: "COMPLETED",
+    venue_id: null,
+    parent_event_id: null,
+    admitted_at: "2026-09-21T00:00:00.000Z",
+    admission_basis: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+  });
+  const disagreeing = createScheduleAssertion({
+    event_id: built.event_id,
+    start: built.start,
+    end: built.end,
+    status: "SCHEDULED", // disagrees with the Event's own COMPLETED
+    asserted_by: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+    asserted_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "CURRENT",
+  });
+
+  const errors = validateState({ events: [built], mappings: [], scheduleHistory: [disagreeing] });
+  assert.ok(errors.some((error) => error.includes("CURRENT schedule status does not match")));
+});
+
+test("a CURRENT schedule assertion that matches its Event exactly passes complete-state validation", () => {
+  const built = createEvent({
+    event_id: "event-11111111-1111-4111-8111-111111111111",
+    event_category: "SPORT",
+    event_type: "FOOTBALL_FIXTURE",
+    display_title: null,
+    occurrence_shape: "POINT_IN_TIME",
+    start: utcInstant("2026-07-18T13:00:00.000Z"),
+    end: null,
+    status: "COMPLETED",
+    venue_id: null,
+    parent_event_id: null,
+    admitted_at: "2026-09-21T00:00:00.000Z",
+    admission_basis: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+  });
+  const agreeing = createScheduleAssertion({
+    event_id: built.event_id,
+    start: built.start,
+    end: built.end,
+    status: built.status,
+    asserted_by: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+    asserted_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "CURRENT",
+  });
+
+  assert.deepEqual(validateState({ events: [built], mappings: [], scheduleHistory: [agreeing] }), []);
+});
+
+test("a SUPERSEDED assertion may legitimately differ from its Event's current fields — only CURRENT is held to parity", () => {
+  const built = createEvent({
+    event_id: "event-11111111-1111-4111-8111-111111111111",
+    event_category: "SPORT",
+    event_type: "FOOTBALL_FIXTURE",
+    display_title: null,
+    occurrence_shape: "POINT_IN_TIME",
+    start: utcInstant("2026-07-19T13:00:00.000Z"),
+    end: null,
+    status: "SCHEDULED",
+    venue_id: null,
+    parent_event_id: null,
+    admitted_at: "2026-09-21T00:00:00.000Z",
+    admission_basis: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+  });
+  const priorSchedule = createScheduleAssertion({
+    event_id: built.event_id,
+    start: utcInstant("2026-07-18T13:00:00.000Z"), // pre-postponement time
+    end: null,
+    status: "SCHEDULED",
+    asserted_by: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+    asserted_at: "2026-09-20T00:00:00.000Z",
+    lifecycle: "SUPERSEDED",
+    superseded_at: "2026-09-21T00:00:00.000Z",
+  });
+  const currentSchedule = createScheduleAssertion({
+    event_id: built.event_id,
+    start: built.start,
+    end: built.end,
+    status: built.status,
+    asserted_by: { basis_kind: "PROVIDER_FINGERPRINT", method: "m" },
+    asserted_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "CURRENT",
+  });
+
+  assert.deepEqual(
+    validateState({ events: [built], mappings: [], scheduleHistory: [priorSchedule, currentSchedule] }),
+    [],
+  );
+});
+
+/* ---------------------------------------------------------------- */
+/* EVIDENCE PROVENANCE — MINIMUM RETAINED OBSERVATIONS (Phase 10)    */
+/* ---------------------------------------------------------------- */
+
+test("a PROVIDER_FINGERPRINT mapping with zero Observations is rejected", () => {
+  const errors = validateOccurrenceMapping({
+    event_id: "event-11111111-1111-4111-8111-111111111111",
+    basis_kind: "PROVIDER_FINGERPRINT",
+    fingerprint: "dof1-x",
+    observations: [],
+    method: "m",
+    evidence: [],
+    decided_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "ACTIVE",
+    superseded_reason: null,
+  });
+  assert.ok(
+    errors.some((error) => error.includes("at least one Observation")),
+    "a fingerprint mapping with no retained Observation is not traceable to any evidence",
+  );
+});
+
+test("a PROVIDER_FINGERPRINT mapping with exactly one Observation is structurally accepted", () => {
+  const errors = validateOccurrenceMapping({
+    event_id: "event-11111111-1111-4111-8111-111111111111",
+    basis_kind: "PROVIDER_FINGERPRINT",
+    fingerprint: "dof1-x",
+    observations: [observationRef("s", "1")],
+    method: "m",
+    evidence: [],
+    decided_at: "2026-09-21T00:00:00.000Z",
+    lifecycle: "ACTIVE",
+    superseded_reason: null,
+  });
+  assert.deepEqual(errors, []);
+});
+
+/* ---------------------------------------------------------------- */
 /* THE REPOSITORY'S OWN REGISTRIES STAY EMPTY                        */
 /* ---------------------------------------------------------------- */
 
-test("the repository's production Event registries are empty and valid", async () => {
+test("the repository's production Event state is empty and valid", async () => {
   const state = await readState({ root: REPO_ROOT });
   assert.equal(state.events.length, 0, "no Event has been admitted by this package");
   assert.equal(state.mappings.length, 0);
   assert.equal(state.scheduleHistory.length, 0);
   assert.deepEqual(validateState(state), [], "an empty state must validate");
 
-  for (const path of [EVENTS_PATH, MAPPINGS_PATH, SCHEDULE_PATH]) {
-    const raw = await readFile(resolve(REPO_ROOT, path), "utf8");
-    assert.equal(raw.includes("event-"), false, `${path} must contain no Event id`);
-    assert.equal(raw.includes("dof1-"), false, `${path} must contain no fingerprint`);
-  }
+  // The fail-closed load path must also accept the shipped file, not just
+  // the loose readState() shape used above.
+  await assert.doesNotReject(() => readValidatedState({ root: REPO_ROOT }));
+
+  const raw = await readFile(resolve(REPO_ROOT, EVENT_STATE_PATH), "utf8");
+  assert.equal(raw.includes("event-"), false, `${EVENT_STATE_PATH} must contain no Event id`);
+  assert.equal(raw.includes("dof1-"), false, `${EVENT_STATE_PATH} must contain no fingerprint`);
 });
