@@ -224,6 +224,17 @@
     },
     "note": "A replay of the exact same plan must mint nothing: every outcome ALREADY_ADMITTED and every net zero."
   },
+  "aborted_attempt": {
+    "occurred": true,
+    "reason": "The first pilot runner treated an already-admitted candidate as a preflight exclusion instead of handing it to admitEvent(), so a replay of the plan skipped the ten already-admitted primaries and fell through to the ordered reserves.",
+    "effect": "The replay incorrectly admitted ten additional reserve-stratum Events, temporarily expanding transient Event state from 10 to 20 Events.",
+    "foundation_fault": false,
+    "foundation_fault_note": "The generic Event admission foundation (admitEvent()) never double-minted a fingerprint; the fault was in the pilot runner's preflight candidate-skipping logic, not in the foundation.",
+    "correction": "The runner was corrected so a replayed candidate always reaches admitEvent(), which returns ALREADY_ADMITTED and mints nothing. Transient state was reset to empty and the corrected pilot was re-run from empty; the accepted run is recorded in first_execution above.",
+    "canonical_status": "DISCARDED_BEFORE_ACCEPTED_COMMIT",
+    "discarded_event_ids": "Not recoverable and not recorded; no committed, dangling or reflog git object in this repository contains them. Only the ten ids in first_execution / admitted[] above were ever accepted into canonical state.",
+    "disclosed_in_commit": "d68772ed9dcf7efdcc2f97f23860988cbef90ba7"
+  },
   "counts": {
     "with_governed_venue": 5,
     "without_governed_venue": 5

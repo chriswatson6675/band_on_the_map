@@ -484,6 +484,41 @@ test("the result artifact records both the first execution and the replay", () =
   assert.equal(result.counts.without_governed_venue, 5);
 });
 
+test("the result artifact durably discloses the replay defect and names no discarded id", () => {
+  assert.equal(result.aborted_attempt.occurred, true);
+  assert.equal(result.aborted_attempt.foundation_fault, false);
+  assert.equal(result.aborted_attempt.canonical_status, "DISCARDED_BEFORE_ACCEPTED_COMMIT");
+
+  // A discarded, never-committed population must never be asserted as an
+  // Event id here — accepted ids only, and only those ten.
+  const serialised = JSON.stringify(result.aborted_attempt);
+  const acceptedIds = new Set(result.admitted.map((a) => a.event_id));
+  const found = serialised.match(/event-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g) ?? [];
+  for (const id of found) assert.ok(acceptedIds.has(id), `${id} is not one of the accepted ten`);
+});
+
+test("admission-result.json admitted[] is exactly events/event-state.json events[], row for row", async () => {
+  const state = await readValidatedState();
+  const mappingByEvent = new Map(state.mappings.map((m) => [m.event_id, m]));
+  const eventById = new Map(state.events.map((e) => [e.event_id, e]));
+
+  assert.deepEqual(
+    result.admitted.map((a) => a.event_id).sort(),
+    state.events.map((e) => e.event_id).sort(),
+    "a future report must never again be able to cite a different Event population than the committed result artifact",
+  );
+
+  for (const row of result.admitted) {
+    const event = eventById.get(row.event_id);
+    const mapping = mappingByEvent.get(row.event_id);
+    assert.ok(event, `${row.event_id} in admission-result.json has no committed Event`);
+    assert.equal(row.occurrence_fingerprint, mapping.fingerprint);
+    assert.equal(row.occurrence_instant_utc, event.start.iso);
+    assert.equal(row.venue_id, event.venue_id);
+    assert.equal(row.status, event.status);
+  }
+});
+
 /* ---------------------------------------------------------------- */
 /* PUBLIC ISOLATION                                                  */
 /* ---------------------------------------------------------------- */
