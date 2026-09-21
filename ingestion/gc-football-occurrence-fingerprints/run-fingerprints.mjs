@@ -80,9 +80,22 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
     throw new Error("STOP: duplicate occurrence fingerprints were derived");
   }
 
-  // Nothing in this layer may carry an application entity id.
-  if (established.some((event) => event.application_canonical_event_id != null)) {
-    throw new Error("STOP: an application canonical event id was populated");
+  // No record may carry a field whose truth depends on the CURRENT
+  // contents of events/event-state.json. Checked structurally rather than
+  // by naming one known field, so a future field of that shape cannot
+  // reintroduce the coupling unnoticed.
+  //
+  // Scoped precisely to canonical-Event and admission vocabulary. Fields
+  // like `participant_identity_state` are NOT caught and must not be:
+  // they record whether the SOURCES resolved a club or competition name,
+  // which is an upstream evidence fact and is timeless.
+  const DOWNSTREAM_STATE_FIELD = /(^|_)event_id$|canonical_event|application_entity|admitted|admission/i;
+  for (const record of established) {
+    for (const field of Object.keys(record)) {
+      if (DOWNSTREAM_STATE_FIELD.test(field)) {
+        throw new Error(`STOP: "${field}" states downstream Event state inside fingerprint evidence`);
+      }
+    }
   }
 
   const withGovernedVenue = established.filter((event) => event.governed_venue_census_id != null);
@@ -104,7 +117,9 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
     publishes_events: false,
     mutates_upstream_artifacts: false,
     architecture_note:
-      "This layer derives a provider-scoped occurrence FINGERPRINT, not an application canonical entity id. docs/ARCHITECTURE.md rule 6 says a source-specific identifier must never become the application's canonical identity scheme, and this value is a deterministic function of the provider's own event key: change that key and the fingerprint changes. Digesting the anchor hides the key, it does not remove the dependency. docs/ARCHITECTURE.md now defines Event generically, so a football fixture IS eligible to be a BeatMapped Event — but eligibility is not admission. Rule 7 requires an Event id to be application-issued and minted once at a governed admission step (ingestion/event/admission.mjs), and no package has yet decided this evidence is sufficient to admit. Every record therefore carries application_canonical_event_id: null.",
+      "This layer derives a provider-scoped occurrence FINGERPRINT, not an application canonical entity id. docs/ARCHITECTURE.md rule 6 says a source-specific identifier must never become the application's canonical identity scheme, and this value is a deterministic function of the provider's own event key: change that key and the fingerprint changes. Digesting the anchor hides the key, it does not remove the dependency. Rule 7 requires an Event id to be application-issued and minted once at a governed admission step (ingestion/event/admission.mjs), which is downstream of this artifact and independent of it. Accordingly no record here states whether a canonical Event has been admitted for its occurrence: that would be a claim about the current contents of events/event-state.json, and it would go stale the moment one is admitted, forcing reproducible evidence to be rewritten because application state moved. The authoritative fingerprint-to-Event linkage is events/event-state.json's event_occurrence_mappings, and it is the only place to ask.",
+    event_linkage_source_of_truth: "events/event-state.json -> event_occurrence_mappings",
+    reads_event_state: false,
     note:
       "A fingerprinted occurrence states that several reconciled source Observations are observations of ONE underlying occurrence, and gives that occurrence a stable derived anchor. It resolves no club identity, no competition identity and no naming vocabulary, and nothing here is published: the lifecycle on every record is "
       + `${LIFECYCLE_STATE}.`,
@@ -140,8 +155,12 @@ export function buildArtifacts(reconciledGroups, singleSourceEntries, derivedAt)
       distinct_occurrence_fingerprints: uniqueIds.size,
       single_source_match_ids_out_of_scope: singleSourceEntries.length,
       fingerprints_created_for_single_source: 0,
-      application_canonical_event_ids_created: 0,
-      beatmapped_event_entities_created: 0,
+      // Counts of admitted Events deliberately do NOT appear here.
+      // "how many are currently admitted" is a question about
+      // events/event-state.json, not about this corpus, and an answer
+      // frozen into this artifact would be wrong as soon as one is
+      // admitted. What this DERIVATION creates is stated timelessly in
+      // provenance.creates_beatmapped_event_entity instead.
     },
 
     by_fingerprint_state: {
@@ -241,7 +260,7 @@ async function main() {
   console.log(`reconciled groups in            : ${accounting.reconciled_groups_in}`);
   console.log(`occurrence fingerprints         : ${accounting.occurrence_fingerprints_established}`);
   console.log(`withheld                        : ${accounting.fingerprints_withheld}`);
-  console.log(`application entity ids created  : ${accounting.application_canonical_event_ids_created}`);
+  console.log(`event entities created by this  : ${artifacts.summary.provenance.creates_beatmapped_event_entity ? "some" : "none"}`);
   console.log(`cross-publisher corroborated    : ${evidence.CROSS_PUBLISHER_CORROBORATED}`);
   console.log(`same-publisher multi-source     : ${evidence.SAME_PUBLISHER_MULTI_SOURCE}`);
   console.log(`with governed venue             : ${venue.with_governed_venue}`);

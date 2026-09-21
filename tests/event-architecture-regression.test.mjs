@@ -240,9 +240,9 @@ test("the fingerprint layer no longer claims football is ineligible for being no
 
   const summary = JSON.parse(sources[2]);
   assert.match(summary.provenance.architecture_note, /rule 6/, "the rule 6 argument is preserved");
-  assert.match(summary.provenance.architecture_note, /eligibility is not admission/);
-  assert.equal(summary.accounting.application_canonical_event_ids_created, 0);
-  assert.equal(summary.accounting.beatmapped_event_entities_created, 0);
+  assert.match(summary.provenance.architecture_note, /no record here states whether a canonical Event has been admitted/);
+  assert.equal(summary.provenance.creates_beatmapped_event_entity, false);
+  assert.equal(summary.provenance.reads_event_state, false);
 });
 
 test("correcting the wording changed no fingerprint fact", async () => {
@@ -261,10 +261,12 @@ test("correcting the wording changed no fingerprint fact", async () => {
   assert.equal(records.filter((record) => record.governed_venue_census_id != null).length, 420);
   assert.equal(records.filter((record) => record.governed_venue_census_id == null).length, 478);
 
-  // Still evidence, still unadmitted, and still carrying no Event id.
+  // Still evidence, still carrying no downstream Event state at all.
+  const DOWNSTREAM = /(^|_)event_id$|canonical_event|application_entity|admitted|admission/i;
   for (const record of records) {
-    assert.equal(record.application_canonical_event_id, null);
-    assert.equal(record.application_entity_state, "NOT_ADMITTED_TO_CANONICAL_EVENT");
+    for (const field of Object.keys(record)) {
+      assert.equal(DOWNSTREAM.test(field), false, `${field} states downstream Event state`);
+    }
     assert.equal(record.lifecycle_state, "DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY");
     assert.ok(record.occurrence_fingerprint.startsWith("dof1-"));
   }

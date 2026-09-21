@@ -34,7 +34,9 @@
     "creates_beatmapped_event_entity": false,
     "publishes_events": false,
     "mutates_upstream_artifacts": false,
-    "architecture_note": "This layer derives a provider-scoped occurrence FINGERPRINT, not an application canonical entity id. docs/ARCHITECTURE.md rule 6 says a source-specific identifier must never become the application's canonical identity scheme, and this value is a deterministic function of the provider's own event key: change that key and the fingerprint changes. Digesting the anchor hides the key, it does not remove the dependency. docs/ARCHITECTURE.md now defines Event generically, so a football fixture IS eligible to be a BeatMapped Event — but eligibility is not admission. Rule 7 requires an Event id to be application-issued and minted once at a governed admission step (ingestion/event/admission.mjs), and no package has yet decided this evidence is sufficient to admit. Every record therefore carries application_canonical_event_id: null.",
+    "architecture_note": "This layer derives a provider-scoped occurrence FINGERPRINT, not an application canonical entity id. docs/ARCHITECTURE.md rule 6 says a source-specific identifier must never become the application's canonical identity scheme, and this value is a deterministic function of the provider's own event key: change that key and the fingerprint changes. Digesting the anchor hides the key, it does not remove the dependency. Rule 7 requires an Event id to be application-issued and minted once at a governed admission step (ingestion/event/admission.mjs), which is downstream of this artifact and independent of it. Accordingly no record here states whether a canonical Event has been admitted for its occurrence: that would be a claim about the current contents of events/event-state.json, and it would go stale the moment one is admitted, forcing reproducible evidence to be rewritten because application state moved. The authoritative fingerprint-to-Event linkage is events/event-state.json's event_occurrence_mappings, and it is the only place to ask.",
+    "event_linkage_source_of_truth": "events/event-state.json -> event_occurrence_mappings",
+    "reads_event_state": false,
     "note": "A fingerprinted occurrence states that several reconciled source Observations are observations of ONE underlying occurrence, and gives that occurrence a stable derived anchor. It resolves no club identity, no competition identity and no naming vocabulary, and nothing here is published: the lifecycle on every record is DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY."
   },
   "fingerprint_contract": {
@@ -59,9 +61,7 @@
     "groups_accounted_for": 898,
     "distinct_occurrence_fingerprints": 898,
     "single_source_match_ids_out_of_scope": 3239,
-    "fingerprints_created_for_single_source": 0,
-    "application_canonical_event_ids_created": 0,
-    "beatmapped_event_entities_created": 0
+    "fingerprints_created_for_single_source": 0
   },
   "by_fingerprint_state": {
     "OCCURRENCE_FINGERPRINT_ESTABLISHED": 898,

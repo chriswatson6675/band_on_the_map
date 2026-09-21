@@ -9,18 +9,36 @@
 // (ingestion/derived-occurrence-fingerprint/contract.mjs) never learns
 // what a fixture, a club or a competition is.
 //
-// NO BEATMAPPED EVENT IS CREATED HERE.
+// NO BEATMAPPED EVENT IS CREATED HERE — AND NONE IS DENIED EITHER.
 //
-// docs/ARCHITECTURE.md defines an Event as "a canonical live music
-// occurrence, such as a gig or festival". A football fixture is not a
-// live music occurrence, and this repository defines no MajorEvent,
-// Occurrence or sports sibling entity to admit one into — there is no
-// Supabase schema, no events table, and no governed admission step
-// anywhere. So every record below carries
-// application_canonical_event_id: null, deliberately and permanently
-// within this package. Widening the Event entity, or creating a sibling
-// for non-music occurrences, is a governed architecture decision this
-// package does not have and must not pre-empt.
+// This layer answers exactly one question: what occurrence evidence do we
+// have? It does not answer whether the application has admitted a
+// canonical Event for that evidence, and a record here states nothing
+// either way.
+//
+// That restraint is deliberate and load-bearing. A record that said
+// "not admitted" would be a claim about the CURRENT contents of
+// events/event-state.json, and it would silently become false the moment
+// a later package admits one — forcing this reproducible evidence
+// artifact to be regenerated because downstream application state
+// changed, which is precisely backwards. Evidence is what the sources
+// said; it does not move when the application makes a decision about it.
+//
+// So the dependency runs one way only:
+//
+//   fingerprint evidence  ->  may later be consumed by Event admission
+//
+// and never the reverse. This module reads no Event state, imports no
+// Event module, and would derive byte-identical output against an empty
+// registry and a fully-admitted one alike.
+//
+// THE LINKAGE LIVES DOWNSTREAM.
+//
+// The one authoritative statement of "which canonical Event, if any, this
+// fingerprint belongs to" is events/event-state.json's
+// `event_occurrence_mappings`, where a mapping carries the fingerprint as
+// evidence alongside an application-issued event_id. Ask that file, never
+// this one.
 //
 // IDENTITY AND ENRICHMENT ARE SEPARATE.
 //
@@ -45,28 +63,19 @@ export const PROVIDER_NAMESPACE = "GC_FOOTBALL";
 export const OCCURRENCE_TYPE = "FOOTBALL_FIXTURE";
 
 /**
- * This layer is a derived evidence anchor. It is not an entity, not a
- * production Event store, and nothing here is published; the lifecycle
- * says so on every record so the distinction cannot be lost downstream.
+ * What KIND of thing a record in this layer is — permanently.
+ *
+ * It says: this record is a derived evidence anchor, not a canonical
+ * Event entity. That is a fact about the record's own nature and is true
+ * forever, before any admission and after every admission.
+ *
+ * It does NOT mean "no canonical Event exists for this occurrence". A
+ * fingerprint that has been admitted, attached to, superseded or merged
+ * downstream is still a derived evidence anchor and still carries this
+ * exact value. Nothing downstream can falsify it, which is why it is safe
+ * to store here.
  */
 export const LIFECYCLE_STATE = "DERIVED_EVIDENCE_ANCHOR_NOT_AN_ENTITY";
-
-/**
- * Why no application entity id is present.
- *
- * This state used to say a non-music occurrence had no governed entity to
- * be admitted to. That premise is now false twice over:
- * docs/ARCHITECTURE.md defines Event generically, and a football fixture
- * is a peer Event of a gig rather than something the model excludes.
- *
- * The honest reason is simply that these records are EVIDENCE that has
- * not been admitted. Admission is a separate, governed act
- * (ingestion/event/admission.mjs) performed by a package that has decided
- * the evidence is sufficient — a decision this layer does not make and
- * this repository has not yet taken for any football fixture. So the slot
- * stays null with that reason stated rather than being quietly omitted.
- */
-export const APPLICATION_ENTITY_STATE = "NOT_ADMITTED_TO_CANONICAL_EVENT";
 
 /**
  * How a fingerprinted occurrence is supported by its sources. A FACT about where
@@ -213,15 +222,13 @@ export function fingerprintGroup(group) {
 
     /* ---- fingerprint: derived from the anchor, and nothing else ----
      *
-     * This is a provider-scoped evidence anchor, NOT the application's
-     * canonical entity id. The application slot below stays null: no
-     * governed entity exists for a non-music occurrence to be admitted
-     * to, and inventing one here would be exactly the claim rule 6 and
-     * the Event definition forbid.
+     * A provider-scoped evidence anchor, never the application's
+     * canonical entity id (rule 6). There is deliberately no slot here
+     * for an event id or an admission state: a record must not carry a
+     * field whose truth depends on what events/event-state.json happens
+     * to contain right now. See this module's header.
      */
     occurrence_fingerprint: minted.occurrence_fingerprint,
-    application_canonical_event_id: null,
-    application_entity_state: APPLICATION_ENTITY_STATE,
     occurrence_type: OCCURRENCE_TYPE,
     fingerprint_scheme: minted.fingerprint_scheme,
     fingerprint_version: minted.fingerprint_version,
