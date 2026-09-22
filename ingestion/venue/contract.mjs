@@ -27,11 +27,27 @@ export const MAP_ELIGIBLE_LOCATION_STATUSES = new Set(["CONFIRMED", "GEOCODED"])
 // originally discovered from (ingestion/geocoding/nominatim.mjs's
 // lookupNominatimOsmIdLive()) — not a fuzzy address search at all, so it
 // is honestly recorded under its own, differently-named method rather than
-// mislabeled as an address query that never happened. Both are equally
-// deterministic, evidence-backed, non-guessed coordinate derivations;
-// GEOCODED never distinguishes further between them beyond this method
-// name.
-export const GEOCODED_PROVENANCE_METHODS = new Set(["GEOCODED_FROM_OFFICIAL_ADDRESS", "OSM_ID_LOOKUP"]);
+// mislabeled as an address query that never happened.
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 adds
+// STRUCTURED_POI_NAME_CITY_MATCH: a Nominatim structured POI search keyed
+// on the venue's own canonical_name + city ONLY — used when no
+// independently-evidenced official address exists at all (the majority of
+// the UK major-event venue census, see research/major-event-venues/
+// uk-major-event-census-01/venues.json), so it is never mislabeled as
+// GEOCODED_FROM_OFFICIAL_ADDRESS (which implies an address was the query
+// anchor). It reuses NAME_PLUS_ADDRESS_QUERY's exact strict acceptance
+// rules (name compatibility, feature-kind plausibility, city, country —
+// see ingestion/geocoding/match-address.mjs's evaluateNamePlusAddressCandidate)
+// unchanged, never loosened — only the query's own input differs (no
+// street/postalcode to include, because none was evidenced). All three
+// methods are equally deterministic, evidence-backed, non-guessed
+// coordinate derivations; GEOCODED never distinguishes further between
+// them beyond this method name.
+export const GEOCODED_PROVENANCE_METHODS = new Set([
+  "GEOCODED_FROM_OFFICIAL_ADDRESS",
+  "OSM_ID_LOOKUP",
+  "STRUCTURED_POI_NAME_CITY_MATCH",
+]);
 
 /**
  *   CONFIRMED     - a non-empty address AND coordinates are both

@@ -79,6 +79,56 @@ export function resolveVenueMapCoordinates(venue, manualEntry) {
   return { eligible: false, latitude: null, longitude: null, source: null };
 }
 
+/**
+ * BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 — seed one
+ * additional, listing-free marker for every map-eligible canonical Venue
+ * in `venues` that ISN'T already covered by `existingMarkers` (an
+ * Observation-projected marker list, e.g. from
+ * projectObservationsToMapMarkers()/projectObservationsToDisplayMarkers()).
+ * Deduplicates by venue_id — an Observation-based marker always wins for
+ * listing content; this only ever ADDS a venue_id that would otherwise
+ * have no marker at all.
+ *
+ * This exists because a canonical, map-eligible Venue does not need an
+ * Event/Observation to have a map marker — "BeatMapped knows this place
+ * is a real public live-event venue" is a legitimate, honest thing to
+ * show even with zero current listings (display_listings: []). This is
+ * NEVER a fabricated Observation/listing: no `listings`/`display_listings`
+ * entry is ever invented, only an empty array.
+ *
+ * Deliberately generic (not United-Kingdom-specific) — any future country
+ * that wants the same venue-discovery behaviour reuses this one helper
+ * rather than a country-specific copy. Same map-eligibility and manual-
+ * coordinate-override semantics as projectObservationsToMapMarkers()
+ * above (resolveVenueMapCoordinates()) — a venue's own CONFIRMED/GEOCODED
+ * coordinates, or a valid ADDRESS_ONLY MANUAL_OPERATOR_ENTRY override; an
+ * UNRESOLVED or coordinate-less venue is never seeded.
+ */
+export function seedMapEligibleVenueMarkers(existingMarkers, venues, manualCoordinatesByVenueId) {
+  const manualByVenueId =
+    manualCoordinatesByVenueId instanceof Map
+      ? manualCoordinatesByVenueId
+      : new Map(Object.entries(manualCoordinatesByVenueId ?? {}));
+  const existingVenueIds = new Set((existingMarkers ?? []).map((marker) => marker.venue_id));
+
+  const seeded = [];
+  for (const venue of venues ?? []) {
+    if (existingVenueIds.has(venue.venue_id)) continue;
+    const composed = resolveVenueMapCoordinates(venue, manualByVenueId.get(venue.venue_id));
+    if (!composed.eligible) continue;
+    seeded.push({
+      venue_id: venue.venue_id,
+      canonical_name: venue.canonical_name,
+      latitude: composed.latitude,
+      longitude: composed.longitude,
+      address: venue.address,
+      listings: [],
+      display_listings: [],
+    });
+  }
+  return [...(existingMarkers ?? []), ...seeded];
+}
+
 function sourceName(sourceId, sourceRegistryEntries) {
   const entry = (sourceRegistryEntries ?? []).find((candidate) => candidate.id === sourceId);
   return entry?.name ?? sourceId ?? null;

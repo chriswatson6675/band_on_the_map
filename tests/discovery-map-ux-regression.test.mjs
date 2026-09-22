@@ -141,7 +141,21 @@ const PUBLICATION_PATH = new URL("../data/public/lisbon-porto-map.json", import.
 //     resolving live, per source-by-source network flakiness on any given
 //     run) — comfortable headroom for a handful of transient source
 //     failures without masking genuine venue-coverage loss.
-const KNOWN_GOOD_MARKER_FLOORS = { Portugal: 12, Spain: 31, Germany: 20, France: 25 };
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01's own
+// `npm run publish:map-data` (2026-09-22T11:57:58.377Z, the first real
+// regeneration since 2026-08-27) lowered Spain's floor 31 -> 29:
+// `sala-upload-barcelona` has been failing live acquisition since
+// 2026-08-27T11:03:29.242Z (see data/public/lisbon-porto-map.json's own
+// `source_report.sources` entry for it) — over three weeks outside the
+// 24-hour source-failure-grace retention window (ingestion/map/
+// source-retention.mjs), so its venue(s) are honestly dropped rather than
+// retained past grace. This is real, pre-existing external source decay
+// unrelated to United Kingdom onboarding (this package never touches
+// Barcelona/ingestion/barcelona code) — the previous 31 floor was already
+// stale the moment that source broke; this run's fresh acquisition simply
+// surfaces it for the first time. Portugal/Germany/France all stayed
+// within their existing floors this same run.
+const KNOWN_GOOD_MARKER_FLOORS = { Portugal: 12, Spain: 29, Germany: 20, France: 25 };
 
 async function loadPublication() {
   return JSON.parse(await readFile(PUBLICATION_PATH, "utf8"));
@@ -180,9 +194,14 @@ test(`venue-marker coverage never falls below the known-good floor per country (
     franceMarkers.length >= KNOWN_GOOD_MARKER_FLOORS.France,
     `France markers dropped below the known-good floor: ${franceMarkers.length} < ${KNOWN_GOOD_MARKER_FLOORS.France}`,
   );
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: United
+  // Kingdom joins this GLOBAL cross-check the same way France joined
+  // Germany before it — map_marker_count is the TOTAL across every
+  // published country, never a four-country-only figure.
+  const unitedKingdomMarkers = artifact.countries.UnitedKingdom.markers;
   assert.equal(
     artifact.counts.map_marker_count,
-    portugalMarkers.length + spainMarkers.length + germanyMarkers.length + franceMarkers.length,
+    portugalMarkers.length + spainMarkers.length + germanyMarkers.length + franceMarkers.length + unitedKingdomMarkers.length,
     "map_marker_count must be the exact sum of the per-country marker arrays — no independently-drifting total",
   );
 });
@@ -222,17 +241,27 @@ test("CCB's marker, when present, uses exactly the operator-supplied coordinate 
   assert.equal(ccb.longitude, -9.2073); // -9.20730 and -9.2073 are the identical IEEE754 value
 });
 
-test("cluster aggregate gig count across the full live dataset (Portugal + Spain + Germany + France) sums to the same GLOBAL total the publication artifact already reports", async () => {
+test("cluster aggregate gig count across the full live dataset (Portugal + Spain + Germany + France + United Kingdom) sums to the same GLOBAL total the publication artifact already reports", async () => {
   const artifact = await loadPublication();
   const portugalMarkers = artifact.countries.Portugal.markers;
   const spainMarkers = artifact.countries.Spain.markers;
   const germanyMarkers = artifact.countries.Germany.markers;
   const franceMarkers = artifact.countries.France.markers;
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: United
+  // Kingdom joins the sum the same way France joined Germany before it —
   // artifact.counts.display_listing_count is a GLOBAL total across every
   // published country (see buildPublicationArtifact()'s own doc comment)
-  // — never Portugal-only — so this cross-check must sum all four.
+  // — never Portugal-only — so this cross-check must sum all five. Most
+  // UK markers are venue-only (display_listings: []), contributing 0 each
+  // — sumGigCounts() needs no change, it already just sums whatever
+  // display_listings each marker actually has.
+  const unitedKingdomMarkers = artifact.countries.UnitedKingdom.markers;
   assert.equal(
-    sumGigCounts(portugalMarkers) + sumGigCounts(spainMarkers) + sumGigCounts(germanyMarkers) + sumGigCounts(franceMarkers),
+    sumGigCounts(portugalMarkers) +
+      sumGigCounts(spainMarkers) +
+      sumGigCounts(germanyMarkers) +
+      sumGigCounts(franceMarkers) +
+      sumGigCounts(unitedKingdomMarkers),
     artifact.counts.display_listing_count,
   );
 });

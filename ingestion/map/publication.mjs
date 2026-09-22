@@ -32,7 +32,7 @@
 // by the future scheduler this package hands off to.
 
 import { projectObservationsToDisplayMarkers } from "./group-associated-listings.mjs";
-import { isValidCoordinate } from "./projection.mjs";
+import { isValidCoordinate, seedMapEligibleVenueMarkers } from "./projection.mjs";
 import { attachArtistGenres } from "./attach-artist-genres.mjs";
 
 /**
@@ -190,6 +190,19 @@ export function buildFranceMarkers({
  * future London duplicate-listing case would need its own explicit,
  * evidence-backed association module, following the Hot Clube/Capitólio
  * precedent exactly.
+ *
+ * BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: `ukVenues`
+ * is a new, optional parameter (defaults to `[]`) — the governed UK
+ * major-event venue registry's own `venues` array (venues/uk.json). Every
+ * existing caller that omits it (every test/call site predating this
+ * package) keeps EXACTLY today's Observation-only behaviour. When
+ * supplied, every map-eligible venue in it that ISN'T already covered by
+ * an Observation-based London marker gets one additional, listing-free
+ * marker (ingestion/map/projection.mjs's seedMapEligibleVenueMarkers() —
+ * a generic helper, not United-Kingdom-specific) — never a fabricated
+ * Observation/listing, only an honestly empty `display_listings: []`.
+ * Deduplicated by venue_id: the Observation-based marker always wins for
+ * listing content.
  */
 export function buildUnitedKingdomMarkers({
   londonObservations,
@@ -199,6 +212,7 @@ export function buildUnitedKingdomMarkers({
   manualCoordinatesByVenueId,
   artistRegistry = [],
   artistLinks = [],
+  ukVenues = [],
 }) {
   const markers = projectObservationsToDisplayMarkers(londonObservations ?? [], {
     venues: londonVenues ?? [],
@@ -207,7 +221,9 @@ export function buildUnitedKingdomMarkers({
     manualCoordinatesByVenueId,
   });
 
-  return attachArtistGenres(markers, { artists: artistRegistry, links: artistLinks });
+  const withVenueOnlyMarkers = seedMapEligibleVenueMarkers(markers, ukVenues, manualCoordinatesByVenueId);
+
+  return attachArtistGenres(withVenueOnlyMarkers, { artists: artistRegistry, links: artistLinks });
 }
 
 /**
@@ -609,8 +625,18 @@ export function validatePublicationArtifact(artifact) {
       if (!isValidCoordinate(marker.latitude, marker.longitude)) {
         errors.push(`${marker.venue_id}: invalid coordinates (${marker.latitude}, ${marker.longitude})`);
       }
-      if (!Array.isArray(marker.display_listings) || marker.display_listings.length === 0) {
-        errors.push(`${marker.venue_id}: display_listings must be a non-empty array`);
+      // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01:
+      // display_listings may now legitimately be EMPTY — a canonical,
+      // map-eligible Venue with no current listing is a genuine,
+      // honestly-represented product state ("BeatMapped knows this real
+      // venue exists, with nothing publishable right now"), never a
+      // fabricated listing and never a validation error. Every marker
+      // must still carry the field as an array; only the "non-empty"
+      // requirement is relaxed (see ingestion/map/projection.mjs's
+      // seedMapEligibleVenueMarkers(), the ONLY place an empty
+      // display_listings marker is ever produced).
+      if (!Array.isArray(marker.display_listings)) {
+        errors.push(`${marker.venue_id}: display_listings must be an array`);
       } else {
         for (const listing of marker.display_listings) {
           if (!isValidDisplayListing(listing)) {
