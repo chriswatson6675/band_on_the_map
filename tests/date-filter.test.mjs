@@ -157,3 +157,41 @@ test("null/undefined From is treated the same as empty string", () => {
   assert.equal(resolveDefaultFromDate(null, "2026-08-26"), "2026-08-26");
   assert.equal(resolveDefaultFromDate(undefined, "2026-08-26"), "2026-08-26");
 });
+
+// --- BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: a
+// venue-only marker (display_listings: [] from the start — see
+// ingestion/map/projection.mjs's seedMapEligibleVenueMarkers()) must
+// never be dropped by date filtering, unlike a marker whose real
+// listings all fall outside the range. Since resolveDefaultFromDate()
+// makes "From" default to today on every visitor's first view, this is
+// not an edge case — it is what happens on EVERY page load unless
+// specifically guarded against.
+
+test("a venue-only marker (display_listings: [] from the start) survives date filtering even though it has zero listings", () => {
+  const venueOnly = marker("v-empty", []);
+  const withMatchingListing = marker("v-real", [listing("2026-09-15")]);
+  const filtered = filterMarkersByDateRange([venueOnly, withMatchingListing], "2026-09-01", "2026-09-30");
+  const ids = filtered.map((m) => m.venue_id).sort();
+  assert.deepEqual(ids, ["v-empty", "v-real"]);
+  assert.deepEqual(filtered.find((m) => m.venue_id === "v-empty").display_listings, []);
+});
+
+test("a marker that HAD real listings, all now outside the date range, still correctly disappears (date filtering behaviour is unchanged for real listings)", () => {
+  const expired = marker("v-expired", [listing("2026-01-01")]);
+  const filtered = filterMarkersByDateRange([expired], "2026-09-01", "2026-09-30");
+  assert.deepEqual(filtered, []);
+});
+
+test("multiple venue-only markers all survive date filtering alongside a mix of matching/non-matching real listings", () => {
+  const markers = [
+    marker("v-empty-1", []),
+    marker("v-empty-2", []),
+    marker("v-matches", [listing("2026-09-15")]),
+    marker("v-expired", [listing("2026-01-01")]),
+  ];
+  const filtered = filterMarkersByDateRange(markers, "2026-09-01", "2026-09-30");
+  assert.deepEqual(
+    filtered.map((m) => m.venue_id).sort(),
+    ["v-empty-1", "v-empty-2", "v-matches"],
+  );
+});

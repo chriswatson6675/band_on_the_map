@@ -54,10 +54,29 @@ export function listingWithinDateRange(listing, from, to) {
  * falsy — covers `null`, `undefined`, and the empty string a cleared
  * <input type="date"> produces) returns `markers` completely unchanged,
  * matching those two filters' own "Any"/null no-op convention.
+ *
+ * BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: a venue-only
+ * marker (ingestion/map/projection.mjs's seedMapEligibleVenueMarkers() —
+ * display_listings: [] from the start, never any listings to begin with)
+ * is NEVER touched by date filtering, unlike Genre/Artist filtering, which
+ * correctly still drops it via filterMarkersByListingPredicate() below
+ * (a venue with nothing matching a genre/artist genuinely has nothing
+ * relevant to show for THAT query). Date filtering is different: because
+ * resolveDefaultFromDate() makes "From" default to today on every
+ * visitor's first view, the shared drop-if-empty composition would
+ * otherwise silently strip every venue-only marker off the map on first
+ * load, every time — not because its (nonexistent) listings expired, but
+ * merely because it never had any to filter. Markers that DID start with
+ * real listings keep the exact previous behaviour: one that becomes
+ * entirely out-of-range still correctly disappears.
  */
 export function filterMarkersByDateRange(markers, from, to) {
   if (!from && !to) return markers ?? [];
-  return filterMarkersByListingPredicate(markers, (listing) => listingWithinDateRange(listing, from, to));
+  const all = markers ?? [];
+  const venueOnly = all.filter((marker) => (marker.display_listings ?? []).length === 0);
+  const withListings = all.filter((marker) => (marker.display_listings ?? []).length > 0);
+  const dateFiltered = filterMarkersByListingPredicate(withListings, (listing) => listingWithinDateRange(listing, from, to));
+  return [...dateFiltered, ...venueOnly];
 }
 
 // BAND-ON-THE-MAP-BARCELONA-PRE-INTEGRATION-DATE-AUDIT-01 — the default
