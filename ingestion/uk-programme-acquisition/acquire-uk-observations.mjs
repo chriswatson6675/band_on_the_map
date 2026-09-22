@@ -58,6 +58,7 @@ export async function loadProvenUkSources(root) {
  */
 export async function acquireUkObservations({ root, fetchDocument = defaultFetchDocument, concurrency = 8, perHost = 1 } = {}) {
   const provenSources = await loadProvenUkSources(root);
+  console.log(`\n-- United Kingdom (national programme, ${provenSources.length} proven sources) --`);
   if (provenSources.length === 0) return { ukSourceRegistry: { entries: [] }, ukObservations: [], ukResults: [] };
 
   const sources = provenSources.map((entry) => ({ source_id: entry.id, venue: entry.name, website: entry.official_website, programme_url: entry.events_url }));
@@ -66,6 +67,19 @@ export async function acquireUkObservations({ root, fetchDocument = defaultFetch
   const observations = results
     .filter((result) => result.state === "ACQUISITION_PROVEN")
     .flatMap((result) => (result.observations ?? []).map((observation) => ({ ...observation, source_id: result.source_id })));
+
+  // Matches every other country's own per-source + summary logging
+  // convention (see e.g. ingestion/london/run.mjs) — this step was
+  // previously completely silent, which made a real production incident
+  // (every one of 89 real, already-proven UK sources failing to
+  // re-acquire live at publish time, with zero observations reaching the
+  // artifact) undiagnosable from the publish run's own console output.
+  const succeeded = results.filter((r) => r.state === "ACQUISITION_PROVEN").length;
+  for (const result of results) {
+    const status = result.state === "ACQUISITION_PROVEN" ? "OK" : "FAILED";
+    console.log(`  [${status}] ${result.source_id}: state=${result.state} observations=${result.observations?.length ?? 0}${result.error ? ` error="${result.error}"` : ""}`);
+  }
+  console.log(`  UK national programme sources: ${succeeded}/${results.length} succeeded, ${observations.length} observations`);
 
   return { ukSourceRegistry: { entries: provenSources }, ukObservations: observations, ukResults: results };
 }
