@@ -14,6 +14,30 @@
 
 import { acquireSource, DEFAULT_DETAIL_LIMIT } from "./source-execution.mjs";
 
+// Falls back to `item.website`'s own host when `item.programme_url` is
+// absent — a source whose programme_url is not yet known (a real,
+// increasingly common shape: acquireSource() discovers the real
+// programme page itself from a bare `website`) previously always
+// bucketed under the single literal host "none", which silently
+// serialised an ENTIRE batch of otherwise-unrelated real domains through
+// one shared perHost=1 slot regardless of `concurrency` — a real
+// throttling bug, not a deliberate safety margin (the actual concern this
+// function protects against — many requests to the SAME real host — was
+// never at risk for two DIFFERENT domains that both happen to lack a
+// pre-known programme_url). Existing callers that already pass
+// `programme_url` are completely unaffected — this only changes
+// behaviour for the case that was previously indistinguishable from "no
+// host at all".
+function hostFor(item) {
+  const url = item.programme_url ?? item.website;
+  if (!url) return "none";
+  try {
+    return new URL(url).host;
+  } catch {
+    return "none";
+  }
+}
+
 async function mapBounded(items, worker, { concurrency = 4, perHost = 1 } = {}) {
   const results = new Array(items.length);
   const hostLocks = new Map();
@@ -22,7 +46,7 @@ async function mapBounded(items, worker, { concurrency = 4, perHost = 1 } = {}) 
     while (cursor < items.length) {
       const index = cursor++;
       const item = items[index];
-      const host = item.programme_url ? new URL(item.programme_url).host : "none";
+      const host = hostFor(item);
       const active = hostLocks.get(host) ?? 0;
       if (active >= perHost) { cursor--; await new Promise((resolve) => setTimeout(resolve, 10)); continue; }
       hostLocks.set(host, active + 1);

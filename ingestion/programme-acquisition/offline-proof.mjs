@@ -103,6 +103,21 @@ export function proveCanonicalDetailEvents(documents, { cutoffDate } = {}) {
   for (const document of documents ?? []) {
     const documentUrl = absoluteUrl(document?.url, document?.url);
     if (!documentUrl) continue;
+    // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: a detail-page
+    // fetch that itself failed (source-execution.mjs's own `details.push({
+    // requested_url, error, network_stage })` branch) produces a document
+    // object with NO `body` at all — real, observed at national scale (a
+    // fraction of detail-page fetches across ~1,500 different real sites
+    // genuinely time out/error individually even when the parent programme
+    // page succeeded). Without this guard, `extractEventNodes(undefined)`
+    // -> `extractJsonLdNodes()` throws "requires non-empty HTML", which
+    // propagated all the way out of acquireSource() — a real gap in that
+    // function's own documented "never throws for an ordinary acquisition
+    // failure" contract. Skipping a body-less document here is exactly the
+    // same kind of "cannot prove anything from this one document, try the
+    // next" case the existing `if (!documentUrl) continue;` guard already
+    // handles — never a change to what a document WITH a real body proves.
+    if (typeof document?.body !== "string" || document.body.trim() === "") continue;
     const canonicalUrl = canonicalUrlFromHtml(document?.body, documentUrl);
 
     // A published canonical stays authoritative, exactly as before. It is
