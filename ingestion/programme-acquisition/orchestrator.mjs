@@ -73,7 +73,18 @@ function deriveEventRecords(programme, documents, { source_id, venue_name } = {}
  * offline proof. It never guesses a route or an event field.
  */
 export function collectAndProve({ source_id, venue_name, programme, detail_documents = [] } = {}) {
-  const documents = [programme, ...detail_documents].filter((document) => typeof document?.body === "string");
+  // A document that was genuinely fetched (real `.body` string, as
+  // opposed to a failed-fetch record's `{requested_url, error,
+  // network_stage}` shape) can still carry an EMPTY or whitespace-only
+  // body — a real 200 response with zero bytes, or similar. extractJsonLdNodes()
+  // (ingestion/json-ld/parse.mjs) treats that as invalid input and throws
+  // "requires non-empty HTML"; `typeof === "string"` alone does not catch
+  // it, since "" is still a string. A real production source
+  // (uk-prog-workington-theatre-royal) hit exactly this via
+  // proveJsonLdEvents() (discovery.mjs), several call-frames below this
+  // filter — see offline-proof.mjs's own sibling guard for detail-only
+  // reparse, which this mirrors for the primary collection path.
+  const documents = [programme, ...detail_documents].filter((document) => typeof document?.body === "string" && document.body.trim() !== "");
   const { routing, jsonLd, embedded, usableStaticCards } = deriveEventRecords(programme, documents, { source_id, venue_name });
   if (!routing.selected || routing.residue_state) return { ...routing, state: routing.residue_state ?? "SOURCE_FINGERPRINT_UNSUPPORTED", observations: [], proofs: [], residue: true };
   const proofs = proveCanonicalDetailEvents(detail_documents, { cutoffDate: programme.at?.slice(0, 10) });
