@@ -3,7 +3,7 @@
 //
 //   node ingestion/future-city-wave/cli.mjs                       full Wave-1 sweep
 //   node ingestion/future-city-wave/cli.mjs --run-id=<id>          resume a specific run
-//   node ingestion/future-city-wave/cli.mjs --city=manchester-gb,dublin-ie   restrict to given city ids
+//   node ingestion/future-city-wave/cli.mjs --city=hamburg-de,dublin-ie   restrict to given city ids
 //
 // PROOF ONLY: this CLI has no --execute/--admit mode of any kind — there
 // is no code path in this package that writes to a production registry.

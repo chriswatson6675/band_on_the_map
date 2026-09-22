@@ -81,6 +81,21 @@ test("a disused:* tag is never admitted, regardless of category", () => {
   assert.equal(result.status, "CLOSED_OR_INACTIVE");
 });
 
+test("building=derelict is never admitted, regardless of category (BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02: real national-scale find, Tameside Hippodrome)", () => {
+  const result = classifyDiscoveryGroup(group([observation({ amenity: "theatre", building: "derelict", name: "X" })]));
+  assert.equal(result.status, "CLOSED_OR_INACTIVE");
+});
+
+test("building=abandoned and building=ruins are also never admitted", () => {
+  assert.equal(classifyDiscoveryGroup(group([observation({ amenity: "theatre", building: "abandoned", name: "X" })])).status, "CLOSED_OR_INACTIVE");
+  assert.equal(classifyDiscoveryGroup(group([observation({ amenity: "theatre", building: "ruins", name: "X" })])).status, "CLOSED_OR_INACTIVE");
+});
+
+test("a was:* tag (former name/classification, current tag still active) is NOT treated as disused — the repurposed-building case", () => {
+  const result = classifyDiscoveryGroup(group([observation({ amenity: "theatre", "was:amenity": "townhall", "was:name": "Old Town Hall", name: "X" })]));
+  assert.equal(result.status, "AUTO_ADMIT_HIGH_CONFIDENCE", "a former town hall now actively tagged amenity=theatre must still admit");
+});
+
 test("a candidate matching an existing ACTIVE source is ALREADY_CANONICAL, never re-admitted", () => {
   const result = classifyDiscoveryGroup(
     group([observation({ amenity: "theatre", name: "X" })], { existing_registry_reconciliation: { status: "ALREADY_ACQUIRED" } }),

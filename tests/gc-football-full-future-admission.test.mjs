@@ -468,8 +468,9 @@ test("the published map is untouched by thousands of canonical Events", async ()
   assert.equal(/FOOTBALL/i.test(raw), false);
   assert.equal(raw.includes('"SPORT"'), false);
 
-  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 and
-  // BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01 legitimately
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01,
+  // BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01, and
+  // BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02 legitimately
   // regenerated data/public/lisbon-porto-map.json — see
   // tests/gc-football-event-admission-pilot.test.mjs's identical baseline
   // update for the full rationale. This test's own job (no football Event
@@ -485,6 +486,6 @@ test("the published map is untouched by thousands of canonical Events", async ()
       listings += (marker.display_listings ?? []).length;
     }
   }
-  assert.equal(markers, 261);
-  assert.equal(listings, 5086);
+  assert.equal(markers, 3507);
+  assert.equal(listings, 5128);
 });

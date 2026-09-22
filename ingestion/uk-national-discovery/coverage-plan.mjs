@@ -102,5 +102,23 @@ export function buildCoverageUnits({
  * The controller (ingestion/uk-national-discovery/controller.mjs) never
  * writes a value outside this set — a checkpoint file with an unknown
  * status is a bug, not a new silent state.
+ *
+ * RETRYABLE_PROVIDER_FAILURE (added by
+ * BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02, see
+ * ingestion/uk-national-bulk-osm/reclassify-provider-outage.mjs) is
+ * distinct from RETRYABLE_FAILURE: RETRYABLE_FAILURE is an in-run state a
+ * unit passes through before its own retries are exhausted;
+ * RETRYABLE_PROVIDER_FAILURE is a corrected TERMINAL-in-that-run state
+ * applied after the fact, for a unit whose PERMANENT_FAILURE was later
+ * determined to reflect a transient provider outage rather than a
+ * genuine per-unit failure — never written by controller.mjs's own
+ * per-unit retry loop.
  */
-export const COVERAGE_UNIT_STATUSES = new Set(["PENDING", "RUNNING", "COMPLETE", "RETRYABLE_FAILURE", "PERMANENT_FAILURE"]);
+export const COVERAGE_UNIT_STATUSES = new Set([
+  "PENDING",
+  "RUNNING",
+  "COMPLETE",
+  "RETRYABLE_FAILURE",
+  "PERMANENT_FAILURE",
+  "RETRYABLE_PROVIDER_FAILURE",
+]);

@@ -3,24 +3,35 @@
 // controller.mjs/tier1-gate reuse). City names/config live ONLY here —
 // no orchestration module hardcodes a city name.
 //
-// SELECTION RATIONALE (Wave 1, 24 cities, 10 countries): stayed within
-// Europe deliberately — this repository's 6 already-covered metros
-// (Berlin/London/Paris/Barcelona/Lisbon-metro/Porto-metro) are all
-// European, so source-structure patterns (WordPress/EventON, JSON-LD,
-// squarespace-eventlist, first-party rights norms) this project's
-// existing collectors already understand are most likely to transfer
-// within Europe; a genuinely different market (US/Asia/etc.) is a
-// reasonable candidate for a LATER wave, not this bounded one. Within
-// Europe, the wave deliberately mixes major markets, secondary cities,
-// and smaller high-activity music cities (16 of 24 are NOT national
-// capitals) rather than picking European capitals only, per this
-// package's brief.
+// SELECTION RATIONALE (Wave 1, originally 24 cities/10 countries; now 21
+// cities/9 countries — see the BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-
+// COMPLETION-02 note below): stayed within Europe deliberately — this
+// repository's 6 already-covered metros (Berlin/London/Paris/Barcelona/
+// Lisbon-metro/Porto-metro) are all European, so source-structure patterns
+// (WordPress/EventON, JSON-LD, squarespace-eventlist, first-party rights
+// norms) this project's existing collectors already understand are most
+// likely to transfer within Europe; a genuinely different market
+// (US/Asia/etc.) is a reasonable candidate for a LATER wave, not this
+// bounded one. Within Europe, the wave deliberately mixes major markets,
+// secondary cities, and smaller high-activity music cities rather than
+// picking European capitals only, per this package's brief.
+//
+// BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02: Manchester,
+// Glasgow, and Bristol were originally Wave-1 candidates (all three United
+// Kingdom entries) but are removed here because that package's national
+// UK OSM sweep organically discovered and onboarded real venues in all
+// three cities into venues/uk.json — they are no longer "not yet covered"
+// candidates, which is exactly what
+// tests/future-city-wave/wave-config.test.mjs's own
+// findCoverageCollisions() guard (dynamically re-derived from the live
+// venue registries, not a hardcoded snapshot) correctly detected. No
+// replacement UK — or any other — cities were added: selecting a genuine
+// replacement candidate needs the same due-diligence rationale the
+// original 24 received, which is out of scope for a bulk-OSM-completion
+// package; a future wave/package can extend this list deliberately.
 export const WAVE_1_ID = "future-city-wave-01";
 
 export const WAVE_1_CITIES = Object.freeze([
-  { city_id: "manchester-gb", name: "Manchester", country: "United Kingdom", country_code: "GB", nominatim_countrycodes: "gb", tier: "SECONDARY", reason: "Major independent/electronic and Britpop heritage scene, historically underserved relative to London-centric platforms." },
-  { city_id: "glasgow-gb", name: "Glasgow", country: "United Kingdom", country_code: "GB", nominatim_countrycodes: "gb", tier: "SECONDARY", reason: "UNESCO City of Music; dense independent club/venue scene distinct from London." },
-  { city_id: "bristol-gb", name: "Bristol", country: "United Kingdom", country_code: "GB", nominatim_countrycodes: "gb", tier: "SMALLER", reason: "High-activity independent/electronic scene in a smaller metro." },
   { city_id: "hamburg-de", name: "Hamburg", country: "Germany", country_code: "DE", nominatim_countrycodes: "de", tier: "MAJOR", reason: "Major German market with a large, distinct venue estate from Berlin." },
   { city_id: "munich-de", name: "Munich", country: "Germany", country_code: "DE", nominatim_countrycodes: "de", tier: "MAJOR", reason: "Major German market, large population, sizable venue estate." },
   { city_id: "cologne-de", name: "Cologne", country: "Germany", country_code: "DE", nominatim_countrycodes: "de", tier: "SECONDARY", reason: "Large secondary German market with a substantial club/concert scene." },

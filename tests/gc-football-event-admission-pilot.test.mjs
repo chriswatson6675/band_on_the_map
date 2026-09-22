@@ -593,11 +593,18 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
   // United Kingdom 103 -> 137 markers (34 newly discovered venues —
   // OpenStreetMap Overpass sweep + evidence-verified long-tail web
   // research, see that package's own report), Portugal/Spain/Germany/
-  // France again refreshed by natural source drift. This test's own job —
+  // France again refreshed by natural source drift.
+  // BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02 regenerated it a
+  // third time (2026-09-22T19:51:50.488Z): United Kingdom 137 -> 3,383
+  // markers (a bulk Geofabrik OSM PBF sweep of the whole country, 3,246
+  // newly admitted venues after the eligibility/disused-building
+  // corrections — see that package's own research/venue-discovery/
+  // uk-national-bulk-osm-02/run.json), Portugal/Spain/Germany/France
+  // again refreshed by natural source drift. This test's own job —
   // proving the football admission PILOT itself never touches public data
-  // — is unaffected by either later, legitimate regeneration; only the
-  // pinned baseline it compares against needed updating, exactly as this
-  // codebase's established convention already does whenever a real
+  // — is unaffected by any of these later, legitimate regenerations; only
+  // the pinned baseline it compares against needed updating, exactly as
+  // this codebase's established convention already does whenever a real
   // publish:map-data run intentionally changes the committed artifact.
   const published = JSON.parse(await readFile(resolve(ROOT, "data/public/lisbon-porto-map.json"), "utf8"));
   let markers = 0;
@@ -608,8 +615,8 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
       listings += (marker.display_listings ?? []).length;
     }
   }
-  assert.equal(markers, 261);
-  assert.equal(listings, 5086);
+  assert.equal(markers, 3507);
+  assert.equal(listings, 5128);
   assert.equal(published.counts.map_marker_count, markers);
   assert.equal(published.counts.display_listing_count, listings);
 });
