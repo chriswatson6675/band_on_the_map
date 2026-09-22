@@ -64,8 +64,24 @@ export const AUTO_ADMIT_ELIGIBLE_SIGNALS = new Set([
   "amenity=bar;live_music=yes",
 ]);
 
-/** A known OSM convention marking a feature as no longer operating (e.g. `disused:amenity=theatre`) — never admitted, regardless of category. */
+// BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02: `building=derelict`
+// found and confirmed at real national bulk scale (Tameside Hippodrome —
+// a genuinely abandoned building, not a live-event venue). Deliberately
+// NOT extended to the `was:*` lifecycle prefix (e.g. `was:amenity=
+// townhall`, `was:name=...`) — that convention records a former
+// name/classification on a building whose CURRENT tag is still an active
+// amenity (a repurposed town hall/church now a live venue), the opposite
+// of "no longer operating"; auditing this package's own national result
+// found 13 such `was:*`-tagged venues, all genuinely active under their
+// current tag. Only a small, deliberately narrow set of unambiguous
+// no-longer-operating signals is checked — never a broad text scan of
+// free-text fields like `description`, which would risk excluding an
+// active venue whose description merely mentions its history.
+const DEAD_BUILDING_VALUES = new Set(["derelict", "abandoned", "ruins"]);
+
+/** A known OSM convention marking a feature as no longer operating (e.g. `disused:amenity=theatre`, `building=derelict`) — never admitted, regardless of category. */
 function hasDisusedTag(tags) {
+  if (DEAD_BUILDING_VALUES.has(tags?.building)) return true;
   return Object.keys(tags ?? {}).some((key) => key === "disused" || key.startsWith("disused:"));
 }
 
