@@ -214,8 +214,19 @@ export function buildUnitedKingdomMarkers({
   artistLinks = [],
   ukVenues = [],
 }) {
+  // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: `londonObservations`
+  // now also carries national UK programme Observations (see
+  // ingestion/publish-map-data/run.mjs's own wiring), resolved to venue_ids
+  // that live in venues/uk.json, not venues/london.json.
+  // projectObservationsToMapMarkers() (ingestion/map/projection.mjs) looks
+  // up each resolved venue_id in the exact `venues` array it is given and
+  // silently drops the Observation if that venue_id isn't found there —
+  // so `ukVenues` must be included here too, not just in the venue-only
+  // seeding step below, or every genuinely-resolved UK programme
+  // Observation is dropped before it ever becomes a display listing (a
+  // real, live-verified production gap this fixes).
   const markers = projectObservationsToDisplayMarkers(londonObservations ?? [], {
-    venues: londonVenues ?? [],
+    venues: [...(londonVenues ?? []), ...(ukVenues ?? [])],
     sourceRegistry: londonSourceRegistry ?? [],
     associations,
     manualCoordinatesByVenueId,
