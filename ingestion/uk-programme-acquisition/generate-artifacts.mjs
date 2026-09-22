@@ -51,7 +51,7 @@ function venueSourceState(venue, sourceEntry, checkpoint) {
   return "OFFICIAL_SITE_FOUND_NO_PROGRAMME";
 }
 
-async function main({ runId = "uk-national-01" } = {}) {
+async function main({ runId = "uk-national-01", researchDir = RESEARCH_DIR } = {}) {
   const ukVenues = await loadJson("venues/uk.json");
   const sourceRegistry = await loadJsonOrDefault("sources/uk.json", { entries: [] });
   const sourcesById = new Map(sourceRegistry.entries.map((entry) => [entry.id, entry]));
@@ -81,7 +81,7 @@ async function main({ runId = "uk-national-01" } = {}) {
       proven_event_count: checkpoint?.proven_event_count ?? 0,
     });
   }
-  await saveJson(`${RESEARCH_DIR}/venue-source-census.json`, {
+  await saveJson(`${researchDir}/venue-source-census.json`, {
     artifact_type: "UK_PROGRAMME_ACQUISITION_VENUE_SOURCE_CENSUS",
     total_venues: ukVenues.venues.length,
     state_counts: stateCounts,
@@ -116,8 +116,8 @@ async function main({ runId = "uk-national-01" } = {}) {
       };
     })
     .sort((a, b) => b.venues_successful - a.venues_successful);
-  await saveJson(`${RESEARCH_DIR}/platform-families.json`, { artifact_type: "UK_PROGRAMME_ACQUISITION_PLATFORM_FAMILIES", families: platformFamilies });
-  await saveJson(`${RESEARCH_DIR}/source-yield.json`, {
+  await saveJson(`${researchDir}/platform-families.json`, { artifact_type: "UK_PROGRAMME_ACQUISITION_PLATFORM_FAMILIES", families: platformFamilies });
+  await saveJson(`${researchDir}/source-yield.json`, {
     artifact_type: "UK_PROGRAMME_ACQUISITION_SOURCE_YIELD",
     best_by_venue_coverage: platformFamilies[0]?.platform ?? null,
     best_by_event_count: [...platformFamilies].sort((a, b) => b.total_event_observations - a.total_event_observations)[0]?.platform ?? null,
@@ -140,7 +140,7 @@ async function main({ runId = "uk-national-01" } = {}) {
   }
   const townsWithListings = [...byTown.entries()].filter(([, v]) => v.venues_with_listings > 0).map(([town]) => town).sort();
   const townsWithVenuesButZeroListings = [...byTown.entries()].filter(([, v]) => v.venues_with_listings === 0 && v.venue_only > 0).map(([town]) => town).sort();
-  await saveJson(`${RESEARCH_DIR}/geographic-coverage.json`, {
+  await saveJson(`${researchDir}/geographic-coverage.json`, {
     artifact_type: "UK_PROGRAMME_ACQUISITION_GEOGRAPHIC_COVERAGE",
     by_nation: Object.fromEntries(byNation),
     towns_with_listings_count: townsWithListings.length,
