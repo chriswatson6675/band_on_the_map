@@ -26,6 +26,7 @@ import { WAVE_1_ID, WAVE_1_CITIES } from "./wave-config.mjs";
 import {
   recordCandidateState,
   loadCandidateStates,
+  resolveCandidateCheckpoint,
   recordCityState,
   loadCityStates,
   saveRunSummary,
@@ -74,6 +75,17 @@ export async function runFutureCityWave({
   detailLimit,
   geocode = geocodeCity,
   discover = discoverCityCandidates,
+  // BEATMAPPED-MANCHESTER-TIER1-CALIBRATION-CORRECTION-02 — an OPTIONAL
+  // multi-source discovery override: `async (city, centre) => { candidates:
+  // [waveCandidate...], error }`, already producing wave-candidate shapes
+  // (via candidate.mjs's toWaveCandidateFromGroup) rather than raw
+  // single-provider ones. When supplied, it REPLACES `discover` +
+  // toWaveCandidate() entirely for that run — every other city-wave
+  // mechanism (checkpointing, resume, per-candidate/per-city isolation,
+  // the Tier-1 gate itself) is completely unchanged. When omitted (the
+  // default, used by every other Wave-1 city today), behaviour is
+  // byte-for-byte identical to before this package.
+  discoverMultiSource = null,
   candidateLimit = 15,
   cityFilter,
   interCandidateDelayMs = 0,
@@ -108,7 +120,9 @@ export async function runFutureCityWave({
           continue;
         }
 
-        const discovery = await discover(city, centre, { limit: candidateLimit });
+        const discovery = discoverMultiSource
+          ? await discoverMultiSource(city, centre)
+          : await discover(city, centre, { limit: candidateLimit });
         if (discovery.error) {
           counters.discovery_failed += 1;
           await recordCityState(runId, city.city_id, { status: "DISCOVERY_FAILED", error: discovery.error, centre }, { root });
@@ -116,7 +130,7 @@ export async function runFutureCityWave({
           continue;
         }
 
-        candidates = discovery.candidates.map((c) => toWaveCandidate(c, city));
+        candidates = discoverMultiSource ? discovery.candidates : discovery.candidates.map((c) => toWaveCandidate(c, city));
         await recordCityState(runId, city.city_id, { status: "DISCOVERED", centre, candidates, candidate_count: candidates.length }, { root });
       }
 
@@ -126,7 +140,7 @@ export async function runFutureCityWave({
       let cityFutureEvents = 0;
 
       for (const candidate of candidates) {
-        const checkpoint = candidateCheckpoints.get(candidate.venue_id);
+        const checkpoint = resolveCandidateCheckpoint(candidateCheckpoints, candidate, candidates);
         if (checkpoint && isTerminalCandidateState(checkpoint)) {
           counters.resumed_skipped += 1;
           continue;
@@ -146,7 +160,7 @@ export async function runFutureCityWave({
             cityFutureEvents += eventCount;
             await recordCandidateState(
               runId,
-              candidate.venue_id,
+              candidate,
               { state: "T1_PROVEN", acquisition_result: verdict.acquisition_result, city_id: city.city_id, candidate: summarizeCandidate(candidate) },
               { root },
             );
@@ -155,7 +169,7 @@ export async function runFutureCityWave({
             cityDeferred += 1;
             await recordCandidateState(
               runId,
-              candidate.venue_id,
+              candidate,
               { state: verdict.status, defer_reason: verdict.defer_reason, city_id: city.city_id, candidate: summarizeCandidate(candidate) },
               { root },
             );
@@ -164,7 +178,7 @@ export async function runFutureCityWave({
           counters.failed_systemic += 1;
           await recordCandidateState(
             runId,
-            candidate.venue_id,
+            candidate,
             { state: "REJECTED", errors: [String(error?.stack ?? error)], city_id: city.city_id, candidate: summarizeCandidate(candidate) },
             { root },
           ).catch(() => {});
