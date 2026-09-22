@@ -135,11 +135,66 @@ async function main() {
   const observationsForPublication = [];
   const admissionCounts = {};
   let completedCount = 0;
+  let totalMappingsWritten = 0;
 
   const workerItems = toAcquire.map(({ venue, candidate }) => {
     const id = deriveSourceId(venue.venue_id);
     return { source_id: id, venue: venue.canonical_name, website: candidate.url, __venue: venue, __candidate: candidate };
   });
+
+  // A real production incident (not a code bug): this long-running process
+  // was observed dying silently (exit 0, no stack trace — see
+  // scripts/run-uk-programme-acquisition-until-done.sh's own header) partway
+  // through the full 1,493-source campaign, more than once. Per-source
+  // checkpoints (recordSourceCheckpoint, below) are written immediately and
+  // survived every death, but sources/uk.json and venues/source-venue-
+  // mappings.json were previously written ONLY ONCE, after the entire loop
+  // finished — so a mid-run death silently discarded every registry/mapping
+  // update from that run, even for sources whose acquisition had already
+  // genuinely completed and been checkpointed as ACQUIRED. This was only
+  // discovered afterwards by reconciling checkpoint status against the
+  // written registry (36 of 1,493 sources were affected). persistProgress()
+  // is now called periodically (not just at the very end) so an
+  // unexplained death loses at most one batch of already-completed, already
+  // real work, never the whole remainder of the run.
+  async function persistProgress() {
+    const currentEntries = [...registryById.values()];
+    const registryErrors = validateRegistry(currentEntries);
+    if (registryErrors.length > 0) {
+      console.error(`  [persistProgress] REGISTRY VALIDATION ERRORS (not written this pass): ${JSON.stringify(registryErrors.slice(0, 5))}`);
+    } else {
+      // Top-level metadata matches every other sources/*.json's own
+      // established shape (see e.g. sources/paris.json) — required by
+      // ingestion/city-worker/city-estate-catalogue.json's own
+      // "uk-all-active" entry, whose own test
+      // (tests/city-worker/city-estate-catalogue.test.mjs) asserts a
+      // catalogue entry's declared country matches its registry's own
+      // top-level country_code, not just validateRegistry()'s own
+      // entries-only shape.
+      await saveJson(UK_SOURCES_PATH, {
+        $schema: "./registry.schema.json",
+        region: "United Kingdom",
+        country_code: "GB",
+        cohort: "BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01",
+        cohort_note: "National UK venue programme acquisition: every canonical UK venue with a known official website, investigated via the existing generic, family-routed acquisition engine (ingestion/programme-acquisition/) — see research/programme-acquisition/uk-national-01/ for the full campaign artifacts.",
+        entries: currentEntries,
+      });
+    }
+    if (newMappings.length > 0) {
+      const existingMappings = await loadJson(MAPPINGS_PATH);
+      const existingIds = new Set(existingMappings.mappings.map((m) => `${m.source_id}|${m.source_key_type}|${m.source_key}`));
+      const genuinelyNew = newMappings.filter((m) => !existingIds.has(`${m.source_id}|${m.source_key_type}|${m.source_key}`));
+      if (genuinelyNew.length > 0) {
+        existingMappings.mappings.push(...genuinelyNew);
+        await saveJson(MAPPINGS_PATH, existingMappings);
+        totalMappingsWritten += genuinelyNew.length;
+        // Written mappings must never be re-appended on the next periodic
+        // flush or the final one — replace the pending list with only what
+        // remains genuinely new against the file just written.
+        newMappings.length = 0;
+      }
+    }
+  }
 
   await runBoundedWithCallback(
     workerItems,
@@ -210,6 +265,7 @@ async function main() {
 
         if (completedCount % 25 === 0 || completedCount === workerItems.length) {
           console.log(`  [${completedCount}/${workerItems.length}] ${item.source_id}: ${result.state} -> ${record.decision.status} (${result.proven_event_count ?? 0} observations)`);
+          await persistProgress();
         }
       },
     },
@@ -223,24 +279,10 @@ async function main() {
     await recordSourceCheckpoint(args.runId, deriveSourceId(venueId), { status: "NO_SOURCE_FOUND" }, { root: ROOT });
   }
 
-  // ---- Persist registry + mappings ----
-  const finalEntries = [...registryById.values()];
-  const registryErrors = validateRegistry(finalEntries);
-  if (registryErrors.length > 0) {
-    console.error(`\n  REGISTRY VALIDATION ERRORS (not written): ${JSON.stringify(registryErrors.slice(0, 10))}`);
-  } else {
-    await saveJson(UK_SOURCES_PATH, { entries: finalEntries });
-    console.log(`\n  wrote ${UK_SOURCES_PATH}: ${finalEntries.length} entries`);
-  }
-
-  if (newMappings.length > 0) {
-    const existingMappings = await loadJson(MAPPINGS_PATH);
-    const existingIds = new Set(existingMappings.mappings.map((m) => `${m.source_id}|${m.source_key_type}|${m.source_key}`));
-    const genuinelyNew = newMappings.filter((m) => !existingIds.has(`${m.source_id}|${m.source_key_type}|${m.source_key}`));
-    existingMappings.mappings.push(...genuinelyNew);
-    await saveJson(MAPPINGS_PATH, existingMappings);
-    console.log(`  wrote ${MAPPINGS_PATH}: +${genuinelyNew.length} new mapping(s)`);
-  }
+  // ---- Persist registry + mappings (final, guaranteed flush) ----
+  await persistProgress();
+  console.log(`\n  wrote ${UK_SOURCES_PATH}: ${registryById.size} entries`);
+  console.log(`  wrote ${MAPPINGS_PATH}: +${totalMappingsWritten} new mapping(s) this run`);
 
   // ---- Research artifacts ----
   const completedAt = new Date().toISOString();
@@ -260,7 +302,7 @@ async function main() {
     attempted_this_run: workerItems.length,
     admission_status_counts: admissionCounts,
     coverage_status_counts: coverageCounts,
-    new_venue_mappings: newMappings.length,
+    new_venue_mappings: totalMappingsWritten,
     proven_observations_this_run: observationsForPublication.length,
   };
   await saveJson(`${RESEARCH_DIR}/run.json`, runSummary);

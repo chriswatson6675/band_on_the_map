@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haberdashers' Monmouth School &mdash; Site Maintenance</title>
+<style>
+  :root {
+    --petrol: #05586f;
+    --petrol-dark: #033b49;
+    --petrol-darker: #02252d;
+    --ink: #eaf3f6;
+    --muted: rgba(234, 243, 246, 0.62);
+    --hairline: rgba(255, 255, 255, 0.14);
+    --panel: rgba(255, 255, 255, 0.05);
+    --panel-strong: rgba(255, 255, 255, 0.09);
+    --gold: #d9ae55;
+    --closed: #e07a68;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background-color: var(--petrol-darker);
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    position: relative;
+    min-height: 88vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 32px;
+    text-align: center;
+  }
+
+  /* Background image, knocked back: dimmed, desaturated and softened
+     so it reads as texture rather than a competing focal point. */
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("https://www.habsmonmouth.org/wp-content/uploads/2024/09/Monmouth-River-Wye-1.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: grayscale(35%) brightness(0.55) saturate(70%) blur(1px);
+    transform: scale(1.03); /* hides blur edge */
+    z-index: 0;
+  }
+
+  /* Petrol-blue tint to match the school's own brand colour and
+     further knock back the photograph underneath. */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(5, 88, 111, 0.82) 0%,
+      rgba(2, 37, 45, 0.94) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 640px;
+  }
+
+  .logo {
+    width: min(70vw, 420px);
+    height: auto;
+    margin-bottom: 44px;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.25));
+  }
+
+  .divider {
+    width: 56px;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 28px;
+  }
+
+  .message {
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+    line-height: 1.6;
+    font-weight: 400;
+    color: #f4f8fa;
+    letter-spacing: 0.01em;
+    margin: 0;
+  }
+
+  .message-detail {
+    margin: 16px 0 0;
+    font-size: clamp(0.88rem, 1.8vw, 1rem);
+    line-height: 1.7;
+    font-weight: 400;
+    color: rgba(244, 248, 250, 0.78);
+    max-width: 560px;
+  }
+
+  .message-detail a {
+    color: #ffffff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    padding-bottom: 1px;
+  }
+
+  .message-detail a:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .scroll-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 36px;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+    padding-bottom: 3px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .scroll-hint:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .scroll-hint .arrow {
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+
+  .scroll-hint:hover .arrow {
+    transform: translateY(2px);
+  }
+
+  /* ---------- Sports club section ---------- */
+
+  .sports {
+    position: relative;
+    width: 100%;
+    padding: 72px 20px 90px;
+    scroll-margin-top: 24px;
+  }
+
+  .sports-inner {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .section-heading {
+    text-align: center;
+    margin-bottom: 34px;
+  }
+
+  .eyebrow {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+  }
+
+  .date-range {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 28px;
+    margin: 26px 0 44px;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .contact-row a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 1px;
+  }
+
+  .contact-row a:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .table-card {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 26px 24px 10px;
+    margin-bottom: 26px;
+  }
+
+  .table-card h3 {
+    margin: 0 0 18px;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 460px;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--hairline);
+    white-space: nowrap;
+  }
+
+  td:first-child, th:first-child {
+    padding-left: 4px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  thead th {
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(217, 174, 85, 0.35);
+    white-space: nowrap;
+  }
+
+  tbody tr:hover {
+    background: var(--panel-strong);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  td {
+    color: var(--ink);
+    white-space: normal;
+  }
+
+  .footnote {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .closed {
+    color: var(--closed);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .notes-card {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 26px 28px;
+  }
+
+  .notes-card h4 {
+    margin: 0 0 14px;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .notes-card ul {
+    margin: 0;
+    padding: 0 0 0 18px;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+
+  .notes-card li.highlight {
+    color: var(--closed);
+  }
+
+  .page-footer {
+    text-align: center;
+    padding: 26px 20px 40px;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 480px) {
+    .hero {
+      min-height: 82vh;
+    }
+
+    .logo {
+      margin-bottom: 32px;
+    }
+
+    .sports {
+      padding: 56px 14px 70px;
+    }
+
+    .table-card {
+      padding: 22px 16px 8px;
+    }
+
+    .notes-card {
+      padding: 22px 18px;
+    }
+  }
+
+  /* Stack each table into day "cards" below 600px so nothing needs
+     to scroll left/right on a phone. */
+  @media (max-width: 600px) {
+    .table-scroll {
+      overflow-x: visible;
+      padding-bottom: 0;
+    }
+
+    table {
+      min-width: 0;
+    }
+
+    thead {
+      display: none;
+    }
+
+    table, tbody, tr, td {
+      display: block;
+      width: 100%;
+    }
+
+    tbody tr {
+      border: 1px solid var(--hairline);
+      border-radius: 8px;
+      padding: 4px 14px;
+      margin-bottom: 10px;
+    }
+
+    tbody tr:last-child {
+      margin-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: none;
+    }
+
+    td {
+      border-bottom: 1px dashed var(--hairline);
+      padding: 9px 0;
+      white-space: normal;
+    }
+
+    tbody tr td:last-child {
+      border-bottom: none;
+    }
+
+    td:first-child {
+      padding: 10px 0 9px;
+      font-size: 1rem;
+    }
+
+    td:not(:first-child) {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    td:not(:first-child)::before {
+      content: attr(data-label);
+      flex: 0 0 auto;
+      padding-top: 2px;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    td:not(:first-child) .val {
+      text-align: right;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-content">
+      <img class="logo" src="https://www.habsmonmouth.org/wp-content/uploads/2024/07/Haberdashers-Monmouth-School-White_nopadding.svg" alt="Haberdashers' Monmouth School">
+      <div class="divider"></div>
+      <p class="message">This website is in the process of being redesigned.</p>
+      <p class="message-detail">In the meantime for all Sports Club enquiries, including the Eddie Butler Performance Centre, please email <a href="mailto:sportsclub@habsmonmouth.org">sportsclub@habsmonmouth.org</a> or call <a href="tel:01600714381">01600 714381</a>.</p>
+      <p class="message-detail">For all other enquiries please email the Enterprises Manager <a href="mailto:frankel.louise@habsmonmouth.org">frankel.louise@habsmonmouth.org</a> or call <a href="tel:01600711235">01600 711235</a>.</p>
+      <a class="scroll-hint" href="#sports-opening-times">Sports Club opening times below <span class="arrow">&darr;</span></a>
+    </div>
+  </section>
+
+  <main class="sports" id="sports-opening-times">
+    <div class="sports-inner">
+
+      <div class="section-heading">
+        <span class="eyebrow">Monmouth School Sports Club</span>
+        <h2>Opening Times</h2>
+        <p class="date-range">7th September &ndash; 18th October 2026</p>
+      </div>
+
+      <div class="contact-row">
+        <span>MSSC: <a href="tel:01600714381">01600 714381</a></span>
+        <span>EBC: <a href="tel:01600710353">01600 710353</a></span>
+        <span><a href="mailto:sportsclub@habsmonmouth.org">sportsclub@habsmonmouth.org</a></span>
+      </div>
+
+      <div class="table-card">
+        <h3>Swimming Pool Opening Times</h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Morning</th>
+                <th>Afternoon</th>
+                <th>Evening</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;9:30am</span></td>
+                <td data-label="Afternoon"><span class="val">1:00pm&ndash;2:00pm</span></td>
+                <td data-label="Evening"><span class="val">5:30pm&ndash;9:00pm<span class="footnote">7:15&ndash;8:15 half pool only</span></span></td>
+              </tr>
+              <tr>
+                <td>Tuesday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;9:30am</span></td>
+                <td data-label="Afternoon"><span class="val">12:30pm&ndash;1:30pm</span></td>
+                <td data-label="Evening"><span class="val">5:30pm&ndash;9:00pm</span></td>
+              </tr>
+              <tr>
+                <td>Wednesday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;9:30am</span></td>
+                <td data-label="Afternoon"><span class="val">12:30pm&ndash;1:30pm</span></td>
+                <td data-label="Evening"><span class="val">5:30pm&ndash;9:00pm<span class="footnote">7:00&ndash;8:30 half pool only</span></span></td>
+              </tr>
+              <tr>
+                <td>Thursday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;9:30am</span></td>
+                <td data-label="Afternoon"><span class="val">1:00pm&ndash;2:00pm</span></td>
+                <td class="closed" data-label="Evening"><span class="val">CLOSED</span></td>
+              </tr>
+              <tr>
+                <td>Friday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;9:30am</span></td>
+                <td data-label="Afternoon"><span class="val">12:30pm&ndash;1:30pm</span></td>
+                <td data-label="Evening"><span class="val">5:30pm&ndash;9:00pm</span></td>
+              </tr>
+              <tr>
+                <td>Saturday</td>
+                <td data-label="Morning"><span class="val">9:00am&ndash;12:00pm</span></td>
+                <td colspan="2" data-label="Afternoon &amp; Evening"><span class="val">3:00pm&ndash;4:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Sunday</td>
+                <td data-label="Morning"><span class="val">9:00am&ndash;11:00am</span></td>
+                <td colspan="2" data-label="Afternoon &amp; Evening"><span class="val">3:00pm&ndash;4:30pm</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <h3>Eddie Butler Centre Opening Times</h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Morning</th>
+                <th>Evening</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;12:00pm</span></td>
+                <td data-label="Evening"><span class="val">6:00pm&ndash;9:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Tuesday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;12:00pm</span></td>
+                <td data-label="Evening"><span class="val">6:00pm&ndash;9:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Wednesday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;12:00pm</span></td>
+                <td data-label="Evening"><span class="val">6:00pm&ndash;9:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Thursday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;12:00pm</span></td>
+                <td data-label="Evening"><span class="val">6:00pm&ndash;9:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Friday</td>
+                <td data-label="Morning"><span class="val">6:45am&ndash;12:00pm</span></td>
+                <td data-label="Evening"><span class="val">6:00pm&ndash;9:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Saturday</td>
+                <td colspan="2" data-label="All Day"><span class="val">9:00am&ndash;4:30pm</span></td>
+              </tr>
+              <tr>
+                <td>Sunday</td>
+                <td colspan="2" data-label="All Day"><span class="val">9:00am&ndash;4:30pm</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="notes-card">
+        <h4>Please note</h4>
+        <ul>
+          <li>The sports club doors open at 06:40 Monday&ndash;Friday and at 08:55 at weekends.</li>
+          <li>All facilities must be vacated 15 minutes after each session.</li>
+          <li>Timetables will aim to be published one week in advance of each term.</li>
+          <li>The school reserves the right to change the times to meet school commitments, competitions etc.</li>
+          <li>All possible prior notice will be advertised to members.</li>
+          <li>Opening times may vary during school holidays.</li>
+          <li class="highlight">Please be aware that the lunch time swim on Monday and Thursdays have changed to 1:00pm&ndash;2:00pm.</li>
+          <li class="highlight">Please be aware students are allowed to attend supervised sessions in the mornings.</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <p>&copy; Haberdashers' Monmouth School</p>
+  </footer>
+
+</body>
+</html>

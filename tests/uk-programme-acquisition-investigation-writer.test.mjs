@@ -56,6 +56,36 @@ test("selectEvidenceDocuments returns [] when acquireSource() retained nothing a
   assert.deepEqual(selectEvidenceDocuments({ evidence: [] }), []);
 });
 
+test("selectEvidenceDocuments never selects a failed detail-fetch record (no .url, has .error) as retained evidence", () => {
+  // Mirrors source-execution.mjs's own detail-fetch loop: a per-event
+  // detail GET that throws is recorded as {requested_url, error,
+  // network_stage} with no .url/.at — exactly the shape that produced a
+  // real "evidence[3].acquired_from is required" investigation-generator
+  // error against uk-prog-cambridge-corpus-playroom.
+  const result = {
+    website: "https://x.example.com/",
+    programme_discovery: { selected: { url: "https://x.example.com/events" } },
+    evidence: [
+      { url: "https://x.example.com/" },
+      { url: "https://x.example.com/events" },
+      { url: "https://x.example.com/events/1" },
+      { requested_url: "https://x.example.com/events/2", error: "TimeoutError: fetch timed out", network_stage: "READ" },
+      { url: "https://x.example.com/events/3" },
+    ],
+  };
+  const selected = selectEvidenceDocuments(result);
+  assert.ok(selected.every((doc) => typeof doc.url === "string"), "every selected document must have a real .url");
+  assert.ok(!selected.some((doc) => doc.error), "the failed detail-fetch record must never be selected");
+  // homepage + programme + 2 bounded details, skipping the failed one
+  // entirely rather than counting it toward the 2-detail cap.
+  assert.deepEqual(selected.map((d) => d.url), [
+    "https://x.example.com/",
+    "https://x.example.com/events",
+    "https://x.example.com/events/1",
+    "https://x.example.com/events/3",
+  ]);
+});
+
 // --- checkIdentityMatch ---
 
 test("checkIdentityMatch finds a HIGH-confidence match when every meaningful name token appears in the retained text", () => {

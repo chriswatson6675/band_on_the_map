@@ -131,9 +131,19 @@ const RESIDUE_CLASSIFICATION = {
  * homepage (if a discovery pass happened), the selected programme
  * document, and up to 2 detail documents (enough to support a genuine
  * title/date field-assessment claim without retaining dozens of pages).
+ *
+ * Individual per-event detail fetches can fail (source-execution.mjs's own
+ * `details` array mixes real fetched documents with
+ * `{requested_url, error, network_stage}` failure records for the ones
+ * that threw — see its own detail-fetch loop). A failure record has no
+ * `.url`/`.at` (it has `requested_url` and `error` instead), so it must
+ * never be selected as retained evidence (mirrors offline-proof.mjs's own
+ * empty-body guard for the same shape) — without this filter,
+ * writeEvidenceFiles() would write `url: undefined, acquired_at:
+ * undefined`, which validateInvestigation() correctly rejects.
  */
 export function selectEvidenceDocuments(result) {
-  const evidence = result.evidence ?? [];
+  const evidence = (result.evidence ?? []).filter((doc) => typeof doc?.url === "string" && doc?.error == null);
   if (evidence.length === 0) return [];
   const [first, ...rest] = evidence;
   const isHomepage = result.programme_discovery != null && first?.url === result.website;

@@ -1,0 +1,1485 @@
+
+
+
+                        
+    <!DOCTYPE html>
+    <!-- Site by Artlogic - https://artlogic.net -->
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <script>
+            /* Artlogic deterministic page-ready signal (see e2e/ + pageload perf notes).
+               Installs a default window.modulesReady that latches window.__artlogicReady,
+               adds a `modules-ready` class to <html>/<body>, and dispatches `artlogic:ready`
+               exactly once. Themes may still wrap window.modulesReady (prevReady pattern);
+               their wrapper chains through to this. All gallery JS loader paths converge on
+               window.modulesReady(); the legacy galleries.js now calls it after init too. */
+            (function () {
+                var prev = window.modulesReady;
+                window.modulesReady = function () {
+                    if (typeof prev === 'function') { try { prev(); } catch (e) {} }
+                    if (window.__artlogicReady) { return; }
+                    window.__artlogicReady = true;
+                    try { document.documentElement.className += ' modules-ready'; } catch (e) {}
+                    try { if (document.body) { document.body.className += ' modules-ready'; } } catch (e) {}
+                    try { document.dispatchEvent(new CustomEvent('artlogic:ready')); } catch (e) {}
+                };
+            })();
+            </script>
+            <title>Edinburgh Printmakers</title>
+        <meta property="og:site_name" content="Edinburgh Printmakers" />
+        <meta property="og:title" content="Edinburgh Printmakers" />
+        <meta property="og:description" content="Edinburgh Printmakers is a creative hub for printmaking and the visual arts in the Fountainbridge area of Edinburgh. It has a large light-filled printmaking studio, two galleries, a shop selling original prints and handmade products, venue hire space for meetings, events or learning activities, a café, a courtyard, and community..." />
+        <meta property="og:image" content="https://static-assets.artlogic.net/w_1200,h_630,c_fill,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/jamie-fitzpatrick-banner.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://edinburghprintmakers.co.uk/">
+        <meta property="twitter:title" content="Edinburgh Printmakers">
+        <meta property="twitter:description" content="Edinburgh Printmakers is a creative hub for printmaking and the visual arts in the Fountainbridge area of Edinburgh. It has a large light-filled printmaking studio, two galleries, a shop selling original prints and handmade products, venue hire space for meetings, events or learning activities, a café, a courtyard, and community...">
+        <meta property="twitter:text:description" content="Edinburgh Printmakers is a creative hub for printmaking and the visual arts in the Fountainbridge area of Edinburgh. It has a large light-filled printmaking studio, two galleries, a shop selling original prints and handmade products, venue hire space for meetings, events or learning activities, a café, a courtyard, and community...">
+        <meta property="twitter:image" content="https://static-assets.artlogic.net/w_1200,h_630,c_fill,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/jamie-fitzpatrick-banner.jpg">
+        <link rel="canonical" href="https://edinburghprintmakers.co.uk/" />
+        <meta name="google" content="notranslate" />
+            <meta name="description" content="Edinburgh Printmakers is a creative hub for printmaking and the visual arts in the Fountainbridge area of Edinburgh. It has a large light-filled printmaking studio, two galleries, a shop selling original prints and handmade products, venue hire space for meetings, events or learning activities, a café, a courtyard, and community..." />
+            <meta name="publication_date" content="2018-04-27 13:50:01" />
+            <meta name="generator" content="Artlogic CMS - https://artlogic.net" />
+            
+            <meta name="accessibility_version" content="1.1"/>
+            
+            
+                <meta name="viewport" content="width=device-width, minimum-scale=0.5, initial-scale=1.0" />
+
+            
+
+<link rel="icon" href="/usr/images/preferences/1689842393.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="/usr/images/preferences/1689842393.ico" type="image/x-icon" />
+
+<meta name="application-name" content="Edinburgh Printmakers"/>
+<meta name="msapplication-TileColor" content="#ffffff"/>
+            
+            
+            
+                <link rel="stylesheet" media="print" href="/lib/g/2.0/styles/print.css">
+                <link rel="stylesheet" media="print" href="/styles/print.css">
+
+            <script src="/lib/js/datadog-logs/datadog-logs.js" type="text/javascript"></script>
+<script>
+try {
+    function checkStatisticsCookiePreference() {
+        // Get the cookie_preferences item from localStorage
+        const cookiePreferences = localStorage.getItem('cookie_preferences');
+
+        // Check if the item exists
+        if (!cookiePreferences) {
+            console.log('No cookie_preferences found in localStorage');
+            return false;
+        }
+
+        // Parse the JSON string
+        const preferences = JSON.parse(cookiePreferences);
+
+        // Check if statistics is set to true
+        const statisticsEnabled = preferences?.statistics === true;
+
+        console.debug('Statistics enabled:', statisticsEnabled);
+        return statisticsEnabled;
+    }
+
+    // Usage
+    const hasStatistics = checkStatisticsCookiePreference();
+
+    if (hasStatistics) {
+        // --- Check for artlogic_id cookie ---
+        const artlogicIdSet = document.cookie
+            .split('; ')
+            .some(cookie => cookie.startsWith('artlogic_id='));
+
+        console.debug('artlogic_id cookie set:', artlogicIdSet);
+
+        if (artlogicIdSet) {
+            window.DD_LOGS && window.DD_LOGS.init({
+                // TODO add proxy?
+                clientToken: 'pub0866d56abaa16869f0d9bb4a3c7da950',
+                site: 'datadoghq.eu',
+                forwardConsoleLogs: ["error"],
+                forwardErrorsToLogs: true,
+                service: 'artlogiccms',
+                // version: '1.3.4',  // TODO implement versioning in future.
+                sessionSampleRate: 100,
+                trackSessionAcrossSubdomains: true
+            });
+
+                window.DD_LOGS && window.DD_LOGS.setGlobalContextProperty('site', 'artlogicwebsite0124'.toLowerCase())
+
+                window.DD_LOGS && window.DD_LOGS.setGlobalContextProperty('hostname', 'web-eu-015'.toLowerCase())
+
+            // report any missing JS files
+            window.addEventListener('error', function(event) {
+                // Filter out standard JS runtime execution errors
+                if (event.target && event.target.tagName === 'SCRIPT') {
+                    window.DD_LOGS && window.DD_LOGS.logger.error(
+                        'A script failed to load: ' + (event.target?.src || event.target?.href),
+                        {'script': (event.target?.src || event.target?.href)}
+                    )
+                }
+            }, true); // The 'true' flag activates the capturing phase
+        }
+    }
+} catch (error) {
+    console.error(error);
+}
+</script>
+
+            
+
+            <script>
+            (window.Promise && window.Array.prototype.find) || document.write('<script src="/lib/js/polyfill/polyfill_es6.min.js"><\/script>');
+            </script>
+
+
+            
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/webfonts/font-awesome/font-awesome-4.6.3/css/font-awesome.min.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/archimedes/styles/archimedes-frontend-core.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/archimedes/styles/accessibility.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/3.7.1/plugins/jquery.archimedes-frontend-core-plugins-0.1.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/3.7.1/plugins/fancybox-2.1.3/jquery.fancybox.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/3.7.1/plugins/fancybox-2.1.3/jquery.fancybox.artlogic.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/3.7.1/plugins/slick-1.8.1/slick.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/plugins/nouislider/11.1.0/nouislider.min.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/plugins/roomview-photo/1.0/jquery.roomview-photo.1.0.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/plugins/pageload/1.1/jquery.pageload.1.1.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/core/dynamic_base.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/core/dynamic_main.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/core/user_custom.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/core/dynamic_responsive.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/webfonts/artlogic-site-icons/artlogic-site-icons-1.0/artlogic-site-icons.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+		<link data-context="helper" rel="stylesheet" type="text/css" href="/lib/jquery/plugins/plyr/3.5.10/plyr.css?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"/>
+<!-- add crtical css to improve performance -->
+		<script>window.ARTLOGIC_ASSET_SUFFIX="_ver_c943054b67vc743dd2gd706fd5f7fb2d40d519422fedd40b518";</script>
+		<script data-context="helper"  src="/lib/jquery/3.7.1/jquery-3.7.1.min.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/g/2.0/scripts/webpack_import_helpers.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/jquery/3.7.1/plugins/jquery.compat.selector.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/jquery/1.12.4/plugins/jquery.browser.min.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/jquery/1.12.4/plugins/jquery.easing.min.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/jquery/1.12.4/plugins/jquery.archimedes-frontend-core-plugins-0.1.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/jquery/1.12.4/plugins/jquery.fitvids.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/core/dynamic.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/archimedes/scripts/archimedes-frontend-core.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/archimedes/scripts/archimedes-frontend-modules.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/js/crypto-js/crypto-js.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" type="module"  traceurOptions="--async-functions" src="/core/dynamic_modules_fallback__mjs.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/g/2.0/scripts/feature_panels.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/g/themes/aperture/2.0/scripts/script.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/archimedes/scripts/shop.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+		<script data-context="helper" defer src="/lib/jquery/plugins/plyr/3.5.10/plyr.min.js?c=943054b67&v=c743dd2&g=d706fd5f7fb2d40d519422fedd40b518"></script>
+            
+            
+                
+
+
+    <script>
+        function get_cookie_preference(category) {
+            result = false;
+            try {
+                var cookie_preferences = localStorage.getItem('cookie_preferences') || "";
+                if (cookie_preferences) {
+                    cookie_preferences = JSON.parse(cookie_preferences);
+                    if (cookie_preferences.date) {
+                        var expires_on = new Date(cookie_preferences.date);
+                        expires_on.setDate(expires_on.getDate() + 365);
+                        console.log('cookie preferences expire on', expires_on.toISOString());
+                        var valid = expires_on > new Date();
+                        if (valid && cookie_preferences.hasOwnProperty(category) && cookie_preferences[category]) {
+                            result = true;
+                        }
+                    }
+                }
+            }
+            catch(e) {
+                console.warn('get_cookie_preference() failed');
+                return result;
+            }
+            return result;
+        }
+
+        window.google_analytics_init = function(page){
+            var collectConsent = true;
+            var useConsentMode = false;
+            var analyticsProperties = ['G-83EFPKVDGG', 'UA-175553012-69'];
+            var analyticsCookieType = 'statistics';
+            var disableGa = false;
+            var sendToArtlogic = true;
+            var artlogicProperties = {
+                'UA': 'UA-157296318-1',
+                'GA': 'G-GLQ6WNJKR5',
+            };
+
+            analyticsProperties = analyticsProperties.concat(Object.values(artlogicProperties));
+
+            var uaAnalyticsProperties = analyticsProperties.filter((p) => p.startsWith('UA-'));
+            var ga4AnalyticsProperties = analyticsProperties.filter((p) => p.startsWith('G-')).concat(analyticsProperties.filter((p) => p.startsWith('AW-')));
+
+            if (collectConsent) {
+                disableGa = !get_cookie_preference(analyticsCookieType);
+
+                for (var i=0; i < analyticsProperties.length; i++){
+                    var key = 'ga-disable-' + analyticsProperties[i];
+
+                    window[key] = disableGa;
+                }
+
+                if (disableGa) {
+                    if (document.cookie.length) {
+                        var cookieList = document.cookie.split(/; */);
+
+                        for (var i=0; i < cookieList.length; i++) {
+                            var splitCookie = cookieList[i].split('='); //this.split('=');
+
+                            if (splitCookie[0].indexOf('_ga') == 0 || splitCookie[0].indexOf('_gid') == 0 || splitCookie[0].indexOf('__utm') == 0) {
+                                //h.deleteCookie(splitCookie[0]);
+                                var domain = location.hostname;
+                                var cookie_name = splitCookie[0];
+                                document.cookie =
+                                    cookie_name + "=" + ";path=/;domain="+domain+";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+                                // now delete the version without a subdomain
+                                domain = domain.split('.');
+                                domain.shift();
+                                domain = domain.join('.');
+                                document.cookie =
+                                    cookie_name + "=" + ";path=/;domain="+domain+";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (uaAnalyticsProperties.length) {
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+
+                if (!disableGa) {
+                    var anonymizeIps = false;
+
+                    for (var i=0; i < uaAnalyticsProperties.length; i++) {
+                        var propertyKey = '';
+
+                        if (i > 0) {
+                            propertyKey = 'tracker' + String(i + 1);
+                        }
+
+                        var createArgs = [
+                            'create',
+                            uaAnalyticsProperties[i],
+                            'auto',
+                        ];
+
+                        if (propertyKey) {
+                            createArgs.push({'name': propertyKey});
+                        }
+
+                        ga.apply(null, createArgs);
+
+                        if (anonymizeIps) {
+                            ga('set', 'anonymizeIp', true);
+                        }
+
+                        var pageViewArgs = [
+                            propertyKey ? propertyKey + '.send' : 'send',
+                            'pageview'
+                        ]
+
+                        if (page) {
+                            pageViewArgs.push(page)
+                        }
+
+                        ga.apply(null, pageViewArgs);
+                    }
+
+                    if (sendToArtlogic) {
+                        ga('create', 'UA-157296318-1', 'auto', {'name': 'artlogic_tracker'});
+
+                        if (anonymizeIps) {
+                            ga('set', 'anonymizeIp', true);
+                        }
+
+                        var pageViewArgs = [
+                            'artlogic_tracker.send',
+                            'pageview'
+                        ]
+
+                        if (page) {
+                            pageViewArgs.push(page)
+                        }
+
+                        ga.apply(null, pageViewArgs);
+                    }
+                }
+            }
+
+            if (ga4AnalyticsProperties.length) {
+                if (!disableGa || useConsentMode) {
+                    (function(d, script) {
+                        script = d.createElement('script');
+                        script.type = 'text/javascript';
+                        script.async = true;
+                        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4AnalyticsProperties[0];
+                        d.getElementsByTagName('head')[0].appendChild(script);
+                    }(document));
+
+                    window.dataLayer = window.dataLayer || [];
+                    window.gtag = function (){dataLayer.push(arguments);}
+                    window.gtag('js', new Date());
+
+                    if (useConsentMode) {
+                        gtag('consent', 'default', {
+                            'ad_storage': 'denied',
+                            'analytics_storage': 'denied',
+                            'functionality_storage': 'denied',
+                            'personalization_storage': 'denied',
+                            'security': 'denied',
+                        });
+
+                        if (disableGa) {
+                            // If this has previously been granted, it will need set back to denied (ie on cookie change)
+                            gtag('consent', 'update', {
+                                'analytics_storage': 'denied',
+                            });
+                        } else {
+                            gtag('consent', 'update', {
+                                'analytics_storage': 'granted',
+                            });
+                        }
+                    }
+
+                    for (var i=0; i < ga4AnalyticsProperties.length; i++) {
+                        window.gtag('config', ga4AnalyticsProperties[i]);
+                    }
+
+                }
+            }
+        }
+
+        var waitForPageLoad = true;
+
+        if (waitForPageLoad) {
+            window.addEventListener('load', function() {
+                window.google_analytics_init();
+                window.archimedes.archimedes_core.analytics.init();
+            });
+        } else {
+            window.google_analytics_init();
+        }
+    </script>
+
+                
+
+
+    <!-- Facebook Pixel Code -->            
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('consent', 'revoke');
+        fbq('init', 518224310319230);
+        fbq('track', 'PageView');
+    </script>
+    <!-- End Facebook Pixel Code -->
+
+            
+                <script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"ea51159c4af4e785913b993b301c7a93"})});</script>
+            
+
+        </head>
+        
+        
+        
+        <body class="section-home section-root site-responsive responsive-top-size-1023 responsive-nav-slide-nav responsive-nav-side-position-fullscreen responsive-layout-forced-lists responsive-layout-forced-image-lists responsive-layout-forced-tile-lists analytics-track-all-links site-lib-version-2-0 scroll_sub_nav_enabled responsive_src_image_sizing hero_heading_title_position_overlay no-page-params type-fullscreen  layout-hero-header layout-fixed-header site-type-template pageload-ajax-navigation-active layout-animation-enabled layout-lazyload-enabled" data-viewport-width="1024" data-site-name="artlogicwebsite0124" data-pathname="/"
+>
+            <script>document.getElementsByTagName('body')[0].className+=' browser-js-enabled';</script>
+            
+
+
+            
+            
+
+
+
+
+
+
+        <div id="responsive_slide_nav_content_wrapper">
+
+    <div id="container">
+
+        
+    
+
+
+    <div class="header-fixed-wrapper">
+    <header id="header" class="clearwithin header_fixed   header_layout_left">
+        <div class="inner clearwithin">
+
+            
+
+
+<div id="logo" class=" user-custom-logo-image"><a href="/">Edinburgh Printmakers</a></div>
+
+
+            
+                <div id="skiplink-container">
+                    <div>
+                        <a href="#main_content" class="skiplink">Skip to main content</a>
+                    </div>
+                </div>
+            
+        
+            <div class="header-ui-wrapper">
+
+                    <div id="responsive_slide_nav_wrapper" class="mobile_menu_align_center" data-nav-items-animation-delay>
+                        <div id="responsive_slide_nav_wrapper_inner" data-responsive-top-size=1023>
+                        
+                            <nav id="top_nav" aria-label="Main site" class="navigation noprint clearwithin">
+                                
+<div id="top_nav_reveal" class="hidden"><ul><li><a href="#" role="button" aria-label="Close">Menu</a></li></ul></div>
+
+        <ul class="topnav">
+		<li class="topnav-filepath-visit topnav-label-visit topnav-id-43"><a href="/visit/" aria-label="Visit">Visit</a></li>
+		<li class="topnav-filepath-whats-on topnav-label-what-s-on topnav-id-101"><a href="/whats-on/" aria-label="What's On">What's On</a></li>
+		<li class="topnav-filepath-studio topnav-label-studio-education topnav-id-51"><a href="/studio/" aria-label="Studio & Education">Studio & Education</a></li>
+		<li class="topnav-filepath-venue-hire topnav-label-venue-hire topnav-id-136"><a href="/venue-hire/" aria-label="Venue Hire">Venue Hire</a></li>
+		<li class="topnav-filepath-workspaces topnav-label-workspaces topnav-id-66"><a href="/workspaces/" aria-label="Workspaces">Workspaces</a></li>
+		<li class="topnav-filepath-projects topnav-label-projects topnav-id-107"><a href="/projects/" aria-label="Projects">Projects</a></li>
+		<li class="topnav-filepath-shop topnav-label-shop topnav-id-34 last"><a href="/shop/" aria-label="Shop">Shop</a></li>
+	</ul>
+
+
+                                
+                                
+
+
+
+                                
+                                    <div id="topnav_search" class="header_quick_search noprint">
+                                        <form method="get" action="/search/" id="topnav_search_form">
+                                            <input id="topnav_search_field" type="text" class="header_quicksearch_field inputField" aria-label="Search" data-default-value="Search" value="" name="search" />
+                                                <a href="javascript:void(0)" id="topnav_search_btn" class="header_quicksearch_btn link" aria-label="Submit search" role="button"><i class="quicksearch-icon"></i></a>
+                                            <input type="submit" class="nojsSubmit" aria-label="Submit search" value="Go" style="display: none;" />
+                                        </form>
+                                    </div>
+                            </nav>
+                            <div class="header_social_links_mobile clearwithin">
+                                <div id="facebook" class="social_links_item"><a href="https://www.facebook.com/EdinburghPrintmakers" class=""><span class="social_media_icon facebook"></span>Facebook<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="instagram" class="social_links_item"><a href="https://www.instagram.com/edinburghprintmakers/" class=""><span class="social_media_icon instagram"></span>Instagram<span class="screen-reader-only">, opens in a new tab.</span></a></div>
+                            </div>
+                        
+                        </div>
+                    </div>
+                
+
+                <div class="header-icons-wrapper  active social-links-active cart-icon-active wishlist-icon-active">
+                    
+                    
+                        <div id="header_quick_search" class="header_quick_search noprint header_quick_search_reveal">
+                            <form method="get" action="/search/" id="header_quicksearch_form">
+                                <input id="header_quicksearch_field" type="text" class="header_quicksearch_field inputField" aria-label="Submit" data-default-value="Search" value="" name="search" placeholder="Search" />
+                                <a href="javascript:void(0)" id="header_quicksearch_btn" class="header_quicksearch_btn link" aria-label="Submit search"><i class="quicksearch-icon"></i></a>
+                                <input type="submit" class="nojsSubmit" value="Go" aria-label="Submit search" style="display: none;" />
+                            </form>
+                        </div>
+
+                        
+
+
+
+<!--excludeindexstart-->
+<div id="store_cart_widget" class="">
+    <div class="store_cart_widget_inner">
+        <div id="scw_heading"><a href="/store/basket/" class="scw_checkout_link">Cart</a></div>
+        <div id="scw_items">
+            <a href="/store/basket/" aria-label="Your store basket is empty" data-currency="&pound;">
+                <span class="scw_total_items"><span class="scw_total_count">0</span><span class="scw_total_items_text"> items</span></span>
+               
+
+                    <span class="scw_total_price">
+                        <span class="scw_total_price_currency widget_currency">&pound;</span>
+                        <span class="scw_total_price_amount widget_total_price" 
+                                data-cart_include_vat_in_price="True" 
+                                data-total_price_without_vat_in_base_currency="0" 
+                                data-total_price_with_vat_in_base_currency="0"
+                                data-conversion_rate='{"GBP": {"conversion_rate": 1, "name": "&pound;", "stripe_code": "gbp"}}'
+                                data-count="0">
+                        </span>
+                    </span>
+      
+                
+            </a>
+        </div>
+        <div id="scw_checkout">
+            <div class="scw_checkout_button"><a href="/store/basket/" class="scw_checkout_link">Checkout</a></div>
+        </div>
+            <div id="scw_popup" class="hidden scw_popup_always_show">
+                <div id="scw_popup_inner">
+                    <h3>Item added to cart</h3>
+                    <div id="scw_popup_buttons_container">
+                        <div class="button"><a href="/store/basket/">View cart & checkout</a></div>
+                        <div id="scw_popup_close" class="link"><a href="#">Continue shopping</a></div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        
+    </div>
+</div>
+<!--excludeindexend-->
+
+                        
+
+
+
+<!--excludeindexstart-->
+<div id="wishlist_cart_widget" class="">
+    <div class="wishlist_cart_widget_inner">
+        <div id="wcw_label"><a href="/wishlist/basket/" class="link-no-ajax wcw_checkout_link" aria-label="Wishlist"><span class="label_basket">Wishlist</span></a></div>
+        <div id="wcw_total_items"><span class="wcw_total_count">0</span></div>
+        
+            <div id="wcw_popup" class="hidden">
+                <div id="wcw_popup_inner">
+                    <h3>Wishlist</h3>
+                        <div class="description">You can either review your list and make an enquiry, or continue adding to the list</div>
+                    <div class="button"><a href="/wishlist/basket/">View wishlist</a></div>
+                    <div id="wcw_popup_close" class="button"><a href="#">Continue browsing</a></div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+    </div>
+</div>
+<!--excludeindexend-->
+                    
+                        <div class="header_social_links_desktop clearwithin">
+                            <div id="facebook" class="social_links_item"><a href="https://www.facebook.com/EdinburghPrintmakers" class=""><span class="social_media_icon facebook"></span>Facebook<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="instagram" class="social_links_item"><a href="https://www.instagram.com/edinburghprintmakers/" class=""><span class="social_media_icon instagram"></span>Instagram<span class="screen-reader-only">, opens in a new tab.</span></a></div>
+                        </div>
+     
+                        <div id="slide_nav_reveal" tabindex="0" role="button">Menu</div>
+                </div>
+                
+                
+
+        <div id="additional_nav_1" class="navigation additional_nav noprint clearwithin">
+            <div id="additional_nav_reveal" class="hidden"><ul><li><a>Menu</a></li></ul></div>
+            <ul class="additionalnav">
+                
+            </ul>
+        </div>
+
+
+        <div id="additional_nav_2" class="navigation additional_nav noprint clearwithin">
+            <div id="additional_nav_reveal" class="hidden"><ul><li><a>Menu</a></li></ul></div>
+            <ul class="additionalnav">
+                
+                    
+                        <li id="about" class="">
+                                <a href="/about">About</a>
+                        </li>
+                    
+                        <li id="subscribe" class="">
+                                <a href="/mailing-list">Subscribe</a>
+                        </li>
+                    
+                        <li id="donate" class="">
+                                <a href="https://buy.stripe.com/14k00d2lD4KX3Ze7sJ">Donate</a>
+                        </li>
+                    
+                        <li id="contact" class="last">
+                                <a href="/contact">Contact</a>
+                        </li>
+            </ul>
+        </div>
+
+                
+
+
+
+                
+
+                
+            </div>
+        </div>
+        
+
+
+
+    </header>
+    </div>
+
+
+
+        
+
+        <div id="main_content" role="main" class="clearwithin">
+            <!--contentstart-->
+            
+
+
+
+
+
+<h1>Edinburgh Printmakers is a creative hub for printmaking and the visual arts in Edinburgh.</h1>
+
+<div id="content" class="clearwithin">
+
+
+        
+
+
+        
+        <style></style>
+
+            
+                <div id="slideshow" role="region" aria-label="slideshow" class="fullscreen_slideshow fullscreen_slideshow_parallax detect-slide-brightness parallax-element content_below slideshow_navigation_enabled paged-slideshow-wrapper" data-cycle-timeout-setting="4000" data-image-src="https://static-assets.artlogic.net/w_1600,h_1200,c_fill,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_backup/1/img_1583.jpg" data-position="center" style="background:#222222;" data-cycle-custom-settings='{}'>
+                    <ul class="hero-parallax-element">
+
+    
+
+                                
+
+                                    
+                                    <li class="   fullscreen-slide-brightness-detected fullscreen-slide-image-dark">
+                                            
+                                            
+                                            <a href="https://edinburghprintmakers.co.uk/viewing-room/130-jamie-fitzpatrick-memorials-to-sausage-politics/">Jamie Fitzpatrick: Memorials to Sausage Politics</a>
+
+                                            
+        <style>
+            .cycle-slide-active #home-image-slide-0 {background-image:url('https://static-assets.artlogic.net/w_2000,h_2000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/jamie-fitzpatrick-banner.jpg'); opacity:1;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                                            <span id="home-image-slide-0" class="image"></span>
+    
+                                            
+                                            
+                                            <div class="content clearafter main_caption slide_has_caption">
+                                                <div class="inner">
+                                                        <h2>
+                                                                
+                                                                <a href="https://edinburghprintmakers.co.uk/viewing-room/130-jamie-fitzpatrick-memorials-to-sausage-politics/">Jamie Fitzpatrick<span class="separator">: </span> <span class="h1_subtitle">Memorials to Sausage Politics</span></a>
+                                                        </h2>
+                                                        
+                                                        <span class="date">24 July to 25 October</span>
+                                                </div>
+                                            </div>
+                                        
+                                        
+                                    </li>
+                                    
+                                    <li class="   fullscreen-slide-brightness-detected fullscreen-slide-image-dark">
+                                            
+                                            
+                                            <a href="https://edinburghprintmakers.co.uk/viewing-room/131-etchingroom1-unexpected-trip/">Etchingroom1: Unexpected trip</a>
+
+                                            
+        <style>
+            .cycle-slide-active #home-image-slide-1 {background-image:url('https://static-assets.artlogic.net/w_2000,h_2000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/etchingroom1-banner-copy.jpg'); opacity:1;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                                            <span id="home-image-slide-1" class="image"></span>
+    
+                                            
+                                            
+                                            <div class="content clearafter main_caption slide_has_caption">
+                                                <div class="inner">
+                                                        <h2>
+                                                                
+                                                                <a href="https://edinburghprintmakers.co.uk/viewing-room/131-etchingroom1-unexpected-trip/">Etchingroom1<span class="separator">: </span> <span class="h1_subtitle">Unexpected trip</span></a>
+                                                        </h2>
+                                                        
+                                                        <span class="date">24 July to 25 October</span>
+                                                </div>
+                                            </div>
+                                        
+                                        
+                                    </li>
+                                    
+                                    <li class="   fullscreen-slide-brightness-detected fullscreen-slide-image-dark">
+                                            
+                                            
+                                            <a href="https://edinburgh-printmakers.odoo.com/">New Printmaking Courses Now Online: Book Now</a>
+
+                                            
+        <style>
+            .cycle-slide-active #home-image-slide-2 {background-image:url('https://static-assets.artlogic.net/w_2000,h_2000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/56photo-credit-eleanor-buffam.jpeg'); opacity:1;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                                            <span id="home-image-slide-2" class="image"></span>
+    
+                                            
+                                            
+                                            <div class="content clearafter main_caption slide_has_caption">
+                                                <div class="inner">
+                                                        <h2>
+                                                                
+                                                                <a href="https://edinburgh-printmakers.odoo.com/">New Printmaking Courses Now Online<span class="separator">: </span> <span class="h1_subtitle">Book Now</span></a>
+                                                        </h2>
+                                                </div>
+                                            </div>
+                                        
+                                        
+                                    </li>
+                                    
+                                    <li class="   fullscreen-slide-brightness-detected fullscreen-slide-image-dark">
+                                            
+                                            
+                                            <a href="/visit">Plan your visit now: Galleries & Shop open Tues-Sun 10am - 6pm</a>
+
+                                            
+        <style>
+            .cycle-slide-active #home-image-slide-3 {background-image:url('https://static-assets.artlogic.net/w_2000,h_2000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/ep-jimstephenson-1-webres.jpg'); opacity:1;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                                            <span id="home-image-slide-3" class="image"></span>
+    
+                                            
+                                            
+                                            <div class="content clearafter main_caption slide_has_caption">
+                                                <div class="inner">
+                                                        <h2>
+                                                                
+                                                                <a href="/visit">Plan your visit now<span class="separator">: </span> <span class="h1_subtitle">Galleries & Shop open Tues-Sun 10am - 6pm</span></a>
+                                                        </h2>
+                                                </div>
+                                            </div>
+                                        
+                                        
+                                    </li>
+                                    
+                                    <li class="   fullscreen-slide-brightness-detected fullscreen-slide-image-dark">
+                                            
+                                            
+                                            <a href="/shop">Shop Prints Online: Browse the EP archives and prints by our Studio Members</a>
+
+                                            
+        <style>
+            .cycle-slide-active #home-image-slide-4 {background-image:url('https://static-assets.artlogic.net/w_2000,h_2000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/26.06.15-shop-photoshoot-5-.jpg'); opacity:1;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                                            <span id="home-image-slide-4" class="image"></span>
+    
+                                            
+                                            
+                                            <div class="content clearafter main_caption slide_has_caption">
+                                                <div class="inner">
+                                                        <h2>
+                                                                
+                                                                <a href="/shop">Shop Prints Online<span class="separator">: </span> <span class="h1_subtitle">Browse the EP archives and prints by our Studio Members</span></a>
+                                                        </h2>
+                                                </div>
+                                            </div>
+                                        
+                                        
+                                    </li>
+                                    
+                                    <li class="   fullscreen-slide-brightness-detected fullscreen-slide-image-dark">
+                                            
+                                            
+                                            <a href="/workspaces">Looking for studio spaces? Find out more</a>
+
+                                            
+        <style>
+            .cycle-slide-active #home-image-slide-5 {background-image:url('https://static-assets.artlogic.net/w_2000,h_2000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/pages/slideshow_data/1/kathryn-s-sculpture-studio-blantyre-photo-credit-kathryn-hanna.jpeg'); opacity:1;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                                            <span id="home-image-slide-5" class="image"></span>
+    
+                                            
+                                            
+                                            <div class="content clearafter main_caption slide_has_caption">
+                                                <div class="inner">
+                                                        <h2>
+                                                                
+                                                                <a href="/workspaces">Looking for studio spaces? Find out more</a>
+                                                        </h2>
+                                                </div>
+                                            </div>
+                                        
+                                        
+                                    </li>
+    
+                    </ul>
+                        <div class="slideshow_pager ">
+                            <div class="slideshow_pager_inner">
+                                
+                                    
+                                        <button aria-label="Go to slide 1, Jamie Fitzpatrick: Memorials to Sausage Politics (Current slide)" class="slideshow-pager-item-wrapper" data-button_aria_title="Jamie Fitzpatrick: Memorials to Sausage Politics" data-rel="0"><span class="slideshow-pager-item"></span></button>
+                                    
+                                        <button aria-label="Go to slide 2, Etchingroom1: Unexpected trip" class="slideshow-pager-item-wrapper" data-button_aria_title="Etchingroom1: Unexpected trip" data-rel="1"><span class="slideshow-pager-item"></span></button>
+                                    
+                                        <button aria-label="Go to slide 3, New Printmaking Courses Now Online: Book Now" class="slideshow-pager-item-wrapper" data-button_aria_title="New Printmaking Courses Now Online: Book Now" data-rel="2"><span class="slideshow-pager-item"></span></button>
+                                    
+                                        <button aria-label="Go to slide 4, Plan your visit now: Galleries & Shop open Tues-Sun 10am - 6pm" class="slideshow-pager-item-wrapper" data-button_aria_title="Plan your visit now: Galleries & Shop open Tues-Sun 10am - 6pm" data-rel="3"><span class="slideshow-pager-item"></span></button>
+                                    
+                                        <button aria-label="Go to slide 5, Shop Prints Online: Browse the EP archives and prints by our Studio Members" class="slideshow-pager-item-wrapper" data-button_aria_title="Shop Prints Online: Browse the EP archives and prints by our Studio Members" data-rel="4"><span class="slideshow-pager-item"></span></button>
+                                    
+                                        <button aria-label="Go to slide 6, Looking for studio spaces? Find out more" class="slideshow-pager-item-wrapper" data-button_aria_title="Looking for studio spaces? Find out more" data-rel="5"><span class="slideshow-pager-item"></span></button>
+                            </div>
+                        </div>
+                </div>
+
+                <div class="divider"></div>
+            <div id="content_module" class="prose full_width">
+                    <div class="OutlineElement Ltr SCXW72863746 BCX0">
+<p class="Paragraph SCXW72863746 BCX0"><strong style="font-size: 1.45rem;"><span class="EOP SCXW72863746 BCX0" data-ccp-props="{">&nbsp;</span></strong></p>
+</div>
+            </div>
+                <div class="divider"></div>
+            
+
+    
+    <div class="feature_panels feature_panels_layout_standard ">
+        <div class="feature_panels_inner clearwithin">
+            <ul>
+
+                    
+                        
+                        
+
+
+
+    
+    
+
+    
+    
+    <li class="panel panel_type_4 feature_variant_2    panel_id_749 panel_number_1 panel_image_text_adjacent panel_style_standard panel_variant_2 fp_unnamed  "  >
+            
+            
+                <!--
+                        
+            
+            --><span class="image restricted-image-container lazyload_disable_min_height image-is-cropped" data-width="4592" data-height="3448" data-record-type="" >
+                    
+
+                        <span>
+
+                            <span class="object-fit-container"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="object-fit-cover"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg'}"  data-src="https://static-assets.artlogic.net/w_620,h_620,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/1b/1b823d407d74480185fdcba82b49f532/about-us.jpg" alt="About Us"  /></span>
+
+                        </span>
+                
+            
+            </span><!--
+    
+                        
+        
+            --><div class="content">
+                <div class="slider-content">
+                        <h2 class="fp_title" data-fieldname="heading">About Us</h2>
+                        <div class="description prose" data-fieldname="content"><div class="OutlineElement Ltr SCXW72863746 BCX0">
+<p class="Paragraph SCXW72863746 BCX0" style="text-align: left;"><strong><span class="TextRun SCXW72863746 BCX0" lang="EN-GB" data-contrast="none">Edinburgh Printmakers&nbsp;is a creative centre for printmaking and the visual arts in the&nbsp;</span><span class="TextRun Underlined SCXW72863746 BCX0" lang="EN-GB" data-contrast="none">Fountainbridge</span></strong><span class="TextRun SCXW72863746 BCX0" lang="EN-GB" data-contrast="none"><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)"><strong>&nbsp;area of Edinburgh.</strong> It has a large light-filled printmaking studio, 3 galleries, a shop selling original prints and handmade products, a venue for meetings, events and learning activities, <span>a </span><a href="https://edinburghprintmakers.co.uk/visit/cafe/" class="cms_red" target="_self">caf&eacute;</a>, a courtyard, and&nbsp;</span><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)">community</span><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)">&nbsp;garden.</span></span><span class="EOP SCXW72863746 BCX0" data-ccp-props="{"> We are committed to being an inclusive and welcoming space.</span></p>
+</div>
+<div class="OutlineElement Ltr SCXW72863746 BCX0" style="text-align: left;">
+<p class="Paragraph SCXW72863746 BCX0"><span class="TextRun SCXW72863746 BCX0" lang="EN-GB" data-contrast="none"><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)"></span></span><span class="EOP SCXW72863746 BCX0" data-ccp-props="{">&nbsp;</span></p>
+</div>
+<div class="OutlineElement Ltr SCXW72863746 BCX0" style="text-align: left;">
+<p class="Paragraph SCXW72863746 BCX0"><span class="TextRun SCXW72863746 BCX0" lang="EN-GB" data-contrast="none"><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)"><strong>The printmaking studio welcomes anyone interested in joining our courses or becoming a member.</strong> It was&nbsp;</span><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)">established</span><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)">&nbsp;in 1967 as the first open-access studio in the UK and is one of the largest in Europe. Set in Castle Mills, a beautiful heritage building that was formerly a rubber factory and brewery complex, Edinburgh Printmakers fosters&nbsp;</span><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)">a creative atmosphere for both the local community and visitors to enjoy.</span></span><span class="EOP SCXW72863746 BCX0" data-ccp-props="{">&nbsp;</span></p>
+</div>
+<div class="OutlineElement Ltr SCXW72863746 BCX0" style="text-align: left;">
+<p class="Paragraph SCXW72863746 BCX0"><span class="TextRun SCXW72863746 BCX0" lang="EN-GB" data-contrast="none"><span class="NormalTextRun SCXW72863746 BCX0" data-ccp-parastyle="Normal (Web)"></span></span><span class="EOP SCXW72863746 BCX0" data-ccp-props="{">&nbsp;</span></p>
+</div>
+<div class="OutlineElement Ltr SCXW72863746 BCX0">
+<p class="Paragraph SCXW72863746 BCX0" style="text-align: left;">Explore our <a href="https://edinburghprintmakers.co.uk/shop/" class="cms_red">online shop</a>, where you'll find a thoughtfully curated collection of fine art prints for sale. All the prints are created in our studio by our talented members and visiting artists.</p>
+<p class="Paragraph SCXW72863746 BCX0">&nbsp;</p>
+<p class="Paragraph SCXW72863746 BCX0"><a href="https://edinburghprintmakers.co.uk/about" class="cms_button"><strong><span class="EOP SCXW72863746 BCX0" data-ccp-props="{">More About Us</span></strong></a></p>
+</div></div>
+                    
+                </div>
+            </div><!--
+    
+                -->
+
+            
+    </li>
+
+
+
+                    
+                    
+
+                        
+                        
+
+                            
+
+
+
+
+
+
+
+
+    
+        <li class="panel panel_type_7 feature_variant_1  panel_id_750 panel_number_2 panel_image_grid panel_style_standard panel_variant_standard fp_unnamed  " >
+                <div class="panel_header clearwithin">
+                        <h2>Printmaking at EP</h2>
+                </div>
+                <div class="records_list grid_dynamic_layout_feature_panels gd_image_aspect_ratio_1-1 image_list grid_dynamic_layout_feature_panels gd_image_aspect_ratio_1-1"">
+                    <ul class="">
+                            
+                            <li class="feature_panel_standalone "">
+                                    <a href="https://edinburghprintmakers.co.uk/about/what-is-a-print-/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/w-is-a-print.png" alt="What is a Print?"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <h2 class="fp_title" data-fieldname="None">What is a Print?</h2>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="feature_panel_standalone "">
+                                    <a href="https://edinburghprintmakers.co.uk/studio/courses/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/courses-and-workshops-2.jpg" alt="Courses and Workshops"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <h2 class="fp_title" data-fieldname="None">Courses and Workshops</h2>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="feature_panel_standalone "">
+                                    <a href="https://edinburghprintmakers.co.uk/studio/fees/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/james-harrison-studio-photography-93-.jpeg" alt="Memberships"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <h2 class="fp_title" data-fieldname="None">Memberships</h2>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="feature_panel_standalone "">
+                                    <a href="https://edinburgh-printmakers.odoo.com/event/tags/children-and-families-16?prevent_redirect=True">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/750/dsc_9073.jpg" alt="Children's Printmaking"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <h2 class="fp_title" data-fieldname="None">Children's Printmaking</h2>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                    </ul>
+                </div>
+
+        </li>
+
+
+
+                        
+                    
+                    
+
+                        
+                        
+
+                            
+
+
+
+    
+    
+    
+
+    
+
+    <li class="panel panel_type_9 feature_variant_1  no_image clearwithin panel_id_751 panel_number_3 panel_image_text_full panel_style_standard panel_variant_standard fp_unnamed"  >
+            
+            <span class="image">
+                <span>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/kUMwvMeL5go" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </span>
+            </span>
+    
+                
+        <div class="content">
+        </div>
+    
+    </li>
+
+
+
+                        
+                    
+                    
+
+                        
+                        
+
+                            
+
+
+
+
+
+
+
+
+    
+        <li class="panel panel_type_7 feature_variant_1  panel_id_752 panel_number_4 panel_image_grid panel_style_standard panel_variant_standard fp_unnamed  " >
+                <div class="panel_header clearwithin">
+                        <h2>Online Shop</h2>
+                </div>
+                <div class="records_list grid_dynamic_layout_feature_panels collapse_single_column gd_image_cropping_uncropped image_list grid_dynamic_layout_feature_panels collapse_single_column gd_image_cropping_uncropped"">
+                    <ul class="">
+                            
+                            <li class="item_content_section_artworks "">
+                                    <a href="/artworks/11701-susan-aldworth-belonging-2026/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/02/02cd7b233d7849d3b97bb4b8e40f2439/belonging.jpeg" alt="Susan Aldworth, Belonging, 2026"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <span class="section hidden">Artworks</span>
+                                                <h2 class="fp_title" data-fieldname="artist">Susan Aldworth</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">Belonging, 2026</span>
+                                                <div class="description prose" data-fieldname="description">Relief with lithography<br/>Image size: 76 x 56cm<br>
+Paper size: 76 x 56cm<br/>Edition of 20<br>
+Collaborating printer: Alastair Clark</div>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="item_content_section_artworks "">
+                                    <a href="/artworks/9396-toby-paterson-st-ives-axonometric-brown-2006/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/13/135de8b5dfb04e8692b85651053c73bf/toby-paterson-st-ives-axonometric-brown.jpg" alt="Toby Paterson - St Ives Axonometric Brown"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <span class="section hidden">Artworks</span>
+                                                <h2 class="fp_title" data-fieldname="artist">Toby Paterson</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">St Ives Axonometric Brown, 2006</span>
+                                                <div class="description prose" data-fieldname="description">Screenprint<br/>Image 53.8 x 62.5 cm<br>
+Paper 53.8 x 62.5 cm<br/>Edition of 50</div>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="item_content_section_artworks "">
+                                    <a href="/artworks/9904-nana-shiomi-6-9-zero-2014/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/0c/0c12be00533f4b18bf0a453c96bd520b/nana-shiomi-scan.jpg" alt="Nana Shiomi, 6+9=Zero, 2014"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <span class="section hidden">Artworks</span>
+                                                <h2 class="fp_title" data-fieldname="artist">Nana Shiomi</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">6+9=Zero, 2014</span>
+                                                <div class="description prose" data-fieldname="description">Etching<br/>Paper Size: 56.5x75.8cm<br>
+Image Size: 56.5x75.8cm<br>
+<br/>Edition of 16</div>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="item_content_section_artworks "">
+                                    <a href="/artworks/11766-fahd-burki-ancestors-circle-2014/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/artworks/main_image/items/cd/cd5455dad5e641fe9058fdb4b1406736/screen-shot-2026-04-19-at-16.37.08.png" alt="Fahd Burki, Ancestors Circle, 2014"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <span class="section hidden">Artworks</span>
+                                                <h2 class="fp_title" data-fieldname="artist">Fahd Burki</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">Ancestors Circle, 2014</span>
+                                                <div class="description prose" data-fieldname="description">Screenprint<br/>Paper size: 112 x 76.5cm<br>
+Image size: 109.7 x 74.2cm<br/>Edition of 20</div>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                    </ul>
+                </div>
+
+        </li>
+
+
+
+                        
+                    
+                    
+
+                        
+
+
+
+    
+    <li class="panel  panel_type_3 feature_variant_1   panel_id_1510  panel_number_5 panel_hero fp_unnamed" >
+
+        <section  
+             class="scroll_section "
+             data-subsection-type="900 Stories in Print"
+             tabindex=-1 aria-label="panel_hero">
+
+                
+                <span class="hero_section  parallax-element " data-image-src="https://static-assets.artlogic.net/w_4000,h_2500,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/dc/dc48e126086247288f06a9a41fd62dfb/ed900-image-edited.jpg" data-image-mobile-src="" data-color="#000" data-opacity="0.8" style="background-color:#000">
+
+                    <span class="inner">
+                        <span class="hero_heading ">
+                                <a href="https://edinburghprintmakers.co.uk/projects/edinburgh900/" aria-label="Learn more">
+                                    <h2 class="fp_title" data-fieldname="heading">900 Stories in Print</h2>
+                            
+                                    <span class="description prose" data-fieldname="content">Join 900 stories in print: celebrate Fountainbridge's industrial heritage by submitting your stories!</span>
+                                </a>
+                        </span>
+                    </span>
+                    <span class="hero_image_responsive" style="background-color:#000;">
+                            
+
+                            
+        <style>
+            #parallax-slide-1510 {background-image:url('https://static-assets.artlogic.net/w_4000,h_2500,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/image/items/dc/dc48e126086247288f06a9a41fd62dfb/ed900-image-edited.jpg'); opacity:0.8;  }
+            @media screen and (max-width: 459px) {
+                
+            }
+        </style>
+    
+
+                            <span id="parallax-slide-1510"></span>
+                    </span>
+                </span>
+                <span class="hero_section_placeholder"></span>
+        </section>
+    </li>
+
+
+
+                    
+                    
+
+                        
+                        
+
+                            
+
+
+
+
+
+
+
+
+    
+        <li class="panel panel_type_7 feature_variant_1  panel_id_753 panel_number_6 panel_image_grid panel_style_standard panel_variant_standard fp_unnamed  " >
+                <div class="panel_header clearwithin">
+                        <h2>News and Opportunities</h2>
+                </div>
+                <div class="records_list grid_dynamic_layout_feature_panels image_list grid_dynamic_layout_feature_panels"">
+                    <ul class="">
+                            
+                            <li class="item_content_section_news "">
+                                    <a href="/news/78-upcoming-exhibition-jamie-fitzpatrick-memorials-to-sausage-artist-jamie-fitzpatrick-holds-up-a-funfair-mirror/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image_override/78/red-in-sweet-tooth-and-sweet-boots-1-2022-bronze-acrylic-oil-and-c-copy.jpg" alt="Upcoming Exhibition | Jamie Fitzpatrick: 'Memorials to Sausage Politics', Artist Jamie Fitzpatrick holds up a funfair mirror to reality in..."  />
+                                        </span></span>
+                                        <div class="content">
+                                                <span class="section hidden">News</span>
+                                                <h2 class="fp_title" data-fieldname="title">Upcoming Exhibition | Jamie Fitzpatrick: 'Memorials to Sausage Politics'</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">Artist Jamie Fitzpatrick holds up a funfair mirror to reality in new exhibition of large scale sculptures and prints</span>
+                                                <div class="description prose" data-fieldname="description">Edinburgh Printmakers will present a new solo exhibition by artist Jamie Fitzpatrick this summer from 24 July to 25 October 2026 . Memorials to Sausage Politics sees the artist fill...</div>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="item_content_section_news "">
+                                    <a href="/news/77-upcoming-exhibition-etchingroom1-unexpected-trip-ukrainian-artistic-duo-etchingroom1-return-to-scotland-with/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/news/main_image/77/edinburgh-printmakers-etchingroom1-unexpected-trip-gallery-2-coloured-pencils-70x100_02.jpg" alt="Upcoming Exhibition | Etchingroom1: 'Unexpected Trip', Ukrainian Artistic duo Etchingroom1 return to Scotland with solo exhibition 'Unexpected Trip'"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <span class="section hidden">News</span>
+                                                <h2 class="fp_title" data-fieldname="title">Upcoming Exhibition | Etchingroom1: 'Unexpected Trip'</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">Ukrainian Artistic duo Etchingroom1 return to Scotland with solo exhibition 'Unexpected Trip'</span>
+                                                <div class="description prose" data-fieldname="description">Edinburgh Printmakers will present a new exhibition from printmaking duo Kristina Yarosh and Anna Khodkova known internationally as Etchingroom1 this summer from 24 July to 25 October 2026 . For...</div>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="feature_panel_standalone "">
+                                    <a href="https://edinburghprintmakers.co.uk/about/opportunities/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-external.png" alt="Visit our Opportunities Page, Explore job opportunities, call outs for artists and workshop spaces available with Edinburgh Printmakers."  />
+                                        </span></span>
+                                        <div class="content">
+                                                <h2 class="fp_title" data-fieldname="None">Visit our Opportunities Page</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">Explore job opportunities, call outs for artists and workshop spaces available with Edinburgh Printmakers.</span>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                            
+                            <li class="feature_panel_standalone "">
+                                    <a href="https://edinburghprintmakers.co.uk/workspaces/ep-spaces/">
+                                        <span class="image"><span>
+                                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"  data-responsive-src="{'750': 'https://static-assets.artlogic.net/w_750,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '850': 'https://static-assets.artlogic.net/w_850,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '2400': 'https://static-assets.artlogic.net/w_2400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '1600': 'https://static-assets.artlogic.net/w_1600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '1200': 'https://static-assets.artlogic.net/w_1200,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '345': 'https://static-assets.artlogic.net/w_345,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '470': 'https://static-assets.artlogic.net/w_470,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '3000': 'https://static-assets.artlogic.net/w_3000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '650': 'https://static-assets.artlogic.net/w_650,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '2600': 'https://static-assets.artlogic.net/w_2600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '2800': 'https://static-assets.artlogic.net/w_2800,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '1400': 'https://static-assets.artlogic.net/w_1400,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg', '1000': 'https://static-assets.artlogic.net/w_1000,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg'}"  data-src="https://static-assets.artlogic.net/w_600,c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/images/feature_panels/images_and_objects/753/ep-spaces.jpg" alt="Learn more about EP Spaces, Creative Studio Spaces Throughout Scotland"  />
+                                        </span></span>
+                                        <div class="content">
+                                                <h2 class="fp_title" data-fieldname="None">Learn more about EP Spaces</h2>
+                                                <span class="subtitle" data-fieldname="subtitle">Creative Studio Spaces Throughout Scotland</span>
+
+
+                                        </div>
+                                    </a>
+                            </li>
+                    </ul>
+                </div>
+
+        </li>
+
+
+
+                        
+                    
+                
+            </ul>
+        </div>
+    </div>
+
+
+            <div class="divider"></div>
+</div>
+
+ 
+            <!--contentend-->
+        </div>
+
+        
+
+
+            
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="footer" role="contentinfo" class=" advanced_footer">
+    <div class="inner">
+                <div class="advanced_footer_item clearwithin">
+                    
+        <div id="contact_info">
+                <p><strong>+44 (0)131 557 2479</strong></p>
+<p><strong><a href="mailto:info@edinburghprintmakers.co.uk" class="cms_black">info@edinburghprintmakers.co.uk</a></strong></p>
+<p><strong>Castle Mills, 1 Dundee Street, Edinburgh, EH3 9FP</strong></p>
+        </div>
+
+                </div>
+            
+            <div class="advanced_footer_item advanced_footer_item_1">
+                <p>   <img alt="" src="/usr/library/main/images/gaelic-english-logo-black-cmyk.jpeg" height="60" width="108" /> <img alt="" src="https://static-assets.artlogic.net/c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/library/main/images/cslogo.jpg" width="100" /> <img alt="" src="https://static-assets.artlogic.net/c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/library/main/images/edinburgh-city-council-logo.jpg" width="150" /> <img style="font-size: 1.45rem;" alt="" src="https://static-assets.artlogic.net/c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/library/main/images/historic-environment-scotland-logo.jpg" width="200" /> <img style="font-size: 15.225px;" alt="" src="https://static-assets.artlogic.net/c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/library/main/images/scottish-gov-logo.png" width="200" /> <img style="font-size: 1.45rem;" alt="" src="https://static-assets.artlogic.net/c_limit,f_auto,fl_lossy,q_auto/ws-artlogicwebsite0124/usr/library/main/images/culture-edinburgh-logo.jpg" width="200" /> </p>
+<p> </p>
+<p>We are also grateful to be supported by The Turtleton Charitable Trust.</p>
+            </div>
+            <div class="advanced_footer_item advanced_footer_item_2">
+                <p><span style="font-size: 1.45rem;">Scottish Charity Registered number SC009015 | Inland Revenue file reference number CR40554 | Edinburgh Printmakers - Registration number 044723</span></p>
+            </div>
+            <div class="advanced_footer_item advanced_footer_item_3">
+                <h6><a href="/terms">TERMS OF USE</a> | <a href="/terms/privacy-policy/">PRIVACY POLICY</a> | <a href="https://website-artlogicwebsite0124.artlogic.net/usr/library/documents/main/ep-code-of-conduct.pdf">CODE OF CONDUCT</a> | <a href="/contact/">CONTACT</a> | <a href="/mailing-list/">SUBSCRIBE</a> <span>| </span><a href="https://edinburghprintmakers.co.uk/about/opportunities/">OPPORTUNITIES</a></h6>
+            </div>
+
+            
+    
+        <div id="social_links" class="clearwithin">
+            <div id="facebook" class="social_links_item"><a href="https://www.facebook.com/EdinburghPrintmakers" class=""><span class="social_media_icon facebook"></span>Facebook<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="youtube" class="social_links_item"><a href="https://www.youtube.com/user/edinburghprintmakers" class=""><span class="social_media_icon youtube"></span>Youtube<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="instagram" class="social_links_item"><a href="https://www.instagram.com/edinburghprintmakers/" class=""><span class="social_media_icon instagram"></span>Instagram<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="linkedin" class="social_links_item"><a href="https://www.linkedin.com/company/77246166" class=""><span class="social_media_icon linkedin"></span>LinkedIn<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="tiktok" class="social_links_item"><a href="https://www.tiktok.com/@edinburghprintmakers" class=""><span class="social_media_icon tiktok"></span>Tiktok<span class="screen-reader-only">, opens in a new tab.</span></a></div><div id="mailinglist" class="social_links_item"><a href="https://edinburgh-printmakers.odoo.com/subscribe-1" class=""><span class="social_media_icon mailinglist"></span>Join the mailing list</a></div><div id="email" class="social_links_item"><a href="/contact/form/" class="link-no-ajax"><span class="social_media_icon email"></span>Send an email</a></div><div id="googlemap" class="social_links_item"><a href="https://goo.gl/maps/k4P9WungXCc7xJEv7" class="website_map_popup" data-latlng="55.9422188,-3.2130562,17" data-title="Edinburgh Printmakers" data-zoom="15"><span class="social_media_icon googlemap"></span>View on Google Maps</a></div>
+        </div>
+
+            <div class="clear"></div>
+            
+    <div class="copyright">
+            
+    <div class="small-links-container">
+            <div class="cookie_notification_preferences"><a href="javascript:void(0)" role="button" class="link-no-ajax">Manage cookies</a></div>
+
+
+
+    </div>
+
+        <div id="copyright" class="noprint">
+            <div class="copyright-text">
+                    COPYRIGHT © 2026 EDINBURGH PRINTMAKERS
+            </div>
+                
+        
+        <div id="artlogic" class="noprint"><a href="https://artlogic.net/" target="_blank" rel="noopener noreferrer">
+                Site by Artlogic
+        </a></div>
+
+        </div>
+        
+    </div>
+
+        <div class="clear"></div>
+    </div>
+</div>
+        <div class="clear"></div>
+
+            <div id="cookie_notification" role="region" aria-label="Cookie banner" data-mode="consent" data-cookie-notification-settings="">
+    <div class="inner">
+        <div id="cookie_notification_message" class="prose">
+                <p><strong>This website uses cookies</strong><br>This site uses cookies to help make it more useful to you. Please contact us to find out more about our Cookie Policy.</p>
+        </div>
+        <div id="cookie_notification_preferences" class="link"><a href="javascript:;" role="button">Manage cookies</a></div>
+        <div id="cookie_notification_reject" class="button"><a href="javascript:;" role="button">Reject non essential</a></div>
+        <div id="cookie_notification_accept" class="button"><a href="javascript:;" role="button">Accept</a></div>
+
+    </div>
+</div>
+    <div id="manage_cookie_preferences_popup_container">
+        <div id="manage_cookie_preferences_popup_overlay"></div>
+        <div id="manage_cookie_preferences_popup_inner">
+            <div id="manage_cookie_preferences_popup_box" role="dialog" aria-modal="true" aria-label="Cookie preferences">
+                <div id="manage_cookie_preferences_close_popup_link" class="close">
+                    <a href="javascript:;" role="button" aria-label="close">
+                        <svg width="20px" height="20px" viewBox="0 0 488 488" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="close" fill="#5D5D5D" fill-rule="nonzero">
+                                    <polygon id="Path" points="488 468 468 488 244 264 20 488 0 468 224 244 0 20 20 0 244 224 468 0 488 20 264 244"></polygon>
+                                </g>
+                            </g>
+                        </svg>
+                    </a>
+                </div>
+                <h2>Cookie preferences</h2>
+                    <p>Check the boxes for the cookie categories you allow our site to use</p>
+                
+                <div id="manage_cookie_preferences_form_wrapper">
+                    <div class="form form_style_simplified">
+
+                        <form id="cookie_preferences_form">
+                            <fieldset>
+                                <legend class="visually-hidden">Cookie options</legend>
+                                <div>
+                                    <label><input type="checkbox" name="essential" disabled checked value="1"> Strictly necessary</label>
+                                    <div class="note">Required for the website to function and cannot be disabled.</div>
+                                </div>
+                                <div>
+                                    <label><input type="checkbox" name="functionality"  value="1"> Preferences and functionality</label>
+                                    <div class="note">Improve your experience on the website by storing choices you make about how it should function.</div>
+                                </div>
+                                <div>
+                                    <label><input type="checkbox" name="statistics"  value="1"> Statistics</label>
+                                    <div class="note">Allow us to collect anonymous usage data in order to improve the experience on our website.</div>
+                                </div>
+                                <div>
+                                    <label><input type="checkbox" name="marketing"  value="1"> Marketing</label>
+                                    <div class="note">Allow us to identify our visitors so that we can offer personalised, targeted marketing.</div>
+                                </div>
+                            </fieldset>
+                            
+                            <div class="button">
+                                <a href="javascript:;" id="cookie_preferences_form_submit" role="button">Save preferences</a>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        
+            
+
+
+
+
+
+
+    </div>
+
+        </div>
+
+
+
+
+            
+            
+                
+
+
+
+
+
+                <script async type="text/javascript" src="https://grwapi.net/widget.min.js"></script>
+            
+            
+        <!-- sentry-verification-string -->
+</body>
+    </html>
+
+

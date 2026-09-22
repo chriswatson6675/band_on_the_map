@@ -59,6 +59,7 @@ import { acquireBarcelona } from "../barcelona/run.mjs";
 import { acquireBerlin } from "../berlin/run.mjs";
 import { acquireParis } from "../paris/run.mjs";
 import { acquireLondon } from "../london/run.mjs";
+import { acquireUkObservations } from "../uk-programme-acquisition/acquire-uk-observations.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
 import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildFranceMarkers, buildUnitedKingdomMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
@@ -203,8 +204,21 @@ async function main() {
   // second, independently-drifting acquisition path.
   const { londonRegistry, londonResults, londonObservations } = await acquireLondon();
 
+  // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: national UK
+  // programme acquisition, reusing acquireUkObservations() (ingestion/
+  // uk-programme-acquisition/acquire-uk-observations.mjs) — a live
+  // re-acquisition of every source this package's own investigation
+  // already proved (sources/uk.json, monitoring_status:
+  // TECHNICAL_PATH_PROVEN), exactly matching acquireLondon()'s own
+  // "always live, never cached" contract. A UK programme source that
+  // fails to re-acquire on this specific run contributes no observations
+  // this time — it is NOT (yet) wired into the retention/grace system
+  // below the way London's own sources are; this is a disclosed,
+  // deliberate scope limit of this package, not a silent gap.
+  const { ukObservations, ukSourceRegistry } = await acquireUkObservations({ root: ROOT });
+
   const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults, ...parisResults, ...londonResults];
-  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length + parisObservations.length + londonObservations.length;
+  const observationCount = lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length + parisObservations.length + londonObservations.length + ukObservations.length;
   const successCount = rawSourceResults.filter((result) => result.success).length;
   const failureCount = rawSourceResults.length - successCount;
 
@@ -271,9 +285,15 @@ async function main() {
   });
 
   const unitedKingdomMarkers = buildUnitedKingdomMarkers({
-    londonObservations,
+    // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: national UK
+    // programme observations are concatenated alongside London's own —
+    // buildUnitedKingdomMarkers() makes no London-specific decision
+    // despite its parameter's historical name (it is structurally
+    // identical to buildPortugalMarkers/buildSpainMarkers/etc., which
+    // already take an arbitrary observations array).
+    londonObservations: [...londonObservations, ...ukObservations],
     londonVenues: londonVenues.venues,
-    londonSourceRegistry: londonRegistry.entries,
+    londonSourceRegistry: [...londonRegistry.entries, ...ukSourceRegistry.entries],
     manualCoordinatesByVenueId,
     artistRegistry: artistRegistry.artists,
     artistLinks: artistLinks.links,

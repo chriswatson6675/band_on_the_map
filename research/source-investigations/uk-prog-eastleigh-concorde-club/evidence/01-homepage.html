@@ -1,0 +1,3971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>The Concorde, Eastleigh</title>
+
+<base href="https://www.theconcordeclub.com/" /><base href="https://www.theconcordeclub.com/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content=""/>
+<link rel="stylesheet" href="templates/concorde/css/style.css" type="text/css"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700"> 
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+
+<script src="resources/jserver.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!--<pre><h2>{ templateset.file }</h2></pre>-->
+<!--<pre></pre>-->
+
+
+
+ <script>
+$(function(){
+    console.log('concorde');
+    $('input[name=dateFrom]').datepicker({
+          dateFormat: "dd/mm/yy"
+    });
+    // on dateFrom change OR numNights change, update dateTo
+    $('input[name=dateFrom], select[name=numNights]').change(function(){
+        var dateFrom = $('input[name=dateFrom]').val();
+        var numNights = $('select[name=numNights]').val();
+        var dateFromArray = dateFrom.split('/');
+        var dateFromDay = parseInt(dateFromArray[0]);
+        var dateFromMonth = parseInt(dateFromArray[1]);
+        var dateFromYear = parseInt(dateFromArray[2]);
+        var dateFromDate = new Date(dateFromYear, dateFromMonth-1, dateFromDay);
+        var dateToDate = new Date(dateFromDate);
+        dateToDate.setDate(dateFromDate.getDate() + parseInt(numNights));
+        var dateToDay = dateToDate.getDate();
+        var dateToMonth = dateToDate.getMonth() + 1;
+        var dateToYear = dateToDate.getFullYear();
+        var dateTo = dateToDay + '/' + dateToMonth + '/' + dateToYear;
+        $('input[name=dateTo]').val(dateTo);
+    });
+});
+</script>
+
+<script>
+  $( function() {
+    $( "#dialog" ).dialog();
+  } );
+</script>
+
+
+<script src="assets/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+
+<script>
+
+$(document).ready(function() {
+
+  $('#directions').hide();
+  $("#directions-link").click(function(){
+  $("#directions").toggle("slow");
+  });
+
+  $('#further').hide();
+  $("#further-link").click(function(){
+  $("#further").toggle("slow");
+  });
+
+  $(".iframe").fancybox({
+
+    'width': '60%',
+    'height': '90%',
+    'type': 'iframe'
+
+  });
+
+  $(".inline").fancybox({
+
+    'width': '900',
+    'height': '480',
+    'type': 'inline',
+    'autoDimensions': false
+
+  });
+
+  $(".seats").fancybox({
+
+    'width': '700',
+    'height': '550',
+	'type': 'iframe'
+
+  });
+
+
+});
+
+</script>
+
+
+
+
+</head>
+<body>
+
+<div class="announcement">
+<a href="https://www.theconcordeclub.com/article.php/24/the-moldy-fig">
+<div style="text-align: center;"><span style="font-size: 18.6667px; font-weight: bold;">Book a Table in the Moldy Fig - Open for Breakfast, Brunch, Lunch &amp; Dinner</span></div></a>
+</div>
+    
+
+<div class="wrapper">
+
+	
+    
+
+
+<nav class="nav">
+	
+    <div class="logo"><a href="https://www.theconcordeclub.com/"><img src="templates/concorde//images/logo.svg" width="240" height="80" alt="The Concorde"></a></div>
+
+    <ul class="minicart">
+                <li><span><i class="fas fa-shopping-cart"></i> Cart is empty</span></li>
+            </ul>
+
+    <input type="checkbox" id="menu-checkbox" name="menu-checkbox" class="menu-checkbox">
+    <label class="menu-toggle" for="menu-checkbox"><i class="fas fa-bars"></i> <span>Menu</span></label>
+    <ul id="menu" class="menu">
+
+<!--        	<li><a href="https://www.theconcordeclub.com/section.php/39/1/www-theconcordeclub-com-phoneyfest-2027">PhoneyFEST 2027</a>
+	    <ul>
+                        	    </ul>
+	</li>
+        	<li><a href="https://www.theconcordeclub.com/section.php/18/1/whats-on">What's on</a>
+	    <ul>
+            				<li><a href="https://www.theconcordeclub.com/section.php/2/1/comedy">Comedy</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/41/1/concorde-classic-car-show">Concorde Classic Car Show</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/33/1/country">Country</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/31/1/family-events">Family Events</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/35/1/irish">Irish</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/10/1/jazz-blues">Jazz/Blues</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/3/1/ladies-events">Ladies events</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/37/1/moldy-fig">Moldy Fig</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/36/1/murder-mystery-dinner-theatre">Murder Mystery Dinner Theatre</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/4/1/quiz-nights">Quiz nights</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/30/1/reggae">Reggae</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/6/1/rock-and-pop">Rock and pop</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/9/1/soul">Soul</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/29/1/sport">Sport</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/8/1/tribute-acts">Tribute acts</a></li>
+			                <li><a href="section.php/18/1/whats-on">All events</a></li>	    </ul>
+	</li>
+        	<li><a href="https://www.theconcordeclub.com/section.php/19/1/christmas">Christmas</a>
+	    <ul>
+            				<li><a href="https://www.theconcordeclub.com/section.php/20/1/the-main-club">The Main Club</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/23/1/the-moldy-fig">The Moldy Fig</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/22/1/heated-garden-marquee">Heated Garden Marquee</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/24/1/lunch-parties">Lunch Parties</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/21/1/meet-santa">Meet Santa</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/34/1/new-years-eve">New Year's Eve</a></li>
+			                	    </ul>
+	</li>
+        -->
+        
+        	<li><a href="https://www.theconcordeclub.com/section.php/39/1/www-theconcordeclub-com-phoneyfest-2027">PhoneyFEST 2027</a>
+	    <ul>
+                        	    </ul>
+	</li>
+        	<li><a href="https://www.theconcordeclub.com/section.php/18/1/whats-on">What's on</a>
+	    <ul>
+            				<li><a href="https://www.theconcordeclub.com/section.php/2/1/comedy">Comedy</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/41/1/concorde-classic-car-show">Concorde Classic Car Show</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/33/1/country">Country</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/31/1/family-events">Family Events</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/35/1/irish">Irish</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/10/1/jazz-blues">Jazz/Blues</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/3/1/ladies-events">Ladies events</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/37/1/moldy-fig">Moldy Fig</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/36/1/murder-mystery-dinner-theatre">Murder Mystery Dinner Theatre</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/4/1/quiz-nights">Quiz nights</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/30/1/reggae">Reggae</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/6/1/rock-and-pop">Rock and pop</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/9/1/soul">Soul</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/29/1/sport">Sport</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/8/1/tribute-acts">Tribute acts</a></li>
+			                <li><a href="section.php/18/1/whats-on">All events</a></li>	    </ul>
+	</li>
+        	<li><a href="https://www.theconcordeclub.com/section.php/19/1/christmas">Christmas</a>
+	    <ul>
+            				<li><a href="https://www.theconcordeclub.com/section.php/20/1/the-main-club">The Main Club</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/23/1/the-moldy-fig">The Moldy Fig</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/22/1/heated-garden-marquee">Heated Garden Marquee</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/24/1/lunch-parties">Lunch Parties</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/21/1/meet-santa">Meet Santa</a></li>
+				<li><a href="https://www.theconcordeclub.com/section.php/34/1/new-years-eve">New Year's Eve</a></li>
+			                	    </ul>
+	</li>
+        
+        <li><a href="https://www.theconcordeclub.com/article.php/12/the-ellington-lodge-hotel">Hotel</a>
+            <ul>
+                        <li><a href="https://www.theconcordeclub.com/article.php/14/room-types">Room types</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/18/luxury-touches">Luxury touches</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/20/room-packages">Room packages</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/19/dog-friendly-stays">Dog friendly stays</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/54/guest-reviews">Guest Reviews</a></li>
+                        </ul>
+        </li>
+
+        <li><a href="https://www.theconcordeclub.com/article.php/8/dining">Dining</a>
+            <ul>
+                        <li><a href="https://www.theconcordeclub.com/article.php/25/dinner-shows-at-the-concorde">Dinner Shows at The Concorde</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/24/www-theconcordeclub-com-the-moldy-fig">The Moldy Fig</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/26/afternoon-tea">Afternoon tea</a></li>
+                        </ul>
+        </li>
+
+        <li><a href="https://www.theconcordeclub.com/article.php/7/membership">Membership</a>
+            <ul>
+                        <li><a href="https://www.theconcordeclub.com/article.php/30/concorde-wine-club">Concorde Wine Club</a></li>
+                        </ul>
+        </li>
+
+        <li><a href="https://www.theconcordeclub.com/article.php/9/weddings">Weddings</a>
+            <ul>
+                        <li><a href="https://www.theconcordeclub.com/article.php/33/marquee-weddings">Marquee weddings</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/32/moldy-fig-weddings">Moldy Fig weddings</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/47/wedding-packages">Wedding packages</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/35/wedding-suppliers">Wedding Suppliers</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/31/ceremony-venues">Ceremony Venues</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/55/testimonials">Testimonials</a></li>
+                        </ul>
+        </li>
+
+        <li><a href="https://www.theconcordeclub.com/article.php/10/private-hire">Private Hire</a>
+            <ul>
+                        <li><a href="https://www.theconcordeclub.com/article.php/37/celebration-events">Celebration Events</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/38/baby-showers-christenings">Baby Showers &amp; Christenings</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/11/meetings">Meetings</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/41/life-celebrations-and-wakes">Life Celebrations and Wakes</a></li>
+                        </ul>
+        </li>
+
+ <!--       <li><a href="https://www.theconcordeclub.com/article.php/11/meetings">Meetings</a>
+            <ul>
+                        <li><a href="https://www.theconcordeclub.com/article.php/45/delegate-packages">Delegate packages</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/42/meeting-spaces">Meeting spaces</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/46/sample-meeting-menus">Sample meeting menus</a></li>
+                        </ul>
+        </li>-->
+        <li><a href="">Special Events</a>
+
+        </li>
+    <!--    <li><a href="https://www.theconcordeclub.com/contact.php">Contact</a></li>-->
+    </ul>
+
+</nav>
+
+    
+<header class="header">
+<!--
+<div class="header-image">
+    <img src="shopimages/sections/normal/concordeMain.jpg" alt="">
+</div>
+-->
+    <h1>Premier live music and entertainment venue in Eastleigh, near Southampton</h1>
+    <p>Welcome to <a href="../section.php/18/1/whats-on">The Concorde</a>, the South's premier entertainment venue. Our diverse entertainment programme offers a range of artistes and music styles; with restaurant and on-site <a href="../article.php/12/the-ellington-lodge-hotel">Hotel</a> accommodation it's the perfect package for an entertainment break.</p>
+<p>The Concorde is also home to <a href="../article.php/24/the-moldy-fig">The Moldy Fig bar&nbsp;and restaurant</a> which is open all day and evening. It boasts a split level terrace overlooking the beautiful Concorde garden with the lower terrace providing tranquil seating by the Monks Brook river.</p></header>
+
+<section class="section">
+	<div class="grid4">
+		<div><a href="https://www.theconcordeclub.com/section.php/18/1/whats-on" class="link link-pri link-m link-block">Book tickets</a></div>
+		<div><a href="https://www.theconcordeclub.com/article.php/12/the-ellington-lodge-hotel" class="link link-pri link-m link-block">Book a room</a></div>
+		<div><a href="https://www.theconcordeclub.com/article.php/8/dining" class="link link-pri link-m link-block">Book a table</a></div>
+		<div><a href="https://www.theconcordeclub.com/giftcert.php" class="link link-pri link-m link-block">Gift Certificates</a></div>
+	</div>	
+</section>
+    
+<!--<section class="section">    
+
+  <div class="grid2">
+    <div>
+      <a href="https://www.theconcordeclub.com/section.php/18/1/whats-on"><img src="shopimages/20percent.jpg" alt="Lockdown Discount"></a>
+    </div>
+    <div>
+      <h2></h2>
+      <p>
+<a href="https://www.theconcordeclub.com/section.php/18/1/whats-on" class="link link-pri link-m">See What's On</a></p>
+    </div>
+  </div>
+
+</section>-->
+    
+<!--<section class="section">
+  <div class="grid2">
+    <div>
+      <h2><a href="https://www.theconcordeclub.com/product.php/2024/concorde-classics-car-show">Concorde Classic Car Show 2023</a></h2>
+      <p><a href="product.php/2024/concorde-classic-car-show" class="link link-pri link-m">More Info</a></p>
+    </div>
+    <div>
+      <a href="product.php/2024/concorde-classic-car-show"><img src="shopimages/classic_car_show-IMG.jpg" alt="CarShow"></a>
+    </div>
+  </div>
+</section>-->
+          
+
+<section class="section">    
+
+  <div class="grid2">
+
+     <div>
+      <!--<a href="https://www.theconcordeclub.com/section.php/10/1/jazz-blues"><img src="https://www.theconcordeclub.com/shopimages/products/normal/jazzMainLive.jpg" alt="Jazz"></a>-->
+      <img src="https://www.theconcordeclub.com/shopimages/concorde_club_20260225.png" alt="concorde">
+     </div>
+
+    <div>
+      <!--<h2><a href="https://www.theconcordeclub.com/shopimages/products/normal/jazzMain.jpg">{ snippet=homePageIntro.title }</a></h2>-->
+      <h2>About The Concorde</h2>
+      <p>
+      <p><a href="../product.php/3252/phoneyfest-2027">PHONEYFEST 2027 TICKETS NOW AVAILABLE</a></p>
+<p><a href="../section.php/18/1/whats-on">The Concorde</a>&nbsp;is a lively entertainment venue in Eastleigh, near Southampton, with easy access just off junction 5 of the M27. Established in 1957, its heritage includes performances from legendary jazz artists, shaping the welcoming atmosphere it&rsquo;s known for today.</p>
+<p>More than just a music venue, The Concorde offers a full experience. <a href="../article.php/24/the-moldy-fig">The Moldy Fig</a> bar and restaurant serves delicious home-cooked food all day, while the main club features its own bar and restaurant, perfect for enjoying a meal alongside live entertainment. Guests can also extend their visit with a stay at <a href="../article.php/12/the-ellington-lodge-hotel">Ellington Lodge</a> and enjoy a leisurely breakfast in The Moldy Fig the following morning.&nbsp;</p>
+<p>Set within beautiful grounds, the venue includes a large, heated marquee ideal for&nbsp;<a href="../article.php/9/weddings">weddings</a>, parties and corporate events. A versatile destination for entertainment, dining and special occasions, all in one place.</p>
+<p>While no longer a members-only club, <a href="../article.php/7/membership">Concorde Membership</a>&nbsp;offers exclusive benefits, including discounts on dining, entertainment, and accommodation.</p>
+<p>&nbsp;</p></p>
+      <!--<p><a href="https://www.theconcordeclub.com/section.php/10/1/jazz-blues" class="link link-pri link-m">More Info</a></p>-->
+    </div>
+      
+  </div>
+
+</section>
+          
+
+
+
+<section class="section">
+
+    <h2 class="section-heading">Coming Soon</h2>
+
+    <div class="grid3">	
+                                            <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3647/ma-bessies-speakeasy-quintet" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ma-bessie-s-speakeasy-quintet_p_0_20260618-151952.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Ma Bessie's Speakeasy Quintet</h2>
+	<p class="grid-summary">Wednesday 23 September 2026 from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+                    <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3670/legend-as-bob-marley" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/legend-as-bob-marley-christmas-party-night-in-the-main-club_p_1770_20230228-110757.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">LEGEND as BOB MARLEY</h2>
+	<p class="grid-summary">Thursday 24 September 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+                    <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3517/oye-santana-as-santana" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/oye-santana-as-santana_p_0_20240123-154250.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">OYE SANTANA as SANTANA</h2>
+	<p class="grid-summary">Friday 25 September 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+                    <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3515/80s-live" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/80s-live_p_0_20200103-231930.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">80s LIVE</h2>
+	<p class="grid-summary">Saturday 26 September 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+                    <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3529/dr-who-day-at-the-concorde" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/dr-who-day-at-the-concorde_p_3220_20251112-110144.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Dr Who Day at The Concorde</h2>
+	<p class="grid-summary">Saturday 26 September 2026, from 10.00am</p>
+                            </div>
+</a>
+</div>
+
+                    <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3651/ladies-bottomless-lunch-with-nathan-moore-in-the-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ladies-bottomless-lunch-with-nathan-moore-in-the-garden-marquee_p_0_20260623-143152.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Ladies Bottomless Lunch with Nathan Moore in the Garden Marquee</h2>
+	<p class="grid-summary">Saturday 26 September 2026, from 11am</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+            </div>
+    <p><a href="https://www.theconcordeclub.com/section.php/18/1/whats-on" class="link link-m link-pri">All events</a></p>
+
+</section>
+
+
+
+<!--#if:loop.nextevent.total:gt:0#>
+<section class="section">
+  <h2 class="section-heading"><span>Next Event</span></h2>
+          <div class="grid4">
+    <div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3647/ma-bessies-speakeasy-quintet" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ma-bessie-s-speakeasy-quintet_p_0_20260618-151952.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Ma Bessie's Speakeasy Quintet</h2>
+	<p class="grid-summary">Wednesday 23 September 2026 from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+  </div>
+  </section>
+<#/if#-->
+
+
+
+
+
+<!--#if:loop.upcomingevents.total:gt:0#>
+
+<section class="section">
+
+<h2 class="section-heading"><span>Upcoming events</span></h2>
+
+<div class="grid">
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3647/ma-bessies-speakeasy-quintet" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ma-bessie-s-speakeasy-quintet_p_0_20260618-151952.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Ma Bessie's Speakeasy Quintet</h2>
+	<p class="grid-summary">Wednesday 23 September 2026 from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3670/legend-as-bob-marley" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/legend-as-bob-marley-christmas-party-night-in-the-main-club_p_1770_20230228-110757.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">LEGEND as BOB MARLEY</h2>
+	<p class="grid-summary">Thursday 24 September 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3517/oye-santana-as-santana" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/oye-santana-as-santana_p_0_20240123-154250.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">OYE SANTANA as SANTANA</h2>
+	<p class="grid-summary">Friday 25 September 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3515/80s-live" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/80s-live_p_0_20200103-231930.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">80s LIVE</h2>
+	<p class="grid-summary">Saturday 26 September 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3529/dr-who-day-at-the-concorde" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/dr-who-day-at-the-concorde_p_3220_20251112-110144.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Dr Who Day at The Concorde</h2>
+	<p class="grid-summary">Saturday 26 September 2026, from 10.00am</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3651/ladies-bottomless-lunch-with-nathan-moore-in-the-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ladies-bottomless-lunch-with-nathan-moore-in-the-garden-marquee_p_0_20260623-143152.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Ladies Bottomless Lunch with Nathan Moore in the Garden Marquee</h2>
+	<p class="grid-summary">Saturday 26 September 2026, from 11am</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3510/donald-trumped-by-mike-osman-with-special-guest-matt-le-tissier" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/donald-trumped-by-mike-osman-with-special-guest-matt-le-tissier_p_0_20260921-132359.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Donald Trumped by Mike Osman with Special Guest Matt Le Tissier</h2>
+	<p class="grid-summary">Sunday 27 September, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3650/bubblegum-cheese-disco-garden-party-with-alex-dyke-and-special-guests-paul-mico-and-utmost-elton-friends-featuring-tributes-to-kiki-dee-and-dua-lipa" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/bubblegum-amp-cheese-christmas-party-with-alex-dyke_p_0_20260623-135934.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">BUBBLEGUM &amp; CHEESE Disco GARDEN PARTY with ALEX DYKE and special guests Paul Mico and Utmost Elton &amp; Friends featuring tributes to Kiki Dee and Dua Lipa</h2>
+	<p class="grid-summary">Sunday 27 September 2026, from 12.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3685/john-maddocks-jazzmen" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jazzThumb.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">JOHN MADDOCKS JAZZMEN</h2>
+	<p class="grid-summary">Sunday 27 September 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3601/charity-curry-quiz-night-in-aid-of-eastleigh-borough-romsey-mencap" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/charity-curry-amp-quiz-night-in-aid-of-eastleigh-borough-amp-romsey-mencap_p_0_20260414-142415.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Charity Curry &amp; Quiz Night in aid of Eastleigh Borough &amp; Romsey MENCAP</h2>
+	<p class="grid-summary">Monday 28 September 2026, from 7.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3578/judy-carmichael-trio" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/judy-carmichael-trio_p_3578_20260402-122329.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Judy Carmichael Trio</h2>
+	<p class="grid-summary">Wednesday 30 September 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3429/toni-lee-sings-the-carpenters-songbook" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/toni-lee-sings-the-carpenters-songbook_p_3429_20260303-124237.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Toni Lee sings the Carpenters Songbook</h2>
+	<p class="grid-summary">Thursday 1 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3430/brother-strut" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/brother-strut_p_3430_20260319-101705.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">BROTHER STRUT</h2>
+	<p class="grid-summary">Friday 2 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3431/the-story-of-guitar-heroes-10th-anniversary-tour" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-story-of-guitar-heroes-10th-anniversary-tour_p_0_20260122-153415.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE STORY OF GUITAR HEROES - 10th Anniversary Tour</h2>
+	<p class="grid-summary">Saturday 3 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3432/mccartney-beatles-beyond" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/mccartney-beatles-amp-beyond_p_0_20260115-184724.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">MCCARTNEY - BEATLES &amp; BEYOND</h2>
+	<p class="grid-summary">Saturday 3 October 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3435/fat-larrys-band" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/fat-larry-s-band_p_0_20260911-154952.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">FAT LARRY'S BAND</h2>
+	<p class="grid-summary">Sunday 4 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3684/the-royal-soulmen-rsb-afternoon-session" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-royal-soulmen-rsb-in-the-heated-garden-marquee_p_0_20260206-140002.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Royal Soulmen (RSB) - Afternoon Session</h2>
+	<p class="grid-summary">Sunday 4 October 2026, from 2pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3706/steve-waterman-octet-celebrating-miles-davis-centenary" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/steve-waterman-octet-celebrating-miles-davis-centenary_p_0_20260831-122159.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Steve Waterman Octet celebrating Miles Davis Centenary</h2>
+	<p class="grid-summary">Wednesday 7 October 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3694/the-high-tones-tribute-to-the-1960-s" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-high-tones-tribute-to-the-1960-rsquo-s_p_0_20260805-101340.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The High Tones - Tribute to the 1960’s</h2>
+	<p class="grid-summary">Thursday 8 October 2026, from 9pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3600/motown-soul-anthems-with-soul-singer-ray-foster-and-djs-kev-muldoon-paul-mico" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/motown-amp-soul-anthems-with-soul-singer-ray-foster-and-dj-s-kev-muldoon-amp-paul-mico_p_0_20260413-163043.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Motown &amp; Soul Anthems with Soul Singer Ray Foster and DJ's Kev Muldoon &amp; Paul Mico</h2>
+	<p class="grid-summary">Friday 9 October 2026, from 7.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3707/now-thats-what-i-call-britpop-live-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/that-britpop-band-christmas-party-night-in-the-moldy-fig_p_2955_20250203-143423.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Now That's What I call Britpop - live in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Friday 9 October 2025, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3724/muriele-live-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/muriele-live-in-the-moldy-fig_p_0_20260907-143135.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Muriele - Live in the Moldy Fig</h2>
+	<p class="grid-summary">Friday 9 October 2026, from 8.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3498/northern-soul-night-with-original-wigan-casino-dj-russ-winstanley" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/northern-soul-night-with-original-wigan-casino-dj-russ-winstanley_p_3498_20260215-091449.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Northern Soul Night with Original Wigan Casino DJ Russ Winstanley</h2>
+	<p class="grid-summary">Saturday 10 October 2026, from 7.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3708/ska-madness-afternoon-session" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ska-madness-and-the-amazing-blues-brothers-afternoon-session_p_0_20230228-113855.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">SKA MADNESS Afternoon session</h2>
+	<p class="grid-summary">Saturday 10 October 2026, from 2pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3475/an-evening-of-mediumship-with-carianne-robins-in-our-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/mothers-day-lunch-with-princes-of-motown-sold-out_p_0_20230313-162508.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">An Evening of Mediumship with Carianne Robins in our Heated Garden Marquee</h2>
+	<p class="grid-summary">Wednesday 14 October 2026, from 7.30pm</p>
+                        <p class="grid-summary"><strong>*** SOLD OUT ***</strong></p>    </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3542/dean-stockdale-quartet-celebrating-oscar-peterson" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-dean-stockdale-quartet-celebrating-oscar-peterson_p_0_20230421-124626.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Dean Stockdale Quartet - Celebrating Oscar Peterson</h2>
+	<p class="grid-summary">Wednesday 14 October 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3677/rex-woolf-s-duelling-pianos" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rex-woolf-rsquo-s-duelling-pianos_p_0_20260714-153313.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rex Woolf’s Duelling Pianos</h2>
+	<p class="grid-summary">Thursday 15 October 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3727/tom-canning-as-tom-jones-neil-diamond" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/tom-canning-as-tom-jones-amp-neil-diamond_p_0_20260527-120547.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tom Canning as Tom Jones &amp; Neil Diamond</h2>
+	<p class="grid-summary">Friday 16 October 2026, from 9pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3728/urban-soul-project" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/urban-soul-project_p_0_20260908-152031.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Urban Soul Project</h2>
+	<p class="grid-summary">Friday 17 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3686/john-maddocks-jazzmen-lunchtime-special" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jazzThumb.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">JOHN MADDOCKS JAZZMEN Lunchtime Special</h2>
+	<p class="grid-summary">Sunday 18 October 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3721/neil-sedaka-tribute-performed-by-david-rhys-morris" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/neil-sedaka-tribute-performed-by-david-rhys-morris_p_0_20260907-115836.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">NEIL SEDAKA tribute performed by DAVID RHYS MORRIS</h2>
+	<p class="grid-summary">Sunday 18 October from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3458/martin-taylor-standards-uk-tour-2026" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/martin-taylor-amp-ulf-wakenius_p_0_20201112-030939.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">MARTIN TAYLOR - Standards UK Tour 2026</h2>
+	<p class="grid-summary">Wednesday 21 October 2026, from 8pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3690/an-evening-with-glenn-hoddle-live-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/an-evening-with-glenn-hoddle-live-in-the-heated-garden-marquee_p_0_20260727-122029.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">An Evening with Glenn Hoddle live in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Wednesday 21 October 2026, from 8pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3582/bye-bye-baby" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/bye-bye-baby_p_0_20250913-133316.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">BYE BYE BABY</h2>
+	<p class="grid-summary">Thursday 22 October 2026 from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3615/coldplace-as-coldplay" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/coldplace-as-coldplay_p_3400_20260115-153522.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">COLDPLACE as COLDPLAY</h2>
+	<p class="grid-summary">Friday 23 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3711/the-a-tees-experience-the-best-80s-tribute-band-in-the-south" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-a-tees-experience-the-best-80-s-tribute-band-in-the-south_p_0_20260903-142504.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The A Tees - Experience the Best 80's Tribute Band in the south</h2>
+	<p class="grid-summary">Saturday 24 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3719/red-mick-as-simply-red" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/red-mick-as-simply-red_p_0_20260907-113902.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Red Mick as Simply Red</h2>
+	<p class="grid-summary">Saturday 24 October 2026, from 1pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3259/sexbomb-celebrating-the-music-of-tom-jones-featuring-benidorm-tom" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/sexbomb-celebrating-the-music-of-tom-jones-featuring-benidorm-tom_p_0_20240909-171014.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">SEXBOMB - Celebrating the Music of TOM JONES featuring BENIDORM TOM</h2>
+	<p class="grid-summary">Sunday 25 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3566/an-afternoon-with-karl-howman" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/an-afternoon-with-karl-howman_p_0_20260324-130202.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">An Afternoon with Karl Howman</h2>
+	<p class="grid-summary">Sunday 25 October 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3681/quiz-curry-in-aid-of-headway-southampton-west-wessex-and-smile4wessex" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/quiz-amp-curry-in-aid-of-headway-southampton-amp-west-wessex_p_0_20260716-134912.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Quiz &amp; Curry in aid of Headway Southampton &amp; West Wessex and Smile4Wessex</h2>
+	<p class="grid-summary">Tuesday 27 October 2026, from 7.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3648/sarah-meek-the-dave-cottle-trio-present-the-louis-ella-music-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/sarah-meek-amp-the-dave-cottle-trio-present-the-louis-amp-ella-music-show_p_0_20260622-164108.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Sarah Meek &amp; The Dave Cottle Trio present.....THE LOUIS &amp; ELLA Music Show</h2>
+	<p class="grid-summary">Wednesday 28 October 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3356/lipstick-on-your-collar-the-50s-60s-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/lipstick-on-your-collar-ndash-the-50s-amp-60s-show_p_0_20251119-134740.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Lipstick On Your Collar – THE 50s &amp; 60s Show</h2>
+	<p class="grid-summary">Thursday 29 October 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3620/the-signatures-northern-soul-live-with-guest-singers-and-special-guest-lorraine-silver" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-signatures-northern-soul-live-with-guest-singers-and-special-guest-lorraine-silver_p_0_20260901-112621.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Signatures Northern Soul Live with guest singers and special guest Lorraine Silver</h2>
+	<p class="grid-summary">Friday 30 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3573/electromantics" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/electromantics_p_0_20230512-153912.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ELECTROMANTICS</h2>
+	<p class="grid-summary">Saturday 31 October 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3616/princes-of-motown-afternoon-session" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/princes-of-motown-christmas-lunch-party-in-the-main-club_p_0_20240223-153054.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Princes of Motown - Afternoon Session</h2>
+	<p class="grid-summary">Saturday 31 October 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3617/90s-night-with-kevin-perry-go-large-plus-dj-paul-mico-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/90s-night-with-kevin-amp-perry-go-large-plus-dj-paul-mico-in-the-heated-garden-marquee_p_0_20260513-155243.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">90s Night with Kevin &amp; Perry Go Large plus DJ Paul Mico in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Saturday 31 October 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3485/peter-white-band" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/peterwhiteThumb.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Peter White Band</h2>
+	<p class="grid-summary">Sunday 1 November 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3555/derek-nash-quartet" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/derek-nash-quartet_p_1078_20211129-220755.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Derek Nash Quartet</h2>
+	<p class="grid-summary">Wednesday 4 November 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3556/made-in-tennessee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/made-in-tennessee_p_0_20240315-115409.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Made In Tennessee</h2>
+	<p class="grid-summary">Thursday 5 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3233/paul-hopkins-roy-orbison-the-traveling-wilburys-experience" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/paul-hopkins-roy-orbison-amp-the-traveling-wilburys-experience_p_0_20250801-110729.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Paul Hopkins' Roy Orbison &amp; The Traveling Wilburys Experience</h2>
+	<p class="grid-summary">Friday 6 November 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3352/bee-gees-abba-in-concert-experience" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/bee-gees-amp-abba-in-concert-experience_p_0_20251115-194331.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">BEE GEES &amp; ABBA IN CONCERT EXPERIENCE</h2>
+	<p class="grid-summary">Saturday 7 November 2026, from 9pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3353/the-bohemians-queens-greatest-hits" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-bohemians-queens-greatest-hits_p_0_20240131-163733.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE BOHEMIANS - Queens Greatest Hits</h2>
+	<p class="grid-summary">Saturday 7 November 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3598/planet-80-tribute-to-the-80s-live-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/planet-80-tribute-to-the-80s-live-in-the-heated-garden-marquee_p_0_20260413-143157.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">PLANET 80 - Tribute to The 80s - Live in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Saturday 7 November 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3405/clive-fortune-big-band-lunchtime-special" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/clive-fortune-big-band-valentine-special_p_0_20251223-115558.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Clive Fortune Big Band Lunchtime Special</h2>
+	<p class="grid-summary">Sunday 8 November 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3557/the-sound-of-springsteen-tribute-band" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-sound-of-springsteen-tribute-band_p_0_20260319-154253.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Sound of Springsteen Tribute Band</h2>
+	<p class="grid-summary">Sunday 8 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3591/an-afternoon-with-diddy-david-hamilton" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/an-afternoon-with-diddy-david-hamilton_p_0_20260406-130324.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">An Afternoon with Diddy David Hamilton</h2>
+	<p class="grid-summary">Sunday 8 November 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3726/quiz-curry-night-in-aid-of-marie-curie" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/quiz-amp-curry-night-in-aid-of-marie-curie_p_0_20260907-150551.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Quiz &amp; Curry Night in aid of Marie Curie</h2>
+	<p class="grid-summary">Tuesday 10 November, from 8.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3539/the-van-morrison-alumni-band" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-van-morrison-alumni-band_p_3539_20260428-153307.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Van Morrison Alumni Band</h2>
+	<p class="grid-summary">Thursday 12 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3523/the-motown-gospel-choir" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-motown-gospel-choir_p_0_20260303-203635.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE MOTOWN GOSPEL CHOIR</h2>
+	<p class="grid-summary">Friday 13 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3725/muriele-live-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/muriele-live-in-the-moldy-fig_p_0_20260907-143135.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Muriele - Live in the Moldy Fig</h2>
+	<p class="grid-summary">Friday 13 November 2026, from 8.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3464/and-finally-phil-collins" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/and-finally-phil-collins_p_0_20240612-163616.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">AND FINALLY.....Phil Collins</h2>
+	<p class="grid-summary">Saturday 14 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3291/psychic-sally" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/psychic-sally_p_3291_20251006-105601.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Psychic Sally</h2>
+	<p class="grid-summary">Tuesday 17 November 2026, from 7.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3732/ben-holder-chanson-swing-quartet" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ben-holder-chanson-swing-quartet_p_0_20260910-131815.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Ben Holder - Chanson Swing Quartet</h2>
+	<p class="grid-summary">Wednesday 18 November 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3368/the-stylistics-direct-from-usa" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-stylistics-direct-from-usa_p_3029_20250611-132926.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Stylistics - Direct from USA</h2>
+	<p class="grid-summary">Thursday 19 November 2026, from 9.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3703/beaujolais-nouveau-2026-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/beaujolais-nouveau-2026-in-the-moldy-fig_p_3703_20260910-105825.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Beaujolais Nouveau 2026 - In the Moldy Fig</h2>
+	<p class="grid-summary">Thursday 19 November 2026, from 12pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3434/too-much-too-young-the-story-of-2-tone-and-beyond" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/too-much-too-young-the-story-of-2-tone-and-beyond_p_3045_20250929-131424.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Too Much Too Young - The Story of 2 Tone and Beyond</h2>
+	<p class="grid-summary">Friday 20 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3283/oasiz-as-oasis" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/made-in-tennessee_p_0_20250913-184026.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">OASIZ as OASIS</h2>
+	<p class="grid-summary">Saturday 21 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3718/jazz-at-the-movies-afternoon-special" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jazz-at-the-movies-afternoon-special_p_0_20260905-092321.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">JAZZ at the MOVIES Afternoon Special</h2>
+	<p class="grid-summary">Saturday 21 November 2026, from 1pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3305/the-lorna-laister-show-2026-a-variety-show-like-no-other-the-journey-continues" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-lorna-amp-laister-show-2026-ndash-a-variety-show-like-no-other-ndash-the-journey-continues_p_0_20260116-132302.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Lorna &amp; Laister Show 2026 – A Variety Show Like No Other – The Journey Continues!</h2>
+	<p class="grid-summary">Sunday 22 November 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3614/mike-osmans-jethro-tribute-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/mike-osmans-jethro-tribute-show_p_3339_20260225-155922.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Mike Osmans Jethro Tribute Show</h2>
+	<p class="grid-summary">Sunday 22 November 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3449/the-clare-teal-five" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-clare-teal-five_p_0_20250115-101318.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Clare Teal Five</h2>
+	<p class="grid-summary">Wednesday 25 November 2026, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3409/country-superstars-experience-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/country-superstars-experience-christmas-party-night-in-the-main-club_p_3409_20260109-170902.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Country Superstars Experience - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Thursday 26 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3410/the-manfreds" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-manfreds_p_0_20240614-123445.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE MANFREDS</h2>
+	<p class="grid-summary">Friday 27 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3411/high-frequency-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/high-frequency-christmas-party-night-in-the-moldy-fig_p_0_20260108-140820.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">High Frequency - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Friday 27 November 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3413/atomic-blondie-as-blondie-plus-djs-kevin-perry-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/atomic-blondie-as-blondie-plus-dj-s-kevin-amp-perry-christmas-party-night-in-the-main-club_p_0_20260109-152627.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Atomic Blondie as Blondie PLUS DJ's Kevin &amp; Perry - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Saturday 28 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3414/west-end-jerseys-as-the-jersey-boys-and-take-this-as-take-that-christmas-lunch-party-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/west-end-jerseys-as-the-jersey-boys-and-take-this-as-take-that-christmas-lunch-party-in-the-heated-garden-marquee_p_3414_20260109-131517.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">West End Jerseys as The Jersey Boys AND Take This as Take That - Christmas Lunch Party in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Saturday 28 November 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3415/west-end-jerseys-as-the-jersey-boys-and-take-this-as-take-that-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/west-end-jerseys-as-the-jersey-boys-and-take-this-as-take-that-christmas-party-night-in-the-heated-garden-marquee_p_3415_20260109-131552.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">West End Jerseys as The Jersey Boys AND Take This as Take That - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Saturday 28 November 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3640/wonderband-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/wonderband_p_2874_20250707-161831.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Wonderband - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Sunday 29 November 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3687/john-maddocks-jazzmen-lunchtime-special" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jazzThumb.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">JOHN MADDOCKS JAZZMEN Lunchtime Special</h2>
+	<p class="grid-summary">Sunday 29 November 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3491/antiques-expert-on-the-road-featuring-mark-smith-for-valour-the-story-of-the-victoria-cross" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/antiques-expert-on-the-road-featuring-mark-smith-lsquo-for-valour-ndash-the-story-of-the-victoria-cross-rsquo_p_0_20260206-165827.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Antiques Expert on the Road featuring Mark Smith - ‘For Valour – The Story of the Victoria Cross’</h2>
+	<p class="grid-summary">Wednesday 2 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3412/jims-christmas-cracker-with-jim-davidson-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jim-s-christmas-cracker-with-jim-davidson-christmas-party-night-in-the-main-club_p_0_20260427-162548.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Jim's Christmas Cracker with Jim Davidson - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Thursday 3 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3416/rock-for-heroes-classic-christmas-anthems-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rock-for-heroes-classic-christmas-anthems-christmas-party-night-in-the-main-club_p_0_20250115-105447.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rock For Heroes Classic Christmas Anthems - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Friday 4 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3417/abba-rival-as-abba-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/abba-rival-as-abba-christmas-party-night-in-the-heated-garden-marquee_p_3417_20260109-123209.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ABBA Rival as ABBA - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Friday 4 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3457/red-mick-as-simply-red-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/red-mick-as-simply-red-christmas-party-night-in-the-moldy-fig_p_0_20260108-162030.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Red Mick as Simply Red - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Friday 4 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3418/abba-rival-as-abba-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/abba-rival-as-abba-christmas-lunch-party-in-the-main-club_p_3418_20260109-123652.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ABBA Rival as ABBA - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Saturday 5 December 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3419/the-time-of-our-lives-the-ultimate-80-s-mixtape-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ldquo-the-time-of-our-lives-rdquo-the-ultimate-80-rsquo-s-mixtape-christmas-party-night-in-the-main-club_p_0_20260910-153730.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">“The Time of Our Lives” - The Ultimate 80’s Mixtape - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Saturday 5 December 2026, from 9.00pm</p>
+                        <p class="grid-summary"><strong>*** SOLD OUT ***</strong></p>    </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3420/red-mick-as-simply-red-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/red-mick-as-simply-red-christmas-party-night-in-the-moldy-fig_p_0_20260108-162030.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Red Mick as Simply Red - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Saturday 5 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3710/murder-on-the-north-pole-express-a-christmas-murder-mystery-dinner-theatre-in-our-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/murder-on-the-north-pole-express-a-christmas-murder-mystery-dinner-theatre-in-our-heated-garden-marquee_p_0_20260902-123630.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Murder On The North Pole Express - A Christmas Murder Mystery Dinner Theatre - In our Heated Garden Marquee</h2>
+	<p class="grid-summary">Friday 5 December 2026, from 7.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3421/rabbit-rabbit-tribute-to-chas-n-dave-its-a-cockney-christmas-sunday-lunch" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rabbit-rabbit-tribute-to-chas-n-dave-its-a-cockney-christmas-sunday-lunch_p_0_20260109-113901.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">RABBIT RABBIT - Tribute to Chas 'n' Dave - Its a Cockney Christmas Sunday Lunch!</h2>
+	<p class="grid-summary">Sunday 6 December 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3424/vicky-jackson-as-pink-with-her-live-band-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/vicky-jackson-as-pink-with-her-live-band-christmas-party-night-in-the-main-club_p_0_20260112-154657.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Vicky Jackson as PINK with her live band - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Sunday 6 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3444/wickedly-ariana-starring-hariana-in-our-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/wickedly-ariana-starring-hariana-in-our-heated-garden-marquee_p_0_20260120-142537.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Wickedly Ariana starring Hariana in our Heated Garden Marquee</h2>
+	<p class="grid-summary">Sunday 6 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3528/rick-wakemans-war-on-woke-live-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rick-wakemans-war-on-woke-live-in-the-heated-garden-marquee_p_3528_20260403-131111.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">RICK WAKEMANS War on Woke live in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Monday 7 December 2026, from 7pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3700/rob-lamberti-as-george-michael-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rob-lamberti-as-george-michael-christmas-party-night-in-the-main-club_p_0_20260817-101948.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rob Lamberti as George Michael - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Monday 7 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3465/rocket-to-the-future-elton-x-dua-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rocket-to-the-future-elton-x-dua-christmas-party-night-in-the-main-club_p_0_20260128-134245.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ROCKET TO THE FUTURE: ELTON X DUA - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Wednesday 9 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3425/coldplace-as-coldplay-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/coldplace-as-coldplay-christmas-party-night-in-the-main-club_p_0_20260113-112849.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">COLDPLACE as COLDPLAY - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Thursday 10 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3426/the-royal-soulmen-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/soul-evening-with-rsb-souldiers-christmas-party-night-in-the-heated-garden-marquee_p_0_20260113-123836.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Royal Soulmen - Christmas Party Night in the heated Garden Marquee</h2>
+	<p class="grid-summary">Thursday 10 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3427/tom-canning-as-tom-jones-neil-diamond-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/tom-canning-as-tom-jones-amp-neil-diamond-christmas-party-night-in-the-moldy-fig_p_0_20260115-143517.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tom Canning as Tom Jones &amp; Neil Diamond - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Thursday 10 December 2026, from 9pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3579/tom-canning-as-tom-jones-neil-diamond-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/tom-canning-as-tom-jones-amp-neil-diamond-christmas-party-night-in-the-moldy-fig_p_0_20260115-143517.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tom Canning as Tom Jones &amp; Neil Diamond - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Thursday 10 December 2026, from 2pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3428/mercury-the-worlds-leading-queen-tribute-band-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jay-mercury-a-tribute-to-queen-christmas-party-night-in-the-main-club_p_3428_20260116-151734.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Mercury - The World's leading 'Queen' Tribute Band - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Friday 11 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Concorde Club</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3437/alvin-as-elvis-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/alvin-as-elvis-christmas-party-nighyt-in-the-moldy-fig_p_0_20260116-120412.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ALVIN as ELVIS - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Friday 11 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3547/nicola-marie-as-amy-winehouse-shania-twain-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/nicola-marie-as-amy-winehouse-amp-nicola-marie-christmas-lunch-party-in-the-main-club_p_0_20260318-140555.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Nicola Marie as Amy Winehouse &amp; Shania Twain - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Friday 11 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Concorde Club</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3618/alvin-as-elvis-christmas-afternoon-party-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/alvin-as-elvis-christmas-party-nighyt-in-the-moldy-fig_p_0_20260116-120412.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ALVIN as ELVIS - Christmas Afternoon Party in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Friday 11 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3438/mercury-the-worlds-leading-queen-tribute-band-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jay-mercury-a-tribute-to-queen-christmas-lunch-party-in-the-main-club_p_3438_20260116-151817.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Mercury - The World's leading 'Queen' Tribute Band - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Saturday 12 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Concorde Club</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3442/the-take-that-experience-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-take-that-experience-christmas-party-night-in-the-main-club_p_0_20260120-112912.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Take That Experience - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Saturday 12 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Concorde Club</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3563/stayin-alive-tribute-to-the-bee-gees-by-bill-howard-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/stayin-alive-tribute-to-the-bee-gees-by-bill-howard-christmas-party-night-in-the-moldy-fig_p_0_20260320-162253.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Stayin Alive - Tribute to the Bee Gees by Bill Howard - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Saturday 12 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3665/a-magical-family-tribute-experience-with-frozen-spectacular-princess-party-and-k-pop-celebration" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/a-magical-family-tribute-experience-with-frozen-spectacular-princess-party-and-k-pop-celebration_p_3665_20260701-140937.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">A Magical Family Tribute Experience with Frozen Spectacular, Princess Party and K Pop Celebration</h2>
+	<p class="grid-summary">Saturday 12 December 2026, from 1.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3443/west-end-jerseys-as-the-jersey-boys-and-take-this-as-take-that-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/west-end-jerseys-as-the-jersey-boys-and-take-this-as-take-that-christmas-lunch-party-in-the-heated-garden-marquee_p_3414_20260109-131517.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">West End Jerseys as The Jersey Boys AND Take This as Take That - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Sunday 13 December 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3445/talon-the-best-of-eagles-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/talon-ndash-the-best-of-eagles-christmas-party-night-in-the-main-club_p_0_20260120-154156.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">TALON – The Best Of Eagles - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Sunday 13 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3658/marc-hockleys-double-tribute-show-robbie-williams-michael-bubl-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/robbing-williams-amp-mike-all-buble-christmas-party-night-in-the-moldy-fig_p_0_20260630-124721.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Marc Hockley's Double Tribute Show - Robbie Williams &amp; Michael Bublé - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Sunday 13 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3666/a-magical-family-tribute-experience-with-frozen-spectacular-princess-party-and-k-pop-celebration" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/a-magical-family-tribute-experience-with-frozen-spectacular-princess-party-and-k-pop-celebration_p_3665_20260701-140937.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">A Magical Family Tribute Experience with Frozen Spectacular, Princess Party and K Pop Celebration</h2>
+	<p class="grid-summary">Sunday 13 December 2026, from 1.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3672/teddy-swimz-tribute-uk-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/teddy-swimz-christmas-party-night-in-the-heated-garden-marquee_p_0_20260709-152503.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Teddy Swimz Tribute UK - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Sunday 13 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3701/rob-lamberti-as-george-michael-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rob-lamberti-as-george-michael-christmas-party-night-in-the-main-club_p_0_20260817-101948.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rob Lamberti as George Michael - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Monday 14 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3467/showaddywaddy-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/showaddywaddy-christmas-party-night-in-the-main-club_p_0_20260128-143154.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">SHOWADDYWADDY - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Tuesday 15 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3548/abba-rival-as-abba-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/abba-rival-as-abba-christmas-lunch-party-in-the-main-club_p_3418_20260109-123652.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ABBA Rival as ABBA - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Wednesday 16 December 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3558/abba-rival-as-abba-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/abba-rival-as-abba-christmas-lunch-party-in-the-main-club_p_3418_20260109-123652.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ABBA Rival as ABBA - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Wednesday 16 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3559/24k-bruno-as-bruno-mars-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/24k-bruno-as-bruno-mars-christmas-party-night-in-the-heated-garden-marquee_p_0_20260320-103522.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">24K Bruno as Bruno Mars - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Wednesday 16 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3466/ivan-j-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ivan-j-christmas-party-night-in-the-moldy-fig_p_0_20260128-141144.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">IVAN J - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Thursday 17 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3469/ru40-as-ub40-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ru40-as-ub40-christmas-party-night-in-the-main-club_p_0_20260129-153334.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">RU40 as UB40 - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Thursday 17 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3522/kenny-thomas-soul-christmas" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/kenny-thomas-soul-christmas_p_3522_20260319-130203.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Kenny Thomas - Soul Christmas</h2>
+	<p class="grid-summary">Thursday 17 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3470/nathan-moore-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/nathan-moore-christmas-party-night-in-the-main-club_p_0_20260129-155641.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Nathan Moore - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Friday 18 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3471/gold-to-rio-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rio-to-gold-christmas-party-night-in-the-main-club_p_0_20260129-161326.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Gold to Rio - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Friday 18 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Concorde Club</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3659/rocket-max-as-elton-john-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rocket-max-as-elton-john-christmas-party-night-in-the-moldy-fig_p_0_20260630-130544.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rocket Max as Elton John - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Friday 18 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3675/andrew-james-as-phil-collins-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/andrew-james-as-phil-collins-afternoon-session_p_0_20230830-102059.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Andrew James as Phil Collins - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Friday 18 December 202, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3236/madison-heights-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/madison-heights-christmas-party-night-in-the-main-club_p_3236_20260129-163948.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Madison Heights - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Saturday 19 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3472/nathan-moore-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/nathan-moore-christmas-party-night-in-the-main-club_p_0_20260129-155641.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Nathan Moore - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Saturday 19 December 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3581/nya-king-as-whitney-houston-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/nya-king-as-whitney-christmas-lunch-party-in-the-main-club_p_1763_20230224-150455.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Nya King as Whitney Houston - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Saturday 19 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3660/rocket-max-as-elton-john-christmas-afternoon-party-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rocket-max-as-elton-john-christmas-party-night-in-the-moldy-fig_p_0_20260630-130544.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rocket Max as Elton John - Christmas Afternoon Party in the Moldy Fig</h2>
+	<p class="grid-summary">Saturday 19 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3473/princes-of-motown-christmas-lunch-party-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/princes-of-motown-christmas-lunch-party-in-the-main-club_p_0_20260129-173101.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Princes of Motown - Christmas Lunch Party in the Main Club</h2>
+	<p class="grid-summary">Sunday 20 December 2026, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3474/princes-of-motown-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/princes-of-motown-christmas-lunch-party-in-the-main-club_p_0_20260129-173101.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Princes of Motown - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Sunday 20 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3537/the-fleetwood-mac-experience-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-fleetwood-mac-experience_p_2347_20240418-112627.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Fleetwood Mac Experience - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Sunday 20 December 2026, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3560/tony-lewis-as-robbie-williams-christmas-lunch-party-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/tony-lewis-as-robbie-christmas-lunch-party-in-the-heated-garden-marquee_p_0_20260320-112353.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tony Lewis as Robbie Williams - Christmas Lunch Party in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Sunday 20 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3580/nya-king-as-whitney-houston-christmas-lunch-party-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/nya-king-as-whitney-christmas-lunch-party-in-the-main-club_p_1763_20230224-150455.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Nya King as Whitney Houston - Christmas Lunch Party in the Moldy Fig</h2>
+	<p class="grid-summary">Sunday 20 December 2026, from 2.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3477/direct-from-the-usa-the-american-four-tops-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/direct-from-the-usa-the-american-four-tops-christmas-party-night-in-the-main-club_p_3477_20260204-130153.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Direct from the USA - The American Four Tops - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Monday 21 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3478/electric-80s-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/electric-80s-christmas-party-night-in-the-heated-garden-marquee_p_3478_20260204-132243.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Electric 80s - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Monday 21 December 2026, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3561/tony-lewis-as-robbie-williams-christmas-party-night-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/tony-lewis-as-robbie-christmas-lunch-party-in-the-heated-garden-marquee_p_0_20260320-112353.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tony Lewis as Robbie Williams - Christmas Party Night in the Moldy Fig</h2>
+	<p class="grid-summary">Monday 21 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3479/ultra-90s-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ultra-90s-christmas-party-night-in-the-main-club_p_3479_20260204-140725.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ULTRA 90S - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Tuesday 22 December 2026, from 9.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3696/the-overtones-christmas-party-night-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-overtones-christmas-party-night-in-the-heated-garden-marquee_p_3696_20260918-141630.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE OVERTONES - Christmas Party Night in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Tuesday 22 December, from 8.30pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3619/badness-as-madness-christmas-party-night-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/badness-as-madness-christmas-family-lunch-party-in-the-main-club_p_0_20240229-133041.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Badness as Madness - Christmas Party Night in the Main Club</h2>
+	<p class="grid-summary">Wednesday 23 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3624/christmas-eve-lunch-party-with-liam-white-and-santas-band-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/christmas-eve-lunch-party-with-liam-white-and-santa-s-band-in-the-main-club_p_0_20260519-110557.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Christmas Eve Lunch Party with Liam White and Santa's Band in the Main Club</h2>
+	<p class="grid-summary">Thursday 24 December 2026, from 11am</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3625/christmas-eve-motown-soul-party-with-dj-paul-mico" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/christmas-eve-motown-amp-soul-party-with-dj-paul-mico_p_0_20260519-111209.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Christmas Eve Motown &amp; Soul Party with DJ Paul Mico</h2>
+	<p class="grid-summary">Thursday 24 December 2025, from 7.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3480/coldplace-as-coldplay" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/coldplace-as-coldplay_p_3400_20260115-153522.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">COLDPLACE as COLDPLAY</h2>
+	<p class="grid-summary">Sunday 27 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3680/harry-cambridge-as-luther-vandross" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/harry-cambridge-as-luther-vandross_p_0_20260715-161119.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Harry Cambridge as Luther Vandross</h2>
+	<p class="grid-summary">Monday 28 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3481/let-the-music-play-the-legend-of-barry-white" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/let-the-music-play-the-legend-of-barry-white_p_0_20260728-123257.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Let the Music Play - THE LEGEND OF BARRY WHITE</h2>
+	<p class="grid-summary">Tuesday 29 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3679/luke-as-freddie-live-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/luke-as-freddie-live-in-the-moldy-fig_p_0_20260715-153925.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Luke as Freddie - Live in the Moldy Fig</h2>
+	<p class="grid-summary">Tuesday 29 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3667/rock-wit-you-show-tribute-to-the-king-of-pop-michael-jackson" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rock-wit-rsquo-you-show-tribute-to-the-king-of-pop-michael-jackson_p_0_20260701-144940.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Rock Wit’ You Show: Tribute to the King of Pop - Michael Jackson</h2>
+	<p class="grid-summary">Wednesday 30 December 2026, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3678/jon-fisher-as-gary-barlow-live-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jon-fisher-as-gary-barlow-live-in-the-moldy-fig_p_3678_20260715-151806.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Jon Fisher as Gary Barlow - Live in the Moldy Fig</h2>
+	<p class="grid-summary">Wednesday 30 December 2026, from 9.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3406/new-years-eve-party-with-abba-rival-plus-discolicious-plus-dj-paul-mico-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/new-year-s-eve-party-with-abba-rival-plus-discolicious-plus-dj-paul-mico-in-the-main-club_p_0_20260421-131147.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">NEW YEAR'S EVE PARTY with ABBA RIVAL plus DISCOLICIOUS plus DJ Paul Mico in the Main Club</h2>
+	<p class="grid-summary">Thursday 31 December 2026, from 6.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3407/new-years-eve-party-with-alvin-as-elvis-in-the-moldy-fig" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/new-year-s-eve-party-with-alvin-as-elvis-in-the-moldy-fig_p_0_20260107-135348.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">NEW YEAR'S EVE PARTY with Alvin as Elvis in the Moldy Fig</h2>
+	<p class="grid-summary">Thursday 31 December 2026, from 7.00pm</p>
+            	       <p class="grid-summary">In The Moldy Fig</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3408/new-years-eve-party-with-west-end-jerseys-and-take-this-plus-the-royal-soulmen-in-the-heated-garden-marquee" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/new-year-s-eve-party-with-west-end-jerseys-and-take-this-plus-the-royal-soulmen-in-the-heated-garden-marquee_p_0_20260107-112413.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">NEW YEAR'S EVE PARTY with WEST END JERSEYS and TAKE THIS plus THE ROYAL SOULMEN  in the Heated Garden Marquee</h2>
+	<p class="grid-summary">Thursday 31 December 2026, from 6.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3567/the-revolvers-sounds-of-the-60s" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/revolversThumb.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Revolvers - Sounds of the 60s</h2>
+	<p class="grid-summary">Saturday 2 January 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3644/calling-planet-earth" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/calling-planet-earth_p_0_20241128-104630.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">CALLING PLANET EARTH</h2>
+	<p class="grid-summary">Saturday 9 January 2027, from 9pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3359/fraser-smith-quartet-lifeline-album-launch-tour" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/fraser-smith-quartet-lifeline-album-launch-tour_p_0_20251119-142330.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Fraser Smith Quartet - Lifeline! Album Launch Tour</h2>
+	<p class="grid-summary">Wednesday 13 January 2027, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3646/tribute-to-rory-gallagher-with-the-band-rory-gallagher-the-story" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/rory-gallagher-the-story_p_0_20260617-145954.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tribute to Rory Gallagher with the band - RORY GALLAGHER: THE STORY</h2>
+	<p class="grid-summary">Friday 15 January 2027, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3734/allstar-reggae-show-performed-by-johnny-2-bad" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/allstar-reggae-show-performed-by-johnny-2-bad_p_0_20260914-142530.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Allstar Reggae Show performed by Johnny 2 Bad</h2>
+	<p class="grid-summary">Saturday 16 January 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3730/snake-davis-classic-sax-solo" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/snake-davis-classic-sax-solos_p_564_20200525-162606.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Snake Davis - Classic Sax Solo</h2>
+	<p class="grid-summary">Friday 22 January 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3695/americana-revue-starring-sam-tanner" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/americana-revue-starring-sam-tanner_p_0_20250922-150757.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Americana Revue - Starring Sam Tanner</h2>
+	<p class="grid-summary">Saturday 23 January 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3739/sunday-lunch-with-princes-of-motown" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/sunday-lunch-with-princes-of-motown_p_0_20260916-155528.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Sunday Lunch with Princes of Motown</h2>
+	<p class="grid-summary">Sunday 24 January 2027, from 2pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3568/simon-garfunkel-through-the-years-in-concert" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/n-a_p_0_20240417-122739.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Simon &amp; Garfunkel – Through The Years in Concert</h2>
+	<p class="grid-summary">Saturday 30 January 2027, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3520/elvis-the-ultimate-experience" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/elvis-the-ultimate-experience_p_0_20250207-153105.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ELVIS - THE ULTIMATE EXPERIENCE</h2>
+	<p class="grid-summary">Friday 5 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3521/elvis-the-ultimate-experience" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/elvis-the-ultimate-experience_p_0_20250207-153105.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ELVIS - THE ULTIMATE EXPERIENCE</h2>
+	<p class="grid-summary">Saturday 6 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3704/jim-davidson-no-holds-barred" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jim-davidson-no-holds-barred_p_0_20260829-121527.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">JIM DAVIDSON - NO HOLDS BARRED</h2>
+	<p class="grid-summary">Sunday 7 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3530/tony-rae-who-do-you-think-you-were" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/tony-rae-who-do-you-think-you-were_p_0_20260316-160214.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Tony Rae - Who do you think you were?</h2>
+	<p class="grid-summary">Thursday 11 February 2027, from 8.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3569/the-best-of-hot-chocolate-with-former-lead-singer-kennie-simon" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-best-of-hot-chocolate-with-former-lead-singer-kennie-simon_p_0_20260324-135652.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Best of Hot Chocolate: with former lead singer Kennie Simon</h2>
+	<p class="grid-summary">Friday 12 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3742/valentines-night-with-princes-of-motown-in-the-main-club" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/valentines-night-with-princes-of-motown-in-the-main-club_p_0_20260917-112210.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Valentines Night with Princes of Motown in the Main Club</h2>
+	<p class="grid-summary">Sunday 14 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3628/go-now-the-music-of-the-moody-blues" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/go-now-the-music-of-the-moody-blues_p_0_20251115-161124.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">GO NOW! - The Music of the Moody Blues</h2>
+	<p class="grid-summary">Thursday 18 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3222/solid-gold-diamond-starring-fisher-stevens" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/it-s-a-beautiful-noise-with-fisher-stevens-the-neil-diamond-tribute_p_0_20260323-132348.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Solid Gold Diamond starring Fisher Stevens</h2>
+	<p class="grid-summary">Friday 19 February 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3747/the-makings-of-a-murderer-fatal-mistake-with-donal-macintyre" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-makings-of-a-murderer-fatal-mistake-with-donal-macintyre_p_0_20260921-142400.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Makings of a Murderer: Fatal Mistake with Donal MacIntyre</h2>
+	<p class="grid-summary">Tuesday 23 February 2027, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3657/waking-up-the-neighbours-tribute-to-bryan-adams" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/waking-up-the-neighbours-tribute-to-bryan-adams_p_0_20260630-112411.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">WAKING UP THE NEIGHBOURS - Tribute to Bryan Adams</h2>
+	<p class="grid-summary">Friday 5 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3574/mud" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/mud_p_0_20211026-220430.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">MUD</h2>
+	<p class="grid-summary">Saturday 27 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3524/darts" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/darts_p_0_20260308-124341.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Darts</h2>
+	<p class="grid-summary">Saturday 13 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3589/the-privateers-afternoon-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-privateers_p_0_20240507-144752.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Privateers - Afternoon Show</h2>
+	<p class="grid-summary">Sunday 14 March 2027, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3590/the-privateers-evening-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-privateers_p_0_20240507-144752.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Privateers - Evening Show</h2>
+	<p class="grid-summary">Sunday 14 March 2027, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3639/an-evening-of-mediumship-with-tv-psychic-tony-stockwell" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/an-evening-of-mediumship-with-tv-psychic-tony-stockwell_p_0_20260610-172324.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">An Evening of Mediumship with TV Psychic Tony Stockwell</h2>
+	<p class="grid-summary">Tuesday 16 March 2027, from 8.00pm</p>
+            	       <p class="grid-summary">In The Garden or Marquee</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3745/curtis-stigers-live-in-concert" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/curtis-stigers-live-in-concert_p_2844_20250319-115655.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">CURTIS STIGERS - Live in Concert</h2>
+	<p class="grid-summary">Tuesday 16 March 2027, From 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3746/curtis-stigers-live-in-concert" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/curtis-stigers-live-in-concert_p_2844_20250319-115655.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">CURTIS STIGERS - Live in Concert</h2>
+	<p class="grid-summary">Wednesday 17 March 2027, From 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3629/the-irish-house-party" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-irish-house-party_p_0_20250627-103635.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Irish House Party</h2>
+	<p class="grid-summary">Thursday 18 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3736/under-the-boardwalk" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/under-the-boardwalk_p_0_20251209-194956.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">UNDER THE BOARDWALK</h2>
+	<p class="grid-summary">Friday 19 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3649/stereo-underground-live" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/stereo-underground-live_p_0_20260623-104802.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Stereo Underground Live!</h2>
+	<p class="grid-summary">Saturday 20 March 2027, from 7.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3729/jay-mercury-tribute-to-queen" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jay-mercury-tribute-to-queen_p_0_20260908-153742.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Jay Mercury - Tribute to Queen</h2>
+	<p class="grid-summary">Sunday 21 March 2027, from 8.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3738/the-simon-spillett-big-band-plays-the-music-of-tubby-hayes" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/simon-spillett-band-recreates-the-tubby-hayes-orchestra_p_0_20211205-190200.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Simon Spillett Big Band plays the music of Tubby Hayes</h2>
+	<p class="grid-summary">Wednesday 24 March 2027, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3743/maundy-thursday-with-rt90s-the-definitive-90s-tribute-band" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/maundy-thursday-with-rt90s-the-definitive-90s-tribute-band_p_0_20260918-100624.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Maundy Thursday with RT90s - The Definitive 90s Tribute Band</h2>
+	<p class="grid-summary">Thursday 25 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3698/american-divas" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/american-divas_p_0_20260810-151743.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">American Divas</h2>
+	<p class="grid-summary">Friday 26 March 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3744/easter-sunday-family-lunch-with-princes-of-motown" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/easter-sunday-family-lunch-with-princes-of-motown_p_0_20260918-103649.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Easter Sunday Family Lunch with Princes of Motown</h2>
+	<p class="grid-summary">Sunday 28 March 2027, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3705/scott-hamilton-quartet" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/scott-hamilton-quartet_p_0_20191114-191950.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">SCOTT HAMILTON QUARTET</h2>
+	<p class="grid-summary">Wednesday 31 March 2027, From 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3671/the-wonder-of-stevie-with-noel-mccalla-derek-nash" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-wonder-of-stevie-celebrating-the-genius-of-stevie-wonder-with-noel-mccalla-amp-derek-nash_p_0_20221006-150847.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE WONDER OF STEVIE with NOEL MCCALLA &amp; DEREK NASH</h2>
+	<p class="grid-summary">Friday 2 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3645/the-stadium-rock-experience" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-stadium-rock-experience_p_3268_20260223-160752.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE STADIUM ROCK EXPERIENCE</h2>
+	<p class="grid-summary">Saturday 3 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3691/the-yacht-brothers" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-yacht-brothers_p_0_20260728-134528.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Yacht Brothers</h2>
+	<p class="grid-summary">Friday 9 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3575/the-south" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-south_p_0_20260327-141248.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE SOUTH</h2>
+	<p class="grid-summary">Saturday 10 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3673/roy-g-hemmings-the-sounds-of-philadelphia-and-motown-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/roy-g-hemmings-the-sounds-of-philadelphia-and-motown-show-christmas-party-night-in-the-main-club_p_2998_20250625-132424.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Roy G Hemmings - The Sounds of Philadelphia and Motown Show</h2>
+	<p class="grid-summary">Friday 16 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3633/lets-rock-the-70s" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/let-s-rock-the-70s_p_0_20260604-133405.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Let's Rock The 70s</h2>
+	<p class="grid-summary">Saturday 17 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3735/johnny2bad-ub40-tribute" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/johnny2bad-ub40-tribute_p_0_20260914-143743.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Johnny2bad - UB40 Tribute</h2>
+	<p class="grid-summary">Friday 23 April 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3714/the-boot-scootin-band" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-boot-scootin-band_p_0_20260904-161829.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Boot Scootin Band</h2>
+	<p class="grid-summary">Friday 7 May 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3716/80s-v-90s-show" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/80s-v-90s-show_p_0_20260904-163251.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">80s V 90s Show</h2>
+	<p class="grid-summary">Saturday 8 May 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3723/chris-stapleton-uk-a-tribute-to-chris-stapleton" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/chris-stapleton-uk-a-tribute-to-chris-stapleton_p_0_20260907-142538.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Chris Stapleton UK: A Tribute to Chris Stapleton</h2>
+	<p class="grid-summary">Friday 14 May 2027, from 9pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3661/madison-heights" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/madison-heights-christmas-party-night-in-the-main-club_p_0_20250801-152001.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Madison Heights</h2>
+	<p class="grid-summary">Saturday 15 May 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3731/eurovision-your-decision-2027-uk-tour" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/eurovision-your-decision-2027-uk-tour_p_0_20260910-125247.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Eurovision Your Decision 2027 UK Tour</h2>
+	<p class="grid-summary">Sunday 16 May 2027, from 8.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3638/king-pleasure-the-biscuit-boys" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/king-pleasure-amp-the-biscuit-boys_p_0_20201110-044701.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">KING PLEASURE &amp; THE BISCUIT BOYS</h2>
+	<p class="grid-summary">Wednesday 2 June 2027, from 8.15pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3588/the-electrik-live-orchestra" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-electrik-live-orchestra_p_0_20260404-093207.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Electrik Live Orchestra</h2>
+	<p class="grid-summary">Saturday 5 June 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3692/thats-so-90s-the-ultimate-90s-party" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/thats-so-90s-the-ultimate-90s-party_p_0_20260728-140613.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Thats So 90s - The Ultimate 90s Party</h2>
+	<p class="grid-summary">Friday 11 June 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3693/fleetwood-mac-tribute-our-own-way" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/fleetwood-mac-tribute-quot-our-own-way-quot_p_0_20260805-100606.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Fleetwood Mac Tribute "Our Own Way"</h2>
+	<p class="grid-summary">Saturday 26 June 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3712/jim-davidson-no-holds-barred" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/jim-davidson-no-holds-barred_p_0_20260829-121527.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">JIM DAVIDSON - NO HOLDS BARRED</h2>
+	<p class="grid-summary">Friday 9 July 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3741/ultra-90s" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/ultra-90s-christmas-party-night-in-the-main-club_p_0_20260916-172104.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">ULTRA 90S</h2>
+	<p class="grid-summary">Saturday 10 July 2027, from 9.30pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3676/shakatak" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/shakatak_p_0_20260714-152239.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">SHAKATAK</h2>
+	<p class="grid-summary">Friday 16 July 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3715/a-night-with-the-stars" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/a-night-with-the-stars_p_0_20260904-162628.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">A Night with the Stars</h2>
+	<p class="grid-summary">Saturday 7 August 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3717/club-80s" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/club-80s_p_0_20260904-164322.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Club 80s</h2>
+	<p class="grid-summary">Sunday 8 August 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3737/luther-uk-the-ultimate-luther-vandross-experience" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/luther-uk-ndash-the-ultimate-luther-vandross-experience_p_0_20260609-104641.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Luther UK – The Ultimate Luther Vandross Experience</h2>
+	<p class="grid-summary">Thursday 19 August 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3713/www-theconcordeclub-com-phoneyfest-2027" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/phoneyfest-2027-book-tickets_p_3252_20260904-110624.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">PhoneyFest 2027 - Book tickets</h2>
+	<p class="grid-summary">The best tribute festival in the south</p>
+            	       <p class="grid-summary">In The Concorde Club</p>
+                        </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3576/the-stars-from-the-commitments-direct-from-dublin" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-stars-from-the-commitments-direct-from-dublin_p_0_20240620-141034.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE STARS from THE COMMITMENTS - Direct from Dublin</h2>
+	<p class="grid-summary">Sunday 19 September 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3722/the-lorna-laister-show-2027-celebrating-the-legends-of-variety" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-lorna-amp-laister-show-2027-ndash-celebrating-the-legends-of-variety_p_0_20260907-122848.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">The Lorna &amp; Laister Show 2027 – Celebrating the Legends of Variety</h2>
+	<p class="grid-summary">Sunday 10 October 2027, from 2.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3720/the-wonder-of-stevie-with-noel-mccalla-derek-nash" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/the-wonder-of-stevie-celebrating-the-genius-of-stevie-wonder-with-noel-mccalla-amp-derek-nash_p_0_20221006-150847.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">THE WONDER OF STEVIE with NOEL MCCALLA &amp; DEREK NASH</h2>
+	<p class="grid-summary">Sunday 10 October 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3740/princes-of-motown" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/princes-of-motown_p_0_20260916-170226.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">PRINCES OF MOTOWN</h2>
+	<p class="grid-summary">Saturday 16 October 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+
+<div class="grid4">
+
+<div class="grid-item grid-pad">
+<a href="https://www.theconcordeclub.com/product.php/3662/madison-heights" class="grid-link">
+    <div class="grid-thumb-bg" style="background-image:url(shopimages/products/thumbnails/madison-heights-christmas-party-night-in-the-main-club_p_0_20250801-152001.jpg);"></div>
+    <div class="grid-text">
+	<h2 class="grid-heading">Madison Heights</h2>
+	<p class="grid-summary">Saturday 20 November 2027, from 9.00pm</p>
+                            </div>
+</a>
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+<#/if#-->
+
+
+
+
+
+<!-- loop top products #if:loop.topproducts.total:gt:0#>
+
+<section class="section">
+
+<h2 class="section-heading"><span>Upcoming events</span></h2>
+
+<div class="grid">
+
+            </div>
+
+</section>
+
+<#/if#-->	
+
+
+
+
+
+<footer class="footer">
+
+    <form id="searchForm" method="post" action="https://www.theconcordeclub.com/search.php" onsubmit="">
+    <p>
+        <label for="">Search for an event</label>
+        <input type="text" id="xSearch" name="xSearch" value="" class="search-keywords" autocomplete="off" placeholder="Artist or band name..."> 
+        <!--<input type="submit" id="search-button" value="Search"/>-->
+    </p>
+    </form>
+
+
+    <p class="footer-address">The Concorde, Stoneham Lane, Eastleigh, Hampshire, SO50 9HQ - Telephone:  023 8061 3989 - <a href="https://www.theconcordeclub.com/contact.php">Directions</a></p>
+
+    <ul class="social-links">
+        <li><a href="https://en-gb.facebook.com/TheConcordeClub"><i class="fab fa-facebook"></i> Facebook</a></li>
+	<li><a href="https://twitter.com/Concorde__Club"><i class="fab fa-twitter"></i> Twitter</a></li>
+    </ul>
+
+    <ul class="footer-links">
+                        <li><a href="https://www.theconcordeclub.com/article.php/13/https-www-theconcordeclub-com-about-the-concorde">About The Concorde</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/5/privacy-cookies">Privacy &amp; cookies</a></li>
+                        <li><a href="https://www.theconcordeclub.com/article.php/3/terms-conditions-accessibility">Terms &amp; Conditions &amp; Accessibility</a></li>
+        	<li><a href="https://www.theconcordeclub.com/contact.php">Contact</a></li>
+	<li><a href="https://www.theconcordeclub.com/giftcert.php">Gift Certificates</a></li>
+    </ul>
+		
+    <p class="footer-legal">
+        Registered Office: The Concorde, Stoneham Lane, Eastleigh, Hampshire, SO50 9HQ.<br>
+	Registered in England and Wales No. 1253323. Tel: 023 8061 3989 Email: info@theconcordeclub.com<br>
+	Site and contents &copy; The Concorde
+    </p>
+
+    <p class="credit">Booking with vTicket</p> 
+
+
+    <!--<form id="searchForm" method="post" action="https://www.theconcordeclub.com/search.php" onsubmit="">
+        <input type="text" id="xSearch" name="xSearch" value="" class="search-box" onclick="this.value='';" onkeyup="jss_searchSuggest(this,3,this.form,event);" onblur="jss_searchSuggestDelayBlur();" autocomplete="off"/><input type="submit" id="search-button" value="Search"/>
+	<div id="search_suggest"></div>
+    </form>-->
+
+</footer>
+
+</div><!-- end wrapper -->
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-138981829-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-138981829-1');
+</script>
+
+
+</body>
+</html>

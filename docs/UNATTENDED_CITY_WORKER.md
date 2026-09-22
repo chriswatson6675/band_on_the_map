@@ -200,10 +200,17 @@ each of which derives everything else.
 | `lisbon-all-active` | PT / Lisbon | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/lisbon.json` |
 | `porto-all-active` | PT / Porto | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/porto.json` |
 | `barcelona-all-active` | ES / Barcelona | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/barcelona.json` |
+| `uk-all-active` | GB / United Kingdom (national) | `ALL_ACTIVE` | every `ACTIVE` entry in `sources/uk.json` |
 
-There is deliberately **no London key** — this repository has no
-`sources/london.json`, so London has no governed estate to enqueue and a
-key for it would be an invented one.
+There is deliberately **no London key**, even though `sources/london.json`
+exists: London's own acquisition (`ingestion/london/run.mjs`) is a bespoke,
+per-venue collector set, never routed through `ingestion/programme-
+acquisition/source-execution.mjs`'s generic `acquireSource()` — the exact
+engine this catalogue's `ALL_ACTIVE` selection drives. `uk-all-active`
+(BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01) is included
+because `sources/uk.json`'s entries genuinely ARE acquired through that
+same generic engine — the same reasoning this section states, applied the
+other way.
 
 Two properties the catalogue exists to guarantee:
 

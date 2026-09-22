@@ -181,6 +181,34 @@ test("scratchpad/temp evidence paths fail, governed paths pass", () => {
   assert.ok(errors.some((e) => e.includes("not a governed evidence path")));
 });
 
+// BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: a real,
+// national-scale find — a genuinely governed evidence path was rejected
+// because a venue's own slug happened to END in a word one of
+// FORBIDDEN_PATH_SEGMENTS also matches as a bare substring ("hideout"
+// contains "out", the build-output segment "out/"). A forbidden segment
+// must only ever match a real path COMPONENT, never merely appear inside
+// a longer, unrelated word.
+test("a forbidden segment word appearing INSIDE a longer, unrelated path component is never wrongly rejected", () => {
+  for (const goodPath of [
+    "research/source-investigations/uk-prog-scarborough-the-hideout/evidence/01-homepage.html",
+    "research/source-investigations/uk-prog-london-about-face/evidence/01-homepage.html",
+    "research/source-investigations/uk-prog-example-workout-studio/evidence/01-homepage.html",
+    "research/source-investigations/uk-prog-example-throughout-hall/evidence/01-homepage.html",
+  ]) {
+    assert.equal(isGovernedEvidencePath(goodPath), true, `${goodPath} should be a governed path — the forbidden word appears inside an unrelated word, not as a real "out/" path component`);
+  }
+
+  // The genuine build-output directory itself, as a real path component,
+  // must still be rejected exactly as before this fix.
+  for (const badPath of [
+    "research/source-investigations/x/out/foo.html",
+    "research/source-investigations/x/build/foo.html",
+    "out/research/source-investigations/foo.html",
+  ]) {
+    assert.equal(isGovernedEvidencePath(badPath), false, `${badPath} should still be rejected — a genuine forbidden path component`);
+  }
+});
+
 test("AI_INTERPRETATION evidence cannot claim byte_faithful: true", () => {
   const record = baseInvestigation();
   record.evidence.push({
