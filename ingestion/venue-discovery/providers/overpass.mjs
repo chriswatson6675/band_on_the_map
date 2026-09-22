@@ -2,7 +2,12 @@ import { createVenueDiscoveryCandidate } from "../contract.mjs";
 
 export const OVERPASS_PROVIDER_ID = "OPENSTREETMAP_OVERPASS";
 
-function address(tags) {
+// Exported so any other OSM-tag-derived pipeline (e.g.
+// ingestion/uk-national-bulk-osm/candidate-eligibility.mjs's existing-
+// registry match check) derives an address from raw OSM tags identically
+// to how a real VenueDiscoveryCandidate's own reported_address is built
+// here — never a second, independently-drifting address formatter.
+export function address(tags) {
   const street = [tags["addr:street"], tags["addr:housenumber"]].filter(Boolean).join(" ");
   return [street, tags["addr:postcode"], tags["addr:city"]].filter(Boolean).join(", ") || null;
 }

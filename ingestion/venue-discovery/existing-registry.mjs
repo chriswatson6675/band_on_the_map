@@ -1,6 +1,11 @@
 import { extractPostcode, normaliseDomain, normaliseText } from "./normalise.mjs";
 
-function matchGroup(group, records) {
+// Exported (not just module-private) so BEATMAPPED-UK-NATIONAL-VENUE-
+// BULK-OSM-COMPLETION-02's candidate-eligibility pre-filter
+// (ingestion/uk-national-bulk-osm/candidate-eligibility.mjs) can reuse
+// this EXACT matching logic for a single raw element — never a
+// second, independently-drifting name/address/domain matcher.
+export function matchGroup(group, records) {
   const names = new Set(group.reported_names.map(normaliseText));
   const addresses = new Set(group.reported_addresses.map(normaliseText).filter(Boolean));
   const postcodes = new Set(group.reported_addresses.map(extractPostcode).filter(Boolean));

@@ -413,4 +413,4 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
   });
 }
 
-export { main, buildVenueFromGroup, rehydrateCandidateCity, flattenOsmCandidates, buildSeedLocalities };
+export { main, buildVenueFromGroup, rehydrateCandidateCity, flattenOsmCandidates, buildSeedLocalities, parseOsmTagsEvidence };

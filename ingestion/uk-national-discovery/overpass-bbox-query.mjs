@@ -29,7 +29,13 @@ import { parseOverpassCandidates } from "../venue-discovery/providers/overpass.m
 export const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
 export const MIN_REQUEST_INTERVAL_MS = 2000;
 
-const TAG_CLAUSES = [
+// Exported (not just module-private) so any OTHER discovery mechanism
+// querying the same governed tag semantics — e.g.
+// ingestion/uk-national-bulk-osm/'s offline PBF extraction
+// (BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02) — imports this
+// exact single source of truth instead of maintaining its own copy that
+// could silently drift from the live Overpass sweep's criteria.
+export const TAG_CLAUSES = [
   ["amenity", "nightclub"],
   ["amenity", "theatre"],
   ["amenity", "arts_centre"],
@@ -42,7 +48,7 @@ const TAG_CLAUSES = [
 // bare amenity=pub/bar (see file header). Both require live_music=yes on
 // the SAME element, so a candidate can only ever arrive here with genuine
 // tagged evidence of a live-music programme, never from category alone.
-const EXPLICIT_RELEVANCE_CLAUSES = [
+export const EXPLICIT_RELEVANCE_CLAUSES = [
   [["amenity", "pub"], ["live_music", "yes"]],
   [["amenity", "bar"], ["live_music", "yes"]],
 ];

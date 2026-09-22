@@ -1,0 +1,46 @@
+{
+  "artifact_type": "UK_NATIONAL_BULK_OSM_SOURCE_PROVENANCE",
+  "package_id": "BEATMAPPED-UK-NATIONAL-VENUE-BULK-OSM-COMPLETION-02",
+  "sources": [
+    {
+      "role": "GREAT_BRITAIN_PRIMARY_EXTRACT",
+      "provider": "Geofabrik GmbH",
+      "source_url": "https://download.geofabrik.de/europe/great-britain-latest.osm.pbf",
+      "retrieved_at": "2026-09-22T17:34:00Z",
+      "source_data_timestamp": "2026-09-21T20:21:51Z",
+      "downloaded_file_size_bytes": 2176282922,
+      "checksum_algorithm": "MD5",
+      "checksum_expected": "b07c1766e6f7d7e2c286ecedfa2daf55",
+      "checksum_verified_locally": "b07c1766e6f7d7e2c286ecedfa2daf55",
+      "checksum_source_url": "https://download.geofabrik.de/europe/great-britain-latest.osm.pbf.md5",
+      "checksum_match": true,
+      "coverage": "England, Scotland, Wales (Geofabrik's own real-boundary clip, not a bounding box — no further nation filtering required for this file)",
+      "dated_filename_observed": "great-britain-260921.osm.pbf"
+    },
+    {
+      "role": "IRELAND_AND_NORTHERN_IRELAND_EXTRACT",
+      "provider": "Geofabrik GmbH",
+      "source_url": "https://download.geofabrik.de/europe/ireland-and-northern-ireland-latest.osm.pbf",
+      "retrieved_at": "2026-09-22T17:24:00Z",
+      "source_data_timestamp": "2026-09-21T20:21:51Z",
+      "downloaded_file_size_bytes": 413258100,
+      "checksum_algorithm": "MD5",
+      "checksum_expected": "843b0ab794e84ef4d9d381036ff68c9e",
+      "checksum_verified_locally": "843b0ab794e84ef4d9d381036ff68c9e",
+      "checksum_source_url": "https://download.geofabrik.de/europe/ireland-and-northern-ireland-latest.osm.pbf.md5",
+      "checksum_match": true,
+      "coverage": "Republic of Ireland AND Northern Ireland combined (Geofabrik confirmed at runtime: no Northern-Ireland-only sub-extract exists — 'No sub regions are defined for this region.'). This UK-only campaign uses ONLY the Northern Ireland portion; the Republic of Ireland portion is filtered out post-extraction by a real point-in-polygon test against Northern Ireland's own OSM administrative boundary, never processed as UK territory.",
+      "dated_filename_observed": "ireland-and-northern-ireland-260921.osm.pbf"
+    },
+    {
+      "role": "NORTHERN_IRELAND_BOUNDARY_FOR_NATION_FILTERING",
+      "provider": "OpenStreetMap contributors, via Nominatim",
+      "source_url": "https://nominatim.openstreetmap.org/search?q=Northern+Ireland&format=jsonv2&polygon_geojson=1&limit=1",
+      "osm_type": "relation",
+      "osm_id": 156393,
+      "purpose": "Real, verifiable administrative boundary used ONLY as a processing filter to separate genuine Northern Ireland OSM elements from Republic of Ireland ones in the combined ireland-and-northern-ireland extract. Never used as a fact about any individual venue.",
+      "note": "Geofabrik's own regional split groups Northern Ireland with the Republic of Ireland, not with Great Britain; this project's existing UK_BBOX (ingestion/uk-national-discovery/coverage-plan.mjs) also geometrically overlaps part of the Republic of Ireland's landmass, so this boundary filter is applied regardless of which coverage unit a candidate's coordinate falls into."
+    }
+  ],
+  "execution_environment_note": "The package brief named DigitalOcean as the primary execution environment for this bulk download/parse step. Investigated first (per explicit founder instruction) whether the isolated beatmapped-research-worker droplet could run it: found (a) inbound SSH to that droplet is deliberately closed post-bootstrap by original design (confirmed via doctl key-fingerprint comparison, not a credential-loss accident) and (b) its only sanctioned automated-access path (.github/workflows/run-beatmapped-research-proof.yml) is narrowly hardcoded to a single existing job type (berlin-browser-proof), such that adding a genuinely different bulk-file job type would require new, security-critical, remotely-untestable changes across validate-request.mjs/remote-run.sh/the workflow YAML. Running the same untested logic against the production collector droplet (1GB RAM/25GB disk, live traffic) was assessed as a real stability risk. Given both DigitalOcean paths carried real, hard-to-mitigate risk within this package's scope, the bulk download and PBF parse were run locally within this governed session instead, entirely outside any DigitalOcean droplet. This is a deliberate, disclosed deviation from the package brief's stated primary environment, made explicitly to avoid destabilising production infrastructure or shipping untested security-critical remote-execution code."
+}

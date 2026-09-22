@@ -1,0 +1,28 @@
+{
+  "artifact_type": "UK_NATIONAL_BULK_OSM_FOUNDER_CORRECTION",
+  "correction_id": "BULK_OSM_ELIGIBILITY_PREFILTER_TIGHTENING",
+  "raised_by": "founder, mid-run, after inspecting the first real Northern Ireland extraction result",
+  "problem_observed": "The initial bulk-OSM pipeline discovered raw candidates using ingestion/uk-national-discovery/overpass-bbox-query.mjs's existing TAG_CLAUSES unchanged (as package-01/02 already did for its live Overpass sweep), which deliberately includes bare amenity=community_centre as a broad discovery net. At NATIONAL BULK scale this produced 900 raw Northern-Ireland-boundary-filtered elements of which the overwhelming majority (844) were generic village/church/community halls with no live-event evidence -- not live-event venues. A generic physical place that COULD host an event is not automatically a BeatMapped live-event venue candidate.",
+  "fix_applied": "Added a new pre-candidacy eligibility gate (ingestion/uk-national-bulk-osm/candidate-eligibility.mjs), run BETWEEN raw extraction and VenueDiscoveryCandidate construction. An element only enters the main candidate census if it clears one of two governed bars, both reusing EXISTING, already-governed logic (no new/invented criteria): (1) DIRECT_TAG_SIGNAL -- the element's own tags satisfy admission.mjs's own AUTO_ADMIT_ELIGIBLE_SIGNALS (amenity=nightclub/theatre/arts_centre, live_music=yes, music_venue=yes, or pub/bar WITH live_music=yes); or (2) EXISTING_REGISTRY_STRONG_MATCH -- existing-registry.mjs's own matchGroup() finds a STRONG (not merely possible) match against an already-known active source or canonical venue. Every filtered-out element's full OSM identity, tags, and coordinates are retained (never discarded) as a FILTERED_GENERIC_NON_EVENT_LEAD, reported separately, and never counted among candidates/review/insufficient-evidence.",
+  "ni_before_after": {
+    "raw_osm_objects_inspected_nodes_ways_relations_scanned": 60504757,
+    "raw_osm_objects_matched_by_broad_discovery_tag_net_pre_correction_candidate_pool": 2351,
+    "raw_candidates_after_northern_ireland_boundary_filter_pre_correction": 900,
+    "generic_noisy_records_filtered_before_candidacy_post_correction": 844,
+    "actual_relevant_ni_venue_candidates_remaining_post_correction": 56,
+    "candidate_count_by_qualifying_signal": {
+      "amenity=theatre": 26,
+      "amenity=nightclub": 16,
+      "amenity=arts_centre": 14
+    },
+    "bare_community_centre_candidates_remaining_in_main_census": 0,
+    "sample_relevant_candidates": [
+      "Ardhowen Theatre", "The Burnavon", "Sense Nightclub",
+      "Market Place Theatre and Arts Centre", "Abbey Lane Theatre",
+      "TIME Bar & Venue", "Strule Arts Centre", "The Brian Friel Theatre",
+      "The MAC", "Lyric Theatre", "Ulster Hall"
+    ]
+  },
+  "scope_of_fix": "Applies to both already-extracted NI data (reclassified above) and the in-progress Great Britain extraction, whose raw output (broad TAG_CLAUSES net, full tags preserved) is a strict superset safely reclassified by this SAME eligibility gate once loaded -- no need to discard or restart GB's already-substantial extraction work, since nothing about the raw extraction step itself was incorrect, only what was allowed to become a CANDIDATE from that raw data.",
+  "tag_clauses_unchanged": "ingestion/uk-national-discovery/overpass-bbox-query.mjs's TAG_CLAUSES/EXPLICIT_RELEVANCE_CLAUSES (the shared, package-01/02-governed DISCOVERY net) were NOT modified -- they still determine what gets pulled out of the raw PBF stream at all, exactly as package-02's live Overpass sweep already did. The fix is a NEW, additional gate at the candidate-construction boundary, not a change to the existing governed query/discovery semantics."
+}

@@ -42,7 +42,19 @@ export const DISCOVERY_ADMISSION_STATUSES = new Set([
 // relevance, never mere category membership; it is still discovered
 // (broad net, useful for long-tail leads) but never auto-admitted from
 // the tag alone.
-const AUTO_ADMIT_ELIGIBLE_SIGNALS = new Set([
+//
+// Exported (not just module-private) so BEATMAPPED-UK-NATIONAL-VENUE-
+// BULK-OSM-COMPLETION-02's bulk-OSM pre-candidacy filter
+// (ingestion/uk-national-bulk-osm/candidate-eligibility.mjs) can reuse
+// this EXACT set as its own "directly eligible for the main candidate
+// census" gate, applied BEFORE a raw OSM element ever becomes a
+// VenueDiscoveryCandidate — at national bulk scale, a bare noisy category
+// like community_centre is common enough (thousands of village/church
+// halls) that letting it reach candidate construction at all, only to be
+// rejected later by classifyDiscoveryGroup() below, floods the campaign's
+// own candidate/review counts with non-event leads. Never a second,
+// independently-drifting copy of this set.
+export const AUTO_ADMIT_ELIGIBLE_SIGNALS = new Set([
   "amenity=nightclub",
   "amenity=theatre",
   "amenity=arts_centre",
