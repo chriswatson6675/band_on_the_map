@@ -468,15 +468,14 @@ test("the published map is untouched by thousands of canonical Events", async ()
   assert.equal(/FOOTBALL/i.test(raw), false);
   assert.equal(raw.includes('"SPORT"'), false);
 
-  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 legitimately
-  // regenerated data/public/lisbon-porto-map.json (2026-09-22T11:57:58.377Z)
-  // via the normal `npm run publish:map-data` path, publishing United
-  // Kingdom venues for the first time — see
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 and
+  // BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01 legitimately
+  // regenerated data/public/lisbon-porto-map.json — see
   // tests/gc-football-event-admission-pilot.test.mjs's identical baseline
   // update for the full rationale. This test's own job (no football Event
   // leaks into the public map, asserted above via the FOOTBALL/SPORT/
   // event-id checks) is unaffected; only the pinned marker/listing totals
-  // needed updating to match that later, legitimate regeneration.
+  // needed updating to match those later, legitimate regenerations.
   const published = JSON.parse(raw);
   let markers = 0;
   let listings = 0;
@@ -486,6 +485,6 @@ test("the published map is untouched by thousands of canonical Events", async ()
       listings += (marker.display_listings ?? []).length;
     }
   }
-  assert.equal(markers, 227);
-  assert.equal(listings, 5013);
+  assert.equal(markers, 261);
+  assert.equal(listings, 5086);
 });

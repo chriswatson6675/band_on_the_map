@@ -43,10 +43,21 @@ export const MAP_ELIGIBLE_LOCATION_STATUSES = new Set(["CONFIRMED", "GEOCODED"])
 // methods are equally deterministic, evidence-backed, non-guessed
 // coordinate derivations; GEOCODED never distinguishes further between
 // them beyond this method name.
+// BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01 adds
+// OSM_OVERPASS_ELEMENT_COORDINATE: the coordinate was read directly off
+// the SAME Overpass element that discovered this venue in the first place
+// (node lat/lon, or a way/relation's own `out center` point) — never a
+// separate lookup/search step at all, unlike OSM_ID_LOOKUP (a later,
+// independent Nominatim /lookup of an already-known ref) or
+// STRUCTURED_POI_NAME_CITY_MATCH (a name+city search with no prior
+// element identity). Honestly distinct because there is no second query
+// to fail or disagree with the first — the discovery evidence and the
+// coordinate evidence are the same retained Overpass response.
 export const GEOCODED_PROVENANCE_METHODS = new Set([
   "GEOCODED_FROM_OFFICIAL_ADDRESS",
   "OSM_ID_LOOKUP",
   "STRUCTURED_POI_NAME_CITY_MATCH",
+  "OSM_OVERPASS_ELEMENT_COORDINATE",
 ]);
 
 /**
@@ -200,7 +211,16 @@ export function validateVenue(venue) {
       );
     }
   } else if (venue?.location_status === "GEOCODED") {
-    if (!hasAddress) {
+    // BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01: every
+    // other GEOCODED method starts from an already-evidenced address (the
+    // query anchor itself) and therefore always has one; OSM_OVERPASS_
+    // ELEMENT_COORDINATE is the one honest exception — the coordinate is
+    // read directly off the discovering OSM element, which frequently
+    // carries no addr:street/addr:postcode/addr:city tags at all. Address
+    // is still recorded whenever the OSM element actually has one; only
+    // its ABSENCE is not itself a validation failure for this one method
+    // — never fabricated as a substitute.
+    if (!hasAddress && provenanceMethod !== "OSM_OVERPASS_ELEMENT_COORDINATE") {
       errors.push("a GEOCODED venue must carry a non-empty address");
     }
     if (!hasLat || !hasLng) {
