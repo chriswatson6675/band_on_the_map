@@ -1,12 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm, writeFile, mkdir, readFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 
 import { main as generateArtifacts } from "../ingestion/uk-programme-acquisition/generate-artifacts.mjs";
-import { recordSourceCheckpoint } from "../ingestion/uk-programme-acquisition/checkpoint.mjs";
-import { deriveSourceId } from "../ingestion/uk-programme-acquisition/registry-entries.mjs";
 
 // generate-artifacts.mjs's own ROOT constant is derived from its own file
 // location (dirname-relative), matching every other module in this
@@ -28,7 +25,7 @@ import { deriveSourceId } from "../ingestion/uk-programme-acquisition/registry-e
 // rather than exact counts that would be fragile against the real,
 // still-in-progress national campaign.
 
-test("generateArtifacts runs against the real repository state without throwing, and produces the required research artifact files with a sane shape", async (t) => {
+test("generateArtifacts runs against the real repository state without throwing, and produces the required research artifact files with a sane shape", async () => {
   const testRunId = "generate-artifacts-shape-test-01";
   await generateArtifacts({ runId: testRunId });
 
