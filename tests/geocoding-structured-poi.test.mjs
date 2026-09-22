@@ -134,11 +134,30 @@ test("street is also omitted when no postcode is present and multiple segments r
   assert.equal(fields.postalcode, undefined);
 });
 
-test("buildStructuredPoiFields requires a non-empty canonical_name and address", () => {
+test("buildStructuredPoiFields requires a non-empty canonical_name", () => {
   assert.throws(() => buildStructuredPoiFields("", "Rua X, 1000-000 Lisboa", "Lisboa"));
   assert.throws(() => buildStructuredPoiFields(null, "Rua X, 1000-000 Lisboa", "Lisboa"));
-  assert.throws(() => buildStructuredPoiFields("Some Venue", "", "Lisboa"));
-  assert.throws(() => buildStructuredPoiFields("Some Venue", null, "Lisboa"));
+});
+
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: address is now
+// OPTIONAL — most UK major-event census venues have no independently
+// evidenced address at all yet (see research/major-event-venues/
+// uk-major-event-census-01/venues.json). Every existing Portugal call site
+// still supplies a non-empty address and is completely unaffected; this
+// only widens what's ALSO accepted.
+test("buildStructuredPoiFields accepts an absent/empty address, building amenity+city alone", () => {
+  const withoutAddress = buildStructuredPoiFields("Some Venue", null, "Testcity");
+  assert.deepEqual(withoutAddress, { amenity: "Some Venue", city: "Testcity" });
+
+  const withEmptyAddress = buildStructuredPoiFields("Some Venue", "", "Testcity");
+  assert.deepEqual(withEmptyAddress, { amenity: "Some Venue", city: "Testcity" });
+
+  // The resulting URL is still valid: amenity+city, no street/postalcode.
+  const url = new URL(buildStructuredPoiSearchUrl(withoutAddress));
+  assert.equal(url.searchParams.get("amenity"), "Some Venue");
+  assert.equal(url.searchParams.get("city"), "Testcity");
+  assert.equal(url.searchParams.get("street"), null);
+  assert.equal(url.searchParams.get("postalcode"), null);
 });
 
 test("buildStructuredPoiSearchUrl requires a non-empty amenity field", () => {

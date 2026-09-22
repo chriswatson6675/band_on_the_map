@@ -91,6 +91,15 @@ import {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
+async function loadJsonOrEmpty(fullPath, fallback) {
+  try {
+    return JSON.parse(await readFile(fullPath, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") return fallback;
+    throw error;
+  }
+}
+
 function parseArgs(argv) {
   const args = { from: null, to: null };
   for (const arg of argv) {
@@ -138,6 +147,16 @@ async function main() {
   // read-only, same convention as the Lisbon/Porto/Barcelona/Berlin/Paris
   // registries above.
   const londonVenues = JSON.parse(await readFile(resolve(ROOT, "venues/london.json"), "utf8"));
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: read-only,
+  // the governed UK major-event venue registry (venues/uk.json) — every
+  // map-eligible venue in it that isn't already covered by a London
+  // Observation-based marker gets one additional, listing-free marker
+  // (ingestion/map/publication.mjs's buildUnitedKingdomMarkers() new
+  // `ukVenues` parameter). Never touches Observations/sources — this is
+  // purely canonical venue location data. Missing file (e.g. an isolated
+  // test root predating this package) falls back to an empty registry,
+  // matching loadManualCoordinateStore()'s own convention.
+  const ukVenues = await loadJsonOrEmpty(resolve(ROOT, "venues/uk.json"), { venues: [] });
 
   // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
   // venue registries above — this script never writes artists/*.json.
@@ -258,6 +277,7 @@ async function main() {
     manualCoordinatesByVenueId,
     artistRegistry: artistRegistry.artists,
     artistLinks: artistLinks.links,
+    ukVenues: ukVenues.venues,
   });
 
   // BEATMAPPED-BERLIN-CANONICAL-RESILIENCE-RECONCILIATION-AND-INTEGRATION-01:

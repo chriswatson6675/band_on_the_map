@@ -27,6 +27,29 @@ async function readJsonSafe(path) {
   }
 }
 
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: a venue
+// whose evidence is EXCLUSIVELY these two kinds — "UK_MAJOR_EVENT_CENSUS"
+// (venues/uk.json's own initial address/identity evidence, see
+// ingestion/uk-venue-onboarding/build-registry.mjs) and
+// "GEOCODED_NOMINATIM_RESULT" (its own later, purely locational
+// coordinate evidence, see ingestion/geocoding/run-uk.mjs) — is a governed
+// location PIN with zero live per-venue acquisition behind it: no
+// sources/*.json entry, no Observations, no listings, regardless of
+// whether it has been geocoded yet. That is materially different from
+// "real acquisition work" (this module's own stated purpose, see its
+// file-level doc comment): a future city-wave choosing Manchester/
+// Glasgow/Bristol for genuine per-venue live-event acquisition would NOT
+// be duplicating anything this venue-only pin already does. A venue with
+// ANY other evidence kind (i.e. genuine per-venue acquisition backing it,
+// as every Lisbon/Porto/Barcelona/Berlin/Paris/London venue already has)
+// still counts as real coverage, completely unaffected.
+const VENUE_ONLY_EVIDENCE_KINDS = new Set(["UK_MAJOR_EVENT_CENSUS", "GEOCODED_NOMINATIM_RESULT"]);
+
+function isCensusOnlyVenue(entry) {
+  const evidence = Array.isArray(entry?.evidence) ? entry.evidence : [];
+  return evidence.length > 0 && evidence.every((e) => VENUE_ONLY_EVIDENCE_KINDS.has(e?.kind));
+}
+
 async function collectCityValues(dir, arrayKey) {
   let files;
   try {
@@ -41,7 +64,9 @@ async function collectCityValues(dir, arrayKey) {
     const entries = doc?.[arrayKey];
     if (!Array.isArray(entries)) continue;
     for (const entry of entries) {
-      if (entry?.city) cities.push(entry.city);
+      if (!entry?.city) continue;
+      if (arrayKey === "venues" && isCensusOnlyVenue(entry)) continue;
+      cities.push(entry.city);
     }
   }
   return cities;

@@ -145,6 +145,56 @@ function isSpecificEnoughResult(candidate) {
   return true;
 }
 
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: the fixed,
+// unchanging set of Greater London's 32 boroughs + the City of London — a
+// stable public-record administrative fact, not a guess about any
+// specific venue. Nominatim's UK addressing reports the SPECIFIC borough
+// as address.city (e.g. "City of Westminster") rather than "London"
+// itself, unlike Lisbon/Porto's own municipality-level addressing (where
+// address.city genuinely is "Lisboa"/"Porto") — so a genuine London venue
+// whose canonical `city` is "London" must accept any of these as a city
+// match, never be rejected as a false city mismatch.
+const GREATER_LONDON_DISTRICTS = new Set([
+  "city of london",
+  "city of westminster",
+  "westminster",
+  "camden",
+  "islington",
+  "hackney",
+  "tower hamlets",
+  "greenwich",
+  "royal borough of greenwich",
+  "lewisham",
+  "southwark",
+  "lambeth",
+  "wandsworth",
+  "hammersmith and fulham",
+  "kensington and chelsea",
+  "royal borough of kensington and chelsea",
+  "brent",
+  "ealing",
+  "hounslow",
+  "richmond upon thames",
+  "royal borough of richmond upon thames",
+  "kingston upon thames",
+  "royal borough of kingston upon thames",
+  "merton",
+  "sutton",
+  "croydon",
+  "bromley",
+  "bexley",
+  "havering",
+  "barking and dagenham",
+  "redbridge",
+  "newham",
+  "waltham forest",
+  "haringey",
+  "enfield",
+  "barnet",
+  "harrow",
+  "hillingdon",
+]);
+
 function cityMatches(candidate, expectedCityOrMunicipality) {
   const expected = normaliseText(expectedCityOrMunicipality);
   if (!expected) return false;
@@ -156,6 +206,9 @@ function cityMatches(candidate, expectedCityOrMunicipality) {
   const acceptable = new Set([expected]);
   if (expected === "lisboa") acceptable.add("lisbon");
   if (expected === "lisbon") acceptable.add("lisboa");
+  if (expected === "london" && observedValues.some((value) => GREATER_LONDON_DISTRICTS.has(value))) {
+    return true;
+  }
   return observedValues.some((value) => acceptable.has(value));
 }
 

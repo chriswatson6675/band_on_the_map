@@ -121,23 +121,21 @@ export const COUNTRY_MAP_VIEWS: Record<SearchArea, CountryMapView> = {
     center: [2.336, 48.866],
     zoom: 11.3,
   },
-  // BEATMAPPED-LONDON-FIRST-TRANCHE-MAIN-REBASE-AND-MUSIC-GATE-01 —
-  // United Kingdom's own bucket, following the exact same "scope the box
-  // to where the real markers actually are" precedent as Spain/Germany/
-  // France above: every current United Kingdom venue is in London (see
-  // ingestion/map/publication.mjs's buildUnitedKingdomMarkers() doc
-  // comment), so this box comfortably fits the real first-tranche venue
-  // coordinates (observed lat 51.4936–51.5573, lon -0.2373–-0.0578, see
-  // fixtures/map/beatmapped-london-first-tranche-main-rebase-and-music-
-  // gate-01-live-run-proof.json) rather than a whole-country box that
-  // would leave the markers a tiny cluster in one corner.
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 — widened
+  // from London-only to the whole United Kingdom now that
+  // ingestion/uk-venue-onboarding/ + ingestion/geocoding/run-uk.mjs have
+  // onboarded and geocoded governed venue-only markers spanning England,
+  // Scotland, Wales and Northern Ireland (venues/uk.json), not just
+  // London (see ingestion/map/publication.mjs's buildUnitedKingdomMarkers()
+  // new `ukVenues` parameter). A whole-country box, matching Portugal's
+  // own precedent, rather than the old London-only crop.
   "United Kingdom": {
     bounds: [
-      [-0.26, 51.47],
-      [-0.03, 51.58],
+      [-8.65, 49.85],
+      [1.85, 60.9],
     ],
-    center: [-0.148, 51.523],
-    zoom: 11,
+    center: [-2.5, 54.5],
+    zoom: 4.8,
   },
 };
 

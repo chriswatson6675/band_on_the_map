@@ -45,17 +45,19 @@ type ArtistIndexEntry = {
 // The public homepage does not scrape venue websites. It renders the
 // latest successfully published map dataset, runtime or bundled.
 //
-// BEATMAPPED-LONDON-FIRST-LIVE-TRANCHE-PUBLICATION-INTEGRATION-01: this
-// committed snapshot predates London/United Kingdom and legitimately has no
-// `countries.UnitedKingdom` key yet -- regenerating it would require running
-// a real `npm run publish:map-data` against live sources, which is a manual
-// publication action explicitly out of scope for this integration package.
-// The cast below only tells TypeScript that shape is possible; it changes no
-// runtime behaviour -- `unitedKingdomMarkers` below already falls back to
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: this
+// committed snapshot now carries a real `countries.UnitedKingdom` bucket
+// (regenerated via a real `npm run publish:map-data` run against live
+// sources plus the governed UK major-event venue registry, venues/uk.json
+// — see ingestion/uk-venue-onboarding/ and ingestion/geocoding/run-uk.mjs).
+// The cast below is kept anyway (harmless once the key is always present)
+// so a future JSON regeneration that transiently drops the UK bucket
+// (e.g. a catastrophic-run refusal falling back to an older snapshot)
+// still type-checks — `unitedKingdomMarkers` below already falls back to
 // `[]` via `?? []` for a genuinely-absent key, exactly as Spain/Germany/
-// France did before their own first bundled snapshot existed. A live
-// runtime artifact fetched via resolveMapData() (see RUNTIME_MAP_DATA_URL
-// below) can and will carry a real `countries.UnitedKingdom` bucket.
+// France's own optional bucket handling. A live runtime artifact fetched
+// via resolveMapData() (see RUNTIME_MAP_DATA_URL below) can and will carry
+// its own, independently-current `countries.UnitedKingdom` bucket.
 const BUNDLED_ARTIFACT = publicationData as typeof publicationData & {
   countries: { UnitedKingdom?: { markers: unknown[] } };
 };

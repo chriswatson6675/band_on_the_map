@@ -581,6 +581,19 @@ test("the published map contains no football, no SPORT and no Event id", async (
 });
 
 test("public marker and listing counts are unchanged by the pilot", async () => {
+  // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01 legitimately
+  // regenerated data/public/lisbon-porto-map.json (2026-09-22T11:57:58.377Z)
+  // via the normal `npm run publish:map-data` path: it publishes United
+  // Kingdom venues for the first time (0 -> 103 markers, the whole point of
+  // that package) and refreshed Portugal/Spain/Germany/France's live counts
+  // in the same run (natural source-availability drift — see that
+  // package's own report and tests/discovery-map-ux-regression.test.mjs's
+  // KNOWN_GOOD_MARKER_FLOORS comment). This test's own job — proving the
+  // football admission PILOT itself never touches public data — is
+  // unaffected by that unrelated, later, legitimate regeneration; only the
+  // pinned baseline it compares against needed updating, exactly as this
+  // codebase's established convention already does whenever a real
+  // publish:map-data run intentionally changes the committed artifact.
   const published = JSON.parse(await readFile(resolve(ROOT, "data/public/lisbon-porto-map.json"), "utf8"));
   let markers = 0;
   let listings = 0;
@@ -590,8 +603,8 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
       listings += (marker.display_listings ?? []).length;
     }
   }
-  assert.equal(markers, 132);
-  assert.equal(listings, 4896);
+  assert.equal(markers, 227);
+  assert.equal(listings, 5013);
   assert.equal(published.counts.map_marker_count, markers);
   assert.equal(published.counts.display_listing_count, listings);
 });

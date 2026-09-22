@@ -363,6 +363,21 @@ export async function runUnattendedCycle(args = {}) {
     const berlinVenues = JSON.parse(await readFile(resolve(root, "venues/berlin.json"), "utf8"));
     const parisVenues = JSON.parse(await readFile(resolve(root, "venues/paris.json"), "utf8"));
     const londonVenues = JSON.parse(await readFile(resolve(root, "venues/london.json"), "utf8"));
+    // BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: read-only,
+    // the governed UK major-event venue registry — every map-eligible
+    // venue in it that isn't already covered by a London Observation-based
+    // marker gets one additional, listing-free marker (see
+    // ingestion/map/publication.mjs's buildUnitedKingdomMarkers()). Falls
+    // back to an empty registry for an isolated test root that never
+    // seeded venues/uk.json, exactly like loadManualCoordinateStore()
+    // already does for a missing venues/manual-coordinates.json.
+    let ukVenues;
+    try {
+      ukVenues = JSON.parse(await readFile(resolve(root, "venues/uk.json"), "utf8"));
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      ukVenues = { venues: [] };
+    }
     // BEATMAPPED-ENRICHMENT-PILOT-01: read-only, same convention as the
     // venue registries above — falls back to an empty registry/link set
     // for an isolated test root that never seeded artists/*.json, exactly
@@ -420,6 +435,7 @@ export async function runUnattendedCycle(args = {}) {
       manualCoordinatesByVenueId,
       artistRegistry: artistRegistry.artists,
       artistLinks: artistLinks.links,
+      ukVenues: ukVenues.venues,
     });
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: fill in eligible

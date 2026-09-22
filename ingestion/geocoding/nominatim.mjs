@@ -196,9 +196,17 @@ export async function searchNominatimLive(address, options = {}) {
 
 // Fixed, non-derived structured-search params (this package's brief,
 // section "Structured query construction"): every field here is the same
-// for every STRUCTURED_POI_QUERY request this project ever issues — never
-// venue-specific, never derived from an address. Frozen so a cache
-// fixture can compare against it directly.
+// for every STRUCTURED_POI_QUERY request this project ever issues for
+// Portugal — never venue-specific, never derived from an address. Frozen
+// so a cache fixture can compare against it directly.
+//
+// BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01:
+// `country`/`countrycodes` are now overridable per call (see
+// buildStructuredPoiFields/buildStructuredPoiSearchUrl below) so a second
+// country's structured queries reuse this exact machinery rather than a
+// forked copy — this constant remains the Portugal DEFAULT, not the only
+// value, and every existing Portugal call site's behaviour is completely
+// unchanged.
 export const STRUCTURED_POI_FIXED_PARAMS = Object.freeze({
   country: "Portugal",
   countrycodes: "pt",
@@ -221,23 +229,32 @@ export const STRUCTURED_POI_FIXED_PARAMS = Object.freeze({
  * extractable from the canonical address (extractPostcode()/
  * extractStreet() from match-address.mjs) — omitted, never guessed,
  * otherwise; the query remains valid with amenity+city+postalcode alone.
+ *
+ * BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: `address` is
+ * now OPTIONAL (null/undefined/empty all accepted) — most UK major-event
+ * census venues have no independently-evidenced address at all yet (see
+ * research/major-event-venues/uk-major-event-census-01/venues.json, where
+ * address is null for ~62% of records). When absent, the query is built
+ * from amenity+city alone (no street/postalcode — never guessed); every
+ * existing Portugal call site, which always supplies a non-empty address,
+ * keeps its exact prior behaviour unchanged.
  */
 export function buildStructuredPoiFields(canonicalName, address, cityOrMunicipality) {
   if (typeof canonicalName !== "string" || canonicalName.trim() === "") {
     throw new Error("buildStructuredPoiFields requires a non-empty canonical_name");
   }
-  if (typeof address !== "string" || address.trim() === "") {
-    throw new Error("buildStructuredPoiFields requires a non-empty canonical address");
-  }
+  const hasAddress = typeof address === "string" && address.trim() !== "";
 
   const fields = { amenity: canonicalName };
   if (typeof cityOrMunicipality === "string" && cityOrMunicipality.trim() !== "") {
     fields.city = cityOrMunicipality;
   }
-  const postalcode = extractPostcode(address);
-  if (postalcode) fields.postalcode = postalcode;
-  const street = extractStreet(address);
-  if (street) fields.street = street;
+  if (hasAddress) {
+    const postalcode = extractPostcode(address);
+    if (postalcode) fields.postalcode = postalcode;
+    const street = extractStreet(address);
+    if (street) fields.street = street;
+  }
   return fields;
 }
 
@@ -247,8 +264,21 @@ export function buildStructuredPoiFields(canonicalName, address, cityOrMunicipal
  * structured fields (Nominatim's own structured-search contract, and this
  * package's brief). `amenity` is required; `street`/`city`/`county`/
  * `state` are included only when actually present on `fields`.
+ *
+ * BEATMAPPED-UK-MUSIC-VENUES-GEOCODE-ONBOARD-PUBLISH-LIVE-01: accepts
+ * optional `country`/`countrycodes` overrides (defaulting to
+ * STRUCTURED_POI_FIXED_PARAMS's Portugal values, so every existing call
+ * site is byte-for-byte unchanged) so a second country's structured
+ * queries reuse this one URL builder rather than a forked copy.
  */
-export function buildStructuredPoiSearchUrl(fields, { baseUrl = NOMINATIM_BASE_URL } = {}) {
+export function buildStructuredPoiSearchUrl(
+  fields,
+  {
+    baseUrl = NOMINATIM_BASE_URL,
+    country = STRUCTURED_POI_FIXED_PARAMS.country,
+    countrycodes = STRUCTURED_POI_FIXED_PARAMS.countrycodes,
+  } = {},
+) {
   if (!fields || typeof fields.amenity !== "string" || fields.amenity.trim() === "") {
     throw new Error("buildStructuredPoiSearchUrl requires a non-empty amenity field");
   }
@@ -259,9 +289,9 @@ export function buildStructuredPoiSearchUrl(fields, { baseUrl = NOMINATIM_BASE_U
   if (fields.city) params.set("city", fields.city);
   if (fields.county) params.set("county", fields.county);
   if (fields.state) params.set("state", fields.state);
-  params.set("country", STRUCTURED_POI_FIXED_PARAMS.country);
+  params.set("country", country);
   if (fields.postalcode) params.set("postalcode", fields.postalcode);
-  params.set("countrycodes", STRUCTURED_POI_FIXED_PARAMS.countrycodes);
+  params.set("countrycodes", countrycodes);
   params.set("format", STRUCTURED_POI_FIXED_PARAMS.format);
   params.set("addressdetails", STRUCTURED_POI_FIXED_PARAMS.addressdetails);
   params.set("namedetails", STRUCTURED_POI_FIXED_PARAMS.namedetails);
