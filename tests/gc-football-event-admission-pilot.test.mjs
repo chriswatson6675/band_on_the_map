@@ -588,9 +588,14 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
   // that package) and refreshed Portugal/Spain/Germany/France's live counts
   // in the same run (natural source-availability drift — see that
   // package's own report and tests/discovery-map-ux-regression.test.mjs's
-  // KNOWN_GOOD_MARKER_FLOORS comment). This test's own job — proving the
-  // football admission PILOT itself never touches public data — is
-  // unaffected by that unrelated, later, legitimate regeneration; only the
+  // KNOWN_GOOD_MARKER_FLOORS comment). BEATMAPPED-UK-NATIONAL-LIVE-VENUE-
+  // DISCOVERY-EXPANSION-01 regenerated it again (2026-09-22T14:18:25.210Z):
+  // United Kingdom 103 -> 137 markers (34 newly discovered venues —
+  // OpenStreetMap Overpass sweep + evidence-verified long-tail web
+  // research, see that package's own report), Portugal/Spain/Germany/
+  // France again refreshed by natural source drift. This test's own job —
+  // proving the football admission PILOT itself never touches public data
+  // — is unaffected by either later, legitimate regeneration; only the
   // pinned baseline it compares against needed updating, exactly as this
   // codebase's established convention already does whenever a real
   // publish:map-data run intentionally changes the committed artifact.
@@ -603,8 +608,8 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
       listings += (marker.display_listings ?? []).length;
     }
   }
-  assert.equal(markers, 227);
-  assert.equal(listings, 5013);
+  assert.equal(markers, 261);
+  assert.equal(listings, 5086);
   assert.equal(published.counts.map_marker_count, markers);
   assert.equal(published.counts.display_listing_count, listings);
 });
