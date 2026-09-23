@@ -1,0 +1,477 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-IDENTITY-GATE-08",
+  "framework_version": "BOTM-UK-HIGH-VALUE-IDENTITY-GATE-v1.0",
+  "census_id": "uk-1000plus-08-identity",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "description": "Every identity decision this package made, with the evidence behind it. A decision that failed independent re-verification appears in refused_decisions and did NOT affect the estate.",
+  "decisions_received": 20,
+  "decisions_accepted": 17,
+  "decisions_refused": 3,
+  "by_decision": {
+    "DISTINCT_AND_MISSING_FROM_CANON": 12,
+    "AMBIGUOUS_HOLD": 4,
+    "MATCHES_EXISTING_CANONICAL": 1
+  },
+  "accepted": [
+    {
+      "research_id": "hv07-p-england-newcastle-upon-tyne-newcastle-greyhound-stadium",
+      "decision": "AMBIGUOUS_HOLD",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": true,
+      "real_world_identity": "Newcastle Greyhound Stadium (formerly Brough Park), a greyhound racing stadium at Fossway, Byker, Newcastle upon Tyne NE6 2XJ, operated by Arena Racing Company, official site newcastle-greyhounds.co.uk -- a physically and operationally distinct venue from Utilita Arena Newcastle (Arena Way, Newcastle upon Tyne NE4 7NA), a large indoor arena on the south-western edge of the city centre near the Tyne/Redheugh Bridge.",
+      "postcode_found": "NE6 2XJ",
+      "address_found": "Fossway, Byker, Newcastle upon Tyne, NE6 2XJ",
+      "operator_found": "Arena Racing Company",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.newcastle-greyhounds.co.uk/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives address Fossway, Newcastle upon Tyne NE6 2XJ; footer states the stadium is part of Arena Racing Company Group."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Newcastle_Stadium",
+          "kind": "FETCHED_URL",
+          "note": "Confirms the greyhound stadium (formerly Brough Park) is at The Fossway, Byker, Newcastle upon Tyne; article makes no mention of any shared site with Utilita Arena Newcastle."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Utilita_Arena_Newcastle",
+          "kind": "FETCHED_URL",
+          "note": "Places Utilita Arena Newcastle on the south-western edge of the city centre near the River Tyne/Redheugh Bridge -- a different area from Fossway/Byker."
+        },
+        {
+          "url": "https://www.utilitaarena.co.uk/",
+          "kind": "SEARCH_RESULT",
+          "note": "Search results give Utilita Arena Newcastle's address as Arena Way, Newcastle upon Tyne NE4 7NA -- a different postcode from the greyhound stadium's NE6 2XJ."
+        }
+      ],
+      "reasoning": "The row's name and official_website_url correctly identify the greyhound stadium at NE6 2XJ, but its capacity_source_url (Wikipedia's Utilita Arena Newcastle article) and programme_url (utilitaarena.co.uk) belong to a physically separate arena at NE4 7NA. Different postcodes, different locations, different real-world identity -- these are two venues, not one. Admitting this row unmodified would attach the wrong capacity and wrong programme source to the greyhound stadium. Per brief guidance this is held, not rescued, since the corrupted fields (capacity, programme_url) are not something this package can fix.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-sheffield-owlerton-greyhound-stadium",
+      "decision": "AMBIGUOUS_HOLD",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": true,
+      "real_world_identity": "Owlerton Greyhound Stadium (Owlerton Stadium), a greyhound racing stadium at Penistone Road, Hillsborough, Sheffield S6 2DE, independently operated, official site owlertonstadium.co.uk -- a physically and operationally distinct venue from Utilita Arena Sheffield (45 Broughton Lane, Sheffield S9 2DF), a large indoor arena near Sheffield Olympic Legacy Park / Attercliffe, home of the Sheffield Steelers.",
+      "postcode_found": "S6 2DE",
+      "address_found": "Penistone Road, Hillsborough, Sheffield, S6 2DE",
+      "operator_found": "Owlerton Stadium (independent)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://owlertonstadium.co.uk/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives address Penistone Road, Sheffield S6 2DE, describes itself as 'Yorkshire's Premier Racetrack'; no operator link to Utilita Arena Sheffield."
+        },
+        {
+          "url": "https://www.google.co.uk/maps?q=Utilita+Arena+Sheffield%2C+45+Broughton+Lane%2C+Sheffield%2C+S9+2DF",
+          "kind": "SEARCH_RESULT",
+          "note": "Confirms Utilita Arena Sheffield's address as 45 Broughton Lane, Sheffield S9 2DF -- a different postcode (S9) in a different part of the city (Attercliffe/Don Valley) from Hillsborough (S6)."
+        }
+      ],
+      "reasoning": "Same pattern as the Newcastle row: the row's name and official_website_url correctly identify Owlerton Greyhound Stadium at S6 2DE, but its capacity_source_url (Wikipedia's Utilita Arena Sheffield article) and programme_url (utilitaarenasheffield.co.uk) belong to a separate arena at S9 2DF, a different postcode and district. Two distinct real-world venues. Held rather than admitted with mismatched capacity/programme fields.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-leeds-amt-headingley-rugby-stadium",
+      "decision": "AMBIGUOUS_HOLD",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": true,
+      "real_world_identity": "AMT Headingley Rugby Stadium is the rugby league ground at the Headingley Stadium complex, St Michael's Lane, Leeds LS6 3BR, home of Leeds Rhinos, operated by Leeds Rugby, capacity ~19,700. It shares the same overall site/postcode with -- but is a physically and operationally separate ground from -- Headingley (Emerald/Cricket) Ground, owned and operated by Yorkshire County Cricket Club since 2006, capacity ~18,350. Wikipedia describes them explicitly as 'two separate grounds' linked only by a shared stand.",
+      "postcode_found": null,
+      "address_found": "St Michael's Lane, Headingley, Leeds, LS6 3BR (shared site address for the whole Headingley Stadium complex)",
+      "operator_found": "Leeds Rugby (rugby stadium); Yorkshire County Cricket Club (cricket ground, separate operator, same complex)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Headingley_Stadium",
+          "kind": "FETCHED_URL",
+          "note": "States the complex 'comprises two separate grounds' linked by a shared stand: Headingley Cricket Ground (Yorkshire CCC, owned since 2006, capacity 18,350) and Headingley Rugby Stadium (Leeds Rugby, capacity 19,700, renamed AMT Headingley Rugby Stadium Dec 2023). Confirms distinct ownership and distinct capacities despite the shared site."
+        },
+        {
+          "url": "https://maps.apple.com/place?address=St+Michael%27s+Lane%2C+Headingley%2C+Leeds%2C+LS6+3BR",
+          "kind": "SEARCH_RESULT",
+          "note": "Gives AMT Headingley Rugby Stadium's address as St Michael's Lane, Headingley, Leeds LS6 3BR."
+        }
+      ],
+      "reasoning": "Unlike the Newcastle/Sheffield pair, postcode does not decide this one -- the rugby stadium and cricket ground genuinely share one site. But they are documented as two separately owned, separately operated, separately-capacitied grounds, not one venue. The row's name and capacity (19,700) correctly describe the rugby stadium, but its programme_url (yorkshireccc.com/events) is the cricket club's own events page for the sibling ground, not the rugby stadium's. This is the row's name saying one venue while its evidence says another -- the exact pattern the brief flags for a hold rather than a rescue, since admitting the row would attach Yorkshire CCC's programme source to the rugby stadium's identity.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-birmingham-bp-pulse-live",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "bp pulse LIVE is the dedicated concert/sports arena built as the 7th hall of the NEC (National Exhibition Centre) complex, Perimeter Rd, Marston Green, Birmingham B40 1NT, operated by NEC Group under its own brand and official domain (bppulselive.co.uk), with its own capacity/ticketing distinct from the NEC's exhibition halls 1-20. It is physically co-located with but operationally distinct from 'The NEC' as a whole (the exhibition-hall complex), and is a different venue entirely from Utilita Arena Birmingham (King Edwards Road, B1 2AA, city centre -- already in canon).",
+      "postcode_found": "B40 1NT",
+      "address_found": "Perimeter Rd, Marston Green, Birmingham, B40 1NT",
+      "operator_found": "NEC Group",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.bppulselive.co.uk/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives address Perimeter Rd, Marston Green, Birmingham B40 1NT; identifies bp pulse LIVE as a distinct venue on the NEC campus, affiliated with (not identical to) Utilita Arena Birmingham."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Resorts_World_Arena",
+          "kind": "FETCHED_URL",
+          "note": "Confirms the arena was built as the 7th hall of the NEC complex, owned by NEC and operated by NEC Group, functioning as a separate branded entertainment venue from the NEC's exhibition halls."
+        },
+        {
+          "url": "https://www.thenec.co.uk/organisers/our-halls/",
+          "kind": "FETCHED_URL",
+          "note": "The 'our halls' page that is this row's capacity_source_url does list an 'Arena' entry (4,560m² floor space) alongside Halls 1-20 -- i.e. it is a legitimate, if generic, source page for this specific venue, not evidence of a merge with a different venue's identity."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Birmingham",
+          "kind": "SEARCH_RESULT",
+          "note": "Corroborates bp pulse LIVE capacity commonly cited around 15,685 for full configuration; the row's stated capacity (10,000) is plausibly a specific configuration figure -- capacity accuracy was not chased further per brief scope."
+        }
+      ],
+      "reasoning": "Unlike the other four Group C rows, bp pulse LIVE's own official_website_url and programme_url are self-consistent and specific to itself (bppulselive.co.uk), not borrowed from a sibling venue. The capacity_source_url points to a shared NEC Group listing page, but that page genuinely includes this arena as one of its entries -- it is imprecise sourcing, not a different venue's data merged in. Address/postcode/domain are coherent and distinct from both 'The NEC' exhibition halls and from Utilita Arena Birmingham. Checked CANON-INDEX.txt: no NEC, Resorts World Arena, Genting Arena, LG Arena or bp pulse entry exists under Birmingham (only Utilita Arena Birmingham, a different city-centre venue, is present). Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-liverpool-liverpool-experience-campus",
+      "decision": "AMBIGUOUS_HOLD",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": true,
+      "real_world_identity": "'Liverpool Experience Campus' (LEX) is the 2026 rebrand of the operating organisation formerly known as ACC Liverpool Group -- an umbrella brand for the whole waterfront campus, not a single bookable venue. The campus comprises several distinct facilities under LEX: the Convention Centre, the Exhibition Centre, the Auditorium, and M&S Bank Arena (which explicitly 'retains its existing name' and its own dedicated site, mandsbankarena.com). This row's capacity (11,000) and programme_url (mandsbankarena.com/whats-on) both describe M&S Bank Arena specifically, not the campus as a whole, which has no single capacity.",
+      "postcode_found": "L3 4FP",
+      "address_found": "Kings Dock, Liverpool Waterfront, L3 4FP (shared campus address)",
+      "operator_found": "ACC Liverpool Group Ltd (now trading as Liverpool Experience Campus / LEX)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://lexliverpool.com/",
+          "kind": "FETCHED_URL",
+          "note": "Official site confirms LEX is 'the new name for the organisation formerly known as The ACC Liverpool Group' and lists Convention Centre, Exhibition Centre, Auditorium and M&S Bank Arena as its component venues -- an umbrella brand, not one venue."
+        },
+        {
+          "url": "https://www.mandsbankarena.com/media-centre/latest-press-releases/2026/liverpool-experience-campus-officially-launches/",
+          "kind": "SEARCH_RESULT",
+          "note": "Press release: 'the venues will now be known as the Convention Centre at Liverpool Experience Campus and the Exhibition Centre at Liverpool Experience Campus, while M&S Bank Arena retains its existing name' -- explicit confirmation that M&S Bank Arena is a separately branded, separately identified venue within the LEX campus, matching this row's 11,000 capacity."
+        }
+      ],
+      "reasoning": "The row's name (Liverpool Experience Campus) is the parent operator/campus brand, not a single physical venue with one capacity -- but its capacity and programme_url are both specific to one component venue, M&S Bank Arena, which the corpus separately holds as its own record per the brief. This is the row's name saying one thing (an umbrella campus) and its evidence saying another (one specific arena within it) -- exactly the 'parent complex duplicating its own arena' pattern the brief asked to check for, confirmed. Held rather than admitted, since admitting 'Liverpool Experience Campus' as a single ≥1,000-capacity venue would either duplicate the M&S Bank Arena record or mis-state the campus (which is not itself a single bookable space) as one.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-northern-ireland-belfast-icc-belfast",
+      "decision": "MATCHES_EXISTING_CANONICAL",
+      "canonical_venue_id": "venue-belfast-belfast-waterfront-conference-and-exhibition-centre",
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "ICC Belfast (International Convention Centre) is the purpose-built convention/exhibition extension at 2 Lanyon Place, Belfast BT1 3WH, operated together with Waterfront Hall and Ulster Hall by the same Belfast Waterfront and Ulster Hall Ltd / Belfast City Council organisation, and marketed via waterfront.co.uk. It is the same real-world site as the canonical 'Belfast Waterfront Conference and Exhibition Centre' entry.",
+      "postcode_found": "BT1 3WH",
+      "address_found": "2 Lanyon Place, Belfast, BT1 3WH",
+      "operator_found": "Belfast Waterfront and Ulster Hall Ltd (Belfast City Council)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.iccbelfast.com/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives ICC Belfast's address as 2 Lanyon Place, Belfast BT1 3WH -- an exact match to CANON-INDEX's 'Lanyon Place 2, BT1 3WH, Belfast' for venue-belfast-belfast-waterfront-conference-and-exhibition-centre. Footer lists Waterfront Hall and Ulster Hall as sister venues under the same operator."
+        },
+        {
+          "url": "https://www.waterfront.co.uk/venues/icc-belfast/",
+          "kind": "SEARCH_RESULT",
+          "note": "ICC Belfast's conference/exhibition offering is hosted and marketed on waterfront.co.uk itself, confirming ICC Belfast and Belfast Waterfront operate as one organisation/complex at one address."
+        }
+      ],
+      "reasoning": "Address and postcode are an exact match to the canonical record, and the operator relationship (same trust/council, shared marketing site) corroborates it. ICC Belfast is the convention/exhibition-centre component of the Belfast Waterfront complex -- consistent with the canonical entry's full name 'Belfast Waterfront Conference and Exhibition Centre'.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-doncaster-club-doncaster-sports-village",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "A single football stadium at Stadium Way, Lakeside, Doncaster DN4 5JW, home of Doncaster Rovers F.C. since opening in 2007, renamed over time by sponsorship: Doncaster Community Stadium (planning name) -> Keepmoat Stadium (2006-2021) -> Eco-Power Stadium (2021-2026) -> Club Doncaster Sports Village (2026-present). One venue throughout.",
+      "postcode_found": "DN4 5JW",
+      "address_found": "Stadium Way, Lakeside, Doncaster, South Yorkshire, DN4 5JW",
+      "operator_found": "Doncaster Rovers F.C. (via Prestige Venues & Events / Sodexo)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Eco-Power_Stadium",
+          "kind": "FETCHED_URL",
+          "note": "Confirms postcode DN4 5JW and documents the full naming history (Keepmoat -> Eco-Power -> Club Doncaster Sports Village, effective 30 June 2026) as one continuous stadium, home to Doncaster Rovers F.C. throughout."
+        }
+      ],
+      "reasoning": "Postcode matches the row exactly, and the rename chain is explicitly documented as the same physical stadium under successive sponsors. Checked CANON-INDEX.txt Doncaster entries: no stadium/arena entry present (only small venues). Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-huddersfield-accu-stadium",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "A single football/rugby league stadium at Stadium Way, Huddersfield HD1 6PG, home to Huddersfield Town F.C. and Huddersfield Giants, renamed over time by sponsorship: McAlpine Stadium -> Galpharm Stadium -> John Smith's Stadium -> Kirklees Stadium -> Accu Stadium. One venue throughout.",
+      "postcode_found": "HD1 6PG",
+      "address_found": "Stadium Way, Huddersfield, HD1 6PG",
+      "operator_found": "Kirklees Stadium Development Ltd (KSDL)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.accustadium.com/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives address Stadium Way, Huddersfield HD1 6PG, matching the row's stated postcode exactly; confirms Huddersfield Town F.C. and Huddersfield Giants as tenants and retains historical John Smith's Stadium branding references, indicating continuity of the same physical facility."
+        }
+      ],
+      "reasoning": "Postcode matches exactly; official site confirms continuity of naming through sponsorship changes and the same football/rugby tenants throughout. Checked CANON-INDEX.txt Huddersfield entries: no stadium/arena entry present. Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-halifax-the-shay",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "The Shay, a single football/rugby league stadium at Shaw Hill / Shay Syke, Halifax HX1 2YZ, home to FC Halifax Town (football) and Halifax Panthers (rugby league), managed in partnership with Calderdale Council and Difference Group. The flagged 'different official site' (halifaxafc.co.uk) is a legacy fan history site about the original Halifax Town A.F.C., which folded in 2008 and was replaced by the current FC Halifax Town -- not evidence of a second physical venue.",
+      "postcode_found": "HX1 2YZ",
+      "address_found": "Shaw Hill, Halifax, West Yorkshire, HX1 2YZ",
+      "operator_found": "Calderdale Council / Difference Group (venue management); FC Halifax Town and Halifax Panthers (tenant clubs)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://shaystadium.com/",
+          "kind": "FETCHED_URL",
+          "note": "Official site (matches the row's official_website_url) gives address Shaw Hill, HX1 2YZ, Halifax; confirms FC Halifax Town and Halifax Panthers as the two professional tenants and Calderdale Council/Difference Group as managers."
+        },
+        {
+          "url": "https://www.halifaxafc.co.uk/",
+          "kind": "SEARCH_RESULT",
+          "note": "Search results identify this domain as 'Halifax Town AFC -- History and Demise', a site documenting the original club that dissolved in 2008 and was reformed as FC Halifax Town -- not a separate venue's official site."
+        }
+      ],
+      "reasoning": "The flagged domain discrepancy resolves to a defunct club's legacy/history site, not a second real-world venue. shaystadium.com and fchalifaxtown.com (the row's own official_website_url and programme_url) are both current, legitimate, and describe the same single stadium. Checked CANON-INDEX.txt Halifax entries: no Shay/stadium entry present. Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-leigh-leigh-sports-village",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "A single 12,000-capacity stadium within the Leigh Sports Village complex, Sale Way, Leigh WN7 4GX, home to Leigh Leopards (rugby league) and Manchester United Women. In September 2025 Wigan Council renamed the stadium specifically to 'Progress With Unity Stadium', while the surrounding leisure/sports complex retains the 'Leigh Sports Village' name -- same physical stadium, a naming change to the ground itself, not a second venue.",
+      "postcode_found": "WN7 4GX",
+      "address_found": "Sale Way, Leigh, Greater Manchester, WN7 4GX",
+      "operator_found": "Manchester United W.F.C. / Wigan Council (Progress With Unity initiative)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.wigan.gov.uk/News/Articles/2025/September/Progress-With-Unity-Stadium-unveiled-as-new-era-begins-at-Leigh-Sports-Village.aspx",
+          "kind": "SEARCH_RESULT",
+          "note": "Confirms the stadium at Leigh Sports Village was renamed 'Progress With Unity Stadium' in September 2025 by Wigan Council, 12,000-capacity, home to Leigh Leopards and Manchester United Women, postcode WN7 4GX; explicitly states the overall site retains the LSV name."
+        },
+        {
+          "url": "https://www.leighsportsvillage.co.uk/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives a general site address (Sale Way, Leigh, WN7 4JY) for the wider Leigh Sports Village complex; does not itself reference the Progress With Unity Stadium name, consistent with that name applying specifically to the stadium/ground rather than the whole leisure site."
+        }
+      ],
+      "reasoning": "Search corroboration independently confirms WN7 4GX as the stadium's postcode (matching the row) and the rename lineage from Leigh Sports Village stadium to Progress With Unity Stadium. The village's general complex address (WN7 4JY, from the official homepage) differs slightly from the stadium's own postcode (WN7 4GX), consistent with normal UK large-site addressing (multiple postcodes for one campus) rather than two venues. Checked CANON-INDEX.txt Leigh entries: no stadium entry present. Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-st-helens-brewdog-stadium",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "A single rugby league stadium at McManus Drive, Peasley Cross, St Helens WA9 3AL, home to St Helens R.F.C. since 2012, renamed over time by sponsorship: Langtree Park (2012-2017) -> Totally Wicked Stadium (2017-2025) -> BrewDog Stadium (2025-present). One venue throughout.",
+      "postcode_found": "WA9 3AL",
+      "address_found": "McManus Drive, Peasley Cross, St Helens, WA9 3AL",
+      "operator_found": "St Helens R.F.C.",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/BrewDog_Stadium",
+          "kind": "SEARCH_RESULT",
+          "note": "Confirms address McManus Drive, Peasley Cross, St Helens WA9 3AL (matches the row's postcode exactly) and the full naming history: Langtree Park (2012-2017) -> Totally Wicked Stadium (2017-2025) -> BrewDog Stadium, home to St Helens R.F.C. throughout."
+        }
+      ],
+      "reasoning": "Postcode matches exactly and the rename chain is explicitly documented as one continuous stadium. Checked CANON-INDEX.txt St Helens entries: no stadium entry present (only small arts venues). Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-wales-newport-icc-wales",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "International Convention Centre Wales, at Coldra Woods, Newport NP18 1DE, a Celtic Manor Resort / Welsh Government 50-50 joint-venture convention centre. 'ICC Wales' is simply the branded short form of 'International Convention Centre Wales' -- the same single venue, not two.",
+      "postcode_found": "NP18 1DE",
+      "address_found": "Coldra Woods, Newport, South Wales, NP18 1DE",
+      "operator_found": "ICC Wales (Celtic Manor Resort / Welsh Government joint venture)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.iccwales.com/",
+          "kind": "FETCHED_URL",
+          "note": "Official site gives address Coldra Woods, Newport NP18 1DE (exact match to the row) and confirms 'ICC Wales' and 'International Convention Centre Wales' are the same venue, full name vs. abbreviation."
+        }
+      ],
+      "reasoning": "Postcode matches exactly, and the official site itself confirms the two names refer to one venue. Checked CANON-INDEX.txt Newport entries: no ICC Wales / convention centre entry present. Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-scotland-turriff-the-haughs",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "The Haughs, Queens Road, Turriff, Aberdeenshire AB53 4EF -- a single agricultural showground that hosts the annual Turriff Show and is also used as Turriff United F.C.'s home ground. 'The Haughs' and 'Turriff Showground' are the same site referred to by two names (place name vs. functional description).",
+      "postcode_found": "AB53 4EF",
+      "address_found": "The Haughs, Queens Road, Turriff, Aberdeenshire, AB53 4EF",
+      "operator_found": "Turriff and District Agricultural Association / Turriff United F.C. (ground use)",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.doogal.co.uk/ShowMap?postcode=AB53+4EF",
+          "kind": "SEARCH_RESULT",
+          "note": "Search corroboration gives the address as 'The Haughs, Queens Road, Turriff, Aberdeenshire AB53 4EF' -- exact postcode match to the row -- confirming The Haughs as the Turriff Show's showground site."
+        },
+        {
+          "url": "https://www.turriffshow.org/",
+          "kind": "FETCHED_URL",
+          "note": "Official Turriff Show site (matches the row's official_website_url) describes the event as Scotland's largest two-day agricultural show; site content itself did not name 'The Haughs' directly but the address search corroborates the showground identity."
+        }
+      ],
+      "reasoning": "Postcode matches exactly and independent search corroboration ties 'The Haughs' place name directly to the Turriff Show's showground address. Checked CANON-INDEX.txt Turriff entries: none present. Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-wales-swansea-swansea-building-society-arena",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "identity_conflation_suspected": false,
+      "real_world_identity": "Swansea (Building Society) Arena, Oystermouth Road, Bae Copr Bay, Swansea SA1 3BX, operated by ATG Entertainment -- a single arena renamed for sponsorship (Swansea Arena -> Swansea Building Society Arena). It is a different, newer (2021-built) venue from Brangwyn Hall, Swansea's older concert hall, which is already in canon as a separate entry.",
+      "postcode_found": "SA1 3BX",
+      "address_found": "Oystermouth Road, Bae Copr Bay, Swansea, SA1 3BX",
+      "operator_found": "ATG Entertainment",
+      "match_confidence": "HIGH",
+      "evidence": [
+        {
+          "url": "https://www.swansea-arena.co.uk/",
+          "kind": "FETCHED_URL",
+          "note": "Official site (matches the row's official_website_url exactly) gives address Oystermouth Road, Bae Copr Bay, Swansea SA1 3BX, matching the row's postcode; confirms operator ATG Entertainment and current name Swansea Building Society Arena."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Swansea_Arena",
+          "kind": "SEARCH_RESULT",
+          "note": "Search results consistently point to swansea-arena.co.uk (hyphenated) as the sole legitimate official domain; no evidence found of a genuine second venue at 'swanseaarena.co.uk' (unhyphenated) -- appears to be an unrelated/parked domain rather than a distinct venue's site."
+        }
+      ],
+      "reasoning": "The row's own postcode and official_website_url check out exactly against the venue's real official site. The flagged 'different official site' domain (swanseaarena.co.uk, no hyphen) does not correspond to any identifiable second venue in search results -- most likely an inactive or unrelated domain, not evidence of two venues. Checked CANON-INDEX.txt Swansea entries: only Brangwyn Hall present, which is a genuinely separate, older Swansea venue, not a duplicate of this arena. Missing from canon.",
+      "researcher": "a"
+    },
+    {
+      "research_id": "hv07-p-england-cheltenham-cheltenham-racecourse",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "match_confidence": "HIGH",
+      "real_world_identity": "Cheltenham Racecourse (Prestbury Park) — a Jockey Club Racecourses course with its own course-specific path on the shared operator domain.",
+      "evidence": [
+        {
+          "url": "https://github.com/chriswatson6675/band_on_the_map/blob/bc23305b8a6b24a27d0fc84407bac1d16fde55aa/venues/uk.json",
+          "kind": "CANONICAL_REGISTRY",
+          "note": "Coordinator verification against the committed canonical registry at main bc23305b8a6b24a27d0fc84407bac1d16fde55aa: it holds exactly four racecourses — Chelmsford City Racecourse, Chester Racecourse, Newmarket Racecourses, York Racecourse. Cheltenham Racecourse (Prestbury Park) is absent under any name or alias."
+        },
+        {
+          "url": "https://github.com/chriswatson6675/band_on_the_map/blob/bc23305b8a6b24a27d0fc84407bac1d16fde55aa/venues/uk.json",
+          "kind": "DETERMINISTIC_DERIVATION",
+          "note": "The Package 07 ambiguity was a shared-operator-domain artifact: exactly one canonical venue cites thejockeyclub.co.uk, namely Newmarket Racecourses at https://www.thejockeyclub.co.uk/newmarket/. The course-specific path disambiguates this row completely."
+        }
+      ],
+      "reasoning": "Package 07 flagged this row AMBIGUOUS_IDENTITY only because all Jockey Club courses share one operator domain and one canonical venue (Newmarket) cites it. Re-derived from the committed canonical registry: the collision is with Newmarket alone, the paths are course-specific, and this course is absent from canon. The researcher reached the same conclusion but cited an ephemeral scratch path, which is not durable evidence, so this decision supersedes it with the committed registry itself.",
+      "decided_by": "COORDINATOR",
+      "researcher": "coordinator"
+    },
+    {
+      "research_id": "hv07-p-england-epsom-epsom-downs-racecourse",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "match_confidence": "HIGH",
+      "real_world_identity": "Epsom Downs Racecourse — a Jockey Club Racecourses course with its own course-specific path on the shared operator domain.",
+      "evidence": [
+        {
+          "url": "https://github.com/chriswatson6675/band_on_the_map/blob/bc23305b8a6b24a27d0fc84407bac1d16fde55aa/venues/uk.json",
+          "kind": "CANONICAL_REGISTRY",
+          "note": "Coordinator verification against the committed canonical registry at main bc23305b8a6b24a27d0fc84407bac1d16fde55aa: it holds exactly four racecourses — Chelmsford City Racecourse, Chester Racecourse, Newmarket Racecourses, York Racecourse. Epsom Downs Racecourse is absent under any name or alias."
+        },
+        {
+          "url": "https://github.com/chriswatson6675/band_on_the_map/blob/bc23305b8a6b24a27d0fc84407bac1d16fde55aa/venues/uk.json",
+          "kind": "DETERMINISTIC_DERIVATION",
+          "note": "The Package 07 ambiguity was a shared-operator-domain artifact: exactly one canonical venue cites thejockeyclub.co.uk, namely Newmarket Racecourses at https://www.thejockeyclub.co.uk/newmarket/. The course-specific path disambiguates this row completely."
+        }
+      ],
+      "reasoning": "Package 07 flagged this row AMBIGUOUS_IDENTITY only because all Jockey Club courses share one operator domain and one canonical venue (Newmarket) cites it. Re-derived from the committed canonical registry: the collision is with Newmarket alone, the paths are course-specific, and this course is absent from canon. The researcher reached the same conclusion but cited an ephemeral scratch path, which is not durable evidence, so this decision supersedes it with the committed registry itself.",
+      "decided_by": "COORDINATOR",
+      "researcher": "coordinator"
+    },
+    {
+      "research_id": "hv07-p-england-liverpool-aintree-racecourse",
+      "decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "canonical_venue_id": null,
+      "other_research_id": null,
+      "match_confidence": "HIGH",
+      "real_world_identity": "Aintree Racecourse — a Jockey Club Racecourses course with its own course-specific path on the shared operator domain.",
+      "evidence": [
+        {
+          "url": "https://github.com/chriswatson6675/band_on_the_map/blob/bc23305b8a6b24a27d0fc84407bac1d16fde55aa/venues/uk.json",
+          "kind": "CANONICAL_REGISTRY",
+          "note": "Coordinator verification against the committed canonical registry at main bc23305b8a6b24a27d0fc84407bac1d16fde55aa: it holds exactly four racecourses — Chelmsford City Racecourse, Chester Racecourse, Newmarket Racecourses, York Racecourse. Aintree Racecourse is absent under any name or alias."
+        },
+        {
+          "url": "https://github.com/chriswatson6675/band_on_the_map/blob/bc23305b8a6b24a27d0fc84407bac1d16fde55aa/venues/uk.json",
+          "kind": "DETERMINISTIC_DERIVATION",
+          "note": "The Package 07 ambiguity was a shared-operator-domain artifact: exactly one canonical venue cites thejockeyclub.co.uk, namely Newmarket Racecourses at https://www.thejockeyclub.co.uk/newmarket/. The course-specific path disambiguates this row completely."
+        }
+      ],
+      "reasoning": "Package 07 flagged this row AMBIGUOUS_IDENTITY only because all Jockey Club courses share one operator domain and one canonical venue (Newmarket) cites it. Re-derived from the committed canonical registry: the collision is with Newmarket alone, the paths are course-specific, and this course is absent from canon. The researcher reached the same conclusion but cited an ephemeral scratch path, which is not durable evidence, so this decision supersedes it with the committed registry itself.",
+      "decided_by": "COORDINATOR",
+      "researcher": "coordinator"
+    }
+  ],
+  "refused": [
+    {
+      "research_id": "hv07-p-england-cheltenham-cheltenham-racecourse",
+      "claimed_decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "problems": [
+        "evidence[0].url must be an http(s) URL"
+      ],
+      "effect": "refused — the row holds rather than taking an unverified identity change"
+    },
+    {
+      "research_id": "hv07-p-england-epsom-epsom-downs-racecourse",
+      "claimed_decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "problems": [
+        "evidence[0].url must be an http(s) URL"
+      ],
+      "effect": "refused — the row holds rather than taking an unverified identity change"
+    },
+    {
+      "research_id": "hv07-p-england-liverpool-aintree-racecourse",
+      "claimed_decision": "DISTINCT_AND_MISSING_FROM_CANON",
+      "problems": [
+        "evidence[0].url must be an http(s) URL"
+      ],
+      "effect": "refused — the row holds rather than taking an unverified identity change"
+    }
+  ]
+}
