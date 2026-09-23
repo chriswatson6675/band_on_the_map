@@ -282,12 +282,44 @@ test("the correction changed no canonical venue record and lost no census inform
     ukVenues.every((v) => v.nation === undefined),
     "approximateNation must never be written into venues/uk.json",
   );
-  // The census still explains every venue, and still carries the 30
-  // SKIPPED_SHARED_WEBSITE rows, which a full regeneration would drop
+  // The census still explains every venue it covers, and still carries the
+  // 30 SKIPPED_SHARED_WEBSITE rows, which a full regeneration would drop
   // because that run's checkpoints were never committed.
-  assert.equal(census.total_venues, ukVenues.length);
+  //
+  // The census is a FROZEN Package 01 artifact describing the 3,537 venues
+  // that existed when it was taken. It is deliberately never regenerated.
+  // Package 09's authorised high-value admission grew venues/uk.json past
+  // it, so census size and registry size are no longer the same number —
+  // but that equality was only ever incidental. What this package actually
+  // guarantees is that its correction dropped nothing, so the checks below
+  // assert containment by venue_id rather than a coincidence of counts.
+  assert.equal(census.total_venues, 3537, "the frozen census must not be regenerated or resized");
+  assert.equal(census.venues.length, census.total_venues);
   assert.equal(census.unexplained, 0);
-  assert.equal(census.venues.length, ukVenues.length);
+
+  const ukIds = new Set(ukVenues.map((v) => v.venue_id));
+  const censusIds = new Set(census.venues.map((v) => v.venue_id));
+  assert.deepEqual(
+    census.venues.filter((v) => !ukIds.has(v.venue_id)).map((v) => v.venue_id),
+    [],
+    "no venue the census explains may vanish from venues/uk.json",
+  );
+
+  // The registry may GROW through an authorised admission, but never
+  // unaccountably: anything beyond the census must be traceable to one.
+  const admittedByPackage09 = new Set(
+    JSON.parse(
+      fs.readFileSync(
+        path.join(ROOT, "research", "high-value-venue-estate", "uk-1000plus-09-admission", "canonical-id-map.json"),
+        "utf8",
+      ),
+    ).mappings.map((m) => m.venue_id),
+  );
+  assert.deepEqual(
+    ukVenues.filter((v) => !censusIds.has(v.venue_id) && !admittedByPackage09.has(v.venue_id)).map((v) => v.venue_id),
+    [],
+    "a venue in venues/uk.json that neither the census nor an authorised admission explains",
+  );
   assert.deepEqual(census.state_counts, {
     OFFICIAL_SITE_FOUND_NO_PROGRAMME: 1404,
     NO_SOURCE_FOUND: 2014,
