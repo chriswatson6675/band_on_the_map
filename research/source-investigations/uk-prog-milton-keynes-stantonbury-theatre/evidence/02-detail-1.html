@@ -1,0 +1,1051 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="description" />
+    <meta name="keywords" />
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="/css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/jquery.bxslider.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/infinite-scroll.css" rel="stylesheet">
+    <link href="/css/editor-styles.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+
+    <script src="/Scripts/jquery.js"></script>
+    <script src="/scripts/jquery-ui.min.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bxslider@4.2.17/dist/jquery.bxslider.min.js"></script>
+     
+    
+ 
+    <!---------top Calender---------->
+    <script>
+        $(document).ready(function () {
+            $(".DatePickerDiv").hide();
+            $(".menu_calender").click(function () {
+                if (!$("#datepicker").hasClass("hasDatePicker")) {
+                    $("#datepicker").datepicker({
+                        onSelect: function (dateText, inst) {
+                            window.location = '/Search/?Date=' + dateText;
+                        }
+                    });
+                }
+                $(".DatePickerDiv").toggle("fold", 800);
+            });
+        });
+
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $('#searchBox').on('keypress', function (e) {
+            var code = (e.keyCode ? e.keyCode : e.which);
+            if (code == 13) {
+                e.preventDefault();
+                goSearch();
+            }
+        });
+    });
+    function goSearch() {
+        location.href = '/search?q=' + $('#searchBox').val();
+    }
+    </script>
+    <!---------End top Calender----------> 
+    <script src='/Scripts/imagesLoaded.js' type='text/javascript'></script>
+    <script src="/Scripts/masonry.js"></script>
+    <script src="/Scripts/jquery.infinitescroll.min.js"></script>
+    <!-----------LightBox------>
+    <script type='text/javascript' src='/Scripts/wonderpluginlightbox.js'></script>
+    <!-----------End LightBox------>
+
+</head>
+
+<body class="homepage">
+    <div class="back_Wrapper">
+        
+
+    <div class="landing_header">
+<!--header start-->
+
+
+<!-- Cookies -->
+<style type="text/css">
+<!--
+#eucookielaw { display:none }
+-->
+</style>
+<script type="text/javascript">
+function SetCookie(c_name,value,expiredays)
+{
+var exdate=new Date()
+exdate.setDate(exdate.getDate()+expiredays)
+document.cookie=c_name+ "=" +escape(value)+";path=/"+((expiredays==null) ? "" : ";expires="+exdate.toUTCString())
+}
+</script>
+
+<div id="eucookielaw" class="eucookielaw">
+<div class="eucookielaw_inner">
+<p><p><span>Cookies - We use cookies to help improve your experience of using our website.  <span><a href="/more-about-cookies/" title="More about Cookies">More about Cookies</a> | <a href="/faqs/updated-privacy-notice-and-privacy-policy/" title="Updated Privacy Notice and Privacy Policy">Privacy Policy</a></span></span></p></p>
+<a id="removecookie" class="removecookie" style="cursor:pointer;">Accept & Continue</a>
+</div>
+<script type="text/javascript">
+$("#removecookie").click(function () {
+SetCookie('eucookie','eucookie',365*10);
+$("#eucookielaw").remove();
+});
+</script>
+</div>
+<script type="text/javascript">
+if( document.cookie.indexOf("eucookie") ===-1 ){
+$("#eucookielaw").show();
+//SetCookie('eucookie','eucookie',365*10); //Commented to work on click continue
+}
+else {
+$("#eucookielaw").remove();
+}
+</script>
+
+<header id="header">
+    <div class="topHeader">
+        <div class="container">
+            <div class="logo">
+                <a href="/"><img src="/media/68624/stantonbury-school-logo-2022.jpg" alt="logo"></a>
+            </div>
+            <div class="RightHeader">
+                <div class="ColumR_header">
+                    <div class="GoNext_Site"><a href="http://www.stantonburyleisure.co.uk/">Go to Stantonbury Leisure  <i class="fa fa-angle-right" aria-hidden="true"></i></a></div>
+                    
+                    <ul class="topSocial">
+                        <li><a href="https://www.facebook.com/stantonburytheatre" target="_blank" title="Facebook" class="facebook"><i class="fa fa-facebook"></i></a></li>
+                        <li><a href="https://twitter.com/SCTheatre1" target="_blank" title="Twitter" class="twitter"><i class="fa fa-twitter"></i></a></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="nevigation">
+
+                        <div class="calenderBox">
+                            <div class="menu_calender">22</div>
+                            <div class="DatePickerDiv">
+                                <div id="datepicker"></div>
+                            </div>
+                        </div>
+                        <div class="searchTop">
+                            <input type="search" id="searchBox" class="" name="search" placeholder="Search">
+                            <a onclick="$('#searchBox').toggleClass('searchShow');" class="searchToggle">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </div>
+                        <a class="toggleMenu" href="#">
+                            <span class="menutext">Menu</span>
+                            <div class="button_res"><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span></div>
+                        </a>
+                        
+<ul class="nev_menu">
+        <li class="level_1  ">
+            <span class="arrowSpan"></span>
+            <a class="" href="/">Home</a>
+
+        </li>
+        <li class="level_1  dropdownFirst">
+            <span class="arrowSpan"></span>
+            <a class="" href="/whats-on/shows/">What's On</a>
+
+                <div class="dropmenu NoImageMenu What&#39;s On">
+                        <div class="dropmenu_inner">
+
+                            <h2>What&#39;s On</h2>
+
+
+                            <ul class="FullWidthMenu ">
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/drama/" target="_self">Drama</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/music/" target="_self">Music</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/children-family/" target="_self">Children & Family</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/dance/" target="_self">Dance</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/comedy/" target="_self">Comedy</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/gallery/" target="_self">Gallery</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/whats-on/shows/musical-theatre/" target="_self">Musical Theatre</a>
+
+
+                                    </li>
+                            </ul>
+                        </div>
+
+                </div>
+        </li>
+        <li class="level_1  dropdownFirst">
+            <span class="arrowSpan"></span>
+            <a class="" href="/take-part/">Take Part</a>
+
+                <div class="dropmenu  Take Part">
+                        <div class="dropmenu_inner">
+
+                            <h2>Take Part</h2>
+                                <div class="leftSubnemu_Box">
+                                            <div class="MegaMenu_img">
+                                                <a href="/take-part/drama-classes-youth-theatre/" target="_self">
+                                                    <img src="/media/2097/2015-04-16-171915.jpg?anchor=top&amp;mode=crop&amp;width=200&amp;height=115" alt="Drama Classes">
+                                                    <span class="MegaText">Drama Classes</span>
+                                                </a>
+                                            </div>
+                                            <div class="MegaMenu_img">
+                                                <a href="/take-part/black-sheep-actors-18plus/" target="_self">
+                                                    <img src="/media/69183/img_0543.jpg?anchor=top&amp;mode=crop&amp;width=200&amp;height=115" alt="Actors Group (18+)">
+                                                    <span class="MegaText">Actors Group (18+)</span>
+                                                </a>
+                                            </div>
+
+                                </div>
+
+
+                            <ul class="FullWidthMenu fullwidth">
+                                    <li class="MegaMenuItem">
+                                        <a href="/take-part/black-sheep-acting-company-18plus/" target="_self">18+ Actor Workshops</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/take-part/drama-classes-youth-theatre/" target="_self">Drama Classes & Youth Theatre</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/take-part/kids-holiday-club-leisure-centre/" target="_self">Kids Club at Stantonbury Leisure Centre</a>
+
+
+                                    </li>
+                            </ul>
+                        </div>
+
+                </div>
+        </li>
+        <li class="level_1  ">
+            <span class="arrowSpan"></span>
+            <a class="" href="/discover-more/hiring-the-theatre/">Hire</a>
+
+        </li>
+        <li class="level_1  dropdownFirst">
+            <span class="arrowSpan"></span>
+            <a class="" href="/discover-more/">Discover More</a>
+
+                <div class="dropmenu  Discover More">
+                        <div class="dropmenu_inner">
+
+                            <h2>Discover More</h2>
+                                <div class="leftSubnemu_Box">
+                                            <div class="MegaMenu_img">
+                                                <a href="/discover-more/hiring-the-theatre/" target="_self">
+                                                    <img src="/media/68701/img_20191014_192847.jpg?anchor=top&amp;mode=crop&amp;width=200&amp;height=115" alt="Hiring the Theatre">
+                                                    <span class="MegaText">Hiring the Theatre</span>
+                                                </a>
+                                            </div>
+                                            <div class="MegaMenu_img">
+                                                <a href="/discover-more/the-gallery/" target="_self">
+                                                    <img src="/media/68683/img_20220718_154324.jpg?anchor=top&amp;mode=crop&amp;width=200&amp;height=115" alt="The Gallery">
+                                                    <span class="MegaText">The Gallery</span>
+                                                </a>
+                                            </div>
+
+                                </div>
+
+
+                            <ul class="FullWidthMenu fullwidth">
+                                    <li class="MegaMenuItem">
+                                        <a href="/discover-more/about-us/" target="_self">About Us</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/discover-more/age-friendly-standards/" target="_self">Age-Friendly Standards</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/blog/" target="_self">Blog</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/discover-more/brochure/" target="_self">Brochure</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/discover-more/hiring-the-theatre/" target="_self">Hiring The Theatre</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/discover-more/join-our-mailing-list/" target="_self">Join Our Mailing List</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/discover-more/the-gallery/" target="_self">The Gallery</a>
+
+
+                                    </li>
+                            </ul>
+                        </div>
+
+                </div>
+        </li>
+        <li class="level_1  dropdownFirst">
+            <span class="arrowSpan"></span>
+            <a class="" href="/how-to-book/">How To Book</a>
+
+                <div class="dropmenu NoImageMenu How To Book">
+                        <div class="dropmenu_inner">
+
+                            <h2>How To Book</h2>
+
+
+                            <ul class="FullWidthMenu fullwidth">
+                                    <li class="MegaMenuItem">
+                                        <a href="/how-to-book/booking-info/" target="_self">Booking Info</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/how-to-book/seating-plan/" target="_self">Seating Plan</a>
+
+
+                                    </li>
+                            </ul>
+                        </div>
+
+                </div>
+        </li>
+        <li class="level_1  dropdownFirst">
+            <span class="arrowSpan"></span>
+            <a class="" href="/your-visit/">Your Visit</a>
+
+                <div class="dropmenu  Your Visit">
+                        <div class="dropmenu_inner">
+
+                            <h2>Your Visit</h2>
+                                <div class="leftSubnemu_Box">
+                                            <div class="MegaMenu_img">
+                                                <a href="/your-visit/gallery-bar/" target="_self">
+                                                    <img src="/media/2042/bar_web.jpg?anchor=top&amp;mode=crop&amp;width=200&amp;height=115" alt="Gallery Bar">
+                                                    <span class="MegaText">Gallery Bar</span>
+                                                </a>
+                                            </div>
+                                            <div class="MegaMenu_img">
+                                                <a href="/your-visit/how-to-find-us/" target="_self">
+                                                    <img src="/media/2050/stantonburymap-1.jpg?anchor=top&amp;mode=crop&amp;width=200&amp;height=115" alt="How To Find Us">
+                                                    <span class="MegaText">How To Find Us</span>
+                                                </a>
+                                            </div>
+
+                                </div>
+
+
+                            <ul class="FullWidthMenu fullwidth">
+                                    <li class="MegaMenuItem">
+                                        <a href="/your-visit/access/" target="_self">Access</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/your-visit/customer-service-feedback/" target="_self">Customer Service Feedback</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/your-visit/family-friendly/" target="_self">Family Friendly</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/your-visit/gallery-bar/" target="_self">Gallery Bar</a>
+
+
+                                    </li>
+                                    <li class="MegaMenuItem">
+                                        <a href="/your-visit/how-to-find-us/" target="_self">How To Find Us</a>
+
+
+                                    </li>
+                            </ul>
+                        </div>
+
+                </div>
+        </li>
+        <li class="level_1  ">
+            <span class="arrowSpan"></span>
+            <a class="" href="/faqs/">FAQs</a>
+
+        </li>
+</ul>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</header><!--/header-->
+</div>
+
+    <div class="container">
+        <div class="row">
+            
+    <div class="bradcum">
+        <ul>
+            
+                <li><a href="/">Home</a></li>
+            
+            <li class="active"><span>What&#39;s On</span></li>
+        </ul>
+     </div>
+
+            <span class="spaceBox10"></span>
+        </div>
+    </div>
+
+
+<section class="allGenre">
+    <div class="container">
+        <div class="row">
+            
+
+
+    <div class="col-sm-3 FilterAccordion">
+        <div class="accordion" id="accordion2">
+
+            
+			<div class="accordion-group">
+                <div class="accordion-heading accordion-opened">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+                        Filter By Genre
+                    </a>
+                </div>
+                <div id="collapseTwo" class="accordion-body collapse in">
+                    <div class="accordion-inner">
+                        <ul class="FilterGenre_list">
+                                    <li><a href="/whats-on/shows/all-events/" class="">All Events</a></li>
+                                    <li><a href="/whats-on/shows/drama/" class="">Drama</a></li>
+                                    <li><a href="/whats-on/shows/comedy/" class="">Comedy</a></li>
+                                    <li><a href="/whats-on/shows/children-family/" class="">Children &amp; Family</a></li>
+                                    <li><a href="/whats-on/shows/music/" class="">Music</a></li>
+                                    <li><a href="/whats-on/shows/dance/" class="">Dance</a></li>
+                                    <li><a href="/whats-on/shows/gallery/" class="">Gallery</a></li>
+                                    <li><a href="/whats-on/shows/talks-events/" class="">Talks &amp; Events</a></li>
+                                    <li><a href="/whats-on/shows/auditions/" class="">Auditions</a></li>
+                                    <li><a href="/whats-on/shows/musical-theatre/" class="">Musical Theatre</a></li>
+                                    <li><a href="/whats-on/shows/workshops/" class="">Workshops</a></li>
+
+							
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    $(document).on('show', '.accordion', function (e) {
+        //$('.accordion-heading i').toggleClass(' ');
+        $(e.target).prev('.accordion-heading').addClass('accordion-opened');
+    });
+
+    $(document).on('hide', '.accordion', function (e) {
+        $(this).find('.accordion-heading').not($(e.target)).removeClass('accordion-opened');
+        //$('.accordion-heading i').toggleClass('fa-chevron-right fa-chevron-down');
+    });
+</script>
+            <div class="col-sm-9">
+                <h3 class="cetogaryTitle">
+
+                    Whats On
+                </h3>
+                <!-- No results-->
+                <ul id="gridview-new" class="abautLanding_list">
+
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow music"><span>music</span></div>
+        <a href="/whats-on/all-shows/jive-talkin-a-tribute-to-the-bee-gees/17666/">
+            <img src="/media/86316/1920x1080-website-master.jpg?crop=0.06937499999999999,0,0.08687500000000006,0&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134128066210000000" alt="Jive Talkin&#39; - A Tribute to the Bee Gees"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/jive-talkin-a-tribute-to-the-bee-gees/17666/">
+                    Jive Talkin' - A Tribute to the Bee...
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Fri 25 Sep - Sat 26 Sep</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                After previous sell out shows - Jive Talkin' are BACK!
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/jive-talkin-a-tribute-to-the-bee-gees/17666/" class="commanBtn music"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow auditions , musical theatre"><span>auditions , musical theatre</span></div>
+        <a href="/whats-on/all-shows/matilda-jr-auditions/17726/">
+            <img src="/media/86425/matilda-jr-lansdcape.jpg?crop=0.4932001404758109,0.22771441471506274,0.0939181199499328,0.1833689955046026&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134330158040000000" alt="Matilda JR. Auditions"  />
+            <!--Availability status-->
+                        <div class="img_availability_small availability_FreeEvent"><span>Free Event</span></div>
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/matilda-jr-auditions/17726/">
+                    Matilda JR. Auditions
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Wed 7 Oct &amp; Sat 10 Oct</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Are you aged between 7 - 21yrs?
+
+Come audiuton for Matilda JR. the Musical!
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/matilda-jr-auditions/17726/" class="commanBtn auditions , musical theatre"><span>more</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow talks &amp; events"><span>talks &amp; events</span></div>
+        <a href="/whats-on/all-shows/an-evening-of-mediumship-with-psychic-tony-stockwell/17688/">
+            <img src="/media/86375/tony-stockwell-image.png?crop=0.15822222222222218,0,0.04177777777777797,0&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134182236290000000" alt="An Evening of Mediumship with Psychic Tony Stockwell"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/an-evening-of-mediumship-with-psychic-tony-stockwell/17688/">
+                    An Evening of Mediumship with Psych...
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Mon 12 Oct</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Experience a compelling, detailed and humouris evening with veteran Me...
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/an-evening-of-mediumship-with-psychic-tony-stockwell/17688/" class="commanBtn talks &amp; events"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow music , comedy , musical theatre"><span>music , comedy , musical theatre</span></div>
+        <a href="/whats-on/all-shows/grown-up-girls-guide/17704/">
+            <img src="/media/86395/gugg-website.png?crop=0,0.27804772234273323,0,0.176760665220535&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134236916600000000" alt="Grown-up Girls Guide"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/grown-up-girls-guide/17704/">
+                    Grown-up Girls Guide
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Thurs 15 Oct - Sat 17 Oct</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Four women. One hair salon. A lifetime of secrets and...a telephone box?
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/grown-up-girls-guide/17704/" class="commanBtn music , comedy , musical theatre"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow musical theatre"><span>musical theatre</span></div>
+        <a href="/whats-on/all-shows/we-will-rock-you/17719/">
+            <img src="/media/86413/wwry-stantonbury-theatre-825x440-3.png?crop=0.09955555555555555,0,0.10044444444444445,0&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134259466550000000" alt="We Will Rock You"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/we-will-rock-you/17719/">
+                    We Will Rock You
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Wed 21 Oct - Sat 24 Oct</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Gunpowder, gelatine. Dynamite with a laser beam. CompanyMK will blow your mind!
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/we-will-rock-you/17719/" class="commanBtn musical theatre"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow children &amp; family"><span>children &amp; family</span></div>
+        <a href="/whats-on/all-shows/halloween-magic-show/17724/">
+            <img src="/media/86416/event-image.jpg?crop=0.21484374999999992,0,0,0&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134283505470000000" alt="Halloween Magic Show"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/halloween-magic-show/17724/">
+                    Halloween Magic Show
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Sat 31 Oct</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Krisgar and Tricky Teddy are back for a fifth year of spooktacular magic!
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/halloween-magic-show/17724/" class="commanBtn children &amp; family"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow comedy"><span>comedy</span></div>
+        <a href="/whats-on/all-shows/the-humour-hub-mk-comedy-show/17727/">
+            <img src="/media/86443/the-humour-hub-mk-cropped.jpg?crop=0.02506278570572524,0.057478782113262676,0.01188420785680058,0.04015603671368465&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134344670760000000" alt="The Humour Hub MK Comedy Show!"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/the-humour-hub-mk-comedy-show/17727/">
+                    The Humour Hub MK Comedy Show!
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Sat 31 Oct</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Get ready to laugh out loud at The Humour Hub MK Comedy Show-good vibe...
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/the-humour-hub-mk-comedy-show/17727/" class="commanBtn comedy"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow drama"><span>drama</span></div>
+        <a href="/whats-on/all-shows/dark-desires/17711/">
+            <img src="/media/86404/img_8746.jpg?crop=0,0.027369191364800587,0,0.48964507866813023&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=134245610060000000" alt="Dark Desires"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/dark-desires/17711/">
+                    Dark Desires
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Sat 7 Nov</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Step into a world where fantasy, danger and desire collide...
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/dark-desires/17711/" class="commanBtn drama"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+
+<li class="Exhib">
+    <div class="abautLImg comingImg">
+
+        <div class="catogaryArrow music"><span>music</span></div>
+        <a href="/whats-on/all-shows/abba-sensation/17692/">
+            <img src="/media/69012/backdrop.jpg?crop=0.07875,0,0.07750000000000007,0&amp;cropmode=percentage&amp;width=600&amp;height=400&amp;rnd=133683048400000000" alt="ABBA Sensation"  />
+            <!--Availability status-->
+        </a>
+    </div>
+    <div class="aboutTextList">
+        <div class="abautLTitle">
+            <h2>
+                <a href="/whats-on/all-shows/abba-sensation/17692/">
+                    ABBA Sensation
+                </a>
+            </h2>
+
+
+            <div class="postDate">
+                
+                    <span class="DateText">Sat 14 Nov</span>
+
+                
+
+
+                
+
+            </div>
+
+        </div>
+        <div class="abautLText_Box">
+            <p>
+
+                Calling all Dancing Queens and Super Troupers!
+
+            </p>
+            
+        </div>
+    </div>
+    <div class="abautL_Btn">
+
+            <a href="/whats-on/all-shows/abba-sensation/17692/" class="commanBtn music"><span>more &amp; book</span></a>
+        
+    </div>
+
+</li>
+                </ul>
+                <!-- contains the content to be loaded when scrolled -->
+                <nav id="page-nav">
+                    <a href="/whats-on/?page=2"></a>
+                </nav>
+            </div>
+        </div>
+        
+    </div>
+
+</section>
+
+
+
+<!--Infinite-scroll-->
+<script>
+    $(function () {
+
+        var $container = $('#gridview-new');
+
+        $container.masonry({
+                itemSelector: '.Exhib'
+                //isFitWidth: true
+                //columnWidth: 100
+            });
+
+        $container.infinitescroll({
+            navSelector: '#page-nav',    // selector for the paged navigation
+            nextSelector: '#page-nav a',  // selector for the NEXT link (to page 2)
+            itemSelector: '.Exhib',     // selector for all items you'll retrieve
+            loading: {
+                finishedMsg: 'No more pages to load.',
+                img: '/images/6RMhx.gif'
+            }
+        },
+          // trigger Masonry as a callback
+          function (newElements) {
+              // hide new items while they are loading
+              var $newElems = $(newElements).css({ opacity: 0 });
+              // ensure that images load before adding to masonry layout
+              $newElems.imagesLoaded(function () {
+                  // show elems now they're ready
+                  $newElems.animate({ opacity: 1 });
+                  $container.masonry('appended', $newElems, true);
+              });
+          }
+
+        );
+    });
+</script>
+    </div>
+
+    
+
+<!--footer start-->
+<footer id="footer">
+    <div class="container">
+        <div class="footInner row">
+            
+            <div class="col-sm-3 footAbout">
+                <div class="FooterAddress"><img id="__mcenew" style="display: block; margin-left: auto; margin-right: auto;" src="/media/68626/stantonbury-logo-theatre-coloured-bg.png?width=131px&amp;height=126px" alt="" width="131" height="126" rel="17261" /></div>
+<div class="FooterAddress" style="text-align: center;">Stantonbury</div>
+<div class="FooterAddress" style="text-align: center;">Milton Keynes</div>
+<div class="FooterAddress" style="text-align: center;">MK14 6BN</div>
+            </div>
+            <div class="col-sm-3 Footcontact">
+                <p><strong>Box Office:</strong> 01908 324466 (Option 2)<br />E: <a href="mailto:boxoffice@stantonbury.tove.org.uk">boxoffice@stantonbury.tove.org.uk</a></p>
+<p><strong>Admin/Hire Enquiries:</strong><br />E: <a href="mailto:theatre@stantonbury.tove.org.uk">theatre@stantonbury.tove.org.uk</a></p>
+<p><strong>Gallery:</strong><br />E: <a href="mailto:gallery@stantonbury.tove.org.uk">gallery@stantonbury.tove.org.uk</a></p>
+            </div>
+            <div class="col-sm-4 footSocial">
+                <div class="footerlink">
+                   <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/whats-on/shows/">What&#39;s On</a></li>
+                        <li><a href="/take-part/">Take Part</a></li>
+                        <li><a href="/discover-more/hiring-the-theatre/">Hire</a></li>
+                        <li><a href="/discover-more/">Discover More</a></li>
+                        <li><a href="/how-to-book/">How To Book</a></li>
+                        <li><a href="/your-visit/">Your Visit</a></li>
+                        <li><a href="/faqs/">FAQs</a></li>
+                       <li><a href="http://stantonburytheatre.co.uk/your-visit/how-to-find-us">Contact</a></li>
+                       <li><a href="http://stantonburytheatre.co.uk/how-to-book/booking-info">Terms & Conditions</a></li>
+                       <li><a href="http://stantonburytheatre.co.uk/faqs/updated-privacy-notice-and-privacy-policy">Privacy Policy</a></li>
+                   </ul>
+                </div>
+               
+            </div>
+            <div class="col-sm-2 footLogo">
+                    <div class="FTlog_list"><a href="https://www.tovelearning.org.uk/about-us/tove-trading" target="_self"><img src="/media/68802/tove-trading2-trans.png" alt=""></a></div>
+                                    <div class="FTlog_list"><a href="https://www.familyarts.co.uk/family-arts-standards/" target="_self"><img src="/media/68667/eyesbeside_fas_logo_blue.jpg" alt=""></a></div>
+                <div class="c21"><a href="http://www.21stcd.com/" target="_blank"></a></div>
+            </div>
+            <div class="copyright">&#169; 2026. Tove Trading Limited. All rights reserved. Registered: 14320989</div>
+        </div>
+    </div>
+</footer>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZG427PNC3Q"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZG427PNC3Q');
+</script>
+<!--/#footer-->
+
+   
+    <script src="/Scripts/comman-script.js"></script> 
+    <script>
+    $('#slider1').bxSlider({
+        mode: 'fade',
+        auto: true,
+        autoControls: true,
+        pause: 5000,
+        pagerCustom: '#bx-pager'
+    });
+    </script>  
+
+
+</body>
+
+</html>

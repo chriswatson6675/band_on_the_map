@@ -32,6 +32,22 @@ test("structured records without detail proof fail closed", () => {
   assert.equal(result.state, "STABLE_IDENTITY_PROOF_FAILED");
 });
 
+test("a detail document with a real 200 response but an EMPTY (or whitespace-only) body never crashes JSON-LD collection", () => {
+  // A real production source (uk-prog-workington-theatre-royal) crashed
+  // acquireSource() entirely with "extractJsonLdNodes requires non-empty
+  // HTML" — collectAndProve()'s own documents filter only checked
+  // `typeof document?.body === "string"`, which an empty string ""
+  // satisfies, so the empty-bodied document still reached
+  // proveJsonLdEvents() -> extractEventNodes() -> extractJsonLdNodes(),
+  // which throws on an empty/whitespace-only string. This must resolve to
+  // a normal residue state, never throw.
+  const emptyBodyDetail = { url: "https://arbitrary.example/events/two", body: "   " };
+  const result = collectAndProve({ source_id: "arbitrary", venue_name: "Arbitrary", programme: PROGRAMME, detail_documents: [DETAIL, emptyBodyDetail] });
+  assert.equal(result.selected.mechanism, "JSON_LD_EVENT");
+  assert.equal(result.state, "ACQUISITION_PROVEN");
+  assert.equal(result.observations.length, 1);
+});
+
 test("embedded event state is routed through the generic collector but still requires detail proof", () => {
   const programme = { url: "https://arbitrary.example/programme", at: "2026-08-29T00:00:00.000Z", status: 200, body: '<script id="__NEXT_DATA__" type="application/json">{"events":[{"id":"a","name":"A","startDate":"2026-09-01","url":"/events/a"},{"id":"b","name":"B","startDate":"2026-09-02","url":"/events/b"}]}</script>' };
   const result = collectAndProve({ source_id: "arbitrary", venue_name: "Arbitrary", programme });

@@ -121,6 +121,7 @@ import { acquireBarcelona } from "../barcelona/run.mjs";
 import { acquireBerlin } from "../berlin/run.mjs";
 import { acquireParis } from "../paris/run.mjs";
 import { acquireLondon } from "../london/run.mjs";
+import { acquireUkObservations } from "../uk-programme-acquisition/acquire-uk-observations.mjs";
 import { loadManualCoordinateStore } from "../geocoding/manual-coordinate-store.mjs";
 import { loadArtistRegistry, loadArtistLinks } from "../artist/registry-store.mjs";
 import { buildPortugalMarkers, buildSpainMarkers, buildGermanyMarkers, buildFranceMarkers, buildUnitedKingdomMarkers, buildPublicationArtifact, isCatastrophicPublicationRun } from "../map/publication.mjs";
@@ -200,6 +201,10 @@ export async function runUnattendedCycle(args = {}) {
   // above — a deterministic test can substitute a fake without touching
   // the real ingestion/london/run.mjs or making a live request.
   const acquireUnitedKingdom = args.acquireLondon ?? acquireLondon;
+  // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: same
+  // injectable-with-a-test-override pattern as every other acquisition
+  // function above.
+  const acquireUkProgramme = args.acquireUkProgramme ?? ((options) => acquireUkObservations({ root, ...options }));
   const retentionGraceMs = args.retentionGraceMs ?? DEFAULT_RETENTION_GRACE_MS;
 
   console.log(`[unattended] run ${runId} starting at ${startedAt}`);
@@ -323,9 +328,23 @@ export async function runUnattendedCycle(args = {}) {
       console.error(`[unattended] London acquisition failed entirely: ${error?.message ?? error} — publishing with zero United Kingdom markers this run, Portugal/Spain/Germany/France unaffected`);
     }
 
+    // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: national UK
+    // programme acquisition joins London in the same United Kingdom
+    // marker set — same total-throw isolation as every other acquisition
+    // above; a total failure here never affects London's own already-
+    // proven sources or any other country.
+    let ukSourceRegistry = { entries: [] };
+    let ukObservations;
+    try {
+      ({ ukSourceRegistry, ukObservations } = await acquireUkProgramme());
+    } catch (error) {
+      ukObservations = [];
+      console.error(`[unattended] UK national programme acquisition failed entirely: ${error?.message ?? error} — London's own United Kingdom markers are unaffected`);
+    }
+
     const rawSourceResults = [...lisbonResults, ...portoResults, ...barcelonaResults, ...berlinResults, ...parisResults, ...londonResults];
     const observationCount =
-      lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length + parisObservations.length + londonObservations.length;
+      lisbonObservations.length + portoObservations.length + barcelonaObservations.length + berlinObservations.length + parisObservations.length + londonObservations.length + ukObservations.length;
     const successCount = rawSourceResults.filter((result) => result.success).length;
 
     // BEATMAPPED-SOURCE-FAILURE-GRACE-AND-RETRY-01: annotate every source
@@ -429,9 +448,13 @@ export async function runUnattendedCycle(args = {}) {
       artistLinks: artistLinks.links,
     });
     const unitedKingdomMarkers = buildUnitedKingdomMarkers({
-      londonObservations,
+      // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: national UK
+      // programme observations concatenated alongside London's own — see
+      // ingestion/publish-map-data/run.mjs's identical wiring for the
+      // full rationale.
+      londonObservations: [...londonObservations, ...ukObservations],
       londonVenues: londonVenues.venues,
-      londonSourceRegistry: londonRegistry.entries,
+      londonSourceRegistry: [...londonRegistry.entries, ...ukSourceRegistry.entries],
       manualCoordinatesByVenueId,
       artistRegistry: artistRegistry.artists,
       artistLinks: artistLinks.links,

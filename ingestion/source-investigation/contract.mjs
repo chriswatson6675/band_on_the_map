@@ -318,6 +318,24 @@ function isValidUrl(value) {
   }
 }
 
+// BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: a real, national-
+// scale find — a genuinely governed path under a venue whose own slug
+// happens to end in a FORBIDDEN_PATH_SEGMENTS word (e.g.
+// "research/source-investigations/uk-prog-scarborough-the-hideout/
+// evidence/01-homepage.html" — "hideout/" contains the substring "out/")
+// was wrongly rejected by a naive `.includes(segment)` check. A forbidden
+// segment must match a genuine PATH COMPONENT — immediately preceded by
+// "/" or the very start of the string — never merely appear as a
+// substring inside a longer, legitimate path segment ("hideout", "about",
+// "without", "workout", "throughout" all end in "out" but are not the
+// build-output directory "out/" this segment exists to catch). Every
+// existing forbidden-path rejection (scratchpad/, tmp/, an embedded
+// "/tmp/" component, etc.) still rejects identically — this only stops
+// matching a forbidden word as part of a DIFFERENT, longer word.
+function containsForbiddenPathSegment(normalisedPath) {
+  return FORBIDDEN_PATH_SEGMENTS.some((segment) => normalisedPath === segment || normalisedPath.startsWith(segment) || normalisedPath.includes(`/${segment}`));
+}
+
 /**
  * True only for a safe, governed, repo-relative evidence path: it must
  * live under GOVERNED_EVIDENCE_ROOT, contain no ".." traversal, not be
@@ -333,7 +351,7 @@ export function isGovernedEvidencePath(path) {
   if (normalised.startsWith("/") || /^[a-z]:\//.test(normalised)) return false;
   if (normalised.includes("..")) return false;
   if (!normalised.startsWith(GOVERNED_EVIDENCE_ROOT)) return false;
-  if (FORBIDDEN_PATH_SEGMENTS.some((segment) => normalised.includes(segment))) return false;
+  if (containsForbiddenPathSegment(normalised)) return false;
 
   return true;
 }

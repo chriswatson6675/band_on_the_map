@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="IuDW0WxI_1VhSUIxPKBT4DMrA38X10pwlpwEfENihgU" />
+  <title>The MGA Academy — Single File Homepage</title>
+  <meta name="description" content="Single-file homepage concept inspired by The MGA Academy of Performing Arts." />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121931;
+      --panel-2:#192347;
+      --soft:#a8b3d1;
+      --text:#f5f7ff;
+      --gold:#f1c76b;
+      --gold-2:#d8a53b;
+      --line:rgba(255,255,255,.08);
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:22px;
+      --max:1200px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(216,165,59,.14), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(106,128,255,.14), transparent 22%),
+        linear-gradient(180deg,#080c18 0%, #0b1020 45%, #0f1430 100%);
+      line-height:1.5;
+    }
+
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%}
+    .container{width:min(calc(100% - 32px), var(--max)); margin-inline:auto}
+    .grid{display:grid; gap:24px}
+    .section{padding:88px 0}
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:8px 14px; border:1px solid rgba(241,199,107,.25);
+      background:rgba(241,199,107,.08); color:#ffe7ae; border-radius:999px;
+      font-size:.84rem; letter-spacing:.08em; text-transform:uppercase;
+    }
+    .eyebrow::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--gold)}
+
+    .site-header{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter: blur(14px);
+      background:rgba(8,12,24,.6);
+      border-bottom:1px solid var(--line);
+    }
+    .site-header .container{
+      display:flex; align-items:center; justify-content:space-between;
+      min-height:74px; gap:20px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:14px; font-weight:800; letter-spacing:.04em;
+    }
+    .brand-mark{
+      width:44px; height:44px; border-radius:14px;
+      background:linear-gradient(135deg,var(--gold),#fff1ba 55%, #a87712);
+      color:#1a1a1a; display:grid; place-items:center; font-weight:900;
+      box-shadow:0 12px 30px rgba(241,199,107,.28);
+    }
+    .nav{display:flex; gap:24px; align-items:center; flex-wrap:wrap}
+    .nav a{color:var(--soft); font-size:.95rem}
+    .nav a:hover{color:#fff}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      min-height:48px; padding:0 18px; border-radius:999px; border:1px solid transparent;
+      font-weight:700; transition:.22s ease; cursor:pointer;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--gold),#f7df9e);
+      color:#161616; box-shadow:0 18px 32px rgba(241,199,107,.2);
+    }
+    .btn-primary:hover{transform:translateY(-1px); filter:saturate(1.05)}
+    .btn-secondary{
+      background:rgba(255,255,255,.04); border-color:var(--line); color:#fff;
+    }
+    .btn-secondary:hover{background:rgba(255,255,255,.08)}
+
+    .hero{padding:72px 0 34px; position:relative; overflow:hidden}
+    .hero::after{
+      content:""; position:absolute; inset:auto -10% -5% auto; width:580px; height:580px;
+      background:radial-gradient(circle, rgba(241,199,107,.15), transparent 62%);
+      pointer-events:none;
+    }
+    .hero-wrap{
+      display:grid; grid-template-columns:1.12fr .88fr; gap:34px; align-items:center;
+    }
+    .hero-copy h1{
+      font-size:clamp(2.9rem, 7vw, 5.8rem);
+      line-height:.95; margin:18px 0 20px; letter-spacing:-.05em;
+    }
+    .hero-copy p{
+      font-size:1.08rem; color:var(--soft); max-width:62ch; margin:0 0 30px;
+    }
+    .hero-actions{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:30px}
+    .hero-meta{
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;
+      margin-top:20px;
+    }
+    .stat{
+      background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:18px;
+      padding:18px; box-shadow:var(--shadow);
+    }
+    .stat strong{display:block; font-size:1.6rem; margin-bottom:4px}
+    .stat span{color:var(--soft); font-size:.92rem}
+
+    .hero-visual{position:relative}
+    .poster{
+      position:relative;
+      min-height:640px; border-radius:32px; border:1px solid rgba(255,255,255,.08);
+      overflow:hidden; background:
+        linear-gradient(180deg, rgba(10,13,28,.25), rgba(10,13,28,.86)),
+        radial-gradient(circle at 30% 20%, rgba(241,199,107,.35), transparent 24%),
+        radial-gradient(circle at 70% 18%, rgba(255,255,255,.12), transparent 18%),
+        linear-gradient(135deg,#1a2140 0%, #0c1124 55%, #0b1020 100%);
+      box-shadow:var(--shadow);
+      isolation:isolate;
+    }
+    .stage-lights,
+    .stage-lights::before,
+    .stage-lights::after{
+      content:""; position:absolute; top:-4%; width:28%; height:46%;
+      background:linear-gradient(180deg, rgba(255,245,202,.26), rgba(241,199,107,.04) 42%, transparent 100%);
+      filter:blur(6px);
+      clip-path:polygon(50% 0, 100% 0, 72% 100%, 28% 100%, 0 0);
+      opacity:.95;
+    }
+    .stage-lights{left:4%}
+    .stage-lights::before{left:126%}
+    .stage-lights::after{left:252%}
+    .poster-content{
+      position:absolute; inset:auto 0 0 0; padding:34px;
+      background:linear-gradient(180deg, transparent, rgba(8,12,24,.35) 20%, rgba(8,12,24,.88) 78%);
+    }
+    .poster-badge{
+      display:inline-block; margin-bottom:14px; padding:8px 12px; border-radius:999px;
+      background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); font-size:.82rem;
+      letter-spacing:.08em; text-transform:uppercase;
+    }
+    .poster h2{font-size:2rem; line-height:1; margin:0 0 12px}
+    .poster p{margin:0; color:#d0d7f2}
+    .floating-card{
+      position:absolute; background:rgba(18,25,49,.82); backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:16px 18px; box-shadow:var(--shadow);
+    }
+    .floating-card small{display:block; color:#bdc8e8; margin-bottom:4px}
+    .floating-card strong{font-size:1.08rem}
+    .fc-1{left:-26px; top:38px}
+    .fc-2{right:-18px; bottom:72px}
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
+    }
+    .intro-band{padding:24px}
+    .intro-band .grid{grid-template-columns:1.1fr .9fr; align-items:center}
+    .intro-band p{color:var(--soft); margin:0}
+
+    .section-title{max-width:700px; margin-bottom:28px}
+    .section-title h2{font-size:clamp(2rem, 4vw, 3.2rem); line-height:1; margin:14px 0 12px; letter-spacing:-.04em}
+    .section-title p{margin:0; color:var(--soft)}
+
+    .programs{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{padding:26px}
+    .program-card{
+      position:relative; overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow);
+    }
+    .program-card::after{
+      content:""; position:absolute; inset:auto -10% -30% auto; width:180px; height:180px;
+      background:radial-gradient(circle, rgba(241,199,107,.22), transparent 70%);
+    }
+    .icon{
+      width:54px; height:54px; border-radius:16px; display:grid; place-items:center;
+      background:rgba(241,199,107,.12); color:#ffe7ae; border:1px solid rgba(241,199,107,.18);
+      margin-bottom:18px; font-size:1.3rem;
+    }
+    .program-card h3{margin:0 0 10px; font-size:1.25rem}
+    .program-card p{margin:0 0 16px; color:var(--soft)}
+    .taglist{display:flex; flex-wrap:wrap; gap:10px}
+    .tag{padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.05); color:#dce4ff; font-size:.86rem}
+
+    .split{display:grid; grid-template-columns:1fr 1fr; gap:26px; align-items:stretch}
+    .feature-stack{display:grid; gap:18px}
+    .feature-item{display:flex; gap:16px; padding:20px}
+    .feature-item b{display:block; margin-bottom:6px}
+    .feature-item p{margin:0; color:var(--soft)}
+
+    .showcase{
+      padding:28px; min-height:100%; position:relative; overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(8,12,24,.14), rgba(8,12,24,.6)),
+        linear-gradient(135deg,#1a2245,#131a34 60%, #0f1430);
+    }
+    .showcase::before,
+    .showcase::after{
+      content:""; position:absolute; border-radius:50%; filter:blur(10px);
+    }
+    .showcase::before{width:180px; height:180px; background:rgba(241,199,107,.18); top:-40px; right:-30px}
+    .showcase::after{width:240px; height:240px; background:rgba(109,123,255,.18); bottom:-90px; left:-60px}
+    .showcase-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:26px}
+    .mini-stage{
+      min-height:140px; border-radius:20px; border:1px solid rgba(255,255,255,.1);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+        radial-gradient(circle at top, rgba(241,199,107,.18), transparent 36%);
+      position:relative; overflow:hidden;
+    }
+    .mini-stage::after{
+      content:""; position:absolute; inset:auto 0 0 0; height:36%;
+      background:linear-gradient(180deg, transparent, rgba(7,10,20,.75));
+    }
+
+    .testimonial-wrap{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .quote p{font-size:1rem; color:#e6ebff}
+    .quote small{color:var(--soft)}
+
+    .cta{
+      padding:34px; display:grid; grid-template-columns:1.15fr .85fr; gap:24px; align-items:center;
+      background:
+        linear-gradient(135deg, rgba(241,199,107,.16), rgba(255,255,255,.04) 38%, rgba(109,123,255,.14));
+    }
+    .cta h2{margin:12px 0 12px; font-size:clamp(2rem,4vw,3rem); line-height:1}
+    .cta p{color:#e6ebff; opacity:.86; margin:0}
+    .cta .actions{display:flex; justify-content:flex-end; gap:14px; flex-wrap:wrap}
+
+    .footer{padding:28px 0 46px; color:var(--soft)}
+    .footer-grid{display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:center}
+    .footer small{display:block; margin-top:8px}
+
+    @media (max-width: 1100px){
+      .hero-wrap,.split,.cta,.intro-band .grid,.footer-grid{grid-template-columns:1fr}
+      .programs,.testimonial-wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .cta .actions{justify-content:flex-start}
+      .hero-visual{order:-1}
+    }
+    @media (max-width: 760px){
+      .nav{display:none}
+      .programs,.testimonial-wrap,.hero-meta,.showcase-grid{grid-template-columns:1fr}
+      .hero{padding-top:34px}
+      .poster{min-height:520px}
+      .fc-1,.fc-2{position:static; margin:14px 0 0}
+      .hero-copy h1{max-width:12ch}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="#home" aria-label="The MGA Academy home">
+        <span class="brand-mark">MGA</span>
+        <span>The MGA Academy</span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#programmes">Programmes</a>
+        <a href="#why">Why MGA</a>
+        <a href="#student-life">Student Life</a>
+        <a href="#apply">Apply</a>
+      </nav>
+      <a class="btn btn-primary" href="#apply">Apply Now</a>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="container hero-wrap">
+        <div class="hero-copy">
+          <span class="eyebrow">Performing Arts Excellence</span>
+          <h1>Train for the stage. Perform for the future.</h1>
+          <p>
+            A modern single-page concept for a performing arts academy website — designed to feel premium, dramatic,
+            and conversion-focused, with a strong admissions-first layout and a visual identity inspired by theatre lighting,
+            movement, and performance energy.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#apply">Start Your Application</a>
+            <a class="btn btn-secondary" href="#programmes">Explore Programmes</a>
+          </div>
+          <div class="hero-meta">
+            <div class="stat">
+              <strong>6+</strong>
+              <span>Performance pathways</span>
+            </div>
+            <div class="stat">
+              <strong>1 file</strong>
+              <span>All HTML, CSS, and UI in one page</span>
+            </div>
+            <div class="stat">
+              <strong>100%</strong>
+              <span>Responsive single-file layout</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="poster panel">
+            <div class="stage-lights"></div>
+            <div class="floating-card fc-1">
+              <small>Auditions & admissions</small>
+              <strong>Open for the next intake</strong>
+            </div>
+            <div class="floating-card fc-2">
+              <small>Focused disciplines</small>
+              <strong>Dance · Sing · Drama</strong>
+            </div>
+            <div class="poster-content">
+              <span class="poster-badge">Creative. Technical. Performance-led.</span>
+              <h2>Build confidence, craft, and stage presence.</h2>
+              <p>
+                Hero section concept with dramatic contrast, premium tone, and a stronger call-to-action structure for recruitment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="panel intro-band">
+        <div class="grid">
+          <div>
+            <span class="eyebrow">Design direction</span>
+            <h2 style="margin:16px 0 8px; font-size:clamp(1.8rem,3vw,2.6rem); line-height:1.05; letter-spacing:-.04em;">
+              Premium performing arts homepage, rebuilt as one standalone HTML file.
+            </h2>
+          </div>
+          <div>
+            <p>
+              This concept is structured so you can directly edit the copy, swap colors, replace sections, or connect it to a backend later.
+              No external CSS framework is required.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="programmes" class="section">
+      <div class="container">
+        <div class="section-title">
+          <span class="eyebrow">Programmes</span>
+          <h2>Performance pathways designed for industry-ready talent.</h2>
+          <p>
+            These cards are written to reflect the style of a specialist academy site: aspirational, practical, and easy to scan.
+          </p>
+        </div>
+
+        <div class="grid programs">
+          <article class="program-card card">
+            <div class="icon">♪</div>
+            <h3>Music Theatre</h3>
+            <p>Integrated triple-threat training focused on movement, voice, acting, repertoire, and live performance confidence.</p>
+            <div class="taglist">
+              <span class="tag">Performance</span>
+              <span class="tag">Voice</span>
+              <span class="tag">Stagecraft</span>
+            </div>
+          </article>
+
+          <article class="program-card card">
+            <div class="icon">◌</div>
+            <h3>Dance</h3>
+            <p>Technique-led training with a contemporary visual language, ideal for building strength, precision, and versatility.</p>
+            <div class="taglist">
+              <span class="tag">Technique</span>
+              <span class="tag">Movement</span>
+              <span class="tag">Choreography</span>
+            </div>
+          </article>
+
+          <article class="program-card card">
+            <div class="icon">✦</div>
+            <h3>Drama & Acting</h3>
+            <p>Actor development through text work, character exploration, ensemble collaboration, and performance discipline.</p>
+            <div class="taglist">
+              <span class="tag">Acting</span>
+              <span class="tag">Scene Study</span>
+              <span class="tag">Presence</span>
+            </div>
+          </article>
+
+          <article class="program-card card">
+            <div class="icon">⌁</div>
+            <h3>Singing</h3>
+            <p>Structured vocal development with musicality, storytelling, harmony, and confidence-building performance practice.</p>
+            <div class="taglist">
+              <span class="tag">Vocals</span>
+              <span class="tag">Breath</span>
+              <span class="tag">Musicianship</span>
+            </div>
+          </article>
+
+          <article class="program-card card">
+            <div class="icon">▣</div>
+            <h3>Technical Theatre</h3>
+            <p>A stronger visual block for backstage and production pathways, including design, cueing, and live technical support.</p>
+            <div class="taglist">
+              <span class="tag">Production</span>
+              <span class="tag">Lighting</span>
+              <span class="tag">Show Ops</span>
+            </div>
+          </article>
+
+          <article class="program-card card">
+            <div class="icon">⟡</div>
+            <h3>Performance Foundation</h3>
+            <p>An introductory route for students building confidence, creative discipline, and a portfolio of practical stage skills.</p>
+            <div class="taglist">
+              <span class="tag">Foundation</span>
+              <span class="tag">Confidence</span>
+              <span class="tag">Progression</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="why" class="section" style="padding-top:18px;">
+      <div class="container split">
+        <div class="feature-stack">
+          <div class="section-title" style="margin-bottom:0;">
+            <span class="eyebrow">Why MGA</span>
+            <h2>Sharper hierarchy, stronger calls to action, and a more premium admissions journey.</h2>
+            <p>
+              This section is designed to replace a more traditional institutional layout with something more elegant and conversion-ready.
+            </p>
+          </div>
+
+          <div class="panel feature-item">
+            <div class="icon" style="margin:0">01</div>
+            <div>
+              <b>Immediate trust-building</b>
+              <p>Clear hero messaging, focused pathways, and visible next steps help prospective students understand the offer faster.</p>
+            </div>
+          </div>
+
+          <div class="panel feature-item">
+            <div class="icon" style="margin:0">02</div>
+            <div>
+              <b>Modern performing arts look</b>
+              <p>Dark stage-inspired visuals with gold highlights create a more memorable and premium first impression.</p>
+            </div>
+          </div>
+
+          <div class="panel feature-item">
+            <div class="icon" style="margin:0">03</div>
+            <div>
+              <b>Easy to expand</b>
+              <p>You can split this into multiple pages later, but it already works well as a standalone landing page or homepage.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel showcase" id="student-life">
+          <span class="eyebrow">Student life</span>
+          <h2 style="margin:16px 0 10px; font-size:clamp(1.8rem,3vw,2.5rem); line-height:1.03; letter-spacing:-.04em;">
+            Rehearsal energy, production culture, and practical stage experience.
+          </h2>
+          <p style="margin:0; color:var(--soft)">
+            A visual block that can later become a real gallery, recent news feed, or student showcase.
+          </p>
+          <div class="showcase-grid">
+            <div class="mini-stage"></div>
+            <div class="mini-stage"></div>
+            <div class="mini-stage"></div>
+            <div class="mini-stage"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <span class="eyebrow">Testimonials</span>
+          <h2>Built with the tone of a specialist academy brand.</h2>
+          <p>
+            These are placeholder endorsements to demonstrate spacing, hierarchy, and trust-section styling.
+          </p>
+        </div>
+
+        <div class="grid testimonial-wrap">
+          <article class="panel card quote">
+            <p>“The homepage feels far more premium and focused. The programmes are clearer and the admissions CTA stands out immediately.”</p>
+            <small>— Prospective student perspective</small>
+          </article>
+          <article class="panel card quote">
+            <p>“It captures the energy of performance training without relying on a heavy template or multiple external files.”</p>
+            <small>— Creative direction note</small>
+          </article>
+          <article class="panel card quote">
+            <p>“A strong foundation for turning an older academy site into a modern recruitment-first experience.”</p>
+            <small>— Web redesign concept</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="apply" class="section" style="padding-top:10px;">
+      <div class="container">
+        <div class="panel cta">
+          <div>
+            <span class="eyebrow">Apply</span>
+            <h2>Ready to turn this into the final site?</h2>
+            <p>
+              Replace the placeholder copy with the real academy content, connect the buttons to your admissions flow,
+              and this can serve as a polished one-file prototype or launch-ready landing page.
+            </p>
+          </div>
+          <div class="actions">
+            <a href="#home" class="btn btn-secondary">Back to top</a>
+            <a href="/cdn-cgi/l/email-protection#6b0a0f06021818020405182b0e130a061b070e45080406" class="btn btn-primary">Contact Admissions</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand">
+          <span class="brand-mark">MGA</span>
+          <span>The MGA Academy</span>
+        </div>
+        <small>Single-file HTML concept with embedded CSS, responsive layout, and theatre-inspired visual styling.</small>
+      </div>
+      <div style="text-align:right">
+        <small>Built as one standalone page for easier handoff and quick customization.</small>
+      </div>
+    </div>
+  </footer>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

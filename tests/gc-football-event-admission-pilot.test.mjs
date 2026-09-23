@@ -600,11 +600,20 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
   // newly admitted venues after the eligibility/disused-building
   // corrections — see that package's own research/venue-discovery/
   // uk-national-bulk-osm-02/run.json), Portugal/Spain/Germany/France
-  // again refreshed by natural source drift. This test's own job —
-  // proving the football admission PILOT itself never touches public data
-  // — is unaffected by any of these later, legitimate regenerations; only
-  // the pinned baseline it compares against needed updating, exactly as
-  // this codebase's established convention already does whenever a real
+  // again refreshed by natural source drift.
+  // BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01 regenerated it a
+  // fourth time (2026-09-22T23:17:04.922Z): United Kingdom marker COUNT is
+  // unchanged (3,383 — this package acquires PROGRAMMES for already-
+  // discovered venues, never new venues), but 86 of those markers now
+  // carry real display listings for the first time (79 from this
+  // package's own 89 proven national sources; the rest already came from
+  // London's bespoke collectors), so the GLOBAL listing total rises
+  // sharply (761 UK listings alone). Portugal/Spain/Germany/France again
+  // refreshed by natural source drift. This test's own job — proving the
+  // football admission PILOT itself never touches public data — is
+  // unaffected by any of these later, legitimate regenerations; only the
+  // pinned baseline it compares against needed updating, exactly as this
+  // codebase's established convention already does whenever a real
   // publish:map-data run intentionally changes the committed artifact.
   const published = JSON.parse(await readFile(resolve(ROOT, "data/public/lisbon-porto-map.json"), "utf8"));
   let markers = 0;
@@ -616,7 +625,7 @@ test("public marker and listing counts are unchanged by the pilot", async () => 
     }
   }
   assert.equal(markers, 3507);
-  assert.equal(listings, 5128);
+  assert.equal(listings, 5692);
   assert.equal(published.counts.map_marker_count, markers);
   assert.equal(published.counts.display_listing_count, listings);
 });

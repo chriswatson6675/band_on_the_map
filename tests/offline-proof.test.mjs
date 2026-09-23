@@ -19,6 +19,27 @@ test("rejects a category page that merely links to an Event URL", () => {
   assert.deepEqual(proveCanonicalDetailEvents([{ url: "https://venue.example/events/category/music", body }]), []);
 });
 
+// BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: a detail-page
+// document whose own fetch FAILED (source-execution.mjs's own
+// `{requested_url, error, network_stage}` shape — no `body` at all) must
+// never crash proveCanonicalDetailEvents(); it is silently skipped, exactly
+// like a document with no resolvable URL already is.
+test("a document with no body at all (a failed individual detail-page fetch) is skipped, never throws", () => {
+  const failedFetch = { requested_url: "https://venue.example/events/broken", error: "timeout", network_stage: "EVENT_DETAIL_FETCH" };
+  const goodBody = '<link rel="canonical" href="/events/good"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Event","name":"Good","startDate":"2026-09-01T20:00:00+01:00","url":"/events/good","@id":"/events/good"}</script>';
+  const good = { url: "https://venue.example/events/good", body: goodBody };
+
+  assert.doesNotThrow(() => proveCanonicalDetailEvents([failedFetch, good], { cutoffDate: "2026-08-29" }));
+  const proofs = proveCanonicalDetailEvents([failedFetch, good], { cutoffDate: "2026-08-29" });
+  assert.equal(proofs.length, 1, "the failed document is skipped, but a genuinely good document alongside it still proves normally");
+  assert.equal(proofs[0].title, "Good");
+});
+
+test("a document with an empty-string body is also skipped, never throws", () => {
+  assert.doesNotThrow(() => proveCanonicalDetailEvents([{ url: "https://venue.example/empty", body: "" }]));
+  assert.deepEqual(proveCanonicalDetailEvents([{ url: "https://venue.example/empty", body: "" }]), []);
+});
+
 test("canonical link extraction resolves a relative href and strips a fragment", () => {
   assert.equal(canonicalUrlFromHtml('<link href="/event#fragment" rel="canonical">', "https://venue.example/a"), "https://venue.example/event");
 });

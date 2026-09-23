@@ -1,0 +1,3610 @@
+<!doctype html>
+<html lang="en-GB" class="no-js">
+<head><meta charset="UTF-8"><script>if(navigator.userAgent.match(/MSIE|Internet Explorer/i)||navigator.userAgent.match(/Trident\/7\..*?rv:11/i)){var href=document.location.href;if(!href.match(/[?&]nowprocket/)){if(href.indexOf("?")==-1){if(href.indexOf("#")==-1){document.location.href=href+"?nowprocket=1"}else{document.location.href=href.replace("#","?nowprocket=1#")}}else{if(href.indexOf("#")==-1){document.location.href=href+"&nowprocket=1"}else{document.location.href=href.replace("#","&nowprocket=1#")}}}}</script><script>class RocketLazyLoadScripts{constructor(){this.v="1.2.3",this.triggerEvents=["keydown","mousedown","mousemove","touchmove","touchstart","touchend","wheel"],this.userEventHandler=this._triggerListener.bind(this),this.touchStartHandler=this._onTouchStart.bind(this),this.touchMoveHandler=this._onTouchMove.bind(this),this.touchEndHandler=this._onTouchEnd.bind(this),this.clickHandler=this._onClick.bind(this),this.interceptedClicks=[],window.addEventListener("pageshow",t=>{this.persisted=t.persisted}),window.addEventListener("DOMContentLoaded",()=>{this._preconnect3rdParties()}),this.delayedScripts={normal:[],async:[],defer:[]},this.trash=[],this.allJQueries=[]}_addUserInteractionListener(t){if(document.hidden){t._triggerListener();return}this.triggerEvents.forEach(e=>window.addEventListener(e,t.userEventHandler,{passive:!0})),window.addEventListener("touchstart",t.touchStartHandler,{passive:!0}),window.addEventListener("mousedown",t.touchStartHandler),document.addEventListener("visibilitychange",t.userEventHandler)}_removeUserInteractionListener(){this.triggerEvents.forEach(t=>window.removeEventListener(t,this.userEventHandler,{passive:!0})),document.removeEventListener("visibilitychange",this.userEventHandler)}_onTouchStart(t){"HTML"!==t.target.tagName&&(window.addEventListener("touchend",this.touchEndHandler),window.addEventListener("mouseup",this.touchEndHandler),window.addEventListener("touchmove",this.touchMoveHandler,{passive:!0}),window.addEventListener("mousemove",this.touchMoveHandler),t.target.addEventListener("click",this.clickHandler),this._renameDOMAttribute(t.target,"onclick","rocket-onclick"),this._pendingClickStarted())}_onTouchMove(t){window.removeEventListener("touchend",this.touchEndHandler),window.removeEventListener("mouseup",this.touchEndHandler),window.removeEventListener("touchmove",this.touchMoveHandler,{passive:!0}),window.removeEventListener("mousemove",this.touchMoveHandler),t.target.removeEventListener("click",this.clickHandler),this._renameDOMAttribute(t.target,"rocket-onclick","onclick"),this._pendingClickFinished()}_onTouchEnd(t){window.removeEventListener("touchend",this.touchEndHandler),window.removeEventListener("mouseup",this.touchEndHandler),window.removeEventListener("touchmove",this.touchMoveHandler,{passive:!0}),window.removeEventListener("mousemove",this.touchMoveHandler)}_onClick(t){t.target.removeEventListener("click",this.clickHandler),this._renameDOMAttribute(t.target,"rocket-onclick","onclick"),this.interceptedClicks.push(t),t.preventDefault(),t.stopPropagation(),t.stopImmediatePropagation(),this._pendingClickFinished()}_replayClicks(){window.removeEventListener("touchstart",this.touchStartHandler,{passive:!0}),window.removeEventListener("mousedown",this.touchStartHandler),this.interceptedClicks.forEach(t=>{t.target.dispatchEvent(new MouseEvent("click",{view:t.view,bubbles:!0,cancelable:!0}))})}_waitForPendingClicks(){return new Promise(t=>{this._isClickPending?this._pendingClickFinished=t:t()})}_pendingClickStarted(){this._isClickPending=!0}_pendingClickFinished(){this._isClickPending=!1}_renameDOMAttribute(t,e,r){t.hasAttribute&&t.hasAttribute(e)&&(event.target.setAttribute(r,event.target.getAttribute(e)),event.target.removeAttribute(e))}_triggerListener(){this._removeUserInteractionListener(this),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",this._loadEverythingNow.bind(this)):this._loadEverythingNow()}_preconnect3rdParties(){let t=[];document.querySelectorAll("script[type=rocketlazyloadscript]").forEach(e=>{if(e.hasAttribute("src")){let r=new URL(e.src).origin;r!==location.origin&&t.push({src:r,crossOrigin:e.crossOrigin||"module"===e.getAttribute("data-rocket-type")})}}),t=[...new Map(t.map(t=>[JSON.stringify(t),t])).values()],this._batchInjectResourceHints(t,"preconnect")}async _loadEverythingNow(){this.lastBreath=Date.now(),this._delayEventListeners(this),this._delayJQueryReady(this),this._handleDocumentWrite(),this._registerAllDelayedScripts(),this._preloadAllScripts(),await this._loadScriptsFromList(this.delayedScripts.normal),await this._loadScriptsFromList(this.delayedScripts.defer),await this._loadScriptsFromList(this.delayedScripts.async);try{await this._triggerDOMContentLoaded(),await this._triggerWindowLoad()}catch(t){console.error(t)}window.dispatchEvent(new Event("rocket-allScriptsLoaded")),this._waitForPendingClicks().then(()=>{this._replayClicks()}),this._emptyTrash()}_registerAllDelayedScripts(){document.querySelectorAll("script[type=rocketlazyloadscript]").forEach(t=>{t.hasAttribute("data-rocket-src")?t.hasAttribute("async")&&!1!==t.async?this.delayedScripts.async.push(t):t.hasAttribute("defer")&&!1!==t.defer||"module"===t.getAttribute("data-rocket-type")?this.delayedScripts.defer.push(t):this.delayedScripts.normal.push(t):this.delayedScripts.normal.push(t)})}async _transformScript(t){return new Promise((await this._littleBreath(),navigator.userAgent.indexOf("Firefox/")>0||""===navigator.vendor)?e=>{let r=document.createElement("script");[...t.attributes].forEach(t=>{let e=t.nodeName;"type"!==e&&("data-rocket-type"===e&&(e="type"),"data-rocket-src"===e&&(e="src"),r.setAttribute(e,t.nodeValue))}),t.text&&(r.text=t.text),r.hasAttribute("src")?(r.addEventListener("load",e),r.addEventListener("error",e)):(r.text=t.text,e());try{t.parentNode.replaceChild(r,t)}catch(i){e()}}:async e=>{function r(){t.setAttribute("data-rocket-status","failed"),e()}try{let i=t.getAttribute("data-rocket-type"),n=t.getAttribute("data-rocket-src");t.text,i?(t.type=i,t.removeAttribute("data-rocket-type")):t.removeAttribute("type"),t.addEventListener("load",function r(){t.setAttribute("data-rocket-status","executed"),e()}),t.addEventListener("error",r),n?(t.removeAttribute("data-rocket-src"),t.src=n):t.src="data:text/javascript;base64,"+window.btoa(unescape(encodeURIComponent(t.text)))}catch(s){r()}})}async _loadScriptsFromList(t){let e=t.shift();return e&&e.isConnected?(await this._transformScript(e),this._loadScriptsFromList(t)):Promise.resolve()}_preloadAllScripts(){this._batchInjectResourceHints([...this.delayedScripts.normal,...this.delayedScripts.defer,...this.delayedScripts.async],"preload")}_batchInjectResourceHints(t,e){var r=document.createDocumentFragment();t.forEach(t=>{let i=t.getAttribute&&t.getAttribute("data-rocket-src")||t.src;if(i){let n=document.createElement("link");n.href=i,n.rel=e,"preconnect"!==e&&(n.as="script"),t.getAttribute&&"module"===t.getAttribute("data-rocket-type")&&(n.crossOrigin=!0),t.crossOrigin&&(n.crossOrigin=t.crossOrigin),t.integrity&&(n.integrity=t.integrity),r.appendChild(n),this.trash.push(n)}}),document.head.appendChild(r)}_delayEventListeners(t){let e={};function r(t,r){!function t(r){!e[r]&&(e[r]={originalFunctions:{add:r.addEventListener,remove:r.removeEventListener},eventsToRewrite:[]},r.addEventListener=function(){arguments[0]=i(arguments[0]),e[r].originalFunctions.add.apply(r,arguments)},r.removeEventListener=function(){arguments[0]=i(arguments[0]),e[r].originalFunctions.remove.apply(r,arguments)});function i(t){return e[r].eventsToRewrite.indexOf(t)>=0?"rocket-"+t:t}}(t),e[t].eventsToRewrite.push(r)}function i(t,e){let r=t[e];Object.defineProperty(t,e,{get:()=>r||function(){},set(i){t["rocket"+e]=r=i}})}r(document,"DOMContentLoaded"),r(window,"DOMContentLoaded"),r(window,"load"),r(window,"pageshow"),r(document,"readystatechange"),i(document,"onreadystatechange"),i(window,"onload"),i(window,"onpageshow")}_delayJQueryReady(t){let e;function r(r){if(r&&r.fn&&!t.allJQueries.includes(r)){r.fn.ready=r.fn.init.prototype.ready=function(e){return t.domReadyFired?e.bind(document)(r):document.addEventListener("rocket-DOMContentLoaded",()=>e.bind(document)(r)),r([])};let i=r.fn.on;r.fn.on=r.fn.init.prototype.on=function(){if(this[0]===window){function t(t){return t.split(" ").map(t=>"load"===t||0===t.indexOf("load.")?"rocket-jquery-load":t).join(" ")}"string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=t(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(e=>{let r=arguments[0][e];delete arguments[0][e],arguments[0][t(e)]=r})}return i.apply(this,arguments),this},t.allJQueries.push(r)}e=r}r(window.jQuery),Object.defineProperty(window,"jQuery",{get:()=>e,set(t){r(t)}})}async _triggerDOMContentLoaded(){this.domReadyFired=!0,await this._littleBreath(),document.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this._littleBreath(),window.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this._littleBreath(),document.dispatchEvent(new Event("rocket-readystatechange")),await this._littleBreath(),document.rocketonreadystatechange&&document.rocketonreadystatechange()}async _triggerWindowLoad(){await this._littleBreath(),window.dispatchEvent(new Event("rocket-load")),await this._littleBreath(),window.rocketonload&&window.rocketonload(),await this._littleBreath(),this.allJQueries.forEach(t=>t(window).trigger("rocket-jquery-load")),await this._littleBreath();let t=new Event("rocket-pageshow");t.persisted=this.persisted,window.dispatchEvent(t),await this._littleBreath(),window.rocketonpageshow&&window.rocketonpageshow({persisted:this.persisted})}_handleDocumentWrite(){let t=new Map;document.write=document.writeln=function(e){let r=document.currentScript;r||console.error("WPRocket unable to document.write this: "+e);let i=document.createRange(),n=r.parentElement,s=t.get(r);void 0===s&&(s=r.nextSibling,t.set(r,s));let a=document.createDocumentFragment();i.setStart(a,0),a.appendChild(i.createContextualFragment(e)),n.insertBefore(a,s)}}async _littleBreath(){Date.now()-this.lastBreath>45&&(await this._requestAnimFrame(),this.lastBreath=Date.now())}async _requestAnimFrame(){return document.hidden?new Promise(t=>setTimeout(t)):new Promise(t=>requestAnimationFrame(t))}_emptyTrash(){this.trash.forEach(t=>t.remove())}static run(){let t=new RocketLazyLoadScripts;t._addUserInteractionListener(t)}}RocketLazyLoadScripts.run();</script>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" /><meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.5 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Ticket Refund Protection Terms and Conditions</title>
+<link rel="preload" as="font" href="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/06/DrukText-Medium-Web.woff2" crossorigin>
+<link rel="preload" as="font" href="https://www.stamfordcornexchange.co.uk/wp-content/plugins/seating-charts/assets/font-awesome/fonts/fontawesome-webfont.woff2" crossorigin>
+<link rel="preload" as="font" href="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/fonts/icomoon.woff" crossorigin>
+	<meta name="description" content="Ticket Refund Protection Terms and Conditions. Please read through the full list of T&amp;Cs before your visit to the theatre. " />
+	<link rel="canonical" href="https://www.stamfordcornexchange.co.uk/ticket-refund-protection/" />
+	<meta property="og:locale" content="en_GB" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Ticket Refund Protection Terms and Conditions" />
+	<meta property="og:description" content="Ticket Refund Protection Terms and Conditions. Please read through the full list of T&amp;Cs before your visit to the theatre. " />
+	<meta property="og:url" content="https://www.stamfordcornexchange.co.uk/ticket-refund-protection/" />
+	<meta property="og:site_name" content="Stamford Corn Exchange Theatre" />
+	<meta property="article:modified_time" content="2026-06-01T11:58:13+00:00" />
+	<meta property="og:image" content="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2025/02/secure-my-booking-logo-300x105-1.png" />
+	<meta property="og:image:width" content="300" />
+	<meta property="og:image:height" content="105" />
+	<meta property="og:image:type" content="image/png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:label1" content="Estimated reading time" />
+	<meta name="twitter:data1" content="11 minutes" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"WebPage","@id":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/","url":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/","name":"Ticket Refund Protection Terms and Conditions","isPartOf":{"@id":"https:\/\/www.stamfordcornexchange.co.uk\/#website"},"primaryImageOfPage":{"@id":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/#primaryimage"},"image":{"@id":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/#primaryimage"},"thumbnailUrl":"https:\/\/www.stamfordcornexchange.co.uk\/wp-content\/uploads\/2025\/02\/secure-my-booking-logo-300x105-1.png","datePublished":"2025-02-12T12:20:20+00:00","dateModified":"2026-06-01T11:58:13+00:00","description":"Ticket Refund Protection Terms and Conditions. Please read through the full list of T&Cs before your visit to the theatre. ","breadcrumb":{"@id":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/#breadcrumb"},"inLanguage":"en-GB","potentialAction":[{"@type":"ReadAction","target":["https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/"]}]},{"@type":"ImageObject","inLanguage":"en-GB","@id":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/#primaryimage","url":"https:\/\/www.stamfordcornexchange.co.uk\/wp-content\/uploads\/2025\/02\/secure-my-booking-logo-300x105-1.png","contentUrl":"https:\/\/www.stamfordcornexchange.co.uk\/wp-content\/uploads\/2025\/02\/secure-my-booking-logo-300x105-1.png","width":300,"height":105},{"@type":"BreadcrumbList","@id":"https:\/\/www.stamfordcornexchange.co.uk\/ticket-refund-protection\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/www.stamfordcornexchange.co.uk\/"},{"@type":"ListItem","position":2,"name":"Ticket Refund Protection"}]},{"@type":"WebSite","@id":"https:\/\/www.stamfordcornexchange.co.uk\/#website","url":"https:\/\/www.stamfordcornexchange.co.uk\/","name":"Stamford Corn Exchange Theatre","description":"The Stamford Corn Exchange Theatre is an independantly managaged charity trust - offering the very best in music, theatre and dance.","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/www.stamfordcornexchange.co.uk\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-GB"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="preload" as="font" href="/wp-content/uploads/2020/06/DrukText-Medium-Web.woff2" data-wpacu-preload-local-font="1" crossorigin>
+<link rel="preload" as="font" href="/wp-content/plugins/seating-charts/assets/font-awesome/fonts/fontawesome-webfont.woff2" data-wpacu-preload-local-font="1" crossorigin>
+<link rel="preload" as="font" href="/wp-content/themes/salient/css/fonts/icomoon.woff" data-wpacu-preload-local-font="1" crossorigin>
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+
+<link rel="alternate" type="application/rss+xml" title="Stamford Corn Exchange Theatre &raquo; Feed" href="https://www.stamfordcornexchange.co.uk/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Stamford Corn Exchange Theatre &raquo; Comments Feed" href="https://www.stamfordcornexchange.co.uk/comments/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.stamfordcornexchange.co.uk/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.stamfordcornexchange.co.uk%2Fticket-refund-protection%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.stamfordcornexchange.co.uk/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.stamfordcornexchange.co.uk%2Fticket-refund-protection%2F&#038;format=xml" />
+<link rel="preload" href="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/fonts/icomoon.woff?v=1.5" as="font" type="font/woff" crossorigin="anonymous"><style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="cf-frontend-style-inline-css">
+@font-face {
+	font-family: 'Druk';
+	font-weight: 400;
+	font-display: auto;
+	src: url('https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/06/DrukText-Medium-Web.woff2') format('woff2'),
+		url('https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/06/DrukText-Medium-Web.woff') format('woff');
+}
+@font-face {
+	font-family: 'Druk';
+	font-weight: 400;
+	font-display: auto;
+	src: url('https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/06/DrukText-Medium-Web.woff2') format('woff2'),
+		url('https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/06/DrukText-Medium-Web.woff') format('woff');
+}
+/*# sourceURL=cf-frontend-style-inline-css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='cookie-law-info-css' href='https://www.stamfordcornexchange.co.uk/wp-content/plugins/cookie-law-info/legacy/public/css/cookie-law-info-public.css?ver=3.5.6' media='all' />
+<link rel='stylesheet' id='cookie-law-info-gdpr-css' href='https://www.stamfordcornexchange.co.uk/wp-content/plugins/cookie-law-info/legacy/public/css/cookie-law-info-gdpr.css?ver=3.5.6' media='all' />
+<link rel='stylesheet' id='font-awesome-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/font-awesome.min.css?ver=4.7.1' media='all' />
+<link rel='stylesheet' id='salient-grid-system-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/grid-system.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='main-styles-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/style.css?ver=16.0.4' media='all' />
+<style id="main-styles-inline-css">
+html body[data-header-resize="1"] .container-wrap, 
+			html body[data-header-format="left-header"][data-header-resize="0"] .container-wrap, 
+			html body[data-header-resize="0"] .container-wrap, 
+			body[data-header-format="left-header"][data-header-resize="0"] .container-wrap { 
+				padding-top: 0; 
+			} 
+			.main-content > .row > #breadcrumbs.yoast { 
+				padding: 20px 0; 
+			}
+/*# sourceURL=main-styles-inline-css */
+</style>
+<link rel='stylesheet' id='nectar-header-layout-centered-menu-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/header/header-layout-centered-menu.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='nectar-header-secondary-nav-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/header/header-secondary-nav.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='nectar-element-toggle-panels-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/elements/element-toggles.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='nectar-wpforms-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/third-party/wpforms.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='responsive-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/responsive.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='skin-material-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/skin-material.css?ver=16.0.4' media='all' />
+<link rel='stylesheet' id='salient-wp-menu-dynamic-css' href='https://www.stamfordcornexchange.co.uk/wp-content/uploads/salient/menu-dynamic.css?ver=13135' media='all' />
+<link rel='stylesheet' id='wp_mailjet_form_builder_widget-widget-front-styles-css' href='https://www.stamfordcornexchange.co.uk/wp-content/plugins/mailjet-for-wordpress/src/widgetformbuilder/css/front-widget.css?ver=6.2.3' media='all' />
+<link rel='stylesheet' id='js_composer_front-css' href='https://www.stamfordcornexchange.co.uk/wp-content/plugins/js_composer_salient/assets/css/js_composer.min.css?ver=6.13.0' media='all' />
+<link rel='stylesheet' id='dynamic-css-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/salient-dynamic-styles.css?ver=72255' media='all' />
+<style id="dynamic-css-inline-css">
+@media only screen and (min-width:1000px){body #ajax-content-wrap.no-scroll{min-height:calc(100vh - 138px);height:calc(100vh - 138px)!important;}}@media only screen and (min-width:1000px){#page-header-wrap.fullscreen-header,#page-header-wrap.fullscreen-header #page-header-bg,html:not(.nectar-box-roll-loaded) .nectar-box-roll > #page-header-bg.fullscreen-header,.nectar_fullscreen_zoom_recent_projects,#nectar_fullscreen_rows:not(.afterLoaded) > div{height:calc(100vh - 137px);}.wpb_row.vc_row-o-full-height.top-level,.wpb_row.vc_row-o-full-height.top-level > .col.span_12{min-height:calc(100vh - 137px);}html:not(.nectar-box-roll-loaded) .nectar-box-roll > #page-header-bg.fullscreen-header{top:138px;}.nectar-slider-wrap[data-fullscreen="true"]:not(.loaded),.nectar-slider-wrap[data-fullscreen="true"]:not(.loaded) .swiper-container{height:calc(100vh - 136px)!important;}.admin-bar .nectar-slider-wrap[data-fullscreen="true"]:not(.loaded),.admin-bar .nectar-slider-wrap[data-fullscreen="true"]:not(.loaded) .swiper-container{height:calc(100vh - 136px - 32px)!important;}}.admin-bar[class*="page-template-template-no-header"] .wpb_row.vc_row-o-full-height.top-level,.admin-bar[class*="page-template-template-no-header"] .wpb_row.vc_row-o-full-height.top-level > .col.span_12{min-height:calc(100vh - 32px);}body[class*="page-template-template-no-header"] .wpb_row.vc_row-o-full-height.top-level,body[class*="page-template-template-no-header"] .wpb_row.vc_row-o-full-height.top-level > .col.span_12{min-height:100vh;}@media only screen and (max-width:999px){.using-mobile-browser #nectar_fullscreen_rows:not(.afterLoaded):not([data-mobile-disable="on"]) > div{height:calc(100vh - 121px);}.using-mobile-browser .wpb_row.vc_row-o-full-height.top-level,.using-mobile-browser .wpb_row.vc_row-o-full-height.top-level > .col.span_12,[data-permanent-transparent="1"].using-mobile-browser .wpb_row.vc_row-o-full-height.top-level,[data-permanent-transparent="1"].using-mobile-browser .wpb_row.vc_row-o-full-height.top-level > .col.span_12{min-height:calc(100vh - 121px);}html:not(.nectar-box-roll-loaded) .nectar-box-roll > #page-header-bg.fullscreen-header,.nectar_fullscreen_zoom_recent_projects,.nectar-slider-wrap[data-fullscreen="true"]:not(.loaded),.nectar-slider-wrap[data-fullscreen="true"]:not(.loaded) .swiper-container,#nectar_fullscreen_rows:not(.afterLoaded):not([data-mobile-disable="on"]) > div{height:calc(100vh - 68px);}.wpb_row.vc_row-o-full-height.top-level,.wpb_row.vc_row-o-full-height.top-level > .col.span_12{min-height:calc(100vh - 68px);}body[data-transparent-header="false"] #ajax-content-wrap.no-scroll{min-height:calc(100vh - 68px);height:calc(100vh - 68px);}}#nectar_fullscreen_rows{background-color:transparent;}.img-with-aniamtion-wrap.custom-width-300px .inner{max-width:300px;}.img-with-aniamtion-wrap[data-max-width="custom"].center .inner{display:inline-block;}div[data-style="minimal"] .toggle[data-inner-wrap="true"] > div .inner-toggle-wrap{padding:0 0 30px 0;}div[data-style="minimal"] .toggle > .toggle-title a{padding:30px 70px 30px 0;transition:color 0.15s ease;}div[data-style="minimal"] .toggle{border-bottom:2px solid rgba(0,0,0,0.08);transition:border-color 0.15s ease;}body div[data-style="minimal"] .toggle{margin-bottom:0}div[data-style="minimal"] .toggle > .toggle-title i:before{content:" ";top:14px;left:6px;margin-top:-2px;width:14px;height:2px;position:absolute;background-color:#888;transition:background-color 0.15s ease;}div[data-style="minimal"] .toggle > .toggle-title i:after{content:" ";top:6px;left:14px;width:2px;margin-left:-2px;height:14px;position:absolute;background-color:#888;transition:transform 0.45s cubic-bezier(.3,.4,.2,1),background-color 0.15s ease;}.light div[data-style="minimal"] .toggle{border-color:rgba(255,255,255,0.2)}@media only screen and (max-width :690px){div[data-style="minimal"] .toggle > .toggle-title a{font-size:20px;line-height:24px;}}@media only screen and (max-width:999px){body .vc_row-fluid:not(.full-width-content) > .span_12 .vc_col-sm-2:not(:last-child):not([class*="vc_col-xs-"]){margin-bottom:25px;}}@media only screen and (min-width :690px) and (max-width :999px){body .vc_col-sm-2{width:31.2%;margin-left:3.1%;}body .full-width-content .vc_col-sm-2{width:33.3%;margin-left:0;}.vc_row-fluid .vc_col-sm-2[class*="vc_col-sm-"]:first-child:not([class*="offset"]),.vc_row-fluid .vc_col-sm-2[class*="vc_col-sm-"]:nth-child(3n+4):not([class*="offset"]){margin-left:0;}}@media only screen and (max-width :690px){body .vc_row-fluid .vc_col-sm-2:not([class*="vc_col-xs"]),body .vc_row-fluid.full-width-content .vc_col-sm-2:not([class*="vc_col-xs"]){width:50%;}.vc_row-fluid .vc_col-sm-2[class*="vc_col-sm-"]:first-child:not([class*="offset"]),.vc_row-fluid .vc_col-sm-2[class*="vc_col-sm-"]:nth-child(2n+3):not([class*="offset"]){margin-left:0;}}@media only screen and (max-width:999px){.vc_row.bottom_padding_tablet_80px{padding-bottom:80px!important;}}@media only screen and (max-width:999px){.vc_row.bottom_padding_tablet_50px{padding-bottom:50px!important;}}@media only screen and (max-width:999px){.vc_row.top_padding_tablet_20px{padding-top:20px!important;}}@media only screen and (max-width:690px){.vc_row.bottom_padding_phone_80px{padding-bottom:80px!important;}}@media only screen and (max-width:690px){.vc_row.bottom_padding_phone_50px{padding-bottom:50px!important;}}@media only screen and (max-width:690px){.vc_row.top_padding_phone_0px{padding-top:0!important;}}.screen-reader-text,.nectar-skip-to-content:not(:focus){border:0;clip:rect(1px,1px,1px,1px);clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute!important;width:1px;word-wrap:normal!important;}.row .col img:not([srcset]){width:auto;}.row .col img.img-with-animation.nectar-lazy:not([srcset]){width:100%;}
+/*# sourceURL=dynamic-css-inline-css */
+</style>
+<link rel='stylesheet' id='salient-child-style-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient-child/style.css?ver=16.0.4' media='all' />
+<style id="rocket-lazyload-inline-css">
+.rll-youtube-player{position:relative;padding-bottom:56.23%;height:0;overflow:hidden;max-width:100%;}.rll-youtube-player:focus-within{outline: 2px solid currentColor;outline-offset: 5px;}.rll-youtube-player iframe{position:absolute;top:0;left:0;width:100%;height:100%;z-index:100;background:0 0}.rll-youtube-player img{bottom:0;display:block;left:0;margin:auto;max-width:100%;width:100%;position:absolute;right:0;top:0;border:none;height:auto;-webkit-transition:.4s all;-moz-transition:.4s all;transition:.4s all}.rll-youtube-player img:hover{-webkit-filter:brightness(75%)}.rll-youtube-player .play{height:100%;width:100%;left:0;top:0;position:absolute;background:url(https://www.stamfordcornexchange.co.uk/wp-content/plugins/old_wp-rocket/assets/img/youtube.png) no-repeat center;background-color: transparent !important;cursor:pointer;border:none;}
+/*# sourceURL=rocket-lazyload-inline-css */
+</style>
+<script id="jquery-core-js" src="https://www.stamfordcornexchange.co.uk/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" defer></script>
+<script id="jquery-migrate-js" src="https://www.stamfordcornexchange.co.uk/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" defer></script>
+<script id="cookie-law-info-js-extra">
+var Cli_Data = {"nn_cookie_ids":["_ga","_gid","_gat_gtag_UA_68120365_1","CONSENT","vuid","__cf_bm","PHPSESSID","CookieLawInfoConsent","cookielawinfo-checkbox-advertisement","YSC","VISITOR_INFO1_LIVE","yt-remote-device-id","yt-remote-connected-devices","yt.innertube::requests","yt.innertube::nextId"],"cookielist":[],"non_necessary_cookies":{"necessary":["PHPSESSID","CookieLawInfoConsent"],"functional":["__cf_bm"],"analytics":["_ga","_gid","_gat_gtag_UA_68120365_1","CONSENT","vuid"],"advertisement":["YSC","VISITOR_INFO1_LIVE","yt-remote-device-id","yt-remote-connected-devices","yt.innertube::requests","yt.innertube::nextId"]},"ccpaEnabled":"","ccpaRegionBased":"","ccpaBarEnabled":"","strictlyEnabled":["necessary","obligatoire"],"ccpaType":"gdpr","js_blocking":"1","custom_integration":"","triggerDomRefresh":"","secure_cookies":""};
+var cli_cookiebar_settings = {"animate_speed_hide":"500","animate_speed_show":"500","background":"#edeef2","border":"#b1a6a6c2","border_on":"","button_1_button_colour":"#ec1557","button_1_button_hover":"#bd1146","button_1_link_colour":"#fff","button_1_as_button":"1","button_1_new_win":"","button_2_button_colour":"#333","button_2_button_hover":"#292929","button_2_link_colour":"#444","button_2_as_button":"","button_2_hidebar":"","button_3_button_colour":"#dedfe0","button_3_button_hover":"#b2b2b3","button_3_link_colour":"#333333","button_3_as_button":"1","button_3_new_win":"","button_4_button_colour":"#323e4e","button_4_button_hover":"#28323e","button_4_link_colour":"#ffffff","button_4_as_button":"1","button_7_button_colour":"#ec1557","button_7_button_hover":"#bd1146","button_7_link_colour":"#fff","button_7_as_button":"1","button_7_new_win":"","font_family":"inherit","header_fix":"","notify_animate_hide":"1","notify_animate_show":"","notify_div_id":"#cookie-law-info-bar","notify_position_horizontal":"right","notify_position_vertical":"bottom","scroll_close":"","scroll_close_reload":"","accept_close_reload":"","reject_close_reload":"","showagain_tab":"","showagain_background":"#fff","showagain_border":"#000","showagain_div_id":"#cookie-law-info-again","showagain_x_position":"100px","text":"#1b283b","show_once_yn":"","show_once":"10000","logging_on":"","as_popup":"","popup_overlay":"1","bar_heading_text":"","cookie_bar_as":"banner","popup_showagain_position":"bottom-right","widget_position":"left"};
+var log_object = {"ajax_url":"https://www.stamfordcornexchange.co.uk/wp-admin/admin-ajax.php"};
+//# sourceURL=cookie-law-info-js-extra
+</script>
+<script id="cookie-law-info-js" src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/cookie-law-info/legacy/public/js/cookie-law-info-public.js?ver=3.5.6" defer></script>
+<link rel="https://api.w.org/" href="https://www.stamfordcornexchange.co.uk/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://www.stamfordcornexchange.co.uk/wp-json/wp/v2/pages/163156" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.stamfordcornexchange.co.uk/xmlrpc.php?rsd" />
+<link rel='shortlink' href='https://www.stamfordcornexchange.co.uk/?p=163156' />
+
+		<!-- GA Google Analytics @ https://m0n.co/ga -->
+		<script type="rocketlazyloadscript" async data-rocket-src="https://www.googletagmanager.com/gtag/js?id=G-495R8FYHV1"></script>
+		<script type="rocketlazyloadscript">
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'G-495R8FYHV1');
+		</script>
+
+	<script type="rocketlazyloadscript" data-rocket-type="text/javascript"> var root = document.getElementsByTagName( "html" )[0]; root.setAttribute( "class", "js" ); </script><style>.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+<link rel="stylesheet" href="https://use.typekit.net/spt5fwn.css">
+<!-- Google tag (gtag.js) -->
+<script type="rocketlazyloadscript" async data-rocket-src="https://www.googletagmanager.com/gtag/js?id=UA-68120365-1"></script>
+<script type="rocketlazyloadscript">
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-68120365-1');
+</script>
+
+
+<script type="rocketlazyloadscript">
+  (function(w, d, t, h, s, n) {
+    w.FlodeskObject = n;
+    var fn = function() {
+      (w[n].q = w[n].q || []).push(arguments);
+    };
+    w[n] = w[n] || fn;
+    var f = d.getElementsByTagName(t)[0];
+    var v = '?v=' + Math.floor(new Date().getTime() / (120 * 1000)) * 60;
+    var sm = d.createElement(t);
+    sm.async = true;
+    sm.type = 'module';
+    sm.src = h + s + '.mjs' + v;
+    f.parentNode.insertBefore(sm, f);
+    var sn = d.createElement(t);
+    sn.async = true;
+    sn.noModule = true;
+    sn.src = h + s + '.js' + v;
+    f.parentNode.insertBefore(sn, f);
+  })(window, document, 'script', 'https://assets.flodesk.com', '/universal', 'fd');
+</script>
+
+<script type="rocketlazyloadscript">
+  (function(w, d, t, h, s, n) {
+    w.FlodeskObject = n;
+    var fn = function() {
+      (w[n].q = w[n].q || []).push(arguments);
+    };
+    w[n] = w[n] || fn;
+    var f = d.getElementsByTagName(t)[0];
+    var v = '?v=' + Math.floor(new Date().getTime() / (120 * 1000)) * 60;
+    var sm = d.createElement(t);
+    sm.async = true;
+    sm.type = 'module';
+    sm.src = h + s + '.mjs' + v;
+    f.parentNode.insertBefore(sm, f);
+    var sn = d.createElement(t);
+    sn.async = true;
+    sn.noModule = true;
+    sn.src = h + s + '.js' + v;
+    f.parentNode.insertBefore(sn, f);
+  })(window, document, 'script', 'https://assets.flodesk.com', '/universal', 'fd');
+</script><link rel="icon" href="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2021/02/cropped-SCET-Favicon-Logo-1-32x32.jpg" sizes="32x32" />
+<link rel="icon" href="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2021/02/cropped-SCET-Favicon-Logo-1-192x192.jpg" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2021/02/cropped-SCET-Favicon-Logo-1-180x180.jpg" />
+<meta name="msapplication-TileImage" content="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2021/02/cropped-SCET-Favicon-Logo-1-270x270.jpg" />
+<style id="wp-custom-css">
+/*
+################
+               General 
+################
+*/
+
+.page-id-44776	.woocommerce div.product form.cart {
+  display: none;
+}
+body {	
+	-moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  image-rendering: auto !important;
+}
+img { 
+    image-rendering: -webkit-optimize-contrast !important; /* Chrome (and Safari) */
+}
+
+
+body[data-bg-header="true"] .container-wrap, body.single-portfolio .container-wrap, body.page-template-template-portfolio-php .container-wrap, body.tax-project-type .container-wrap {
+  padding-bottom: 0!important;
+}
+@media only screen and (min-width: 1500px) {
+	.container {
+		max-width: 1500px;
+			padding: 0 50px !important;
+}
+}
+@media only screen and (max-width: 1499px) and (min-width: 1001px) {
+	.container {
+		max-width: none;
+	padding: 0 50px !important;
+}
+}
+@media only screen and (max-width: 1000px) and (min-width: 690px) {
+.container {
+	max-width: none;
+	padding: 0 40px
+}
+}
+@media only screen and (max-width: 690px) {
+body	.container {
+	max-width: none !important;
+		padding: 0 10px
+	}
+}
+
+.none {
+	display: none;
+}
+body {
+font-feature-settings: "liga", "kern";
+}
+body a {
+	color: #ec1557;
+}
+body a:hover {
+	color: #8b8fa3;
+}
+.center-align {
+    text-align: center;
+}
+h5 {
+		font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    font-size: 16px !important;
+}
+strong {
+    font-weight: 500;
+		font-family: canada-type-gibson,sans-serif !important;
+    font-style: normal !important;
+}
+.nectar-button span {
+font-size: 13px;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+.tc-modal-woobridge .variations label {
+    margin-right: 12px;
+				    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    font-size: 16px !important;
+}
+body[data-form-submit="regular"] button[type="submit"] {
+	  background-color: #1b283b;
+    text-transform: uppercase;
+    font-family: druk;
+    font-weight: 500;
+		font-size: 20px !important;
+		letter-spacing: 0px;
+  font-style: normal;
+  font-stretch: normal;
+
+}
+body[data-form-submit="regular"] button[type="submit"]:hover {
+		cursor: pointer;
+		color: #fff !important;
+		opacity: 1 !important;
+}
+.tc-modal-woobridge .variations select { 
+		font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+}
+.tc_seating_map .tc-seating-legend ul li {
+		font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+}
+a.tc-checkout-button {
+	font-family: druk !important;
+	font-size: 20px !important;
+	font-weight: 500 !important;
+  font-style: normal;
+  font-stretch: normal;
+}
+.tc-seatchart-cart-info .tc-checkout-button, .tc-seatchart-cart-info .tc-checkout-button:visited {
+	background-color: #ec1557 !important;
+}
+.tc-icon-stage, .tc-icon-exit {
+	display: none;
+}
+.tc-element-group h3 {
+    padding-top: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px !important;
+    font-weight: 600;
+    font-family: canada-type-gibson,sans-serif !important;
+    font-size: 16px;
+    line-height: inherit;
+}
+.woocommerce-page .woocommerce p.cart-empty {
+    font-size: 38px;
+    font-weight: 300;
+    font-family: canada-type-gibson,sans-serif !important;
+}
+.woocommerce-page .woocommerce p.return-to-shop a.wc-backward { 
+	padding: 20px 45px;
+transition: all 0.2s ease;
+font-weight: 400;
+font-family: canada-type-gibson,sans-serif !important;
+text-transform: uppercase;
+letter-spacing: 2px;
+}
+body.material #header-outer:not(.transparent) .cart-outer:hover .cart-menu-wrap .icon-salient-cart {
+	color: #ec1557 !important;
+}
+.tc-minus, .tc-plus-vertical, .tc-plus-horizontal, .ui-slider-handle {
+    background-color: #1b283b !important;
+}
+.tc-wrapper .tc-zoom-slider.ui-slider {
+    background-color: #1b283b !important;
+}
+@media only screen and (max-width: 1000px) {
+.order {
+    order: 1 !important;
+}
+}
+.woocommerce .woocommerce-message, .woocommerce .woocommerce-error, .woocommerce .woocommerce-info, .woocommerce-page .woocommerce-message {
+    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 26px;
+}
+
+.argmc-wrapper .argmc-nav-text {
+  color: #f70000;
+  font-size: 23px;
+  font-weight: 300;
+}
+
+/*
+################
+    Button
+################
+*/
+.button-new {
+box-shadow: none;
+  padding: 13px 24px 10px 24px;
+  border: 2px solid #fff;
+  line-height: 12px;
+  color: #fff;
+  margin: 0px 0px;
+  letter-spacing: 2px;
+  font-family: canada-type-gibson,sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px !important;
+  border-radius: 0px !important;
+	text-transform: uppercase;
+  padding: 14px 27px 11px !important;
+}
+@media only screen and (max-width: 999px) {
+.button-new {
+  width: 100%;
+  text-align: center;
+}
+}
+/*
+################
+               Default Padding 
+################
+*/
+.row .col img {
+    margin-bottom: 0px;
+    max-width: 100%;
+    height: auto;
+}
+.col, body .vc_row-fluid .wpb_column {
+    margin-bottom: 0px;
+}
+.col-md-4 {
+	margin-bottom: 0px !important;
+}
+.wpb_wrapper > div {
+    margin-bottom: 0px;
+}
+.material .wpb_content_element {
+    margin-bottom: 0em;
+}
+h1 {
+    margin-bottom: 0px;
+}
+.nectar-button {
+	margin-bottom: 0px;
+}
+.container-wrap {
+	padding-bottom: 0px;
+}
+.row {
+    position: relative;
+    padding-bottom: 0px;
+}
+.post .content-inner {
+    padding-bottom: 0px;
+}
+/*
+################
+               Webfonts 
+################
+*/
+.nectar-hor-list-item .nectar-list-item-btn {
+    text-transform: uppercase;
+}
+.entry-summary .cart .quantity input.qty {
+    color: #1b283b;
+}
+.cart .quantity input.qty {
+		font-family: canada-type-gibson,sans-serif !important;
+		font-style: normal;
+}
+
+.Druk {
+  font-family: 'Druk';
+  font-weight:  500;
+  font-style:   normal;
+  font-stretch: normal;
+}
+
+body p {
+		font-family: canada-type-gibson,sans-serif !important;
+		font-weight: 300;
+		font-style: normal;
+font-size: 18px;
+  line-height: 27px;
+		padding-bottom: 1.3em;
+}
+body {
+			font-family: canada-type-gibson,sans-serif !important;
+		font-weight: 300;
+		font-style: normal;
+}
+@media only screen and (max-width: 690px) {
+p {
+		font-family: canada-type-gibson,sans-serif;
+		font-weight: 300;
+		font-style: normal;
+		font-size: 16px;
+		line-height: 26px;
+		padding-bottom: 1.3em;
+}
+}
+
+
+/*
+################
+               Colour 
+################
+*/
+.navy {
+	color: #1b283b;
+}
+.white {
+	color: white !important;
+}
+.white a {
+	color: white;
+}
+.white a:hover {
+	color: #ec1557;
+}
+.pink {
+	color: #ec1557;
+}
+.lightgrey {
+	color: #edeef2;
+}
+.grey75 {
+	color: #525c6a;
+}
+.grey60 {
+	color: #737881;
+}
+.grey50 {
+color: #787c94;
+}
+.grey50v2 {
+	color: #7f8b9c;
+}
+.grey40 {
+	color: #a1a5ab;
+}
+
+/*
+################
+               Text classes 
+################
+*/
+p, body, body h1, body h2, body h3, body h4, body h5, body h6 {
+		color: #1b283b;
+}
+.italic {
+	font-style: italic;
+}
+.headertitle {
+	  font-family: 'Druk';
+  font-weight:  500;
+  font-style:   normal;
+  font-stretch: normal;
+	font-size: 72px;
+	line-height: 72px;
+	line-height: 62px;
+	text-transform: uppercase;
+	letter-spacing: -.02em;
+}
+@media only screen and (max-width: 700px) {
+	.headertitle{
+		font-size: 60px;
+	line-height: 52px;
+}
+}
+.headertitlealt {
+	  font-family: 'Druk';
+  font-weight:  500;
+  font-style:   normal;
+  font-stretch: normal;
+	font-size: 72px;
+	line-height: 72px;
+	line-height: 62px;
+	letter-spacing: -2px;
+}
+@media only screen and (max-width: 700px) {
+	.headertitlealt{
+		font-size: 50px;
+	line-height: 42px;
+}
+}
+	
+.headersubtitle {
+	  font-family: 'Druk';
+  font-weight:  500;
+  font-style:   normal;
+  font-stretch: normal;
+	font-size: 24px;
+	text-align: right;
+}
+@media only screen and (max-width: 1000px) {
+	.headersubtitle {
+	display: none;
+	}
+}
+.big-body {
+    font-size: 19px;
+    line-height: 30px;
+    font-weight: 300;
+}
+@media only screen and (max-width: 690px) {
+.big-body {
+		font-family: canada-type-gibson,sans-serif;
+		font-weight: 300;
+		font-style: normal;
+		font-size: 16px;
+		line-height: 26px;
+		padding-bottom: 1.3em;
+}
+}
+.body-title {
+	    font-stretch: normal;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 24px;
+		line-height: 30px;
+		margin-bottom: 16px !important;
+}
+.quote {
+	    font-size: 28px;
+    text-align: center;
+    font-weight: 500;
+		padding-bottom: 10px;
+	line-height: 38px;
+}
+.quote-sub {
+    text-align: center;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+		text-transform: uppercase;
+}
+.star {
+    font-size: 40px;
+    color: #ec1557;
+    padding: 0px 1.7px 18px 1.7px !important;
+
+}
+.stars {
+    display: inline-flex;
+	text-align: center;
+	margin: auto;
+
+}
+.quote-padding {
+	padding-bottom: 70px;
+}
+@media only screen and (max-width: 690px) {
+	.quote-padding {
+ 	padding-top: 30px !important;
+	padding-bottom: 50px;
+}
+}
+.subtitle {
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    font-size: 28px;
+		text-transform: uppercase;
+	line-height: 31px;
+}
+@media only screen and (max-width: 690px) {
+.subtitle {
+letter-spacing: 0.03em !important;
+	}
+}
+.subtitle-padding {
+		padding-bottom: 30px;
+}
+.subtitle-small-padding {
+	padding-bottom: 17px;
+}
+@media only screen and (min-width: 1000px) {
+.right-desktop {
+	text-align: right;
+}
+}
+.amateur-title {
+	font-stretch: normal;
+font-family: canada-type-gibson,sans-serif;
+font-weight: 500;
+font-style: normal;
+font-size: 18px;
+line-height: 25px;
+}
+	/*
+################
+               Navigation 
+################
+*/
+#header-outer[data-full-width="true"] header > .container {
+	background-color: #1b283b;
+}
+#header-outer[data-lhe="animated_underline"] nav > ul > li:not([class*="button_"]) > a::after {
+	border-top: 2px solid #ec1557 !important;
+}
+#header-outer[data-lhe="animated_underline"] #top nav > ul > li:not([class*="button_"]) > a::after, #header-secondary-outer[data-lhe="animated_underline"] nav > .sf-menu > li:not([class*="button_"]) > a::after {
+    bottom: -6px;
+}
+#header-outer #top nav > ul > li > a {
+	    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+	line-height: 16px;
+}
+#header-outer[data-box-shadow="large"], body.material[data-hhun="1"] #header-outer[data-header-resize="0"][data-box-shadow="large"][data-remove-fixed="0"]:not(.transparent):not(.invisible) {
+	box-shadow: none;
+}
+@media only screen and (max-width: 700px) {
+	.header {
+	min-height: 70px !important;
+}
+}
+.header {
+	min-height: 110px;
+			box-shadow: 0 3px 35px rgba(0,0,0,0.15) !important;
+}
+.headerleft {
+margin-bottom: -2px !important;
+}
+#header-outer .sf-menu li ul li a {
+	    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+		line-height: 23px;
+}
+
+#header-outer:not(.transparent) .sf-menu > li ul {
+    border-top-width: none;
+    border-top-style: none;
+}
+.sf-menu > li ul {
+	padding: 0px 20px 20px 20px;
+}
+.sf-sub-indicator {
+    display: inline-block;
+    width: 0px;
+	left: 6px;
+}
+#header-outer .sf-menu li ul li a {
+   display: inline-block;
+}
+#header-outer .sf-menu li ul li a:after {
+   transition: transform .3s ease-out,border-color .3s ease-out;
+   position: absolute;
+   transform-origin: left;
+   bottom: 2px;
+   left: 0;
+   width: 100%;
+   transform: scaleX(0);
+   border-top: 2px solid #ec1557;
+   content: '';
+	   display: block;
+}
+#header-outer .sf-menu li ul li a:hover:after {
+ transform: scaleX(1);
+}
+body #header-outer {
+	background-color: #1b283b;
+}
+.sf-menu > li ul {
+    width: 250px !important;
+}
+.sf-menu * {
+    font-family: canada-type-gibson,sans-serif;
+    font-style: normal;
+    letter-spacing: 0.02em;
+}
+#slide-out-widget-area .inner .off-canvas-menu-container li a {
+  font-family: canada-type-gibson,sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal;
+}
+/*
+	 * 
+################
+               Top Bar 
+################
+*/
+
+#header-secondary-outer, #header-outer #header-secondary-outer {
+	    background-color: #ec1557;
+}
+#header-secondary-outer .nectar-center-text a {
+	color: #fff;
+	Font-size: 17px;
+	    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+#header-secondary-outer .nectar-center-text a:hover {
+	color: #222f42 !important;
+	    font-weight: 300;
+}
+.material #header-secondary-outer {
+    min-height: 35px;
+}
+/*
+	 * 
+################
+               Footer 
+################
+*/
+.footer-contact {
+	font-size: 18px;
+}
+.footer-contact-header {
+	font-size: 18px;
+	font-weight: 500;
+}
+#footer-outer #footer-widgets .col p {
+    padding-bottom: 0px;
+}
+#footer-outer[data-custom-color="true"] #footer-widgets a:not(.nectar-button):hover {
+	    opacity: 1;
+    color: #ec1557 !important;
+}
+#footer-outer[data-custom-color="true"] #footer-widgets a:not(.nectar-button):link {
+	   text-decoration: underline;
+}
+.footer-page-links {
+	font-size: 16px;
+	text-transform: uppercase;
+	font-weight: 600;
+	line-height: 24px;
+}
+.footer-logo {
+	width: 80px !important;
+}
+.small-footer-text {
+	  font-size: 14px;
+    line-height: 20px;
+    width: 75%;
+	padding-bottom: 20px !important;
+	color: #8b8fa3 !important;
+}
+	#footer-outer .nectar-button:hover, .donate-footer {
+    color: #fff !important;
+    background-color: #60657c !important;
+}
+.copyright-column {
+  float: left;
+  width: 75%;
+}
+@media only screen and (max-width: 710px) {
+	.copyright-column  {
+  float: left;
+  width: 100%;
+  padding: 10px;
+}
+}
+
+.designedby {
+  float: right;
+  width: 25%;
+  text-align: right;
+}
+@media only screen and (max-width: 710px) {
+	.designedby{
+  width: 100%;
+  padding: 10px;
+		text-align: left;
+}
+}
+.span_5 {
+    width: 100% !important;
+}
+#footer-outer #copyright {
+	padding: 25px 0px 28px 0px;
+    background-color: #1b283b !important;
+}
+#footer-outer #copyright p {
+    color: #8b8fa3 !important;
+	  padding-bottom: 0px !important;
+  font-size: 16px;
+}
+#footer-outer {
+    background-color: #1b283b !important;
+	color: #fff;
+}
+#footer-outer a {
+    color: #fff;
+}
+#footer-outer a:hover {
+    color: #ec1557 !important;
+}
+#footer-outer #copyright a  {
+	font-weight: 400 !important;
+	color: white;
+		text-decoration: none;
+}
+#footer-outer .row {
+    padding: 75px 0 10px 0px;
+}
+#footer-widgets .container .col.span_4 {
+    margin-bottom: 0px !important;
+}
+input[type="email"] {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 0px;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #a3aebc;
+}
+#footer-outer #footer-widgets .col input[type="submit"] {
+    opacity: 1;
+    transition: opacity 0.2s linear 0s;
+    -webkit-transition: opacity 0.2s linear 0s;
+    background-color: #ec1557 !important;
+	padding: 14px 25px 12px 25px !important;
+	text-transform: uppercase;
+	font-size: 13px;
+	font-family: canada-type-gibson,sans-serif;
+	font-weight: 400;
+	letter-spacing: 1px;
+	margin-top: 7px;
+	margin-bottom: 30px;
+	border-radius: 38px !important;
+	transition: opacity .45s cubic-bezier(0.25, 1, 0.33, 1), transform .45s cubic-bezier(0.25, 1, 0.33, 1), border-color .45s cubic-bezier(0.25, 1, 0.33, 1), color .45s cubic-bezier(0.25, 1, 0.33, 1), background-color .45s cubic-bezier(0.25, 1, 0.33, 1), box-shadow .45s cubic-bezier(0.25, 1, 0.33, 1);
+}
+#footer-outer #footer-widgets .col input[type="submit"]:hover {
+background-color: #60657c !important;
+	-webkit-transform: translateY(0px);
+	transition: opacity .45s cubic-bezier(0.25, 1, 0.33, 1), transform .45s cubic-bezier(0.25, 1, 0.33, 1), border-color .45s cubic-bezier(0.25, 1, 0.33, 1), color .45s cubic-bezier(0.25, 1, 0.33, 1), background-color .45s cubic-bezier(0.25, 1, 0.33, 1), box-shadow .45s cubic-bezier(0.25, 1, 0.33, 1);
+}
+#footer-outer .widget {
+	margin-bottom: 0px
+}
+/*
+################
+               Donate Page
+################
+*/
+.plain-title {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 18px;
+    line-height: 26px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+/*
+################
+               Home
+################
+*/
+.nectar-button.regular-button.extra-color-1, .rounded-button {
+    border-radius: 20px !important;
+    padding: 10px 31px;
+    letter-spacing: 0.7px !important;
+	margin-top: 20px;
+		margin-bottom: 40px;
+}
+.nectar-button.regular-button.extra-color-1:hover, .rounded-button {
+    box-shadow: none !important;
+    -ms-transform: translateY(none);
+    transform: translateY(none);
+    -webkit-transform: translateY(none);
+    background-color: #1b283b !important;
+}
+.small-container {
+	padding: 10% !important;
+}
+@media only screen and (max-width: 699px) {
+.small-container {
+	padding: 10% 0 !important;
+}
+}
+.xsmall-container {
+	padding: 5% 5% 10% 5% !important;
+}
+@media only screen and (max-width: 1000px) {
+.xsmall-container {
+	padding: 12% !important;
+}
+}
+@media only screen and (max-width: 699px) {
+.xsmall-container {
+	padding: 10% 0 !important;
+}
+}
+.large-container {
+	padding: 15% 0 !important;
+}
+.padding-sides {
+	padding: 0 10%;
+}
+@media only screen and (max-width: 699px) {
+.padding-sides {
+	padding: 5% !important;
+}
+}
+.vh50 {
+	height: 50vh;
+}
+body[data-button-style*="slightly_rounded"] .nectar-button.see-through-2, .white-button {
+	border-radius: 0px !important;
+-webkit-border-radius: 0px !important;
+box-shadow: none;
+-webkit-transition: none;
+transition: none;
+letter-spacing: 0.7px;
+padding: 7px 22px;
+	margin-top: 20px;
+	  transition: 0.4s;
+}
+.white-button-2 {
+    border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    box-shadow: none;
+    -webkit-transition: none;
+    letter-spacing: 0.7px !important;
+    padding: 7px 22px !important;
+    margin-top: 20px;
+	color: white !important;
+	border-color: white !important;
+}
+.large-title {
+	font-size:70px;
+	    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+	line-height: 56px;
+}
+.newsletter-title {
+	position: absolute;
+	bottom: 0px;
+}
+@media only screen and (max-width: 1000px) {
+.newsletter-title {
+	display: none;
+}
+}
+@media only screen and (max-width: 1000px) {
+.center-tablet {
+	text-align: center;
+}
+}
+@media only screen and (max-width: 699px) {
+.center-phone {
+	text-align: center;
+}
+}
+body[data-form-submit="regular"] .container-wrap input[type="submit"] {
+	    opacity: 1;
+    transition: opacity 0.2s linear 0s;
+    -webkit-transition: opacity 0.2s linear 0s;
+    background-color: #ec1557 !important;
+	padding: 14px 25px 12px 25px !important;
+	text-transform: uppercase;
+	font-size: 13px;
+	font-family: canada-type-gibson,sans-serif;
+	font-weight: 400;
+	letter-spacing: 1px;
+	margin-top: 7px;
+	margin-bottom: 30px;
+	border-radius: 38px !important;
+	transition: opacity .45s cubic-bezier(0.25, 1, 0.33, 1), transform .45s cubic-bezier(0.25, 1, 0.33, 1), border-color .45s cubic-bezier(0.25, 1, 0.33, 1), color .45s cubic-bezier(0.25, 1, 0.33, 1), background-color .45s cubic-bezier(0.25, 1, 0.33, 1), box-shadow .45s cubic-bezier(0.25, 1, 0.33, 1);
+}
+.span_12.light input[type="email"] {
+	    background-color: transparent;
+    border: 1px solid #787c94 !important;
+    color: #787c94;
+    margin-top: 15px;
+}
+
+/*
+################
+               Home Slider 
+################
+*/
+.swiper-slide .content {
+    padding: 0px 50px;
+	bottom: 50px !important;
+}
+@media only screen and (max-width: 690px) {
+.swiper-slide .content {
+    padding: 0px 15px;
+}
+}
+@media only screen and (max-width: 1000px) {
+.nectar-slider-wrap .swiper-slide[data-y-pos="bottom"] .content {
+    bottom: 30px !important;
+    top: auto !important;
+}
+}
+@media only screen and (max-width: 699px) {
+.nectar-slider-wrap .swiper-slide[data-y-pos="bottom"] .content {
+    bottom: 10px !important;
+    top: auto !important;
+}
+}
+@media only screen and (max-width: 1000px) and (min-width: 691px) {
+.swiper-slide .content {
+    padding: 0px 30px;
+}
+}
+.swiper-slide .content .buttons {
+    padding-top: 3px !important;
+}
+@media only screen and (min-width: 829px) {
+.swiper-slide .content .buttons {
+    position: absolute;
+    bottom: 0px;
+    right: 50px;
+}
+}
+@media only screen and (min-width: 829px) {
+.nectar-slider-wrap[data-full-width="true"] .swiper-slide .content p {
+    font-size: 18px !important;
+    line-height: 38px;
+    font-weight: 300;
+    position: absolute;
+    right: 226px;
+    bottom: 9px;
+}
+}
+@media only screen and (max-width: 829px) {
+body .nectar-slider-wrap[data-fullscreen="true"] .swiper-slide .content p {
+    font-size: 16px !important;
+    line-height: 14px !important;
+    font-weight: 300;
+		Padding: 0px;
+}
+}
+.swiper-slide .content h2 {
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+}
+@media only screen and (min-width: 829px) {
+.swiper-slide .content h2 {
+    font-size: 60px;
+    line-height: 61px;
+    letter-spacing: -2px;
+    position: absolute;
+    bottom: 0px;
+    left: 50px;
+    width: 65%;
+
+}
+}
+@media only screen and (max-width: 829px) {
+.swiper-slide .content h2 {
+letter-spacing: 0.03em !important;
+    width: 100%;
+}
+}
+@media only screen and (max-width: 1300px) and (min-width: 800px) {
+	.nectar-slider-wrap[data-full-width="true"] .swiper-slide .content h2 {
+    font-size: 55px !important;
+    line-height: 51px !important;
+    width: 55%;
+}
+}
+@media only screen and (max-width: 799px) and (min-width: 700px) {
+	body .nectar-slider-wrap[data-fullscreen="true"] .swiper-slide .content h2 {
+  position: relative;
+font-size: 50px !important;
+line-height: 45px !important;
+}
+}
+@media only screen and (max-width: 699px) {
+	body .nectar-slider-wrap[data-fullscreen="true"] .swiper-slide .content h2 {
+  position: relative;
+font-size: 30px !important;
+line-height: 28px !important;
+}
+}
+
+.swiper-slide .image-bg:before {
+    content: '';
+    background:  linear-gradient(transparent, #1b283b);
+    display: block !important;
+    width: 100%;
+    height: 50vh; !important;
+	bottom: 0px !important;
+	position: absolute;
+}
+body .nectar-slider-wrap[data-fullscreen="true"] .swiper-slide .button.transparent_2 a {
+    box-shadow: none;
+    padding: 13px 24px 10px 24px;
+    border: 2px solid #fff;
+    line-height: 12px;
+    color: #fff;
+    margin: 0px 0px;
+    letter-spacing: 2px;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 12px !important;
+    border-radius: 0px !important;
+}
+body .swiper-slide .button.transparent_2 .primary-color:hover {
+    background-color: #ec1557 !important;
+	    border: 2px solid #ec1557 !important;
+}
+.slider-pagination {
+    width: 30px !important;
+    display: inline-block !important;
+    line-height: 0 !important;
+}
+.swiper-container[data-bullet_position="right"] .slider-pagination-wrap {
+	bottom: auto !important;
+top: 50% !important;
+-webkit-transform: translateY(-50%) translateX(-50%) !important;
+transform: translateY(-50%) translateX(-50%) !important;
+	text-align: right;
+}
+.credit {
+    font-size: 16px;
+    padding-bottom: 0px !important;
+    line-height: 22px;
+}
+.nectar-slider-wrap * {
+    box-sizing: border-box;
+    color: #9b9fb4;
+}
+.ns-heading-el {
+	text-transform: uppercase;
+}
+/*
+################
+               What's On 
+################
+*/
+.event-title {
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    color: #1b283b;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 30px;
+		margin-bottom: 9px;
+}
+.event-date {
+	    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    color: #798190;
+    letter-spacing: 0.0em;
+}
+.event-subtitle {
+	    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 19px;
+    color: #1b283b;
+    letter-spacing: 0.01em;
+		padding-bottom: 4px;
+		margin-top: -4px;
+}
+.event-tile-labels {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    overflow-y: hidden;
+	
+}
+.event-tile-label {
+    padding: 2px 14px;
+    height: 20px;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    white-space: nowrap;
+    margin: 0px 5px 14px 0px;
+    height: px;
+    position: relative;
+    z-index: 1;
+    border-radius: 12px;
+    border: 0;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    background-color: #ec1557;
+    color: white;
+}
+.tablepadding {
+	padding-top: 50px !important;
+}
+body[data-button-style*="slightly_rounded"] .blog-recent[data-style*="classic_enhanced"] .meta-category a {
+    background-color: #1b283b;
+    border-color: #1b283b;
+}
+/*
+################
+               What's On Table 
+################
+*/
+[class^="col-"], [class*=" col-"] {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.col-md-4 {
+    -ms-flex: 0 0 33.3333333333%;
+    flex: 0 0 33.3333333333%;
+    max-width: 33.3333333333%;
+			text-align: center;
+}
+@media only screen and (max-width: 1000px) and (min-width: 701px) {
+	.col-md-4 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+}
+	
+@media only screen and (max-width: 700px) {
+.col-md-4 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+		margin-bottom:40px
+}
+}
+.col-md-4 {
+    position: relative;
+    width: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+.showtable {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+
+
+/*
+################
+               Event Tiles
+################
+*/
+div.event-tile {
+   position: relative;
+   width: 100%;
+   height: auto;
+   color: #000;
+	margin-bottom: 25px;
+	
+}
+figure {
+	width: 99.5%;
+	height: auto;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	overflow: hidden;
+	border-radius:3px;
+}
+.event-tile-image {
+	-webkit-transform: scale(1);
+	transform: scale(1);
+	-webkit-transition: .3s ease-in-out;
+	transition: .3s ease-in-out;
+}
+div.event-tile:hover {
+   cursor: hand;
+   cursor: pointer;
+}
+div.event-tile:hover .event-tile-image {
+	-webkit-transition: .3s ease-in-out;
+	transition: .3s ease-in-out;
+	-webkit-transform: scale(1.3);
+	transform: scale(1.07);
+}
+a.divLink {
+   position: absolute;
+   width: 100%;
+   height: 100%;
+   top: 0;
+   left: 0;
+   text-decoration: none;
+   /* Makes sure the link doesn't get underlined */
+   z-index: 10;
+   /* raises anchor tag above everything else in div */
+   background-color: white;
+   /*workaround to make clickable in IE */
+   opacity: 0;
+   /*workaround to make clickable in IE */
+   filter: alpha(opacity=0);
+   /*workaround to make clickable in IE */
+}
+.showlink {
+  position:absolute; 
+  width:100%;
+  height:100%;
+  top:0;
+  left: 0;
+  z-index: 1;
+}
+.blog-recent[data-style*="classic_enhanced"][data-remove-post-nectar-love="1"][data-remove-post-comment-number="1"][data-remove-post-author="1"] .inner-wrap {
+    padding-bottom: 0;
+    background-color: transparent;
+}
+.blog-recent[data-style*="classic_enhanced"] .post-featured-img {
+    background: transparent !important;
+}
+.dates-times {
+				    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 300 !important;
+    font-style: normal !important;
+	color: #1b283b;
+	margin-bottom: 20px;
+
+}
+/*
+################
+     Theatre Lounge Event Tiles
+################
+*/
+div.lounge-event-tile {
+   position: relative;
+   width: 100%;
+   height: auto;
+   color: #000;
+	margin-bottom: 25px;
+	background-color: white;
+	text-align: left !important;
+	border-radius: 4px;
+}
+.event-info {
+	margin: 30px;
+}
+.lounge-event-tile-labels {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: center;
+    justify-content: left;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    overflow-y: hidden;
+}
+.lounge-event-date {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    color: #798190;
+    letter-spacing: 0.0em;
+    padding-bottom: 3px;
+}
+.lounge-event-title {
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    color: #1b283b;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 30px;
+    margin-bottom: 16px;
+}
+/*
+################
+     Theatre Lounge Event Pages 
+################
+*/
+select {
+    font-size: 14px;
+    font-family: canada-type-gibson,sans-serif !important;
+	color: #1b283b !important;
+}
+.woocommerce .variations td.label label {
+    color: #1b283b;
+    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 500 !important;
+}
+.woocommerce .summary .price, .woocommerce div.product .summary p.price {
+	color: #1b283b;
+}
+.quote-left {
+    font-size: 28px;
+    text-align: left;
+    font-weight: 500;
+    padding-bottom: 10px;
+    line-height: 38px;
+}
+.quote-sub-left {
+    text-align: left;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    font-size: 16px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.woocommerce div.product_meta > span {
+    color: #1b283b;
+}
+div.wpforms-container-full .wpforms-form input.wpforms-field-medium, div.wpforms-container-full .wpforms-form select.wpforms-field-medium {
+	max-width: 100% !important;
+}
+div.wpforms-container-full .wpforms-form .wpforms-field-label {
+	  text-align: left;
+  font-family: canada-type-gibson,sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 17px;
+  line-height: 10px !important;
+padding-bottom: 10px;
+}
+.span_12.light input[type="email"] {
+	margin-top: 0px;
+		background-color: transparent !important;
+		padding: 20px 10px !important;
+}
+div.wpforms-container-full .wpforms-form input[type="text"] {
+	background-color: transparent !important;
+	border-radius: 2px;
+	border: 1px solid #787c94 !important;
+	color: #fff !important;
+			padding: 20px 10px !important;
+}
+div.wpforms-container-full .wpforms-form select  {
+		background-color: transparent !important;
+	border-radius: 2px;
+	border: 1px solid #787c94 !important;
+	color: #fff !important;
+			padding: 13px 10px !important;
+height: 45px
+}
+div.wpforms-container-full .wpforms-form input[type="text"] {
+	color: #fff !important;
+} 
+.span_12.light input[type="text"]:focus {
+	border-color: white !important;
+}
+/*
+################
+              Show Page Hero 
+################
+*/
+
+.show-info-left {
+	position: absolute;
+bottom: 40px;
+left: 50px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 70%;
+    flex: 0 0 70%;
+    max-width: 70%;
+}
+@media only screen and (max-width: 1049px) and (min-width: 690px) {
+	.show-info-left {
+	left: 20px;
+		bottom: 30px;
+	}
+}
+@media only screen and (max-width: 689px) {
+		.show-info-left {
+	left: 10px;
+		bottom: 30px;
+				    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+	}
+}
+
+.show-info-labels {
+    display: -ms-inline-flex;
+    display: inline-flex;
+    -ms-flex-pack: center;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    overflow-y: hidden;
+}
+@media only screen and (max-width: 689px) {
+.show-info-labels {
+	display: none;
+	}
+}
+.show-info-label {
+    padding: 2px 14px;
+    height: 20px;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    white-space: nowrap;
+		margin: 0px 8px 16px 1px;
+    height: px;
+    position: relative;
+    z-index: 1;
+    border-radius: 12px;
+    border: 0;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    background-color: #ec1557;
+    color: white;
+}
+.show-info-label-alt {
+    padding: 2px 14px;
+    height: 20px;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    white-space: nowrap;
+		margin: 16px 7px;
+    position: relative;
+    z-index: 1;
+    border-radius: 12px;
+    border: 0;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    background-color: #ec1557;
+    color: white;
+    text-align: center;
+}
+@media only screen and (max-width: 1000px) {
+.show-info-label-alt {
+margin: 16px 7px 16px 0px;
+}
+}
+.show-subtitle {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 24px;
+    margin-bottom: 6px;
+		line-height: 26px;
+}
+@media only screen and (max-width: 689px) {
+	.show-subtitle {
+		font-size: 20px;
+	}
+}
+	
+.show-subtitle2 {
+	  font-size: 16px;
+    color: #888c94;
+}
+.show-title {
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    font-size: 60px;
+		line-height: 56px;
+    letter-spacing: -0.015em;
+}
+@media only screen and (max-width: 689px) {
+	.show-title {
+	font-size:36px;
+		line-height: 36px;
+}
+}
+@media only screen and (min-width: 1050px) {
+.show-info-right {
+	position: absolute;
+bottom: 40px;
+right: 50px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+	text-align: right !important;
+	float: right !important;
+}
+}
+@media only screen and (max-width: 1049px) and (min-width: 690px) {
+.show-info-right {
+	position: absolute;
+bottom: 35px;
+right: 30px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+	text-align: right !important;
+	float: right !important;
+}
+}
+@media only screen and (max-width: 689px) {
+.show-info-right {
+	display: none;
+	}
+}
+@media only screen and (max-width: 689px) {
+.show-info-right {
+	position: absolute;
+bottom: 80px;
+right: 20px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+	text-align: right !important;
+	float: right !important;
+}
+}
+
+
+
+@media only screen and (min-width: 1050px) {
+.right-inline {
+	    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: center;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    overflow-y: hidden;
+}
+}
+@media only screen and (min-width: 1050px) {
+.show-date {
+font-family: canada-type-gibson,sans-serif;
+font-weight: 400;
+font-style: normal;
+font-size: 16px;
+margin-top: 14px;
+margin-right: 20px;
+}
+}
+
+.show-date {
+	font-family: canada-type-gibson,sans-serif;
+font-weight: 400;
+font-style: normal;
+font-size: 16px;
+		text-align: right;
+	line-height: 20px;
+	}
+.show-date-alt {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 20px;
+    margin-top: 24px;
+    margin-bottom: 40px;
+}
+
+body[data-button-style*="slightly_rounded"] .col.dark .nectar-button.see-through-2, .book-button {
+    border-color: rgba(0,0,0,0.15);
+    color: #000;
+    border-radius: 0px !important;
+	font-size: 13px;
+	letter-spacing: 2px;
+		font-family: canada-type-gibson,sans-serif;
+font-weight: 400;
+font-style: normal;
+	padding-left: 17px;
+padding-right: 0px;
+	padding-top: 3px;
+padding-bottom: 8px;
+	line-height: 20px;
+}
+.book-button-alt {
+  border-color: rgba(0,0,0,0.15);
+  color: #000;
+  border-radius: 0px !important;
+  font-size: 13px;
+  letter-spacing: 2px;
+  font-family: canada-type-gibson,sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 20px;
+}
+
+body[data-button-style*="rounded_shadow"] .nectar-button:hover {
+	    -webkit-transform: none;
+}
+#grad2 {
+	height: 50vh;
+	background-image: linear-gradient(transparent, #1b283b);
+	margin-bottom: -2px;
+}
+@media only screen and (max-width: 700px) {
+#grad2 {
+	height: 60vh;
+	}
+}
+#grad3 {
+	height: 100vh;
+	background-image: linear-gradient(transparent, #162234);
+	margin-bottom: -2px;
+}
+.grad-bottom {
+    bottom: -50% !important;
+    position: relative !important;
+}
+.align-bottom {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+.price-section {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    top: 25px !important;
+    position: absolute;
+		padding-bottom: 0px;
+	color: #787c94;
+}
+@media only screen and (max-width: 1000px) {
+.price-section {
+    position: revert;
+}
+}
+.price-button {
+position: absolute;
+right: 2px;
+top: 13px;
+}
+.hero {
+min-height: calc(100vh - 95px) !important;
+}
+.tc_seating_map_button {
+	    box-shadow: none;
+    padding: 13px 24px 10px 24px;
+    border: 2px solid #fff;
+    line-height: 12px;
+    color: #fff;
+    margin: 0px 0px;
+    letter-spacing: 2px;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 12px !important;
+    border-radius: 0px !important;
+    background-color: transparent !important;
+	cursor: pointer;
+}
+.tc_seating_map_button:hover {
+	   background-color: #ec1557 !important;
+border: 2px solid #ec1557 !important;
+}
+.tc-modal button.tc_cart_button:hover, .tc-modal button.tc_cart_button:active, .tc-modal-woobridge button.tc_cart_button:hover, .tc-modal-woobridge button.tc_cart_button:active {
+    border: none;
+    cursor: pointer;
+    background: #ec1557 !important;
+    color: white !important;
+}
+/*
+################
+         Alt Show Page Hero 
+################
+*/
+@media only screen and (min-width: 1001px) {
+.desktop-none {
+	display: none;
+}
+}
+@media only screen and (max-width: 1000px) {
+.devices-none {
+	display: none;
+}
+}
+/*
+################
+         Show Page
+################
+*/
+.text-block-padding {
+    padding-top: 10%;
+    padding-bottom: 10% !important;
+}
+.text-block-padding-small {
+	padding: 6% 0px !important;
+}
+body[data-button-style*="slightly_rounded"] .nectar-hor-list-item .nectar-list-item-btn {
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    float: right;
+}
+.nectar-hor-list-item > .nectar-list-item {
+    font-size: 17px;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    color: #787c94;
+}
+.nectar-hor-list-item .nectar-list-item-btn {
+    padding: 13px 24px 10px 24px;
+    border: 2px solid #787c94;
+    line-height: 12px;
+    color: #787c94;
+    margin: 0px 0px;
+    letter-spacing: 2px;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 12px !important;
+}
+.nectar-hor-list-item[data-hover-effect="default"] .nectar-list-item-btn:hover {
+	border-color: #ec1557;
+background-color: #ec1557;
+}
+.nectar-hor-list-item:hover {
+background-color: #232d3e !important;
+}
+.nectar-hor-list-item {
+	    border-top: 0.1px solid #ffffff0f;
+}
+.divider-border {
+    margin: 0px !important;
+}
+.divider-border[data-color="extra-color-2"] {
+	    background-color: #ffffff0f !important;
+	    height: 1px !important;
+}
+.price {
+  font-size: 30px !important;
+	display: none !important;
+
+}
+.woocommerce div.product .product_title {
+  margin-bottom: 21px;
+}
+.animateddelay {
+
+    animation-duration: 1s !important;
+    animation-fill-mode: both !important;
+    animation-delay: 200ms !important;
+
+}
+.animateddelay2 {
+
+    animation-duration: 1s !important;
+    animation-fill-mode: both !important;
+    animation-delay: 400ms !important;
+
+}
+.flickity-page-dots .dot::before {
+    background: #333;
+    width: 12px !important;
+    height: 12px !important;
+    display: block;
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: 0;
+    border-radius: inherit !important;
+}
+
+.flickity-page-dots .dot {
+    border-radius: 93px;
+	height: 37px;
+width: 12px;
+position: relative;
+margin: 0 5px;
+}
+.single .post .content-inner .post-featured-img img {
+    margin-bottom: 0px;
+}
+.blog-recent[data-style="classic_enhanced"][data-color-scheme="dark"] .inner-wrap {
+    background-color: #1b283b;
+}
+.blog-recent[data-style*="classic_enhanced"][data-color-scheme="dark"] .excerpt {
+	    color: #798190;
+}
+.blog-recent[data-style*="classic_enhanced"][data-color-scheme="dark"] .post-featured-img {
+	background: #1b283b;
+}
+.event-price {
+	padding-top: 3px !important;
+	position: inline-block;
+}
+.more-shows-title {
+	padding: 30px 0;
+}
+.single-post .vc_row.vc_row-flex.vc_row-o-full-height,
+.single-post .vc_row.vc_row-flex.vc_row-o-full-height > .span_12 {
+    min-height: calc(100vh - 98px)!important;
+}
+@media only screen and (max-width: 1000px) {
+.single-post .vc_row.vc_row-flex.vc_row-o-full-height,
+.single-post .vc_row.vc_row-flex.vc_row-o-full-height > .span_12 {
+    min-height: calc(100vh - 71px) !important;
+}
+}
+/*
+################
+              Blog
+################
+*/
+body[data-ext-responsive="true"].single-post .container-wrap.no-sidebar .post-area {
+	max-width: 100%;
+}
+body.material #page-header-wrap, body[data-header-resize="0"] #page-header-wrap {
+    margin-top: 0;
+}
+.masonry.classic_enhanced .masonry-blog-item .article-content-wrap {
+    padding: 17%;
+    position: relative;
+    z-index: 100;
+    background-color: #fff;
+    text-align: center;
+}
+
+
+#page-header-bg h1 {
+    padding-top: 10px;
+    padding-bottom: 0px !important;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    font-size: 72px;
+    line-height: 72px;
+    letter-spacing: -0.01em;
+}
+#page-header-bg .subheader {
+	    font-size: 28px;
+    line-height: 28px;
+    color: #888c94 !important;
+    position: absolute;
+    bottom: 22px;
+    right: 0px;
+    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    font-size: 24px;
+}
+body[data-bg-header="true"].blog .container-wrap {
+    padding-top: 4.1em !important;
+    background-color: #edeef2;
+}
+.masonry.classic_enhanced .masonry-blog-item h3.title {
+	    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    text-transform: uppercase;
+    color: #1b283b;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 30px;
+margin: 4px 0px 10px auto;
+}
+.masonry.classic_enhanced .post-header {
+	    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    color: #798190;
+    letter-spacing: 0.0em;
+}
+.masonry.classic_enhanced .post .excerpt {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 19px !important;
+    color: #1b283b;
+    letter-spacing: 0.01em;
+}
+.masonry.classic_enhanced .masonry-blog-item .article-content-wrap {
+padding: 24px 3% 40px 3%;
+    position: relative;
+    z-index: 100;
+    background-color: #edeef2;
+}
+.masonry-blog-item .inner-wrap {
+	background-color: #edeef2;
+}
+body[data-button-style*="slightly_rounded"] .masonry.classic_enhanced .posts-container article .meta-category a {
+    padding: 1px 10px 1px 12px;
+    font-size: 0.87em;
+    font-family: druk;
+    font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+    letter-spacing: 1.4px;
+	-webkit-border-radius: 28px !important;
+}
+.masonry.classic_enhanced .masonry-blog-item .inner-wrap {
+	box-shadow: none;
+}
+body[data-button-style*="slightly_rounded"] .masonry.classic_enhanced .posts-container article .meta-category a:hover {
+	background-color: #ec1557 !important;
+}
+.post-header, #single-below-header {
+	margin-bottom: 5px !important;
+}
+.post-area.masonry.classic_enhanced .post:not(.wide_tall) .img-link {
+    position: relative;
+    display: block;
+    width: 99.5%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    overflow: hidden;
+    border-radius: 3px;
+}
+
+
+.single-post #page-header-bg, .single .heading-title {
+  display: none;
+}
+body[data-header-resize="0"] .container-wrap { 
+    padding-top: 0px !important;
+}
+.nectar-social.fixed {
+    display: none;
+}
+body[data-button-style*="slightly_rounded"] button {
+	padding: 13px 24px 10px 24px;
+border: 2px solid #787c94;
+line-height: 12px;
+color: #787c94;
+margin: 0px 0px;
+letter-spacing: 2px;
+font-family: canada-type-gibson,sans-serif;
+font-weight: 400;
+font-style: normal;
+font-size: 12px !important;
+background-color: transparent;
+border-radius: 0px !important;
+}
+
+.comments-section {
+	display: none;
+}
+.seating-button {
+    float: right;
+}
+@media only screen and (max-width: 1000px) {
+.seating-button {
+    float: right;
+    position: absolute;
+    top: 25px;
+    right: 25px;
+}
+}
+body[data-button-style*="slightly_rounded"] button:hover {
+		background-color: #ec1557;
+border-color: #ec1557;
+color: white;
+cursor: pointer;
+}
+.blog-recent .col {
+    margin-bottom: 20px !important;
+}
+.tc-modal button.tc_cart_button {
+background-color: #1b283b !important;
+text-transform: uppercase !important;
+font-family: druk !important;
+font-weight: 500 !important;
+font-size: 20px !important;
+letter-spacing: 0px !important;
+	  font-style: normal;
+  font-stretch: normal;
+}
+.tc-modal button.tc_cart_button:hover {
+    color: white !important;
+}
+/*
+################
+              Lightbox
+################
+*/
+body[data-button-style*="slightly_rounded"] button.fancybox-button {
+    padding: 8px !important;
+	border: none;
+margin: 5px;
+}
+.fancybox-navigation button::before {
+	display: none;
+}
+.fancybox-button:hover {
+    color: #ec1557 !important;
+	background-color: transparent !important;
+}
+/*
+################
+              Category Pages
+################
+*/
+.blog-recent[data-style*="classic_enhanced"] .article-content-wrap {
+padding: 24px 3% 40px 3%;
+    position: relative;
+    z-index: 100;
+    background-color: #edeef2;
+	  text-align: center;
+}
+.event-table {
+	margin-top: 5% !important;
+}
+@media only screen and (max-width: 1000px) and (min-width: 690px) {
+.span_4 {
+    width: 48% !important;
+}
+}
+	.blog-recent[data-style*="classic_enhanced"] h3.title {
+    	    font-family: 'Druk';
+    font-weight: 500;
+    font-style: normal !important;
+    font-stretch: normal !important;
+    text-transform: uppercase;
+    color: #1b283b;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 28px;
+margin: 4px 0px 10px auto;
+}
+@media only screen and (max-width: 690px) {
+	.blog-recent[data-style*="classic_enhanced"] h3.title {
+    letter-spacing: 0.03em;
+	}
+}
+.blog-recent[data-style*="classic_enhanced"] .excerpt {
+	    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 19px !important;
+    color: #1b283b;
+    letter-spacing: 0.01em;
+}
+.blog-recent[data-style*="classic_enhanced"] .post-header {
+		    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    color: #798190;
+    letter-spacing: 0.0em;
+}
+.blog-recent[data-style*="classic_enhanced"] .meta-category a {
+    display: inline-block;
+    line-height: 20px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: #fff;
+    border: 2px solid #1b283b;
+    transition: all .2s ease;
+    padding: 1px 10px 1px 12px;
+    font-size: 0.87em;
+    font-family: druk;
+    font-weight: 500;
+	  font-style: normal;
+  font-stretch: normal;
+    letter-spacing: 1.4px;
+    -webkit-border-radius: 28px !important;
+    background-color: #1b283b !important;
+}
+.blog-recent[data-style*="classic_enhanced"] .meta-category a:hover {
+	background-color: #ec1557 !important;
+	border-color: #ec1557 !important;
+}
+.blog-recent[data-style*="classic_enhanced"] .inner-wrap {
+	box-shadow: none;
+}
+.blog-recent[data-style*="classic_enhanced"] .post-featured-img {
+	    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    overflow: hidden;
+    border-radius: 3px;
+}
+/*
+################
+              Contact
+################
+*/
+.contact-container {
+	padding: 5% 8%% 10% 8% !important;
+}
+@media only screen and (max-width: 1000px) {
+.contact-container {
+	padding: 8% 12% !important;
+}
+}
+@media only screen and (max-width: 699px) {
+.contact-container {
+	padding: 10% 0 !important;
+}
+}
+
+/*
+################
+               Hire 
+################
+*/
+.hire-info {
+	padding: 30px 36% 15% 15%;
+}
+.hire-info-title {
+	padding: 10% 15% 20px 15%;
+}
+.hire-info-button {
+	margin: 0 15% 15% 15% !important;
+	border-radius: 0px !important;
+	padding: 12px 25px !important;
+}
+@media only screen and (max-width: 1000px) {
+.hire-info {
+	padding: 30px 25% 15% 8%;
+}
+}
+@media only screen and (max-width: 1000px) {
+.hire-info-title {
+	padding: 10% 15% 20px 8%;
+}
+}
+@media only screen and (max-width: 1000px) {
+.hire-info-button {
+	margin: 0 15% 15% 8% !important;
+	border-radius: 0px !important;
+	padding: 12px 25px !important;
+}
+}
+body[data-button-style*="slightly_rounded"] .nectar-button, .hire-info-button {
+	border-radius: 0px !important;
+}
+.hire-info-button-2 {
+	border-radius: 0px !important;
+	padding: 9px 30px !important;
+}
+body[data-button-style*="slightly_rounded"] .nectar-button, .hire-info-button-2 {
+	border-radius: 30px !important;
+}
+.cascade-padding {
+		margin-top: -5%;
+	  margin-left: -10%;
+    padding: 8%;
+}
+.testimonial {
+    font-size: 24px;
+    line-height: 37px;
+    font-weight: 300;
+}
+@media only screen and (max-width: 700px) {
+.testimonial {
+    font-size: 18px;
+		line-height: 28px;
+}
+}
+.fifth-rightpadding {
+	    padding-right: 70px !important;
+}
+@media only screen and (max-width: 1000px) {
+.fifth-rightpadding {
+	    padding-right: 0px !important;
+}
+}
+.fifth-leftmargin {
+	    margin-left: -5% !important;
+}
+@media only screen and (max-width: 1000px) {
+	.fifth-leftmargin {
+	    margin-left: 0% !important;
+}
+}
+.Call-to-action-body {
+    font-family: gibson;
+    font-weight: 300;
+}
+@media only screen and (min-width: 1050px) {
+.hire-info-right {
+	position: absolute;
+bottom: 40px;
+right: 50px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+	text-align: right !important;
+	float: right !important;
+}
+}
+@media only screen and (max-width: 1049px) and (min-width: 690px) {
+.hire-info-right {
+	position: absolute;
+bottom: 65px;
+right: 30px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+	text-align: right !important;
+	float: right !important;
+}
+}
+
+@media only screen and (max-width: 689px) {
+.hire-info-right {
+	position: absolute;
+bottom: 80px;
+right: 20px;
+margin-bottom: 0px !important;
+	    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+	text-align: right !important;
+	float: right !important;
+}
+}
+@media only screen and (min-width: 1001px) {
+.xsmall-container-alt {
+	padding: 5% 5% 10% 5% !important;
+}
+}
+@media only screen and (max-width: 1000px) and (min-width: 700px) {
+.xsmall-container-alt {
+	padding: 5% 3% 10% 3% !important;
+}
+}
+@media only screen and (max-width: 699px) {
+.xsmall-container-alt {
+	padding: 5% 0% 10% 0% !important;
+}
+}
+
+/*
+################
+               Basket 
+################
+*/
+.woocommerce table.shop_table td {
+    font-size: 14px;
+}
+.info_section h2 {
+    font-size: 25px;
+    line-height: 33px;
+    padding-bottom: 10px;
+}
+body .nectar-slide-in-cart .total, body .nectar-slide-in-cart .total strong {
+    color: #1c283b;
+    font-weight: 300;
+}
+#header-outer .widget_shopping_cart a.button:hover, .nectar-slide-in-cart .widget_shopping_cart a.button:hover {
+    background-color: #ec1557!important;
+}
+.woocommerce-cart .woocommerce table.shop_table .product-name a, .nectar-slide-in-cart:not(.style_slide_in_click) .woocommerce.widget_shopping_cart .total, .woocommerce-Price-amount {
+    color: inherit;
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+/*
+################
+    Mini Basket 
+################
+*/
+.nectar-slide-in-cart:not(.style_slide_in_click) .cart_list .woocommerce-mini-cart-item .product-details>a {
+	    font-family: canada-type-gibson,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+.nectar-slide-in-cart .widget_shopping_cart .cart_list .mini_cart_item > a {
+  font-size: 18px;
+  line-height: 24px;
+  font-family: canada-type-gibson,sans-serif !important;
+  font-style: normal !important;
+  padding-bottom: 9px !important;
+}
+/*
+################
+    Woocommerce Product Page 
+################
+*/
+.woocommerce div.product .product_title {
+    clear: none;
+    margin-top: 0;
+    padding: 0;
+    font-family: druk;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    margin-top: 20px;
+		color: #1b283b;
+	  font-style: normal;
+  font-stretch: normal;
+}
+.woocommerce-page button[type="submit"].single_add_to_cart_button, body[data-form-submit="regular"].woocommerce-page .container-wrap button[type="submit"].single_add_to_cart_button {
+    text-transform: uppercase;
+    font-size: 16px;
+    padding: 20px 45px !important;
+    transition: all 0.2s ease;
+    background-color: #ec1557 !important;
+    opacity: 1;
+    border-radius: 138px !important;
+}
+.woocommerce .woocommerce-breadcrumb {
+    display: none;
+}
+.woocommerce.single-product div.product[data-tab-pos] {
+    height: auto;
+    width: auto;
+    display: block;
+    margin-top: 30px;
+}
+.woocommerce-product-gallery__image.flex-active-slide {
+    pointer-events: none !important;
+}
+.woocommerce .products.related {
+    clear: both;
+    display: none;
+}
+/*
+################
+    Woocommerce Shopping Cart 
+################
+*/
+.woocommerce table.shop_table {
+	margin: 49px -1px 24px 0;
+}
+/*
+################
+    Lightbox
+################
+*/
+.fancybox-navigation .fancybox-button--arrow_left, .fancybox-button--arrow_right {
+    border-color: transparent !important;
+}
+/*
+################
+    Checkout
+################
+*/
+.woocommerce-checkout #payment ul.payment_methods {
+    padding: 1em 0px;
+}
+.woocommerce table.order-review th {
+    font-size: 16px;
+    padding: 6px 0px;
+}
+
+.woocommerce-thankyou-order-received {
+    font-family: canada-type-gibson,sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 26px;
+    line-height: 26px;
+    padding-bottom: 1.3em;
+    margin-top: 40px;
+}
+.woocommerce ul.order_details {
+    margin: 0 0 3em;
+    list-style: none;
+    font-size: 18px;
+}
+.woocommerce a.button, .woocommerce-page a.button {
+		height: auto;
+		padding: 15px 22px !important;
+    background-color: #1b283b;
+    text-transform: uppercase;
+    font-family: druk;
+    font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+    font-size: 20px !important;
+    letter-spacing: 0px;
+}
+/*
+################
+    Seating Plan
+################
+*/
+.tc-seating-tooltips p {
+    font-size: 17px !important;
+    width: 124% !important;
+    margin: 22px 0 0 -80px;
+    color: #151e2d;
+}
+.fa-times {
+    right: 10px;
+    color: black;
+}
+.tc_cart_remove_icon {
+    cursor: pointer;
+    font-size: 21px !important;
+}
+.tc-bottom-controls {
+    position: absolute;
+    bottom: -3px !important;
+}
+.fa-times::before {
+    font-size: 37px;
+}
+
+element.style {
+}
+#footer-outer #footer-widgets .col input[type=text], #footer-outer #footer-widgets .col input[type=email] {
+    padding: 10px;
+    width: 100%;
+}
+
+/*
+################
+    Seating Plan
+################
+*/
+input[type="email"] { 
+font-family: canada-type-gibson,sans-serif !important;
+}
+.tc-modal-woobridge .variations_button .quantity {
+    display: none !important;
+}
+/*
+################
+    Shopping Cart
+################
+*/
+.woocommerce .woocommerce-info {
+	font-size: 19px;
+line-height: 23px;
+color: #8b8fa3;
+font-family: canada-type-gibson,sans-serif;
+font-weight: 300;
+}
+.tc-single-cart-seat {
+	display: inline-block;
+	width: 100%;
+	margin-top: 5px;
+	font-size: 16px;
+	line-height: 23px;
+	font-family: canada-type-gibson,sans-serif;
+	font-weight: 300;
+}
+.woocommerce-cart table.cart th, .woocommerce-cart .woocommerce table.shop_table .product-name a, td {
+font-size: 16px;
+line-height: 23px;
+font-family: canada-type-gibson,sans-serif;
+font-weight: 300;
+}
+.woocommerce table.shop_table tbody th {
+	font-size: 16px;
+font-family: canada-type-gibson,sans-serif;
+font-weight: 400 !important;
+}
+#ajax-content-wrap .cart_totals h2 {
+	    text-transform: uppercase;
+    font-family: druk;
+    font-weight: 500;
+	  font-style: normal;
+  font-stretch: normal;
+    font-size: 25px !important;
+    letter-spacing: 0px;
+    padding-bottom: 14px;
+}
+/*
+################
+    Flodesk Sign Up
+################
+*/
+
+[data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__form, [data-ff-el="root"].ff-61c0930814ec6db2d2b534c4 .ff-61c0930814ec6db2d2b534c4__form {
+    color: #8b8fa3;
+    width: 100%;
+    margin: 0;
+    padding: 0px !important;
+}
+[data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__button {
+    color: #ffffff !important;
+    line-height: 20px !important;
+    padding: 13px 25px 10px 25px !important;
+    text-transform: uppercase;
+    font-size: 13px !important;
+    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 40px;
+    border-radius: 38px !important;
+    width: auto !important;
+}
+[data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__button:hover {
+    cursor: pointer;
+    color: #fff !important;
+    background-color: #60657c !important;
+}
+[data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__form, [data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__title {
+	    font-family: canada-type-gibson,sans-serif !important;
+	font-weight: 400 !important;
+}
+[data-ff-el="root"].ff-61c0930814ec6db2d2b534c4 .ff-61c0930814ec6db2d2b534c4__title, .ff-61c0930814ec6db2d2b534c4__subtitle {
+    display: none !important;
+}
+[data-ff-el="root"].ff-61c0930814ec6db2d2b534c4 .ff-61c0930814ec6db2d2b534c4__control {
+    color: #a3aebc !important;
+    border: 1px solid #484747 !important;
+    height: 46px;
+    padding: 12px 20px;
+    font-size: 13px;
+    background: transparent !important;
+    text-align: left;
+    font-family: Helvetica, sans-serif;
+    font-weight: 400;
+    line-height: 20px;
+    border-radius: 0px;
+    letter-spacing: 0.1px;
+    text-transform: none;
+    margin-top: 24px !important;
+	box-shadow: none !important;
+}
+[data-ff-el="root"].ff-61c0930814ec6db2d2b534c4 .ff-61c0930814ec6db2d2b534c4__control:focus, [data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__control:focus {
+    background-color: white !important;
+    color: #1b283b !important;
+}
+[data-ff-el="root"].ff-61c0930814ec6db2d2b534c4 .ff-61c0930814ec6db2d2b534c4__button {
+    color: #ffffff !important;
+    line-height: 20px !important;
+    padding: 12px 25px 10px 25px !important;
+    text-transform: uppercase;
+    font-size: 13px !important;
+    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 40px;
+    border-radius: 38px !important;
+    width: auto !important;
+}
+body[data-form-submit="regular"] .container-wrap button[type="submit"] {
+	    padding: 12px 25px 10px 25px !important;
+}
+[data-ff-el="root"].ff-61c0930814ec6db2d2b534c4 .ff-61c0930814ec6db2d2b534c4__form, [data-ff-el="root"].ff-61c08b8514ec6db2d2b534bc .ff-61c08b8514ec6db2d2b534bc__form {
+    color: #8b8fa3;
+    text-align: left !important;
+    font-size: 15px !important;
+    font-family: canada-type-gibson,sans-serif !important;
+    font-weight: 400 !important;
+    padding-top: 11px !important;
+}
+
+
+.nectar-button.medium {
+  border-radius: 40px !important;
+}
+
+.woocommerce div.product form.cart {
+  margin-bottom: 2em;
+  display: none;
+}
+/*
+################
+    Top bar hero height correction
+################
+*/
+.single-post .vc_row.vc_row-flex.vc_row-o-full-height, .single-post .vc_row.vc_row-flex.vc_row-o-full-height > .span_12 {
+  min-height: calc(100vh - 140px) !important;
+}
+@media only screen and (max-width: 1000px) {
+.single-post .vc_row.vc_row-flex.vc_row-o-full-height, .single-post .vc_row.vc_row-flex.vc_row-o-full-height > .span_12 {
+  min-height: calc(100vh - 110px) !important;
+}
+}
+	.ItalicText {
+		font-style: italic;
+	}
+/*
+################
+    Toggles
+################
+*/
+body div[data-style*="minimal"] .toggle > .toggle-title a {
+font-family: canada-type-gibson,sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 21px;
+  line-height: 26px;
+}
+div[data-style="minimal"] .toggle > .toggle-title a {
+  padding: 30px 70px 30px 60px;
+  transition: color 0.15s ease;
+}
+div[data-style="minimal"] .toggle[data-inner-wrap="true"] > div .inner-toggle-wrap {
+  padding: 0 0 30px 60px;
+}
+div[data-style*="minimal"] .toggle > .toggle-title i {
+  left: 0;
+}
+body div[data-style="minimal"] .toggle {
+  margin-bottom: 0;
+  border-bottom: #2b2b2b 1px solid;
+}
+div.toggles.accordion {
+border-top: #2b2b2b 1px solid;
+}
+body a, div[data-style="minimal"] .toggle.open > .toggle-title a , body a, div[data-style="minimal"] .toggle:hover > .toggle-title a {
+	color: #ec1557;
+}
+div[data-style="minimal"] .toggle:hover > .toggle-title i::before, div[data-style="minimal"] .toggle:hover > .toggle-title i::after {
+	background-color: #ec1557;
+}
+div[data-style="minimal"] .toggle.default:hover i {
+		border-color: #ec1557;
+}
+.toggle > .toggle-title a {
+  color: rgb(27, 40, 59);
+}
+div[data-style*="minimal"] .toggle > .toggle-title i {
+	border: 2px solid #1b283b;
+}
+div[data-style="minimal"] .toggle > .toggle-title i::before, div[data-style="minimal"] .toggle > .toggle-title i::after {
+	border-color: #1b283b !important;
+	background-color: #1b283b;
+}
+#toggle-text li {
+font-family: canada-type-gibson,sans-serif !important;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 17px !important;
+  line-height: 27px !important;
+  padding-bottom: 0.6em;
+}
+.toggle-body {
+	font-family: canada-type-gibson,sans-serif !important;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 19px;
+  line-height: 29px;
+  padding-bottom: 1em;
+}
+/*
+################
+    Cookie stuff
+################
+*/
+#cookie-law-info-bar {
+box-shadow: none !important;
+  background-color: rgb(27, 40, 59) !important;
+  color: rgb(255, 255, 255) !important;
+}
+.cli-style-v2 .cli-bar-btn_container .cli-plugin-button, .cli-tab-footer .wt-cli-privacy-accept-btn {
+  border-radius: 40px;
+  padding: 11px 22px;
+}
+.cli-style-v2 .cli-bar-message {
+  font-family: canada-type-gibson,sans-serif !important;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 15px;
+  line-height: 20px;
+}
+#cookie-law-info-bar[data-cli-style="cli-style-v2"] {
+  padding: 14px 25px;
+  border-top: solid 1px rgb(90, 99, 113) !important;
+}
+.cli-tab-footer .wt-cli-privacy-accept-btn {
+  background-color: rgb(236, 21, 87);
+}
+.cli-tab-footer .wt-cli-privacy-accept-btn {
+  background-color: rgb(236, 21, 87);
+}
+.cli-tab-container h4, .cli-tab-container h1 {
+font-family: 'Druk';
+  font-weight: 500;
+  font-style: normal !important;
+  font-stretch: normal !important;
+  text-transform: uppercase;
+  color: #1b283b;
+  font-size: 25px;
+  letter-spacing: -0.01em;
+}
+.cli-tab-container p, .cli-privacy-content-text {
+  font-size: 15px;
+  line-height: 1.4;
+  margin-top: 0;
+  padding: 0;
+  color: #1b283b;
+  font-family: canada-type-gibson,sans-serif !important;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.product_title {
+clear: none;
+  margin-top: 0;
+  padding: 0;
+  font-family: druk;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  margin-top: 20px;
+  color: #1b283b;
+  font-style: normal;
+  font-stretch: normal;
+}
+</style>
+<noscript><style> .wpb_animate_when_almost_visible { opacity: 1; }</style></noscript><noscript><style id="rocket-lazyload-nojs-css">.rll-youtube-player, [data-lazy-src]{display:none !important;}</style></noscript><link rel='stylesheet' id='cookie-law-info-table-css' href='https://www.stamfordcornexchange.co.uk/wp-content/plugins/cookie-law-info/legacy/public/css/cookie-law-info-table.css?ver=3.5.6' media='all' />
+<link data-pagespeed-no-defer data-nowprocket data-wpacu-skip data-no-optimize data-noptimize rel='stylesheet' id='main-styles-non-critical-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/style-non-critical.css?ver=16.0.4' media='all' />
+<link data-pagespeed-no-defer data-nowprocket data-wpacu-skip data-no-optimize data-noptimize rel='stylesheet' id='fancyBox-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/plugins/jquery.fancybox.css?ver=3.3.1' media='all' />
+<link data-pagespeed-no-defer data-nowprocket data-wpacu-skip data-no-optimize data-noptimize rel='stylesheet' id='nectar-ocm-core-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/off-canvas/core.css?ver=16.0.4' media='all' />
+<link data-pagespeed-no-defer data-nowprocket data-wpacu-skip data-no-optimize data-noptimize rel='stylesheet' id='nectar-ocm-slide-out-right-material-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/off-canvas/slide-out-right-material.css?ver=16.0.4' media='all' />
+<link data-pagespeed-no-defer data-nowprocket data-wpacu-skip data-no-optimize data-noptimize rel='stylesheet' id='nectar-ocm-slide-out-right-hover-css' href='https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/css/build/off-canvas/slide-out-right-hover.css?ver=16.0.4' media='all' />
+
+</head><body class="wp-singular page-template-default page page-id-163156 wp-theme-salient wp-child-theme-salient-child material wpb-js-composer js-comp-ver-6.13.0 vc_responsive" data-footer-reveal="false" data-footer-reveal-shadow="none" data-header-format="centered-menu" data-body-border="off" data-boxed-style="" data-header-breakpoint="1000" data-dropdown-style="minimal" data-cae="easeOutCubic" data-cad="750" data-megamenu-width="contained" data-aie="none" data-ls="fancybox" data-apte="horizontal_swipe_basic" data-hhun="1" data-fancy-form-rcs="default" data-form-style="default" data-form-submit="regular" data-is="minimal" data-button-style="default" data-user-account-button="false" data-flex-cols="true" data-col-gap="default" data-header-inherit-rc="false" data-header-search="false" data-animated-anchors="true" data-ajax-transitions="false" data-full-width-header="true" data-slide-out-widget-area="true" data-slide-out-widget-area-style="slide-out-from-right" data-user-set-ocm="off" data-loading-animation="none" data-bg-header="false" data-responsive="1" data-ext-responsive="true" data-ext-padding="90" data-header-resize="0" data-header-color="custom" data-transparent-header="false" data-cart="false" data-remove-m-parallax="" data-remove-m-video-bgs="" data-m-animate="0" data-force-header-trans-color="light" data-smooth-scrolling="0" data-permanent-transparent="false" >
+	
+	<script type="rocketlazyloadscript" data-rocket-type="text/javascript">
+	 (function(window, document) {
+
+		 if(navigator.userAgent.match(/(Android|iPod|iPhone|iPad|BlackBerry|IEMobile|Opera Mini)/)) {
+			 document.body.className += " using-mobile-browser mobile ";
+		 }
+
+		 if( !("ontouchstart" in window) ) {
+
+			 var body = document.querySelector("body");
+			 var winW = window.innerWidth;
+			 var bodyW = body.clientWidth;
+
+			 if (winW > bodyW + 4) {
+				 body.setAttribute("style", "--scroll-bar-w: " + (winW - bodyW - 4) + "px");
+			 } else {
+				 body.setAttribute("style", "--scroll-bar-w: 0px");
+			 }
+		 }
+
+	 })(window, document);
+   </script><a href="#ajax-content-wrap" class="nectar-skip-to-content">Skip to main content</a><div class="ocm-effect-wrap"><div class="ocm-effect-wrap-inner">	
+	<div id="header-space" data-secondary-header-display="full" data-header-mobile-fixed='1'></div> 
+	
+		<div id="header-outer" data-has-menu="true" data-has-buttons="no" data-header-button_style="default" data-using-pr-menu="false" data-mobile-fixed="1" data-ptnm="false" data-lhe="animated_underline" data-user-set-bg="#1b283b" data-format="centered-menu" data-permanent-transparent="false" data-megamenu-rt="0" data-remove-fixed="0" data-header-resize="0" data-cart="false" data-transparency-option="0" data-box-shadow="large" data-shrink-num="6" data-using-secondary="1" data-using-logo="1" data-logo-height="60" data-m-logo-height="45" data-padding="18" data-full-width="true" data-condense="false" >
+			
+	<div id="header-secondary-outer" class="centered-menu" data-mobile="display_full" data-remove-fixed="0" data-lhe="animated_underline" data-secondary-text="true" data-full-width="true" data-mobile-fixed="1" data-permanent-transparent="false" >
+		<div class="container">
+			<nav>
+				<div class="nectar-center-text"><a href="https://tickets.stamfordcornexchange.co.uk/en/buyingflow/giftcard">Gift vouchers are now available. Click here to purchase online.</a></div>				
+			</nav>
+		</div>
+	</div>
+	
+
+<div id="search-outer" class="nectar">
+	<div id="search">
+		<div class="container">
+			 <div id="search-box">
+				 <div class="inner-wrap">
+					 <div class="col span_12">
+						  <form role="search" action="https://www.stamfordcornexchange.co.uk/" method="GET">
+														 <input type="text" name="s"  value="" aria-label="Search" placeholder="Search" />
+							 
+						<span>Hit enter to search or ESC to close</span>
+												</form>
+					</div><!--/span_12-->
+				</div><!--/inner-wrap-->
+			 </div><!--/search-box-->
+			 <div id="close"><a href="#"><span class="screen-reader-text">Close Search</span>
+				<span class="close-wrap"> <span class="close-line close-line1"></span> <span class="close-line close-line2"></span> </span>				 </a></div>
+		 </div><!--/container-->
+	</div><!--/search-->
+</div><!--/search-outer-->
+
+<header id="top">
+	<div class="container">
+		<div class="row">
+			<div class="col span_3">
+								<a id="logo" href="https://www.stamfordcornexchange.co.uk" data-supplied-ml-starting-dark="false" data-supplied-ml-starting="false" data-supplied-ml="false" >
+					<img class="stnd skip-lazy dark-version" width="0" height="0" alt="Stamford Corn Exchange Theatre" src="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/09/Corn-Exchange-Logo-16-16.svg"  />				</a>
+							</div><!--/span_3-->
+
+			<div class="col span_9 col_last">
+									<div class="nectar-mobile-only mobile-header"><div class="inner"></div></div>
+													<div class="slide-out-widget-area-toggle mobile-icon slide-out-from-right" data-custom-color="false" data-icon-animation="simple-transform">
+						<div> <a href="#sidewidgetarea" role="button" aria-label="Navigation Menu" aria-expanded="false" class="closed">
+							<span class="screen-reader-text">Menu</span><span aria-hidden="true"> <i class="lines-button x2"> <i class="lines"></i> </i> </span>
+						</a></div>
+					</div>
+				
+									<nav>
+													<ul class="sf-menu">
+								<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home nectar-regular-menu-item menu-item-23"><a href="https://www.stamfordcornexchange.co.uk/"><span class="menu-title-text">Home</span></a></li>
+<li id="menu-item-895" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-895"><a href="https://www.stamfordcornexchange.co.uk/whats-on/"><span class="menu-title-text">Whats On</span></a></li>
+<li id="menu-item-1727" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children nectar-regular-menu-item sf-with-ul menu-item-1727"><a href="#"><span class="menu-title-text">Hire</span><span class="sf-sub-indicator"><i class="fa fa-angle-down icon-in-menu" aria-hidden="true"></i></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-1726" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-1726"><a href="https://www.stamfordcornexchange.co.uk/theatre-hire/"><span class="menu-title-text">Theatre Hire</span></a></li>
+	<li id="menu-item-2896" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-2896"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-hire/"><span class="menu-title-text">The Theatre Lounge Hire</span></a></li>
+</ul>
+</li>
+<li id="menu-item-2014" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children nectar-regular-menu-item sf-with-ul menu-item-2014"><a href="#"><span class="menu-title-text">Theatre Lounge</span><span class="sf-sub-indicator"><i class="fa fa-angle-down icon-in-menu" aria-hidden="true"></i></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-2013" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-2013"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-whats-on/"><span class="menu-title-text">What&#8217;s On</span></a></li>
+	<li id="menu-item-2897" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-2897"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-hire/"><span class="menu-title-text">The Theatre Lounge Hire</span></a></li>
+</ul>
+</li>
+<li id="menu-item-1598" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children nectar-regular-menu-item sf-with-ul menu-item-1598"><a href="#"><span class="menu-title-text">Info</span><span class="sf-sub-indicator"><i class="fa fa-angle-down icon-in-menu" aria-hidden="true"></i></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-4529" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-4529"><a href="https://www.stamfordcornexchange.co.uk/your-visit/access/"><span class="menu-title-text">Access</span></a></li>
+	<li id="menu-item-1600" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-1600"><a href="https://www.stamfordcornexchange.co.uk/terms-and-conditions/"><span class="menu-title-text">T&#038;Cs</span></a></li>
+	<li id="menu-item-1537" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-1537"><a href="https://www.stamfordcornexchange.co.uk/support-us/"><span class="menu-title-text">Support Us</span></a></li>
+	<li id="menu-item-163221" class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-163156 current_page_item nectar-regular-menu-item menu-item-163221"><a href="https://www.stamfordcornexchange.co.uk/ticket-refund-protection/" aria-current="page"><span class="menu-title-text">Ticket Refund Protection</span></a></li>
+</ul>
+</li>
+<li id="menu-item-163045" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-163045"><a href="https://www.stamfordcornexchange.co.uk/gift-cards/"><span class="menu-title-text">Gift cards</span></a></li>
+<li id="menu-item-1624" class="menu-item menu-item-type-post_type menu-item-object-page nectar-regular-menu-item menu-item-1624"><a href="https://www.stamfordcornexchange.co.uk/contact/"><span class="menu-title-text">Contact</span></a></li>
+							</ul>
+													<ul class="buttons sf-menu" data-user-set-ocm="off">
+
+								
+							</ul>
+						
+					</nav>
+
+					<div class="logo-spacing" data-using-image="true"><img class="hidden-logo" alt="Stamford Corn Exchange Theatre" width="0" height="0" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%200%200'%3E%3C/svg%3E" data-lazy-src="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/09/Corn-Exchange-Logo-16-16.svg" /><noscript><img class="hidden-logo" alt="Stamford Corn Exchange Theatre" width="0" height="0" src="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/09/Corn-Exchange-Logo-16-16.svg" /></noscript></div>
+				</div><!--/span_9-->
+
+				
+			</div><!--/row-->
+					</div><!--/container-->
+	</header>		
+	</div>
+		<div id="ajax-content-wrap">
+<div class="container-wrap">
+	<div class="container main-content" role="main">
+		<div class="row">
+			
+		<div id="headershadow"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row top-level full-width-section vc_row-o-equal-height vc_row-flex vc_row-o-content-bottom header"  style="padding-top: 0px; padding-bottom: 0px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop using-bg-color"  style="background-color: #1b283b; "></div></div></div><div class="row_col_wrap_12 col span_12 dark left">
+	<div  class="vc_col-sm-12 header wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				<div id="fws_6ab2dc8b5e1ee" data-midnight="" data-column-margin="default" class="wpb_row vc_row-fluid vc_row inner_row"  style=""><div class="row-bg-wrap"> <div class="row-bg" ></div> </div><div class="row_col_wrap_12_inner col span_12  left">
+	<div  class="vc_col-sm-12 wpb_column column_container vc_column_container col child_column no-extra-padding inherit_tablet inherit_phone "   data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+		<div class="wpb_wrapper">
+			
+<div class="wpb_text_column wpb_content_element " >
+	<div class="wpb_wrapper">
+		<h1 class="headertitlealt headerleft white">TICKET REFUND PROTECTION TERMS &amp; CONDITIONS</h1>
+	</div>
+</div>
+
+
+
+
+		</div> 
+	</div>
+	</div> 
+</div></div>
+			</div> 
+		</div>
+	</div> 
+</div></div>
+		<div id="fws_6ab2dc8b5e90c"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row  top_padding_tablet_20px top_padding_phone_0px bottom_padding_tablet_50px bottom_padding_phone_50px"  style="padding-top: 40px; padding-bottom: 20px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark left">
+	<div  class="vc_col-sm-2 wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				
+			</div> 
+		</div>
+	</div> 
+
+	<div  class="vc_col-sm-8 wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				<div id="fws_6ab2dc8b5eefe" data-midnight="" data-column-margin="default" class="wpb_row vc_row-fluid vc_row inner_row"  style="padding-top: 5%; padding-bottom: 3%; "><div class="row-bg-wrap"> <div class="row-bg" ></div> </div><div class="row_col_wrap_12_inner col span_12  left">
+	<div  class="vc_col-sm-12 wpb_column column_container vc_column_container col child_column no-extra-padding inherit_tablet inherit_phone "   data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+		<div class="wpb_wrapper">
+			<div class="img-with-aniamtion-wrap center custom-size custom-width-300px " data-max-width="custom" data-max-width-mobile="default" data-shadow="none" data-animation="none" >
+      <div class="inner">
+        <div class="hover-wrap"> 
+          <div class="hover-wrap-inner">
+            <img fetchpriority="high" decoding="async" class="img-with-animation skip-lazy " data-delay="0" height="263" width="884" data-animation="none" src="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2026/06/Protect-.png" alt="" srcset="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2026/06/Protect-.png 884w, https://www.stamfordcornexchange.co.uk/wp-content/uploads/2026/06/Protect--800x238.png 800w, https://www.stamfordcornexchange.co.uk/wp-content/uploads/2026/06/Protect--768x228.png 768w" sizes="(max-width: 884px) 100vw, 884px" />
+          </div>
+        </div>
+      </div>
+    </div>
+		</div> 
+	</div>
+	</div> 
+</div></div><div class="toggles " data-br="" data-starting="default" data-style="minimal"><div class="toggle default" data-inner-wrap="true"><h2 class="toggle-title"><a href="#" role="button" class="nectar-inherit-h2 toggle-heading"><i role="presentation" class="fa fa-plus-circle"></i>What is a Ticket Holder Covered For?</a></h2><div><div class="inner-toggle-wrap">
+<div class="wpb_text_column wpb_content_element "  id="toggle-text">
+	<div class="wpb_wrapper">
+		<p class="toggle-body">We will provide a refund of the Ticket Price paid by the Customer for tickets to an Event should the Ticket Holder be unable to attend, or arrive late at the Event such that they are unable to utilise the ticket(s), solely as a direct result of:</p>
+<li>Incapacity of the Ticket Holder caused by an Accident, Bodily Injury or Sickness or a personal medical emergency before the Event.</li>
+<li>Incapacity of a Dependent through Accident, Bodily Injury or Sickness first commencing before the Event necessitating the support of the Ticket Holder.</li>
+<li>Pregnancy of the Ticket Holder where the birth date is due 30 days before or after the Event.</li>
+<li>Adverse Weather preventing the Ticket Holder’s attendance at the Event.</li>
+<li>Travel Delay on the day of the Event due to a cause outside of the control of each of the Ticket Holders that solely and directly prevents the Ticket Holder’s continued transit to the Event.</li>
+<li>Death of the Ticket Holder.</li>
+<li>Death of a member of the Ticket Holder’s Immediate Family within thirty (30) days before the date of the Event.<br />
+Strikes, riots, civil commotion, martial law, Terrorism or a Volcanic Ash Event.</li>
+<li>The Ticket Holder’s inability to attend due to being a member of the armed forces who is unexpectedly called to duty.</li>
+<li>The unavoidable requirement for the Ticket Holder to remain at home due to serious damage to the Ticket Holder’s home or place of business caused by fire, aircraft, explosion, storm, flood, subsidence, earthquake, falling trees, burst pipes, lightning, malicious persons or theft within 3 days before the days of the Event.</li>
+<li>The unavoidable requirement of the Ticket Holder to perform jury service where the jury summons was first received by the Ticket Holder after the date of ticket purchase.</li>
+<li>The Ticket Holder being summoned to appear at court proceedings as a witness where the witness summons was first received by the Ticket Holder after the date of ticket purchase.</li>
+<li>The Ticket Holder thirty (30) days before the date of the Event being Relocated by their current employer for work more than 100 miles from the Venue and which the Ticket Holder was unaware of at the time of ticket purchase.</li>
+<li>The Ticket Holder within thirty (30) days before the Event date being unexpectedly made compulsorily Redundant.</li>
+<li>The inability of the Ticket Holder to attend an Event due to a government-mandated travel ban in the Ticket Holder’s home region/country being implemented after the purchase of the ticket(s) preventing the travel of the Ticket Holder to where the Event is taking place.</li>
+	</div>
+</div>
+
+
+
+</div></div></div><div class="toggle default" data-inner-wrap="true"><h2 class="toggle-title"><a href="#" role="button" class="nectar-inherit-h2 toggle-heading"><i role="presentation" class="fa fa-plus-circle"></i>What is a Ticket Holder Not Covered For?</a></h2><div><div class="inner-toggle-wrap">
+<div class="wpb_text_column wpb_content_element "  id="toggle-text">
+	<div class="wpb_wrapper">
+		<p class="toggle-body">Ticket Refund Protection does not cover any refund application for or resulting from:</p>
+<li>Refunds in respect of tickets for a Cancelled Event or an Abandoned Event.</li>
+<li>Closure of the Venue.</li>
+<li>The inability of the Ticket Holder to attend a rescheduled Event.</li>
+<li>Any Known Circumstance, other than a pre-existing medical condition, being in the public domain, at the time of the ticket purchase, that prevents the Ticket Holder from attending their booked Event.</li>
+<li>Non-Appearance of any Participant.</li>
+<li>National Mourning.</li>
+<li>Death, Bodily Injury or Sickness of the Ticket Holder directly or indirectly caused by a criminal act committed by the Ticket Holder.</li>
+<li>Failure of the Ticket Holder in the event of Bodily Injury or Sickness to consult a duly qualified medical practitioner and comply with the medical advice given by the medical practitioner.</li>
+<li>Actual or threatened war, invasion, acts of foreign enemies, hostilities (whether war be declared or not), civil war, rebellion, revolution, insurrection, military or usurped power, confiscation, nationalisation, requisition or destruction of or damage to property by or under order of any government or public or local authority.</li>
+<li>Ticket Holder failing to observe and comply with the requirements of any law, ordinance, court or regulatory body of whatever jurisdiction.</li>
+<li>Ticket Holder’s lack of care, diligence or prudent behaviour.</li>
+<li>A situation the Ticket Holder was aware of at the time of purchase.</li>
+<li>Inability to gain or maintain a Visa in or denial of entry to the country the Event is scheduled to take place, howsoever caused.</li>
+<li>Fraud, misrepresentation or concealment by the Ticket Holder.</li>
+<li>Financial failure of or financial default by anyone.</li>
+<li>
+Any additional costs incurred by Ticket Holder in relation to your refund application.</li>
+<li>Reimbursement of the Ticket Refund Protection fee charged by the Ticket Seller.</li>
+<li>Any reason not listed in “What is a Ticket Holder covered for?”</li>
+	</div>
+</div>
+
+
+
+</div></div></div><div class="toggle default" data-inner-wrap="true"><h2 class="toggle-title"><a href="#" role="button" class="nectar-inherit-h2 toggle-heading"><i role="presentation" class="fa fa-plus-circle"></i>General Conditions</a></h2><div><div class="inner-toggle-wrap">
+<div class="wpb_text_column wpb_content_element "  id="toggle-text">
+	<div class="wpb_wrapper">
+		<li>Any fraud, misstatement, concealment or negligent statement in the information provided in the making of a refund application shall render the application voidable by Protect Group.</li>
+<li>Any and all refund payments due under the terms and conditions of the Ticket Refund Protection may be made payable to a third party(s) as directed by the Customer. Payment of such refunds shall be a sufficient and complete discharge of all of the obligations to the Customer and/or the Ticket Holder in connection with said refund application(s).</li>
+<li>
+This Ticket Refund Protection is governed by and construed in accordance with the applicable law and subject to the exclusive jurisdiction of the courts of the country, state or province that the Ticket Seller is legally registered.</li>
+	</div>
+</div>
+
+
+
+</div></div></div><div class="toggle default" data-inner-wrap="true"><h2 class="toggle-title"><a href="#" role="button" class="nectar-inherit-h2 toggle-heading"><i role="presentation" class="fa fa-plus-circle"></i>How Does a Ticket Holder Apply For A Refund?</a></h2><div><div class="inner-toggle-wrap">
+<div class="wpb_text_column wpb_content_element "  id="toggle-text">
+	<div class="wpb_wrapper">
+		<p class="toggle-body">Refund requests should be submitted online at <a href="https://ticket-refunds.com/">www.ticket-refunds.com</a>  within sixty (60) days of the Event. However, we should point out that the Ticket Refund Protection covers a list of circumstances in which Ticket Holder may apply for a refund and we are unable to consider any circumstances that are not listed.</p>
+<p>Ticket Holder will be asked to provide evidence to support your request for a refund including, but not limited to:</p>
+<li>A doctor’s certificate or hospital letter confirming the dates and nature of Ticket Holder incapacity/illness.</li>
+<li>A copy of the death certificate, order of service or obituary notice.</li>
+<li>Evidence such as an official police report, insurance claim for vehicle damage, report from a roadside assistance service or a repair invoice.</li>
+<li>Confirmation of a delay from a public transport provider which details the cause, date and extent of a delay.<br />
+A copy of Ticket Holder summons for jury service.</li>
+<li>
+Web links from a reputable national news outlet detailing the circumstances surrounding the request for a refund.</li>
+<li>
+Confirmation detailing the Adverse Weather event from bulletins issued by local or government agencies and / or web links from a reputable national news outlet.</li>
+<li>A building’s insurer/loss adjuster&#8217;s report or report from the emergency services which clarifies the nature and extent of the damage.</li>
+<li>Official armed forces document.</li>
+<li>Any reasonable additional evidence Ticket Holder is asked for.</li>
+	</div>
+</div>
+
+
+
+</div></div></div><div class="toggle default" data-inner-wrap="true"><h2 class="toggle-title"><a href="#" role="button" class="nectar-inherit-h2 toggle-heading"><i role="presentation" class="fa fa-plus-circle"></i>Definitions</a></h2><div><div class="inner-toggle-wrap">
+<div class="wpb_text_column wpb_content_element "  id="toggle-text">
+	<div class="wpb_wrapper">
+		<p class="toggle-body">The words or phrases that appear in bold in the Ticket Refund Protection terms &#038; conditions have the meanings shown below:</p>
+<li><strong>Abandonment</strong> or <strong>Abandoned</strong> means the inability to complete the Event once commenced.</li>
+<li><strong>Accident</strong> means a sudden, unexpected and unintended, specific event that occurs at an identifiable time and place.</li>
+<li><strong>Adverse Weather</strong> means extreme weather where a travel alert has been issued on the day of the <strong>Event</strong> in the Country in which the <strong>Event</strong> is taking place advising against travel so preventing <strong>Ticket Holder(s)</strong> ability to safely travel to the <strong>Venue</strong>.</li>
+<li><strong>Bodily Injury</strong> means an identifiable physical injury, including illness resulting from such injury, which is caused by an <strong>Accident</strong> occurring after the ticket was purchased.</li>
+<li><strong>Cancellation</strong> or <strong>Cancelled</strong> means the inability to proceed with any or all of the <strong>Event(s)</strong> that the <strong>Ticket Holder</strong> has purchased a ticket for before the commencement of the <strong>Event(s)</strong>.</li>
+<li><strong>Customer</strong> means a person who purchases a ticket from the <strong>Ticket Seller</strong> and who has subscribed to the Protect Group Ticket Refund Protection on their own behalf and/or on behalf of others in respect of that ticket.</li>
+<li>
+<strong>Dependent</strong> means a person(s) of the <strong>Immediate Family</strong> of the <strong>Ticket Holder</strong> who is reliant on the support of the Ticket Holder.</li>
+<li><strong>Event</strong> means the particular, dated and timed event for which the ticket was purchased.</li>
+<li><strong>Immediate Family </strong>means the mother, father, mother-in-law, father-in-law, stepmother, stepfather, sister, brother, child, spouse, civil partner or cohabitee (and their children) and civil law partner, grandparent, legal guardians and foster parents of the <strong>Ticket Holder</strong>.</li>
+<li><strong>Known Circumstance</strong> is an occurrence or happening, that the <strong>Ticket Holder</strong> would have prior knowledge of or that has been announced to the general public, advising of an activity or activities that are to occur on a specified time, date, location or locations that could affect the general public, as an example, strike action, removal of public services.</li>
+<li>
+<strong>National Mourning</strong> means <strong>Cancellation, Abandonment, Relocation</strong> or postponement of the Event caused by any period of mourning declared by the Government or Monarchy of the country in which the <strong>Event</strong> is due to take place.</li>
+<li><strong>Non-Appearance</strong> means any loss in consequence of the <strong>Cancellation</strong> or <strong>Abandonment</strong> of the <strong>Event</strong> arising directly or indirectly from the <strong>death, Accident, Sickness</strong> or <strong>Travel Delay</strong> of the <strong>Participant</strong>.</li>
+<li>
+<strong>Participant</strong> means any party including, without limitation, any act, artist, celebrity, sports or other person(s) billed to appear or perform at the <strong>Event</strong> or any provider of technical services, who is contracted to perform a function critical to the successful fulfilment of the <strong>Event</strong>.</li>
+<li><strong>Redundancy</strong> or <strong>Redundant</strong> means the unexpected compulsory termination of employment of the <strong>Ticket Holder</strong> by their full-time employer within thirty (30) days before the <strong>Event</strong>.</li>
+<li><strong>Relocated</strong> means the enforced move away of the <strong>Ticket Holder</strong> from their current domicile within the country of the <strong>Event</strong> by at least 100 miles to maintain their current full-time employment, this move away being orchestrated by their full-time employer within thirty (30) days before the <strong>Event</strong>.</li>
+<li>
+<strong>Sickness</strong> means an illness that is sufficiently debilitating to prohibit the safe movement of the <strong>Ticket Holder</strong> concerned and their ability to travel.</li>
+<li>
+<strong>Terrorism</strong> means an unlawful act including, but not limited to, the use of force or violence and/or the threat thereof by any person(s) acting individually or on behalf of or in connection with any organisation(s) or government(s) committed for political, religious, ideological or similar purposes, including the intention to influence any government and/or to put the public or any part thereof in fear.</li>
+<li><strong>Ticket Holder</strong> means a person who holds a ticket purchased by a <strong>Customer</strong> and who can demonstrate that the <strong>Customer</strong> purchased Ticket Refund Protection from a <strong>Ticket Seller</strong> on their behalf in relation to that ticket.</li>
+<li><strong>Ticket Price</strong> means the ticket price, including any booking fees, service fees and fulfilment costs as evidenced in the confirmation of ticket purchase excluding any charge applicable under the Protect Group Ticket Refund Protection.</li>
+<li><strong>Ticket Seller </strong>means a ticketing provider or platform or ticket agency or venue from whom the Customer has purchased a ticket and who has purchased Ticket Refund Protection.</li>
+<li><strong>Travel Delay</strong> means a delay commencing on the day of the <strong>Event</strong> where <strong>Ticket Holder</strong> are starting your travel in the country where Ticket Holder <strong>Event</strong> is being held.</li>
+<li><strong>Venue</strong> means the place(s) as detailed on the ticket purchased where the <strong>Event</strong> is to be held.</li>
+<li><strong>Visa</strong> means an endorsement on a passport indicating that the holder is allowed to enter, leave or stay for a specified period of time in a country.</li>
+<p><strong></p>
+<li>Volcanic Ash Event</strong> is a phenomenon caused by the eruption of a volcano sending an ash cloud into the atmosphere.</li>
+	</div>
+</div>
+
+
+
+</div></div></div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			</div> 
+		</div>
+	</div> 
+
+	<div  class="vc_col-sm-2 wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				
+			</div> 
+		</div>
+	</div> 
+</div></div>
+		<div id="fws_6ab2dc8b629b1"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row  bottom_padding_tablet_80px bottom_padding_phone_80px"  style="padding-top: 0px; padding-bottom: 80px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark left">
+	<div  class="vc_col-sm-2 wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				
+			</div> 
+		</div>
+	</div> 
+
+	<div  class="vc_col-sm-8 wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				<div id="fws_6ab2dc8b62d6d" data-midnight="" data-column-margin="default" class="wpb_row vc_row-fluid vc_row inner_row"  style=""><div class="row-bg-wrap"> <div class="row-bg" ></div> </div><div class="row_col_wrap_12_inner col span_12  left">
+	<div  class="vc_col-sm-12 wpb_column column_container vc_column_container col child_column no-extra-padding inherit_tablet inherit_phone "   data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+		<div class="wpb_wrapper">
+			
+<div class="wpb_text_column wpb_content_element " >
+	<div class="wpb_wrapper">
+		<p><strong>Important note:</strong> For all ticket orders placed on or before 31 May, any refund claims must be submitted through Secure My Booking, our previous ticket protection provider.</p>
+	</div>
+</div>
+
+
+
+
+		</div> 
+	</div>
+	</div> 
+</div></div>
+			</div> 
+		</div>
+	</div> 
+
+	<div  class="vc_col-sm-2 wpb_column column_container vc_column_container col no-extra-padding inherit_tablet inherit_phone "  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				
+			</div> 
+		</div>
+	</div> 
+</div></div>
+		</div>
+	</div>
+	</div>
+
+<div id="footer-outer" data-midnight="light" data-cols="3" data-custom-color="false" data-disable-copyright="false" data-matching-section-color="true" data-copyright-line="true" data-using-bg-img="false" data-bg-img-overlay="1.0" data-full-width="false" data-using-widget-area="true" data-link-hover="default">
+	
+		
+	<div id="footer-widgets" data-has-widgets="true" data-cols="3">
+		
+		<div class="container">
+			
+						
+			<div class="row">
+				
+								
+				<div class="col span_4">
+					<div id="media_image-2" class="widget widget_media_image"><img width="800" height="600" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20800%20600'%3E%3C/svg%3E" class="image wp-image-2339 footer-logo attachment-medium size-medium" alt="" style="max-width: 100%; height: auto;" decoding="async" data-lazy-src="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/09/Single-Logo-28.svg" /><noscript><img width="800" height="600" src="https://www.stamfordcornexchange.co.uk/wp-content/uploads/2020/09/Single-Logo-28.svg" class="image wp-image-2339 footer-logo attachment-medium size-medium" alt="" style="max-width: 100%; height: auto;" decoding="async" /></noscript></div><div id="text-2" class="widget widget_text">			<div class="textwidget"><p class="small-footer-text grey50" style="margin-top: 26px">The Stamford Corn Exchange Theatre is a registered charity and relies on donates to fund new and exciting productions.</p>
+<p><a class="nectar-button small regular extra-color-1  regular-button footer-donate" style="visibility: visible;" href="https://portal.fastpayltd.co.uk/signup/personal-details/2725" data-color-override="false" data-hover-color-override="false" data-hover-text-color-override="#fff"><span>DONATE</span></a></p>
+</div>
+		</div>					</div>
+					
+											
+						<div class="col span_4">
+							<div id="text-3" class="widget widget_text">			<div class="textwidget"><p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/whats-on/">WHAT’S ON</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-hire/">Theatre Lounge</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/access/">ACCESS</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/theatre-hire/">HIRE</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/terms-and-conditions/">T&#038;CS</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/support-us/">SUPPORT US</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/privacy-policy">Privacy Policy</a></p>
+<p class="footer-page-links"><a href="https://www.stamfordcornexchange.co.uk/contact/">CONTACT</a></p>
+</div>
+		</div>								
+							</div>
+							
+												
+						
+													<div class="col span_4">
+								<div id="text-1" class="widget widget_text">			<div class="textwidget"><p class="footer-contact-header white">Box Office</p>
+<p class="footer-contact white">01780 766455</p>
+<p class="footer-contact white"><a href="mailto:info@stamfordcornexchange.co.uk">info@stamfordcornexchange.co.uk</a></p>
+<p></br></p>
+<p class="footer-contact-header white">Opening Times</p>
+<p class="footer-contact white" style="margin-bottom: 26px">Mon &#8211; Sat:  10:00am &#8211; 4:00pm</p>
+</div>
+		</div><div id="block-4" class="widget widget_block"><div id="fd-form-61c08b8514ec6db2d2b534bc"></div>
+<script type="rocketlazyloadscript">
+  window.fd('form', {
+    formId: '61c08b8514ec6db2d2b534bc',
+    containerEl: '#fd-form-61c08b8514ec6db2d2b534bc'
+  });
+</script> </div>									
+								</div>
+														
+															
+							</div>
+													</div><!--/container-->
+					</div><!--/footer-widgets-->
+					
+					
+  <div class="row" id="copyright" data-layout="default">
+	
+	<div class="container">
+	   
+				<div class="col span_5">
+		   
+			<p><div class="copyright-column">     <p>© Copyright 2025, Stamford Corn Exchange Theatre. All Rights Reserved. Registered Charity No. 1092736 | <a href="https://www.stamfordcornexchange.co.uk/cookie-policy/"><span class="“alexbirks”">Cookie Policy</span></a></p>   </div>   <div class="designedby">     <p class="credit">Site by <a href="https://alexbirks.co.uk/"><span class="“alexbirks”">Alex Birks</span></a></p>   </div></p>
+		</div><!--/span_5-->
+			   
+	  <div class="col span_7 col_last">
+      <ul class="social">
+              </ul>
+	  </div><!--/span_7-->
+    
+	  	
+	</div><!--/container-->
+  </div><!--/row-->
+		
+</div><!--/footer-outer-->
+
+
+	<div id="slide-out-widget-area-bg" class="slide-out-from-right dark">
+				</div>
+
+		<div id="slide-out-widget-area" class="slide-out-from-right" data-dropdown-func="separate-dropdown-parent-link" data-back-txt="Back">
+
+			<div class="inner-wrap">
+			<div class="inner" data-prepend-menu-mobile="false">
+
+				<a class="slide_out_area_close" href="#"><span class="screen-reader-text">Close Menu</span>
+					<span class="close-wrap"> <span class="close-line close-line1"></span> <span class="close-line close-line2"></span> </span>				</a>
+
+
+									<div class="off-canvas-menu-container mobile-only" role="navigation">
+
+						
+						<ul class="menu">
+							<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-23"><a href="https://www.stamfordcornexchange.co.uk/">Home</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-895"><a href="https://www.stamfordcornexchange.co.uk/whats-on/">Whats On</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-1727"><a href="#">Hire</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1726"><a href="https://www.stamfordcornexchange.co.uk/theatre-hire/">Theatre Hire</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2896"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-hire/">The Theatre Lounge Hire</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-2014"><a href="#">Theatre Lounge</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2013"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-whats-on/">What&#8217;s On</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2897"><a href="https://www.stamfordcornexchange.co.uk/the-theatre-lounge-hire/">The Theatre Lounge Hire</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children menu-item-1598"><a href="#">Info</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4529"><a href="https://www.stamfordcornexchange.co.uk/your-visit/access/">Access</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1600"><a href="https://www.stamfordcornexchange.co.uk/terms-and-conditions/">T&#038;Cs</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1537"><a href="https://www.stamfordcornexchange.co.uk/support-us/">Support Us</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-163156 current_page_item menu-item-163221"><a href="https://www.stamfordcornexchange.co.uk/ticket-refund-protection/" aria-current="page">Ticket Refund Protection</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-163045"><a href="https://www.stamfordcornexchange.co.uk/gift-cards/">Gift cards</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1624"><a href="https://www.stamfordcornexchange.co.uk/contact/">Contact</a></li>
+
+						</ul>
+
+						<ul class="menu secondary-header-items">
+													</ul>
+					</div>
+					
+				</div>
+
+				<div class="bottom-meta-wrap"></div><!--/bottom-meta-wrap--></div> <!--/inner-wrap-->
+				</div>
+		
+</div> <!--/ajax-content-wrap-->
+
+	<a id="to-top" aria-label="Back to top" href="#" class="mobile-disabled"><i role="presentation" class="fa fa-angle-up"></i></a>
+	</div></div><!--/ocm-effect-wrap--><script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/salient-child/*","/wp-content/themes/salient/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<!--googleoff: all--><div id="cookie-law-info-bar" data-nosnippet="true"><span><div class="cli-bar-container cli-style-v2"><div class="cli-bar-message">We use cookies on our website to give you the most relevant experience by remembering your preferences and repeat visits. By clicking “Accept All”, you consent to the use of ALL the cookies. However, you may visit "Cookie Settings" to provide a controlled consent.</div><div class="cli-bar-btn_container"><a role="button" tabindex="0" class="medium cli-plugin-button cli-plugin-main-button cli_settings_button" style="margin:0px 5px 0px 0px">Cookie Settings</a><a id="wt-cli-accept-all-btn" tabindex="0" role="button" data-cli_action="accept_all" class="wt-cli-element medium cli-plugin-button wt-cli-accept-all-btn cookie_action_close_header cli_action_button">Accept All</a></div></div></span></div><div id="cookie-law-info-again" style="display:none" data-nosnippet="true"><span id="cookie_hdr_showagain">Manage consent</span></div><div class="cli-modal" data-nosnippet="true" id="cliSettingsPopup" tabindex="-1" role="dialog" aria-labelledby="cliSettingsPopup" aria-hidden="true">
+  <div class="cli-modal-dialog" role="document">
+	<div class="cli-modal-content cli-bar-popup">
+		  <button type="button" class="cli-modal-close" id="cliModalClose">
+			<svg class="" viewBox="0 0 24 24"><path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path><path d="M0 0h24v24h-24z" fill="none"></path></svg>
+			<span class="wt-cli-sr-only">Close</span>
+		  </button>
+		  <div class="cli-modal-body">
+			<div class="cli-container-fluid cli-tab-container">
+	<div class="cli-row">
+		<div class="cli-col-12 cli-align-items-stretch cli-px-0">
+			<div class="cli-privacy-overview">
+				<h4>Privacy Overview</h4>				<div class="cli-privacy-content">
+					<div class="cli-privacy-content-text">This website uses cookies to improve your experience while you navigate through the website. Out of these, the cookies that are categorized as necessary are stored on your browser as they are essential for the working of basic functionalities of the website. We also use third-party cookies that help us analyze and understand how you use this website. These cookies will be stored in your browser only with your consent. You also have the option to opt-out of these cookies. But opting out of some of these cookies may affect your browsing experience.</div>
+				</div>
+				<a class="cli-privacy-readmore" aria-label="Show more" tabindex="0" role="button" data-readmore-text="Show more" data-readless-text="Show less"></a>			</div>
+		</div>
+		<div class="cli-col-12 cli-align-items-stretch cli-px-0 cli-tab-section-container">
+												<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="necessary" data-toggle="cli-toggle-tab">
+								Necessary							</a>
+																						<div class="wt-cli-necessary-checkbox">
+									<input type="checkbox" class="cli-user-preference-checkbox" id="wt-cli-checkbox-necessary" data-id="checkbox-necessary" checked="checked" />
+									<label class="form-check-label" for="wt-cli-checkbox-necessary">Necessary</label>
+								</div>
+								<span class="cli-necessary-caption">Always Enabled</span>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="necessary">
+								<div class="wt-cli-cookie-description">
+									Necessary cookies are absolutely essential for the website to function properly. These cookies ensure basic functionalities and security features of the website, anonymously.
+<table class="cookielawinfo-row-cat-table cookielawinfo-winter"><thead><tr><th class="cookielawinfo-column-1">Cookie</th><th class="cookielawinfo-column-3">Duration</th><th class="cookielawinfo-column-4">Description</th></tr></thead><tbody><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">cookielawinfo-checkbox-advertisement</td><td class="cookielawinfo-column-3">session</td><td class="cookielawinfo-column-4">Set by the GDPR Cookie Consent plugin, this cookie is used to record the user consent for the cookies in the "Advertisement" category .</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">cookielawinfo-checkbox-analytics</td><td class="cookielawinfo-column-3">11 months</td><td class="cookielawinfo-column-4">This cookie is set by GDPR Cookie Consent plugin. The cookie is used to store the user consent for the cookies in the category "Analytics".</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">cookielawinfo-checkbox-functional</td><td class="cookielawinfo-column-3">11 months</td><td class="cookielawinfo-column-4">The cookie is set by GDPR cookie consent to record the user consent for the cookies in the category "Functional".</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">cookielawinfo-checkbox-necessary</td><td class="cookielawinfo-column-3">11 months</td><td class="cookielawinfo-column-4">This cookie is set by GDPR Cookie Consent plugin. The cookies is used to store the user consent for the cookies in the category "Necessary".</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">cookielawinfo-checkbox-others</td><td class="cookielawinfo-column-3">11 months</td><td class="cookielawinfo-column-4">This cookie is set by GDPR Cookie Consent plugin. The cookie is used to store the user consent for the cookies in the category "Other.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">cookielawinfo-checkbox-performance</td><td class="cookielawinfo-column-3">11 months</td><td class="cookielawinfo-column-4">This cookie is set by GDPR Cookie Consent plugin. The cookie is used to store the user consent for the cookies in the category "Performance".</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">CookieLawInfoConsent</td><td class="cookielawinfo-column-3">session</td><td class="cookielawinfo-column-4">Records the default button state of the corresponding category &amp; the status of CCPA. It works only in coordination with the primary cookie.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">PHPSESSID</td><td class="cookielawinfo-column-3">session</td><td class="cookielawinfo-column-4">This cookie is native to PHP applications. The cookie is used to store and identify a users' unique session ID for the purpose of managing user session on the website. The cookie is a session cookies and is deleted when all the browser windows are closed.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">viewed_cookie_policy</td><td class="cookielawinfo-column-3">11 months</td><td class="cookielawinfo-column-4">The cookie is set by the GDPR Cookie Consent plugin and is used to store whether or not user has consented to the use of cookies. It does not store any personal data.</td></tr></tbody></table>								</div>
+							</div>
+						</div>
+					</div>
+																	<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="functional" data-toggle="cli-toggle-tab">
+								Functional							</a>
+																						<div class="cli-switch">
+									<input type="checkbox" id="wt-cli-checkbox-functional" class="cli-user-preference-checkbox" data-id="checkbox-functional" />
+									<label for="wt-cli-checkbox-functional" class="cli-slider" data-cli-enable="Enabled" data-cli-disable="Disabled"><span class="wt-cli-sr-only">Functional</span></label>
+								</div>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="functional">
+								<div class="wt-cli-cookie-description">
+									Functional cookies help to perform certain functionalities like sharing the content of the website on social media platforms, collect feedbacks, and other third-party features.
+<table class="cookielawinfo-row-cat-table cookielawinfo-winter"><thead><tr><th class="cookielawinfo-column-1">Cookie</th><th class="cookielawinfo-column-3">Duration</th><th class="cookielawinfo-column-4">Description</th></tr></thead><tbody><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">__cf_bm</td><td class="cookielawinfo-column-3">30 minutes</td><td class="cookielawinfo-column-4">This cookie, set by Cloudflare, is used to support Cloudflare Bot Management.</td></tr></tbody></table>								</div>
+							</div>
+						</div>
+					</div>
+																	<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="performance" data-toggle="cli-toggle-tab">
+								Performance							</a>
+																						<div class="cli-switch">
+									<input type="checkbox" id="wt-cli-checkbox-performance" class="cli-user-preference-checkbox" data-id="checkbox-performance" />
+									<label for="wt-cli-checkbox-performance" class="cli-slider" data-cli-enable="Enabled" data-cli-disable="Disabled"><span class="wt-cli-sr-only">Performance</span></label>
+								</div>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="performance">
+								<div class="wt-cli-cookie-description">
+									Performance cookies are used to understand and analyze the key performance indexes of the website which helps in delivering a better user experience for the visitors.
+								</div>
+							</div>
+						</div>
+					</div>
+																	<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="analytics" data-toggle="cli-toggle-tab">
+								Analytics							</a>
+																						<div class="cli-switch">
+									<input type="checkbox" id="wt-cli-checkbox-analytics" class="cli-user-preference-checkbox" data-id="checkbox-analytics" />
+									<label for="wt-cli-checkbox-analytics" class="cli-slider" data-cli-enable="Enabled" data-cli-disable="Disabled"><span class="wt-cli-sr-only">Analytics</span></label>
+								</div>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="analytics">
+								<div class="wt-cli-cookie-description">
+									Analytical cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics the number of visitors, bounce rate, traffic source, etc.
+<table class="cookielawinfo-row-cat-table cookielawinfo-winter"><thead><tr><th class="cookielawinfo-column-1">Cookie</th><th class="cookielawinfo-column-3">Duration</th><th class="cookielawinfo-column-4">Description</th></tr></thead><tbody><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">_ga</td><td class="cookielawinfo-column-3">2 years</td><td class="cookielawinfo-column-4">The _ga cookie, installed by Google Analytics, calculates visitor, session and campaign data and also keeps track of site usage for the site's analytics report. The cookie stores information anonymously and assigns a randomly generated number to recognize unique visitors.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">_gat_gtag_UA_68120365_1</td><td class="cookielawinfo-column-3">1 minute</td><td class="cookielawinfo-column-4">Set by Google to distinguish users.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">_gid</td><td class="cookielawinfo-column-3">1 day</td><td class="cookielawinfo-column-4">Installed by Google Analytics, _gid cookie stores information on how visitors use a website, while also creating an analytics report of the website's performance. Some of the data that are collected include the number of visitors, their source, and the pages they visit anonymously.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">CONSENT</td><td class="cookielawinfo-column-3">2 years</td><td class="cookielawinfo-column-4">YouTube sets this cookie via embedded youtube-videos and registers anonymous statistical data.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">vuid</td><td class="cookielawinfo-column-3">2 years</td><td class="cookielawinfo-column-4">Vimeo installs this cookie to collect tracking information by setting a unique ID to embed videos to the website.</td></tr></tbody></table>								</div>
+							</div>
+						</div>
+					</div>
+																	<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="advertisement" data-toggle="cli-toggle-tab">
+								Advertisement							</a>
+																						<div class="cli-switch">
+									<input type="checkbox" id="wt-cli-checkbox-advertisement" class="cli-user-preference-checkbox" data-id="checkbox-advertisement" />
+									<label for="wt-cli-checkbox-advertisement" class="cli-slider" data-cli-enable="Enabled" data-cli-disable="Disabled"><span class="wt-cli-sr-only">Advertisement</span></label>
+								</div>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="advertisement">
+								<div class="wt-cli-cookie-description">
+									Advertisement cookies are used to provide visitors with relevant ads and marketing campaigns. These cookies track visitors across websites and collect information to provide customized ads.
+<table class="cookielawinfo-row-cat-table cookielawinfo-winter"><thead><tr><th class="cookielawinfo-column-1">Cookie</th><th class="cookielawinfo-column-3">Duration</th><th class="cookielawinfo-column-4">Description</th></tr></thead><tbody><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">VISITOR_INFO1_LIVE</td><td class="cookielawinfo-column-3">5 months 27 days</td><td class="cookielawinfo-column-4">A cookie set by YouTube to measure bandwidth that determines whether the user gets the new or old player interface.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">YSC</td><td class="cookielawinfo-column-3">session</td><td class="cookielawinfo-column-4">YSC cookie is set by Youtube and is used to track the views of embedded videos on Youtube pages.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">yt-remote-connected-devices</td><td class="cookielawinfo-column-3">never</td><td class="cookielawinfo-column-4">YouTube sets this cookie to store the video preferences of the user using embedded YouTube video.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">yt-remote-device-id</td><td class="cookielawinfo-column-3">never</td><td class="cookielawinfo-column-4">YouTube sets this cookie to store the video preferences of the user using embedded YouTube video.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">yt.innertube::nextId</td><td class="cookielawinfo-column-3">never</td><td class="cookielawinfo-column-4">This cookie, set by YouTube, registers a unique ID to store data on what videos from YouTube the user has seen.</td></tr><tr class="cookielawinfo-row"><td class="cookielawinfo-column-1">yt.innertube::requests</td><td class="cookielawinfo-column-3">never</td><td class="cookielawinfo-column-4">This cookie, set by YouTube, registers a unique ID to store data on what videos from YouTube the user has seen.</td></tr></tbody></table>								</div>
+							</div>
+						</div>
+					</div>
+																	<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="others" data-toggle="cli-toggle-tab">
+								Others							</a>
+																						<div class="cli-switch">
+									<input type="checkbox" id="wt-cli-checkbox-others" class="cli-user-preference-checkbox" data-id="checkbox-others" />
+									<label for="wt-cli-checkbox-others" class="cli-slider" data-cli-enable="Enabled" data-cli-disable="Disabled"><span class="wt-cli-sr-only">Others</span></label>
+								</div>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="others">
+								<div class="wt-cli-cookie-description">
+									Other uncategorized cookies are those that are being analyzed and have not been classified into a category as yet.
+								</div>
+							</div>
+						</div>
+					</div>
+										</div>
+	</div>
+</div>
+		  </div>
+		  <div class="cli-modal-footer">
+			<div class="wt-cli-element cli-container-fluid cli-tab-container">
+				<div class="cli-row">
+					<div class="cli-col-12 cli-align-items-stretch cli-px-0">
+						<div class="cli-tab-footer wt-cli-privacy-overview-actions">
+						
+															<a id="wt-cli-privacy-save-btn" role="button" tabindex="0" data-cli-action="accept" class="wt-cli-privacy-btn cli_setting_save_button wt-cli-privacy-accept-btn cli-btn">SAVE &amp; ACCEPT</a>
+													</div>
+												<div class="wt-cli-ckyes-footer-section">
+							<div class="wt-cli-ckyes-brand-logo">Powered by <a href="https://www.cookieyes.com/"><img width="300" height="60" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%2060'%3E%3C/svg%3E" alt="CookieYes Logo" data-lazy-src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/cookie-law-info/legacy/public/images/logo-cookieyes.svg"><noscript><img width="300" height="60" src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/cookie-law-info/legacy/public/images/logo-cookieyes.svg" alt="CookieYes Logo"></noscript></a></div>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+  </div>
+</div>
+<div class="cli-modal-backdrop cli-fade cli-settings-overlay"></div>
+<div class="cli-modal-backdrop cli-fade cli-popupbar-overlay"></div>
+<!--googleon: all--><script type="text/html" id="wpb-modifications"></script><script id="rocket-browser-checker-js-after">
+"use strict";var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var RocketBrowserCompatibilityChecker=function(){function RocketBrowserCompatibilityChecker(options){_classCallCheck(this,RocketBrowserCompatibilityChecker),this.passiveSupported=!1,this._checkPassiveOption(this),this.options=!!this.passiveSupported&&options}return _createClass(RocketBrowserCompatibilityChecker,[{key:"_checkPassiveOption",value:function(self){try{var options={get passive(){return!(self.passiveSupported=!0)}};window.addEventListener("test",null,options),window.removeEventListener("test",null,options)}catch(err){self.passiveSupported=!1}}},{key:"initRequestIdleCallback",value:function(){!1 in window&&(window.requestIdleCallback=function(cb){var start=Date.now();return setTimeout(function(){cb({didTimeout:!1,timeRemaining:function(){return Math.max(0,50-(Date.now()-start))}})},1)}),!1 in window&&(window.cancelIdleCallback=function(id){return clearTimeout(id)})}},{key:"isDataSaverModeOn",value:function(){return"connection"in navigator&&!0===navigator.connection.saveData}},{key:"supportsLinkPrefetch",value:function(){var elem=document.createElement("link");return elem.relList&&elem.relList.supports&&elem.relList.supports("prefetch")&&window.IntersectionObserver&&"isIntersecting"in IntersectionObserverEntry.prototype}},{key:"isSlowConnection",value:function(){return"connection"in navigator&&"effectiveType"in navigator.connection&&("2g"===navigator.connection.effectiveType||"slow-2g"===navigator.connection.effectiveType)}}]),RocketBrowserCompatibilityChecker}();
+//# sourceURL=rocket-browser-checker-js-after
+</script>
+<script id="rocket-preload-links-js-extra">
+var RocketPreloadLinksConfig = {"excludeUris":"/basket/|/checkout/|/tc-api/|/tc_api_keys/|/shop/|/tickets-payment/|/tickets-ipn-payment/|/my-account/|/tickets-process-payment/|/tickets-order-details/|/tickets-order-confirmation/|/tickets-cart/|/(?:.+/)?feed(?:/(?:.+/?)?)?$|/(?:.+/)?embed/|/(index.php/)?(.*)wp-json(/.*|$)|/refer/|/go/|/recommend/|/recommends/","usesTrailingSlash":"1","imageExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php","fileExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php|html|htm","siteUrl":"https://www.stamfordcornexchange.co.uk","onHoverDelay":"100","rateThrottle":"3"};
+//# sourceURL=rocket-preload-links-js-extra
+</script>
+<script id="rocket-preload-links-js-after">
+(function() {
+"use strict";var r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}();function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var t=function(){function n(e,t){i(this,n),this.browser=e,this.config=t,this.options=this.browser.options,this.prefetched=new Set,this.eventTime=null,this.threshold=1111,this.numOnHover=0}return e(n,[{key:"init",value:function(){!this.browser.supportsLinkPrefetch()||this.browser.isDataSaverModeOn()||this.browser.isSlowConnection()||(this.regex={excludeUris:RegExp(this.config.excludeUris,"i"),images:RegExp(".("+this.config.imageExt+")$","i"),fileExt:RegExp(".("+this.config.fileExt+")$","i")},this._initListeners(this))}},{key:"_initListeners",value:function(e){-1<this.config.onHoverDelay&&document.addEventListener("mouseover",e.listener.bind(e),e.listenerOptions),document.addEventListener("mousedown",e.listener.bind(e),e.listenerOptions),document.addEventListener("touchstart",e.listener.bind(e),e.listenerOptions)}},{key:"listener",value:function(e){var t=e.target.closest("a"),n=this._prepareUrl(t);if(null!==n)switch(e.type){case"mousedown":case"touchstart":this._addPrefetchLink(n);break;case"mouseover":this._earlyPrefetch(t,n,"mouseout")}}},{key:"_earlyPrefetch",value:function(t,e,n){var i=this,r=setTimeout(function(){if(r=null,0===i.numOnHover)setTimeout(function(){return i.numOnHover=0},1e3);else if(i.numOnHover>i.config.rateThrottle)return;i.numOnHover++,i._addPrefetchLink(e)},this.config.onHoverDelay);t.addEventListener(n,function e(){t.removeEventListener(n,e,{passive:!0}),null!==r&&(clearTimeout(r),r=null)},{passive:!0})}},{key:"_addPrefetchLink",value:function(i){return this.prefetched.add(i.href),new Promise(function(e,t){var n=document.createElement("link");n.rel="prefetch",n.href=i.href,n.onload=e,n.onerror=t,document.head.appendChild(n)}).catch(function(){})}},{key:"_prepareUrl",value:function(e){if(null===e||"object"!==(void 0===e?"undefined":r(e))||!1 in e||-1===["http:","https:"].indexOf(e.protocol))return null;var t=e.href.substring(0,this.config.siteUrl.length),n=this._getPathname(e.href,t),i={original:e.href,protocol:e.protocol,origin:t,pathname:n,href:t+n};return this._isLinkOk(i)?i:null}},{key:"_getPathname",value:function(e,t){var n=t?e.substring(this.config.siteUrl.length):e;return n.startsWith("/")||(n="/"+n),this._shouldAddTrailingSlash(n)?n+"/":n}},{key:"_shouldAddTrailingSlash",value:function(e){return this.config.usesTrailingSlash&&!e.endsWith("/")&&!this.regex.fileExt.test(e)}},{key:"_isLinkOk",value:function(e){return null!==e&&"object"===(void 0===e?"undefined":r(e))&&(!this.prefetched.has(e.href)&&e.origin===this.config.siteUrl&&-1===e.href.indexOf("?")&&-1===e.href.indexOf("#")&&!this.regex.excludeUris.test(e.href)&&!this.regex.images.test(e.href))}}],[{key:"run",value:function(){"undefined"!=typeof RocketPreloadLinksConfig&&new n(new RocketBrowserCompatibilityChecker({capture:!0,passive:!0}),RocketPreloadLinksConfig).init()}}]),n}();t.run();
+}());
+
+//# sourceURL=rocket-preload-links-js-after
+</script>
+<script id="jquery-easing-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/jquery.easing.min.js?ver=1.3" defer></script>
+<script id="jquery-mousewheel-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/jquery.mousewheel.min.js?ver=3.1.13" defer></script>
+<script id="nectar_priority-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/priority.js?ver=16.0.4" defer></script>
+<script id="nectar-transit-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/transit.min.js?ver=0.9.9" defer></script>
+<script id="nectar-waypoints-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/waypoints.js?ver=4.0.2" defer></script>
+<script id="imagesLoaded-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/imagesLoaded.min.js?ver=4.1.4" defer></script>
+<script id="hoverintent-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/hoverintent.min.js?ver=1.9" defer></script>
+<script id="fancyBox-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/jquery.fancybox.js?ver=3.3.9" defer></script>
+<script id="anime-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/anime.min.js?ver=4.5.1" defer></script>
+<script id="superfish-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/third-party/superfish.js?ver=1.5.8" defer></script>
+<script id="nectar-frontend-js-extra">
+var nectarLove = {"ajaxurl":"https://www.stamfordcornexchange.co.uk/wp-admin/admin-ajax.php","postID":"163156","rooturl":"https://www.stamfordcornexchange.co.uk","disqusComments":"false","loveNonce":"5a0caf45b0","mapApiKey":""};
+var nectarOptions = {"delay_js":"false","quick_search":"false","react_compat":"disabled","header_entrance":"false","simplify_ocm_mobile":"0","mobile_header_format":"default","ocm_btn_position":"default","left_header_dropdown_func":"default","ajax_add_to_cart":"0","ocm_remove_ext_menu_items":"remove_images","woo_product_filter_toggle":"0","woo_sidebar_toggles":"true","woo_sticky_sidebar":"0","woo_minimal_product_hover":"default","woo_minimal_product_effect":"default","woo_related_upsell_carousel":"false","woo_product_variable_select":"default"};
+var nectar_front_i18n = {"menu":"Menu","next":"Next","previous":"Previous"};
+//# sourceURL=nectar-frontend-js-extra
+</script>
+<script id="nectar-frontend-js" src="https://www.stamfordcornexchange.co.uk/wp-content/themes/salient/js/build/init.js?ver=16.0.4" defer></script>
+<script id="touchswipe-js" src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/salient-core/js/third-party/touchswipe.min.js?ver=1.0" defer></script>
+<script id="wp_mailjet_form_builder_widget-front-script-js-extra">
+var mjWidget = {"ajax_url":"https://www.stamfordcornexchange.co.uk/wp-admin/admin-ajax.php"};
+//# sourceURL=wp_mailjet_form_builder_widget-front-script-js-extra
+</script>
+<script id="wp_mailjet_form_builder_widget-front-script-js" src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/mailjet-for-wordpress/src/widgetformbuilder/js/front-widget.js?ver=7.1.2" defer></script>
+<script id="wpb_composer_front_js-js-extra">
+var vcData = {"currentTheme":{"slug":"salient"}};
+//# sourceURL=wpb_composer_front_js-js-extra
+</script>
+<script id="wpb_composer_front_js-js" src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/js_composer_salient/assets/js/dist/js_composer_front.min.js?ver=6.13.0" defer></script>
+<script>window.lazyLoadOptions=[{elements_selector:"img[data-lazy-src],.rocket-lazyload,iframe[data-lazy-src]",data_src:"lazy-src",data_srcset:"lazy-srcset",data_sizes:"lazy-sizes",class_loading:"lazyloading",class_loaded:"lazyloaded",threshold:300,callback_loaded:function(element){if(element.tagName==="IFRAME"&&element.dataset.rocketLazyload=="fitvidscompatible"){if(element.classList.contains("lazyloaded")){if(typeof window.jQuery!="undefined"){if(jQuery.fn.fitVids){jQuery(element).parent().fitVids()}}}}}},{elements_selector:".rocket-lazyload",data_src:"lazy-src",data_srcset:"lazy-srcset",data_sizes:"lazy-sizes",class_loading:"lazyloading",class_loaded:"lazyloaded",threshold:300,}];window.addEventListener('LazyLoad::Initialized',function(e){var lazyLoadInstance=e.detail.instance;if(window.MutationObserver){var observer=new MutationObserver(function(mutations){var image_count=0;var iframe_count=0;var rocketlazy_count=0;mutations.forEach(function(mutation){for(var i=0;i<mutation.addedNodes.length;i++){if(typeof mutation.addedNodes[i].getElementsByTagName!=='function'){continue}
+if(typeof mutation.addedNodes[i].getElementsByClassName!=='function'){continue}
+images=mutation.addedNodes[i].getElementsByTagName('img');is_image=mutation.addedNodes[i].tagName=="IMG";iframes=mutation.addedNodes[i].getElementsByTagName('iframe');is_iframe=mutation.addedNodes[i].tagName=="IFRAME";rocket_lazy=mutation.addedNodes[i].getElementsByClassName('rocket-lazyload');image_count+=images.length;iframe_count+=iframes.length;rocketlazy_count+=rocket_lazy.length;if(is_image){image_count+=1}
+if(is_iframe){iframe_count+=1}}});if(image_count>0||iframe_count>0||rocketlazy_count>0){lazyLoadInstance.update()}});var b=document.getElementsByTagName("body")[0];var config={childList:!0,subtree:!0};observer.observe(b,config)}},!1)</script><script data-no-minify="1" async src="https://www.stamfordcornexchange.co.uk/wp-content/plugins/old_wp-rocket/assets/js/lazyload/17.8.3/lazyload.min.js"></script><script>function lazyLoadThumb(e,alt){var t='<img data-lazy-src="https://i.ytimg.com/vi/ID/hqdefault.jpg" alt="" width="480" height="360"><noscript><img src="https://i.ytimg.com/vi/ID/hqdefault.jpg" alt="" width="480" height="360"></noscript>',a='<button class="play" aria-label="play Youtube video"></button>';t=t.replace('alt=""','alt="'+alt+'"');return t.replace("ID",e)+a}function lazyLoadYoutubeIframe(){var e=document.createElement("iframe"),t="ID?autoplay=1";t+=0===this.parentNode.dataset.query.length?'':'&'+this.parentNode.dataset.query;e.setAttribute("src",t.replace("ID",this.parentNode.dataset.src)),e.setAttribute("frameborder","0"),e.setAttribute("allowfullscreen","1"),e.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"),this.parentNode.parentNode.replaceChild(e,this.parentNode)}document.addEventListener("DOMContentLoaded",function(){var e,t,p,a=document.getElementsByClassName("rll-youtube-player");for(t=0;t<a.length;t++)e=document.createElement("div"),e.setAttribute("data-id",a[t].dataset.id),e.setAttribute("data-query", a[t].dataset.query),e.setAttribute("data-src", a[t].dataset.src),e.innerHTML=lazyLoadThumb(a[t].dataset.id,a[t].dataset.alt),a[t].appendChild(e),p=e.querySelector('.play'),p.onclick=lazyLoadYoutubeIframe});</script></body>
+</html>
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me - Debug: cached@1790106763 -->
