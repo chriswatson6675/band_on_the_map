@@ -1,4 +1,21 @@
 @import "tailwindcss";
+/* BEATMAPPED-UK-NATIONAL-VENUE-PROGRAMME-ACQUISITION-01: with no
+   tailwind.config.js, Tailwind v4's automatic content detection scans the
+   whole project (respecting .gitignore) for class-name-shaped strings.
+   research/source-investigations/ retains real, raw HTML snapshots of
+   third-party venue websites as governed evidence (docs/
+   SOURCE_INVESTIGATION_POLICY.md) — arbitrary third-party CSS/JS embedded
+   in those pages can contain strings that merely LOOK like a Tailwind
+   arbitrary-value utility class (e.g. a literal `url(Images/foo.svg)` in
+   some other site's own stylesheet), which Tailwind then tries to
+   generate real CSS for and Turbopack fails to resolve, since it names an
+   asset path from a THIRD PARTY'S OWN site, not this repository's own
+   public/ folder. This broke a real production build (confirmed: this
+   exact error also occurs on Vercel). research/ is retained evidence
+   data, never application UI, so it is excluded from content scanning
+   entirely rather than trying to filter individual false-positive
+   strings as they turn up. */
+@source not "../research/**";
 
 :root {
   --cream: #f5f3ed;
