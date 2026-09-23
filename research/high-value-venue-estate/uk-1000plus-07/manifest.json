@@ -1,0 +1,90 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CENSUS-FINAL-CLOSURE-07",
+  "framework_version": "BOTM-UK-HIGH-VALUE-VENUE-CENSUS-v3.0",
+  "census_id": "uk-1000plus-07",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "predecessor_package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CENSUS-COMPLETION-06",
+  "predecessor_main_sha": "ed9cc199c538d1e3bd2f3270d8532a34c3d90e0c",
+  "predecessor_terminal_verdict": "UK_HIGH_VALUE_VENUE_CENSUS_PARTIAL",
+  "what_this_is": "The final closure corpus. Package 06 left one class PARTIAL — STADIUM — because two source-family sweeps were never run. This package runs them, accounts for all 8 STADIUM rows, and freezes the census.",
+  "why_this_package_exists": {
+    "package_06_partial_class": "STADIUM",
+    "stadium_rows": 8,
+    "covered_by_package_06": 5,
+    "uncovered_by_package_06": [
+      "hv06-p-england-featherstone-post-office-road",
+      "hv06-p-england-london-white-hart-lane-community-sports-centre",
+      "hv06-p-wales-wrexham-queensway-stadium"
+    ],
+    "required_sweeps": [
+      {
+        "id": "RUGBY_LEAGUE_CHAMPIONSHIP_AND_LEAGUE_1",
+        "description": "RFL Championship and League 1 club/ground completeness audit — never run by Package 06, and the reason two of the three uncovered STADIUM rows were uncovered."
+      },
+      {
+        "id": "NATIONAL_ATHLETICS",
+        "description": "Nationally material athletics stadium completeness audit across the four nations — never run by Package 06, and the reason the other uncovered STADIUM rows were uncovered."
+      }
+    ],
+    "sweeps_actually_run": [
+      "RUGBY_LEAGUE_CHAMPIONSHIP_AND_LEAGUE_1",
+      "NATIONAL_ATHLETICS"
+    ]
+  },
+  "what_this_is_not": [
+    "It is not a canonical venue registry. venues/uk.json is NOT modified.",
+    "It does not admit any venue to the canonical estate.",
+    "It does not resolve the predecessor's ambiguous canonical identities or the Anglesey duplicate — that is the next package's job.",
+    "It contains no Events and acquires none.",
+    "It is not a re-opening of the census: classes other than STADIUM were not re-researched."
+  ],
+  "predecessor_artifacts_consumed": [
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-06/census.json",
+      "role": "All predecessor rows, carried forward and dispositioned.",
+      "records": 924,
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-06/coverage-matrix.json",
+      "role": "Per-class coverage carried forward unchanged except where Package 07 swept.",
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-06/summary.json",
+      "role": "Predecessor headline counts, for reconciliation.",
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-05/",
+      "role": "Original Package 05 snapshot. Read for lineage only.",
+      "mutated": false
+    }
+  ],
+  "other_inputs": [
+    {
+      "path": "venues/uk.json",
+      "role": "Canonical venue estate, read only, for identity reconciliation.",
+      "records": 3537,
+      "mutated": false
+    }
+  ],
+  "generator": "ingestion/high-value-venue-census-07/build.mjs",
+  "validator": "ingestion/high-value-venue-census-07/validate.mjs",
+  "contract": "ingestion/high-value-venue-census-07/contract.mjs",
+  "contract_note": "Package 07's row rules delegate to Package 06's own validator, so the two cannot drift. Only the id namespaces, the provenance vocabulary and the new-venue source-family requirement are Package 07's own.",
+  "row_counts": {
+    "total": 926,
+    "carried_from_predecessor": 924,
+    "new_in_package_07": 2,
+    "new_deduped_against_corpus": 1,
+    "new_rejected_unsupported": 0,
+    "target_row_dispositions_applied": 3,
+    "dispositions_unmatched": 0
+  },
+  "completeness_assessment": {
+    "verdict": "COMPLETE",
+    "blocking": []
+  }
+}
