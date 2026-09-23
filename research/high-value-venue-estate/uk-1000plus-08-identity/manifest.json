@@ -1,0 +1,53 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-IDENTITY-GATE-08",
+  "framework_version": "BOTM-UK-HIGH-VALUE-IDENTITY-GATE-v1.0",
+  "census_id": "uk-1000plus-08-identity",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "predecessor_package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CENSUS-FINAL-CLOSURE-07",
+  "predecessor_main_sha": "bc23305b8a6b24a27d0fc84407bac1d16fde55aa",
+  "predecessor_terminal_verdict": "UK_HIGH_VALUE_VENUE_CENSUS_COMPLETE",
+  "what_this_is": "The identity gate. Package 07 closed coverage; this resolves the remaining identity questions and produces the admission-ready population. It admits nothing.",
+  "what_this_is_not": [
+    "It is not an admission. venues/uk.json is NOT modified and no venue is minted.",
+    "It does not merge canonical venues, even where a canonical duplicate is found.",
+    "It does not reopen venue discovery or capacity research.",
+    "It contains no Events and acquires none."
+  ],
+  "direction_of_failure": "Every rule fails towards HOLDING rather than admitting. A venue held back can be revisited; a venue wrongly admitted creates a canonical duplicate, or a canonical record carrying another venue's capacity and programme source, which is materially harder to undo.",
+  "predecessor_artifacts_consumed": [
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-05",
+      "role": "Lineage only, read for provenance.",
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-06",
+      "role": "Lineage only, read for provenance.",
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-07",
+      "role": "The confirmed estate this gate dispositions.",
+      "mutated": false
+    }
+  ],
+  "other_inputs": [
+    {
+      "path": "venues/uk.json",
+      "role": "Canonical venue estate, read only, for identity verification.",
+      "records": 3537,
+      "mutated": false
+    }
+  ],
+  "generator": "ingestion/high-value-venue-identity-gate/build.mjs",
+  "validator": "ingestion/high-value-venue-identity-gate/validate.mjs",
+  "contract": "ingestion/high-value-venue-identity-gate/contract.mjs",
+  "decision_handling": {
+    "decisions_received": 20,
+    "decisions_accepted_after_reverification": 17,
+    "decisions_refused": 3,
+    "note": "Every researcher decision is independently re-verified before it may affect the estate: a canonical match must name a canonical venue that exists and cite a fetched page, and a same-venue claim must point at a real confirmed row. A decision that fails re-verification is refused and the row holds."
+  },
+  "estate_arithmetic_errors": []
+}
