@@ -162,6 +162,28 @@ export function createVenue(fields) {
  *   - ADDRESS_ONLY requires a non-empty address AND forbids coordinates;
  *   - UNRESOLVED forbids both an address and coordinates.
  */
+/**
+ * Did this venue's geocode START from an address the venue already had?
+ *
+ * Only address-anchored geocodes can be expected to leave an address
+ * behind. Three shapes exist in the registry today:
+ *   - GEOCODED_FROM_OFFICIAL_ADDRESS   — query_address is the venue's own
+ *     address, by construction. Anchored.
+ *   - STRUCTURED_POI_NAME_CITY_MATCH   — anchored only when query_address
+ *     is non-null; the name+city fallback records query_address: null.
+ *   - OSM_OVERPASS_ELEMENT_COORDINATE  — no query_address key at all; the
+ *     coordinate is read straight off the discovering OSM element, which
+ *     frequently carries no addr:* tags. Never anchored.
+ * Absent provenance is treated as NOT anchored — validateVenue() reports
+ * missing/invalid provenance separately, and one defect should not
+ * manufacture a second, misleading error.
+ */
+export function wasAnchoredOnAnAddress(coordinateProvenance) {
+  if (!coordinateProvenance || typeof coordinateProvenance !== "object") return false;
+  const anchor = coordinateProvenance.query_address;
+  return typeof anchor === "string" && anchor.trim() !== "";
+}
+
 export function validateVenue(venue) {
   const errors = [];
 
@@ -211,16 +233,26 @@ export function validateVenue(venue) {
       );
     }
   } else if (venue?.location_status === "GEOCODED") {
-    // BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01: every
-    // other GEOCODED method starts from an already-evidenced address (the
-    // query anchor itself) and therefore always has one; OSM_OVERPASS_
-    // ELEMENT_COORDINATE is the one honest exception — the coordinate is
-    // read directly off the discovering OSM element, which frequently
-    // carries no addr:street/addr:postcode/addr:city tags at all. Address
-    // is still recorded whenever the OSM element actually has one; only
-    // its ABSENCE is not itself a validation failure for this one method
-    // — never fabricated as a substitute.
-    if (!hasAddress && provenanceMethod !== "OSM_OVERPASS_ELEMENT_COORDINATE") {
+    // A GEOCODED venue must carry an address if and only if its geocode
+    // was ANCHORED on one — see wasAnchoredOnAnAddress().
+    //
+    // BEATMAPPED-UK-NATIONAL-LIVE-VENUE-DISCOVERY-EXPANSION-01 originally
+    // wrote this as `method !== "OSM_OVERPASS_ELEMENT_COORDINATE"`, on the
+    // stated premise that "every other GEOCODED method starts from an
+    // already-evidenced address (the query anchor itself) and therefore
+    // always has one". BEATMAPPED-UK-VENUE-CANONICAL-INTEGRITY-04 proved
+    // that premise false: ingestion/geocoding/run-uk.mjs runs
+    // STRUCTURED_POI_NAME_CITY_MATCH in TWO modes, and its addressless
+    // mode (structured_query = {amenity: name, city}, query_address: null)
+    // is the documented fallback "for venues which have no address at
+    // all". 64 venues geocoded that way were therefore rejected by a rule
+    // whose own rationale did not apply to them.
+    //
+    // Keying on the anchor instead of on a method name keeps the rule the
+    // comment always described, and keeps it honest in both directions: a
+    // venue that DID have an address to geocode from must still have one
+    // now, so genuine address loss is still a validation failure.
+    if (!hasAddress && wasAnchoredOnAnAddress(venue.coordinate_provenance)) {
       errors.push("a GEOCODED venue must carry a non-empty address");
     }
     if (!hasLat || !hasLng) {
