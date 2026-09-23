@@ -1,0 +1,138 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CENSUS-COMPLETION-06",
+  "framework_version": "BOTM-UK-HIGH-VALUE-VENUE-CENSUS-v2.0",
+  "census_id": "uk-1000plus-06",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "description": "Rows and source families where research could not complete. These carry NO negative findings — tool exhaustion and access blocks are never recorded as absence.",
+  "blocked_rows": {
+    "count": 0,
+    "venues": []
+  },
+  "blocked_source_families": [
+    {
+      "family": "Arena Racing Company (ARC)",
+      "kind": "OPERATOR",
+      "root_url": "https://www.arenaracingcompany.co.uk/",
+      "members_total_known": 16,
+      "members_inspected": 16,
+      "members_blocked": 1,
+      "first_party": true,
+      "acquisition_shape": "SERVER_RENDERED_HTML",
+      "venue_names_present_in_listing": true,
+      "evidence": [
+        {
+          "url": "https://www.arenaracingcompany.co.uk/racing/horse-racing/our-racecourses",
+          "note": "Lists all 16 ARC racecourses with domains: Doncaster, Hereford, Newcastle, Sedgefield, Southwell, Uttoxeter, Wolverhampton, Worcester, Bath, Brighton, Chepstow, Fontwell Park, Ffos Las, Great Yarmouth, Lingfield Park, Royal Windsor."
+        }
+      ],
+      "notes": "15 of 16 course sites fetched directly; Ffos Las (ffoslasracecourse.com) blocked by a TLS certificate has expired error on both http and https across two attempts - members_blocked=1. No individual ARC course page published a capacity figure; group-level ARC press material referenced over 1,000,000 visitors across the estate in 2025 (search-only, not independently fetched, so not used as venue-level evidence).",
+      "researcher": "b"
+    },
+    {
+      "family": "Independent UK racecourses (non-JC, non-ARC)",
+      "kind": "OPERATOR",
+      "root_url": null,
+      "members_total_known": 30,
+      "members_inspected": 30,
+      "members_blocked": 2,
+      "first_party": true,
+      "acquisition_shape": "SERVER_RENDERED_HTML",
+      "venue_names_present_in_listing": false,
+      "evidence": [
+        {
+          "url": "https://www.ascot.com/",
+          "note": "Independent operator site, no capacity published; Wikipedia capacity list gives 70,000."
+        },
+        {
+          "url": "https://www.salisburyracecourse.co.uk/",
+          "note": "States welcomes attendances between 2,000 and 9,000 racegoers each raceday - official attendance range evidence."
+        },
+        {
+          "url": "https://www.fakenhamracecourse.co.uk/",
+          "note": "States weekday meetings draw 1,500-3,000, biggest events 4,500+ - official attendance range evidence."
+        },
+        {
+          "url": "https://www.chester-races.com/",
+          "note": "States 20,000+ visitors per race day - official marketing attendance figure."
+        }
+      ],
+      "notes": "30 independently-operated courses each run their own site (no shared operator estate to walk); each fetched individually. 2 blocked: Redcar (repeated timeout, both protocols) and Downpatrick (TLS certificate error, both protocols) - Wikipedia used as fallback for both, neither carries a capacity figure. York and Hamilton Park official sites were fetched as a follow-up per coordinator guidance; both genuinely carry no usable current capacity figure (York: none at all; Hamilton Park: only a non-representative 1926 historic attendance), so Wikipedia sourcing was correctly retained for both rather than being a shortcut.",
+      "researcher": "b"
+    },
+    {
+      "family": "British Horseracing Authority / Great British Racing (governing body)",
+      "kind": "GOVERNING_BODY",
+      "root_url": "https://www.britishhorseracing.com/racing/racecourses/",
+      "members_total_known": 59,
+      "members_inspected": 0,
+      "members_blocked": 1,
+      "first_party": true,
+      "acquisition_shape": "CLIENT_RENDERED",
+      "venue_names_present_in_listing": false,
+      "evidence": [
+        {
+          "url": "https://www.britishhorseracing.com/racing/racecourses/",
+          "note": "Confirms in page text 'There are 59 racecourses in Britain, from Perth in Scotland to Newton Abbot in Devon'; the actual A-Z racecourse list is a client-side/JS-rendered widget that did not resolve to text via WebFetch, so no individual courses were read from this source."
+        }
+      ],
+      "notes": "Used only as a NATIONAL COMPLETENESS CROSS-CHECK, not as a source of individual venues. BHA's stated count of 59 racecourses in Great Britain, plus Northern Ireland's Downpatrick and Down Royal (2), equals exactly 61 - matching Package 05's total racecourse count (60 assigned to researcher b as unverified plus 1 already CONFIRMED_1000_PLUS, Taunton, held elsewhere in the estate). This is strong evidence Package 05's racecourse census is nationally COMPLETE with no missing courses, even though this source itself could not be walked for individual venue data.",
+      "researcher": "b"
+    },
+    {
+      "family": "Greyhound Board of Great Britain (GBGB)",
+      "kind": "GOVERNING_BODY",
+      "root_url": "https://www.gbgb.org.uk/racing/race-courses/",
+      "members_total_known": 16,
+      "members_inspected": 12,
+      "members_blocked": 1,
+      "first_party": true,
+      "acquisition_shape": "CLIENT_RENDERED",
+      "venue_names_present_in_listing": false,
+      "evidence": [
+        {
+          "url": "https://www.gbgb.org.uk/racing/race-courses/",
+          "kind": "FETCHED_URL",
+          "note": "Confirms GBGB licenses 16 stadia across Great Britain, with no active tracks in Scotland and just one in Wales, but the actual track list did not resolve to text via WebFetch (appears to be a client-rendered widget) - only one track name (Shawfield, from an image caption) was recoverable."
+        }
+      ],
+      "notes": "GBGB's own directory could not be walked for individual track names (client-rendered page), so each of my 12 assigned GBGB-regulated greyhound rows (Doncaster, Yarmouth (dual-use), Harlow, Brighton and Hove, Kinsley, Nottingham, Romford, Central Park/Sittingbourne, Sunderland, Towcester (former racecourse site), Dunstall Park/Wolverhampton, Monmore Green/Wolverhampton, Valley/Ystrad Mynach, Star Pelaw/Chester-le-Street) was instead fetched individually from its own operator site. Kinsley's own site (kinsleydogs.co.uk) returned only a client-rendered 'Loading...' placeholder on two attempts - members_blocked=1 - Wikipedia was used as a fallback and gave a specific capacity (3,000). None of the other 11 directly-fetched operator sites publish a capacity figure - an honest, expected outcome for this sector.",
+      "researcher": "b"
+    },
+    {
+      "family": "Individual rugby league / rugby union / cricket / football club grounds (no shared estate)",
+      "kind": "CLUB",
+      "root_url": null,
+      "members_total_known": 8,
+      "members_inspected": 8,
+      "members_blocked": 1,
+      "first_party": true,
+      "acquisition_shape": "SERVER_RENDERED_HTML",
+      "venue_names_present_in_listing": false,
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Fartown_Ground",
+          "kind": "FETCHED_URL",
+          "note": "Historic 5,000 capacity explicitly framed as a HISTORICAL/reduced figure (stands demolished); ground now used only for amateur rugby league."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Myreside_Stadium",
+          "kind": "FETCHED_URL",
+          "note": "13,799 capacity tied to a temporary-stand configuration for Edinburgh Rugby's intermittent tenancy."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/The_Lamb_Ground",
+          "kind": "FETCHED_URL",
+          "note": "Capacity 4,000, Tamworth FC."
+        },
+        {
+          "url": "https://en.wikipedia.org/wiki/Stormont_(cricket_ground)",
+          "kind": "FETCHED_URL",
+          "note": "Capacity 6,000, Cricket Ireland international ground."
+        }
+      ],
+      "notes": "8 rows: Avery Fields (Midlands Hurricanes RL), Crow Trees (Newcastle Thunder RL, groundshare with Blaydon RUFC), The Greenyards (Melrose RFC, birthplace of rugby sevens), Myreside (Watsonians RFC / intermittently Edinburgh Rugby), College Ground Cheltenham (Gloucestershire CCC outground), AO Farington (Lancashire CCC outground, only a partial 700-seat figure found, not total capacity), Stormont (Cricket Ireland international ground), The Lamb Ground (Tamworth FC). Each independently owned/operated - no shared directory to walk. 1 blocked source (espncricinfo.com College Ground page, HTTP 403).",
+      "researcher": "b"
+    }
+  ]
+}

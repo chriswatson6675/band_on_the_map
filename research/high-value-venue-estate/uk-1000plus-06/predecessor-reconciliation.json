@@ -1,0 +1,99 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CENSUS-COMPLETION-06",
+  "framework_version": "BOTM-UK-HIGH-VALUE-VENUE-CENSUS-v2.0",
+  "census_id": "uk-1000plus-06",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "description": "Proves every Package 05 row has exactly one disposition in this corpus. A predecessor row cannot be silently dropped to improve a headline, and cannot be claimed by two successors.",
+  "predecessor_package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-ESTATE-CENSUS-05",
+  "predecessor_main_sha": "2d5d43b8ea78f9e47d01e039af4f8a612105cb9e",
+  "predecessor_row_count": 911,
+  "predecessor_state_counts": {
+    "CONFIRMED_1000_PLUS": 743,
+    "CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE": 163,
+    "BELOW_THRESHOLD": 5
+  },
+  "dispositioned_here": 911,
+  "rows_without_disposition": [],
+  "state_transitions": {
+    "CONFIRMED_1000_PLUS -> CONFIRMED_1000_PLUS": 743,
+    "CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE -> CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE": 110,
+    "CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE -> CONFIRMED_1000_PLUS": 47,
+    "BELOW_THRESHOLD -> CONFIRMED_BELOW_THRESHOLD": 5,
+    "CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE -> CONFIRMED_BELOW_THRESHOLD": 4,
+    "CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE -> NOT_A_PERMANENT_VENUE": 1,
+    "CAPACITY_UNVERIFIED_HIGH_VALUE_CANDIDATE -> IDENTITY_REVIEW": 1
+  },
+  "predecessor_arithmetic_explained": {
+    "note": "Package 05's own reported figures, reconciled from its committed artifacts with no unexplained remainder.",
+    "total_rows_911": {
+      "confirmed_1000_plus": 743,
+      "capacity_unverified": 163,
+      "below_threshold_audit_rows": 5,
+      "explanation": "743 + 163 + 5 = 911. The 5 are venues researched and proven below 1,000, retained honestly as audit evidence rather than deleted."
+    },
+    "sports_547_vs_displayed_534": {
+      "difference": 13,
+      "stadium_class_omitted_from_by_type_list": 8,
+      "below_threshold_sports_rows": 5,
+      "explanation": "The Package 05 report's sports-by-type list omitted the STADIUM class entirely (8 high-value rows) and excluded the 5 BELOW_THRESHOLD sports rows. 534 + 8 + 5 = 547."
+    },
+    "high_value_906_canonical_states": {
+      "existing_canonical": 251,
+      "probable_existing_canonical": 13,
+      "missing_from_canon": 614,
+      "ambiguous_identity": 28,
+      "explanation": "251 + 13 = 264 already in canon; 614 missing; the remaining 28 are AMBIGUOUS_IDENTITY. 264 + 614 + 28 = 906."
+    },
+    "confirmed_743_canonical_states": {
+      "existing_canonical": 231,
+      "probable_existing_canonical": 12,
+      "missing_from_canon": 486,
+      "ambiguous_identity": 14,
+      "explanation": "231 + 12 = 243 already in canon; 486 missing; the remaining 14 are AMBIGUOUS_IDENTITY. 243 + 486 + 14 = 743."
+    }
+  },
+  "updates_superseded_by_a_later_correction": [
+    {
+      "update_for": "hv05-p-northern-ireland-belfast-boucher-road-playing-fields",
+      "reason": "an earlier update for this row was superseded by a later one (later wins — a revisit is a correction)"
+    },
+    {
+      "update_for": "hv05-p-wales-cardiff-blackweir-fields",
+      "reason": "an earlier update for this row was superseded by a later one (later wins — a revisit is a correction)"
+    },
+    {
+      "update_for": "hv05-p-wales-cardiff-cardiff-castle",
+      "reason": "an earlier update for this row was superseded by a later one (later wins — a revisit is a correction)"
+    },
+    {
+      "update_for": "hv05-p-wales-gwalchmai-anglesey-anglesey-showground",
+      "reason": "an earlier update for this row was superseded by a later one (later wins — a revisit is a correction)"
+    }
+  ],
+  "updates_refused_as_unsupported": [],
+  "updates_with_no_matching_predecessor": [],
+  "coherence_adjustments": [
+    {
+      "research_id": "hv06-p-wales-cardiff-blackweir-fields",
+      "name": "Blackweir Fields",
+      "from": "CONFIRMED_1000_PLUS",
+      "to": "IDENTITY_REVIEW",
+      "reason": "permanence_class AMBIGUOUS is not a permanent venue class"
+    }
+  ],
+  "new_rows_deduped": [
+    {
+      "research_id": "hv06-n-convention-centre-liverpool-experience-campus-liverpool",
+      "name": "Convention Centre, Liverpool Experience Campus",
+      "locality": "Liverpool",
+      "reason": "already present in the corpus (same name or website host in the same locality)"
+    },
+    {
+      "research_id": "hv06-n-new-dock-hall-royal-armouries-leeds",
+      "name": "New Dock Hall, Royal Armouries",
+      "locality": "Leeds",
+      "reason": "already present in the corpus (same name or website host in the same locality)"
+    }
+  ]
+}

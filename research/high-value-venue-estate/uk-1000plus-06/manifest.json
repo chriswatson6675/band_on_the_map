@@ -1,0 +1,60 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CENSUS-COMPLETION-06",
+  "framework_version": "BOTM-UK-HIGH-VALUE-VENUE-CENSUS-v2.0",
+  "census_id": "uk-1000plus-06",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "predecessor_package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-ESTATE-CENSUS-05",
+  "predecessor_main_sha": "2d5d43b8ea78f9e47d01e039af4f8a612105cb9e",
+  "predecessor_terminal_verdict": "UK_HIGH_VALUE_VENUE_CENSUS_PARTIAL",
+  "what_this_is": "The completion corpus for the UK high-value venue census. It supersedes Package 05 as the working estate, and proves that every one of Package 05's rows has exactly one disposition here.",
+  "what_this_is_not": [
+    "It is not a canonical venue registry. venues/uk.json is NOT modified.",
+    "It is not a Source registry. sources/*.json is NOT modified.",
+    "It is not a governed source investigation. Activation still requires docs/SOURCE_INVESTIGATION_POLICY.md.",
+    "It contains no Events and acquires none.",
+    "It does not admit any venue to the canonical estate."
+  ],
+  "predecessor_artifacts_consumed": [
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-05/census.json",
+      "role": "All 911 predecessor rows, carried forward and dispositioned.",
+      "records": 911,
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-05/summary.json",
+      "role": "permanence_review list identifying rows whose permanence was unresolved.",
+      "mutated": false
+    }
+  ],
+  "other_inputs": [
+    {
+      "path": "venues/uk.json",
+      "role": "Canonical venue estate, read only, for identity reconciliation.",
+      "records": 3537,
+      "mutated": false
+    }
+  ],
+  "generator": "ingestion/high-value-venue-census-06/build.mjs",
+  "validator": "ingestion/high-value-venue-census-06/validate.mjs",
+  "contract": "ingestion/high-value-venue-census-06/contract.mjs",
+  "reproducibility": "Every count is computed by the generator from the inputs above; re-running reproduces the artifacts exactly.",
+  "row_counts": {
+    "total": 924,
+    "carried_from_predecessor": 911,
+    "new_in_package_06": 13,
+    "new_deduped_against_corpus": 2,
+    "new_rejected_unsupported": 0,
+    "predecessor_updates_applied": 173,
+    "predecessor_updates_unmatched": 0,
+    "predecessor_updates_superseded": 4,
+    "updates_refused_as_unsupported": 0
+  },
+  "completeness_assessment": {
+    "verdict": "PARTIAL",
+    "blocking": [
+      "venue class STADIUM is PARTIAL"
+    ]
+  }
+}
