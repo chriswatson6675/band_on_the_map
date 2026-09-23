@@ -1,0 +1,49 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-ESTATE-CENSUS-05",
+  "framework_version": "BOTM-UK-HIGH-VALUE-VENUE-CENSUS-v1.0",
+  "census_id": "uk-1000plus-05",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "capacity_threshold": 1000,
+  "what_this_is": "A discovery census of permanent UK venues with a credible maximum public capacity of at least 1,000, together with the programme/calendar source that would serve each one. Research only.",
+  "what_this_is_not": [
+    "It is not a canonical venue registry. venues/uk.json is NOT modified by this package.",
+    "It is not a Source registry. sources/*.json is NOT modified by this package.",
+    "It is not a governed source investigation. A row reaching READY_FIRST_PARTY still requires a full investigation under docs/SOURCE_INVESTIGATION_POLICY.md before any source may be activated.",
+    "It contains no Events and acquires none."
+  ],
+  "inputs": [
+    {
+      "path": "research/major-event-venues/uk-major-event-census-01/venues.json",
+      "role": "Primary committed evidence base: UK venues already researched at the same >=1,000 threshold.",
+      "records": 855,
+      "mutated": false
+    },
+    {
+      "path": "research/major-event-venues/uk-major-event-census-01/capacity-evidence.json",
+      "role": "Retained capacity figures and their source authority/confidence.",
+      "mutated": false
+    },
+    {
+      "path": "research/major-event-venues/uk-major-event-census-01/calendar-sources.json",
+      "role": "Retained, fingerprinted programme/fixture calendar sources.",
+      "mutated": false
+    },
+    {
+      "path": "venues/uk.json",
+      "role": "Canonical venue estate, read only, for identity reconciliation.",
+      "records": 3537,
+      "mutated": false
+    }
+  ],
+  "generator": "ingestion/high-value-venue-census/build.mjs",
+  "validator": "ingestion/high-value-venue-census/validate.mjs",
+  "contract": "ingestion/high-value-venue-census/contract.mjs",
+  "reproducibility": "Every count published by this census is computed by the generator from the inputs above. Re-running the generator on the same inputs reproduces the artifacts exactly.",
+  "artifact_counts": {
+    "census_rows": 911,
+    "carried_from_prior_census": 855,
+    "new_research_rows": 56,
+    "new_research_rows_deduped_against_prior": 3,
+    "new_research_rows_rejected_unsupported": 0
+  }
+}
