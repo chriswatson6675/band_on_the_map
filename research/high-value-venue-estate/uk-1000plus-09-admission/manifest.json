@@ -1,0 +1,52 @@
+{
+  "package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-CANONICAL-ADMISSION-09",
+  "generated_at": "2026-09-23T00:00:00.000Z",
+  "predecessor_package": "BEATMAPPED-UK-HIGH-VALUE-VENUE-IDENTITY-GATE-08",
+  "predecessor_main_sha": "3cb2a4c5f70ce7b042235dffc09dfbb66d77aba5",
+  "what_this_is": "Canonical admission of the governed UK high-value venue estate. This package admits venue IDENTITY only — no events, no programme acquisition, no capacity schema.",
+  "sole_input": "research/high-value-venue-estate/uk-1000plus-08-identity/admission-ready.json",
+  "canonical_source_of_truth": "venues/uk.json",
+  "admission_path": "Reuses the repository's existing governed primitives unchanged: createVenueId()/validateVenue() from ingestion/venue/contract.mjs, findExistingMatch() from ingestion/uk-venue-onboarding/dedupe.mjs, and the append-only venues/uk.json write established by ingestion/uk-venue-onboarding/run.mjs. The only new code is the field adapter between the Package 08 row shape and those primitives.",
+  "id_generation_rule": "createVenueId(canonical_name, city) -> venue-<slug(city)>-<slug(name)> — deterministic and readable, never a UUID.",
+  "location_status_rule": "Every admitted venue is UNRESOLVED. Package 08 carries no coordinates and no street addresses, so any other status would require data this package does not have and must not invent. A later evidence-checked geocoding pass (ingestion/geocoding/run-uk.mjs) may promote them.",
+  "capacity_rule": "The canonical Venue contract has no capacity semantics and this package invents none. The qualifying >=1,000 evidence stays in the research corpus and is referenced from each admitted venue's admission evidence note.",
+  "what_was_not_admitted": {
+    "identity_holds": [
+      "AMT Headingley Rugby Stadium",
+      "Liverpool Experience Campus",
+      "Newcastle Greyhound Stadium",
+      "Owlerton Greyhound Stadium"
+    ],
+    "capacity_unverified_candidates": "The 114 Package 07 capacity-unverified high-value candidates are outside this package entirely."
+  },
+  "predecessor_artifacts_consumed": [
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-08-identity/admission-ready.json",
+      "role": "The sole admission population.",
+      "records": 536,
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-05",
+      "role": "Lineage only.",
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-06",
+      "role": "Lineage only.",
+      "mutated": false
+    },
+    {
+      "path": "research/high-value-venue-estate/uk-1000plus-07",
+      "role": "Lineage only.",
+      "mutated": false
+    }
+  ],
+  "canonical_registry_effect": {
+    "baseline": 3537,
+    "added": 535,
+    "total": 4072,
+    "existing_entries_modified": 0,
+    "existing_entries_removed": 0
+  }
+}
