@@ -2,10 +2,10 @@
 set -euo pipefail
 
 RUN_TOKEN="${1:-}"
-case "${RUN_TOKEN}" in
-  gh-[1-9][0-9]*-[1-9][0-9]*) ;;
-  *) echo "Invalid cleanup token" >&2; exit 1 ;;
-esac
+if [[ ! "${RUN_TOKEN}" =~ ^gh-[1-9][0-9]*-[1-9][0-9]*$ ]]; then
+  echo "Invalid cleanup token" >&2
+  exit 1
+fi
 
 RESEARCH_ROOT="/tmp/beatmapped-research/${RUN_TOKEN}"
 case "${RESEARCH_ROOT}" in

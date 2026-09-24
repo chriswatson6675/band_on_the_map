@@ -14,6 +14,7 @@ ARTIFACT_ROOT="${RESEARCH_ROOT}/artifacts"
 BROWSER_TEMP="${RESEARCH_ROOT}/browser-tmp"
 BROWSER_HOME="${RESEARCH_ROOT}/home"
 FINALIZED=0
+WORKER_MARKER="/etc/beatmapped-research-worker.json"
 
 node "${CONTROLLER_ROOT}/validate-request.mjs" "${CANDIDATE_SHA}" "${RESEARCH_JOB}"
 node "${CONTROLLER_ROOT}/validate-paths.mjs" "${PRODUCTION_PATH}" "${RESEARCH_ROOT}" "${PUBLICATION_PATH}"
@@ -27,20 +28,20 @@ finalize() {
   FINALIZED=1
   trap - EXIT
   set +e
-  node "${CONTROLLER_ROOT}/host-state.mjs" capture "${PRODUCTION_PATH}" "${ARTIFACT_ROOT}/production-after.json"
-  node "${CONTROLLER_ROOT}/host-state.mjs" compare "${ARTIFACT_ROOT}/production-before.json" "${ARTIFACT_ROOT}/production-after.json" > "${ARTIFACT_ROOT}/production-isolation.json"
+  node "${CONTROLLER_ROOT}/worker-state.mjs" capture "${WORKER_MARKER}" "${PRODUCTION_PATH}" "${RESEARCH_ROOT}" "${ARTIFACT_ROOT}/worker-after.json"
+  node "${CONTROLLER_ROOT}/worker-state.mjs" compare "${ARTIFACT_ROOT}/worker-before.json" "${ARTIFACT_ROOT}/worker-after.json" > "${ARTIFACT_ROOT}/worker-isolation.json"
   local isolation_status=$?
   node "${CONTROLLER_ROOT}/sanitize-artifacts.mjs" "${ARTIFACT_ROOT}" > "${ARTIFACT_ROOT}/credential-audit.txt"
   local audit_status=$?
   if [ "${isolation_status}" -ne 0 ] || [ "${audit_status}" -ne 0 ]; then original_status=1; fi
-  printf '{"exit_code":%s,"production_isolation":"%s","credential_audit":"%s"}\n' \
+  printf '{"exit_code":%s,"worker_isolation":"%s","artifact_sanitization":"%s"}\n' \
     "${original_status}" "$([ "${isolation_status}" -eq 0 ] && printf PASS || printf FAIL)" "$([ "${audit_status}" -eq 0 ] && printf PASS || printf FAIL)" \
     > "${ARTIFACT_ROOT}/run-outcome.json"
   exit "${original_status}"
 }
 trap finalize EXIT
 
-node "${CONTROLLER_ROOT}/host-state.mjs" capture "${PRODUCTION_PATH}" "${ARTIFACT_ROOT}/production-before.json"
+node "${CONTROLLER_ROOT}/worker-state.mjs" capture "${WORKER_MARKER}" "${PRODUCTION_PATH}" "${RESEARCH_ROOT}" "${ARTIFACT_ROOT}/worker-before.json"
 node "${CONTROLLER_ROOT}/runtime-audit.mjs" "${PRODUCTION_PATH}" > "${ARTIFACT_ROOT}/runtime-audit.json"
 RUNTIME_CLASSIFICATION="$(node -e "const a=require(process.argv[1]);process.stdout.write(a.classification)" "${ARTIFACT_ROOT}/runtime-audit.json")"
 printf '%s\n' "${RUNTIME_CLASSIFICATION}" > "${ARTIFACT_ROOT}/runtime-classification.txt"

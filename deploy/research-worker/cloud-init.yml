@@ -1,0 +1,49 @@
+# Replace the one public-key placeholder before provisioning. Never commit a
+# private key or copy a production credential into this configuration.
+#cloud-config
+package_update: true
+package_upgrade: false
+ssh_pwauth: false
+disable_root: true
+
+users:
+  - default
+  - name: botm-research
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - "REPLACE_WITH_DEDICATED_ED25519_PUBLIC_KEY"
+
+packages:
+  - ca-certificates
+  - curl
+  - git
+  - gnupg
+  - jq
+  - procps
+
+write_files:
+  - path: /etc/beatmapped-research-worker.json
+    owner: root:root
+    permissions: "0644"
+    content: |
+      {"schema_version":"BEATMAPPED-RESEARCH-WORKER-v1","worker_name":"beatmapped-research-worker-01","role":"read-only-research"}
+  - path: /etc/ssh/sshd_config.d/99-beatmapped-research-worker.conf
+    owner: root:root
+    permissions: "0644"
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin no
+      AllowUsers botm-research
+
+runcmd:
+  - [bash, -lc, "install -d -m 0700 -o botm-research -g botm-research /srv/beatmapped-research"]
+  - [bash, -lc, "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg"]
+  - [bash, -lc, "echo 'deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main' > /etc/apt/sources.list.d/nodesource.list"]
+  - [bash, -lc, "curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg"]
+  - [bash, -lc, "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main' > /etc/apt/sources.list.d/google-chrome.list"]
+  - [bash, -lc, "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs google-chrome-stable"]
+  - [bash, -lc, "sshd -t && systemctl restart ssh"]
+
+final_message: "BeatMapped research worker provisioning complete"

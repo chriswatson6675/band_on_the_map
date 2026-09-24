@@ -21,14 +21,15 @@ test("research workflow is manual-only with a full SHA input and enumerated job 
   assert.match(yaml, /git for-each-ref --format='\%\(refname\)' --contains "\$CANDIDATE_SHA" refs\/remotes\/origin/);
 });
 
-test("workflow reuses exactly the protected production SSH trust model", async () => {
+test("workflow targets only the protected dedicated research worker", async () => {
   const yaml = await read(WORKFLOW);
-  assert.match(yaml, /environment: beatmapped-collector-production/);
+  assert.match(yaml, /runs-on: \[self-hosted, linux, x64, beatmapped-research-worker\]/);
+  assert.match(yaml, /environment: beatmapped-research-worker/);
   const secrets = [...yaml.matchAll(/secrets\.(BEATMAPPED_[A-Z0-9_]+)/g)].map((match) => match[1]);
-  assert.deepEqual([...new Set(secrets)].sort(), ["BEATMAPPED_PROD_HOST", "BEATMAPPED_PROD_SSH_HOST_KEY", "BEATMAPPED_PROD_SSH_KEY", "BEATMAPPED_PROD_USER"].sort());
-  assert.doesNotMatch(executable(yaml), /StrictHostKeyChecking=no|ssh-keyscan/i);
-  for (const match of yaml.matchAll(/(?:ssh|scp) -o BatchMode=yes[\s\S]*?StrictHostKeyChecking=(\w+)/g)) assert.equal(match[1], "yes");
-  assert.match(yaml, /ConnectTimeout=15/);
+  assert.deepEqual(secrets, []);
+  assert.doesNotMatch(executable(yaml), /\b(?:ssh|scp|ssh-keyscan)\b/i);
+  assert.match(yaml, /persist-credentials: false/);
+  assert.match(yaml, /ref: \$\{\{ needs\.validate-request\.outputs\.controller_sha \}\}/);
 });
 
 test("workflow never invokes deployment, publication, activation, scheduler or service mutation", async () => {
@@ -50,6 +51,7 @@ test("candidate checkout and output stay under the isolated run root", async () 
 test("cleanup targets only the exact run-owned session and never uses broad pkill", async () => {
   const script = executable(await read(CLEANUP));
   assert.doesNotMatch(script, /pkill|killall/);
+  assert.match(script, /\[\[ ! "\$\{RUN_TOKEN\}" =~ \^gh-\[1-9\]\[0-9\]\*-\[1-9\]\[0-9\]\*\$ \]\]/);
   assert.match(script, /SESSION_ID.*PROOF_PID/);
   assert.match(script, /COMMAND.*RESEARCH_ROOT/);
   assert.match(script, /kill -TERM -- "-\$\{PROOF_PID\}"/);
@@ -61,6 +63,17 @@ test("workflow always retrieves, audits, uploads and cleans up artifacts", async
   assert.match(yaml, /Retrieve bounded sanitized research artifacts[\s\S]*?if: always\(\)/);
   assert.match(yaml, /sanitize-artifacts\.mjs research-artifacts/);
   assert.match(yaml, /actions\/upload-artifact@v4/);
-  assert.match(yaml, /Remove only this workflow-owned remote process tree[\s\S]*?if: always\(\)/);
-  assert.match(yaml, /production_isolation!=='PASS'/);
+  assert.match(yaml, /Remove only this workflow-owned process tree[\s\S]*?if: always\(\)/);
+  assert.match(yaml, /worker_isolation!=='PASS'/);
+  assert.match(yaml, /artifact_sanitization!=='PASS'/);
+});
+
+test("worker execution proves the stable marker and production checkout absence", async () => {
+  const script = await read(REMOTE_RUN);
+  const workerState = await read(fileURLToPath(new URL("../remote-research/worker-state.mjs", import.meta.url)));
+  assert.match(script, /WORKER_MARKER="\/etc\/beatmapped-research-worker\.json"/);
+  assert.match(workerState, /BEATMAPPED-RESEARCH-WORKER-v1/);
+  assert.match(workerState, /identity === "botm-research"/);
+  assert.match(workerState, /production_path_present === false/);
+  assert.match(workerState, /production_host_addressed: false/);
 });
