@@ -9,6 +9,7 @@ import { reconcileWithExistingRegistry } from "./existing-registry.mjs";
 import { overpassAdapter, parseOverpassCandidates } from "./providers/overpass.mjs";
 import { createCuratedDirectoryAdapter } from "./providers/curated-directory.mjs";
 import { beatmappedRegistryAdapter } from "./providers/beatmapped-registry.mjs";
+import { createInitialCandidateResearch } from "./research-state.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const readJson = async (path) => JSON.parse(await readFile(resolve(ROOT, path), "utf8"));
@@ -34,15 +35,20 @@ export async function buildDiscoveryCensus(config) {
   const rawCandidates = [...osm, ...curated, ...registry];
   const groups = reconcileWithExistingRegistry(
     reconcileCandidates(rawCandidates), config.sourceRegistry, config.venueRegistry,
-  ).map((group) => ({
-    ...group,
-    handoff: {
-      status: "DISCOVERED_CANDIDATE",
-      next_step: "OFFICIAL_SOURCE_RESOLUTION",
-      promotion_requires_explicit_action: true,
-      governed_path: ["OFFICIAL_SOURCE_RESOLUTION", "SOURCE_INVESTIGATION", "READY_FOR_ACTIVATION", "COLLECTOR"],
-    },
-  }));
+  ).map((group) => {
+    const candidateResearch = createInitialCandidateResearch(group);
+    return {
+      ...group,
+      candidate_research: candidateResearch,
+      handoff: {
+        status: "DISCOVERED_CANDIDATE",
+        next_step: candidateResearch.resolution.deterministic_sub_action,
+        next_action: candidateResearch.resolution.next_action,
+        promotion_requires_explicit_action: true,
+        governed_path: ["CANDIDATE_RESEARCH", "SOURCE_INVESTIGATION", "READY_FOR_ACTIVATION", "COLLECTOR"],
+      },
+    };
+  });
   const countStatus = (status) => groups.filter((group) => group.existing_registry_reconciliation.status === status).length;
   const possibleDuplicateGroups = groups.filter((group) => group.possible_duplicate_refs.length > 0);
   const counts = {
