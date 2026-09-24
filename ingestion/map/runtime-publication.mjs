@@ -19,7 +19,29 @@ import { validatePublicationArtifact } from "./publication.mjs";
 
 export const RUNTIME_DATA_SOURCES = Object.freeze(["runtime", "bundled"]);
 
-export const DEFAULT_TIMEOUT_MS = 4000;
+// BEATMAPPED-RUNTIME-FETCH-TIMEOUT-LONDON-LIVE-01: the original 4000ms
+// default was tight enough that some real visitor network conditions
+// (not reproduced by a single warm same-host curl, which measured well
+// under 1s for the current ~2.5MB artifact) could exceed it, silently
+// masking a genuinely fresh runtime dataset (including, concretely, the
+// entire United Kingdom bucket) behind the bundled fallback -- with no
+// visible symptom to a visitor, since the bundled data renders instantly
+// either way. Widened to 15000ms: the bundled artifact is already on
+// screen for the whole wait, so a slower background upgrade attempt is
+// low-risk, and correctness of the eventually-rendered data matters more
+// than abandoning the attempt quickly. The artifact will keep growing,
+// so this margin is deliberately generous rather than tuned to today's
+// payload size.
+export const DEFAULT_TIMEOUT_MS = 15000;
+
+// Exactly one bounded retry, used only by resolveMapData() below, only for
+// a failure that plausibly means "transient" (TIMEOUT or NETWORK_ERROR) --
+// never for HTTP_ERROR/MALFORMED_JSON/INVALID_SCHEMA, where an immediate
+// second attempt against the same server response would not change the
+// outcome. The bundled artifact is already rendered on screen the whole
+// time this runs, so the short delay is never visible as a blank page.
+export const DEFAULT_RETRY_DELAY_MS = 500;
+const RETRYABLE_REASONS = new Set(["TIMEOUT", "NETWORK_ERROR"]);
 
 /**
  * True only for a publication artifact that passes the SAME schema/
@@ -100,6 +122,12 @@ export async function fetchRuntimePublicationData(url, { fetchImpl = fetch, time
  *   - runtime unreachable/timeout/malformed/       -> bundled (fallback),
  *     invalid-schema                                 never a blank map
  *
+ * A TIMEOUT or NETWORK_ERROR on the first attempt is retried exactly
+ * once (see DEFAULT_RETRY_DELAY_MS) before falling back to bundled — an
+ * HTTP_ERROR, MALFORMED_JSON, or INVALID_SCHEMA result is never retried,
+ * since an immediate second attempt against the same server response
+ * would not change the outcome.
+ *
  * Never throws.
  *
  * Explicit JSDoc types below (rather than relying on TypeScript's
@@ -115,14 +143,29 @@ export async function fetchRuntimePublicationData(url, { fetchImpl = fetch, time
  * @param {*} [options.bundledArtifact]
  * @param {typeof fetch} [options.fetchImpl]
  * @param {number} [options.timeoutMs]
+ * @param {number} [options.retryDelayMs]
  * @returns {Promise<{source: "runtime"|"bundled", artifact: *, runtimeError: string|null}>}
  */
-export async function resolveMapData({ runtimeUrl, bundledArtifact, fetchImpl = fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+export async function resolveMapData({
+  runtimeUrl,
+  bundledArtifact,
+  fetchImpl = fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+  retryDelayMs = DEFAULT_RETRY_DELAY_MS,
+} = {}) {
   if (!runtimeUrl) {
     return { source: "bundled", artifact: bundledArtifact, runtimeError: null };
   }
 
-  const result = await fetchRuntimePublicationData(runtimeUrl, { fetchImpl, timeoutMs });
+  let result = await fetchRuntimePublicationData(runtimeUrl, { fetchImpl, timeoutMs });
+
+  if (!result.ok && RETRYABLE_REASONS.has(result.reason)) {
+    if (retryDelayMs > 0) {
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, retryDelayMs));
+    }
+    result = await fetchRuntimePublicationData(runtimeUrl, { fetchImpl, timeoutMs });
+  }
+
   if (result.ok) {
     return { source: "runtime", artifact: result.artifact, runtimeError: null };
   }
