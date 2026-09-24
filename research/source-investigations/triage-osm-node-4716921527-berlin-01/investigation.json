@@ -1,0 +1,148 @@
+{
+  "investigation_id": "triage-osm-node-4716921527-berlin-01",
+  "policy_version": "BOTM-SOURCE-INVESTIGATION-v1.2",
+  "investigated_at": "2026-08-27T20:21:36.875Z",
+  "investigator": {
+    "type": "AI",
+    "method": "Bounded Level 1 PASSIVE_STATIC triage: one unauthenticated homepage GET and, when a same-origin programme-like link was directly exposed, one additional GET. Responses were capped, no retries, browser, authentication, challenge bypass, or state-changing request."
+  },
+  "probe_history": [
+    {
+      "level": 1,
+      "method": "PASSIVE_STATIC",
+      "outcome": "SUFFICIENT",
+      "reason": "The bounded first-party response exposes programme language and an explicit future 2026/2027 date token, sufficient for triage classification but not activation.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "source_candidate_id": "reconciled-cand-osm-node-4716921527",
+  "source_id": null,
+  "venue_reference": "Pierre Boulez Saal — Französische Straße 33d, 10117, Berlin",
+  "official_url": "https://boulezsaal.de",
+  "identity": {
+    "status": "PARTIAL",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "notes": "The discovery-supplied domain returned public content whose title text matches the reported candidate name."
+  },
+  "site_classification": {
+    "acquisition_class": "ICS",
+    "platform": "Deterministic Level-1 markers classified the apparent mechanism as ICS_OR_ICAL.",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "data_paths": [
+    {
+      "kind": "ICS_OR_ICAL",
+      "url": "https://www.boulezsaal.de/events",
+      "access": "PUBLIC",
+      "status": "CONFIRMED",
+      "confidence": "MEDIUM",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    }
+  ],
+  "field_assessment": {
+    "title": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Event/programme language is present in the bounded first-party response, but no event parser or offline proof was created in this triage package.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "start_date": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "At least one explicit 2026/2027 future-date token is retained, but individual date semantics were not parsed or promoted to an event fact.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "time": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "end": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "venue_location": {
+      "state": "PARTIAL",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": "Discovery evidence reports Französische Straße 33d, 10117, Berlin; the passive page was not used to promote this to a canonical venue fact.",
+      "evidence_refs": [
+        "ev-passive-static"
+      ]
+    },
+    "source_record_id": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    },
+    "event_url": {
+      "state": "UNKNOWN",
+      "value": null,
+      "basis": null,
+      "derivation": null,
+      "notes": null,
+      "evidence_refs": []
+    }
+  },
+  "collector_assessment": {
+    "recommended_family": "ICS_CALENDAR",
+    "confidence": "MEDIUM",
+    "evidence_refs": [
+      "ev-passive-static"
+    ],
+    "blockers": []
+  },
+  "decision": {
+    "status": "DEFER",
+    "reasons": [
+      "This is a comprehensive triage package, not an activation or collector-build package.",
+      "A future programme signal was found, but exact event fields and stable identity still require governed offline proof."
+    ],
+    "evidence_refs": [
+      "ev-passive-static"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev-passive-static",
+      "evidence_class": "DIRECT_EVIDENCE",
+      "description": "Parsed, bounded passive HTTP capture containing response metadata, extracted links, and verbatim response-body prefixes; transformed/incomplete and therefore not byte-faithful.",
+      "acquired_from": "https://boulezsaal.de",
+      "acquired_at": "2026-08-27T20:21:36.875Z",
+      "method": "Node fetch; descriptive User-Agent; unauthenticated GET; redirects followed; 15-second timeout; response bounded; no retry",
+      "content_type": "application/json",
+      "byte_faithful": false,
+      "path": "research/source-investigations/triage-osm-node-4716921527-berlin-01/evidence/passive-static.json"
+    }
+  ],
+  "supersedes": null
+}
